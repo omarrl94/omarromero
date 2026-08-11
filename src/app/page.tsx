@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Coffee, Glasses, Bike, ArrowRight, Sparkles } from "lucide-react";
+import { Disc3, Headphones, Music, ArrowRight, Sparkles } from "lucide-react";
 import { generateRoomCode, isValidRoomCode } from "@/lib/bingo";
 import {
   loadLastNickname,
@@ -80,15 +80,15 @@ export default function HomePage() {
         className="text-center"
       >
         <div className="mb-4 flex items-center justify-center gap-4 text-kraft-600">
-          <Glasses className="h-7 w-7" aria-hidden />
-          <Coffee className="h-7 w-7" aria-hidden />
-          <Bike className="h-7 w-7" aria-hidden />
+          <Disc3 className="h-7 w-7" aria-hidden />
+          <Music className="h-7 w-7" aria-hidden />
+          <Headphones className="h-7 w-7" aria-hidden />
         </div>
         <h1 className="font-display text-5xl font-black tracking-tight text-ink sm:text-6xl">
           Hipster Bingo
         </h1>
         <p className="mt-3 text-base italic text-kraft-700">
-          Cartones aleatorios · clichés artesanales · en tiempo real
+          Music bingo · cartones de colores · en tiempo real
         </p>
         <div className="mx-auto mt-4 h-px w-40 bg-kraft-400" />
       </motion.header>
@@ -172,7 +172,7 @@ export default function HomePage() {
         transition={{ delay: 0.4 }}
         className="text-center text-xs italic text-kraft-600"
       >
-        25 casillas · 5 en línea para ganar · la casilla central va de regalo
+        25 fichas de color · 5 en línea para ganar · el comodín central va de regalo
       </motion.footer>
     </main>
   );

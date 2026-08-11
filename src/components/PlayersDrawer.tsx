@@ -103,7 +103,7 @@ export function PlayersDrawer({ open, onClose, players, myPlayerId }: PlayersDra
             </ul>
 
             <footer className="border-t border-dashed border-kraft-400 p-4 text-center text-xs italic text-kraft-600">
-              El progreso es público; las frases, secretas.
+              El progreso es público; tu cartón, secreto.
             </footer>
           </motion.aside>
         </>

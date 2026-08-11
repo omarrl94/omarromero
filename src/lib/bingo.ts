@@ -1,7 +1,7 @@
-import { MASTER_CLICHES } from "./cliches";
+import { TILE_COLORS, type TileColor } from "./colors";
 
 /**
- * Generación determinista de cartones.
+ * Generación determinista de cartones de COLORES (estilo Hitster).
  *
  * El cartón de cada jugador se deriva de una semilla reproducible
  * (roomCode + playerId + ronda). Esto tiene dos consecuencias clave:
@@ -9,15 +9,30 @@ import { MASTER_CLICHES } from "./cliches";
  * 1. Persistencia: al recargar la página, el mismo jugador regenera
  *    exactamente el mismo cartón sin necesidad de base de datos.
  * 2. Validación anti-trampas: cuando alguien canta ¡BINGO!, el resto
- *    de clientes (incluido el host) regenera SU cartón desde la semilla
- *    y verifica la línea de forma independiente. El jugador no puede
- *    inventarse el contenido de su cartón.
+ *    de clientes regenera SU cartón desde la semilla y verifica la
+ *    línea de forma independiente.
  */
 
 export const GRID_SIZE = 5;
 export const CELL_COUNT = GRID_SIZE * GRID_SIZE; // 25
 export const FREE_INDEX = 12; // (fila 2, col 2) — centro del 5x5
-export const ITEMS_PER_CARD = CELL_COUNT - 1; // 24 clichés únicos
+
+/**
+ * Un cartón son 25 fichas de color en orden de lectura (fila a fila).
+ * La distribución es equilibrada: 5 fichas de cada color, con la
+ * central SIEMPRE morada (comodín "FREE / Pipa de Cobre").
+ */
+export type Card = readonly TileColor[];
+
+/** Pool de las 24 fichas no centrales: 5+5+5+5 y 4 moradas. */
+const TILE_POOL: readonly TileColor[] = (() => {
+  const pool: TileColor[] = [];
+  for (const color of TILE_COLORS) {
+    const count = color === "purple" ? 4 : 5;
+    for (let i = 0; i < count; i++) pool.push(color);
+  }
+  return pool;
+})();
 
 /** Hash xmur3: convierte una cadena arbitraria en una semilla de 32 bits. */
 function xmur3(str: string): () => number {
@@ -57,38 +72,47 @@ function fisherYatesShuffle<T>(items: readonly T[], random: () => number): T[] {
   return arr;
 }
 
-/**
- * Un cartón es la lista de 25 celdas en orden de lectura (fila a fila).
- * Cada celda contiene el índice del cliché en MASTER_CLICHES,
- * o -1 para la casilla central FREE.
- */
-export type Card = readonly number[];
-
 export function cardSeed(roomCode: string, playerId: string, round: number): string {
-  return `hipster-bingo|${roomCode.toUpperCase()}|${playerId}|round-${round}`;
+  return `hitster-bingo|${roomCode.toUpperCase()}|${playerId}|round-${round}`;
 }
 
 /**
- * Genera el cartón determinista de un jugador.
- * Fisher-Yates sobre los 66 índices de la lista máster → toma 24 únicos
- * (repetición matemáticamente imposible: se muestrean sin reemplazo).
+ * Genera el cartón determinista de un jugador: Fisher-Yates sobre el
+ * pool de 24 fichas → distribución espacial de colores completamente
+ * aleatoria y única por jugador, con la casilla central fija morada.
  */
 export function generateCard(roomCode: string, playerId: string, round: number): Card {
   const random = mulberry32(xmur3(cardSeed(roomCode, playerId, round))());
-  const indices = MASTER_CLICHES.map((_, i) => i);
-  const picked = fisherYatesShuffle(indices, random).slice(0, ITEMS_PER_CARD);
+  const shuffled = fisherYatesShuffle(TILE_POOL, random);
 
-  const card: number[] = [];
+  const card: TileColor[] = [];
   let cursor = 0;
   for (let i = 0; i < CELL_COUNT; i++) {
     if (i === FREE_INDEX) {
-      card.push(-1);
+      card.push("purple");
     } else {
-      card.push(picked[cursor] as number);
+      card.push(shuffled[cursor] as TileColor);
       cursor++;
     }
   }
   return card;
+}
+
+/**
+ * Primera casilla sin marcar del color indicado (orden de lectura),
+ * o null si las 5 de ese color ya están marcadas. Es donde se estampa
+ * la X cuando el host valida una respuesta.
+ */
+export function firstUnmarkedOfColor(
+  card: Card,
+  marked: ReadonlySet<number>,
+  color: TileColor
+): number | null {
+  for (let i = 0; i < card.length; i++) {
+    if (i === FREE_INDEX) continue;
+    if (card[i] === color && !marked.has(i)) return i;
+  }
+  return null;
 }
 
 /** Todas las líneas ganadoras: 5 filas + 5 columnas + 2 diagonales. */
@@ -120,12 +144,8 @@ export function hasBingo(marked: ReadonlySet<number>): boolean {
 }
 
 /**
- * Validación "server-side" de una reclamación de bingo.
- * Cualquier cliente puede ejecutarla de forma independiente y llegar
- * al mismo veredicto, porque el cartón se regenera desde la semilla:
- *  - las posiciones marcadas deben ser válidas (0-24),
- *  - la casilla FREE cuenta siempre como marcada,
- *  - debe existir una línea completa de 5.
+ * Validación de una reclamación de bingo, ejecutable por cualquier
+ * cliente con resultado idéntico (el cartón se regenera de la semilla).
  */
 export function validateBingoClaim(
   roomCode: string,
@@ -138,8 +158,6 @@ export function validateBingoClaim(
   );
   if (!inRange) return { valid: false, line: null };
 
-  // Regenerar el cartón confirma que la semilla produce un cartón real
-  // (y ancla la reclamación a la ronda vigente).
   const card = generateCard(roomCode, playerId, round);
   if (card.length !== CELL_COUNT) return { valid: false, line: null };
 

@@ -3,82 +3,93 @@
 import { memo } from "react";
 import { motion } from "framer-motion";
 import { FREE_INDEX, type Card } from "@/lib/bingo";
-import { FREE_CELL_TEXT, MASTER_CLICHES } from "@/lib/cliches";
+import { COLOR_HEX, COLOR_ON } from "@/lib/colors";
 
 interface BingoCardProps {
   card: Card;
   marked: ReadonlySet<number>;
   winningLine: readonly number[] | null;
-  disabled: boolean;
-  onToggle: (index: number) => void;
 }
 
-/** Cartón 5x5 en papel craft con sellos de tinta animados. */
+/** X negra dibujada a mano (dos trazos con puntas redondeadas). */
+function CrossMark({ delay = 0 }: { delay?: number }) {
+  return (
+    <motion.svg
+      viewBox="0 0 100 100"
+      className="absolute inset-0 h-full w-full p-[14%]"
+      initial={{ scale: 1.9, rotate: -14, opacity: 0 }}
+      animate={{ scale: 1, rotate: 0, opacity: 1 }}
+      transition={{ type: "spring", stiffness: 480, damping: 20, mass: 0.6, delay }}
+      aria-hidden
+    >
+      <path
+        d="M14 12 C 38 34, 62 62, 88 88"
+        stroke="#141414"
+        strokeWidth="13"
+        strokeLinecap="round"
+        fill="none"
+      />
+      <path
+        d="M86 14 C 60 36, 40 60, 12 86"
+        stroke="#141414"
+        strokeWidth="13"
+        strokeLinecap="round"
+        fill="none"
+        opacity="0.92"
+      />
+    </motion.svg>
+  );
+}
+
+/**
+ * Cartón visual 5x5 estilo Hitster: fichas de color sólido con borde
+ * negro fino. Sin marcado táctil — la X negra solo aparece cuando el
+ * host valida una respuesta de la ronda de ese color.
+ */
 export const BingoCard = memo(function BingoCard({
   card,
   marked,
   winningLine,
-  disabled,
-  onToggle,
 }: BingoCardProps) {
   const winning = winningLine ? new Set(winningLine) : null;
 
   return (
     <div className="paper-card w-full max-w-2xl p-3 shadow-paper sm:p-4">
-      <div className="grid grid-cols-5 gap-1.5 sm:gap-2" role="grid" aria-label="Cartón de bingo">
-        {card.map((clicheIndex, i) => {
+      <div className="grid grid-cols-5 gap-1.5 sm:gap-2" role="grid" aria-label="Cartón de colores">
+        {card.map((color, i) => {
           const isFree = i === FREE_INDEX;
-          const isMarked = isFree || marked.has(i);
+          const isMarked = marked.has(i);
           const isWinning = winning?.has(i) ?? false;
-          const text = isFree
-            ? FREE_CELL_TEXT
-            : MASTER_CLICHES[clicheIndex]?.text ?? "";
 
           return (
-            <button
+            <div
               key={i}
-              type="button"
               role="gridcell"
-              aria-pressed={isMarked}
-              disabled={disabled || isFree}
-              onClick={() => onToggle(i)}
+              aria-label={isFree ? "Comodín FREE, Pipa de Cobre" : `Ficha ${color}`}
               className={[
-                "relative flex aspect-square select-none items-center justify-center overflow-hidden rounded-md border p-1 text-center leading-tight transition-colors sm:p-1.5",
-                isFree
-                  ? "border-mustard-400 bg-mustard-100"
-                  : "border-kraft-300 bg-kraft-50 hover:border-terracotta-300 hover:bg-kraft-100",
-                isWinning ? "ring-2 ring-sage-500 ring-offset-1 ring-offset-kraft-100" : "",
-                disabled && !isFree ? "cursor-default opacity-90" : "",
+                "relative flex aspect-square select-none items-center justify-center overflow-hidden rounded-lg border-[1.5px] border-black/85",
+                isWinning ? "ring-2 ring-black ring-offset-2 ring-offset-kraft-100" : "",
               ].join(" ")}
+              style={{
+                backgroundColor: COLOR_HEX[color],
+                boxShadow: "inset 0 -3px 0 rgba(0,0,0,0.14), inset 0 2px 0 rgba(255,255,255,0.18)",
+              }}
             >
-              <span
-                className={[
-                  "z-10 hyphens-auto text-[9px] font-medium sm:text-[11px] md:text-xs",
-                  isFree ? "font-display font-black uppercase tracking-wide text-mustard-600" : "text-ink",
-                  isMarked && !isFree ? "opacity-70" : "",
-                ].join(" ")}
-                lang="es"
-              >
-                {text}
-              </span>
-
-              {isMarked && (
-                <motion.span
-                  className="ink-stamp"
-                  initial={isFree ? false : { scale: 2.4, rotate: -18, opacity: 0 }}
-                  animate={{ scale: 1, rotate: 0, opacity: 1 }}
-                  transition={{ type: "spring", stiffness: 500, damping: 22, mass: 0.6 }}
-                  aria-hidden
+              {isFree && (
+                <span
+                  className="z-10 px-1 text-center font-display text-[8px] font-black uppercase leading-tight tracking-wide sm:text-[10px]"
+                  style={{ color: COLOR_ON[color] }}
                 >
-                  <span
-                    className={[
-                      "ink-stamp-ring",
-                      isWinning ? "ink-stamp-ring--winner" : "",
-                    ].join(" ")}
-                  />
-                </motion.span>
+                  FREE
+                  <br />
+                  <span className="font-serif text-[7px] font-semibold normal-case italic sm:text-[9px]">
+                    Pipa de Cobre
+                  </span>
+                </span>
               )}
-            </button>
+
+              {isMarked && !isFree && <CrossMark />}
+            </div>
           );
         })}
       </div>

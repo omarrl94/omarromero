@@ -2,9 +2,9 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Hipster Bingo · Bingo multijugador en tiempo real",
+  title: "Hipster Bingo · Hitster Music Bingo en tiempo real",
   description:
-    "Bingo de clichés hipsters multijugador en tiempo real. Crea una sala, comparte el código y sella casillas hasta cantar ¡BINGO!",
+    "Music bingo multijugador en tiempo real con cartones de colores estilo Hitster. Crea una sala, comparte el código, adivina canciones y canta ¡BINGO!",
 };
 
 export const viewport: Viewport = {

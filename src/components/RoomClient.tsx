@@ -22,8 +22,10 @@ import {
   saveLastNickname,
   saveRoomSession,
 } from "@/lib/storage";
+import { AnswerZone } from "./AnswerZone";
 import { BingoCard } from "./BingoCard";
 import { ConfigNotice } from "./ConfigNotice";
+import { HostPanel } from "./HostPanel";
 import { PlayersDrawer } from "./PlayersDrawer";
 import { ShareRoom } from "./ShareRoom";
 import { WinnerOverlay } from "./WinnerOverlay";
@@ -130,7 +132,7 @@ function JoinGate({ roomCode, onJoin }: { roomCode: string; onJoin: (nickname: s
             setNickname(e.target.value);
             setError(null);
           }}
-          placeholder="Sommelier de Kombucha"
+          placeholder="DJ de Vinilos"
           className="mt-2 w-full rounded-md border border-kraft-400 bg-kraft-50 px-4 py-3 font-serif text-lg text-ink placeholder:text-kraft-400 focus:border-sage-500 focus:outline-none focus:ring-2 focus:ring-sage-200"
         />
         <button
@@ -168,7 +170,12 @@ function GameView({ roomCode, identity }: { roomCode: string; identity: Identity
     marked,
     iHaveBingo,
     falseClaim,
-    toggleCell,
+    activeRound,
+    guessStatus,
+    pendingGuesses,
+    launchRound,
+    submitGuess,
+    judgeGuess,
     claimBingo,
     startGame,
     resetGame,
@@ -208,6 +215,7 @@ function GameView({ roomCode, identity }: { roomCode: string; identity: Identity
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col items-center gap-5 px-4 py-6">
+      {/* Barra de herramientas superior */}
       <header className="flex w-full flex-wrap items-center justify-between gap-3">
         <Link
           href="/"
@@ -243,6 +251,16 @@ function GameView({ roomCode, identity }: { roomCode: string; identity: Identity
             <Users className="h-4 w-4" aria-hidden />
             {players.length}
           </button>
+          {/* Perfil de usuario */}
+          <span
+            className="flex items-center gap-1.5 rounded-full border border-kraft-400 bg-kraft-100 py-1 pl-1 pr-3 text-xs font-bold text-kraft-700"
+            title={identity.nickname}
+          >
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-terracotta-400 font-display text-xs font-black text-white">
+              {identity.nickname.charAt(0).toUpperCase()}
+            </span>
+            <span className="max-w-24 truncate">{identity.nickname}</span>
+          </span>
         </div>
       </header>
 
@@ -254,9 +272,7 @@ function GameView({ roomCode, identity }: { roomCode: string; identity: Identity
       <section className="flex w-full flex-col items-center gap-3">
         {phase === "lobby" && (
           <div className="paper-card w-full max-w-2xl p-4 text-center">
-            <p className="font-display text-lg font-bold text-ink">
-              Sala de espera
-            </p>
+            <p className="font-display text-lg font-bold text-ink">Sala de espera</p>
             <p className="mt-1 text-sm italic text-kraft-700">
               {identity.isHost
                 ? "Comparte el código y arranca cuando estéis todos."
@@ -276,24 +292,41 @@ function GameView({ roomCode, identity }: { roomCode: string; identity: Identity
           </div>
         )}
 
+        {/* Interruptor de reinicio (solo host, en partida) */}
         {phase === "playing" && identity.isHost && (
           <button
             type="button"
+            role="switch"
+            aria-checked={false}
             onClick={resetGame}
-            className="flex items-center gap-1.5 text-xs font-semibold text-kraft-600 underline-offset-2 hover:text-terracotta-600 hover:underline"
+            className="group flex items-center gap-2.5 text-xs font-semibold text-kraft-600 hover:text-terracotta-600"
           >
-            <RotateCcw className="h-3.5 w-3.5" aria-hidden />
+            <span className="relative inline-flex h-5 w-9 items-center rounded-full border border-kraft-500 bg-kraft-200 transition-colors group-hover:bg-terracotta-100">
+              <span className="ml-0.5 inline-flex h-4 w-4 items-center justify-center rounded-full bg-kraft-50 shadow-sm transition-transform group-hover:translate-x-4">
+                <RotateCcw className="h-2.5 w-2.5 text-kraft-600" aria-hidden />
+              </span>
+            </span>
             Reiniciar partida (cartones nuevos)
           </button>
         )}
+
+        {phase === "playing" && identity.isHost && (
+          <HostPanel
+            activeRound={activeRound}
+            pendingGuesses={pendingGuesses}
+            onLaunchRound={launchRound}
+            onJudge={judgeGuess}
+          />
+        )}
       </section>
 
-      <BingoCard
-        card={card}
-        marked={marked}
-        winningLine={liveLine}
-        disabled={phase !== "playing"}
-        onToggle={toggleCell}
+      <BingoCard card={card} marked={marked} winningLine={liveLine} />
+
+      <AnswerZone
+        phase={phase}
+        activeRound={activeRound}
+        guessStatus={guessStatus}
+        onSubmit={submitGuess}
       />
 
       {/* Botón ¡BINGO!: solo se activa con 5 en línea */}
@@ -318,7 +351,7 @@ function GameView({ roomCode, identity }: { roomCode: string; identity: Identity
 
       {phase === "playing" && !iHaveBingo && (
         <p className="text-xs italic text-kraft-600">
-          Completa 5 casillas en línea (horizontal, vertical o diagonal) para activarlo.
+          Acierta canciones para ganar X — 5 en línea y podrás cantar bingo.
         </p>
       )}
 
@@ -333,7 +366,7 @@ function GameView({ roomCode, identity }: { roomCode: string; identity: Identity
             role="status"
           >
             <MegaphoneOff className="h-4 w-4" aria-hidden />
-            {falseClaim.nickname} cantó bingo… sin tener línea. Turno de pagar los cafés.
+            {falseClaim.nickname} cantó bingo… sin tener línea. Turno de pagar la ronda.
           </motion.div>
         )}
       </AnimatePresence>
