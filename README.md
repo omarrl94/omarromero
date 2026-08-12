@@ -71,16 +71,16 @@ La app **no usa base de datos ni tablas**: solo los canales Realtime (Broadcast 
 
 ## ☁️ Despliegue
 
-### Netlify
+### Netlify (recomendado) — un solo comando
 
-El proyecto ya incluye `netlify.toml` con el plugin oficial de Next.js, así que no hay que configurar nada del build.
+```bash
+npm install
+npm run deploy
+```
 
-1. Sube el repositorio a GitHub.
-2. En [app.netlify.com](https://app.netlify.com): **Add new site → Import an existing project** y elige el repo.
-3. Añade las variables `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` **antes** de desplegar.
-4. **Deploy**.
+El script te pide las credenciales de Supabase, crea el sitio, configura las variables de entorno y publica. Al terminar imprime la URL pública. Para una URL de prueba sin tocar producción: `npm run deploy:preview`.
 
-📖 **Guía detallada paso a paso: [`DESPLIEGUE-NETLIFY.md`](./DESPLIEGUE-NETLIFY.md)** — incluye cómo obtener las credenciales de Supabase, el método por CLI sin GitHub y la solución a los fallos más comunes.
+📖 **Guía completa: [`DESPLIEGUE-NETLIFY.md`](./DESPLIEGUE-NETLIFY.md)** — comandos manuales equivalentes, comandos útiles del día a día y solución de problemas.
 
 ### Vercel
 

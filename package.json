@@ -8,7 +8,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "deploy": "bash scripts/deploy-netlify.sh",
+    "deploy:preview": "bash scripts/deploy-netlify.sh --preview"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",

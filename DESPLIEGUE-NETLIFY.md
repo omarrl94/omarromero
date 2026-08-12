@@ -1,133 +1,150 @@
 # 🚀 Desplegar Hipster Bingo en Netlify
 
-Guía completa, de cero a URL pública. Tiempo estimado: **10 minutos**.
+Todo desde la terminal, sin pasar por la web de Netlify ni por GitHub.
 
 ---
 
-## Paso 0 · Consigue las credenciales de Supabase (obligatorio)
-
-La app usa Supabase Realtime para el multijugador. **No necesitas base de datos ni crear tablas**, solo un proyecto vacío del plan gratuito.
-
-1. Entra en [supabase.com](https://supabase.com) y crea una cuenta (gratis).
-2. Pulsa **New project**. Ponle cualquier nombre y contraseña, elige la región más cercana y espera ~2 minutos a que se aprovisione.
-3. Ve a **Project Settings** (icono del engranaje) → **API**.
-4. Apunta estos dos valores, que usarás en el paso 3:
-
-| Valor en Supabase | Variable de entorno |
-|---|---|
-| **Project URL** (ej. `https://abcdxyz.supabase.co`) | `NEXT_PUBLIC_SUPABASE_URL` |
-| **anon public** (clave larga que empieza por `eyJ...`) | `NEXT_PUBLIC_SUPABASE_ANON_KEY` |
-
-> ⚠️ Usa la clave **anon public**, nunca la `service_role`. La anon está pensada para ir en el navegador; la otra es secreta.
-
----
-
-## Paso 1 · Sube el proyecto a GitHub
-
-Netlify necesita leer el código de un repositorio para poder compilarlo con tus variables de entorno.
-
-1. Crea un repositorio nuevo y **vacío** en [github.com/new](https://github.com/new) (sin README, sin .gitignore).
-2. Desde la carpeta del proyecto, en tu terminal:
-
-```bash
-git init
-git add .
-git commit -m "Hipster Bingo"
-git branch -M main
-git remote add origin https://github.com/TU-USUARIO/TU-REPO.git
-git push -u origin main
-```
-
----
-
-## Paso 2 · Conecta el repositorio con Netlify
-
-1. Entra en [app.netlify.com](https://app.netlify.com) e inicia sesión (puedes usar tu cuenta de GitHub).
-2. Pulsa **Add new site** → **Import an existing project**.
-3. Elige **GitHub** y autoriza el acceso si te lo pide.
-4. Selecciona el repositorio que acabas de crear.
-5. Netlify detecta Next.js automáticamente y rellena la configuración. **Déjala como está** — ya viene fijada en el archivo `netlify.toml`:
-   - Build command: `npm run build`
-   - Publish directory: `.next`
-
-**Todavía no pulses Deploy.** Antes hay que añadir las variables (paso 3).
-
----
-
-## Paso 3 · Añade las variables de entorno
-
-> 🔑 **Este es el paso crítico.** Las variables `NEXT_PUBLIC_*` se incrustan en el código **durante la compilación**, no se leen al arrancar. Si despliegas sin ellas, la web se verá bien pero saldrá el aviso *"Falta configurar el tiempo real"* y el multijugador no funcionará.
-
-En la misma pantalla de importación, despliega **Add environment variables** (o luego en **Site configuration → Environment variables**) y añade las dos:
-
-| Key | Value |
-|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | La *Project URL* del paso 0 |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | La clave *anon public* del paso 0 |
-
-Ahora sí: pulsa **Deploy**.
-
----
-
-## Paso 4 · Listo
-
-En 1-2 minutos tendrás una URL del tipo `https://nombre-aleatorio.netlify.app`.
-
-- Para cambiarle el nombre: **Site configuration → Change site name**.
-- Para usar tu propio dominio: **Domain management → Add a domain**.
-
-Abre la URL, crea una partida y comprueba que arriba a la derecha pone **"En directo"** en verde. Si pone "Sin conexión" o aparece el aviso amarillo, repasa el paso 3 y vuelve a desplegar (ver más abajo).
-
----
-
-## Alternativa sin GitHub · Netlify CLI
-
-Si prefieres desplegar directamente desde tu ordenador:
-
-```bash
-# 1. Instala la CLI (una sola vez)
-npm install -g netlify-cli
-
-# 2. Inicia sesión en Netlify
-netlify login
-
-# 3. Desde la carpeta del proyecto, crea el sitio
-netlify init          # elige "Create & configure a new site"
-
-# 4. Configura las variables de entorno
-netlify env:set NEXT_PUBLIC_SUPABASE_URL "https://TU-PROYECTO.supabase.co"
-netlify env:set NEXT_PUBLIC_SUPABASE_ANON_KEY "eyJ...tu-anon-key"
-
-# 5. Compila y publica en producción
-netlify deploy --build --prod
-```
-
-> ❌ **Lo que NO funciona:** arrastrar la carpeta del proyecto a la zona de "drag and drop" de Netlify. Eso solo sirve para sitios estáticos ya compilados; esta app tiene rutas dinámicas que Netlify debe construir. Usa el método de GitHub o la CLI.
-
----
-
-## Probar en local antes de desplegar (opcional)
+## Método rápido · un solo comando
 
 ```bash
 npm install
-cp .env.example .env.local     # edita .env.local con tus dos credenciales
-npm run dev                    # → http://localhost:3000
+npm run deploy
 ```
 
-Para probar el multijugador de verdad, abre la URL en dos navegadores distintos (o uno normal y otro en incógnito): crea la sala en uno y únete con el código desde el otro.
+Eso es todo. El script se encarga del resto:
+
+1. Comprueba que tienes Node.js 18+.
+2. Te pide las dos credenciales de Supabase (o las lee de `.env.local` si ya existen) y las guarda.
+3. Instala las dependencias si hacen falta.
+4. Abre el navegador para que autorices tu cuenta de Netlify.
+5. Crea el sitio (o lo reutiliza si ya lo creaste).
+6. Configura las variables de entorno en Netlify.
+7. Compila y publica en producción.
+
+Al terminar te imprime la URL pública. **Las siguientes veces solo tienes que volver a ejecutar `npm run deploy`**: ya no pedirá nada, compila y sube directamente.
+
+### Antes de empezar: consigue las credenciales
+
+El script te las va a pedir, así que tenlas a mano:
+
+1. Entra en [supabase.com](https://supabase.com) y crea un proyecto (plan gratuito). **No hace falta base de datos ni crear tablas.**
+2. Ve a **Project Settings** (engranaje) → **API**.
+3. Copia estos dos valores:
+   - **Project URL** → algo como `https://abcdxyz.supabase.co`
+   - **anon public** → la clave larga que empieza por `eyJ...`
+
+> ⚠️ Usa la clave **anon public**, nunca la `service_role`. La anon está pensada para ir en el navegador; la otra es secreta.
+
+### Publicar una preview sin tocar producción
+
+```bash
+npm run deploy:preview
+```
+
+Genera una URL temporal para probar. Útil para enseñar cambios antes de publicarlos de verdad.
+
+---
+
+## Método manual · comandos sueltos
+
+Si prefieres controlar cada paso, o estás en Windows sin Git Bash (donde el script `.sh` no corre):
+
+```bash
+# 1. Dependencias
+npm install
+
+# 2. Sesión de Netlify (abre el navegador la primera vez)
+npx netlify-cli login
+
+# 3. Crear el sitio y vincular esta carpeta
+#    Elige "Create & configure a new site"
+npx netlify-cli init
+
+# 4. Variables de entorno (sustituye por las tuyas)
+npx netlify-cli env:set NEXT_PUBLIC_SUPABASE_URL "https://TU-PROYECTO.supabase.co"
+npx netlify-cli env:set NEXT_PUBLIC_SUPABASE_ANON_KEY "eyJ...tu-anon-key"
+
+# 5. Compilar y publicar en producción
+npx netlify-cli deploy --build --prod
+```
+
+Para una preview en vez de producción, quita `--prod` del último comando.
+
+---
+
+## Comandos útiles del día a día
+
+| Comando | Para qué sirve |
+|---|---|
+| `npm run deploy` | Publicar la versión actual en producción |
+| `npm run deploy:preview` | Publicar una URL temporal de prueba |
+| `npx netlify-cli open` | Abrir el panel del sitio en el navegador |
+| `npx netlify-cli open:site` | Abrir la web publicada |
+| `npx netlify-cli env:list` | Ver las variables configuradas |
+| `npx netlify-cli sites:list` | Listar todos tus sitios |
+| `npx netlify-cli logs:deploy` | Ver el log del último despliegue |
+| `npx netlify-cli unlink` | Desvincular esta carpeta del sitio |
+
+Para cambiar el nombre del sitio (y por tanto la URL):
+
+```bash
+npx netlify-cli sites:update --name mi-bingo-musical
+# → https://mi-bingo-musical.netlify.app
+```
+
+---
+
+## Probar en local antes de desplegar
+
+```bash
+npm run dev     # → http://localhost:3000
+```
+
+El script ya te habrá dejado el `.env.local` creado, así que el multijugador funciona también en local. Para probarlo de verdad, abre la URL en dos navegadores distintos (o uno normal y otro en incógnito): crea la sala en uno y únete con el código desde el otro.
+
+---
+
+## Despliegue automático desde GitHub (opcional)
+
+Si además quieres que cada `git push` publique sola la web:
+
+```bash
+git init && git add . && git commit -m "Hipster Bingo"
+git branch -M main
+git remote add origin https://github.com/TU-USUARIO/TU-REPO.git
+git push -u origin main
+
+npx netlify-cli link          # vincula con el sitio ya creado
+```
+
+Después, en el panel de Netlify: **Site configuration → Build & deploy → Link repository**. A partir de ahí, cada push a `main` dispara un despliegue.
 
 ---
 
 ## Problemas frecuentes
 
-**Sigue apareciendo "Falta configurar el tiempo real" tras desplegar**
-Las variables se incrustan al compilar, así que añadirlas no basta: hay que **volver a construir**. En Netlify ve a **Deploys → Trigger deploy → Clear cache and deploy site**.
+**Aparece el aviso amarillo "Falta configurar el tiempo real" en la web publicada**
+Las variables `NEXT_PUBLIC_*` se incrustan **durante la compilación**, no se leen al arrancar. Si las cambiaste después de desplegar, hay que volver a compilar:
+
+```bash
+npm run deploy
+```
 
 **El aviso aparece solo en local**
-Tras editar `.env.local` hay que **reiniciar `npm run dev`**; Next.js no recarga las variables en caliente.
+Tras editar `.env.local` hay que **reiniciar `npm run dev`**; Next.js no recarga esas variables en caliente.
 
-**Falla el build en Netlify**
-Comprueba en el log que la versión de Node sea la 20 (viene fijada en `netlify.toml`). Si el error menciona dependencias, prueba con **Clear cache and deploy site**.
+**`npm run deploy` falla en Windows**
+El script es de Bash. Usa **Git Bash** o **WSL**, o sigue el método manual de comandos sueltos de más arriba.
+
+**"You don't appear to be in a folder that is linked to a site"**
+Falta vincular la carpeta. Ejecuta `npx netlify-cli init` (sitio nuevo) o `npx netlify-cli link` (sitio existente).
 
 **Los jugadores no se ven entre ellos**
-Asegúrate de que todos entran por la **misma URL desplegada** (no unos en localhost y otros en Netlify) y de que el código de sala es idéntico. Cada despliegue comparte el mismo proyecto de Supabase, así que las salas son globales.
+Asegúrate de que todos entran por la **misma URL publicada** (no unos en localhost y otros en Netlify) y de que el código de sala es idéntico.
+
+**Quiero empezar de cero con otro sitio**
+
+```bash
+npx netlify-cli unlink
+npm run deploy      # creará uno nuevo
+```
