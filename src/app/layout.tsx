@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#f4ebd9",
+  themeColor: "#0a0a10",
   width: "device-width",
   initialScale: 1,
 };
@@ -25,22 +25,13 @@ export default function RootLayout({
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
         />
-        {/* Si la fuente no carga (sin red), cae a Georgia/serif del sistema */}
+        {/* Si la fuente no carga (sin red), cae a la sans del sistema */}
         <link
-          href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,900;1,500&family=Special+Elite&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap"
           rel="stylesheet"
         />
       </head>
-      <body className="font-serif antialiased">
-        {/* Filtro SVG global: da rugosidad de tinta a los sellos */}
-        <svg width="0" height="0" className="absolute" aria-hidden="true">
-          <filter id="ink-roughen">
-            <feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="3" result="noise" />
-            <feDisplacementMap in="SourceGraphic" in2="noise" scale="3.5" />
-          </filter>
-        </svg>
-        {children}
-      </body>
+      <body className="font-sans antialiased">{children}</body>
     </html>
   );
 }

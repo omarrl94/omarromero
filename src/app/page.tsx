@@ -79,18 +79,17 @@ export default function HomePage() {
         transition={{ duration: 0.5 }}
         className="text-center"
       >
-        <div className="mb-4 flex items-center justify-center gap-4 text-kraft-600">
-          <Disc3 className="h-7 w-7" aria-hidden />
-          <Music className="h-7 w-7" aria-hidden />
-          <Headphones className="h-7 w-7" aria-hidden />
+        <div className="mb-5 flex items-center justify-center gap-5">
+          <Disc3 className="h-7 w-7 text-neon-violet" aria-hidden />
+          <Music className="h-7 w-7 text-neon-cyan" aria-hidden />
+          <Headphones className="h-7 w-7 text-neon-yellow" aria-hidden />
         </div>
-        <h1 className="font-display text-5xl font-black tracking-tight text-ink sm:text-6xl">
+        <h1 className="text-gradient font-display text-5xl font-bold tracking-tight sm:text-6xl">
           Hipster Bingo
         </h1>
-        <p className="mt-3 text-base italic text-kraft-700">
+        <p className="mt-3 text-base text-white/50">
           Music bingo · cartones de colores · en tiempo real
         </p>
-        <div className="mx-auto mt-4 h-px w-40 bg-kraft-400" />
       </motion.header>
 
       {!configured && <ConfigNotice />}
@@ -99,9 +98,12 @@ export default function HomePage() {
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
-        className="paper-card w-full p-6 shadow-paper sm:p-8"
+        className="glass-card w-full p-6 shadow-panel sm:p-8"
       >
-        <label htmlFor="nickname" className="block font-display text-sm font-bold uppercase tracking-widest text-kraft-700">
+        <label
+          htmlFor="nickname"
+          className="block font-display text-xs font-semibold uppercase tracking-[0.2em] text-white/50"
+        >
           Tu apodo
         </label>
         <input
@@ -113,27 +115,26 @@ export default function HomePage() {
             setNickname(e.target.value);
             setError(null);
           }}
-          placeholder="Barista Errante"
-          className="mt-2 w-full rounded-md border border-kraft-400 bg-kraft-50 px-4 py-3 font-serif text-lg text-ink placeholder:text-kraft-400 focus:border-terracotta-500 focus:outline-none focus:ring-2 focus:ring-terracotta-200"
+          placeholder="DJ Vinilo"
+          className="input-dark mt-2 w-full px-4 py-3.5 text-lg"
         />
 
         <button
           type="button"
           onClick={handleCreate}
           disabled={busy !== null || !configured}
-          className="btn-letterpress mt-6 flex w-full items-center justify-center gap-2 bg-terracotta-500 px-5 py-3.5 font-display text-lg font-bold text-kraft-50"
-          style={{ color: "#763a28" }}
+          className="btn-primary mt-6 flex w-full items-center justify-center gap-2 px-5 py-4 font-display text-lg font-bold"
         >
           <Sparkles className="h-5 w-5" aria-hidden />
-          <span className="text-kraft-50">
-            {busy === "create" ? "Creando sala…" : "Crear partida"}
-          </span>
+          {busy === "create" ? "Creando sala…" : "Crear partida"}
         </button>
 
-        <div className="my-6 flex items-center gap-3 text-kraft-500">
-          <div className="h-px flex-1 bg-kraft-300" />
-          <span className="font-display text-xs uppercase tracking-widest">o únete</span>
-          <div className="h-px flex-1 bg-kraft-300" />
+        <div className="my-6 flex items-center gap-3">
+          <div className="h-px flex-1 bg-white/10" />
+          <span className="font-display text-[11px] font-semibold uppercase tracking-[0.25em] text-white/35">
+            o únete
+          </span>
+          <div className="h-px flex-1 bg-white/10" />
         </div>
 
         <form onSubmit={handleJoin} className="flex gap-3">
@@ -147,12 +148,12 @@ export default function HomePage() {
             }}
             placeholder="CÓDIGO"
             aria-label="Código de sala"
-            className="ticket-code w-36 rounded-md border border-kraft-400 bg-kraft-50 px-3 py-3 text-center font-mono text-lg font-bold uppercase text-ink placeholder:text-kraft-400 focus:border-sage-500 focus:outline-none focus:ring-2 focus:ring-sage-200"
+            className="input-dark ticket-code w-36 px-3 py-3 text-center font-mono text-lg font-bold uppercase"
           />
           <button
             type="submit"
             disabled={busy !== null || !configured}
-            className="btn-letterpress flex flex-1 items-center justify-center gap-2 bg-sage-200 px-4 py-3 font-display font-bold text-sage-700"
+            className="btn-ghost flex flex-1 items-center justify-center gap-2 px-4 py-3 font-display font-semibold"
           >
             {busy === "join" ? "Entrando…" : "Unirse"}
             <ArrowRight className="h-4 w-4" aria-hidden />
@@ -160,7 +161,7 @@ export default function HomePage() {
         </form>
 
         {error && (
-          <p role="alert" className="mt-4 text-center text-sm font-semibold text-terracotta-600">
+          <p role="alert" className="mt-4 text-center text-sm font-medium text-neon-red">
             {error}
           </p>
         )}
@@ -170,7 +171,7 @@ export default function HomePage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.4 }}
-        className="text-center text-xs italic text-kraft-600"
+        className="text-center text-xs text-white/35"
       >
         25 fichas de color · 5 en línea para ganar · el comodín central va de regalo
       </motion.footer>

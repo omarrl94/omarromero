@@ -3,7 +3,7 @@
 import { memo } from "react";
 import { motion } from "framer-motion";
 import { FREE_INDEX, type Card } from "@/lib/bingo";
-import { COLOR_HEX, COLOR_ON } from "@/lib/colors";
+import { COLOR_GLOW, COLOR_HEX, COLOR_ON } from "@/lib/colors";
 
 interface BingoCardProps {
   card: Card;
@@ -24,14 +24,14 @@ function CrossMark({ delay = 0 }: { delay?: number }) {
     >
       <path
         d="M14 12 C 38 34, 62 62, 88 88"
-        stroke="#141414"
+        stroke="#0a0a10"
         strokeWidth="13"
         strokeLinecap="round"
         fill="none"
       />
       <path
         d="M86 14 C 60 36, 40 60, 12 86"
-        stroke="#141414"
+        stroke="#0a0a10"
         strokeWidth="13"
         strokeLinecap="round"
         fill="none"
@@ -42,9 +42,9 @@ function CrossMark({ delay = 0 }: { delay?: number }) {
 }
 
 /**
- * Cartón visual 5x5 estilo Hitster: fichas de color sólido con borde
- * negro fino. Sin marcado táctil — la X negra solo aparece cuando el
- * host valida una respuesta de la ronda de ese color.
+ * Cartón visual 5x5: fichas de color neón con halo luminoso sobre el
+ * fondo oscuro. Sin marcado táctil — la X solo aparece cuando el host
+ * valida una respuesta de la ronda de ese color.
  */
 export const BingoCard = memo(function BingoCard({
   card,
@@ -54,42 +54,48 @@ export const BingoCard = memo(function BingoCard({
   const winning = winningLine ? new Set(winningLine) : null;
 
   return (
-    <div className="paper-card w-full max-w-2xl p-3 shadow-paper sm:p-4">
-      <div className="grid grid-cols-5 gap-1.5 sm:gap-2" role="grid" aria-label="Cartón de colores">
+    <div className="glass-card w-full max-w-2xl p-3 shadow-panel sm:p-4">
+      <div className="grid grid-cols-5 gap-2 sm:gap-2.5" role="grid" aria-label="Cartón de colores">
         {card.map((color, i) => {
           const isFree = i === FREE_INDEX;
           const isMarked = marked.has(i);
           const isWinning = winning?.has(i) ?? false;
 
           return (
-            <div
+            <motion.div
               key={i}
               role="gridcell"
               aria-label={isFree ? "Comodín FREE, Pipa de Cobre" : `Ficha ${color}`}
+              initial={false}
+              animate={{ scale: isWinning ? 1.03 : 1 }}
               className={[
-                "relative flex aspect-square select-none items-center justify-center overflow-hidden rounded-lg border-[1.5px] border-black/85",
-                isWinning ? "ring-2 ring-black ring-offset-2 ring-offset-kraft-100" : "",
+                "relative flex aspect-square select-none items-center justify-center overflow-hidden rounded-xl",
+                isWinning ? "ring-2 ring-white/90" : "",
               ].join(" ")}
               style={{
                 backgroundColor: COLOR_HEX[color],
-                boxShadow: "inset 0 -3px 0 rgba(0,0,0,0.14), inset 0 2px 0 rgba(255,255,255,0.18)",
+                boxShadow: [
+                  `0 0 18px ${COLOR_GLOW[color]}`,
+                  "inset 0 -4px 0 rgba(0,0,0,0.22)",
+                  "inset 0 2px 0 rgba(255,255,255,0.28)",
+                ].join(", "),
               }}
             >
               {isFree && (
                 <span
-                  className="z-10 px-1 text-center font-display text-[8px] font-black uppercase leading-tight tracking-wide sm:text-[10px]"
+                  className="z-10 px-1 text-center font-display text-[9px] font-bold uppercase leading-tight tracking-widest sm:text-[11px]"
                   style={{ color: COLOR_ON[color] }}
                 >
                   FREE
                   <br />
-                  <span className="font-serif text-[7px] font-semibold normal-case italic sm:text-[9px]">
+                  <span className="text-[7px] font-medium normal-case tracking-normal opacity-80 sm:text-[9px]">
                     Pipa de Cobre
                   </span>
                 </span>
               )}
 
               {isMarked && !isFree && <CrossMark />}
-            </div>
+            </motion.div>
           );
         })}
       </div>

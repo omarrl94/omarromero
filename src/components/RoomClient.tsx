@@ -64,7 +64,7 @@ export function RoomClient({ roomCode }: RoomClientProps) {
   if (identity === undefined) {
     return (
       <main className="flex min-h-dvh items-center justify-center">
-        <p className="font-display text-lg italic text-kraft-600">Abriendo la sala…</p>
+        <p className="font-display text-lg text-white/40">Abriendo la sala…</p>
       </main>
     );
   }
@@ -115,11 +115,14 @@ function JoinGate({ roomCode, onJoin }: { roomCode: string; onJoin: (nickname: s
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col items-center justify-center gap-6 px-5">
-      <h1 className="text-center font-display text-3xl font-black text-ink">
-        Sala <span className="ticket-code text-terracotta-600">{roomCode}</span>
+      <h1 className="text-center font-display text-3xl font-bold text-white">
+        Sala <span className="ticket-code text-gradient">{roomCode}</span>
       </h1>
-      <form onSubmit={submit} className="paper-card w-full p-6 shadow-paper">
-        <label htmlFor="join-nickname" className="block font-display text-sm font-bold uppercase tracking-widest text-kraft-700">
+      <form onSubmit={submit} className="glass-card w-full p-6 shadow-panel">
+        <label
+          htmlFor="join-nickname"
+          className="block font-display text-xs font-semibold uppercase tracking-[0.2em] text-white/50"
+        >
           Tu apodo
         </label>
         <input
@@ -133,16 +136,16 @@ function JoinGate({ roomCode, onJoin }: { roomCode: string; onJoin: (nickname: s
             setError(null);
           }}
           placeholder="DJ de Vinilos"
-          className="mt-2 w-full rounded-md border border-kraft-400 bg-kraft-50 px-4 py-3 font-serif text-lg text-ink placeholder:text-kraft-400 focus:border-sage-500 focus:outline-none focus:ring-2 focus:ring-sage-200"
+          className="input-dark mt-2 w-full px-4 py-3.5 text-lg"
         />
         <button
           type="submit"
-          className="btn-letterpress mt-5 w-full bg-sage-200 px-5 py-3 font-display text-lg font-bold text-sage-700"
+          className="btn-primary mt-5 w-full px-5 py-3.5 font-display text-lg font-bold"
         >
           Entrar a la sala
         </button>
         {error && (
-          <p role="alert" className="mt-3 text-center text-sm font-semibold text-terracotta-600">
+          <p role="alert" className="mt-3 text-center text-sm font-medium text-neon-red">
             {error}
           </p>
         )}
@@ -219,19 +222,19 @@ function GameView({ roomCode, identity }: { roomCode: string; identity: Identity
       <header className="flex w-full flex-wrap items-center justify-between gap-3">
         <Link
           href="/"
-          className="flex items-center gap-1.5 text-sm font-semibold text-kraft-700 hover:text-terracotta-600"
+          className="flex items-center gap-1.5 text-sm font-medium text-white/50 transition-colors hover:text-white"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden />
           Salir
         </Link>
-        <h1 className="font-display text-2xl font-black text-ink">Hipster Bingo</h1>
+        <h1 className="text-gradient font-display text-2xl font-bold">Hipster Bingo</h1>
         <div className="flex items-center gap-2">
           <span
             className={[
-              "flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-bold",
+              "flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold",
               connected
-                ? "border-sage-400 bg-sage-100 text-sage-700"
-                : "border-mustard-400 bg-mustard-100 text-mustard-600",
+                ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300"
+                : "border-amber-400/30 bg-amber-400/10 text-amber-300",
             ].join(" ")}
             role="status"
           >
@@ -246,17 +249,22 @@ function GameView({ roomCode, identity }: { roomCode: string; identity: Identity
             type="button"
             onClick={() => setDrawerOpen(true)}
             aria-label="Ver jugadores"
-            className="btn-letterpress flex items-center gap-1.5 bg-kraft-100 px-3 py-1.5 text-sm font-bold text-kraft-700"
+            className="btn-ghost flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold"
           >
             <Users className="h-4 w-4" aria-hidden />
             {players.length}
           </button>
           {/* Perfil de usuario */}
           <span
-            className="flex items-center gap-1.5 rounded-full border border-kraft-400 bg-kraft-100 py-1 pl-1 pr-3 text-xs font-bold text-kraft-700"
+            className="flex items-center gap-1.5 rounded-full border border-white/12 bg-white/5 py-1 pl-1 pr-3 text-xs font-semibold text-white/80"
             title={identity.nickname}
           >
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-terracotta-400 font-display text-xs font-black text-white">
+            <span
+              className="flex h-6 w-6 items-center justify-center rounded-full font-display text-xs font-bold text-white"
+              style={{
+                background: "linear-gradient(135deg, #8B5CF6, #22D3EE)",
+              }}
+            >
               {identity.nickname.charAt(0).toUpperCase()}
             </span>
             <span className="max-w-24 truncate">{identity.nickname}</span>
@@ -271,9 +279,9 @@ function GameView({ roomCode, identity }: { roomCode: string; identity: Identity
       {/* Estado de la partida + controles del host */}
       <section className="flex w-full flex-col items-center gap-3">
         {phase === "lobby" && (
-          <div className="paper-card w-full max-w-2xl p-4 text-center">
-            <p className="font-display text-lg font-bold text-ink">Sala de espera</p>
-            <p className="mt-1 text-sm italic text-kraft-700">
+          <div className="glass-card w-full max-w-2xl p-5 text-center shadow-panel">
+            <p className="font-display text-lg font-semibold text-white">Sala de espera</p>
+            <p className="mt-1 text-sm text-white/50">
               {identity.isHost
                 ? "Comparte el código y arranca cuando estéis todos."
                 : "Esperando a que el host arranque la partida…"}
@@ -283,7 +291,7 @@ function GameView({ roomCode, identity }: { roomCode: string; identity: Identity
                 type="button"
                 onClick={startGame}
                 disabled={!connected}
-                className="btn-letterpress mx-auto mt-4 flex items-center gap-2 bg-terracotta-100 px-6 py-3 font-display text-lg font-bold text-terracotta-600"
+                className="btn-primary mx-auto mt-4 flex items-center gap-2 px-7 py-3.5 font-display text-lg font-bold"
               >
                 <Play className="h-5 w-5" aria-hidden />
                 Empezar partida
@@ -299,11 +307,11 @@ function GameView({ roomCode, identity }: { roomCode: string; identity: Identity
             role="switch"
             aria-checked={false}
             onClick={resetGame}
-            className="group flex items-center gap-2.5 text-xs font-semibold text-kraft-600 hover:text-terracotta-600"
+            className="group flex items-center gap-2.5 text-xs font-medium text-white/45 transition-colors hover:text-white/80"
           >
-            <span className="relative inline-flex h-5 w-9 items-center rounded-full border border-kraft-500 bg-kraft-200 transition-colors group-hover:bg-terracotta-100">
-              <span className="ml-0.5 inline-flex h-4 w-4 items-center justify-center rounded-full bg-kraft-50 shadow-sm transition-transform group-hover:translate-x-4">
-                <RotateCcw className="h-2.5 w-2.5 text-kraft-600" aria-hidden />
+            <span className="relative inline-flex h-5 w-9 items-center rounded-full border border-white/20 bg-white/10 transition-colors group-hover:border-neon-violet/60 group-hover:bg-neon-violet/20">
+              <span className="ml-0.5 inline-flex h-4 w-4 items-center justify-center rounded-full bg-white/85 shadow-sm transition-transform group-hover:translate-x-4">
+                <RotateCcw className="h-2.5 w-2.5 text-night-800" aria-hidden />
               </span>
             </span>
             Reiniciar partida (cartones nuevos)
@@ -335,13 +343,13 @@ function GameView({ roomCode, identity }: { roomCode: string; identity: Identity
           type="button"
           onClick={claimBingo}
           disabled={!iHaveBingo || !connected}
-          animate={iHaveBingo ? { scale: [1, 1.05, 1] } : { scale: 1 }}
+          animate={iHaveBingo ? { scale: [1, 1.04, 1] } : { scale: 1 }}
           transition={iHaveBingo ? { repeat: Infinity, duration: 1.1 } : undefined}
           className={[
-            "btn-letterpress flex items-center gap-2 px-10 py-4 font-display text-2xl font-black uppercase tracking-widest",
+            "flex items-center gap-2 rounded-2xl px-10 py-4 font-display text-2xl font-bold uppercase tracking-widest transition-colors",
             iHaveBingo
-              ? "bg-mustard-300 text-terracotta-700"
-              : "bg-kraft-200 text-kraft-500",
+              ? "animate-pulse-glow bg-neon-yellow text-night-900"
+              : "border border-white/10 bg-white/5 text-white/30",
           ].join(" ")}
         >
           <Award className="h-6 w-6" aria-hidden />
@@ -350,7 +358,7 @@ function GameView({ roomCode, identity }: { roomCode: string; identity: Identity
       )}
 
       {phase === "playing" && !iHaveBingo && (
-        <p className="text-xs italic text-kraft-600">
+        <p className="text-xs text-white/35">
           Acierta canciones para ganar X — 5 en línea y podrás cantar bingo.
         </p>
       )}
@@ -362,7 +370,7 @@ function GameView({ roomCode, identity }: { roomCode: string; identity: Identity
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            className="paper-card fixed bottom-6 left-1/2 z-40 flex -translate-x-1/2 items-center gap-2 border-terracotta-300 px-4 py-3 text-sm font-semibold text-terracotta-600 shadow-paper"
+            className="fixed bottom-6 left-1/2 z-40 flex -translate-x-1/2 items-center gap-2 rounded-2xl border border-red-400/30 bg-night-800/95 px-4 py-3 text-sm font-medium text-red-300 shadow-panel backdrop-blur-xl"
             role="status"
           >
             <MegaphoneOff className="h-4 w-4" aria-hidden />
