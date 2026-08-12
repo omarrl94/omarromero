@@ -69,22 +69,35 @@ La app **no usa base de datos ni tablas**: solo los canales Realtime (Broadcast 
 
 ---
 
-## ☁️ Despliegue en Vercel (recomendado, 1 clic)
+## ☁️ Despliegue
+
+### Netlify
+
+El proyecto ya incluye `netlify.toml` con el plugin oficial de Next.js, así que no hay que configurar nada del build.
+
+1. Sube el repositorio a GitHub.
+2. En [app.netlify.com](https://app.netlify.com): **Add new site → Import an existing project** y elige el repo.
+3. Añade las variables `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` **antes** de desplegar.
+4. **Deploy**.
+
+📖 **Guía detallada paso a paso: [`DESPLIEGUE-NETLIFY.md`](./DESPLIEGUE-NETLIFY.md)** — incluye cómo obtener las credenciales de Supabase, el método por CLI sin GitHub y la solución a los fallos más comunes.
+
+### Vercel
 
 1. Sube este repositorio a GitHub.
 2. Entra en [vercel.com/new](https://vercel.com/new) e **importa el repositorio**. Vercel detecta Next.js automáticamente.
-3. En el paso *Environment Variables*, añade:
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-4. Pulsa **Deploy**. En ~1 minuto tendrás tu URL pública para compartir salas.
+3. En el paso *Environment Variables*, añade las dos `NEXT_PUBLIC_*`.
+4. Pulsa **Deploy**.
 
-### Alternativa: Render / Railway
+### Render / Railway
 
 Ambos detectan Next.js. Configura:
 
 - **Build command:** `npm install && npm run build`
 - **Start command:** `npm run start`
 - **Variables de entorno:** las dos `NEXT_PUBLIC_*` de arriba.
+
+> En **todas** las plataformas, las variables `NEXT_PUBLIC_*` se incrustan **durante la compilación**. Si las añades después de un despliegue, hay que volver a construir el sitio para que surtan efecto.
 
 ---
 

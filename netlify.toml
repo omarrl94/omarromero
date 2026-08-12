@@ -1,0 +1,27 @@
+# ──────────────────────────────────────────────────────────────
+# Configuración de despliegue en Netlify
+#
+# El plugin oficial de Next.js se encarga de las rutas dinámicas
+# (/room/[code]) desplegándolas como funciones serverless, y de
+# servir los assets estáticos desde la CDN.
+# ──────────────────────────────────────────────────────────────
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Cabeceras de seguridad básicas (no interfieren con Supabase
+# Realtime ni con las fuentes de Google).
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
