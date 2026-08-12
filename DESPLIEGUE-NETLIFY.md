@@ -11,6 +11,8 @@ npm install
 npm run deploy
 ```
 
+Funciona igual en **Windows** (cmd y PowerShell), **macOS** y **Linux**: el script está escrito en Node, así que no necesitas Git Bash ni WSL.
+
 Eso es todo. El script se encarga del resto:
 
 1. Comprueba que tienes Node.js 18+.
@@ -47,7 +49,7 @@ Genera una URL temporal para probar. Útil para enseñar cambios antes de public
 
 ## Método manual · comandos sueltos
 
-Si prefieres controlar cada paso, o estás en Windows sin Git Bash (donde el script `.sh` no corre):
+Si prefieres controlar cada paso a mano:
 
 ```bash
 # 1. Dependencias
@@ -133,8 +135,11 @@ npm run deploy
 **El aviso aparece solo en local**
 Tras editar `.env.local` hay que **reiniciar `npm run dev`**; Next.js no recarga esas variables en caliente.
 
-**`npm run deploy` falla en Windows**
-El script es de Bash. Usa **Git Bash** o **WSL**, o sigue el método manual de comandos sueltos de más arriba.
+**`"bash" no se reconoce como un comando`**
+Versión antigua del script. Asegúrate de que `package.json` tiene `"deploy": "node scripts/deploy-netlify.mjs"` y de que existe `scripts/deploy-netlify.mjs`.
+
+**"No hay terminal interactiva para pedirte las credenciales"**
+Estás ejecutando el comando con la entrada redirigida (por ejemplo desde un script o CI). Crea a mano un `.env.local` en la raíz con las dos variables y vuelve a lanzarlo.
 
 **"You don't appear to be in a folder that is linked to a site"**
 Falta vincular la carpeta. Ejecuta `npx netlify-cli init` (sitio nuevo) o `npx netlify-cli link` (sitio existente).

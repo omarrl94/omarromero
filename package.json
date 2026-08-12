@@ -9,8 +9,8 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "deploy": "bash scripts/deploy-netlify.sh",
-    "deploy:preview": "bash scripts/deploy-netlify.sh --preview"
+    "deploy": "node scripts/deploy-netlify.mjs",
+    "deploy:preview": "node scripts/deploy-netlify.mjs --preview"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
