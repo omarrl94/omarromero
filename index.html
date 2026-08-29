@@ -40,16 +40,24 @@
 
     <script>
       // Aplica el tema antes del primer pintado para evitar el parpadeo blanco.
+      // Misma prioridad que el hook useTheme: eleccion del usuario, luego el
+      // data-theme que imponga el contenedor y por ultimo el sistema.
       (function () {
+        var raiz = document.documentElement;
+        var elegido = null;
         try {
-          var stored = localStorage.getItem('orientafp.theme');
-          var dark = stored
-            ? stored === 'dark'
-            : window.matchMedia('(prefers-color-scheme: dark)').matches;
-          if (dark) document.documentElement.classList.add('dark');
+          var v = localStorage.getItem('orientafp.theme');
+          if (v === 'dark' || v === 'light') elegido = v;
         } catch (e) {
-          /* almacenamiento no disponible: se queda en claro */
+          /* almacenamiento no disponible: se decide sin preferencia guardada */
         }
+        var delContenedor = raiz.getAttribute('data-theme');
+        var oscuro = elegido
+          ? elegido === 'dark'
+          : delContenedor === 'dark' || delContenedor === 'light'
+            ? delContenedor === 'dark'
+            : window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (oscuro) raiz.classList.add('dark');
       })();
     </script>
   </head>
