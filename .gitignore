@@ -11,3 +11,6 @@ dist-ssr
 !.vscode/extensions.json
 .idea
 npm-debug.log*
+
+# Paquete generado para subida manual a Netlify
+orientafp-netlify.zip
