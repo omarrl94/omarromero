@@ -61,7 +61,7 @@ export function TestWizard({ test, navegar }: TestWizardProps) {
               {paso === 0 ? 'Punto de partida' : preguntaActual?.bloqueEtiqueta ?? 'Test vocacional'}
             </p>
             <p className="mt-1 font-bold text-ink text-[15px]">
-              {paso === 0 ? 'Paso 1 de 2' : `Pregunta ${paso} de ${TOTAL_PREGUNTAS}`}
+              {paso === 0 ? 'Punto de partida' : `Paso ${paso} de ${TOTAL_PREGUNTAS}`}
             </p>
           </div>
           <p className="font-mono text-[11px] text-txt-soft shrink-0">{progreso}%</p>

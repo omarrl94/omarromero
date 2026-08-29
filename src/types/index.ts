@@ -17,7 +17,9 @@ export type Dimension =
   | 'tecnico'
   | 'organizativo'
   | 'social'
-  | 'cientifico';
+  | 'cientifico'
+  /** Gusto por el movimiento, el aire libre y el esfuerzo corporal. */
+  | 'fisico';
 
 /** Vector de puntuacion por dimension. Siempre completo, nunca parcial. */
 export type DimensionScores = Record<Dimension, number>;
@@ -26,7 +28,7 @@ export type DimensionScores = Record<Dimension, number>;
  * Segundo eje del test: hacia donde mira el estudiante a medio plazo.
  * No decide la familia, sino que ordena los grados recomendados.
  */
-export type Meta = 'trabajarPronto' | 'especializarse' | 'universidad';
+export type Meta = 'trabajarPronto' | 'especializarse' | 'universidad' | 'emprender';
 
 export type MetaScores = Record<Meta, number>;
 
@@ -53,7 +55,9 @@ export type FamiliaId =
   | 'hosteleria'
   | 'sociocultural'
   | 'mecanica'
-  | 'comercio';
+  | 'comercio'
+  | 'automocion'
+  | 'deportes';
 
 export interface Familia {
   id: FamiliaId;
@@ -82,9 +86,64 @@ export interface Ciclo {
   salidasLaborales: string[];
   /** Dimensiones que mejor describen a quien encaja en el ciclo. */
   perfilIdeal: Dimension[];
+  /**
+   * Vector de etiquetas de afinidad. Las respuestas del test acumulan estas
+   * mismas etiquetas, y su coincidencia afina el orden dentro de una familia:
+   * dos ciclos de la misma familia pueden pedir perfiles muy distintos.
+   */
+  tagsAfinidad: Tag[];
+  /** Modulos representativos del ciclo, para la ficha ampliada. */
+  asignaturasTipicas: string[];
+  /** Que se puede cursar al terminar. */
+  continuidad: Continuidad;
   /** Duracion oficial en horas del ciclo completo. */
   duracionHoras: number;
 }
+
+/** Itinerarios que abre un ciclo al terminarlo. */
+export interface Continuidad {
+  /** Otros ciclos o cursos de especializacion (los "masteres de la FP"). */
+  especializacion: string[];
+  /** Grados universitarios afines. Vacio cuando el grado no da acceso directo. */
+  universidad: string[];
+}
+
+/**
+ * Etiquetas de afinidad compartidas entre las respuestas del test y los ciclos.
+ * Son mas concretas que las dimensiones: describen el "sabor" del trabajo, no
+ * el rasgo de la persona. Un mismo perfil analitico puede encajar en
+ * `programacion` o en `laboratorio`, y estas etiquetas los separan.
+ */
+export type Tag =
+  | 'programacion'
+  | 'redes'
+  | 'hardware'
+  | 'diseno'
+  | 'audiovisual'
+  | 'videojuegos'
+  | 'cuidadoPersonas'
+  | 'urgencias'
+  | 'laboratorio'
+  | 'ensenanza'
+  | 'gestion'
+  | 'numeros'
+  | 'ventas'
+  | 'idiomas'
+  | 'taller'
+  | 'maquinaria'
+  | 'electricidad'
+  | 'vehiculos'
+  | 'construccion'
+  | 'cocina'
+  | 'atencionPublico'
+  | 'deporte'
+  | 'aireLibre'
+  | 'precision'
+  | 'liderazgo'
+  | 'emprender';
+
+/** Puntuacion acumulada por etiqueta. Parcial: solo las que han salido. */
+export type TagScores = Partial<Record<Tag, number>>;
 
 /** Una opcion de respuesta dentro de una pregunta del test. */
 export interface Opcion {
@@ -93,11 +152,14 @@ export interface Opcion {
   icono: string;
   /** Puntos que suma a cada dimension (parcial: solo lo que aporta). */
   pesos?: Partial<DimensionScores>;
+  /** Etiquetas de afinidad que refuerza esta respuesta. */
+  tags?: Tag[];
   /** Puntos que suma al eje de metas (solo en las preguntas del bloque 4). */
   metas?: Partial<MetaScores>;
 }
 
-export type BloquePregunta = 'entorno' | 'pensamiento' | 'dinamica' | 'metas';
+/** Los cuatro bloques tematicos del cuestionario de 20 preguntas. */
+export type BloquePregunta = 'tecnica' | 'situaciones' | 'gustos' | 'metas';
 
 export interface Pregunta {
   id: string;
@@ -138,6 +200,8 @@ export interface Resultado {
   respuestas: Respuestas;
   dimensiones: DimensionScores;
   metas: MetaScores;
+  /** Etiquetas de afinidad acumuladas por las respuestas. */
+  tags: TagScores;
   /** Familias ordenadas por afinidad descendente. */
   familias: FamiliaMatch[];
   /** Ciclos ordenados por encaje descendente. */

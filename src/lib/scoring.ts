@@ -12,6 +12,8 @@ import type {
   Resultado,
   Respuestas,
   SituacionId,
+  Tag,
+  TagScores,
 } from '../types';
 
 /** Orden canonico de las dimensiones. Fuente unica para recorrerlas. */
@@ -23,6 +25,7 @@ export const DIMENSIONES: Dimension[] = [
   'organizativo',
   'social',
   'cientifico',
+  'fisico',
 ];
 
 /** Etiquetas legibles de cada dimension, para la UI y las explicaciones. */
@@ -34,6 +37,7 @@ export const ETIQUETA_DIMENSION: Record<Dimension, string> = {
   organizativo: 'Organización',
   social: 'Trato con personas',
   cientifico: 'Método científico',
+  fisico: 'Actividad física',
 };
 
 /** La misma etiqueta, en minuscula, para encajar dentro de una frase. */
@@ -45,12 +49,14 @@ export const ETIQUETA_DIMENSION_FRASE: Record<Dimension, string> = {
   organizativo: 'organizar, planificar y que todo cuadre',
   social: 'el trato directo con la gente',
   cientifico: 'entender cómo funcionan las cosas con método',
+  fisico: 'moverte y trabajar con el cuerpo',
 };
 
 export const ETIQUETA_META: Record<Meta, string> = {
   trabajarPronto: 'empezar a trabajar pronto',
   especializarse: 'especializarte a alto nivel',
   universidad: 'usar la FP como trampolín a la universidad',
+  emprender: 'montar tu propio negocio',
 };
 
 /** Vector de dimensiones a cero. Se usa como punto de partida acumulador. */
@@ -63,11 +69,12 @@ function vectorVacio(): DimensionScores {
     organizativo: 0,
     social: 0,
     cientifico: 0,
+    fisico: 0,
   };
 }
 
 function metasVacias(): MetaScores {
-  return { trabajarPronto: 0, especializarse: 0, universidad: 0 };
+  return { trabajarPronto: 0, especializarse: 0, universidad: 0, emprender: 0 };
 }
 
 /**
@@ -106,6 +113,33 @@ export function calcularMetas(respuestas: Respuestas): MetaScores {
     total.trabajarPronto += opcion.metas.trabajarPronto ?? 0;
     total.especializarse += opcion.metas.especializarse ?? 0;
     total.universidad += opcion.metas.universidad ?? 0;
+    total.emprender += opcion.metas.emprender ?? 0;
+  }
+
+  return total;
+}
+
+/**
+ * Acumula las etiquetas de afinidad de las respuestas elegidas.
+ *
+ * Es el segundo eje del calculo: las dimensiones dicen *como* es la persona y
+ * las etiquetas *de que va* el trabajo que le atrae. Dos ciclos de la misma
+ * familia pueden pedir cosas muy distintas (DAM programa, ASIR administra
+ * servidores), y sin las etiquetas quedarian empatados.
+ */
+export function calcularTags(respuestas: Respuestas): TagScores {
+  const total: TagScores = {};
+
+  for (const pregunta of PREGUNTAS) {
+    const elegida = respuestas[pregunta.id];
+    if (!elegida) continue;
+
+    const opcion = pregunta.opciones.find((o) => o.id === elegida);
+    if (!opcion?.tags) continue;
+
+    for (const tag of opcion.tags) {
+      total[tag] = (total[tag] ?? 0) + 1;
+    }
   }
 
   return total;
@@ -206,6 +240,27 @@ function encajePerfil(dimensiones: DimensionScores, perfilIdeal: Dimension[]): n
   return Math.round((obtenido / mejorPosible) * 100);
 }
 
+/**
+ * Cuanto del interes del estudiante cae dentro de las etiquetas del ciclo.
+ * Se normaliza contra el mejor reparto posible, igual que `encajePerfil`, para
+ * que un ciclo con 3 etiquetas no salga penalizado frente a uno con 4.
+ */
+function encajeTags(tagsUsuario: TagScores, tagsCiclo: Tag[]): number {
+  if (tagsCiclo.length === 0) return 50;
+
+  const valores = Object.values(tagsUsuario).filter((v): v is number => typeof v === 'number');
+  if (valores.length === 0) return 0;
+
+  const obtenido = tagsCiclo.reduce((acc, tag) => acc + (tagsUsuario[tag] ?? 0), 0);
+  const mejorPosible = [...valores]
+    .sort((a, b) => b - a)
+    .slice(0, tagsCiclo.length)
+    .reduce((acc, v) => acc + v, 0);
+
+  if (mejorPosible === 0) return 0;
+  return Math.round((obtenido / mejorPosible) * 100);
+}
+
 /** Puntua cuanto se ajusta el grado del ciclo a la situacion de partida. */
 function encajeGrado(grado: Grado, gradosPreferidos: Grado[]): number {
   const indice = gradosPreferidos.indexOf(grado);
@@ -217,12 +272,16 @@ function encajeGrado(grado: Grado, gradosPreferidos: Grado[]): number {
 }
 
 /**
- * Combina afinidad de familia, perfil del ciclo y grado accesible.
- * Los pesos priorizan la familia: equivocarse de sector duele mas que
- * equivocarse de ciclo dentro del sector correcto.
+ * Combina afinidad de familia, perfil del ciclo, etiquetas y grado accesible.
+ *
+ * La familia sigue pesando mas que nada: equivocarse de sector duele mas que
+ * equivocarse de ciclo dentro del sector correcto. Las etiquetas entran como
+ * eje propio para ordenar ciclos hermanos, que es justo donde la afinidad de
+ * familia no distingue.
  */
 export function calcularCiclos(
   dimensiones: DimensionScores,
+  tags: TagScores,
   familias: FamiliaMatch[],
   gradosPreferidos: Grado[],
 ): CicloMatch[] {
@@ -231,9 +290,12 @@ export function calcularCiclos(
   return CICLOS.map((ciclo) => {
     const familiaScore = afinidadPorFamilia.get(ciclo.familia) ?? 0;
     const perfilScore = encajePerfil(dimensiones, ciclo.perfilIdeal);
+    const tagScore = encajeTags(tags, ciclo.tagsAfinidad);
     const gradoScore = encajeGrado(ciclo.grado, gradosPreferidos);
 
-    const encaje = Math.round(familiaScore * 0.55 + perfilScore * 0.3 + gradoScore * 0.15);
+    const encaje = Math.round(
+      familiaScore * 0.45 + perfilScore * 0.2 + tagScore * 0.2 + gradoScore * 0.15,
+    );
 
     return { ciclo, encaje: Math.max(0, Math.min(100, encaje)) };
   }).sort((a, b) => b.encaje - a.encaje || a.ciclo.nombre.localeCompare(b.ciclo.nombre, 'es'));
@@ -257,6 +319,10 @@ export function sugerirGrado(situacionId: SituacionId, metas: MetaScores): Grado
   const dominante = ordenadas[0];
 
   if (!dominante || dominante[1] === 0) return 'medio';
+
+  // Quien quiere entrar ya en el mercado empieza por Grado Medio. El resto de
+  // metas (especializarse, universidad y emprender) apuntan al Grado Superior:
+  // los modulos de gestion, costes y empresa estan ahi.
   return dominante[0] === 'trabajarPronto' ? 'medio' : 'superior';
 }
 
@@ -267,8 +333,9 @@ export function calcularResultado(situacionId: SituacionId, respuestas: Respuest
 
   const dimensiones = calcularDimensiones(respuestas);
   const metas = calcularMetas(respuestas);
+  const tags = calcularTags(respuestas);
   const familias = calcularFamilias(dimensiones);
-  const ciclos = calcularCiclos(dimensiones, familias, gradosPreferidos);
+  const ciclos = calcularCiclos(dimensiones, tags, familias, gradosPreferidos);
 
   return {
     fecha: new Date().toISOString(),
@@ -276,6 +343,7 @@ export function calcularResultado(situacionId: SituacionId, respuestas: Respuest
     respuestas,
     dimensiones,
     metas,
+    tags,
     familias,
     ciclos,
     gradoSugerido: sugerirGrado(situacionId, metas),

@@ -52,6 +52,8 @@ export default {
           sociocultural: '#527e51',
           mecanica: '#6b7280',
           comercio: '#a8563f',
+          automocion: '#7a5c3d',
+          deportes: '#2b7a86',
         },
       },
       fontFamily: {

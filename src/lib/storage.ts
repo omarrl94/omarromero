@@ -15,8 +15,13 @@ export const CLAVE_TEMA = 'orientafp.theme';
  * Se incrementa cuando cambia la forma de los datos guardados (nuevas
  * preguntas, nuevos campos del resultado). Si no coincide, se descarta lo
  * guardado en lugar de intentar pintar un objeto incompleto.
+ *
+ * v2: el cuestionario paso de 12 a 20 preguntas y cambio su contenido, se
+ * anadio la dimension `fisico`, la meta `emprender` y las etiquetas de
+ * afinidad. Un progreso de la v1 tiene ids q1..q12 que en la v2 significan
+ * otra cosa, asi que reutilizarlo daria un resultado sin sentido.
  */
-const SCHEMA_VERSION = 1;
+const SCHEMA_VERSION = 2;
 
 function almacenamientoDisponible(): boolean {
   try {

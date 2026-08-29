@@ -309,13 +309,8 @@ export function ResultsView({ resultado, navegar, reiniciar }: ResultsViewProps)
           </Card>
         ) : (
           <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {visibles.map((match, indice) => (
-              <CicloCard
-                key={match.ciclo.id}
-                ciclo={match.ciclo}
-                encaje={match.encaje}
-                inicialAbierta={indice === 0 && filtro === 'todos'}
-              />
+            {visibles.map((match) => (
+              <CicloCard key={match.ciclo.id} ciclo={match.ciclo} encaje={match.encaje} />
             ))}
           </div>
         )}

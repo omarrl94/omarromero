@@ -9,7 +9,10 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "typecheck": "tsc -b --noEmit",
-    "build:standalone": "npm run build && node scripts/build-standalone.mjs"
+    "build:standalone": "npm run build && node scripts/build-standalone.mjs",
+    "check:balance": "node scripts/check-balance.mjs",
+    "check:personas": "node scripts/check-personas.mjs",
+    "check": "npm run check:balance && npm run check:personas"
   },
   "dependencies": {
     "framer-motion": "^11.11.17",
