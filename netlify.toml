@@ -1,0 +1,44 @@
+# Configuración de despliegue en Netlify.
+#
+# Ojo: la rama de producción se elige en el panel de Netlify, no aquí.
+# Este proyecto vive en la rama `claude/orientafp-educational-app-16yb2b`,
+# que NO es la rama por defecto del repositorio.
+
+[build]
+  # `npm run check` valida el equilibrio del cuestionario y los perfiles
+  # arquetípicos antes de construir: si alguien rompe el dataset, el despliegue
+  # falla en vez de publicar un test que recomienda cualquier cosa.
+  command = "npm run check && npm run build"
+  publish = "dist"
+
+[build.environment]
+  # Se fija la versión de Node para que la build no cambie el día que Netlify
+  # mueva su valor por defecto.
+  NODE_VERSION = "22"
+
+# La app enruta por hash (#/guia-fp), así que todas las URLs ya resuelven a
+# index.html. Esta regla es una red de seguridad por si algún día se pasa a
+# rutas reales, y evita 404 si alguien comparte una ruta inventada.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Vite pone un hash en el nombre de cada asset, así que su contenido nunca
+# cambia bajo el mismo nombre: se pueden cachear para siempre.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# El HTML sí cambia en cada despliegue y debe revalidarse siempre.
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"

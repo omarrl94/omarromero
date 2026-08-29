@@ -171,13 +171,38 @@ ofrece «Guardar como PDF». Menos peso en el bundle y mejor resultado que un ca
 
 ---
 
-## Despliegue
+## Despliegue en Netlify
 
-`npm run build` deja el sitio estático en `dist/`. Sirve en cualquier hosting estático
-(Vercel, Netlify, GitHub Pages, un bucket). Es una SPA con enrutado por hash, así que **no
-necesita reescrituras en el servidor**: todas las rutas viven bajo `index.html`.
+`npm run build` deja el sitio estático en `dist/`. La app es una SPA con enrutado por hash, así
+que **no necesita reescrituras en el servidor**: todas las rutas viven bajo `index.html`.
 
----
+El repositorio incluye `netlify.toml` con el comando de build, la versión de Node fijada y las
+cabeceras de caché.
+
+### Opción recomendada: conectar el repositorio
+
+1. En Netlify: **Add new site → Import an existing project → GitHub**, y elige `omarrl94/omarromero`.
+2. **Importante:** en *Branch to deploy* selecciona `claude/orientafp-educational-app-16yb2b`.
+   La rama por defecto del repositorio es otro proyecto distinto, así que si dejas el valor que
+   viene por defecto, Netlify construirá y publicará lo que no es.
+3. El resto de campos los rellena `netlify.toml`; no hay que tocar nada.
+4. **Deploy site**.
+
+A partir de ahí, cada `git push` a esa rama vuelve a desplegar solo.
+
+El comando de build es `npm run check && npm run build`: si alguien rompe el equilibrio del
+cuestionario o el dataset, el despliegue falla en vez de publicar un test que recomienda
+cualquier cosa. Si prefieres que un fallo de validación no bloquee la publicación, cambia el
+comando a `npm run build` en `netlify.toml`.
+
+### Opción rápida: subir la carpeta a mano
+
+Arrastra el contenido de `dist/` (o el zip generado) a <https://app.netlify.com/drop>. No
+requiere cuenta enlazada ni permisos sobre el repositorio.
+
+La contrapartida es que un despliegue manual no lee `netlify.toml`, así que se pierden las
+cabeceras de caché de `/assets/*` y hay que repetir la subida a mano en cada cambio. Para una
+demo puntual no importa; para algo que vaya a durar, usa la opción de arriba.
 
 ## Aviso
 
