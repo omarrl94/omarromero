@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="OrientaFP">
+  <circle cx="50" cy="50" r="50" fill="#e39f7d"/>
+  <circle cx="50" cy="50" r="33" fill="none" stroke="#ffffff" stroke-width="5"/>
+  <path d="M67 33 55 55 33 67 45 45z" fill="#ffffff"/>
+  <circle cx="50" cy="50" r="5" fill="#e39f7d"/>
+</svg>

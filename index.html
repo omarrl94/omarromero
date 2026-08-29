@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es" class="">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+
+    <title>OrientaFP — Descubre qué Formación Profesional encaja contigo</title>
+    <meta
+      name="description"
+      content="Test vocacional gratuito de Formación Profesional en España. Responde 12 preguntas y descubre qué familia profesional y qué ciclos de Grado Básico, Medio o Superior encajan con tu perfil."
+    />
+    <meta name="theme-color" content="#f7f4f0" />
+    <meta name="author" content="OrientaFP" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://orientafp.es/" />
+    <meta property="og:title" content="OrientaFP — Descubre qué Formación Profesional encaja contigo" />
+    <meta
+      property="og:description"
+      content="Doce preguntas cotidianas, un resultado claro: tu familia profesional y los ciclos de FP que mejor se ajustan a cómo eres y a lo que quieres hacer."
+    />
+    <meta property="og:image" content="https://orientafp.es/logo.svg" />
+    <meta property="og:locale" content="es_ES" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="OrientaFP — Descubre qué Formación Profesional encaja contigo" />
+    <meta
+      name="twitter:description"
+      content="Doce preguntas cotidianas, un resultado claro: tu familia profesional y los ciclos de FP que mejor se ajustan a ti."
+    />
+    <meta name="twitter:image" content="https://orientafp.es/logo.svg" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <script>
+      // Aplica el tema antes del primer pintado para evitar el parpadeo blanco.
+      (function () {
+        try {
+          var stored = localStorage.getItem('orientafp.theme');
+          var dark = stored
+            ? stored === 'dark'
+            : window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (dark) document.documentElement.classList.add('dark');
+        } catch (e) {
+          /* almacenamiento no disponible: se queda en claro */
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

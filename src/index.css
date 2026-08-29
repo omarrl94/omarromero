@@ -1,0 +1,197 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   Tokens de color. Un unico juego semantico que el modo oscuro reescribe,
+   de forma que los componentes nunca necesitan variantes dark: de color.
+   Formato: canales RGB sueltos (Tailwind les aplica <alpha-value>).
+   ========================================================================== */
+:root {
+  --c-brand: 239 193 47; /* oro calido */
+  --c-brand-light: 247 217 104;
+  --c-accent: 169 202 187; /* salvia clara */
+  --c-accent-deep: 63 125 104; /* salvia profunda, apta para texto */
+  --c-warm: 227 159 125; /* terracota */
+  --c-ink: 26 26 26;
+  --c-ink-soft: 46 46 46;
+  --c-bg: 247 244 240; /* crema */
+  --c-surface: 255 255 255;
+  --c-surface-soft: 240 237 232;
+  --c-border: 226 221 215;
+  --c-txt: 58 53 48;
+  --c-txt-soft: 107 101 96;
+  --c-success: 74 158 107;
+  --c-error: 192 57 43;
+  color-scheme: light;
+}
+
+.dark {
+  --c-brand: 240 199 74;
+  --c-brand-light: 250 224 130;
+  --c-accent: 143 184 166;
+  --c-accent-deep: 126 200 170;
+  --c-warm: 233 173 141;
+  --c-ink: 244 241 237; /* en oscuro, "ink" es el color de titular claro */
+  --c-ink-soft: 214 209 202;
+  --c-bg: 20 21 24;
+  --c-surface: 30 33 38;
+  --c-surface-soft: 38 42 49;
+  --c-border: 56 61 69;
+  --c-txt: 221 217 211;
+  --c-txt-soft: 154 149 143;
+  --c-success: 109 191 143;
+  --c-error: 232 116 102;
+  color-scheme: dark;
+}
+
+/* La barra de navegacion mantiene el fondo oscuro en ambos temas: es la firma
+   visual del producto. Estos dos tokens no se invierten. */
+:root,
+.dark {
+  --c-navbar: 26 26 26;
+  --c-navbar-txt: 255 255 255;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background: rgb(var(--c-bg));
+  color: rgb(var(--c-txt));
+  font-family: 'Inter', system-ui, sans-serif;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* --- Animaciones --- */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-in-up {
+  animation: fadeInUp 0.45s ease-out both;
+}
+
+@keyframes pulseDot {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.4);
+    opacity: 0.6;
+  }
+}
+.animate-pulse-dot {
+  animation: pulseDot 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* --- Scrollbar --- */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--c-border));
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--c-txt-soft));
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* --- Textura sutil para cabeceras con degradado --- */
+.bg-noise {
+  background-image: radial-gradient(circle at 1px 1px, rgb(26 26 26 / 0.05) 1px, transparent 0);
+  background-size: 18px 18px;
+}
+
+/* --- Salto al contenido --- */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 0;
+  z-index: 100;
+  background: rgb(var(--c-navbar));
+  color: rgb(var(--c-navbar-txt));
+  padding: 8px 16px;
+  border-radius: 0 0 8px 0;
+}
+.skip-link:focus {
+  top: 0;
+}
+
+/* ==========================================================================
+   Impresion: la ficha de resultados se imprime o se guarda como PDF desde el
+   dialogo del navegador. Ocultamos todo salvo el nodo marcado como imprimible.
+   ========================================================================== */
+@media print {
+  body {
+    background: #fff;
+    color: #111;
+  }
+  /* El contenedor de la app pinta su propio fondo crema por encima del body. */
+  body * {
+    background-color: transparent;
+  }
+  .print-card {
+    background: #fff !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .print-area {
+    position: static;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+  }
+  .print-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    border: 1px solid #d5d5d5 !important;
+    box-shadow: none !important;
+    background: #fff !important;
+    color: #111 !important;
+  }
+  a[href]::after {
+    content: '';
+  }
+  @page {
+    margin: 14mm;
+  }
+}
+
+.print-only {
+  display: none;
+}
