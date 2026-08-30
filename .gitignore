@@ -14,3 +14,7 @@ npm-debug.log*
 
 # Paquete generado para subida manual a Netlify
 orientafp-netlify.zip
+
+# Presentación generada (se reconstruye con: cd presentacion && npm run build)
+OrientaFP-presentacion.pptx
+presentacion/node_modules
