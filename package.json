@@ -12,7 +12,8 @@
     "build:standalone": "npm run build && node scripts/build-standalone.mjs",
     "check:balance": "node scripts/check-balance.mjs",
     "check:personas": "node scripts/check-personas.mjs",
-    "check": "npm run check:balance && npm run check:personas"
+    "check": "npm run check:balance && npm run check:personas",
+    "build:netlify": "npm run build && node scripts/build-netlify-zip.mjs"
   },
   "dependencies": {
     "framer-motion": "^11.11.17",

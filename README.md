@@ -22,6 +22,7 @@ npm run dev      # http://localhost:5173
 | `npm run typecheck` | Solo la comprobación de tipos                        |
 | `npm run check`     | Equilibrio del cuestionario + validación por perfiles |
 | `npm run build:standalone` | Empaqueta todo en un único HTML autocontenido |
+| `npm run build:netlify` | Genera `orientafp-netlify.zip` para subir a mano |
 
 No hace falta ninguna variable de entorno ni servicio externo: todo funciona en el
 navegador y los datos se guardan en `localStorage`.
@@ -231,14 +232,22 @@ cuestionario o el dataset, el despliegue falla en vez de publicar un test que re
 cualquier cosa. Si prefieres que un fallo de validación no bloquee la publicación, cambia el
 comando a `npm run build` en `netlify.toml`.
 
-### Opción rápida: subir la carpeta a mano
+### Opción rápida: subir un zip a mano
 
-Arrastra el contenido de `dist/` (o el zip generado) a <https://app.netlify.com/drop>. No
-requiere cuenta enlazada ni permisos sobre el repositorio.
+```bash
+npm run build:netlify   # deja orientafp-netlify.zip en la raíz
+```
 
-La contrapartida es que un despliegue manual no lee `netlify.toml`, así que se pierden las
-cabeceras de caché de `/assets/*` y hay que repetir la subida a mano en cada cambio. Para una
-demo puntual no importa; para algo que vaya a durar, usa la opción de arriba.
+Arrastra ese zip a <https://app.netlify.com/drop>. No requiere cuenta enlazada ni permisos sobre
+el repositorio.
+
+Un despliegue manual **no lee `netlify.toml`** —ese fichero solo se aplica cuando Netlify
+construye desde el repositorio—, así que el script escribe dentro del paquete un `_redirects` y
+un `_headers` equivalentes, que Netlify sí lee desde la carpeta publicada. El resultado se
+comporta igual que el despliegue automático: misma caché y misma regla de SPA.
+
+La contrapartida que queda es que hay que repetir la subida a mano en cada cambio. Para una demo
+puntual va bien; para algo que vaya a durar, usa la opción de arriba.
 
 ## Aviso
 
