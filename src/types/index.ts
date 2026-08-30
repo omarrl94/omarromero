@@ -57,7 +57,10 @@ export type FamiliaId =
   | 'mecanica'
   | 'comercio'
   | 'automocion'
-  | 'deportes';
+  | 'deportes'
+  | 'quimica'
+  | 'instalacion'
+  | 'textil';
 
 export interface Familia {
   id: FamiliaId;
@@ -98,6 +101,70 @@ export interface Ciclo {
   continuidad: Continuidad;
   /** Duracion oficial en horas del ciclo completo. */
   duracionHoras: number;
+  /**
+   * Ciclo con muy buena insercion pero pocas matriculas por desconocimiento.
+   * Alimenta la seccion "Gemas ocultas".
+   */
+  gemaOculta?: boolean;
+  /** Relato ilustrativo de una jornada, para las gemas ocultas. */
+  diaEnElTrabajo?: string;
+}
+
+/* ==========================================================================
+   Datos de mercado laboral
+   Viven aparte del catalogo (ver src/data/mercadoLaboral.ts) porque son
+   ESTIMACIONES ORIENTATIVAS, no datos oficiales: separarlos deja claro que
+   caducan y que hay que actualizarlos contra las fuentes reales.
+   ========================================================================== */
+
+export type Demanda = 'media' | 'alta' | 'muy-alta';
+
+export type Modalidad = 'presencial' | 'dual' | 'teletrabajo';
+
+export interface DatosMercado {
+  /** Insercion laboral estimada, en porcentaje. Orientativa. */
+  insercion: number;
+  /** Banda salarial de entrada estimada, en euros brutos anuales. */
+  salarioMin: number;
+  salarioMax: number;
+  demanda: Demanda;
+  modalidades: Modalidad[];
+  /** Carga logica y practica percibidas, de 1 a 5. Sirven para comparar. */
+  cargaLogica: number;
+  cargaPractica: number;
+}
+
+/* ==========================================================================
+   Arquetipos vocacionales
+   ========================================================================== */
+
+export type ArquetipoId =
+  | 'creadorDigital'
+  | 'guardianAsistencial'
+  | 'maestroEngranajes'
+  | 'estrategaOrganizador'
+  | 'exploradorCampo';
+
+export interface Arquetipo {
+  id: ArquetipoId;
+  nombre: string;
+  /** Frase corta que acompana al nombre en el badge. */
+  lema: string;
+  descripcion: string;
+  icono: string;
+  /** Clase Tailwind del color tematico del arquetipo. */
+  colorClass: string;
+  /** Perfil de referencia sobre las ocho dimensiones. */
+  perfil: DimensionScores;
+  /** Familias que suelen caer bajo este arquetipo. */
+  familias: FamiliaId[];
+}
+
+/** Arquetipo asignado tras el test, con su grado de ajuste. */
+export interface ArquetipoMatch {
+  arquetipo: Arquetipo;
+  /** Ajuste 0-100 con el perfil del estudiante. */
+  ajuste: number;
 }
 
 /** Itinerarios que abre un ciclo al terminarlo. */
@@ -202,6 +269,8 @@ export interface Resultado {
   metas: MetaScores;
   /** Etiquetas de afinidad acumuladas por las respuestas. */
   tags: TagScores;
+  /** Arquetipo vocacional asignado. */
+  arquetipo: ArquetipoMatch;
   /** Familias ordenadas por afinidad descendente. */
   familias: FamiliaMatch[];
   /** Ciclos ordenados por encaje descendente. */
@@ -219,4 +288,11 @@ export interface TestProgreso {
 }
 
 /** Rutas de la aplicacion (hash routing, sin dependencias externas). */
-export type Ruta = 'home' | 'guia-fp' | 'test' | 'resultados' | 'explorar';
+export type Ruta =
+  | 'home'
+  | 'guia-fp'
+  | 'test'
+  | 'resultados'
+  | 'explorar'
+  | 'comparador'
+  | 'gemas';

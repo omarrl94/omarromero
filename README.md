@@ -44,9 +44,13 @@ navegador y los datos se guardan en `localStorage`.
 src/
 ├── types/index.ts          Contratos de dominio (Ciclo, Familia, Pregunta, Resultado...)
 ├── data/
-│   ├── fpData.ts           Catálogo: 11 familias, 41 ciclos, situaciones de acceso
+│   ├── fpData.ts           Catálogo: 14 familias, 46 ciclos, situaciones de acceso
 │   ├── questions.ts        Las 20 preguntas, sus pesos y sus etiquetas
-│   └── guiaContent.ts      Textos de la guía "¿Por qué estudiar FP?"
+│   ├── mercadoLaboral.ts   Estimaciones de inserción, salario y demanda (ver aviso)
+│   ├── calendario.ts       Fases de admisión y portales por comunidad autónoma
+│   └── guiaContent.ts      Textos de la guía y los mitos
+├── utils/
+│   └── archetypes.ts       Los cinco arquetipos vocacionales
 ├── lib/
 │   ├── scoring.ts          Algoritmo de afinidad
 │   ├── storage.ts          Persistencia con versionado de esquema
@@ -62,8 +66,12 @@ src/
     ├── ResultsView.tsx     Resultados y ciclos recomendados
     ├── ExplorerView.tsx    Buscador del catálogo completo
     ├── CicloCard.tsx       Tarjeta de ciclo; al pulsarla abre la ficha
-    ├── CicloModal.tsx      Ficha completa: asignaturas, salidas y continuidad
-    ├── FichaImprimible.tsx Ficha en PDF / impresión
+    ├── CicloModal.tsx      Ficha completa: asignaturas, salidas e itinerario
+    ├── CycleComparator.tsx Comparador cara a cara de 2-3 ciclos
+    ├── CareerPathSimulator.tsx  Itinerario visual: partida → ciclo → ECTS
+    ├── HiddenGems.tsx      Ciclos poco conocidos con alta inserción
+    ├── MythBusters.tsx     Mitos en tarjetas giratorias
+    ├── FichaImprimible.tsx Informe vocacional en PDF / impresión
     └── ui/                 Card, Button, Badge, ProgressBar, Icon, SectionHeader
 ```
 
@@ -103,7 +111,9 @@ servidores, y por dimensiones quedan casi empatados.
 `npm run check` ejecuta dos guardias. Conviene lanzarlas después de tocar preguntas, pesos o
 dataset: los dos fallos que evitan ya se han producido de verdad durante el desarrollo.
 
-**`check:balance`** — Cada dimensión debe poder alcanzar un máximo comparable. Si una se queda
+**`check:balance`** — Comprueba además que los 46 ciclos tengan datos de mercado coherentes
+(bandas salariales bien ordenadas, inserción en rango, escalas de 1 a 5) y que los cinco
+arquetipos cubran todas las familias. Y lo principal: cada dimensión debe poder alcanzar un máximo comparable. Si una se queda
 corta, las familias que dependen de ella no pueden salir primeras por muy bien que responda el
 estudiante: el instrumento tiene un techo antes que una opinión. Comprueba también que ninguna
 etiqueta declarada en un ciclo sea inalcanzable desde el test (sería peso muerto que penaliza a
@@ -115,12 +125,38 @@ y se comprueba que aterrizan en la familia que un orientador esperaría. Incluye
 verifica específicamente el mecanismo de etiquetas: Automoción y Fabricación Mecánica tienen
 perfiles por dimensiones casi idénticos, así que solo las etiquetas pueden separarlas.
 
+## Sobre los datos de mercado laboral
+
+**`src/data/mercadoLaboral.ts` contiene estimaciones orientativas, no estadísticas oficiales.**
+
+Las cifras de inserción, salario y demanda se han elaborado como bandas razonables por familia y
+grado para que el comparador pueda ordenar ciclos entre sí. Viven en un fichero aparte del
+catálogo a propósito: los títulos, módulos e itinerarios son estables y verificables en el BOE y
+en Todo FP; estas otras cifras dependen del año, del sector y sobre todo de la provincia, y
+caducan.
+
+Antes de publicar la app como servicio real, sustituye esos valores por los de las fuentes
+oficiales que el propio fichero enumera (Observatorio de las Ocupaciones del SEPE, Estadística de
+Inserción Laboral de titulados de FP, Encuesta de Estructura Salarial del INE, observatorios
+autonómicos). La interfaz etiqueta siempre estas cifras como orientativas y muestra un aviso;
+no lo quites sin haber cambiado los datos.
+
+Lo mismo aplica a `src/data/calendario.ts`: recoge las **fases** del proceso de admisión y sus
+ventanas aproximadas, no fechas concretas, porque cada comunidad publica las suyas cada curso.
+Lo que sí es estable —y por eso está— es el enlace al portal oficial de cada comunidad.
+
+Los relatos de «Un día en el trabajo» de las gemas ocultas son descripciones ilustrativas de la
+tarea, no testimonios de personas reales, y la interfaz lo dice.
+
 ## Dónde se edita el contenido
 
 | Quiero cambiar...                    | Fichero                    |
 | ------------------------------------ | -------------------------- |
 | Ciclos, familias, salidas laborales  | `src/data/fpData.ts`       |
 | Preguntas, pesos y etiquetas         | `src/data/questions.ts`    |
+| Inserción, salarios y demanda        | `src/data/mercadoLaboral.ts` |
+| Fases de matrícula y portales CCAA   | `src/data/calendario.ts`   |
+| Arquetipos vocacionales              | `src/utils/archetypes.ts`  |
 | Textos de la guía, mitos, grados     | `src/data/guiaContent.ts`  |
 | Colores y tipografías                | `tailwind.config.js` + `src/index.css` |
 

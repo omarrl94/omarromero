@@ -54,6 +54,19 @@ export default {
           comercio: '#a8563f',
           automocion: '#7a5c3d',
           deportes: '#2b7a86',
+          quimica: '#7a4f7d',
+          instalacion: '#5a6e8c',
+          textil: '#a04f6a',
+        },
+
+        // --- Paleta de los arquetipos vocacionales ---
+        // Misma excepcion y misma regla: verificados a >= 4.5:1 con texto blanco.
+        arquetipo: {
+          creador: '#8a5cd6',
+          guardian: '#297a6c',
+          engranajes: '#9c5a2a',
+          estratega: '#3d6ea8',
+          explorador: '#4a7f3c',
         },
       },
       fontFamily: {

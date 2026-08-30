@@ -1,16 +1,19 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { ArrowUpRight, Clock, GraduationCap, X } from 'lucide-react';
+import { Clock, GraduationCap, X } from 'lucide-react';
 import { Badge, BadgeGrado } from './ui/Badge';
+import { CareerPathSimulator } from './CareerPathSimulator';
 import { Icon } from './ui/Icon';
 import { FAMILIAS_POR_ID, GRADOS } from '../data/fpData';
 import { formatearHoras } from '../lib/format';
-import type { Ciclo } from '../types';
+import type { Ciclo, SituacionId } from '../types';
 
 interface CicloModalProps {
   ciclo: Ciclo;
   /** Porcentaje de encaje, si se abre desde los resultados del test. */
   encaje?: number;
+  /** Situación declarada en el test, para dibujar el itinerario desde ella. */
+  situacion?: SituacionId;
   onCerrar: () => void;
 }
 
@@ -25,7 +28,7 @@ const FOCUSABLES =
  * `overflow` o `transform` recorte el dialogo. Mientras esta abierto bloquea el
  * scroll de la pagina, atrapa el foco y se cierra con Escape o clic fuera.
  */
-export function CicloModal({ ciclo, encaje, onCerrar }: CicloModalProps) {
+export function CicloModal({ ciclo, encaje, situacion, onCerrar }: CicloModalProps) {
   const dialogo = useRef<HTMLDivElement>(null);
   const focoPrevio = useRef<HTMLElement | null>(null);
 
@@ -74,9 +77,6 @@ export function CicloModal({ ciclo, encaje, onCerrar }: CicloModalProps) {
       focoPrevio.current?.focus?.();
     };
   }, [alPulsarTecla]);
-
-  const hayUniversidad = (ciclo.continuidad?.universidad ?? []).length > 0;
-  const hayEspecializacion = (ciclo.continuidad?.especializacion ?? []).length > 0;
 
   return createPortal(
     <div
@@ -186,51 +186,12 @@ export function CicloModal({ ciclo, encaje, onCerrar }: CicloModalProps) {
             </ul>
           </section>
 
-          {/* Continuidad */}
+          {/* Itinerario formativo completo */}
           <section className="bg-surface-soft rounded-card p-5">
             <h3 className="font-mono text-[10px] uppercase tracking-[.12em] font-bold text-txt-soft mb-4">
-              Y después, ¿qué?
+              Tu itinerario si eliges este ciclo
             </h3>
-
-            <div className="space-y-5">
-              {hayEspecializacion && (
-                <div>
-                  <p className="font-semibold text-ink text-[13.5px] mb-2">Seguir en FP</p>
-                  <ul className="space-y-1.5">
-                    {ciclo.continuidad.especializacion.map((opcion) => (
-                      <li key={opcion} className="flex items-start gap-2 text-[13px] text-txt">
-                        <ArrowUpRight className="w-3.5 h-3.5 mt-1 text-warm shrink-0" aria-hidden="true" />
-                        {opcion}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {hayUniversidad ? (
-                <div>
-                  <p className="font-semibold text-ink text-[13.5px] mb-2">
-                    Grados universitarios afines
-                  </p>
-                  <p className="text-[12.5px] text-txt-soft mb-2 leading-relaxed">
-                    Con este título entras sin selectividad y con créditos ECTS convalidados en
-                    muchas universidades.
-                  </p>
-                  <ul className="flex flex-wrap gap-1.5">
-                    {ciclo.continuidad.universidad.map((carrera) => (
-                      <li key={carrera}>
-                        <Badge tono="contorno">{carrera}</Badge>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ) : (
-                <p className="text-[12.5px] text-txt-soft leading-relaxed">
-                  Para acceder a la universidad, el camino es encadenar un Grado Superior: desde ahí
-                  se entra sin selectividad.
-                </p>
-              )}
-            </div>
+            <CareerPathSimulator ciclo={ciclo} situacion={situacion} compacto />
           </section>
 
           {/* Acceso */}

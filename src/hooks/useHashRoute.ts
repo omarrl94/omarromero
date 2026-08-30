@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { Ruta } from '../types';
 
-const RUTAS: Ruta[] = ['home', 'guia-fp', 'test', 'resultados', 'explorar'];
+const RUTAS: Ruta[] = ['home', 'guia-fp', 'test', 'resultados', 'explorar', 'comparador', 'gemas'];
 
 function leerHash(): Ruta {
   if (typeof window === 'undefined') return 'home';

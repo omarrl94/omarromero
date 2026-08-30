@@ -1,10 +1,11 @@
 import { motion } from 'framer-motion';
-import { ArrowRight, ArrowUpRight, CheckCircle2, XCircle } from 'lucide-react';
+import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
 import { Icon } from './ui/Icon';
 import { SectionHeader } from './ui/SectionHeader';
-import { FICHAS_GRADO, MITOS, POR_QUE_FP } from '../data/guiaContent';
+import { MythBusters } from './MythBusters';
+import { FICHAS_GRADO, POR_QUE_FP } from '../data/guiaContent';
 import type { Ruta } from '../types';
 
 interface GuiaFPProps {
@@ -92,19 +93,8 @@ export function GuiaFP({ navegar }: GuiaFPProps) {
           dejar que decidan por ti.
         </p>
 
-        <div className="mt-6 grid gap-4 sm:grid-cols-2">
-          {MITOS.map((item) => (
-            <Card key={item.mito} className="h-full">
-              <div className="flex items-start gap-2.5">
-                <XCircle className="w-4.5 h-4.5 text-error mt-0.5 shrink-0" aria-hidden="true" />
-                <p className="font-semibold text-ink text-[14.5px] leading-snug">{item.mito}</p>
-              </div>
-              <div className="mt-4 pt-4 border-t border-border flex items-start gap-2.5">
-                <CheckCircle2 className="w-4.5 h-4.5 text-success mt-0.5 shrink-0" aria-hidden="true" />
-                <p className="text-[13.5px] text-txt-soft leading-relaxed">{item.realidad}</p>
-              </div>
-            </Card>
-          ))}
+        <div className="mt-6">
+          <MythBusters />
         </div>
       </section>
 

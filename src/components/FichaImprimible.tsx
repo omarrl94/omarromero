@@ -1,4 +1,6 @@
-import { GRADOS, SITUACIONES } from '../data/fpData';
+import { FAMILIAS_POR_ID, GRADOS, SITUACIONES } from '../data/fpData';
+import { AVISO_CALENDARIO, FASES, PORTAL_ESTATAL } from '../data/calendario';
+import { AVISO_DATOS_MERCADO, datosMercado, formatearSalario } from '../data/mercadoLaboral';
 import { formatearHoras } from '../lib/format';
 import { ETIQUETA_DIMENSION, porcentajesDimension } from '../lib/scoring';
 import type { Resultado } from '../types';
@@ -19,6 +21,7 @@ export function FichaImprimible({ resultado }: { resultado: Resultado }) {
   if (!principal) return null;
 
   const secundarias = resultado.familias.slice(1, 3);
+  const top = resultado.ciclos[0];
   const perfil = porcentajesDimension(resultado.dimensiones);
   const situacion = SITUACIONES.find((s) => s.id === resultado.situacion);
   const gradoSugerido = GRADOS[resultado.gradoSugerido];
@@ -34,11 +37,15 @@ export function FichaImprimible({ resultado }: { resultado: Resultado }) {
     <div className="print-only text-[#111]">
       <header className="border-b-2 border-[#111] pb-4 mb-6">
         <p className="font-mono text-[10px] uppercase tracking-[.14em] font-bold">
-          OrientaFP · Ficha de orientación
+          OrientaFP · Informe vocacional
         </p>
         <h1 className="mt-2 font-extrabold text-[26px] leading-tight">
-          Tu familia profesional: {principal.familia.nombre}
+          {resultado.arquetipo.arquetipo.nombre}
         </h1>
+        <p className="mt-1 text-[13px] italic">«{resultado.arquetipo.arquetipo.lema}»</p>
+        <p className="mt-2 text-[13px]">
+          <strong>Familia profesional:</strong> {principal.familia.nombre}
+        </p>
         <p className="mt-1 text-[12px]">
           Afinidad {principal.afinidad}% · Punto de entrada recomendado:{' '}
           {gradoSugerido?.nombre ?? 'Grado Medio'}
@@ -48,8 +55,22 @@ export function FichaImprimible({ resultado }: { resultado: Resultado }) {
       </header>
 
       <section className="mb-6 print-card p-4 rounded">
-        <h2 className="font-bold text-[14px] mb-2">Por qué encaja contigo</h2>
+        <h2 className="font-bold text-[14px] mb-2">Tu arquetipo</h2>
+        <p className="text-[12px] leading-relaxed">{resultado.arquetipo.arquetipo.descripcion}</p>
+        <h2 className="font-bold text-[14px] mt-4 mb-2">Por qué encaja esta familia</h2>
         <p className="text-[12px] leading-relaxed">{principal.explicacion}</p>
+      </section>
+
+      <section className="mb-6">
+        <h2 className="font-bold text-[14px] mb-2">Afinidad por familias</h2>
+        <ul className="text-[12px] space-y-1">
+          {resultado.familias.slice(0, 5).map((match) => (
+            <li key={match.familia.id} className="flex justify-between border-b border-[#e5e5e5] py-1">
+              <span>{match.familia.nombre}</span>
+              <span className="font-mono font-bold">{match.afinidad}%</span>
+            </li>
+          ))}
+        </ul>
       </section>
 
       <section className="mb-6">
@@ -97,15 +118,79 @@ export function FichaImprimible({ resultado }: { resultado: Resultado }) {
               <p className="text-[11px] mt-1.5">
                 <strong>Salidas:</strong> {(match.ciclo.salidasLaborales ?? []).join(' · ')}
               </p>
+              {(() => {
+                const m = datosMercado(match.ciclo.id);
+                if (!m) return null;
+                return (
+                  <p className="text-[11px] mt-1">
+                    <strong>Mercado (orientativo):</strong> {m.insercion}% de inserción ·{' '}
+                    {formatearSalario(m.salarioMin, m.salarioMax)}
+                  </p>
+                );
+              })()}
             </article>
           ))}
         </div>
       </section>
 
+      {/* ---- Hoja de ruta académica ---- */}
+      {top && (
+        <section className="mt-6">
+          <h2 className="font-bold text-[14px] mb-2">Hoja de ruta sugerida</h2>
+          <ol className="text-[11.5px] space-y-1.5">
+            <li>
+              <strong>Punto de partida:</strong> {situacion?.titulo ?? 'tu situación actual'}.
+            </li>
+            <li>
+              <strong>1. Cursa:</strong> {top.ciclo.nombre} ({GRADOS[top.ciclo.grado]?.nombre}) ·{' '}
+              {FAMILIAS_POR_ID[top.ciclo.familia]?.nombre}.
+            </li>
+            {(top.ciclo.continuidad?.especializacion ?? []).length > 0 && (
+              <li>
+                <strong>2. Especialízate (opcional):</strong>{' '}
+                {top.ciclo.continuidad.especializacion.join(' · ')}.
+              </li>
+            )}
+            {(top.ciclo.continuidad?.universidad ?? []).length > 0 ? (
+              <li>
+                <strong>3. Universidad (opcional):</strong>{' '}
+                {top.ciclo.continuidad.universidad.join(' · ')}. Acceso sin selectividad y con un
+                reconocimiento habitual de 30 a 60 créditos ECTS según la titulación.
+              </li>
+            ) : (
+              <li>
+                <strong>3. Universidad:</strong> encadenando después un Grado Superior se accede sin
+                selectividad.
+              </li>
+            )}
+          </ol>
+        </section>
+      )}
+
+      {/* ---- Checklist de matriculación ---- */}
+      <section className="mt-6">
+        <h2 className="font-bold text-[14px] mb-1">Checklist de admisión y matrícula</h2>
+        <p className="text-[10.5px] mb-2 leading-relaxed">{AVISO_CALENDARIO}</p>
+        <ul className="text-[11.5px] space-y-1.5">
+          {FASES.map((fase) => (
+            <li key={fase.id} className="flex items-start gap-2">
+              <span className="mt-[2px] inline-block w-3 h-3 border border-[#111] shrink-0" aria-hidden="true" />
+              <span>
+                <strong>{fase.nombre}</strong> ({fase.ventana}) — {fase.descripcion}
+              </span>
+            </li>
+          ))}
+        </ul>
+        <p className="text-[10.5px] mt-2">
+          Consulta las fechas exactas de tu comunidad autónoma y compara la oferta en{' '}
+          {PORTAL_ESTATAL.nombre}: {PORTAL_ESTATAL.url}
+        </p>
+      </section>
+
       <footer className="mt-8 pt-3 border-t border-[#111] text-[10px]">
-        Resultado orientativo generado con OrientaFP. La oferta concreta de ciclos varía según
-        comunidad autónoma y centro. Contrasta siempre con el departamento de orientación de tu
-        centro educativo.
+        Informe orientativo generado con OrientaFP. {AVISO_DATOS_MERCADO} La oferta concreta de
+        ciclos varía según comunidad autónoma y centro. Contrasta siempre con el departamento de
+        orientación de tu centro educativo.
       </footer>
     </div>
   );

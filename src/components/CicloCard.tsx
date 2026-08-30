@@ -5,12 +5,14 @@ import { Card } from './ui/Card';
 import { CicloModal } from './CicloModal';
 import { FAMILIAS_POR_ID, GRADOS } from '../data/fpData';
 import { formatearHoras } from '../lib/format';
-import type { Ciclo } from '../types';
+import type { Ciclo, SituacionId } from '../types';
 
 interface CicloCardProps {
   ciclo: Ciclo;
   /** Porcentaje de encaje. Se omite en el explorador, donde no hay test. */
   encaje?: number;
+  /** Situación del test, para dibujar el itinerario desde el punto correcto. */
+  situacion?: SituacionId;
 }
 
 /**
@@ -18,7 +20,7 @@ interface CicloCardProps {
  * Muestra lo justo para poder comparar de un vistazo; al pulsarla se abre la
  * ficha completa en un dialogo.
  */
-export function CicloCard({ ciclo, encaje }: CicloCardProps) {
+export function CicloCard({ ciclo, encaje, situacion }: CicloCardProps) {
   const [abierta, setAbierta] = useState(false);
 
   const familia = FAMILIAS_POR_ID[ciclo.familia];
@@ -81,7 +83,9 @@ export function CicloCard({ ciclo, encaje }: CicloCardProps) {
         </button>
       </Card>
 
-      {abierta && <CicloModal ciclo={ciclo} encaje={encaje} onCerrar={() => setAbierta(false)} />}
+      {abierta && (
+        <CicloModal ciclo={ciclo} encaje={encaje} situacion={situacion} onCerrar={() => setAbierta(false)} />
+      )}
     </>
   );
 }

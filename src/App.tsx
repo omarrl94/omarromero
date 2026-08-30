@@ -6,6 +6,8 @@ import { GuiaFP } from './components/GuiaFP';
 import { TestWizard } from './components/TestWizard';
 import { ResultsView } from './components/ResultsView';
 import { ExplorerView } from './components/ExplorerView';
+import { CycleComparator } from './components/CycleComparator';
+import { HiddenGems } from './components/HiddenGems';
 import { useHashRoute } from './hooks/useHashRoute';
 import { useTest } from './hooks/useTest';
 import { useTheme } from './hooks/useTheme';
@@ -18,6 +20,8 @@ const TITULOS: Record<Ruta, string> = {
   test: 'Test vocacional de Formación Profesional — OrientaFP',
   resultados: 'Tus resultados — OrientaFP',
   explorar: 'Catálogo de ciclos formativos — OrientaFP',
+  comparador: 'Comparar ciclos cara a cara — OrientaFP',
+  gemas: 'Gemas ocultas de la FP — OrientaFP',
 };
 
 export default function App() {
@@ -51,6 +55,13 @@ export default function App() {
           <ResultsView resultado={test.resultado} navegar={navegar} reiniciar={test.reiniciar} />
         )}
         {ruta === 'explorar' && <ExplorerView />}
+        {ruta === 'comparador' && (
+          <CycleComparator
+            // Si ya hay test hecho, arranca comparando los dos mejores ciclos.
+            inicial={(test.resultado?.ciclos ?? []).slice(0, 2).map((c) => c.ciclo.id)}
+          />
+        )}
+        {ruta === 'gemas' && <HiddenGems />}
       </main>
 
       <Footer navegar={navegar} />

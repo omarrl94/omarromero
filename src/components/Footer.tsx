@@ -34,6 +34,12 @@ export function Footer({ navegar }: FooterProps) {
             <button onClick={() => navegar('explorar')} className="text-[13px] text-txt hover:text-brand text-left transition-colors">
               Explorar el catálogo de ciclos
             </button>
+            <button onClick={() => navegar('comparador')} className="text-[13px] text-txt hover:text-brand text-left transition-colors">
+              Comparar ciclos cara a cara
+            </button>
+            <button onClick={() => navegar('gemas')} className="text-[13px] text-txt hover:text-brand text-left transition-colors">
+              Gemas ocultas de la FP
+            </button>
           </nav>
         </div>
 

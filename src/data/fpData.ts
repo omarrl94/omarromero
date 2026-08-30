@@ -117,6 +117,36 @@ export const FAMILIAS: Familia[] = [
     colorClass: 'bg-familia-deportes',
     icono: 'Dumbbell',
   },
+  {
+    id: 'quimica',
+    nombre: 'Química',
+    claim: 'El sector que fabrica lo que todo lo demás necesita',
+    descripcion:
+      'Laboratorio y planta química: análisis, control de calidad y procesos industriales. Farmacéuticas, alimentación, cosmética y medio ambiente contratan aquí.',
+    perfil: { analitico: 4, creativo: 1, asistencial: 0, tecnico: 3, organizativo: 3, social: 1, cientifico: 5, fisico: 1 },
+    colorClass: 'bg-familia-quimica',
+    icono: 'Microscope',
+  },
+  {
+    id: 'instalacion',
+    nombre: 'Instalación y Mantenimiento',
+    claim: 'Que la planta no pare nunca',
+    descripcion:
+      'Mantenimiento industrial, frío, climatización y mecatrónica. Mezcla mecánica, electricidad y electrónica en el mismo puesto: por eso escasean los perfiles.',
+    perfil: { analitico: 3, creativo: 1, asistencial: 0, tecnico: 5, organizativo: 3, social: 1, cientifico: 2, fisico: 4 },
+    colorClass: 'bg-familia-instalacion',
+    icono: 'Cog',
+  },
+  {
+    id: 'textil',
+    nombre: 'Textil, Confección y Piel',
+    claim: 'De un boceto a una prenda que se puede llevar',
+    descripcion:
+      'Patronaje, confección y diseño técnico de prendas. Una familia pequeña, muy artesanal y con demanda constante en talleres y marcas.',
+    perfil: { analitico: 2, creativo: 5, asistencial: 0, tecnico: 4, organizativo: 3, social: 1, cientifico: 1, fisico: 2 },
+    colorClass: 'bg-familia-textil',
+    icono: 'Palette',
+  },
 ];
 
 /** Acceso indexado a las familias, para evitar `find()` en cada render. */
@@ -959,6 +989,113 @@ export const CICLOS: Ciclo[] = [
       universidad: ['Ciencias de la Actividad Física y del Deporte', 'Educación Primaria', 'Educación Social'],
     },
     duracionHoras: 2000,
+  },
+
+  /* --- Gemas ocultas: alta inserción, pocas matrículas --- */
+  {
+    id: 'gs-mantenimiento-aeromecanico',
+    nombre: 'Mantenimiento Aeromecánico de Aviones con Motor de Turbina',
+    familia: 'automocion',
+    grado: 'superior',
+    descripcion:
+      'Mantienes y certificas aeronaves siguiendo normativa aeronáutica europea. Pocas plazas en toda España y las aerolíneas se pelean por los titulados.',
+    habilidadesClave: ['Motores de turbina', 'Sistemas hidráulicos', 'Normativa EASA', 'Inspección estructural', 'Inglés técnico'],
+    salidasLaborales: ['Técnico de mantenimiento en aerolínea', 'Talleres MRO aeronáuticos', 'Mantenimiento en aviación ejecutiva', 'Fabricantes aeronáuticos'],
+    perfilIdeal: ['tecnico', 'analitico', 'cientifico'],
+    tagsAfinidad: ['maquinaria', 'vehiculos', 'precision', 'taller'],
+    asignaturasTipicas: ['Motores de turbina de gas', 'Sistemas de aeronaves', 'Aerodinámica y estructuras', 'Electricidad y electrónica de aeronaves', 'Legislación aeronáutica'],
+    continuidad: {
+      especializacion: ['Habilitaciones de tipo EASA Parte-66'],
+      universidad: ['Ingeniería Aeroespacial', 'Ingeniería Mecánica'],
+    },
+    duracionHoras: 2000,
+    gemaOculta: true,
+    diaEnElTrabajo:
+      'Entras al hangar de madrugada, cuando el avión ya ha aterrizado y tienes una ventana corta antes del primer vuelo. Revisas la lista de tareas, abres los paneles del motor, compruebas holguras y presiones, y firmas cada operación: tu firma es la que autoriza que ese avión vuelva a volar.',
+  },
+  {
+    id: 'gs-audiologia-protesica',
+    nombre: 'Audiología Protésica',
+    familia: 'sanidad',
+    grado: 'superior',
+    descripcion:
+      'Haces pruebas de audición y adaptas audífonos e implantes. Con la población envejeciendo, la demanda crece y casi nadie conoce el ciclo.',
+    habilidadesClave: ['Audiometría', 'Adaptación de audífonos', 'Otoscopia', 'Atención al paciente', 'Moldes a medida'],
+    salidasLaborales: ['Audioprotesista en gabinete', 'Centros auditivos', 'Casas comerciales de audioprótesis', 'Servicios de otorrinolaringología'],
+    perfilIdeal: ['cientifico', 'asistencial', 'tecnico'],
+    tagsAfinidad: ['laboratorio', 'cuidadoPersonas', 'precision', 'atencionPublico'],
+    asignaturasTipicas: ['Audición y comunicación verbal', 'Elaboración de moldes y protectores', 'Elección y adaptación de prótesis auditivas', 'Acústica', 'Atención al hipoacúsico'],
+    continuidad: {
+      especializacion: ['Cursos de especialización en implantes y audiología infantil'],
+      universidad: ['Logopedia', 'Óptica y Optometría', 'Enfermería'],
+    },
+    duracionHoras: 2000,
+    gemaOculta: true,
+    diaEnElTrabajo:
+      'Entra una señora que lleva dos años diciendo que la gente habla bajo. Le haces la audiometría en cabina, le explicas la curva en su idioma y le pruebas un audífono. Cuando lo enciendes y oye la voz de su hija con claridad, entiendes por qué este trabajo engancha.',
+  },
+  {
+    id: 'gs-quimica-industrial',
+    nombre: 'Química Industrial',
+    familia: 'quimica',
+    grado: 'superior',
+    descripcion:
+      'Controlas procesos de planta química: reactores, destilación y calidad del producto. Farmacéuticas y petroquímicas contratan casi antes de terminar.',
+    habilidadesClave: ['Control de procesos', 'Instrumentación', 'Calidad y seguridad', 'Reactores y destilación', 'Normativa ambiental'],
+    salidasLaborales: ['Técnico de planta química', 'Control de calidad en farmacéutica', 'Industria alimentaria', 'Tratamiento de aguas'],
+    perfilIdeal: ['cientifico', 'tecnico', 'organizativo'],
+    tagsAfinidad: ['laboratorio', 'maquinaria', 'precision', 'gestion'],
+    asignaturasTipicas: ['Operaciones unitarias', 'Regulación y control de procesos', 'Química industrial aplicada', 'Seguridad química y ambiental', 'Mantenimiento electromecánico'],
+    continuidad: {
+      especializacion: ['Curso de especialización en Digitalización del mantenimiento industrial'],
+      universidad: ['Ingeniería Química', 'Química', 'Ciencias Ambientales'],
+    },
+    duracionHoras: 2000,
+    gemaOculta: true,
+    diaEnElTrabajo:
+      'Empiezas revisando los parámetros del reactor en la sala de control: temperatura, presión, caudal. Algo se ha desviado durante la noche, así que bajas a planta con el casco, tomas una muestra y la llevas al laboratorio. Corriges la dosificación y el lote se salva.',
+  },
+  {
+    id: 'gs-mecatronica-industrial',
+    nombre: 'Mecatrónica Industrial',
+    familia: 'instalacion',
+    grado: 'superior',
+    descripcion:
+      'Mantienes líneas de producción completas: mecánica, electricidad, neumática y automatismos a la vez. Es el perfil que más escasea en la industria española.',
+    habilidadesClave: ['Mantenimiento predictivo', 'Automatismos', 'Neumática e hidráulica', 'Electricidad industrial', 'Diagnóstico de averías'],
+    salidasLaborales: ['Técnico de mantenimiento industrial', 'Jefe/a de equipo de mantenimiento', 'Puesta en marcha de líneas', 'Servicio técnico de maquinaria'],
+    perfilIdeal: ['tecnico', 'analitico', 'fisico'],
+    tagsAfinidad: ['maquinaria', 'electricidad', 'taller', 'precision'],
+    asignaturasTipicas: ['Sistemas mecánicos', 'Sistemas hidráulicos y neumáticos', 'Sistemas eléctricos y electrónicos', 'Configuración de sistemas mecatrónicos', 'Procesos de fabricación'],
+    continuidad: {
+      especializacion: ['Curso de especialización en Fabricación inteligente', 'Curso de especialización en Digitalización del mantenimiento industrial'],
+      universidad: ['Ingeniería Mecatrónica', 'Ingeniería Electrónica Industrial y Automática', 'Ingeniería Mecánica'],
+    },
+    duracionHoras: 2000,
+    gemaOculta: true,
+    diaEnElTrabajo:
+      'La línea 3 se ha parado y cada minuto cuesta dinero. Miras el autómata, descartas el sensor, sigues el circuito neumático y encuentras una electroválvula agarrotada. Veinte minutos después la línea vuelve a girar y el jefe de planta te da las gracias por el nombre de pila.',
+  },
+  {
+    id: 'gs-patronaje-moda',
+    nombre: 'Patronaje y Moda',
+    familia: 'textil',
+    grado: 'superior',
+    descripcion:
+      'Conviertes un diseño en patrones industriales que se pueden coser y escalar por tallas. Detrás de cada prenda que compras hay alguien con este título.',
+    habilidadesClave: ['Patronaje industrial', 'Escalado de tallas', 'CAD textil', 'Confección de prototipos', 'Análisis de tejidos'],
+    salidasLaborales: ['Patronista', 'Técnico de producto en marca de moda', 'Taller de confección', 'Escalado y prototipado'],
+    perfilIdeal: ['creativo', 'tecnico', 'organizativo'],
+    tagsAfinidad: ['diseno', 'taller', 'precision'],
+    asignaturasTipicas: ['Patronaje industrial', 'Escalado y marcada', 'Industrialización de patrones', 'Materias textiles', 'Diseño técnico asistido'],
+    continuidad: {
+      especializacion: ['Cursos de especialización en moda sostenible y prototipado digital'],
+      universidad: ['Diseño de Moda', 'Bellas Artes', 'Ingeniería de Diseño Industrial'],
+    },
+    duracionHoras: 2000,
+    gemaOculta: true,
+    diaEnElTrabajo:
+      'Te llega el boceto de una chaqueta y una tela que cae de forma rara. Levantas el patrón en CAD, cortas un prototipo en crudo y lo pruebas en maniquí. Sobra tela en la sisa, corriges dos centímetros, y esa corrección se repetirá en las miles de unidades que salgan de fábrica.',
   },
 ];
 

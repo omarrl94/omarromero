@@ -1,4 +1,5 @@
 import { CICLOS, FAMILIAS, FAMILIAS_POR_ID, SITUACIONES } from '../data/fpData';
+import { asignarArquetipo } from '../utils/archetypes';
 import { PREGUNTAS } from '../data/questions';
 import type {
   CicloMatch,
@@ -344,6 +345,7 @@ export function calcularResultado(situacionId: SituacionId, respuestas: Respuest
     dimensiones,
     metas,
     tags,
+    arquetipo: asignarArquetipo(dimensiones),
     familias,
     ciclos,
     gradoSugerido: sugerirGrado(situacionId, metas),

@@ -15,7 +15,9 @@ interface NavbarProps {
 const ENLACES: { ruta: Ruta; texto: string }[] = [
   { ruta: 'guia-fp', texto: 'Guía de la FP' },
   { ruta: 'test', texto: 'Test' },
-  { ruta: 'explorar', texto: 'Explorar ciclos' },
+  { ruta: 'explorar', texto: 'Explorar' },
+  { ruta: 'comparador', texto: 'Comparar' },
+  { ruta: 'gemas', texto: 'Gemas ocultas' },
 ];
 
 export function Navbar({ ruta, navegar, tema, alternarTema, hayResultado }: NavbarProps) {
@@ -57,7 +59,7 @@ export function Navbar({ ruta, navegar, tema, alternarTema, hayResultado }: Navb
           </span>
         </button>
 
-        <nav aria-label="Navegación principal" className="hidden md:flex items-center gap-1">
+        <nav aria-label="Navegación principal" className="hidden lg:flex items-center gap-1">
           {enlaces.map((enlace) => (
             <button key={enlace.ruta} onClick={() => ir(enlace.ruta)} className={claseEnlace(enlace.ruta)}>
               {enlace.texto}
@@ -78,7 +80,7 @@ export function Navbar({ ruta, navegar, tema, alternarTema, hayResultado }: Navb
             onClick={() => setAbierto((v) => !v)}
             aria-label={abierto ? 'Cerrar menú' : 'Abrir menú'}
             aria-expanded={abierto}
-            className="md:hidden p-2.5 rounded-lg text-white/75 hover:text-white hover:bg-white/10 transition-colors focus:outline-none focus-visible:ring-4 focus-visible:ring-brand/40"
+            className="lg:hidden p-2.5 rounded-lg text-white/75 hover:text-white hover:bg-white/10 transition-colors focus:outline-none focus-visible:ring-4 focus-visible:ring-brand/40"
           >
             {abierto ? <X className="w-[18px] h-[18px]" /> : <Menu className="w-[18px] h-[18px]" />}
           </button>
@@ -88,7 +90,7 @@ export function Navbar({ ruta, navegar, tema, alternarTema, hayResultado }: Navb
       {abierto && (
         <nav
           aria-label="Navegación principal móvil"
-          className="md:hidden border-t border-white/10 bg-[rgb(var(--c-navbar))] px-4 pb-3 pt-2 flex flex-col gap-1"
+          className="lg:hidden border-t border-white/10 bg-[rgb(var(--c-navbar))] px-4 pb-3 pt-2 flex flex-col gap-1"
         >
           {enlaces.map((enlace) => (
             <button

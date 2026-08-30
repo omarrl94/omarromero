@@ -25,7 +25,9 @@ writeFileSync(
   entrada,
   `export { PREGUNTAS } from ${JSON.stringify(join(raiz, 'src/data/questions'))};
    export { CICLOS, FAMILIAS } from ${JSON.stringify(join(raiz, 'src/data/fpData'))};
-   export { DIMENSIONES } from ${JSON.stringify(join(raiz, 'src/lib/scoring'))};`,
+   export { DIMENSIONES } from ${JSON.stringify(join(raiz, 'src/lib/scoring'))};
+   export { MERCADO } from ${JSON.stringify(join(raiz, 'src/data/mercadoLaboral'))};
+   export { ARQUETIPOS } from ${JSON.stringify(join(raiz, 'src/utils/archetypes'))};`,
 );
 const salida = join(tmp, 'salida.mjs');
 execFileSync(
@@ -34,7 +36,7 @@ execFileSync(
   { cwd: raiz, stdio: 'inherit' },
 );
 
-const { PREGUNTAS, CICLOS, FAMILIAS, DIMENSIONES } = await import(`file://${salida}`);
+const { PREGUNTAS, CICLOS, FAMILIAS, DIMENSIONES, MERCADO, ARQUETIPOS } = await import(`file://${salida}`);
 
 /** Tolerancia: la dimension mas floja no debe bajar del 55 % de la mas fuerte. */
 const RATIO_MINIMO = 0.55;
@@ -99,6 +101,53 @@ for (const p of PREGUNTAS) {
       fallos++;
     }
   }
+}
+
+// ---- 5. Datos de mercado: cobertura y coherencia ----
+const sinMercado = CICLOS.filter((c) => !MERCADO[c.id]).map((c) => c.id);
+if (sinMercado.length) {
+  console.log(`\nCiclos sin datos de mercado (saldrían con "—" en el comparador): ${sinMercado.join(', ')}`);
+  fallos++;
+} else {
+  console.log(`\nLos ${CICLOS.length} ciclos tienen datos de mercado.`);
+}
+
+const idsCiclos = new Set(CICLOS.map((c) => c.id));
+const mercadoHuerfano = Object.keys(MERCADO).filter((id) => !idsCiclos.has(id));
+if (mercadoHuerfano.length) {
+  console.log(`Datos de mercado de ciclos que ya no existen: ${mercadoHuerfano.join(', ')}`);
+  fallos++;
+}
+
+for (const [id, m] of Object.entries(MERCADO)) {
+  if (m.salarioMin > m.salarioMax) {
+    console.log(`${id}: el salario mínimo supera al máximo.`);
+    fallos++;
+  }
+  if (m.insercion < 0 || m.insercion > 100) {
+    console.log(`${id}: inserción fuera de rango (${m.insercion}).`);
+    fallos++;
+  }
+  for (const campo of ['cargaLogica', 'cargaPractica']) {
+    if (m[campo] < 1 || m[campo] > 5) {
+      console.log(`${id}: ${campo} fuera de la escala 1-5 (${m[campo]}).`);
+      fallos++;
+    }
+  }
+  if (!Array.isArray(m.modalidades) || m.modalidades.length === 0) {
+    console.log(`${id}: no declara ninguna modalidad.`);
+    fallos++;
+  }
+}
+
+// ---- 6. Arquetipos: cada uno debe poder ganar con algún perfil ----
+const familiasCubiertas = new Set(ARQUETIPOS.flatMap((a) => a.familias));
+const familiasSinArquetipo = FAMILIAS.filter((f) => !familiasCubiertas.has(f.id)).map((f) => f.id);
+if (familiasSinArquetipo.length) {
+  console.log(`Familias que ningún arquetipo reclama: ${familiasSinArquetipo.join(', ')}`);
+  fallos++;
+} else {
+  console.log(`Los ${ARQUETIPOS.length} arquetipos cubren las ${FAMILIAS.length} familias.`);
 }
 
 rmSync(tmp, { recursive: true, force: true });

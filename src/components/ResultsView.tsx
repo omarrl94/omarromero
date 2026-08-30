@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Compass, Printer, RotateCcw, Search, Trophy } from 'lucide-react';
+import { Compass, Printer, RotateCcw, Scale, Search, Trophy } from 'lucide-react';
 import { Badge } from './ui/Badge';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
@@ -8,6 +8,7 @@ import { CicloCard } from './CicloCard';
 import { Icon } from './ui/Icon';
 import { SectionHeader } from './ui/SectionHeader';
 import { FichaImprimible } from './FichaImprimible';
+import { CareerPathSimulator } from './CareerPathSimulator';
 import { GRADOS, SITUACIONES } from '../data/fpData';
 import { ETIQUETA_DIMENSION, ETIQUETA_META, porcentajesDimension } from '../lib/scoring';
 import type { Grado, Meta, Resultado, Ruta } from '../types';
@@ -90,6 +91,40 @@ export function ResultsView({ resultado, navegar, reiniciar }: ResultsViewProps)
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
       {/* Al imprimir se oculta toda la pantalla y solo sale la ficha de abajo. */}
       <div className="no-print">
+        {/* ---------- Arquetipo vocacional ---------- */}
+        <motion.section
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="mb-5"
+          aria-labelledby="arquetipo"
+        >
+          <Card padding="none" className="overflow-hidden">
+            <div className={`h-2 w-full ${resultado.arquetipo.arquetipo.colorClass}`} aria-hidden="true" />
+            <div className="p-6 sm:p-8 flex flex-col sm:flex-row gap-6 items-start">
+              <div
+                className={`w-16 h-16 rounded-card flex items-center justify-center shrink-0 ${resultado.arquetipo.arquetipo.colorClass}`}
+              >
+                <Icon name={resultado.arquetipo.arquetipo.icono} className="w-8 h-8 text-white" />
+              </div>
+              <div className="flex-1">
+                <p className="font-mono text-[11px] uppercase tracking-[.14em] font-bold text-txt-soft mb-2">
+                  Tu arquetipo vocacional
+                </p>
+                <h2 id="arquetipo" className="font-extrabold text-ink text-2xl sm:text-3xl leading-tight">
+                  {resultado.arquetipo.arquetipo.nombre}
+                </h2>
+                <p className="mt-1 font-mono text-[12px] text-txt-soft">
+                  «{resultado.arquetipo.arquetipo.lema}»
+                </p>
+                <p className="mt-4 text-[14.5px] text-txt leading-relaxed max-w-2xl">
+                  {resultado.arquetipo.arquetipo.descripcion}
+                </p>
+              </div>
+            </div>
+          </Card>
+        </motion.section>
+
         {/* ---------- Match principal ---------- */}
         <motion.section
           initial={{ opacity: 0, y: 16 }}
@@ -177,6 +212,10 @@ export function ResultsView({ resultado, navegar, reiniciar }: ResultsViewProps)
           <Button variante="secondary" onClick={() => window.print()}>
             <Printer className="w-4 h-4" aria-hidden="true" />
             Descargar ficha en PDF
+          </Button>
+          <Button variante="secondary" onClick={() => navegar('comparador')}>
+            <Scale className="w-4 h-4" aria-hidden="true" />
+            Comparar mis ciclos
           </Button>
           <Button variante="secondary" onClick={() => navegar('explorar')}>
             <Search className="w-4 h-4" aria-hidden="true" />
@@ -310,7 +349,12 @@ export function ResultsView({ resultado, navegar, reiniciar }: ResultsViewProps)
         ) : (
           <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {visibles.map((match) => (
-              <CicloCard key={match.ciclo.id} ciclo={match.ciclo} encaje={match.encaje} />
+              <CicloCard
+                  key={match.ciclo.id}
+                  ciclo={match.ciclo}
+                  encaje={match.encaje}
+                  situacion={resultado.situacion}
+                />
             ))}
           </div>
         )}
@@ -324,6 +368,22 @@ export function ResultsView({ resultado, navegar, reiniciar }: ResultsViewProps)
         )}
       </section>
 
+        {/* ---------- Hoja de ruta del ciclo recomendado ---------- */}
+        {resultado.ciclos[0] && (
+          <section className="mt-14" aria-labelledby="hoja-ruta">
+            <SectionHeader
+              eyebrow="Hoja de ruta"
+              titulo="Tu recorrido si eliges el primero"
+              subtitulo={`De dónde partes, qué cursas y qué puertas te quedan abiertas después de ${resultado.ciclos[0].ciclo.nombre}.`}
+            />
+            <Card className="mt-6">
+              <CareerPathSimulator
+                ciclo={resultado.ciclos[0].ciclo}
+                situacion={resultado.situacion}
+              />
+            </Card>
+          </section>
+        )}
       </div>
 
       {/* Versión compacta que sustituye a la pantalla al imprimir. */}

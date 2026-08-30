@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { ArrowRight, BookOpen, Compass, Search } from 'lucide-react';
+import { ArrowRight, BookOpen, Compass, Gem, Search } from 'lucide-react';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
 import { Icon } from './ui/Icon';
@@ -211,6 +211,10 @@ export function Home({ navegar, hayResultado }: HomeProps) {
             <Button tamano="lg" variante="secondary" onClick={() => navegar('explorar')}>
               <Search className="w-4 h-4" aria-hidden="true" />
               Explorar el catálogo
+            </Button>
+            <Button tamano="lg" variante="secondary" onClick={() => navegar('gemas')}>
+              <Gem className="w-4 h-4" aria-hidden="true" />
+              Ver gemas ocultas
             </Button>
           </div>
         </Card>

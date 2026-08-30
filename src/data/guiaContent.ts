@@ -10,8 +10,12 @@ export interface BloqueGuia {
 
 /** Mito frecuente sobre la FP y la realidad que lo desmonta. */
 export interface Mito {
+  id: string;
   mito: string;
   realidad: string;
+  /** Dato concreto que sostiene la refutacion, para la cara trasera. */
+  dato: string;
+  icono: string;
 }
 
 /** Ficha resumen de un grado, para la sección "antes de elegir". */
@@ -71,24 +75,36 @@ export const POR_QUE_FP: BloqueGuia[] = [
 
 export const MITOS: Mito[] = [
   {
-    mito: '"La FP es para quien no vale para estudiar"',
+    id: 'no-valen',
+    mito: 'La FP es para quien no vale para estudiar',
     realidad:
       'Es para quien aprende mejor haciendo. Un ciclo de Grado Superior exige tanto como un curso de universidad; lo que cambia es el método, no el nivel.',
+    dato: 'En electricidad, mecanizado, mecatrónica o informática las empresas llevan años sin cubrir vacantes: hay más ofertas que titulados disponibles. Esa escasez no se produce en formaciones "fáciles".',
+    icono: 'Brain',
   },
   {
-    mito: '"Con FP se cobra poco"',
+    id: 'universidad',
+    mito: 'Si haces FP ya no puedes ir a la Universidad',
     realidad:
-      'Depende del sector, igual que en cualquier carrera. Un técnico superior en automatización, mecanizado o sistemas entra en la industria con sueldos que muchos titulados universitarios tardan años en alcanzar.',
+      'Con un Grado Superior accedes a la universidad sin selectividad, y muchas titulaciones te convalidan créditos ECTS.',
+    dato: 'Según la titulación de destino, el reconocimiento habitual va de 30 a 60 créditos ECTS: entre medio curso y un curso completo ya hecho antes de empezar.',
+    icono: 'GraduationCap',
   },
   {
-    mito: '"Si hago FP ya no puedo ir a la universidad"',
+    id: 'sueldos',
+    mito: 'Con FP se cobra poco',
     realidad:
-      'Con un Grado Superior accedes a la universidad sin selectividad, y muchas titulaciones te convalidan créditos ECTS. Empiezas la carrera con parte del camino hecho.',
+      'Depende del sector, igual que en cualquier carrera. La rama industrial, la tecnológica y la sanitaria pagan bien desde la entrada.',
+    dato: 'Los perfiles técnicos más escasos —automatización, mecatrónica, química industrial, aeronáutica— arrancan en bandas que muchos titulados universitarios tardan años en alcanzar.',
+    icono: 'TrendingUp',
   },
   {
-    mito: '"Si me equivoco de familia, he perdido dos años"',
+    id: 'equivocarse',
+    mito: 'Si me equivoco de familia, he perdido dos años',
     realidad:
-      'Los módulos comunes convalidan entre ciclos y muchas competencias son transversales. Cambiar de rama cuesta menos de lo que parece, y siempre menos que quedarse donde no encajas.',
+      'Los módulos comunes convalidan entre ciclos y muchas competencias son transversales.',
+    dato: 'Cambiar de rama cuesta menos de lo que parece, y siempre menos que quedarse donde no encajas. Del Grado Medio se pasa al Superior sin prueba de acceso.',
+    icono: 'Shuffle',
   },
 ];
 
