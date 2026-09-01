@@ -140,7 +140,29 @@ for (const [id, m] of Object.entries(MERCADO)) {
   }
 }
 
-// ---- 6. Arquetipos: cada uno debe poder ganar con algún perfil ----
+// ---- 6. Gemas ocultas: exactamente una por familia ----
+const gemas = CICLOS.filter((c) => c.gemaOculta);
+const gemasPorFamilia = new Map();
+for (const g of gemas) {
+  gemasPorFamilia.set(g.familia, (gemasPorFamilia.get(g.familia) ?? 0) + 1);
+}
+const sinGema = FAMILIAS.filter((f) => !gemasPorFamilia.has(f.id));
+if (sinGema.length) {
+  console.log(`Familias sin gema oculta: ${sinGema.map((f) => f.nombre).join(', ')}`);
+  fallos++;
+} else {
+  console.log(`Las ${FAMILIAS.length} familias tienen su gema oculta (${gemas.length} en total).`);
+}
+// Una tarjeta de gema sin estos textos sale coja, así que se exigen.
+for (const g of gemas) {
+  const faltan = ['porQueOculta', 'diaEnElTrabajo'].filter((campo) => !g[campo]);
+  if (faltan.length) {
+    console.log(`La gema ${g.id} no tiene: ${faltan.join(', ')}`);
+    fallos++;
+  }
+}
+
+// ---- 7. Arquetipos: cada uno debe poder ganar con algún perfil ----
 const familiasCubiertas = new Set(ARQUETIPOS.flatMap((a) => a.familias));
 const familiasSinArquetipo = FAMILIAS.filter((f) => !familiasCubiertas.has(f.id)).map((f) => f.id);
 if (familiasSinArquetipo.length) {

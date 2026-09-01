@@ -45,7 +45,7 @@ navegador y los datos se guardan en `localStorage`.
 src/
 ├── types/index.ts          Contratos de dominio (Ciclo, Familia, Pregunta, Resultado...)
 ├── data/
-│   ├── fpData.ts           Catálogo: 14 familias, 46 ciclos, situaciones de acceso
+│   ├── fpData.ts           Catálogo: 14 familias, 52 ciclos, situaciones de acceso
 │   ├── questions.ts        Las 20 preguntas, sus pesos y sus etiquetas
 │   ├── mercadoLaboral.ts   Estimaciones de inserción, salario y demanda (ver aviso)
 │   ├── calendario.ts       Fases de admisión y portales por comunidad autónoma
@@ -112,9 +112,10 @@ servidores, y por dimensiones quedan casi empatados.
 `npm run check` ejecuta dos guardias. Conviene lanzarlas después de tocar preguntas, pesos o
 dataset: los dos fallos que evitan ya se han producido de verdad durante el desarrollo.
 
-**`check:balance`** — Comprueba además que los 46 ciclos tengan datos de mercado coherentes
+**`check:balance`** — Comprueba además que los 52 ciclos tengan datos de mercado coherentes
 (bandas salariales bien ordenadas, inserción en rango, escalas de 1 a 5) y que los cinco
-arquetipos cubran todas las familias. Y lo principal: cada dimensión debe poder alcanzar un máximo comparable. Si una se queda
+arquetipos cubran todas las familias, y que cada familia tenga su gema oculta con sus textos
+completos: una sección de gemas a la que le falte una rama se nota enseguida. Y lo principal: cada dimensión debe poder alcanzar un máximo comparable. Si una se queda
 corta, las familias que dependen de ella no pueden salir primeras por muy bien que responda el
 estudiante: el instrumento tiene un techo antes que una opinión. Comprueba también que ninguna
 etiqueta declarada en un ciclo sea inalcanzable desde el test (sería peso muerto que penaliza a

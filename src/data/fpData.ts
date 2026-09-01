@@ -320,6 +320,10 @@ export const CICLOS: Ciclo[] = [
       universidad: ['Ingeniería Informática', 'Ingeniería de Sistemas de Telecomunicación'],
     },
     duracionHoras: 2000,
+    gemaOculta: true,
+    porQueOculta: 'Todo el mundo entra a Informática pensando en programar, así que los perfiles de sistemas, redes y cloud se quedan sin cubrir. Es la rama con menos competencia y sueldos igual de altos.',
+    diaEnElTrabajo:
+      'Un servidor deja de responder a media mañana y media empresa se queda sin trabajar. Entras por consola, lees los registros, ves que un disco del almacenamiento ha muerto y lanzas la reconstrucción. Nadie pierde un solo archivo, y la mayoría ni se entera de que pasó algo.',
   },
 
   /* --- Sanidad --- */
@@ -505,6 +509,10 @@ export const CICLOS: Ciclo[] = [
       universidad: ['Administración y Dirección de Empresas', 'Traducción e Interpretación', 'Turismo'],
     },
     duracionHoras: 2000,
+    gemaOculta: true,
+    porQueOculta: 'Suena a secretariado antiguo y no lo es: coordinas la agenda, la comunicación y los eventos de un equipo directivo, en dos idiomas. Se ve la empresa entera desde dentro.',
+    diaEnElTrabajo:
+      'Tienes que cuadrar una reunión con tres directivos en dos husos horarios, reservar sala, preparar la documentación y avisar a un proveedor en inglés. A las nueve todo está en pie y la dirección solo tiene que sentarse y decidir.',
   },
 
   /* --- Electricidad y Electrónica --- */
@@ -953,6 +961,10 @@ export const CICLOS: Ciclo[] = [
       universidad: [],
     },
     duracionHoras: 2000,
+    gemaOculta: true,
+    porQueOculta: 'Poca gente sabe que se puede vivir de guiar en montaña. Con las homologaciones y algo de idiomas, el turismo activo contrata todo el año, no solo en verano.',
+    diaEnElTrabajo:
+      'Sales con un grupo de doce personas a una ruta de media montaña. Miras el parte, decides cambiar el itinerario por la niebla, marcas el ritmo y vuelves con todos abajo antes de que caiga la tarde. Tu despacho ha sido un collado a mil metros.',
   },
   {
     id: 'gs-acondicionamiento-fisico',
@@ -1010,6 +1022,8 @@ export const CICLOS: Ciclo[] = [
     },
     duracionHoras: 2000,
     gemaOculta: true,
+    porQueOculta:
+      'Hay muy pocos centros que lo impartan en toda España y exige inglés técnico, así que casi nadie se entera de que existe. Las aerolíneas, mientras tanto, no dan abasto.',
     diaEnElTrabajo:
       'Entras al hangar de madrugada, cuando el avión ya ha aterrizado y tienes una ventana corta antes del primer vuelo. Revisas la lista de tareas, abres los paneles del motor, compruebas holguras y presiones, y firmas cada operación: tu firma es la que autoriza que ese avión vuelva a volar.',
   },
@@ -1031,6 +1045,8 @@ export const CICLOS: Ciclo[] = [
     },
     duracionHoras: 2000,
     gemaOculta: true,
+    porQueOculta:
+      'Se confunde con óptica o con enfermería y no es ninguna de las dos. Con la población envejeciendo, la demanda sube todos los años.',
     diaEnElTrabajo:
       'Entra una señora que lleva dos años diciendo que la gente habla bajo. Le haces la audiometría en cabina, le explicas la curva en su idioma y le pruebas un audífono. Cuando lo enciendes y oye la voz de su hija con claridad, entiendes por qué este trabajo engancha.',
   },
@@ -1052,6 +1068,8 @@ export const CICLOS: Ciclo[] = [
     },
     duracionHoras: 2000,
     gemaOculta: true,
+    porQueOculta:
+      'La química arrastra fama de difícil y de laboratorio, cuando el grueso del empleo está en planta: farmacéuticas, alimentación y tratamiento de aguas.',
     diaEnElTrabajo:
       'Empiezas revisando los parámetros del reactor en la sala de control: temperatura, presión, caudal. Algo se ha desviado durante la noche, así que bajas a planta con el casco, tomas una muestra y la llevas al laboratorio. Corriges la dosificación y el lote se salva.',
   },
@@ -1073,6 +1091,8 @@ export const CICLOS: Ciclo[] = [
     },
     duracionHoras: 2000,
     gemaOculta: true,
+    porQueOculta:
+      'Su nombre no dice nada a un chaval de dieciocho años. Detrás está el perfil que más escasea en la industria: quien entiende mecánica, electricidad y automatismos a la vez.',
     diaEnElTrabajo:
       'La línea 3 se ha parado y cada minuto cuesta dinero. Miras el autómata, descartas el sensor, sigues el circuito neumático y encuentras una electroválvula agarrotada. Veinte minutos después la línea vuelve a girar y el jefe de planta te da las gracias por el nombre de pila.',
   },
@@ -1094,8 +1114,150 @@ export const CICLOS: Ciclo[] = [
     },
     duracionHoras: 2000,
     gemaOculta: true,
+    porQueOculta:
+      'Todo el mundo quiere diseñar y nadie quiere patronar, pero sin patronista no hay prenda. Las marcas se pelean por los pocos que salen.',
     diaEnElTrabajo:
       'Te llega el boceto de una chaqueta y una tela que cae de forma rara. Levantas el patrón en CAD, cortas un prototipo en crudo y lo pruebas en maniquí. Sobra tela en la sisa, corriges dos centímetros, y esa corrección se repetirá en las miles de unidades que salgan de fábrica.',
+  },
+
+  /* --- Gemas de rama: títulos reales con poca matrícula y mucha demanda --- */
+  {
+    id: 'gs-mantenimiento-electronico',
+    nombre: 'Mantenimiento Electrónico',
+    familia: 'electricidad',
+    grado: 'superior',
+    descripcion:
+      'Diagnosticas y reparas equipos electrónicos industriales, médicos y de telecomunicaciones a nivel de componente. Casi nadie lo pide y casi nadie sabe hacerlo.',
+    habilidadesClave: ['Diagnóstico a nivel de componente', 'Instrumentación de medida', 'Electrónica digital', 'Equipos industriales', 'Telecomunicaciones'],
+    salidasLaborales: ['Técnico de mantenimiento electrónico', 'Servicio técnico de electromedicina', 'Reparación de equipos industriales', 'Instalaciones de telecomunicación'],
+    perfilIdeal: ['tecnico', 'analitico', 'cientifico'],
+    tagsAfinidad: ['electricidad', 'hardware', 'precision', 'maquinaria'],
+    asignaturasTipicas: ['Sistemas electrónicos analógicos', 'Equipos de radiofrecuencia', 'Mantenimiento de equipos de electrónica industrial', 'Técnicas y procesos de montaje', 'Instrumentación de medida'],
+    continuidad: {
+      especializacion: ['Curso de especialización en Digitalización del mantenimiento industrial'],
+      universidad: ['Ingeniería Electrónica Industrial y Automática', 'Ingeniería de Sistemas de Telecomunicación'],
+    },
+    duracionHoras: 2000,
+    gemaOculta: true,
+    porQueOculta:
+      'Suena a reparar televisores y hoy es electromedicina, industria y telecomunicaciones. Reparar a nivel de componente es un oficio casi extinguido y muy bien pagado.',
+    diaEnElTrabajo:
+      'Llega una placa de un equipo de electromedicina que el fabricante da por perdida. La pones en el banco, sigues la señal con el osciloscopio y encuentras un condensador seco que cuesta treinta céntimos. Sueldas, pruebas y devuelves a la vida una máquina de miles de euros.',
+  },
+  {
+    id: 'gs-iluminacion-captacion',
+    nombre: 'Iluminación, Captación y Tratamiento de Imagen',
+    familia: 'imagen',
+    grado: 'superior',
+    descripcion:
+      'Eres quien decide cómo se ve un plano: la luz, la cámara y el color. Todo el mundo quiere dirigir; casi nadie se forma en lo que de verdad hace que una imagen funcione.',
+    habilidadesClave: ['Iluminación de set', 'Operación de cámara', 'Etalonaje y color', 'Óptica', 'Postproducción de imagen'],
+    salidasLaborales: ['Ayudante de cámara', 'Técnico de iluminación', 'Etalonador/a', 'Operador/a de cámara en televisión'],
+    perfilIdeal: ['creativo', 'tecnico', 'analitico'],
+    tagsAfinidad: ['audiovisual', 'diseno', 'precision', 'taller'],
+    asignaturasTipicas: ['Iluminación de espacios escénicos', 'Captación de imagen audiovisual', 'Tratamiento y ajuste de imagen', 'Luminotecnia', 'Proyectos de fotografía'],
+    continuidad: {
+      especializacion: ['Curso de especialización en Iluminación para audiovisuales'],
+      universidad: ['Comunicación Audiovisual', 'Bellas Artes', 'Cine y Medios Audiovisuales'],
+    },
+    duracionHoras: 2000,
+    gemaOculta: true,
+    porQueOculta:
+      'Quien entra en audiovisual quiere dirigir o editar. La luz y la cámara, que es lo que de verdad se contrata en cada rodaje, se quedan sin gente.',
+    diaEnElTrabajo:
+      'El director quiere que la escena parezca amanecer, pero son las cuatro de la tarde y llueve. Montas dos paneles, filtras la luz a temperatura de mañana, mides con el fotómetro y ajustas el diafragma. En el monitor, de pronto, es de día.',
+  },
+  {
+    id: 'gm-panaderia-reposteria',
+    nombre: 'Panadería, Repostería y Confitería',
+    familia: 'hosteleria',
+    grado: 'medio',
+    descripcion:
+      'Masas madre, bollería, tartas y chocolate a nivel profesional. Los obradores llevan años buscando gente formada y las aulas están medio vacías.',
+    habilidadesClave: ['Masas y fermentación', 'Repostería', 'Chocolatería', 'Seguridad alimentaria', 'Escandallos'],
+    salidasLaborales: ['Panadero/a artesano', 'Pastelero/a en obrador', 'Repostería de hotel', 'Obrador propio'],
+    perfilIdeal: ['tecnico', 'creativo', 'fisico'],
+    tagsAfinidad: ['cocina', 'taller', 'precision', 'emprender'],
+    asignaturasTipicas: ['Elaboraciones de panadería y bollería', 'Procesos básicos de pastelería y repostería', 'Postres en restauración', 'Materias primas y procesos', 'Seguridad e higiene alimentaria'],
+    continuidad: {
+      especializacion: ['Curso de especialización en Panadería y bollería artesanales', 'Curso de especialización en Pastelería', 'Grado Superior de Dirección de Cocina'],
+      universidad: [],
+    },
+    duracionHoras: 2000,
+    gemaOculta: true,
+    porQueOculta:
+      'Tiene fama de madrugón y de oficio antiguo. Es de los pocos ciclos donde puedes montar tu propio negocio a los pocos años de terminar.',
+    diaEnElTrabajo:
+      'Entras a las cinco de la mañana, cuando la ciudad duerme y el obrador ya huele. Sacas la masa que fermentó toda la noche, la formas a mano y la metes al horno. A las siete, cuando abre la tienda, el pan que la gente se lleva lo has hecho tú entero.',
+  },
+  {
+    id: 'gs-mediacion-comunicativa',
+    nombre: 'Mediación Comunicativa',
+    familia: 'sociocultural',
+    grado: 'superior',
+    descripcion:
+      'Haces posible la comunicación de personas sordas, sordociegas o con dificultades del habla. Se estudia lengua de signos y sobra trabajo en cuanto sales.',
+    habilidadesClave: ['Lengua de signos española', 'Sistemas alternativos de comunicación', 'Guía-interpretación', 'Intervención con familias', 'Accesibilidad'],
+    salidasLaborales: ['Mediador/a comunicativo', 'Guía-intérprete de personas sordociegas', 'Apoyo en centros educativos', 'Asociaciones y servicios de accesibilidad'],
+    perfilIdeal: ['asistencial', 'social', 'organizativo'],
+    tagsAfinidad: ['cuidadoPersonas', 'ensenanza', 'atencionPublico', 'idiomas'],
+    asignaturasTipicas: ['Lengua de signos española', 'Intervención con personas sordociegas', 'Sistemas aumentativos y alternativos de comunicación', 'Contexto de la mediación comunicativa', 'Habilidades sociales'],
+    continuidad: {
+      especializacion: ['Curso de especialización en Mediación comunitaria'],
+      universidad: ['Logopedia', 'Trabajo Social', 'Educación Social'],
+    },
+    duracionHoras: 2000,
+    gemaOculta: true,
+    porQueOculta:
+      'Casi nadie sabe que existe una FP donde se aprende lengua de signos. Los servicios de accesibilidad llevan años sin cubrir plazas.',
+    diaEnElTrabajo:
+      'Acompañas a una persona sorda a una consulta médica. No traduces palabra por palabra: te aseguras de que entiende el diagnóstico y de que el médico entiende sus dudas. Sales de allí sabiendo que sin ti esa conversación no habría existido.',
+  },
+  {
+    id: 'gm-soldadura-caldereria',
+    nombre: 'Soldadura y Calderería',
+    familia: 'mecanica',
+    grado: 'medio',
+    descripcion:
+      'Sueldas y construyes estructuras, depósitos y tuberías industriales. Un buen soldador con homologaciones no está parado ni una semana, y hay muy pocos.',
+    habilidadesClave: ['Soldadura TIG y MIG', 'Trazado y conformado', 'Lectura de planos', 'Homologaciones', 'Estructuras metálicas'],
+    salidasLaborales: ['Soldador/a homologado', 'Calderero/a industrial', 'Montaje de estructuras', 'Mantenimiento en planta e industria naval'],
+    perfilIdeal: ['tecnico', 'fisico'],
+    tagsAfinidad: ['taller', 'maquinaria', 'construccion', 'precision'],
+    asignaturasTipicas: ['Soldadura en atmósfera natural y protegida', 'Trazado, corte y conformado', 'Mecanizado', 'Interpretación gráfica', 'Metrología y ensayos'],
+    continuidad: {
+      especializacion: ['Grado Superior de Construcciones Metálicas', 'Homologaciones de soldadura por procedimiento'],
+      universidad: [],
+    },
+    duracionHoras: 2000,
+    gemaOculta: true,
+    porQueOculta:
+      'Arrastra el estigma de trabajo sucio, y es de los oficios mejor pagados sin estudios universitarios. Un soldador homologado elige dónde trabaja.',
+    diaEnElTrabajo:
+      'Tienes delante un depósito que debe aguantar presión durante veinte años. Preparas el bisel, calientas, y haces un cordón que después pasará por rayos X. Cuando el informe dice que no hay ni un poro, sabes exactamente cuánto vale ese oficio.',
+  },
+  {
+    id: 'gs-transporte-logistica',
+    nombre: 'Transporte y Logística',
+    familia: 'comercio',
+    grado: 'superior',
+    descripcion:
+      'Organizas cómo se mueven las mercancías: rutas, almacenes, aduanas y costes. Todo el comercio del mundo depende de esto y casi nadie lo elige.',
+    habilidadesClave: ['Gestión de almacén', 'Planificación de rutas', 'Comercio internacional', 'Costes logísticos', 'Software de gestión'],
+    salidasLaborales: ['Jefe/a de tráfico', 'Responsable de almacén', 'Técnico de operaciones logísticas', 'Agente de transporte'],
+    perfilIdeal: ['organizativo', 'analitico', 'social'],
+    tagsAfinidad: ['gestion', 'numeros', 'liderazgo', 'idiomas'],
+    asignaturasTipicas: ['Gestión administrativa del transporte', 'Organización del almacén', 'Logística de aprovisionamiento', 'Transporte internacional de mercancías', 'Comercialización del transporte'],
+    continuidad: {
+      especializacion: ['Curso de especialización en Digitalización de la gestión administrativa'],
+      universidad: ['Administración y Dirección de Empresas', 'Comercio Internacional', 'Ingeniería de Organización Industrial'],
+    },
+    duracionHoras: 2000,
+    gemaOculta: true,
+    porQueOculta:
+      'No se enseña en el instituto y suena a camiones. Es el sistema nervioso de todo el comercio, y con muy poca competencia para entrar.',
+    diaEnElTrabajo:
+      'Un camión se avería en Francia con carga perecedera dentro. En veinte minutos localizas otro transportista, rehaces la ruta, avisas al cliente y salvas el pedido. Nadie se entera de que hubo un problema: eso es exactamente tu trabajo bien hecho.',
   },
 ];
 

@@ -106,6 +106,8 @@ export interface Ciclo {
    * Alimenta la seccion "Gemas ocultas".
    */
   gemaOculta?: boolean;
+  /** Por que este ciclo pasa desapercibido pese a su salida. Solo en gemas. */
+  porQueOculta?: string;
   /** Relato ilustrativo de una jornada, para las gemas ocultas. */
   diaEnElTrabajo?: string;
 }

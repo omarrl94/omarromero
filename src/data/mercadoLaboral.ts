@@ -100,6 +100,14 @@ export const MERCADO: Record<string, DatosMercado> = {
   'gs-acondicionamiento-fisico': { insercion: 79, salarioMin: 18000, salarioMax: 26000, demanda: 'alta', modalidades: ['presencial'], cargaLogica: 3, cargaPractica: 5 },
   'gs-ensenanza-sociodeportiva': { insercion: 76, salarioMin: 17500, salarioMax: 25000, demanda: 'alta', modalidades: ['presencial'], cargaLogica: 3, cargaPractica: 5 },
 
+  // ---- Gemas de rama añadidas ----
+  'gs-mantenimiento-electronico': { insercion: 92, salarioMin: 22000, salarioMax: 31000, demanda: 'muy-alta', modalidades: ['presencial', 'dual'], cargaLogica: 4, cargaPractica: 5 },
+  'gs-iluminacion-captacion': { insercion: 72, salarioMin: 18000, salarioMax: 26000, demanda: 'alta', modalidades: ['presencial'], cargaLogica: 3, cargaPractica: 5 },
+  'gm-panaderia-reposteria': { insercion: 89, salarioMin: 17000, salarioMax: 23000, demanda: 'muy-alta', modalidades: ['presencial', 'dual'], cargaLogica: 2, cargaPractica: 5 },
+  'gs-mediacion-comunicativa': { insercion: 84, salarioMin: 18000, salarioMax: 25000, demanda: 'alta', modalidades: ['presencial'], cargaLogica: 3, cargaPractica: 4 },
+  'gm-soldadura-caldereria': { insercion: 93, salarioMin: 20000, salarioMax: 30000, demanda: 'muy-alta', modalidades: ['presencial', 'dual'], cargaLogica: 2, cargaPractica: 5 },
+  'gs-transporte-logistica': { insercion: 90, salarioMin: 22000, salarioMax: 31000, demanda: 'muy-alta', modalidades: ['presencial', 'dual', 'teletrabajo'], cargaLogica: 4, cargaPractica: 3 },
+
   // ---- Química / Instalación / Textil ----
   'gs-quimica-industrial': { insercion: 94, salarioMin: 24000, salarioMax: 34000, demanda: 'muy-alta', modalidades: ['presencial', 'dual'], cargaLogica: 5, cargaPractica: 4 },
   'gs-mecatronica-industrial': { insercion: 95, salarioMin: 25000, salarioMax: 36000, demanda: 'muy-alta', modalidades: ['presencial', 'dual'], cargaLogica: 4, cargaPractica: 5 },
