@@ -10,7 +10,7 @@
  * Uso:  npm run build:netlify
  */
 import { execFileSync } from 'node:child_process';
-import { writeFileSync, rmSync, existsSync, readdirSync, statSync } from 'node:fs';
+import { writeFileSync, rmSync, existsSync, readdirSync, statSync, readFileSync } from 'node:fs';
 import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -25,6 +25,26 @@ if (!existsSync(join(dist, 'index.html'))) {
 // El fichero único es otro entregable distinto: no debe viajar dentro del sitio.
 const standalone = join(dist, 'orientafp-standalone.html');
 if (existsSync(standalone)) rmSync(standalone);
+
+// --- Purga de assets de builds anteriores ---
+// El proyecto construye con `emptyOutDir: false`, así que dist/assets conserva
+// los ficheros hasheados de cada build previa. Sin esta limpieza el paquete
+// viaja con bundles muertos: no rompen el sitio, porque index.html solo
+// referencia el actual, pero doblan el peso de la subida sin que se note.
+const indexHtml = readFileSync(join(dist, 'index.html'), 'utf8');
+const referenciados = new Set(
+  [...indexHtml.matchAll(/\/assets\/([^"']+)/g)].map((m) => m[1]),
+);
+const dirAssets = join(dist, 'assets');
+const purgados = [];
+if (existsSync(dirAssets)) {
+  for (const fichero of readdirSync(dirAssets)) {
+    if (!referenciados.has(fichero)) {
+      rmSync(join(dirAssets, fichero));
+      purgados.push(fichero);
+    }
+  }
+}
 
 // --- Equivalente de netlify.toml para despliegues manuales ---
 writeFileSync(
@@ -68,6 +88,12 @@ const recorrer = (dir, prefijo = '') => {
 recorrer(dist);
 
 console.log(`Paquete listo: ${zip} (${kb(statSync(zip).size)})`);
+if (purgados.length) {
+  console.log(`Assets de builds anteriores purgados: ${purgados.join(', ')}`);
+}
 console.log(`Contenido (${ficheros.length} ficheros):`);
 for (const f of ficheros.sort()) console.log(`  ${f}`);
-console.log('\nSuéltalo en https://app.netlify.com/drop');
+console.log('\nPara desplegarlo:');
+console.log('  · Sitio YA existente -> pestaña "Deploys" de ese sitio, y suelta el zip ahí.');
+console.log('    Así conserva su dominio; app.netlify.com/drop crearía uno nuevo aparte.');
+console.log('  · Sitio nuevo        -> https://app.netlify.com/drop');
