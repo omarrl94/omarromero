@@ -1,4 +1,4 @@
-# 🚀 Desplegar Hipster Bingo en Netlify
+# 🚀 Desplegar Rollo Madrid en Netlify
 
 Todo desde la terminal, sin pasar por la web de Netlify ni por GitHub.
 
@@ -16,7 +16,7 @@ Funciona igual en **Windows** (cmd y PowerShell), **macOS** y **Linux**: el scri
 Eso es todo. El script se encarga del resto:
 
 1. Comprueba que tienes Node.js 18+.
-2. Te pide las dos credenciales de Supabase (o las lee de `.env.local` si ya existen) y las guarda.
+2. Te pide la clave de Google Maps (o la lee de `.env.local` si ya existe) y la guarda.
 3. Instala las dependencias si hacen falta.
 4. Abre el navegador para que autorices tu cuenta de Netlify.
 5. Crea el sitio (o lo reutiliza si ya lo creaste).
@@ -25,17 +25,19 @@ Eso es todo. El script se encarga del resto:
 
 Al terminar te imprime la URL pública. **Las siguientes veces solo tienes que volver a ejecutar `npm run deploy`**: ya no pedirá nada, compila y sube directamente.
 
-### Antes de empezar: consigue las credenciales
+### Antes de empezar: consigue la clave de Google Maps
 
-El script te las va a pedir, así que tenlas a mano:
+El script te la va a pedir, así que tenla a mano:
 
-1. Entra en [supabase.com](https://supabase.com) y crea un proyecto (plan gratuito). **No hace falta base de datos ni crear tablas.**
-2. Ve a **Project Settings** (engranaje) → **API**.
-3. Copia estos dos valores:
-   - **Project URL** → algo como `https://abcdxyz.supabase.co`
-   - **anon public** → la clave larga que empieza por `eyJ...`
+1. Entra en [console.cloud.google.com](https://console.cloud.google.com/) y crea un proyecto.
+2. **APIs y servicios → Biblioteca** y habilita las dos que usa la app:
+   - **Maps JavaScript API** → el mapa.
+   - **Places API (New)** → el buscador de bares. (Si tu clave es antigua y solo tiene la *Places API* clásica, la app detecta y usa esa.)
+3. **APIs y servicios → Credenciales → Crear credenciales → Clave de API**.
+4. **Restringe la clave** por *HTTP referrers* a tu dominio (`https://tu-sitio.netlify.app/*` y `http://localhost:3000/*`).
+5. Opcional pero recomendado: crea un **Map ID** en *Google Maps Platform → Gestión de mapas* (tipo JavaScript, vectorial). Sin él la app usa `DEMO_MAP_ID`, que funciona pero pinta una marca de agua.
 
-> ⚠️ Usa la clave **anon public**, nunca la `service_role`. La anon está pensada para ir en el navegador; la otra es secreta.
+> ⚠️ La clave viaja al navegador: por eso hay que restringirla por dominio. También conviene ponerle un límite de cuota diario en Google Cloud para que una noche de fiesta no te cueste un riñón.
 
 ### Publicar una preview sin tocar producción
 
@@ -63,8 +65,8 @@ npx netlify-cli login
 npx netlify-cli init
 
 # 4. Variables de entorno (sustituye por las tuyas)
-npx netlify-cli env:set NEXT_PUBLIC_SUPABASE_URL "https://TU-PROYECTO.supabase.co"
-npx netlify-cli env:set NEXT_PUBLIC_SUPABASE_ANON_KEY "eyJ...tu-anon-key"
+npx netlify-cli env:set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY "AIza...tu-clave"
+npx netlify-cli env:set NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID "tu-map-id"
 
 # 5. Compilar y publicar en producción
 npx netlify-cli deploy --build --prod
@@ -90,8 +92,8 @@ Para una preview en vez de producción, quita `--prod` del último comando.
 Para cambiar el nombre del sitio (y por tanto la URL):
 
 ```bash
-npx netlify-cli sites:update --name mi-bingo-musical
-# → https://mi-bingo-musical.netlify.app
+npx netlify-cli sites:update --name rollo-madrid
+# → https://rollo-madrid.netlify.app
 ```
 
 ---
@@ -102,7 +104,7 @@ npx netlify-cli sites:update --name mi-bingo-musical
 npm run dev     # → http://localhost:3000
 ```
 
-El script ya te habrá dejado el `.env.local` creado, así que el multijugador funciona también en local. Para probarlo de verdad, abre la URL en dos navegadores distintos (o uno normal y otro en incógnito): crea la sala en uno y únete con el código desde el otro.
+El script ya te habrá dejado el `.env.local` creado, así que el mapa funciona también en local. Recuerda añadir `http://localhost:3000/*` a las restricciones de la clave en Google Cloud.
 
 ---
 
@@ -111,7 +113,7 @@ El script ya te habrá dejado el `.env.local` creado, así que el multijugador f
 Si además quieres que cada `git push` publique sola la web:
 
 ```bash
-git init && git add . && git commit -m "Hipster Bingo"
+git init && git add . && git commit -m "Rollo Madrid"
 git branch -M main
 git remote add origin https://github.com/TU-USUARIO/TU-REPO.git
 git push -u origin main
@@ -125,7 +127,7 @@ Después, en el panel de Netlify: **Site configuration → Build & deploy → Li
 
 ## Problemas frecuentes
 
-**Aparece el aviso amarillo "Falta configurar el tiempo real" en la web publicada**
+**En la web publicada sale "Falta la clave de Google Maps"**
 Las variables `NEXT_PUBLIC_*` se incrustan **durante la compilación**, no se leen al arrancar. Si las cambiaste después de desplegar, hay que volver a compilar:
 
 ```bash
@@ -135,17 +137,20 @@ npm run deploy
 **El aviso aparece solo en local**
 Tras editar `.env.local` hay que **reiniciar `npm run dev`**; Next.js no recarga esas variables en caliente.
 
-**`"bash" no se reconoce como un comando`**
-Versión antigua del script. Asegúrate de que `package.json` tiene `"deploy": "node scripts/deploy-netlify.mjs"` y de que existe `scripts/deploy-netlify.mjs`.
+**"Google Maps no ha podido cargar" o el mapa sale en gris**
+Casi siempre es una de estas tres: la clave no tiene habilitada *Maps JavaScript API*, el dominio no está en las restricciones de referrer, o el proyecto de Google Cloud no tiene facturación activada (Google la exige aunque haya capa gratuita). La consola del navegador dice cuál de las tres es.
+
+**El buscador no sugiere nada**
+Falta habilitar *Places API (New)* en el mismo proyecto que la clave. Escribe al menos 3 letras: el buscador no dispara antes.
+
+**Los pines no aparecen pero el mapa sí**
+Los marcadores avanzados necesitan un Map ID. Comprueba `NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID` y que el Map ID sea de tipo *JavaScript*.
 
 **"No hay terminal interactiva para pedirte las credenciales"**
-Estás ejecutando el comando con la entrada redirigida (por ejemplo desde un script o CI). Crea a mano un `.env.local` en la raíz con las dos variables y vuelve a lanzarlo.
+Estás ejecutando el comando con la entrada redirigida (por ejemplo desde un script o CI). Crea a mano un `.env.local` en la raíz con las variables y vuelve a lanzarlo.
 
 **"You don't appear to be in a folder that is linked to a site"**
 Falta vincular la carpeta. Ejecuta `npx netlify-cli init` (sitio nuevo) o `npx netlify-cli link` (sitio existente).
-
-**Los jugadores no se ven entre ellos**
-Asegúrate de que todos entran por la **misma URL publicada** (no unos en localhost y otros en Netlify) y de que el código de sala es idéntico.
 
 **Quiero empezar de cero con otro sitio**
 

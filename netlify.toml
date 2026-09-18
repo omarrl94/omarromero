@@ -1,9 +1,10 @@
 # ──────────────────────────────────────────────────────────────
 # Configuración de despliegue en Netlify
 #
-# El plugin oficial de Next.js se encarga de las rutas dinámicas
-# (/room/[code]) desplegándolas como funciones serverless, y de
-# servir los assets estáticos desde la CDN.
+# El plugin oficial de Next.js publica la app (estática) en la CDN.
+# Recuerda declarar NEXT_PUBLIC_GOOGLE_MAPS_API_KEY en el panel de
+# Netlify (Site settings → Environment variables) o con `npm run deploy`,
+# que lo hace por ti.
 # ──────────────────────────────────────────────────────────────
 
 [build]
@@ -16,8 +17,8 @@
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
-# Cabeceras de seguridad básicas (no interfieren con Supabase
-# Realtime ni con las fuentes de Google).
+# Cabeceras de seguridad básicas (no interfieren con Google Maps
+# ni con las fuentes de Google).
 [[headers]]
   for = "/*"
   [headers.values]

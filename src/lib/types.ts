@@ -1,73 +1,57 @@
-import type { TileColor } from "./colors";
+/**
+ * Modelo de datos de Rollo Madrid.
+ *
+ * El identificador universal de un local es el `place_id` de Google:
+ * los bares no se crean a mano, se "adoptan" desde Google Places al
+ * buscarlos. Así nunca hay duplicados ni nombres mal escritos.
+ */
 
-/** Fases de la partida, propagadas por el host vía Presence. */
-export type GamePhase = "lobby" | "playing" | "finished";
-
-/** Ronda de color lanzada por el host (launchId la hace única). */
-export interface ActiveRound {
-  color: TileColor;
-  launchId: number;
+/** Local adoptado desde Google Places. */
+export interface Bar {
+  /** Clave primaria: Place ID oficial de Google. */
+  place_id: string;
+  nombre: string;
+  direccion: string;
+  lat: number;
+  lng: number;
 }
 
-/** Estado que cada jugador publica en el canal Presence de la sala. */
-export interface PlayerPresence {
-  playerId: string;
-  nickname: string;
-  isHost: boolean;
-  joinedAt: number;
-  /** Nº de casillas marcadas (sin contar la FREE). No revela cuáles. */
-  markedCount: number;
-  /** Solo relevante en la presencia del host: estado autoritativo. */
-  phase: GamePhase;
-  round: number;
-  activeRound: ActiveRound | null;
+/** Las cuatro categorías que se puntúan de 1 a 5. */
+export type CriterioKey = "limpieza" | "espacio" | "intimidad" | "suministros";
+
+/** Puntuación de 1 a 5 rollos. */
+export type Puntuacion = 1 | 2 | 3 | 4 | 5;
+
+/** Valoración de un baño. La nota global se calcula, no se guarda. */
+export interface Review {
+  id: string;
+  /** FK → Bar.place_id */
+  place_id: string;
+  limpieza: Puntuacion;
+  espacio: Puntuacion;
+  intimidad: Puntuacion;
+  suministros: Puntuacion;
+  comentario: string;
+  /** Alias de quien valora; vacío = anónimo. */
+  autor: string;
+  /** Fecha ISO 8601. */
+  fecha: string;
 }
 
-export interface WinnerInfo {
-  playerId: string;
-  nickname: string;
-  line: readonly number[];
-  round: number;
+/** Valores del formulario antes de convertirse en Review. */
+export type ReviewDraft = Pick<
+  Review,
+  CriterioKey | "comentario" | "autor"
+>;
+
+/** Un bar junto a las notas derivadas de sus reseñas. */
+export interface BarConNota {
+  bar: Bar;
+  reviews: Review[];
+  /** Media global (1-5) o null si todavía no tiene reseñas. */
+  media: number | null;
+  /** Medias por categoría, null si no hay reseñas. */
+  medias: Record<CriterioKey, number> | null;
+  /** Media >= 4.5 con al menos 2 reseñas → Rollo de Oro. */
+  esRolloDeOro: boolean;
 }
-
-/** Payloads de los eventos Broadcast de la sala. */
-export interface BingoClaimPayload {
-  playerId: string;
-  nickname: string;
-  round: number;
-  markedCells: number[];
-}
-
-export interface GameStatePayload {
-  phase: GamePhase;
-  round: number;
-  winner: WinnerInfo | null;
-}
-
-/** El host lanza una ronda de un color concreto. */
-export interface RoundLaunchPayload {
-  color: TileColor;
-  launchId: number;
-}
-
-/** Un jugador envía su respuesta de la zona "Adivina:". */
-export interface GuessPayload {
-  playerId: string;
-  nickname: string;
-  guess: string;
-  color: TileColor;
-  launchId: number;
-}
-
-/** Veredicto del host sobre una respuesta. */
-export interface VerdictPayload {
-  playerId: string;
-  color: TileColor;
-  launchId: number;
-  approved: boolean;
-}
-
-/** Estado de mi respuesta en la ronda activa. */
-export type GuessStatus = "idle" | "submitted" | "approved" | "rejected";
-
-export type ConnectionStatus = "connecting" | "connected" | "reconnecting" | "offline";

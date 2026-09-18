@@ -1,168 +1,141 @@
-# 🎵 Hipster Bingo · Hitster Music Bingo
+# 🧻 Rollo Madrid
 
-Generador visual de **cartones de colores** para music bingo estilo **Hitster**, multijugador **en tiempo real** y con estética *vintage craft paper*. Crea una sala, comparte el código o el QR, adivina canciones y estampa X negras hasta cantar **¡BINGO!**
+**El mapa comunitario de los baños de los bares de Madrid.** Busca el bar, mira la nota de su baño y entra sabiendo a qué te enfrentas. Cuatro categorías, de 1 a 5 rollos, y un comentario libre para las advertencias que salvan vidas.
 
-Construido con **Next.js (App Router) + TypeScript estricto**, **Tailwind CSS**, **Framer Motion**, **Lucide Icons** y **Supabase Realtime** (canales Broadcast + Presence, sin base de datos).
-
----
-
-## ✨ Características
-
-- **Salas con código de 4 caracteres**, enlace copiable y **código QR** para compartir.
-- **Cartón visual 5×5 estilo Hitster**: fichas cuadradas de color sólido y vibrante (Amarillo, Azul, Verde, Rojo, Morado) con borde negro fino — distribución equilibrada de 5 fichas por color.
-- **Casilla central fija Morada** (comodín) con el texto "FREE / Pipa de Cobre", marcada de nacimiento.
-- **Distribución espacial aleatoria y única por jugador**: Fisher-Yates con semilla determinista (`sala + jugador + ronda`).
-- **Zona blanca de adivinanza** bajo el cartón, imitando la tarjeta física: texto "Adivina:", campo de entrada grande y limpio, y logo **HITSTER** en la base.
-- **Mecánica de rondas por color**: el host lanza una ronda de un color, pone la canción, los jugadores escriben su respuesta y el host **valida o rechaza** cada una. Al validar, una **X negra** se estampa sobre la primera ficha libre de ese color del jugador. *(Sin marcado táctil: las casillas no se marcan tocando.)*
-- **Panel lateral en vivo** con el % de progreso de cada jugador (sin desvelar su cartón).
-- **Botón ¡BINGO!** que solo se activa con 5 X en línea (horizontal, vertical o diagonal).
-- **Validación anti-trampas distribuida** de la reclamación: cada cliente regenera el cartón del reclamante desde su semilla y verifica la línea de forma independiente.
-- **Victoria global**: congela la partida, lanza confetti y proclama al ganador en todas las pantallas.
-- **Rol host**: arranca la partida, lanza rondas, valida respuestas y reinicia con cartones nuevos.
-- **Persistencia**: si recargas o pierdes la conexión, recuperas exactamente el mismo cartón con tus X intactas (localStorage + regeneración determinista).
-- **Reconexión automática** con backoff exponencial y reenganche al recuperar la red.
+> MVP funcional: Next.js 14 (App Router) + TypeScript + Tailwind + Google Maps. Las valoraciones viven de momento en el navegador (`localStorage`), listas para enchufarse a un backend real.
 
 ---
 
-## 🚀 Puesta en marcha local
-
-Requisitos: Node.js 18.17+ (o 20+).
+## Arrancar en local
 
 ```bash
-# 1. Instalar dependencias
 npm install
-
-# 2. Configurar el tiempo real (ver sección Supabase más abajo)
-cp .env.example .env.local
-#    → edita .env.local con tus credenciales
-
-# 3. Arrancar en desarrollo
-npm run dev
-# → http://localhost:3000
+cp .env.example .env.local   # y pega tu clave de Google Maps
+npm run dev                  # → http://localhost:3000
 ```
 
-Verificación de producción:
+Sin clave la app **no se rompe**: en lugar del mapa muestra el buscador local y el ranking de baños, así puedes ver el flujo completo con los datos de ejemplo.
 
-```bash
-npm run build   # compila sin errores con TypeScript estricto
-npm run start   # sirve el build de producción
+### La clave de Google
+
+1. [console.cloud.google.com](https://console.cloud.google.com/) → nuevo proyecto.
+2. **APIs y servicios → Biblioteca**, habilita **Maps JavaScript API** y **Places API (New)**.
+3. **Credenciales → Clave de API**, y restríngela por *HTTP referrers* (`http://localhost:3000/*` y tu dominio).
+4. Opcional: crea un **Map ID** (Maps Platform → Gestión de mapas) para quitar la marca de agua de `DEMO_MAP_ID`.
+
+Variables (`.env.local`):
+
+```
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=AIza...tu-clave
+NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID=DEMO_MAP_ID
 ```
 
 ---
 
-## 🔑 Configurar Supabase Realtime (2 minutos, gratis)
+## Cómo funciona
 
-La app **no usa base de datos ni tablas**: solo los canales Realtime (Broadcast + Presence) de Supabase, incluidos en el plan Free.
+### Los bares no se crean a mano
 
-1. Crea una cuenta y un proyecto en [supabase.com](https://supabase.com).
-2. Entra en **Project Settings → API**.
-3. Copia dos valores en tu `.env.local` (o en las variables del hosting):
+El identificador de un local es su **`place_id` de Google**. El usuario escribe en el buscador, Google Places autocompleta, y al elegir un sitio se "adopta": guardamos `place_id`, nombre, dirección y coordenadas oficiales. Cero duplicados, cero nombres mal escritos.
 
-| Variable | Dónde encontrarla |
+El buscador ofrece primero los bares que ya están en Rollo Madrid (instantáneo, sin gastar cuota) y debajo las sugerencias de Google. Usa la Places API nueva (`AutocompleteSuggestion`) y cae sola a la clásica (`AutocompleteService`) si la clave solo tiene esa.
+
+### Las notas
+
+| Categoría | La pregunta de verdad |
 |---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | Project Settings → API → *Project URL* |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Project Settings → API → *anon public key* |
+| 🧼 Limpieza | ¿Se puede comer en el suelo o huele a muerte? |
+| 📏 Espacio | ¿Caben las rodillas al cerrar la puerta? |
+| 🔒 Intimidad | ¿La puerta cierra bien y tiene pestillo de verdad? |
+| 🧻 Suministros | ¿Hay papel y jabón o toca improvisar? |
 
-> Ambas claves son públicas por diseño (van al navegador). No pongas aquí la `service_role` key.
+La **nota global** es la media de las cuatro, y la nota del bar la media de todas sus reseñas. De ahí sale el color del pin:
 
-**Sobre el aviso "Falta configurar el tiempo real":** aparece cuando las variables no existen, quedan con los valores placeholder del `.env.example`, o son inválidas. La app sanea los valores (espacios, comillas) y valida el formato antes de crear el cliente. Tras editar `.env.local` **reinicia `npm run dev`** (Next.js inyecta las `NEXT_PUBLIC_*` en build, no en caliente). En Vercel, tras añadir variables hay que **redeployar**.
+| Nota media | Pin | Etiqueta |
+|---|---|---|
+| ≥ 3,5 | 🟢 verde | Zona de confort |
+| ≥ 2,5 | 🟡 amarillo | Pasable con prisa |
+| < 2,5 | 🔴 rojo | Zona catastrófica |
 
----
+Los que superan **4,5 con dos reseñas o más** se llevan el **Rollo de Oro** 👑 (aro dorado en el pin).
 
-## ☁️ Despliegue
+### Estructura de datos
 
-### Netlify (recomendado) — un solo comando
-
-```bash
-npm install
-npm run deploy
+```ts
+Bar    { place_id (PK), nombre, direccion, lat, lng }
+Review { id, place_id (FK), limpieza, espacio, intimidad, suministros,
+         comentario, autor, fecha }
 ```
 
-El script te pide las credenciales de Supabase, crea el sitio, configura las variables de entorno y publica. Al terminar imprime la URL pública. Para una URL de prueba sin tocar producción: `npm run deploy:preview`.
-
-📖 **Guía completa: [`DESPLIEGUE-NETLIFY.md`](./DESPLIEGUE-NETLIFY.md)** — comandos manuales equivalentes, comandos útiles del día a día y solución de problemas.
-
-### Vercel
-
-1. Sube este repositorio a GitHub.
-2. Entra en [vercel.com/new](https://vercel.com/new) e **importa el repositorio**. Vercel detecta Next.js automáticamente.
-3. En el paso *Environment Variables*, añade las dos `NEXT_PUBLIC_*`.
-4. Pulsa **Deploy**.
-
-### Render / Railway
-
-Ambos detectan Next.js. Configura:
-
-- **Build command:** `npm install && npm run build`
-- **Start command:** `npm run start`
-- **Variables de entorno:** las dos `NEXT_PUBLIC_*` de arriba.
-
-> En **todas** las plataformas, las variables `NEXT_PUBLIC_*` se incrustan **durante la compilación**. Si las añades después de un despliegue, hay que volver a construir el sitio para que surtan efecto.
+Las notas no se guardan calculadas: se derivan en `src/lib/scores.ts`. Cuando haya backend, el esquema se traduce a dos tablas tal cual.
 
 ---
 
-## 🧠 Arquitectura
+## Mapa del código
 
 ```
 src/
-├── app/
-│   ├── layout.tsx            # Layout raíz, metadatos, fuentes
-│   ├── page.tsx              # Lobby: crear partida / unirse con código
-│   └── room/[code]/page.tsx  # Sala de juego (valida el código en servidor)
-├── components/
-│   ├── RoomClient.tsx        # Orquestador: join gate, toolbar, controles
-│   ├── BingoCard.tsx         # Cartón 5×5 de fichas de color con X negras
-│   ├── AnswerZone.tsx        # Zona blanca "Adivina:" + input + logo HITSTER
-│   ├── HostPanel.tsx         # Mesa del host: lanzar rondas y validar respuestas
-│   ├── PlayersDrawer.tsx     # Panel lateral con progreso de cada jugador
-│   ├── WinnerOverlay.tsx     # Alerta global de victoria + confetti
-│   ├── ShareRoom.tsx         # Código, enlace copiable y QR
-│   └── ConfigNotice.tsx      # Aviso si faltan variables de entorno
-├── hooks/
-│   └── useRoom.ts            # Canal Realtime, rondas, veredictos, reconexión
-└── lib/
-    ├── colors.ts             # Paleta de fichas (5 colores + etiquetas)
-    ├── bingo.ts              # PRNG con semilla, Fisher-Yates, líneas, validación
-    ├── storage.ts            # Persistencia de sesión/cartón en localStorage
-    ├── supabase.ts           # Cliente Realtime (saneado + validación de env)
-    └── types.ts              # Tipos compartidos del protocolo de sala
+├─ app/
+│  ├─ layout.tsx              Metadatos, fuentes y estilos globales
+│  ├─ page.tsx                Pantalla única: cabecera + mapa
+│  └─ globals.css             Paleta papel, botones y tarjetas
+├─ components/
+│  ├─ MapaRollos.tsx          ★ Mapa de Madrid + buscador integrado
+│  ├─ Buscador.tsx            Google Places Autocomplete (UI propia)
+│  ├─ PinBar.tsx              Pin de color según la nota media
+│  ├─ FichaBar.tsx            BottomSheet (móvil) / panel lateral (desktop)
+│  ├─ FormularioValoracion.tsx  Las 4 categorías + comentario
+│  ├─ Rollitos.tsx            Iconos de puntuación (rollos de papel)
+│  ├─ ListaBares.tsx          Ranking (y alternativa si no hay mapa)
+│  ├─ AvisoSinClave.tsx       Qué hacer si falta la API key
+│  ├─ Cabecera.tsx            Barra superior
+│  └─ Logo.tsx                Logo SVG: el papel cae y dibuja una "M"
+├─ hooks/
+│  └─ usePlacesBuscador.ts    Autocompletado + detalle del sitio
+└─ lib/
+   ├─ types.ts                Bar, Review, BarConNota
+   ├─ scores.ts               Medias, niveles, colores, fechas
+   ├─ mock-data.ts            5 bares clásicos con place_id inventados
+   ├─ store.tsx               Estado global + persistencia
+   └─ config.ts               Centro de Madrid, zooms y variables de entorno
 ```
 
-### Flujo de una ronda (protocolo Broadcast)
+### El logo
 
-1. `round:launch` — el host elige un color y lanza la ronda (con `launchId` único).
-2. `guess:submit` — cada jugador envía su respuesta desde la zona "Adivina:" (una por ronda).
-3. `guess:verdict` — el host valida ✔ o rechaza ✖ cada respuesta de su cola.
-4. Si es válida, el cliente del jugador estampa la **X** en su **primera ficha libre de ese color** (determinista: orden de lectura).
-5. `bingo:claim` — con 5 X en línea, el botón ¡BINGO! difunde la reclamación y **todos** los clientes la validan regenerando el cartón desde la semilla.
-6. `game:state` — start/reset del host y proclamación del ganador.
-
-La **Presence** difunde el estado vivo (apodo, host, % de progreso) y, en la presencia del host, la fase/ronda/color activo autoritativos — quien entra tarde o se reconecta queda sincronizado al instante.
-
-### Unicidad y persistencia de los cartones
-
-- Cada cartón se genera con **mulberry32** sembrado con `hash(sala | playerId | ronda)` y un **Fisher-Yates** sobre el pool de 24 fichas (5+5+5+5 de Amarillo/Azul/Verde/Rojo y 4 Moradas; la central Morada es fija) → distribución espacial única por jugador.
-- Como la generación es determinista, el cartón **no se guarda en ningún sitio**: se regenera idéntico tras cada recarga, y las X se restauran desde `localStorage`.
+Un rollo de papel higiénico cuyo papel cae, recorre el suelo y se levanta dibujando una **M** mayúscula. Todo SVG (`src/components/Logo.tsx`): escala sin pixelarse y el degradado del papel va del azul agua al rojo Madrid.
 
 ---
 
-## 📜 Scripts
+## Paleta
 
-| Comando | Descripción |
+| Uso | Color |
 |---|---|
-| `npm run dev` | Desarrollo con hot-reload |
-| `npm run build` | Build de producción (cero errores, TS estricto) |
-| `npm run start` | Servir el build de producción |
-| `npm run typecheck` | Solo comprobación de tipos |
+| Fondo papel | `papel-50/100/200` · `#FFFDF8 → #F1EADA` |
+| Marca (agua) | `agua-500` · `#1E9FC6` |
+| Detalles cartón | `carton-400/600` · `#C2A17B`, `#8B6A45` |
+| Premios | `oro-400` · `#E0B252` |
+| Acento Madrid | `madrid-500` · `#D0202E` |
+| Notas | verde `#2E9E5B` · amarillo `#E0A526` · rojo `#D64541` |
+
+Mobile-first de verdad: la ficha sube como BottomSheet, los rollitos son pulsables con el pulgar y todo se maneja con una mano. Que la gente lo usará desde el baño.
 
 ---
 
-## 🎲 Reglas del juego
+## Comandos
 
-1. El **host** crea la sala y comparte el código/enlace/QR.
-2. Cada jugador entra con su apodo y recibe un **cartón de colores único**.
-3. El host arranca la partida y **lanza rondas de color** mientras suena la música.
-4. Cada jugador escribe su respuesta ("'90", "Dua Lipa"…) en la zona **Adivina:** y el host la valida — si acierta, gana una **X** en su primera ficha libre de ese color.
-5. Con **5 X en línea** (fila, columna o diagonal — el comodín central cuenta siempre) se activa el botón **¡BINGO!**
-6. La reclamación se **valida automáticamente en todos los clientes**; si es legítima, la partida se congela, llueve confetti y se proclama al ganador.
-7. El host puede lanzar una **nueva partida** con cartones nuevos para todos.
+| Comando | Para qué |
+|---|---|
+| `npm run dev` | Servidor de desarrollo |
+| `npm run build` | Compilación de producción |
+| `npm run typecheck` | TypeScript en modo estricto |
+| `npm run deploy` | Publicar en Netlify ([guía](DESPLIEGUE-NETLIFY.md)) |
+
+---
+
+## Siguiente parada
+
+- Backend real (Postgres/Supabase) con las tablas `bares` y `reviews`.
+- Cuentas de usuario: una reseña por persona y bar.
+- Fotos del baño (con moderación, que nos conocemos).
+- Filtros: solo verdes, abiertos ahora, accesibles, con cambiador.
+- Modo "urgencia": el baño decente más cercano, en un toque.

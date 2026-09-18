@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Despliegue de Hipster Bingo en Netlify desde la terminal.
+ * Despliegue de Rollo Madrid en Netlify desde la terminal.
  *
  *   npm run deploy            → publica en producción
  *   npm run deploy:preview    → publica una URL de preview
@@ -65,14 +65,14 @@ const netlify = (args, options) =>
   run("npx", ["--yes", "netlify-cli@latest", ...args], options);
 
 // ── Validación de credenciales ────────────────────────────────
-// Formatos reales de Supabase: URL del proyecto y JWT (base64url).
-const URL_RE = /^https:\/\/[A-Za-z0-9.-]+$/;
-const KEY_RE = /^[A-Za-z0-9._-]{30,}$/;
+// Las claves de navegador de Google empiezan por "AIza".
+const KEY_RE = /^AIza[A-Za-z0-9._-]{30,}$/;
+const MAP_ID_RE = /^[A-Za-z0-9_-]{4,}$/;
 
-const isValidUrl = (v) =>
-  typeof v === "string" && URL_RE.test(v) && !v.includes("TU-PROYECTO");
 const isValidKey = (v) =>
-  typeof v === "string" && KEY_RE.test(v) && !v.includes("tu-anon-key");
+  typeof v === "string" && KEY_RE.test(v) && !v.includes("tu-clave");
+const isValidMapId = (v) =>
+  typeof v === "string" && MAP_ID_RE.test(v) && !v.includes("tu-map-id");
 
 /** Lee un valor de .env.local sin ejecutar el archivo. */
 function readEnvValue(key) {
@@ -88,7 +88,7 @@ function readEnvValue(key) {
 }
 
 async function main() {
-  console.log(`\n${bold("🎵 Hipster Bingo → Netlify")}`);
+  console.log(`\n${bold("🧻 Rollo Madrid → Netlify")}`);
   console.log(dim(ROOT));
 
   // ── 1. Requisitos ───────────────────────────────────────────
@@ -101,27 +101,27 @@ async function main() {
   }
   ok(`Node.js v${process.versions.node}`);
 
-  // ── 2. Credenciales de Supabase ─────────────────────────────
-  step("Credenciales de Supabase");
-  let url = readEnvValue("NEXT_PUBLIC_SUPABASE_URL");
-  let key = readEnvValue("NEXT_PUBLIC_SUPABASE_ANON_KEY");
+  // ── 2. Credenciales de Google Maps ──────────────────────────
+  step("Credenciales de Google Maps");
+  let key = readEnvValue("NEXT_PUBLIC_GOOGLE_MAPS_API_KEY");
+  let mapId = readEnvValue("NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID");
 
-  if (isValidUrl(url) && isValidKey(key)) {
+  if (isValidKey(key)) {
     ok("Leídas de .env.local");
   } else {
     console.log(
       dim(
-        "\nNecesito las dos claves de tu proyecto Supabase." +
-          "\nLas encuentras en: Project Settings → API" +
-          "\n(Plan gratuito, sin base de datos ni tablas.)\n"
+        "\nNecesito la clave de la API de Google Maps." +
+          "\nLa creas en: console.cloud.google.com → APIs y servicios → Credenciales" +
+          "\nHabilita «Maps JavaScript API» y «Places API (New)».\n"
       )
     );
     if (!input.isTTY) {
       fail(
         "No hay terminal interactiva para pedirte las credenciales.\n" +
-          "  Crea un archivo .env.local en la raíz del proyecto con estas dos líneas:\n\n" +
-          "    NEXT_PUBLIC_SUPABASE_URL=https://TU-PROYECTO.supabase.co\n" +
-          "    NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...tu-anon-key\n\n" +
+          "  Crea un archivo .env.local en la raíz del proyecto con estas líneas:\n\n" +
+          "    NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=AIza...tu-clave\n" +
+          "    NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID=tu-map-id\n\n" +
           "  y vuelve a ejecutar el comando."
       );
     }
@@ -142,13 +142,15 @@ async function main() {
     };
 
     try {
-      while (!isValidUrl(url)) {
-        url = await ask("  Project URL (https://xxxx.supabase.co): ");
-        if (!isValidUrl(url)) warn("Debe ser una URL https:// válida — inténtalo de nuevo.");
-      }
       while (!isValidKey(key)) {
-        key = await ask("  anon public key (eyJ...): ");
+        key = await ask("  API key (AIza...): ");
         if (!isValidKey(key)) warn("Esa clave no parece válida — inténtalo de nuevo.");
+      }
+      if (!isValidMapId(mapId)) {
+        const respuesta = await ask(
+          "  Map ID (Enter para usar DEMO_MAP_ID): "
+        );
+        mapId = isValidMapId(respuesta) ? respuesta : "DEMO_MAP_ID";
       }
     } finally {
       rl.close();
@@ -156,15 +158,17 @@ async function main() {
 
     writeFileSync(
       ENV_FILE,
-      `NEXT_PUBLIC_SUPABASE_URL=${url}\nNEXT_PUBLIC_SUPABASE_ANON_KEY=${key}\n`,
+      `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${key}\nNEXT_PUBLIC_GOOGLE_MAPS_MAP_ID=${mapId}\n`,
       "utf8"
     );
     ok("Guardadas en .env.local (ignorado por git)");
   }
 
+  if (!isValidMapId(mapId)) mapId = "DEMO_MAP_ID";
+
   // El build local las incrusta en el bundle del navegador.
-  process.env["NEXT_PUBLIC_SUPABASE_URL"] = url;
-  process.env["NEXT_PUBLIC_SUPABASE_ANON_KEY"] = key;
+  process.env["NEXT_PUBLIC_GOOGLE_MAPS_API_KEY"] = key;
+  process.env["NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID"] = mapId;
 
   // ── 3. Dependencias ─────────────────────────────────────────
   step("Instalando dependencias");
@@ -202,8 +206,8 @@ async function main() {
   // ── 6. Variables de entorno en Netlify ──────────────────────
   step("Configurando variables de entorno en Netlify");
   for (const [name, value] of [
-    ["NEXT_PUBLIC_SUPABASE_URL", url],
-    ["NEXT_PUBLIC_SUPABASE_ANON_KEY", key],
+    ["NEXT_PUBLIC_GOOGLE_MAPS_API_KEY", key],
+    ["NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID", mapId],
   ]) {
     const res = netlify(["env:set", name, value], { capture: true });
     if (res.status !== 0) {
@@ -227,7 +231,7 @@ async function main() {
 
   console.log(`\n${c("32", bold("✓ Despliegue completado"))}`);
   console.log(
-    dim('Abre la URL de arriba y comprueba que el indicador dice "En directo" en verde.\n')
+    dim("Abre la URL de arriba y comprueba que el mapa de Madrid carga con sus pines.\n")
   );
 }
 

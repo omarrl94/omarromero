@@ -1,8 +1,8 @@
 {
-  "name": "hipster-bingo",
+  "name": "rollo-madrid",
   "version": "1.0.0",
   "private": true,
-  "description": "Hipster Bingo — multiplayer realtime bingo con estética craft paper",
+  "description": "Rollo Madrid — el mapa comunitario de los baños de los bares de Madrid",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -13,17 +13,14 @@
     "deploy:preview": "node scripts/deploy-netlify.mjs --preview"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.45.4",
-    "canvas-confetti": "^1.9.3",
-    "framer-motion": "^11.11.0",
+    "@vis.gl/react-google-maps": "^1.4.0",
     "lucide-react": "^0.454.0",
     "next": "^14.2.15",
-    "qrcode.react": "^4.1.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@types/canvas-confetti": "^1.6.4",
+    "@types/google.maps": "^3.58.1",
     "@types/node": "^20.16.11",
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.1",
