@@ -25,25 +25,23 @@ DIRECT_URL="postgresql://postgres.[REF]:[PASSWORD]@aws-0-eu-west-1.pooler.supaba
 
 ---
 
-## 2. Preparar la base de datos (una sola vez)
+## 2. La base de datos se crea sola en el primer despliegue
 
-Desde tu ordenador, en la carpeta `asir-lms`:
+No hace falta que ejecutes nada a mano. El primer despliegue en Netlify (paso 3) usa el
+comando `build:deploy`, que:
 
-```bash
-cp .env.example .env
-```
+1. `prisma db push` → crea las tablas en Supabase.
+2. `scripts/maybe-seed.mjs` → si la base de datos está vacía, carga los 19 temas y las 3
+   cuentas; si ya tiene datos, no toca nada.
+3. `next build` → construye la app.
 
-Edita `.env` y rellena `DATABASE_URL`, `DIRECT_URL`, un `NEXTAUTH_SECRET`
-(`openssl rand -base64 32`) y las contraseñas del seed. Después:
+Así, en el primer deploy la base de datos queda lista, y en los siguientes no se
+sobrescriben las cuentas ni el progreso. (Si algún día quieres forzar la recarga del
+temario, añade en Netlify la variable `SEED_ON_BUILD=force` y vuelve a desplegar; luego
+quítala.)
 
-```bash
-npm install
-npm run db:setup    # crea las tablas en Supabase y carga el temario + usuarios
-```
-
-`db:setup` ejecuta `prisma db push` (crea el esquema) y `prisma db seed` (19 temas y las
-3 cuentas). Puedes comprobar en Supabase → **Table editor** que aparecen las tablas
-`User`, `Topic` y `Progress`.
+> Si prefieres prepararla desde tu ordenador en vez de en el deploy: copia `.env.example`
+> a `.env`, rellena los valores y ejecuta `npm install && npm run db:setup`.
 
 ---
 
