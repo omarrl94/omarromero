@@ -1,8 +1,10 @@
-import { prisma } from "@/lib/prisma";
+import { PrismaClient } from "@prisma/client";
+
+import { normalizeRegion } from "@/lib/db-url";
 import { seedDatabase } from "@/lib/seed-data";
 
-// DDL idempotente equivalente al esquema Prisma (para crear las tablas en runtime
-// si el despliegue no pudo ejecutar `prisma db push`).
+// DDL idempotente equivalente al esquema Prisma (crea las tablas en runtime si el
+// despliegue no ejecutó `prisma db push`).
 const DDL = [
   `DO $$ BEGIN CREATE TYPE "Role" AS ENUM ('ADMIN','STUDENT_MEDIO','STUDENT_SUPERIOR'); EXCEPTION WHEN duplicate_object THEN null; END $$;`,
   `DO $$ BEGIN CREATE TYPE "Level" AS ENUM ('MEDIO','SUPERIOR','BOTH'); EXCEPTION WHEN duplicate_object THEN null; END $$;`,
@@ -39,14 +41,26 @@ const DDL = [
   `CREATE UNIQUE INDEX IF NOT EXISTS "Progress_userId_topicId_key" ON "Progress"("userId","topicId");`,
 ];
 
+/**
+ * Cliente dedicado a la conexión DIRECTA (session pooler, puerto 5432) para el
+ * DDL y el seed. Es más fiable para crear el esquema que el pooler de transacciones.
+ */
+function directClient() {
+  const url = normalizeRegion(process.env.DIRECT_URL || process.env.DATABASE_URL);
+  return new PrismaClient({ datasources: { db: { url } } });
+}
+
 let ready: Promise<void> | null = null;
 
 async function initialize() {
-  for (const stmt of DDL) await prisma.$executeRawUnsafe(stmt);
-  // Siembra el temario y las cuentas si aún no hay datos (idempotente).
-  const users = await prisma.user.count();
-  const topics = await prisma.topic.count();
-  if (users === 0 || topics === 0) await seedDatabase(prisma);
+  const db = directClient();
+  try {
+    for (const stmt of DDL) await db.$executeRawUnsafe(stmt);
+    const [users, topics] = await Promise.all([db.user.count(), db.topic.count()]);
+    if (users === 0 || topics === 0) await seedDatabase(db);
+  } finally {
+    await db.$disconnect();
+  }
 }
 
 /**
