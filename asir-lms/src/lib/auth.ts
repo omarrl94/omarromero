@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import type { Role } from "@prisma/client";
 import { redirect } from "next/navigation";
 
+import { ensureDb } from "@/lib/ensure-db";
 import { prisma } from "@/lib/prisma";
 
 export const authOptions: NextAuthOptions = {
@@ -20,6 +21,7 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         const email = credentials?.email?.toLowerCase().trim();
         if (!email || !credentials?.password) return null;
+        await ensureDb(); // crea y puebla la BD la primera vez
         const user = await prisma.user.findUnique({ where: { email } });
         if (!user) return null;
         const ok = await bcrypt.compare(credentials.password, user.password);
@@ -50,6 +52,7 @@ export function homeForRole(role: Role) {
 
 /** Devuelve la sesión o redirige a /login. Opcionalmente exige unos roles concretos. */
 export async function requireSession(roles?: Role[]) {
+  await ensureDb();
   const session = await getServerSession(authOptions);
   if (!session) redirect("/login");
   if (roles && !roles.includes(session.user.role)) redirect(homeForRole(session.user.role));

@@ -3,7 +3,7 @@
 #
 # IMPORTANTE: en Netlify, configura el proyecto con
 #   Base directory   = asir-lms
-#   Build command    = npm run build:deploy   (lo define este archivo)
+#   Build command    = npm run build   (lo define este archivo)
 #   Publish directory = .next          (lo gestiona el plugin de Next.js)
 #
 # Las variables de entorno (DATABASE_URL, DIRECT_URL, NEXTAUTH_SECRET,
@@ -12,9 +12,9 @@
 # ──────────────────────────────────────────────────────────────
 
 [build]
-  # build:deploy = prisma db push + seed-si-vacia + next build.
-  # La primera vez crea las tablas y carga el temario y las cuentas.
-  command = "npm run build:deploy"
+  # La base de datos se crea y puebla sola en el primer acceso (src/lib/ensure-db.ts).
+  # El build solo construye la app; no necesita conectar con Supabase.
+  command = "npm run build"
   publish = ".next"
 
 [build.environment]
