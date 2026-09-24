@@ -1,0 +1,32 @@
+# ──────────────────────────────────────────────────────────────
+# Despliegue en Netlify · ASIR LMS (Next.js 14 + Prisma + Supabase)
+#
+# IMPORTANTE: en Netlify, configura el proyecto con
+#   Base directory   = asir-lms
+#   Build command    = npm run build   (lo define este archivo)
+#   Publish directory = .next          (lo gestiona el plugin de Next.js)
+#
+# Las variables de entorno (DATABASE_URL, DIRECT_URL, NEXTAUTH_SECRET,
+# NEXTAUTH_URL) se definen en Netlify → Site settings → Environment variables,
+# NO en este archivo.
+# ──────────────────────────────────────────────────────────────
+
+[build]
+  # postinstall ejecuta `prisma generate`; el esquema se sincroniza con
+  # `npm run db:push` una vez (ver guía), no en cada build.
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
