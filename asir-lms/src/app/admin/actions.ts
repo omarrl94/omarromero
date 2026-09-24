@@ -1,7 +1,9 @@
 "use server";
 
 import bcrypt from "bcryptjs";
-import { Prisma, Role } from "@prisma/client";
+import { Prisma } from "@prisma/client";
+
+import { Role } from "@/lib/roles";
 import { revalidatePath } from "next/cache";
 
 import { requireSession } from "@/lib/auth";
@@ -21,7 +23,7 @@ function readRole(value: FormDataEntryValue | null): Role | null {
 async function loadManageable(actorRole: Role, targetId: string) {
   const target = await prisma.user.findUnique({ where: { id: targetId } });
   if (!target) return { error: "Usuario no encontrado." as const };
-  if (actorRole !== "ADMIN" && !managedStudentRoles(actorRole).includes(target.role)) {
+  if (actorRole !== "ADMIN" && !managedStudentRoles(actorRole).includes(target.role as Role)) {
     return { error: "No puedes gestionar a este usuario." as const };
   }
   return { target };

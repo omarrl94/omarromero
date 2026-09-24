@@ -6,19 +6,20 @@ import { seedDatabase } from "@/lib/seed-data";
 // Se ejecuta por el pooler (misma conexión que el login), que sí es alcanzable
 // desde las funciones de Netlify.
 const DDL = [
-  `DO $$ BEGIN CREATE TYPE "Role" AS ENUM ('ADMIN','PROF_MEDIO','PROF_SUPERIOR','STUDENT_MEDIO','STUDENT_SUPERIOR'); EXCEPTION WHEN duplicate_object THEN null; END $$;`,
-  `ALTER TYPE "Role" ADD VALUE IF NOT EXISTS 'PROF_MEDIO';`,
-  `ALTER TYPE "Role" ADD VALUE IF NOT EXISTS 'PROF_SUPERIOR';`,
   `DO $$ BEGIN CREATE TYPE "Level" AS ENUM ('MEDIO','SUPERIOR','BOTH'); EXCEPTION WHEN duplicate_object THEN null; END $$;`,
   `CREATE TABLE IF NOT EXISTS "User" (
      "id" TEXT PRIMARY KEY,
      "name" TEXT NOT NULL,
      "email" TEXT NOT NULL,
      "password" TEXT NOT NULL,
-     "role" "Role" NOT NULL DEFAULT 'STUDENT_MEDIO',
+     "role" TEXT NOT NULL DEFAULT 'STUDENT_MEDIO',
      "approved" BOOLEAN NOT NULL DEFAULT false,
      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
    );`,
+  // Convierte la columna `role` de enum a texto si aún fuese enum (sin perder datos).
+  `ALTER TABLE "User" ALTER COLUMN "role" DROP DEFAULT;`,
+  `ALTER TABLE "User" ALTER COLUMN "role" TYPE TEXT USING "role"::text;`,
+  `ALTER TABLE "User" ALTER COLUMN "role" SET DEFAULT 'STUDENT_MEDIO';`,
   `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "approved" BOOLEAN NOT NULL DEFAULT true;`,
   `CREATE UNIQUE INDEX IF NOT EXISTS "User_email_key" ON "User"("email");`,
   `CREATE TABLE IF NOT EXISTS "Topic" (

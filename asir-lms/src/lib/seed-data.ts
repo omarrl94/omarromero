@@ -1,4 +1,6 @@
-import { type PrismaClient, Level, Role } from "@prisma/client";
+import { type PrismaClient, Level } from "@prisma/client";
+
+import { Role } from "@/lib/roles";
 import bcrypt from "bcryptjs";
 
 

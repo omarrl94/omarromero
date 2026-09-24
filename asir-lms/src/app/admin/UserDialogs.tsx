@@ -3,7 +3,7 @@
 import { useEffect, useState, useTransition } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { useRouter } from "next/navigation";
-import type { Role } from "@prisma/client";
+import type { Role } from "@/lib/roles";
 import { Check, KeyRound, Loader2, Pencil, Trash2, UserPlus, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";

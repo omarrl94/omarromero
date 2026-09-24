@@ -1,4 +1,5 @@
-import type { Level, Role } from "@prisma/client";
+import type { Level } from "@prisma/client";
+import type { Role } from "@/lib/roles";
 
 export const ROLE_LABEL: Record<Role, string> = {
   ADMIN: "Administrador/a",

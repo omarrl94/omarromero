@@ -2,7 +2,7 @@ import type { NextAuthOptions } from "next-auth";
 import { getServerSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-import type { Role } from "@prisma/client";
+import type { Role } from "@/lib/roles";
 import { redirect } from "next/navigation";
 
 import { ensureDb } from "@/lib/ensure-db";
@@ -36,7 +36,7 @@ export const authOptions: NextAuthOptions = {
         if (!ok) return null;
         // El alumnado registrado no puede entrar hasta que un profesor lo apruebe.
         if (!user.approved) throw new Error("PENDIENTE");
-        return { id: user.id, name: user.name, email: user.email, role: user.role };
+        return { id: user.id, name: user.name, email: user.email, role: user.role as Role };
       },
     }),
   ],

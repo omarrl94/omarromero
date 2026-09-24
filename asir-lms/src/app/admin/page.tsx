@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { Role } from "@prisma/client";
+import type { Role } from "@/lib/roles";
 import { BookOpen, Clock, GraduationCap, TrendingUp, Users } from "lucide-react";
 
 import { AppHeader } from "@/components/AppHeader";
@@ -49,11 +49,12 @@ export default async function AdminPage() {
   ]);
 
   const rows = people.map((u) => {
-    const available = topics.filter((t) => levelsForRole(u.role).includes(t.level)).length;
+    const role = u.role as Role;
+    const available = topics.filter((t) => levelsForRole(role).includes(t.level)).length;
     const done = u.progress.filter((p) => p.completed);
     const pct = available ? Math.round((done.length / available) * 100) : 0;
     const avgScore = done.length ? Math.round(done.reduce((s, p) => s + p.score, 0) / done.length) : null;
-    return { ...u, available, done: done.length, pct, avgScore };
+    return { ...u, role, available, done: done.length, pct, avgScore };
   });
 
   const pending = rows.filter((r) => !r.approved && studentRoles.includes(r.role));

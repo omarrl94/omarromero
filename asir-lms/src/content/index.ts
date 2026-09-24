@@ -1,4 +1,4 @@
-import type { Role } from "@prisma/client";
+import type { Role } from "@/lib/roles";
 
 import { levelOf } from "@/lib/labels";
 import { bloque1 } from "./bloque1";

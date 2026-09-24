@@ -1,7 +1,9 @@
 "use server";
 
 import bcrypt from "bcryptjs";
-import { Prisma, Role } from "@prisma/client";
+import { Prisma } from "@prisma/client";
+
+import { Role } from "@/lib/roles";
 
 import { ensureDb } from "@/lib/ensure-db";
 import { prisma } from "@/lib/prisma";
