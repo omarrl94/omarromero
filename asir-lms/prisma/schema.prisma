@@ -1,0 +1,60 @@
+// Plataforma LMS · Seguridad y Alta Disponibilidad (ASIR)
+// FP José Ramón Otero
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  STUDENT_MEDIO
+  STUDENT_SUPERIOR
+}
+
+enum Level {
+  MEDIO
+  SUPERIOR
+  BOTH
+}
+
+model User {
+  id        String     @id @default(cuid())
+  name      String
+  email     String     @unique
+  password  String // hash bcrypt
+  role      Role       @default(STUDENT_MEDIO)
+  createdAt DateTime   @default(now())
+  progress  Progress[]
+}
+
+model Topic {
+  id              String     @id @default(cuid())
+  number          Int        @unique // Nº de tema oficial (0-18)
+  title           String
+  description     String
+  level           Level      @default(BOTH)
+  block           Int // Bloque del temario (1-6)
+  blockTitle      String
+  aiFocus         String // Enfoque de Inteligencia Artificial
+  contentMedio    String? // Puntos clave para Grado Medio (uno por línea)
+  contentSuperior String? // Puntos clave para Grado Superior (uno por línea)
+  progress        Progress[]
+}
+
+model Progress {
+  id        String   @id @default(cuid())
+  userId    String
+  topicId   String
+  completed Boolean  @default(false)
+  score     Int      @default(0) // 0-100
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topic     Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, topicId])
+}
