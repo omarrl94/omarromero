@@ -43,16 +43,25 @@ export async function GET() {
       }
     }
 
-    // Prueba directa de la función authorize de NextAuth (sin CSRF ni cookies).
-    let authorizeTest: string;
+    // Diagnóstico detallado de authorize (paso a paso).
+    const dbg: Record<string, unknown> = {};
     try {
+      const email = "admin.ia@jrotero.es";
+      const u = await prisma.user.findUnique({ where: { email } });
+      dbg.manualFound = Boolean(u);
+      dbg.manualCompare = u ? await bcrypt.compare("admin123", u.password) : null;
       const provider = authOptions.providers[0] as unknown as {
-        authorize: (c: Record<string, string>, r: unknown) => Promise<{ email: string } | null>;
+        id?: string;
+        authorize?: (c: Record<string, string>, r: unknown) => Promise<{ email: string } | null>;
       };
-      const u = await provider.authorize({ email: "admin.ia@jrotero.es", password: "admin123" }, {});
-      authorizeTest = u ? `OK (${u.email})` : "NULL";
+      dbg.providerId = provider?.id ?? null;
+      dbg.hasAuthorize = typeof provider?.authorize;
+      if (typeof provider?.authorize === "function") {
+        const res = await provider.authorize({ email, password: "admin123" }, {});
+        dbg.authorize = res ? `OK (${res.email})` : "NULL";
+      }
     } catch (e) {
-      authorizeTest = "THREW: " + (e instanceof Error ? e.message : String(e));
+      dbg.error = e instanceof Error ? e.message : String(e);
     }
 
     return NextResponse.json({
@@ -62,7 +71,7 @@ export async function GET() {
       users,
       topics,
       passwordChecks,
-      authorizeTest,
+      authorizeDebug: dbg,
     });
   } catch (e) {
     return NextResponse.json(
