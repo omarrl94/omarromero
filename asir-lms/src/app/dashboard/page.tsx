@@ -1,5 +1,6 @@
 import type { Topic } from "@prisma/client";
-import { BookOpen, Bot, CheckCircle2, Layers, Sparkles, Target } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, BookOpen, Bot, CheckCircle2, Layers, Sparkles, Target } from "lucide-react";
 
 import { AppHeader } from "@/components/AppHeader";
 import { Badge } from "@/components/ui/badge";
@@ -8,7 +9,6 @@ import { requireSession } from "@/lib/auth";
 import { levelsForRole, ROLE_LABEL } from "@/lib/labels";
 import { prisma } from "@/lib/prisma";
 import { cn } from "@/lib/utils";
-import { TopicProgressControl } from "./TopicProgressControl";
 
 export const dynamic = "force-dynamic";
 
@@ -86,7 +86,7 @@ export default async function DashboardPage() {
           {isSuperior && (
             <div className="grid gap-4 sm:grid-cols-3">
               <Stat icon={CheckCircle2} label="Temas completados" value={done.length} className="bg-defensiva-100 text-defensiva-800" />
-              <Stat icon={Target} label="Autoevaluación media" value={`${avgScore}/100`} className="bg-ofensiva-100 text-ofensiva-800" />
+              <Stat icon={Target} label="Nota media en tests" value={`${avgScore}/100`} className="bg-ofensiva-100 text-ofensiva-800" />
               <Stat icon={Layers} label="Temas exclusivos de Superior" value={items.filter((t) => t.level === "SUPERIOR").length} className="bg-disponibilidad-100 text-disponibilidad-800" />
             </div>
           )}
@@ -114,6 +114,31 @@ function Stat({ icon: Icon, label, value, className }: { icon: typeof BookOpen; 
   );
 }
 
+/** Estado del tema y acceso a teoría, laboratorio, actividades, trabajo y test. */
+function TopicLink({ topic }: { topic: TopicWithProgress }) {
+  return (
+    <div className="flex w-full flex-wrap items-center justify-between gap-3">
+      <span className="text-sm">
+        {topic.completed ? (
+          <span className="inline-flex items-center gap-1.5 font-medium text-defensiva-700">
+            <CheckCircle2 className="h-4 w-4" /> Completado · test {topic.score}/100
+          </span>
+        ) : topic.score > 0 ? (
+          <span className="text-muted-foreground">Mejor nota del test: {topic.score}/100</span>
+        ) : (
+          <span className="text-muted-foreground">Pendiente</span>
+        )}
+      </span>
+      <Link
+        href={`/dashboard/tema/${topic.number}`}
+        className="inline-flex h-8 items-center gap-2 rounded-md bg-primary px-3 text-xs font-medium text-primary-foreground shadow hover:bg-ofensiva-500"
+      >
+        {topic.completed ? "Repasar tema" : "Abrir tema"} <ArrowRight className="h-4 w-4" />
+      </Link>
+    </div>
+  );
+}
+
 /** Grado Medio: interfaz simplificada, lista de temas con conceptos clave. */
 function MedioSyllabus({ topics }: { topics: TopicWithProgress[] }) {
   return (
@@ -137,7 +162,7 @@ function MedioSyllabus({ topics }: { topics: TopicWithProgress[] }) {
               </p>
             </CardContent>
             <CardFooter>
-              <TopicProgressControl topicId={t.id} completed={t.completed} score={t.score} withScore={false} />
+              <TopicLink topic={t} />
             </CardFooter>
           </Card>
         ))}
@@ -191,7 +216,7 @@ function SuperiorSyllabus({ topics }: { topics: TopicWithProgress[] }) {
                     </div>
                   </CardContent>
                   <CardFooter>
-                    <TopicProgressControl topicId={t.id} completed={t.completed} score={t.score} withScore />
+                    <TopicLink topic={t} />
                   </CardFooter>
                 </Card>
               ))}

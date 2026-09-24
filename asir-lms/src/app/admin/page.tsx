@@ -1,7 +1,9 @@
-import { GraduationCap, TrendingUp, Users } from "lucide-react";
+import Link from "next/link";
+import { BookOpen, GraduationCap, TrendingUp, Users } from "lucide-react";
 
 import { AppHeader } from "@/components/AppHeader";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { requireSession } from "@/lib/auth";
@@ -55,9 +57,16 @@ export default async function AdminPage() {
     <div className="min-h-screen">
       <AppHeader name={session.user.name ?? "Profesor"} roleLabel={ROLE_LABEL.ADMIN} />
       <main className="container space-y-8 py-8">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Panel del profesor</h1>
-          <p className="text-muted-foreground">Seguridad y Alta Disponibilidad · ASIR</p>
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">Panel del profesor</h1>
+            <p className="text-muted-foreground">Seguridad y Alta Disponibilidad · ASIR</p>
+          </div>
+          <Button asChild variant="secondary">
+            <Link href="/admin/temario">
+              <BookOpen /> Ver temario
+            </Link>
+          </Button>
         </div>
 
         <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -100,7 +109,7 @@ export default async function AdminPage() {
           <CardHeader className="flex-row flex-wrap items-center justify-between gap-4 space-y-0">
             <div className="space-y-1.5">
               <CardTitle>Gestión de usuarios</CardTitle>
-              <CardDescription>Alumnos, nivel y progreso. Edita contraseñas o roles y da de alta nuevos alumnos.</CardDescription>
+              <CardDescription>Alumnos, nivel y progreso (temas con el test aprobado). Edita contraseñas o roles y da de alta nuevos alumnos.</CardDescription>
             </div>
             <CreateUserDialog />
           </CardHeader>
@@ -111,7 +120,7 @@ export default async function AdminPage() {
                   <TableHead>Nombre</TableHead>
                   <TableHead>Nivel</TableHead>
                   <TableHead className="min-w-40">Progreso</TableHead>
-                  <TableHead className="text-right">Nota media</TableHead>
+                  <TableHead className="text-right">Nota media tests</TableHead>
                   <TableHead className="text-right">Acciones</TableHead>
                 </TableRow>
               </TableHeader>

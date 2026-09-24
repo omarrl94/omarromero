@@ -239,14 +239,16 @@ async function main() {
     await prisma.topic.upsert({ where: { number: t.number }, update: data, create: { number: t.number, ...data } });
   }
 
-  // Usuarios de prueba
+  // Cuentas del módulo. Las contraseñas se leen de .env (el repositorio es público).
   const users = [
-    { name: "Profesor ASIR", email: "profesor@jrotero.es", password: "admin123", role: Role.ADMIN },
-    { name: "Lucía Medio", email: "medio@jrotero.es", password: "alumno123", role: Role.STUDENT_MEDIO },
-    { name: "Carlos Superior", email: "superior@jrotero.es", password: "alumno123", role: Role.STUDENT_SUPERIOR },
+    { name: "Administración ASIR", email: "admin.ia@jrotero.es", passwordEnv: "SEED_ADMIN_PASSWORD", role: Role.ADMIN },
+    { name: "Omar Romero", email: "omar.romero@jrotero.es", passwordEnv: "SEED_SUPERIOR_PASSWORD", role: Role.STUDENT_SUPERIOR },
+    { name: "Unai Elorrieta", email: "unai.elorrieta@jrotero.es", passwordEnv: "SEED_MEDIO_PASSWORD", role: Role.STUDENT_MEDIO },
   ];
-  for (const u of users) {
-    const password = await bcrypt.hash(u.password, 10);
+  for (const { passwordEnv, ...u } of users) {
+    const plain = process.env[passwordEnv];
+    if (!plain) throw new Error(`Falta la variable ${passwordEnv} en .env (ver .env.example).`);
+    const password = await bcrypt.hash(plain, 10);
     await prisma.user.upsert({
       where: { email: u.email },
       update: { name: u.name, role: u.role, password },
@@ -254,25 +256,10 @@ async function main() {
     });
   }
 
-  // Algo de progreso de ejemplo
-  const medio = await prisma.user.findUniqueOrThrow({ where: { email: "medio@jrotero.es" } });
-  const superior = await prisma.user.findUniqueOrThrow({ where: { email: "superior@jrotero.es" } });
-  const sample: [string, number, number][] = [
-    [medio.id, 0, 80],
-    [medio.id, 1, 70],
-    [superior.id, 0, 90],
-    [superior.id, 1, 85],
-    [superior.id, 2, 75],
-    [superior.id, 3, 88],
-  ];
-  for (const [userId, number, score] of sample) {
-    const topic = await prisma.topic.findUniqueOrThrow({ where: { number } });
-    await prisma.progress.upsert({
-      where: { userId_topicId: { userId, topicId: topic.id } },
-      update: { completed: true, score },
-      create: { userId, topicId: topic.id, completed: true, score },
-    });
-  }
+  // Elimina las cuentas de demostración de la primera versión del MVP
+  await prisma.user.deleteMany({
+    where: { email: { in: ["profesor@jrotero.es", "medio@jrotero.es", "superior@jrotero.es"] } },
+  });
 
   console.log(`Seed completado: ${topics.length} temas, ${users.length} usuarios.`);
 }
