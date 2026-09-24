@@ -1,5 +1,6 @@
 import type { Role } from "@prisma/client";
 
+import { levelOf } from "@/lib/labels";
 import { bloque1 } from "./bloque1";
 import { bloque2 } from "./bloque2";
 import { bloque3 } from "./bloque3";
@@ -13,7 +14,7 @@ import type { Audience, TopicContent } from "./types";
 const CONTENT: Record<number, TopicContent> = { ...bloque1, ...bloque2, ...bloque3, ...bloque4, ...bloque5, ...bloque6 };
 
 export function audienceForRole(role: Role): Audience {
-  return role === "STUDENT_MEDIO" ? "MEDIO" : "SUPERIOR";
+  return levelOf(role) === "MEDIO" ? "MEDIO" : "SUPERIOR";
 }
 
 const visible = (audience: Audience) => (item: { only?: Audience }) => !item.only || item.only === audience;

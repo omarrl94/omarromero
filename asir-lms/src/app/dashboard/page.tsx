@@ -6,7 +6,7 @@ import { AppHeader } from "@/components/AppHeader";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireSession } from "@/lib/auth";
-import { levelsForRole, ROLE_LABEL } from "@/lib/labels";
+import { isStaff, levelOf, levelsForRole, ROLE_LABEL } from "@/lib/labels";
 import { prisma } from "@/lib/prisma";
 import { cn } from "@/lib/utils";
 
@@ -38,9 +38,11 @@ function groupByBlock(topics: TopicWithProgress[]) {
 }
 
 export default async function DashboardPage() {
-  const session = await requireSession(["STUDENT_MEDIO", "STUDENT_SUPERIOR"]);
+  // Alumnado y, para ver su vista, el profesorado del nivel.
+  const session = await requireSession(["STUDENT_MEDIO", "STUDENT_SUPERIOR", "PROF_MEDIO", "PROF_SUPERIOR"]);
   const role = session.user.role;
-  const isSuperior = role === "STUDENT_SUPERIOR";
+  const isSuperior = levelOf(role) === "SUPERIOR";
+  const staffPreview = isStaff(role);
 
   const [topics, progress] = await Promise.all([
     prisma.topic.findMany({ where: { level: { in: levelsForRole(role) } }, orderBy: { number: "asc" } }),
@@ -62,9 +64,21 @@ export default async function DashboardPage() {
     <div className="min-h-screen">
       <AppHeader name={session.user.name ?? ""} roleLabel={ROLE_LABEL[role]} />
       <main className="container space-y-8 py-8">
+        {staffPreview && (
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-disponibilidad-200 bg-disponibilidad-50 px-4 py-3 text-sm text-disponibilidad-800">
+            <span>
+              Vista del alumnado de <strong>{isSuperior ? "Grado Superior" : "Grado Medio"}</strong> (así lo ven tus alumnos).
+            </span>
+            <Link href="/admin" className="font-medium underline underline-offset-4">
+              Volver al panel
+            </Link>
+          </div>
+        )}
         <section className="space-y-4">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Hola, {firstName}</h1>
+            <h1 className="text-2xl font-bold tracking-tight">
+              {staffPreview ? `Temario de ${isSuperior ? "Grado Superior" : "Grado Medio"}` : `Hola, ${firstName}`}
+            </h1>
             <p className="text-muted-foreground">
               Seguridad y Alta Disponibilidad · {ROLE_LABEL[role]}
               {isSuperior ? " — itinerario avanzado" : " — itinerario básico"}

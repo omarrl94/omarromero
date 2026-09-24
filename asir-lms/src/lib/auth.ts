@@ -6,6 +6,7 @@ import type { Role } from "@prisma/client";
 import { redirect } from "next/navigation";
 
 import { ensureDb } from "@/lib/ensure-db";
+import { isStaff } from "@/lib/labels";
 import { prisma } from "@/lib/prisma";
 
 // NextAuth necesita conocer la URL pública del sitio. En Netlify la variable URL
@@ -33,6 +34,8 @@ export const authOptions: NextAuthOptions = {
         if (!user) return null;
         const ok = await bcrypt.compare(credentials.password, user.password);
         if (!ok) return null;
+        // El alumnado registrado no puede entrar hasta que un profesor lo apruebe.
+        if (!user.approved) throw new Error("PENDIENTE");
         return { id: user.id, name: user.name, email: user.email, role: user.role };
       },
     }),
@@ -54,7 +57,7 @@ export const authOptions: NextAuthOptions = {
 };
 
 export function homeForRole(role: Role) {
-  return role === "ADMIN" ? "/admin" : "/dashboard";
+  return isStaff(role) ? "/admin" : "/dashboard";
 }
 
 /** Devuelve la sesión o redirige a /login. Opcionalmente exige unos roles concretos. */

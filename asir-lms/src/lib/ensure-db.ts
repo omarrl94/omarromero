@@ -4,10 +4,12 @@ import { normalizeRegion } from "@/lib/db-url";
 import { prisma } from "@/lib/prisma";
 import { seedDatabase } from "@/lib/seed-data";
 
-// DDL idempotente equivalente al esquema Prisma (crea las tablas en runtime si el
-// despliegue no ejecutó `prisma db push`).
+// DDL idempotente equivalente al esquema Prisma. Crea las tablas si faltan y
+// migra la base de datos existente (nuevos roles y columna `approved`).
 const DDL = [
-  `DO $$ BEGIN CREATE TYPE "Role" AS ENUM ('ADMIN','STUDENT_MEDIO','STUDENT_SUPERIOR'); EXCEPTION WHEN duplicate_object THEN null; END $$;`,
+  `DO $$ BEGIN CREATE TYPE "Role" AS ENUM ('ADMIN','PROF_MEDIO','PROF_SUPERIOR','STUDENT_MEDIO','STUDENT_SUPERIOR'); EXCEPTION WHEN duplicate_object THEN null; END $$;`,
+  `ALTER TYPE "Role" ADD VALUE IF NOT EXISTS 'PROF_MEDIO';`,
+  `ALTER TYPE "Role" ADD VALUE IF NOT EXISTS 'PROF_SUPERIOR';`,
   `DO $$ BEGIN CREATE TYPE "Level" AS ENUM ('MEDIO','SUPERIOR','BOTH'); EXCEPTION WHEN duplicate_object THEN null; END $$;`,
   `CREATE TABLE IF NOT EXISTS "User" (
      "id" TEXT PRIMARY KEY,
@@ -15,8 +17,10 @@ const DDL = [
      "email" TEXT NOT NULL,
      "password" TEXT NOT NULL,
      "role" "Role" NOT NULL DEFAULT 'STUDENT_MEDIO',
+     "approved" BOOLEAN NOT NULL DEFAULT false,
      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
    );`,
+  `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "approved" BOOLEAN NOT NULL DEFAULT true;`,
   `CREATE UNIQUE INDEX IF NOT EXISTS "User_email_key" ON "User"("email");`,
   `CREATE TABLE IF NOT EXISTS "Topic" (
      "id" TEXT PRIMARY KEY,
@@ -42,10 +46,6 @@ const DDL = [
   `CREATE UNIQUE INDEX IF NOT EXISTS "Progress_userId_topicId_key" ON "Progress"("userId","topicId");`,
 ];
 
-/**
- * Cliente dedicado a la conexión DIRECTA (session pooler, puerto 5432) para el
- * DDL y el seed. Es más fiable para crear el esquema que el pooler de transacciones.
- */
 function directClient() {
   const url = normalizeRegion(process.env.DIRECT_URL || process.env.DATABASE_URL);
   return new PrismaClient({ datasources: { db: { url } } });
@@ -54,34 +54,44 @@ function directClient() {
 let ready: Promise<void> | null = null;
 
 async function initialize() {
-  // Camino rápido: si las tablas ya existen y hay datos, no hacer nada más
-  // (evita recrear el esquema y abrir una segunda conexión en cada login).
+  // Camino rápido: si la BD ya está migrada (Omar es profesor y existe `approved`),
+  // no hacer nada más.
   try {
-    const [users, topics] = await Promise.all([prisma.user.count(), prisma.topic.count()]);
-    if (users > 0 && topics > 0) return;
+    const omar = await prisma.user.findUnique({
+      where: { email: "omar.romero@jrotero.es" },
+      select: { role: true, approved: true },
+    });
+    if (omar && omar.role === "PROF_SUPERIOR") return;
   } catch {
-    // Las tablas aún no existen: se crean a continuación.
+    // Falta alguna columna/rol: se migra a continuación.
   }
 
-  // Camino lento (solo la primera vez): crear esquema y sembrar con conexión directa.
+  // Camino lento (primera vez / migración): esquema + datos con conexión directa.
   const db = directClient();
   try {
-    for (const stmt of DDL) await db.$executeRawUnsafe(stmt);
-    const [users, topics] = await Promise.all([db.user.count(), db.topic.count()]);
-    if (users === 0 || topics === 0) await seedDatabase(db);
+    for (const stmt of DDL) {
+      try {
+        await db.$executeRawUnsafe(stmt);
+      } catch (e) {
+        // Un statement idempotente puede fallar de forma inocua (p. ej. valor de
+        // enum ya presente); se registra y se continúa.
+        console.error("[ensure-db] DDL:", (e as Error).message);
+      }
+    }
+    await seedDatabase(db); // idempotente: temario + cuentas de personal con sus roles
   } finally {
     await db.$disconnect();
   }
 }
 
 /**
- * Garantiza que la base de datos existe y está poblada. Se ejecuta una sola vez
- * por instancia; si falla, se reintenta en la siguiente llamada.
+ * Garantiza que la base de datos existe, está migrada y poblada. Se ejecuta una
+ * vez por instancia; si falla, se reintenta en la siguiente llamada.
  */
 export function ensureDb(): Promise<void> {
   if (!ready) {
     ready = initialize().catch((e) => {
-      ready = null; // permite reintentar
+      ready = null;
       throw e;
     });
   }

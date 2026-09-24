@@ -16,7 +16,7 @@ export default async function TopicPage({
   params: { numero: string };
   searchParams: { s?: string };
 }) {
-  const session = await requireSession(["STUDENT_MEDIO", "STUDENT_SUPERIOR"]);
+  const session = await requireSession(["STUDENT_MEDIO", "STUDENT_SUPERIOR", "PROF_MEDIO", "PROF_SUPERIOR"]);
   const number = Number(params.numero);
   const topic = Number.isInteger(number) ? await prisma.topic.findUnique({ where: { number } }) : null;
   if (!topic || !levelsForRole(session.user.role).includes(topic.level)) notFound();

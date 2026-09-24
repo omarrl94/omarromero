@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { AlertTriangle, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -26,7 +27,12 @@ export function LoginForm() {
     });
     setLoading(false);
     if (!res || res.error) {
-      setError("Email o contraseña incorrectos.");
+      const pending = typeof res?.error === "string" && res.error.includes("PENDIENTE");
+      setError(
+        pending
+          ? "Tu cuenta aún no ha sido aprobada por el profesorado."
+          : "Email o contraseña incorrectos, o tu cuenta está pendiente de aprobación."
+      );
       return;
     }
     router.replace("/");
@@ -51,6 +57,12 @@ export function LoginForm() {
       <Button type="submit" className="w-full" disabled={loading}>
         {loading && <Loader2 className="animate-spin" />} Entrar
       </Button>
+      <p className="text-center text-sm text-muted-foreground">
+        ¿No tienes cuenta?{" "}
+        <Link href="/register" className="font-medium text-foreground underline underline-offset-4">
+          Regístrate
+        </Link>
+      </p>
     </form>
   );
 }

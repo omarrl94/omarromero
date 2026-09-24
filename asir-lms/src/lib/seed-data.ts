@@ -225,7 +225,7 @@ const topics: Omit<TopicSeed, "blockTitle">[] = [
 const DEFAULTS: Record<string, string> = {
   SEED_ADMIN_PASSWORD: "admin123",
   SEED_SUPERIOR_PASSWORD: "omrolo.94",
-  SEED_MEDIO_PASSWORD: "alumno123",
+  SEED_MEDIO_PASSWORD: "hola123",
 };
 
 export async function seedDatabase(prisma: PrismaClient) {
@@ -244,19 +244,20 @@ export async function seedDatabase(prisma: PrismaClient) {
     await prisma.topic.upsert({ where: { number: t.number }, update: data, create: { number: t.number, ...data } });
   }
 
-  // Cuentas del módulo. Las contraseñas se leen de .env (el repositorio es público).
+  // Cuentas del módulo (personal). Contraseñas por defecto o de .env.
   const users = [
     { name: "Administración ASIR", email: "admin.ia@jrotero.es", passwordEnv: "SEED_ADMIN_PASSWORD", role: Role.ADMIN },
-    { name: "Omar Romero", email: "omar.romero@jrotero.es", passwordEnv: "SEED_SUPERIOR_PASSWORD", role: Role.STUDENT_SUPERIOR },
-    { name: "Unai Elorrieta", email: "unai.elorrieta@jrotero.es", passwordEnv: "SEED_MEDIO_PASSWORD", role: Role.STUDENT_MEDIO },
+    { name: "Omar Romero", email: "omar.romero@jrotero.es", passwordEnv: "SEED_SUPERIOR_PASSWORD", role: Role.PROF_SUPERIOR },
+    { name: "Unai Elorrieta", email: "unai.elorrieta@jrotero.es", passwordEnv: "SEED_MEDIO_PASSWORD", role: Role.PROF_MEDIO },
   ];
   for (const { passwordEnv, ...u } of users) {
     const plain = process.env[passwordEnv] || DEFAULTS[passwordEnv];
     const password = await bcrypt.hash(plain, 10);
     await prisma.user.upsert({
       where: { email: u.email },
-      update: { name: u.name, role: u.role, password },
-      create: { ...u, password },
+      // En esta migración se fija también la contraseña del personal a su valor conocido.
+      update: { name: u.name, role: u.role, approved: true, password },
+      create: { ...u, password, approved: true },
     });
   }
 
