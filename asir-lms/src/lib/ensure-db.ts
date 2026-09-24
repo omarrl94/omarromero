@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 
 import { normalizeRegion } from "@/lib/db-url";
+import { prisma } from "@/lib/prisma";
 import { seedDatabase } from "@/lib/seed-data";
 
 // DDL idempotente equivalente al esquema Prisma (crea las tablas en runtime si el
@@ -53,6 +54,16 @@ function directClient() {
 let ready: Promise<void> | null = null;
 
 async function initialize() {
+  // Camino rápido: si las tablas ya existen y hay datos, no hacer nada más
+  // (evita recrear el esquema y abrir una segunda conexión en cada login).
+  try {
+    const [users, topics] = await Promise.all([prisma.user.count(), prisma.topic.count()]);
+    if (users > 0 && topics > 0) return;
+  } catch {
+    // Las tablas aún no existen: se crean a continuación.
+  }
+
+  // Camino lento (solo la primera vez): crear esquema y sembrar con conexión directa.
   const db = directClient();
   try {
     for (const stmt of DDL) await db.$executeRawUnsafe(stmt);
