@@ -1,11 +1,10 @@
-import { PrismaClient } from "@prisma/client";
-
-import { normalizeRegion } from "@/lib/db-url";
 import { prisma } from "@/lib/prisma";
 import { seedDatabase } from "@/lib/seed-data";
 
 // DDL idempotente equivalente al esquema Prisma. Crea las tablas si faltan y
 // migra la base de datos existente (nuevos roles y columna `approved`).
+// Se ejecuta por el pooler (misma conexión que el login), que sí es alcanzable
+// desde las funciones de Netlify.
 const DDL = [
   `DO $$ BEGIN CREATE TYPE "Role" AS ENUM ('ADMIN','PROF_MEDIO','PROF_SUPERIOR','STUDENT_MEDIO','STUDENT_SUPERIOR'); EXCEPTION WHEN duplicate_object THEN null; END $$;`,
   `ALTER TYPE "Role" ADD VALUE IF NOT EXISTS 'PROF_MEDIO';`,
@@ -46,41 +45,33 @@ const DDL = [
   `CREATE UNIQUE INDEX IF NOT EXISTS "Progress_userId_topicId_key" ON "Progress"("userId","topicId");`,
 ];
 
-function directClient() {
-  const url = normalizeRegion(process.env.DIRECT_URL || process.env.DATABASE_URL);
-  return new PrismaClient({ datasources: { db: { url } } });
-}
-
 let ready: Promise<void> | null = null;
 
 async function initialize() {
-  // Camino rápido: si la BD ya está migrada (Omar es profesor y existe `approved`),
-  // no hacer nada más.
+  // Camino rápido: si la BD ya está migrada (Omar es profesor), no hacer nada.
   try {
     const omar = await prisma.user.findUnique({
       where: { email: "omar.romero@jrotero.es" },
-      select: { role: true, approved: true },
+      select: { role: true },
     });
-    if (omar && omar.role === "PROF_SUPERIOR") return;
+    if (omar?.role === "PROF_SUPERIOR") return;
   } catch {
     // Falta alguna columna/rol: se migra a continuación.
   }
 
-  // Camino lento (primera vez / migración): esquema + datos con conexión directa.
-  const db = directClient();
-  try {
-    for (const stmt of DDL) {
-      try {
-        await db.$executeRawUnsafe(stmt);
-      } catch (e) {
-        // Un statement idempotente puede fallar de forma inocua (p. ej. valor de
-        // enum ya presente); se registra y se continúa.
-        console.error("[ensure-db] DDL:", (e as Error).message);
-      }
+  // Migración por el pooler (alcanzable desde Netlify). Cada paso es tolerante
+  // para no bloquear nunca el inicio de sesión.
+  for (const stmt of DDL) {
+    try {
+      await prisma.$executeRawUnsafe(stmt);
+    } catch (e) {
+      console.error("[ensure-db] DDL:", (e as Error).message);
     }
-    await seedDatabase(db); // idempotente: temario + cuentas de personal con sus roles
-  } finally {
-    await db.$disconnect();
+  }
+  try {
+    await seedDatabase(prisma);
+  } catch (e) {
+    console.error("[ensure-db] seed:", (e as Error).message);
   }
 }
 
