@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 
+import { authOptions } from "@/lib/auth";
 import { ensureDb } from "@/lib/ensure-db";
 import { prisma } from "@/lib/prisma";
 
@@ -42,7 +43,27 @@ export async function GET() {
       }
     }
 
-    return NextResponse.json({ ok: true, ...info, users, topics, passwordChecks });
+    // Prueba directa de la función authorize de NextAuth (sin CSRF ni cookies).
+    let authorizeTest: string;
+    try {
+      const provider = authOptions.providers[0] as unknown as {
+        authorize: (c: Record<string, string>, r: unknown) => Promise<{ email: string } | null>;
+      };
+      const u = await provider.authorize({ email: "admin.ia@jrotero.es", password: "admin123" }, {});
+      authorizeTest = u ? `OK (${u.email})` : "NULL";
+    } catch (e) {
+      authorizeTest = "THREW: " + (e instanceof Error ? e.message : String(e));
+    }
+
+    return NextResponse.json({
+      ok: true,
+      ...info,
+      nextauthUrlResolved: process.env.NEXTAUTH_URL ?? null,
+      users,
+      topics,
+      passwordChecks,
+      authorizeTest,
+    });
   } catch (e) {
     return NextResponse.json(
       { ok: false, ...info, error: e instanceof Error ? e.message : String(e) },

@@ -7,19 +7,17 @@ import { redirect } from "next/navigation";
 
 import { ensureDb } from "@/lib/ensure-db";
 import { prisma } from "@/lib/prisma";
-import { SESSION_COOKIE } from "@/lib/session-cookie";
+
+// NextAuth necesita conocer la URL pública del sitio. En Netlify la variable URL
+// no siempre llega a las funciones, así que se fija aquí (se puede sobreescribir
+// con la variable de entorno NEXTAUTH_URL o SITE_URL).
+const SITE_URL = process.env.NEXTAUTH_URL || process.env.SITE_URL || process.env.URL || "https://seguridadasir.netlify.app";
+process.env.NEXTAUTH_URL = SITE_URL;
 
 export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt" },
   pages: { signIn: "/login" },
-  // Cookie de sesión con nombre fijo (evita bucles de redirección en Netlify).
-  useSecureCookies: true,
-  cookies: {
-    sessionToken: {
-      name: SESSION_COOKIE,
-      options: { httpOnly: true, sameSite: "lax", path: "/", secure: true },
-    },
-  },
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     CredentialsProvider({
       name: "Credenciales",
