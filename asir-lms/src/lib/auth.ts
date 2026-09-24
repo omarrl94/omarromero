@@ -7,10 +7,19 @@ import { redirect } from "next/navigation";
 
 import { ensureDb } from "@/lib/ensure-db";
 import { prisma } from "@/lib/prisma";
+import { SESSION_COOKIE } from "@/lib/session-cookie";
 
 export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt" },
   pages: { signIn: "/login" },
+  // Cookie de sesión con nombre fijo (evita bucles de redirección en Netlify).
+  useSecureCookies: true,
+  cookies: {
+    sessionToken: {
+      name: SESSION_COOKIE,
+      options: { httpOnly: true, sameSite: "lax", path: "/", secure: true },
+    },
+  },
   providers: [
     CredentialsProvider({
       name: "Credenciales",
