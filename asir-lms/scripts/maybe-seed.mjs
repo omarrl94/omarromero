@@ -3,6 +3,13 @@
 import { PrismaClient } from "@prisma/client";
 import { execSync } from "node:child_process";
 
+// Corrige la región del pooler de Supabase también si se ejecuta este script suelto.
+const region = process.env.SUPABASE_REGION || "eu-central-1";
+const fix = (u) =>
+  u ? u.replace(/aws-0-[a-z0-9-]+\.pooler\.supabase\.com/gi, `aws-0-${region}.pooler.supabase.com`) : u;
+if (process.env.DATABASE_URL) process.env.DATABASE_URL = fix(process.env.DATABASE_URL);
+if (process.env.DIRECT_URL) process.env.DIRECT_URL = fix(process.env.DIRECT_URL);
+
 const prisma = new PrismaClient();
 try {
   const count = await prisma.user.count();

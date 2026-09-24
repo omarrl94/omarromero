@@ -12,7 +12,7 @@
     "postinstall": "prisma generate",
     "db:push": "prisma db push",
     "db:setup": "prisma db push && prisma db seed",
-    "build:deploy": "prisma db push && node scripts/maybe-seed.mjs && next build"
+    "build:deploy": "node scripts/build-deploy.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
