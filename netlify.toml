@@ -1,12 +1,17 @@
 # ──────────────────────────────────────────────────────────────
-# Configuración de despliegue en Netlify
+# Despliegue en Netlify de la plataforma ASIR (carpeta asir-lms/).
 #
-# El plugin oficial de Next.js se encarga de las rutas dinámicas
-# (/room/[code]) desplegándolas como funciones serverless, y de
-# servir los assets estáticos desde la CDN.
+# `base` hace que Netlify construya dentro de asir-lms/, instale allí las
+# dependencias (Prisma, Next.js…) y publique esa app. La base de datos se
+# inicializa sola en el primer acceso (asir-lms/src/lib/ensure-db.ts), así que
+# el build no necesita conectar con Supabase.
+#
+# Nota: la app antigua "hipster-bingo" está en la raíz; este sitio ya no la
+# construye. Si quisieras desplegar el bingo, hazlo en un sitio aparte sin base.
 # ──────────────────────────────────────────────────────────────
 
 [build]
+  base = "asir-lms"
   command = "npm run build"
   publish = ".next"
 
@@ -16,8 +21,6 @@
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
-# Cabeceras de seguridad básicas (no interfieren con Supabase
-# Realtime ni con las fuentes de Google).
 [[headers]]
   for = "/*"
   [headers.values]
