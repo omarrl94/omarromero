@@ -9,10 +9,14 @@ import { ensureDb } from "@/lib/ensure-db";
 import { isStaff } from "@/lib/labels";
 import { prisma } from "@/lib/prisma";
 
-// NextAuth necesita conocer la URL pública del sitio. En Netlify la variable URL
-// no siempre llega a las funciones, así que se fija aquí (se puede sobreescribir
-// con la variable de entorno NEXTAUTH_URL o SITE_URL).
-const SITE_URL = process.env.NEXTAUTH_URL || process.env.SITE_URL || process.env.URL || "https://seguridadasir.netlify.app";
+// NextAuth necesita conocer la URL pública del sitio. Se detecta según el host
+// (Vercel, Netlify) o se fija con NEXTAUTH_URL / SITE_URL.
+const SITE_URL =
+  process.env.NEXTAUTH_URL ||
+  process.env.SITE_URL ||
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined) ||
+  process.env.URL ||
+  "https://seguridadasir.netlify.app";
 process.env.NEXTAUTH_URL = SITE_URL;
 
 export const authOptions: NextAuthOptions = {
