@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 // Marcador de versión: cámbialo en cada despliegue para confirmar que Netlify
 // sirve el build nuevo.
-const VERSION = "roles-text-2026-09-25-a";
+const VERSION = "temario-tema1-labs-2026-09-28";
 
 export async function GET() {
   try {
