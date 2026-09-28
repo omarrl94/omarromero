@@ -6,51 +6,81 @@ export const bloque1: Record<number, TopicContent> = {
     theory: [
       {
         title: "¿Qué es la seguridad informática?",
+        key: "Proteger la información en sus tres dimensiones: que solo la vea quien debe (C), que no se altere (I) y que esté disponible cuando se necesita (A).",
         paragraphs: [
           "La seguridad informática es el conjunto de medidas técnicas, organizativas y legales que protegen la información y los sistemas que la tratan. No se limita a instalar un antivirus: incluye procedimientos, formación de las personas y cumplimiento normativo.",
-          "Se suele resumir en la triada CIA: Confidencialidad (solo acceden quienes están autorizados), Integridad (la información no se altera sin autorización) y Disponibilidad (la información y los servicios están accesibles cuando se necesitan). Este módulo trabaja las tres, con especial atención a la disponibilidad.",
+          "Se suele resumir en la triada CIA: Confidencialidad, Integridad y Disponibilidad. Este módulo trabaja las tres, con especial atención a la disponibilidad.",
         ],
+        table: {
+          caption: "La triada CIA de un vistazo",
+          headers: ["Dimensión", "Qué garantiza", "Cómo se protege", "Si falla…"],
+          rows: [
+            ["Confidencialidad", "Solo accede quien está autorizado", "Cifrado, permisos, control de acceso", "Fuga de datos"],
+            ["Integridad", "La información no se altera sin permiso", "Hashes, firma digital, copias", "Datos manipulados o corruptos"],
+            ["Disponibilidad", "El servicio está accesible cuando se necesita", "Redundancia, clústeres, copias", "Caída del servicio"],
+          ],
+        },
         bullets: [
-          "Confidencialidad → cifrado, control de accesos, permisos.",
-          "Integridad → hashes, firmas digitales, control de versiones y copias.",
-          "Disponibilidad → redundancia, clústeres, balanceo, copias de seguridad.",
-          "Además: autenticación (demostrar quién eres) y no repudio (no poder negar una acción).",
+          "Además de la triada: autenticación (demostrar quién eres) y no repudio (no poder negar una acción).",
         ],
+        why: "Porque toda medida de seguridad que estudies en el curso (un cifrado, un cortafuegos, una copia) sirve para reforzar una de estas tres dimensiones. Saber cuál te ayuda a elegir la medida correcta ante cada problema.",
       },
       {
         title: "Activos, amenazas, vulnerabilidades y riesgo",
+        key: "Riesgo ≈ Probabilidad × Impacto. Se reduce actuando sobre las vulnerabilidades, no sobre las amenazas (que no controlas).",
         paragraphs: [
-          "Un activo es cualquier recurso con valor para la organización: datos, servidores, aplicaciones, personas o reputación. Una amenaza es un evento que puede dañar un activo (un incendio, un malware, un error humano). Una vulnerabilidad es una debilidad que permite que la amenaza se materialice (un sistema sin actualizar, una contraseña débil).",
-          "El riesgo combina la probabilidad de que una amenaza aproveche una vulnerabilidad con el impacto que causaría. Se puede reducir (aplicar medidas), transferir (seguro, proveedor), aceptar (documentándolo) o evitar (eliminar la actividad).",
+          "Antes de proteger algo hay que saber QUÉ proteges y DE QUÉ. Estos cuatro conceptos son el lenguaje básico de toda la ciberseguridad.",
+          "El riesgo se puede reducir (aplicar medidas), transferir (seguro, proveedor), aceptar (documentándolo) o evitar (eliminar la actividad).",
         ],
+        table: {
+          caption: "Los cuatro conceptos con un ejemplo",
+          headers: ["Concepto", "Qué es", "Ejemplo"],
+          rows: [
+            ["Activo", "Recurso con valor a proteger", "El servidor con las notas del alumnado"],
+            ["Amenaza", "Evento que puede dañar el activo", "Un ransomware, un incendio, un error humano"],
+            ["Vulnerabilidad", "Debilidad que permite el daño", "El servidor sin actualizar o sin copia"],
+            ["Riesgo", "Probabilidad × impacto del daño", "Alta pérdida de datos si no hay copias"],
+          ],
+        },
         bullets: [
-          "Riesgo ≈ Probabilidad × Impacto.",
           "Salvaguardas preventivas (evitan), detectivas (avisan) y correctivas (recuperan).",
           "Seguridad física (acceso a la sala, SAI, climatización) y lógica (software, permisos).",
         ],
+        why: "Porque no puedes protegerlo todo por igual: este lenguaje te permite priorizar y poner los recursos donde el riesgo es mayor, que es justo lo que harás en el laboratorio de análisis de riesgos.",
       },
       {
         title: "Buenas prácticas básicas",
+        key: "La mayoría de los incidentes se evitan con hábitos sencillos, no con herramientas caras.",
         paragraphs: [
-          "La mayoría de incidentes se evitan con hábitos sencillos: contraseñas largas y únicas guardadas en un gestor, autenticación multifactor (MFA), actualizaciones al día, copias de seguridad y desconfianza ante mensajes urgentes o inesperados.",
+          "Contraseñas largas y únicas en un gestor, autenticación multifactor (MFA), actualizaciones al día, copias de seguridad y desconfianza ante mensajes urgentes o inesperados: eso frena la mayor parte de los ataques.",
           "El principio de mínimo privilegio indica que cada usuario y servicio debe tener solo los permisos imprescindibles. La defensa en profundidad propone varias capas de protección, de modo que si una falla, las demás siguen protegiendo.",
         ],
+        bullets: [
+          "Mínimo privilegio: menos permisos, menos daño posible.",
+          "Defensa en profundidad: varias capas, no una sola barrera.",
+          "MFA: aunque roben la contraseña, no entran.",
+        ],
+        why: "Porque como futuro técnico tu primer trabajo no será desplegar sistemas sofisticados, sino asegurarte de que estas prácticas básicas se cumplen: ahí está el 80 % de la protección real.",
       },
       {
         title: "La IA en el panorama de la ciberseguridad",
+        key: "La IA es una herramienta de doble filo: potencia igual el ataque que la defensa, y siempre necesita supervisión humana.",
         paragraphs: [
           "La IA generativa ha cambiado ambos lados: los atacantes redactan correos de phishing sin faltas y en cualquier idioma, clonan voces o automatizan tareas; los defensores usan modelos para clasificar alertas, detectar anomalías y resumir incidentes.",
-          "Los asistentes de IA son una herramienta más: aceleran el trabajo, pero pueden equivocarse (alucinaciones) y no deben recibir datos confidenciales sin autorización. La responsabilidad final siempre es del técnico que revisa y aplica la respuesta.",
+          "Los asistentes de IA aceleran el trabajo, pero pueden equivocarse (alucinaciones) y no deben recibir datos confidenciales sin autorización. La responsabilidad final siempre es del técnico que revisa y aplica la respuesta.",
         ],
+        why: "Porque durante todo el curso usarás la IA como apoyo. Entender desde el principio que se equivoca y que no puede recibir datos sensibles evita los dos errores más graves al trabajar con ella.",
       },
       {
         title: "Marcos de referencia: Zero Trust, MITRE ATT&CK y ATLAS",
         only: "SUPERIOR",
+        key: "Los marcos de referencia son «mapas» comunes para diseñar la defensa y medir si detectas los ataques.",
         paragraphs: [
           "Zero Trust sustituye la idea de «red interna de confianza» por la verificación continua de identidad, dispositivo y contexto en cada acceso. Se apoya en segmentación, MFA y registro exhaustivo.",
-          "MITRE ATT&CK es una base de conocimiento de tácticas y técnicas observadas en ataques reales; se usa para evaluar la cobertura de detección de una organización. MITRE ATLAS aplica la misma idea a sistemas de IA: envenenamiento de datos, evasión de modelos o inyección de instrucciones (prompt injection).",
+          "MITRE ATT&CK es una base de conocimiento de tácticas y técnicas observadas en ataques reales; se usa para evaluar la cobertura de detección de una organización. MITRE ATLAS aplica la misma idea a los sistemas de IA (envenenamiento de datos, evasión de modelos, prompt injection).",
           "Para el análisis de riesgos formal en el sector público español se usa MAGERIT (con la herramienta PILAR), que identifica activos, dimensiones de valor (D-I-C-A-T), amenazas y salvaguardas.",
         ],
+        why: "Porque en el mundo profesional no se improvisa: estos marcos dan un lenguaje y una checklist compartidos que permiten comparar tu nivel de seguridad con un estándar y justificar tus decisiones ante un cliente o auditor.",
       },
     ],
     labs: [
@@ -209,44 +239,64 @@ export const bloque1: Record<number, TopicContent> = {
     theory: [
       {
         title: "Protección de datos: RGPD y LOPDGDD",
+        key: "Un dato personal es cualquier información que identifique a una persona; tratarlo mal puede costar millones y, sobre todo, dañar a las personas.",
         paragraphs: [
-          "El Reglamento General de Protección de Datos (RGPD, UE 2016/679) y la Ley Orgánica 3/2018 (LOPDGDD) regulan el tratamiento de datos personales: cualquier información sobre una persona física identificada o identificable (nombre, DNI, IP, imagen, voz…).",
-          "Los datos deben tratarse con licitud, lealtad y transparencia, para fines concretos, minimizando lo recogido y conservándolo solo el tiempo necesario, con medidas de seguridad adecuadas. Las brechas de seguridad con riesgo para las personas deben notificarse a la AEPD en un máximo de 72 horas.",
+          "El RGPD (UE 2016/679) y la LOPDGDD (Ley Orgánica 3/2018) regulan el tratamiento de datos personales: cualquier información sobre una persona identificada o identificable (nombre, DNI, IP, imagen, voz…).",
+          "Los datos deben tratarse con licitud, lealtad y transparencia, para fines concretos, minimizando lo recogido y conservándolo solo el tiempo necesario. Las brechas con riesgo para las personas se notifican a la AEPD en un máximo de 72 horas.",
         ],
         bullets: [
           "Derechos de las personas: acceso, rectificación, supresión, oposición, limitación y portabilidad.",
           "Categorías especiales (salud, biometría, ideología…) requieren protección reforzada.",
           "Sanciones de hasta 20 millones de euros o el 4 % de la facturación anual global.",
         ],
+        why: "Porque como técnico manejarás datos personales constantemente (usuarios, empleados, alumnos). Saber qué es un dato personal y cómo minimizarlo es lo que te separa de provocar una brecha o una sanción.",
       },
       {
         title: "Delitos informáticos y el Código Penal",
+        key: "La diferencia entre un hacker ético y un delincuente es una sola cosa: la autorización por escrito.",
         paragraphs: [
-          "El Código Penal español castiga, entre otros, el acceso no autorizado a sistemas (art. 197 bis), la interceptación de datos, los daños informáticos (art. 264), las estafas informáticas (art. 248) y la producción o distribución de herramientas destinadas a cometer estos delitos (art. 197 ter).",
+          "El Código Penal castiga el acceso no autorizado a sistemas (art. 197 bis), la interceptación de datos, los daños informáticos (art. 264), las estafas informáticas (art. 248) y hasta crear o distribuir herramientas para cometer estos delitos (art. 197 ter).",
           "Por eso toda prueba de seguridad sobre sistemas ajenos requiere autorización previa y por escrito. En este curso solo se practica sobre el laboratorio propio.",
         ],
+        why: "Porque vas a aprender técnicas de auditoría potentes. Usarlas sin permiso es delito, aunque no causes daño. Este límite legal es la base de toda tu carrera profesional.",
       },
       {
         title: "ENS y Directiva NIS2",
+        key: "Normas obligatorias que dicen QUÉ nivel de seguridad debe tener una organización según su importancia.",
         paragraphs: [
-          "El Esquema Nacional de Seguridad (Real Decreto 311/2022) es obligatorio para el sector público y sus proveedores. Clasifica los sistemas en categoría BÁSICA, MEDIA o ALTA y define las medidas que deben aplicarse.",
-          "La Directiva NIS2 amplía las obligaciones de ciberseguridad a más sectores esenciales e importantes (energía, sanidad, transporte, digital…), exige gestión de riesgos, notificación de incidentes y responsabilidad de la dirección.",
+          "El Esquema Nacional de Seguridad (RD 311/2022) es obligatorio para el sector público y sus proveedores. Clasifica los sistemas en categoría BÁSICA, MEDIA o ALTA y define las medidas de cada nivel.",
+          "La Directiva NIS2 amplía las obligaciones de ciberseguridad a más sectores esenciales e importantes (energía, sanidad, transporte, digital…): gestión de riesgos, notificación de incidentes y responsabilidad de la dirección.",
         ],
+        why: "Porque si trabajas para la Administración o para un sector esencial, estas normas no son opcionales: definen tu trabajo y su incumplimiento tiene consecuencias legales y económicas.",
       },
       {
         title: "Inteligencia Artificial y privacidad",
+        key: "El AI Act clasifica la IA por riesgo; y si metes datos personales en una IA, sigue aplicando el RGPD.",
         paragraphs: [
-          "El Reglamento Europeo de Inteligencia Artificial (AI Act) clasifica los sistemas de IA según su riesgo: prácticas prohibidas (p. ej. puntuación social), alto riesgo (selección de personal, infraestructuras críticas, educación), riesgo de transparencia (chatbots, contenido sintético que debe identificarse) y riesgo mínimo.",
-          "Si se introducen datos personales en un modelo de IA, se aplica el RGPD: hay que tener una base legal, informar a las personas y valorar si el proveedor reutiliza esos datos para entrenar. Una buena práctica es anonimizar la información antes de enviarla a un asistente.",
+          "El Reglamento Europeo de IA (AI Act) clasifica los sistemas de IA según su riesgo y exige más obligaciones cuanto mayor es ese riesgo.",
+          "Si introduces datos personales en un modelo de IA, se aplica el RGPD: hay que tener base legal, informar a las personas y valorar si el proveedor reutiliza esos datos. Buena práctica: anonimizar antes de enviar nada a un asistente.",
         ],
+        table: {
+          caption: "Niveles de riesgo del AI Act",
+          headers: ["Nivel", "Ejemplos", "Qué exige la ley"],
+          rows: [
+            ["Riesgo inaceptable", "Puntuación social, manipulación", "Prohibido"],
+            ["Alto riesgo", "Selección de personal, educación, infraestructuras", "Controles estrictos y supervisión"],
+            ["Riesgo de transparencia", "Chatbots, contenido sintético (deepfakes)", "Avisar de que es IA / está generado"],
+            ["Riesgo mínimo", "Filtro antispam, videojuegos", "Sin obligaciones específicas"],
+          ],
+        },
+        why: "Porque cada vez integrarás más IA en los sistemas. Saber en qué nivel de riesgo cae y qué exige la ley te evita crear un producto ilegal o exponer datos personales sin querer.",
       },
       {
         title: "Aplicación práctica: EIPD, contratos y auditorías autorizadas",
         only: "SUPERIOR",
+        key: "Antes de tratar datos de alto riesgo o de auditar, primero va el papeleo legal: EIPD y contrato con alcance.",
         paragraphs: [
-          "La Evaluación de Impacto relativa a la Protección de Datos (EIPD) es obligatoria cuando un tratamiento supone alto riesgo, como el uso de IA para perfilar personas. Describe el tratamiento, evalúa necesidad y proporcionalidad, analiza los riesgos y propone medidas.",
-          "Un encargo de auditoría de seguridad debe incluir contrato, alcance (qué sistemas, qué horario, qué técnicas), acuerdo de confidencialidad y persona de contacto. Sin este documento, una auditoría puede constituir delito.",
+          "La Evaluación de Impacto relativa a la Protección de Datos (EIPD) es obligatoria cuando un tratamiento supone alto riesgo (p. ej. usar IA para perfilar personas). Describe el tratamiento, evalúa necesidad y proporcionalidad, analiza riesgos y propone medidas.",
+          "Un encargo de auditoría debe incluir contrato, alcance (qué sistemas, qué horario, qué técnicas), acuerdo de confidencialidad y persona de contacto. Sin ese documento, la auditoría puede ser delito.",
         ],
+        why: "Porque en el trabajo real la parte legal va ANTES que el teclado: una EIPD o un contrato de auditoría bien hechos te protegen a ti y a tu cliente. Es exactamente lo que practicarás en el laboratorio de este tema.",
       },
     ],
     labs: [

@@ -2,10 +2,22 @@
 export type Audience = "MEDIO" | "SUPERIOR";
 type Only = { only?: Audience };
 
+export type TheoryTable = {
+  caption?: string;
+  headers: string[];
+  rows: string[][];
+};
+
 export type TheorySection = Only & {
   title: string;
+  /** Idea clave en una frase (se muestra destacada al principio). */
+  key?: string;
   paragraphs: string[];
   bullets?: string[];
+  /** Tabla comparativa opcional para hacer la teoría más visual. */
+  table?: TheoryTable;
+  /** «¿Por qué importa?»: la razón de ser del concepto. */
+  why?: string;
 };
 
 export type LabStep = {

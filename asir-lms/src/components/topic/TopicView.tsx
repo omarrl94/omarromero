@@ -116,25 +116,82 @@ export function TopicView({
       {SECTION_EMPTY[section](content) && <Pending />}
 
       {section === "teoria" && (
-        <div className="space-y-4">
-          {content.theory.map((t) => (
-            <Card key={t.title}>
-              <CardHeader className="pb-3">
+        <div className="space-y-5">
+          {content.theory.map((t, ti) => (
+            <Card key={t.title} className="overflow-hidden border-l-4 border-l-defensiva-500">
+              <CardHeader className="bg-defensiva-50/60 pb-3">
                 <div className="flex flex-wrap items-center gap-2">
+                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-defensiva-600 text-sm font-bold text-white">
+                    {ti + 1}
+                  </span>
                   <CardTitle className="text-lg">{t.title}</CardTitle>
                   <OnlyBadge only={t.only} />
                 </div>
               </CardHeader>
-              <CardContent className="space-y-3 text-[15px] leading-relaxed">
+              <CardContent className="space-y-4 pt-4 text-[15px] leading-relaxed">
+                {t.key && (
+                  <p className="flex gap-2 rounded-md border-l-4 border-ofensiva bg-ofensiva-50 p-3 font-medium text-ofensiva-800">
+                    <span aria-hidden>💡</span>
+                    <span>
+                      <span className="font-semibold uppercase tracking-wide text-xs text-ofensiva-700">Idea clave · </span>
+                      {t.key}
+                    </span>
+                  </p>
+                )}
                 {t.paragraphs.map((p, i) => (
                   <p key={i}>{p}</p>
                 ))}
                 {t.bullets && (
-                  <ul className="list-disc space-y-1 pl-5">
+                  <ul className="space-y-1.5">
                     {t.bullets.map((b) => (
-                      <li key={b}>{b}</li>
+                      <li key={b} className="flex gap-2">
+                        <span aria-hidden className="mt-0.5 text-defensiva-600">▸</span>
+                        <span>{b}</span>
+                      </li>
                     ))}
                   </ul>
+                )}
+                {t.table && (
+                  <div className="overflow-x-auto rounded-lg border">
+                    {t.table.caption && (
+                      <p className="border-b bg-muted/50 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        {t.table.caption}
+                      </p>
+                    )}
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="bg-muted/40">
+                          {t.table.headers.map((h) => (
+                            <th key={h} className="px-3 py-2 text-left font-semibold">
+                              {h}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {t.table.rows.map((row, ri) => (
+                          <tr key={ri} className="border-t">
+                            {row.map((cell, ci) => (
+                              <td key={ci} className={cn("px-3 py-2 align-top", ci === 0 && "font-medium")}>
+                                {cell}
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+                {t.why && (
+                  <p className="flex gap-2 rounded-md border-l-4 border-disponibilidad-400 bg-disponibilidad-50 p-3 text-disponibilidad-900">
+                    <span aria-hidden>🎯</span>
+                    <span>
+                      <span className="text-xs font-semibold uppercase tracking-wide text-disponibilidad-700">
+                        ¿Por qué importa? ·{" "}
+                      </span>
+                      {t.why}
+                    </span>
+                  </p>
                 )}
               </CardContent>
             </Card>
