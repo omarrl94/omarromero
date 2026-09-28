@@ -8,74 +8,200 @@ export const bloque2: Record<number, TopicContent> = {
     theory: [
       {
         title: "Hacking ético: qué es y qué no es",
+        key: "Lo que separa a un auditor de un delincuente no son las herramientas, sino tres cosas: autorización, intención y confidencialidad.",
         paragraphs: [
-          "Un hacker ético o auditor de seguridad evalúa la seguridad de sistemas con autorización expresa del propietario, con un alcance acordado y con el objetivo de corregir las debilidades encontradas. La diferencia con un atacante no está en las herramientas, sino en la autorización, la intención y la confidencialidad.",
-          "Se distingue el análisis de vulnerabilidades (identificar fallos) del test de intrusión (comprobar de forma controlada su impacto). Y según la información previa: caja negra (ninguna), caja gris (parcial) y caja blanca (completa).",
+          "Un hacker ético o auditor de seguridad evalúa la seguridad de sistemas con autorización expresa del propietario, con un alcance acordado y con el objetivo de corregir las debilidades encontradas. Usa las mismas técnicas que un atacante, pero con permiso y para proteger.",
+          "Según el tipo de prueba se distingue el análisis de vulnerabilidades (identificar fallos) del test de intrusión (comprobar de forma controlada su impacto). Y según la información previa: caja negra (ninguna), caja gris (parcial) y caja blanca (completa).",
         ],
+        table: {
+          caption: "Atacante frente a auditor: misma herramienta, distinta persona",
+          headers: ["Aspecto", "Atacante (delincuente)", "Hacker ético (auditor)"],
+          rows: [
+            ["Autorización", "Ninguna: entra sin permiso", "Contrato y alcance firmados"],
+            ["Intención", "Beneficio propio o daño", "Corregir y proteger"],
+            ["Confidencialidad", "Divulga o vende lo hallado", "Guarda secreto y solo informa al cliente"],
+            ["Resultado", "Delito (Bloque 1)", "Informe con recomendaciones"],
+          ],
+        },
+        why: "Porque la línea entre un trabajo legal bien pagado y un delito con pena de cárcel es exactamente esta: sin autorización por escrito, la mejor auditoría del mundo es un ataque. Interiorizarlo ahora te protege durante toda tu carrera.",
       },
       {
         title: "Fases de una auditoría",
-        paragraphs: ["Las metodologías comparten una estructura común:"],
-        bullets: [
-          "1. Acuerdo previo: alcance, autorización y reglas de actuación.",
-          "2. Recolección de información sobre el objetivo.",
-          "3. Análisis de vulnerabilidades.",
-          "4. Verificación controlada de los hallazgos.",
-          "5. Informe con hallazgos, riesgo y recomendaciones.",
-          "6. Retest: verificación de las correcciones.",
+        key: "Toda auditoría sigue el mismo guion: primero se acuerda por escrito, luego se investiga, se comprueba y, sobre todo, se informa para que se corrija.",
+        paragraphs: [
+          "Las metodologías profesionales comparten una estructura común. Ninguna fase empieza sin que haya terminado la anterior, y la primera —el acuerdo— es innegociable.",
         ],
+        table: {
+          caption: "Las fases de una auditoría y qué produce cada una",
+          headers: ["Fase", "Objetivo", "Qué se obtiene"],
+          rows: [
+            ["1. Acuerdo previo", "Definir alcance, autorización y reglas", "Contrato firmado"],
+            ["2. Recolección de información", "Conocer el objetivo", "Inventario de la superficie expuesta"],
+            ["3. Análisis de vulnerabilidades", "Localizar debilidades", "Lista de hallazgos"],
+            ["4. Verificación controlada", "Comprobar el impacto real", "Evidencias de los fallos explotables"],
+            ["5. Informe", "Comunicar y priorizar", "Documento con riesgo y recomendaciones"],
+            ["6. Retest", "Confirmar las correcciones", "Verificación de que se ha solucionado"],
+          ],
+        },
+        why: "Porque el valor de una auditoría no está en «entrar», sino en el informe que permite corregir. Seguir las fases en orden garantiza que trabajas con permiso, que no te dejas nada y que el cliente recibe algo accionable.",
       },
       {
         title: "El laboratorio seguro",
+        key: "Se practica SOLO sobre máquinas propias, vulnerables a propósito y aisladas de Internet. Fuera de ahí, sin permiso, es delito.",
         paragraphs: [
           "Las prácticas se realizan sobre máquinas virtuales deliberadamente vulnerables y aisladas (Metasploitable, DVWA, OWASP Juice Shop), pensadas para aprender. Nunca se conectan a Internet ni a la red del centro, y se restauran con instantáneas tras cada práctica.",
-          "Practicar sobre sistemas ajenos sin permiso es ilegal (Bloque 1). El objetivo del bloque es entender cómo piensa un atacante para defender mejor.",
+          "Practicar sobre sistemas ajenos sin permiso es ilegal (lo viste en el Bloque 1). El objetivo del bloque es entender cómo piensa un atacante para defender mejor.",
         ],
+        bullets: [
+          "Red aislada (la ASIR-LAB del Tema 0): sin salida a Internet ni a la red real.",
+          "Instantáneas antes y después de cada práctica para poder volver atrás.",
+          "Autorización: aquí el «propietario» eres tú, sobre tus propias VM.",
+        ],
+        why: "Porque necesitas un sitio donde poder «romper cosas» y equivocarte sin causar ningún daño ni cometer ninguna ilegalidad. El laboratorio aislado es lo que te permite aprender técnicas ofensivas siendo completamente legal.",
       },
       {
         title: "Metodologías: PTES, OSSTMM y OWASP",
         only: "SUPERIOR",
+        key: "Las metodologías son guiones estándar que dan rigor, repetibilidad y trazabilidad a la auditoría; cada una destaca en un ámbito.",
         paragraphs: [
           "PTES define siete fases, del acuerdo previo al informe, incluyendo el modelado de amenazas. OSSTMM aporta un enfoque medible por canales (humano, físico, inalámbrico, redes) con la métrica RAV.",
           "OWASP publica la Web Security Testing Guide y el estándar ASVS, con requisitos verificables por niveles. Elegir y combinar metodologías da rigor y trazabilidad a la auditoría.",
         ],
+        table: {
+          caption: "Cuándo usar cada metodología",
+          headers: ["Metodología", "Enfoque", "Ideal para"],
+          rows: [
+            ["PTES", "7 fases con modelado de amenazas", "Pentest completo y estructurado"],
+            ["OSSTMM", "Medible por canales, métrica RAV", "Auditoría cuantificable y comparable"],
+            ["OWASP (WSTG/ASVS)", "Requisitos verificables por niveles", "Aplicaciones web"],
+          ],
+        },
+        why: "Porque un cliente o un juez no aceptan «lo hice a mi manera»: apoyarte en una metodología reconocida hace tu trabajo defendible, repetible por otro auditor y comparable con un estándar del sector.",
       },
       {
         title: "La IA como asistente del auditor",
         only: "SUPERIOR",
+        key: "La IA acelera la parte tediosa (planificar, redactar, explicar), pero el criterio y la responsabilidad siguen siendo del auditor.",
         paragraphs: [
           "Los asistentes de IA ayudan a planificar la auditoría, redactar la documentación, explicar hallazgos y priorizar. Son un apoyo, no un sustituto del criterio técnico.",
           "Deben usarse con cuidado: no enviar datos confidenciales del cliente y verificar siempre sus salidas, que pueden ser inexactas.",
         ],
+        why: "Porque en el trabajo real te ahorrará horas de documentación, pero si le envías datos del cliente rompes la confidencialidad (un delito), y si copias sus salidas sin verificar, firmas errores como propios. Saber dónde ayuda y dónde no marca la diferencia.",
       },
     ],
     labs: [
       {
-        title: "Preparar el laboratorio de auditoría",
-        goal: "Añadir una máquina vulnerable al laboratorio aislado y verificar la conectividad para practicar de forma segura y legal.",
-        environment: ["VirtualBox con la red ASIR-LAB", "Imagen de una VM vulnerable de prácticas (según indique el profesor)", "VM Ubuntu como equipo del auditor"],
-        steps: [
-          { title: "Importar la VM vulnerable", detail: "Importa la máquina vulnerable de prácticas y asígnale la red NAT ASIR-LAB. Confirma que NO tiene adaptador puente ni salida a Internet." },
-          { title: "Comprobar el aislamiento", detail: "Desde la VM vulnerable, verifica que no hay salida a Internet (un ping a un dominio externo debe fallar). Es la garantía de que trabajas aislado." },
-          { title: "Verificar la red interna", detail: "Desde la VM del auditor, comprueba que alcanzas la VM vulnerable dentro de la red del laboratorio.", code: "ping -c2 10.10.10.X" },
-          { title: "Registrar el alcance", detail: "Anota en tu cuaderno qué máquina vas a auditar, su IP y que la prueba es sobre un sistema propio del laboratorio." },
-          { title: "Tomar instantáneas", detail: "Crea una instantánea de ambas VM para poder restaurarlas tras cada práctica." },
+        title: "Ampliar tu laboratorio con una máquina vulnerable de prácticas",
+        goal:
+          "Al terminar tendrás, junto a tu Ubuntu del Tema 0, una segunda máquina «víctima» deliberadamente vulnerable, aislada de Internet y accesible solo desde tu equipo auditor: el escenario donde practicarás las auditorías de todo el bloque de forma legal.",
+        relation:
+          "La teoría insiste en que solo se audita sobre sistemas propios y aislados. Este taller construye justo ese «laboratorio seguro»: montas la máquina objetivo dentro de la red aislada ASIR-LAB, compruebas que no puede salir a Internet y documentas el alcance, aplicando en la práctica los principios éticos y legales del tema.",
+        duration: "40–55 min",
+        environment: [
+          "VirtualBox con la red NAT «ASIR-LAB» creada en el Tema 0",
+          "Una imagen de VM vulnerable de prácticas (Metasploitable 2 o la que indique el profesor)",
+          "Tu VM Ubuntu del Tema 0 como equipo auditor",
         ],
-        check: "La VM vulnerable está aislada (sin Internet), es accesible desde el equipo auditor dentro del laboratorio y has documentado el alcance.",
+        steps: [
+          {
+            title: "Importar la VM vulnerable en la red aislada",
+            detail:
+              "Importa la máquina vulnerable de prácticas en VirtualBox. En Configuración → Red → Adaptador 1, elige «Red NAT» y selecciona «ASIR-LAB». Asegúrate de que NO tiene adaptador puente ni ninguna otra salida.",
+            expected: "La VM aparece en VirtualBox con un único adaptador de red conectado a «ASIR-LAB».",
+          },
+          {
+            title: "Comprobar que la víctima NO tiene salida a Internet",
+            detail:
+              "Arranca la VM vulnerable e intenta hacer ping a un dominio externo. Debe fallar: esa es la garantía de que trabajas aislado y de que nada de lo que hagas puede escaparse a la red real.",
+            code: "ping -c2 8.8.8.8",
+            expected: "El ping falla o no recibe respuesta: la máquina está aislada de Internet.",
+          },
+          {
+            title: "Averiguar la IP de la víctima",
+            detail: "Dentro de la VM vulnerable, consulta su dirección IP en la red del laboratorio y anótala.",
+            code: "ip -br addr   # o «ifconfig» en sistemas antiguos",
+            expected: "Obtienes una IP del tipo 10.10.10.x. Esa será tu objetivo autorizado.",
+          },
+          {
+            title: "Verificar la conectividad desde el equipo auditor",
+            detail:
+              "Desde tu VM Ubuntu del Tema 0, comprueba que alcanzas la máquina víctima dentro del laboratorio (sustituye X por la IP anotada).",
+            code: "ping -c2 10.10.10.X",
+            expected: "El ping responde: el auditor y la víctima se «ven» dentro de la red aislada.",
+          },
+          {
+            title: "Registrar el alcance por escrito",
+            detail:
+              "En un documento, anota: qué máquina vas a auditar, su IP, que es un sistema propio del laboratorio y la fecha. Este es tu «acuerdo de alcance» simulado, la fase 1 de toda auditoría.",
+            expected: "Tienes un documento de alcance que identifica el objetivo y deja constancia de que la prueba es legal y autorizada.",
+          },
+          {
+            title: "Tomar instantáneas de ambas VM",
+            detail:
+              "Apaga ambas máquinas y crea una instantánea de cada una llamada «02-base-auditoria». Antes de cada práctica del bloque podrás restaurar este punto.",
+            expected: "Ambas VM tienen la instantánea «02-base-auditoria» en su pestaña de Instantáneas.",
+          },
+        ],
+        check:
+          "La VM víctima está aislada (el ping a Internet falla), es accesible desde el equipo auditor (el ping interno responde), has documentado el alcance por escrito y existen las instantáneas de restauración.",
+        evidence: [
+          "Captura del ping a Internet fallando (aislamiento) y del ping interno respondiendo (conectividad).",
+          "El documento de alcance con la IP de la víctima y la fecha.",
+          "Captura de la lista de instantáneas «02-base-auditoria» en ambas VM.",
+        ],
       },
       {
-        title: "Recorrer las fases de una auditoría (documental)",
+        title: "Planificar una auditoría completa siguiendo una metodología",
         only: "SUPERIOR",
-        goal: "Planificar una auditoría completa sobre el laboratorio siguiendo una metodología, sin ejecutar aún las pruebas.",
-        environment: ["Documento de metodología (PTES/OWASP)", "Procesador de textos"],
-        steps: [
-          { title: "Definir alcance y reglas", detail: "Redacta el alcance (qué VM del laboratorio), las técnicas permitidas y las prohibidas." },
-          { title: "Mapear las fases", detail: "Para cada fase de PTES, describe qué harías sobre el laboratorio y qué esperas obtener." },
-          { title: "Modelar amenazas", detail: "Identifica los activos de la VM y las amenazas más probables." },
-          { title: "Planificar el informe", detail: "Diseña la plantilla de hallazgo (descripción, riesgo, evidencia, recomendación)." },
-          { title: "Apoyo de IA", detail: "Pide a un asistente que revise tu plan y anota qué sugerencias aceptas y por qué." },
+        goal:
+          "Al terminar tendrás el plan de auditoría de tu laboratorio redactado según una metodología reconocida (PTES/OWASP): alcance, fases, modelado de amenazas y plantilla de informe, listo para ejecutarse en los temas siguientes.",
+        relation:
+          "La teoría presenta las fases de una auditoría y las metodologías profesionales. Aquí las aplicas: conviertes ese guion abstracto en un plan concreto sobre tu máquina víctima, ejercitando por qué el rigor metodológico hace tu trabajo defendible y repetible.",
+        duration: "50–70 min",
+        environment: [
+          "La guía de una metodología (PTES o la OWASP WSTG)",
+          "Un procesador de textos",
+          "Opcional: un asistente de IA para contrastar el plan",
         ],
-        check: "Tienes un plan de auditoría con alcance, fases mapeadas, modelado de amenazas y plantilla de informe.",
+        steps: [
+          {
+            title: "Redactar el alcance y las reglas de actuación",
+            detail:
+              "Define por escrito qué VM del laboratorio vas a auditar, qué técnicas están permitidas y cuáles quedan prohibidas (por ejemplo, no borrar datos). Añade la autorización simulada.",
+            expected: "Tienes un documento de alcance claro que cualquiera podría leer para saber qué está permitido y qué no.",
+          },
+          {
+            title: "Mapear las fases sobre tu laboratorio",
+            detail:
+              "Para cada fase de PTES (del acuerdo previo al informe), describe en una o dos frases qué harías sobre tu máquina víctima y qué esperas obtener en cada una.",
+            expected: "Cada fase de la metodología tiene asociada una acción concreta y un resultado esperado en tu caso.",
+          },
+          {
+            title: "Modelar las amenazas del objetivo",
+            detail:
+              "Identifica los activos de la VM víctima (servicios que expone, datos que contiene) y las amenazas más probables sobre cada uno.",
+            expected: "Tienes una tabla de activos con sus amenazas más realistas.",
+          },
+          {
+            title: "Diseñar la plantilla de informe",
+            detail:
+              "Crea la plantilla de ficha de hallazgo que usarás en los temas siguientes: descripción, riesgo (CVSS), evidencia, impacto y recomendación.",
+            expected: "Tienes una plantilla de hallazgo reutilizable, con todos los campos que exige un informe profesional.",
+          },
+          {
+            title: "Contrastar el plan con un asistente de IA",
+            detail:
+              "Pega tu plan (sin datos sensibles) en un asistente de IA y pídele fases, amenazas o campos que se te hayan escapado. Anota qué sugerencias aceptas y cuáles descartas, y por qué.",
+            expected: "Has mejorado el plan de forma justificada, distinguiendo las sugerencias útiles de las incorrectas o fuera de alcance.",
+          },
+        ],
+        check:
+          "Tienes un plan de auditoría con alcance y reglas, las fases mapeadas sobre tu laboratorio, el modelado de amenazas y la plantilla de informe, todo apoyado en una metodología reconocida.",
+        evidence: [
+          "El documento de alcance y reglas de actuación.",
+          "La tabla de fases mapeadas y la de modelado de amenazas.",
+          "La plantilla de ficha de hallazgo y la reflexión sobre las sugerencias de la IA aceptadas o descartadas.",
+        ],
       },
     ],
     activities: [
