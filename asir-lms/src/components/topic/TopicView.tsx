@@ -185,6 +185,30 @@ export function TopicView({
               <p className="rounded-md bg-defensiva-100 p-3 text-sm text-defensiva-800">
                 <strong>Comprobación final:</strong> {lab.check}
               </p>
+              <Card className="border-l-4 border-l-ofensiva">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center gap-2 text-base">📄 Documento de entrega (obligatorio)</CardTitle>
+                  <CardDescription>
+                    Al terminar, entrega un documento (PDF o Word) que demuestre que has realizado el taller.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="text-sm">
+                  <p className="mb-2 font-medium">Debe incluir:</p>
+                  <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
+                    <li>Portada con tu nombre, grado, fecha y el título del taller.</li>
+                    <li>Para cada paso: qué hiciste y una captura de pantalla del resultado.</li>
+                    <li>El resultado esperado de cada paso, indicando si lo conseguiste.</li>
+                    {lab.evidence?.map((e) => (
+                      <li key={e}>{e}</li>
+                    ))}
+                    <li>Conclusión breve: qué has aprendido y su relación con el tema.</li>
+                    <li>
+                      Declaración final firmada: <em>«Declaro que he realizado personalmente todos los pasos de este
+                      laboratorio»</em>, con tu nombre y fecha.
+                    </li>
+                  </ul>
+                </CardContent>
+              </Card>
             </section>
           ))}
         </div>

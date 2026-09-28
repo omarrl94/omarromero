@@ -55,33 +55,119 @@ export const bloque1: Record<number, TopicContent> = {
     ],
     labs: [
       {
-        title: "Montar el laboratorio virtual del módulo",
-        goal: "Preparar un entorno aislado de máquinas virtuales donde realizar todas las prácticas del curso sin afectar a ninguna red real.",
-        environment: ["Ordenador con 8 GB de RAM o más", "VirtualBox 7 (o VMware Workstation Player)", "ISO de Ubuntu Server 24.04 LTS y de Windows Server de evaluación"],
-        steps: [
-          { title: "Instalar VirtualBox", detail: "Descarga VirtualBox desde virtualbox.org e instálalo con las opciones por defecto. Instala también el Extension Pack de la misma versión." },
-          { title: "Crear una red NAT aislada", detail: "En VirtualBox abre Archivo → Herramientas → Gestor de red → Redes NAT y crea una red llamada «ASIR-LAB» con el rango 10.10.10.0/24 y DHCP activado. Todas las VM del curso irán en esta red." },
-          { title: "Crear la VM de Ubuntu Server", detail: "Nueva máquina: 2 GB RAM, 2 CPU, disco de 25 GB. En Red, adaptador 1 → «Red NAT» → ASIR-LAB. Instala el sistema con usuario «asir» y marca «Install OpenSSH server»." },
-          { title: "Actualizar el sistema", detail: "Inicia sesión y actualiza los paquetes. Anota la IP que recibe la máquina.", code: "sudo apt update && sudo apt full-upgrade -y\nip -br addr" },
-          { title: "Tomar una instantánea", detail: "Con la VM apagada, crea una instantánea llamada «00-base». Antes de cada práctica volverás a este punto si algo sale mal." },
-          { title: "Documentar el laboratorio", detail: "Crea un documento con: nombre de cada VM, sistema operativo, IP, usuario y propósito. Lo irás ampliando durante todo el curso." },
+        title: "Montar tu laboratorio virtual seguro (tu «campo de pruebas» del curso)",
+        goal:
+          "Al terminar tendrás un entorno de máquinas virtuales aislado donde podrás practicar TODO el módulo sin ningún riesgo para tu equipo ni para ninguna red real: podrás romper cosas, probar y volver atrás con un clic.",
+        relation:
+          "El Tema 0 introduce los conceptos de activo, amenaza, vulnerabilidad y riesgo, y la idea de trabajar de forma segura. Este taller crea el entorno controlado y aislado donde aplicarás esos conceptos durante todo el curso: es la base de las buenas prácticas del tema.",
+        duration: "45–60 min",
+        environment: [
+          "Un ordenador con al menos 8 GB de RAM y 30 GB de disco libre",
+          "VirtualBox 7 (gratuito, en virtualbox.org) o VMware Workstation Player",
+          "La imagen ISO de Ubuntu Server 24.04 LTS (descárgala de ubuntu.com)",
         ],
-        check: "La VM de Ubuntu tiene IP en 10.10.10.0/24, responde a `ping` desde otra VM de la misma red NAT y existe la instantánea «00-base».",
+        steps: [
+          {
+            title: "Instalar VirtualBox y su Extension Pack",
+            detail:
+              "Descarga VirtualBox de virtualbox.org e instálalo con las opciones por defecto. Descarga también el «Extension Pack» de la MISMA versión e instálalo (doble clic sobre el fichero).",
+            expected: "Al abrir VirtualBox ves su ventana principal (aún sin máquinas) y, en Archivo → Preferencias → Extensiones, aparece el Extension Pack instalado.",
+          },
+          {
+            title: "Crear una red aislada solo para el laboratorio",
+            detail:
+              "Abre Archivo → Herramientas → Gestor de red → pestaña «Redes NAT» → Crear. Ponle nombre «ASIR-LAB», rango 10.10.10.0/24 y activa DHCP. Todas tus VM del curso irán en esta red, separada de tu red de casa.",
+            expected: "En la lista de Redes NAT aparece «ASIR-LAB» con el rango 10.10.10.0/24 y DHCP activado.",
+          },
+          {
+            title: "Crear la máquina virtual de Ubuntu Server",
+            detail:
+              "Pulsa «Nueva»: nombre «ubuntu-lab», 2 GB de RAM, 2 CPU y disco de 25 GB. En Configuración → Red → Adaptador 1, elige «Red NAT» y selecciona «ASIR-LAB». Arranca la VM con la ISO de Ubuntu Server.",
+            expected: "La máquina «ubuntu-lab» arranca desde la ISO y aparece el instalador de Ubuntu Server.",
+          },
+          {
+            title: "Instalar Ubuntu con usuario y SSH",
+            detail:
+              "Sigue el instalador: crea el usuario «asir» con una contraseña que recuerdes y, cuando lo ofrezca, marca «Install OpenSSH server». Al terminar, reinicia e inicia sesión.",
+            expected: "Puedes iniciar sesión en la VM con el usuario «asir» y llegas a la línea de comandos.",
+          },
+          {
+            title: "Actualizar el sistema y anotar su IP",
+            detail: "Ya dentro, actualiza los paquetes y averigua la dirección IP que le ha dado la red del laboratorio.",
+            code: "sudo apt update && sudo apt full-upgrade -y\nip -br addr",
+            expected: "El sistema queda actualizado y ves una IP del tipo 10.10.10.x (la de tu VM en la red ASIR-LAB). Apúntala.",
+          },
+          {
+            title: "Guardar una instantánea «00-base»",
+            detail:
+              "Apaga la VM. En VirtualBox, con la VM seleccionada, ve a «Instantáneas» → «Tomar» y llámala «00-base». Antes de cada práctica podrás volver aquí si algo sale mal.",
+            expected: "En la pestaña Instantáneas aparece «00-base». Ahora tienes un punto de restauración seguro.",
+          },
+        ],
+        check:
+          "Tu VM de Ubuntu tiene una IP 10.10.10.x en la red ASIR-LAB, está actualizada, puedes iniciar sesión y existe la instantánea «00-base». Ya tienes tu laboratorio listo para todo el curso.",
+        evidence: [
+          "Captura de la red NAT «ASIR-LAB» y de la lista de instantáneas con «00-base».",
+          "La IP que obtuvo tu VM y una captura del comando ip -br addr.",
+        ],
       },
       {
-        title: "Análisis de riesgos simplificado de un aula",
+        title: "Analizar los riesgos de un aula con la metodología MAGERIT",
         only: "SUPERIOR",
-        goal: "Aplicar la metodología de análisis de riesgos (inspirada en MAGERIT) a un caso real: el aula de informática.",
-        environment: ["Hoja de cálculo (LibreOffice Calc o Excel)", "Inventario del aula (equipos, switch, servidor, proyector)"],
-        steps: [
-          { title: "Inventariar activos", detail: "Lista al menos 10 activos del aula (hardware, software, datos, servicios, personas) y asigna a cada uno un valor de 1 a 5 en Confidencialidad, Integridad y Disponibilidad." },
-          { title: "Identificar amenazas", detail: "Para cada activo, identifica 2 o 3 amenazas (catálogo MAGERIT: desastres naturales, origen industrial, errores, ataques intencionados)." },
-          { title: "Estimar probabilidad e impacto", detail: "Puntúa de 1 a 5 la probabilidad de cada amenaza y su impacto. Calcula el riesgo como producto y colorea la celda (verde < 6, amarillo 6-14, rojo ≥ 15)." },
-          { title: "Proponer salvaguardas", detail: "Para cada riesgo rojo o amarillo propone una salvaguarda y clasifícala como preventiva, detectiva o correctiva." },
-          { title: "Pedir una revisión a un asistente de IA", detail: "Pega tu tabla anonimizada en un asistente de IA y pídele amenazas que falten. Anota qué sugerencias aceptas y cuáles descartas, justificando por qué." },
-          { title: "Calcular el riesgo residual", detail: "Recalcula el riesgo suponiendo aplicadas las salvaguardas y compara ambas matrices." },
+        goal:
+          "Al terminar sabrás hacer un análisis de riesgos real: inventariar activos, valorarlos, identificar amenazas, calcular el riesgo y proponer salvaguardas, usando una versión simplificada de MAGERIT (la metodología oficial en España).",
+        relation:
+          "El Tema 0 define activo, amenaza, vulnerabilidad y riesgo (riesgo ≈ probabilidad × impacto) y las salvaguardas. Aquí conviertes esa teoría en una tabla de análisis de riesgos aplicada a un caso concreto —el aula—, que es exactamente lo que se hace en el mundo profesional.",
+        duration: "50–70 min",
+        environment: [
+          "Una hoja de cálculo (LibreOffice Calc, Excel o Google Sheets)",
+          "El aula de informática como caso de estudio (equipos, switch, servidor, proyector, datos, personas)",
+          "Opcional: un asistente de IA para contrastar amenazas",
         ],
-        check: "La hoja contiene activos valorados, matriz de riesgo coloreada, salvaguardas clasificadas y riesgo residual inferior al inicial.",
+        steps: [
+          {
+            title: "Inventariar los activos del aula",
+            detail:
+              "Crea una tabla y lista al menos 10 activos de distintos tipos: hardware (PCs, switch), software, datos (trabajos del alumnado), servicios (Internet) y personas. Para cada uno, valora de 1 a 5 su Confidencialidad, Integridad y Disponibilidad.",
+            expected: "Tienes una tabla con 10+ activos, cada uno con sus tres valoraciones (C, I, D) de 1 a 5.",
+          },
+          {
+            title: "Identificar amenazas por activo",
+            detail:
+              "Para cada activo, añade 2 o 3 amenazas posibles usando las categorías de MAGERIT: desastres naturales, de origen industrial, errores humanos y ataques intencionados.",
+            expected: "Cada activo tiene asociadas al menos 2 amenazas realistas y clasificadas por categoría.",
+          },
+          {
+            title: "Estimar probabilidad e impacto y calcular el riesgo",
+            detail:
+              "Para cada amenaza, puntúa de 1 a 5 la probabilidad y el impacto. Calcula el riesgo = probabilidad × impacto y colorea la celda: verde (< 6), amarillo (6–14), rojo (≥ 15).",
+            expected: "Tienes una matriz de riesgo coloreada donde se ven de un vistazo los riesgos rojos (los más urgentes).",
+          },
+          {
+            title: "Proponer salvaguardas y clasificarlas",
+            detail:
+              "Para cada riesgo amarillo o rojo, propón una salvaguarda y clasifícala como preventiva (evita), detectiva (avisa) o correctiva (recupera).",
+            expected: "Cada riesgo importante tiene al menos una salvaguarda propuesta y clasificada por tipo.",
+          },
+          {
+            title: "Contrastar con un asistente de IA",
+            detail:
+              "Pega tu tabla (sin datos personales) en un asistente de IA y pídele amenazas o salvaguardas que se te hayan escapado. Anota cuáles aceptas y cuáles descartas, y por qué.",
+            expected: "Has añadido o descartado sugerencias de la IA de forma justificada, mejorando tu análisis.",
+          },
+          {
+            title: "Calcular el riesgo residual",
+            detail:
+              "Vuelve a calcular el riesgo suponiendo aplicadas las salvaguardas y compara la matriz «antes» con la «después».",
+            expected: "El riesgo residual (después de las salvaguardas) es claramente menor que el inicial.",
+          },
+        ],
+        check:
+          "Tu hoja contiene: inventario de activos valorados en C-I-D, amenazas por activo, matriz de riesgo coloreada, salvaguardas clasificadas y una comparación de riesgo inicial vs. residual que demuestra la mejora.",
+        evidence: [
+          "La hoja de cálculo completa (o capturas de la matriz de riesgo antes y después).",
+          "Una tabla resumen con los 3 riesgos más altos y la salvaguarda propuesta para cada uno.",
+        ],
       },
     ],
     activities: [

@@ -30,6 +30,8 @@ export type Lab = Only & {
   steps: LabStep[];
   /** Cómo comprobar que el laboratorio ha salido bien. */
   check: string;
+  /** Qué debe contener el documento de entrega (además de los puntos estándar). */
+  evidence?: string[];
 };
 
 export type Activity = Only & {
