@@ -165,31 +165,115 @@ export const bloque1: Record<number, TopicContent> = {
     ],
     labs: [
       {
-        title: "Anonimizar datos antes de usar un asistente de IA",
-        goal: "Aprender a preparar información de forma que pueda analizarse con IA sin exponer datos personales.",
-        environment: ["Máquina Ubuntu del laboratorio", "Fichero CSV de ejemplo con datos ficticios de alumnos (nombre, DNI, email, nota)"],
-        steps: [
-          { title: "Crear el fichero de ejemplo", detail: "Genera un CSV con 5 registros ficticios.", code: "cat > alumnos.csv <<'CSV'\nnombre,dni,email,nota\nAna Pérez,12345678Z,ana@correo.es,7\nLuis Gómez,87654321X,luis@correo.es,5\nMarta Ruiz,11223344B,marta@correo.es,9\nJon Arrieta,44332211C,jon@correo.es,6\nSara Díaz,55667788D,sara@correo.es,8\nCSV" },
-          { title: "Identificar los datos personales", detail: "Señala qué columnas identifican a una persona directamente (nombre, DNI, email) y cuáles no (nota)." },
-          { title: "Seudonimizar con un hash", detail: "Sustituye el DNI por un identificador derivado para poder relacionar registros sin revelar el dato.", code: "tail -n +2 alumnos.csv | while IFS=, read n d e nota; do\n  id=$(echo -n \"$d\" | sha256sum | cut -c1-10)\n  echo \"$id,$nota\"\ndone > anonimo.csv\ncat anonimo.csv" },
-          { title: "Revisar el resultado", detail: "Comprueba que anonimo.csv solo contiene el identificador y la nota. Este fichero ya podría analizarse con un asistente de IA." },
-          { title: "Reflexionar", detail: "¿Es anónimo o seudónimo? Escribe en tu cuaderno por qué, con el hash y el fichero original, aún podría reidentificarse a la persona (sigue siendo dato personal según el RGPD)." },
+        title: "Proteger datos personales antes de usarlos con IA (RGPD en la práctica)",
+        goal:
+          "Al terminar sabrás distinguir qué información es un dato personal y transformar un fichero real en una versión seudonimizada que se puede analizar (por ejemplo, con un asistente de IA) sin exponer la identidad de las personas.",
+        relation:
+          "El Tema 1 explica el RGPD y la LOPDGDD: cómo hay que tratar los datos personales y qué significa minimizar y seudonimizar. Aquí lo aplicas paso a paso sobre un fichero, viendo con tus propios ojos la diferencia entre «anonimizar» y «seudonimizar» que exige la ley.",
+        duration: "30–40 min",
+        environment: [
+          "Máquina Ubuntu del laboratorio (o cualquier terminal Linux/macOS; en Windows, usa Git Bash o WSL)",
+          "La herramienta sha256sum (viene incluida en Linux)",
+          "Tu cuaderno de prácticas para anotar conclusiones",
         ],
-        check: "El fichero anonimo.csv no contiene nombres, DNI ni emails, y sabes explicar la diferencia entre anonimizar y seudonimizar.",
+        steps: [
+          {
+            title: "Crear un fichero con datos personales de ejemplo",
+            detail:
+              "Vas a simular una lista de alumnos con datos FICTICIOS (nunca uses datos reales de compañeros). Copia el bloque en la terminal y pulsa Enter para crear el fichero alumnos.csv.",
+            code: "cat > alumnos.csv <<'CSV'\nnombre,dni,email,nota\nAna Pérez,12345678Z,ana@correo.es,7\nLuis Gómez,87654321X,luis@correo.es,5\nMarta Ruiz,11223344B,marta@correo.es,9\nJon Arrieta,44332211C,jon@correo.es,6\nSara Díaz,55667788D,sara@correo.es,8\nCSV\ncat alumnos.csv",
+            expected: "La terminal muestra las 5 filas con nombre, dni, email y nota. Ya tienes un fichero con datos personales.",
+          },
+          {
+            title: "Identificar qué columnas son datos personales",
+            detail:
+              "Según el RGPD, un dato personal es cualquier información que identifique o pueda identificar a una persona. Escribe en tu cuaderno, para cada columna, si es identificador directo, dato personal o no personal: nombre (identificador directo), dni (identificador directo), email (dato personal), nota (dato personal asociado, pero no identifica por sí solo).",
+            expected: "Tienes clasificadas las 4 columnas y sabes justificar por qué el DNI y el email identifican a una persona.",
+          },
+          {
+            title: "Aplicar el principio de minimización: quedarte solo con lo necesario",
+            detail:
+              "Imagina que solo necesitas estudiar la distribución de notas. No hace falta el nombre ni el email. La minimización (art. 5 RGPD) dice: trata los mínimos datos imprescindibles. Extrae únicamente una referencia y la nota.",
+            code: "tail -n +2 alumnos.csv | while IFS=, read nombre dni email nota; do\n  ref=$(echo -n \"$dni\" | sha256sum | cut -c1-10)\n  echo \"$ref,$nota\"\ndone > seudonimo.csv\ncat seudonimo.csv",
+            expected:
+              "seudonimo.csv contiene solo un código (p. ej. a1b2c3d4e5) y la nota. Han desaparecido nombre, DNI y email, pero cada alumno sigue teniendo una referencia estable.",
+          },
+          {
+            title: "Comprobar que ya no hay datos identificativos a la vista",
+            detail: "Verifica que en el fichero resultante no aparece ningún nombre, DNI ni email.",
+            code: "grep -E 'Pérez|12345678Z|@correo' seudonimo.csv || echo 'OK: no quedan datos identificativos visibles'",
+            expected: "Se imprime «OK: no quedan datos identificativos visibles». El fichero ya se podría compartir con una IA para analizar notas.",
+          },
+          {
+            title: "Entender por qué esto es SEUDONIMIZACIÓN y no ANONIMIZACIÓN",
+            detail:
+              "Aquí está la clave legal del tema. Si guardas la tabla original, puedes volver a calcular el mismo hash del DNI y reidentificar a la persona. Por eso, según el RGPD, el fichero sigue siendo dato personal (seudonimizado), NO anónimo. Solo sería anónimo si fuese imposible reidentificar. Anótalo en tu cuaderno con tus palabras.",
+            expected:
+              "Sabes explicar: seudonimizado = protegido pero reversible con información adicional (sigue bajo el RGPD); anónimo = irreversible (fuera del RGPD).",
+          },
+          {
+            title: "Reflexión final sobre el uso de IA",
+            detail:
+              "Responde por escrito: ¿podrías pegar el fichero original en un asistente de IA en la nube? ¿Y el seudonimizado? ¿Qué riesgo legal habría en cada caso y qué harías para minimizarlo?",
+            expected: "Tienes una conclusión razonada que conecta la práctica con la obligación del RGPD de no exponer datos personales a terceros sin base legal.",
+          },
+        ],
+        check:
+          "Has generado seudonimo.csv sin nombres, DNI ni emails; la comprobación con grep confirma que no quedan datos identificativos; y sabes explicar con tus palabras la diferencia entre seudonimizar y anonimizar y por qué importa según el RGPD.",
       },
       {
-        title: "Redactar un acuerdo de autorización de auditoría",
+        title: "Redactar el documento de autorización de una auditoría (la ley antes que el teclado)",
         only: "SUPERIOR",
-        goal: "Elaborar el documento de autorización y alcance que debe firmarse antes de cualquier prueba de seguridad.",
-        environment: ["Procesador de textos", "Plantilla de ejemplo (PTES Pre-engagement)"],
-        steps: [
-          { title: "Definir las partes", detail: "Identifica cliente, empresa auditora, responsables técnicos de ambas partes y teléfono de emergencia." },
-          { title: "Delimitar el alcance", detail: "Lista IPs, dominios y aplicaciones incluidos y, explícitamente, lo que queda excluido." },
-          { title: "Fijar ventanas y técnicas", detail: "Indica fechas, horario permitido y técnicas autorizadas o prohibidas (por ejemplo, sin pruebas de denegación de servicio)." },
-          { title: "Tratamiento de la información", detail: "Establece la confidencialidad de los hallazgos, el cifrado de los informes y la destrucción de datos al finalizar." },
-          { title: "Revisión con IA", detail: "Pide a un asistente de IA que revise el documento buscando cláusulas ausentes. Contrasta cada sugerencia con la plantilla y la legislación." },
+        goal:
+          "Al terminar tendrás redactado un documento de autorización y alcance, el papel que debe firmarse ANTES de tocar ningún sistema en una auditoría de seguridad, con todas las cláusulas imprescindibles.",
+        relation:
+          "El Tema 1 deja claro que acceder a sistemas ajenos sin permiso es delito (art. 197 bis del Código Penal). La frontera entre un hacker ético y un delito es, literalmente, este documento firmado. Aquí construyes esa autorización, aplicando el marco legal del tema a un caso real.",
+        duration: "45–60 min",
+        environment: [
+          "Procesador de textos (Word, Google Docs o LibreOffice)",
+          "Un caso de ejemplo: la empresa ficticia «TecnoRiego S.L.» quiere que auditen su web y su servidor de pruebas",
+          "Opcional: un asistente de IA para revisar el borrador",
         ],
-        check: "El documento incluye partes, alcance, exclusiones, ventanas, técnicas, confidencialidad, firmas y fecha.",
+        steps: [
+          {
+            title: "Identificar a las partes y los contactos de emergencia",
+            detail:
+              "Redacta el encabezado: quién autoriza (TecnoRiego S.L., con su representante legal), quién audita (tu nombre/empresa) y un responsable técnico y un teléfono de contacto por cada parte para parar la prueba si algo se tuerce.",
+            expected: "El documento identifica sin ambigüedad a ambas partes y a quién llamar durante la auditoría.",
+          },
+          {
+            title: "Delimitar el alcance: qué SÍ y qué NO se audita",
+            detail:
+              "Lista de forma explícita lo incluido (p. ej. el dominio web.tecnoriego.local y la IP del servidor de pruebas 10.10.10.20) y lo excluido (correo corporativo, equipos de empleados, sistemas en producción). Todo lo que no esté escrito, no está autorizado.",
+            expected: "Cualquier persona que lea el documento sabe exactamente qué sistemas se pueden tocar y cuáles quedan fuera.",
+          },
+          {
+            title: "Fijar la ventana temporal y las técnicas permitidas",
+            detail:
+              "Indica fechas y horario (p. ej. del 5 al 9 de mayo, de 20:00 a 06:00 para no afectar al negocio) y qué técnicas se permiten o se prohíben expresamente (por ejemplo, prohibidas las pruebas de denegación de servicio y la ingeniería social a empleados).",
+            expected: "El documento acota cuándo y cómo se puede actuar, evitando daños o sorpresas.",
+          },
+          {
+            title: "Tratamiento y confidencialidad de los hallazgos (enlazar con el RGPD)",
+            detail:
+              "Añade cláusulas sobre cómo se protegen los datos que se encuentren: confidencialidad, cifrado de los informes, prohibición de exfiltrar datos reales y destrucción segura de la información al finalizar. Aquí conecta con el RGPD del tema.",
+            expected: "El acuerdo protege legalmente la información a la que se acceda durante la auditoría.",
+          },
+          {
+            title: "Cierre legal: firmas, fecha y cláusula de autorización expresa",
+            detail:
+              "Incluye una frase de autorización expresa («TecnoRiego S.L. autoriza a … a realizar las pruebas descritas sobre los sistemas indicados»), espacio para firma y fecha de ambas partes. Sin firma, no hay autorización.",
+            expected: "El documento queda listo para firmar; ya distingue una auditoría legal de un acceso no autorizado.",
+          },
+          {
+            title: "Revisión crítica con ayuda de IA",
+            detail:
+              "Pide a un asistente de IA que revise tu borrador buscando cláusulas ausentes. Contrasta CADA sugerencia con lo visto en el tema: acepta lo que aporte y descarta lo que no aplique, anotando por qué. La IA ayuda, pero la responsabilidad legal es tuya.",
+            expected: "Tienes una versión mejorada y sabes justificar qué sugerencias de la IA aceptaste y cuáles no.",
+          },
+        ],
+        check:
+          "Tu documento incluye: partes y contactos, alcance con inclusiones y exclusiones, ventana temporal, técnicas permitidas/prohibidas, confidencialidad y tratamiento de datos, y autorización expresa con firma y fecha. Sabes explicar por qué sin este papel la misma actividad sería un delito del art. 197 CP.",
       },
     ],
     activities: [

@@ -153,16 +153,32 @@ export function TopicView({
                       Taller {i + 1}. {lab.title}
                     </CardTitle>
                     <OnlyBadge only={lab.only} />
+                    {lab.duration && (
+                      <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">⏱ {lab.duration}</span>
+                    )}
                   </div>
-                  <CardDescription className="text-[15px]">{lab.goal}</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-2 text-sm">
-                  <p className="font-medium">Qué necesitas</p>
-                  <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
-                    {lab.environment.map((e) => (
-                      <li key={e}>{e}</li>
-                    ))}
-                  </ul>
+                <CardContent className="space-y-4 text-sm">
+                  <div className="rounded-md border border-defensiva-200 bg-defensiva-50 p-3">
+                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-defensiva-700">🎯 Objetivo</p>
+                    <p className="text-[15px] text-defensiva-900">{lab.goal}</p>
+                  </div>
+                  {lab.relation && (
+                    <div className="rounded-md border border-disponibilidad-200 bg-disponibilidad-50 p-3">
+                      <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-disponibilidad-700">
+                        🔗 Relación con el tema
+                      </p>
+                      <p className="text-[15px] text-disponibilidad-900">{lab.relation}</p>
+                    </div>
+                  )}
+                  <div>
+                    <p className="mb-1 font-medium">Qué necesitas</p>
+                    <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
+                      {lab.environment.map((e) => (
+                        <li key={e}>{e}</li>
+                      ))}
+                    </ul>
+                  </div>
                 </CardContent>
               </Card>
               <LabChecklist storageKey={`lab-${topic.number}-${audience}-${i}`} steps={lab.steps} />

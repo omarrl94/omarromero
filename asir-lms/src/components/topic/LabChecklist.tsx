@@ -52,6 +52,11 @@ export function LabChecklist({ storageKey, steps }: { storageKey: string; steps:
                   <code>{s.code}</code>
                 </pre>
               )}
+              {s.expected && (
+                <p className="mt-3 rounded-md border border-defensiva-200 bg-defensiva-50 px-3 py-2 text-xs text-defensiva-800">
+                  <strong>✔ Resultado esperado:</strong> {s.expected}
+                </p>
+              )}
             </li>
           );
         })}

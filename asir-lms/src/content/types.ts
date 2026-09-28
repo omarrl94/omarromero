@@ -13,11 +13,18 @@ export type LabStep = {
   detail: string;
   /** Comandos o configuración a copiar (opcional). */
   code?: string;
+  /** Qué debe observar el alumno al terminar el paso (opcional). */
+  expected?: string;
 };
 
 export type Lab = Only & {
   title: string;
+  /** Objetivo del laboratorio: qué se va a conseguir. */
   goal: string;
+  /** Relación con el tema: por qué esta práctica ilustra el contenido teórico. */
+  relation?: string;
+  /** Duración estimada (opcional). */
+  duration?: string;
   /** Material y entorno necesarios. */
   environment: string[];
   steps: LabStep[];
