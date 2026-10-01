@@ -9,8 +9,8 @@ export default function CopyButton({ text, label = 'Copiar código' }) {
       onClick={() => copy(text)}
       className={`btn btn-sm ${
         copied
-          ? 'bg-accent-500 text-ink-950'
-          : 'bg-slate-900 text-white hover:bg-slate-700 dark:bg-ink-800 dark:hover:bg-ink-700'
+          ? 'bg-accent-300 text-ink-950'
+          : 'bg-ink-900 text-white hover:bg-ink-700 dark:bg-ink-800 dark:hover:bg-ink-700'
       }`}
       aria-live="polite"
     >

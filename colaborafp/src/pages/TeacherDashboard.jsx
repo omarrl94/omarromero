@@ -60,15 +60,35 @@ export default function TeacherDashboard() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-      <div className="mb-8">
-        <p className="text-sm text-slate-500 dark:text-slate-400">Hola, {user.name}</p>
-        <h1 className="text-3xl font-extrabold tracking-tight">Mis salas de clase</h1>
+      <div className="mb-8 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+        <div>
+          <p className="eyebrow">Panel del profesorado</p>
+          <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-ink-950 dark:text-white sm:text-4xl">Hola, {user.name.split(' ')[0]}</h1>
+          <p className="mt-1 text-stone-500 dark:text-stone-400">Gestiona tus salas de clase y lo que compartes con tus grupos.</p>
+        </div>
+        {rooms && rooms.length > 0 && (
+          <dl className="grid grid-cols-3 gap-3">
+            {[
+              { label: 'Salas', value: rooms.length, tone: 'bg-brand-400' },
+              { label: 'Abiertas', value: rooms.filter((r) => r.is_active).length, tone: 'bg-accent-300' },
+              { label: 'Recursos', value: rooms.reduce((n, r) => n + (r.resource_count || 0), 0), tone: 'bg-sun-400' },
+            ].map((s) => (
+              <div key={s.label} className="card min-w-[6.5rem] px-4 py-3">
+                <dt className="flex items-center gap-1.5 text-xs font-medium text-stone-500">
+                  <span className={`h-2 w-2 rounded-full ${s.tone}`} />
+                  {s.label}
+                </dt>
+                <dd className="mt-1 font-display text-2xl font-extrabold text-ink-950 dark:text-white">{s.value}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
       </div>
 
       <div className="grid gap-8 lg:grid-cols-[22rem_1fr]">
         <section className="card h-fit p-6 lg:sticky lg:top-24">
           <h2 className="mb-4 flex items-center gap-2 text-lg font-bold">
-            <Plus className="h-5 w-5 text-brand-600" />
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-100 text-brand-800 dark:bg-brand-400/15 dark:text-brand-300"><Plus className="h-4 w-4" /></span>
             Nueva sala
           </h2>
           <form onSubmit={create} className="space-y-4">
@@ -102,28 +122,29 @@ export default function TeacherDashboard() {
           ) : (
             <ul className="grid gap-4 sm:grid-cols-2">
               {rooms.map((room) => (
-                <li key={room.id} className="card flex flex-col p-5">
+                <li key={room.id} className="card relative flex flex-col overflow-hidden p-5 pt-6 transition hover:shadow-lift">
+                  <span className={`absolute inset-x-0 top-0 h-1 ${room.is_active ? 'bg-brand-400' : 'bg-stone-200 dark:bg-ink-700'}`} aria-hidden="true" />
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="truncate text-xs font-semibold uppercase tracking-wide text-brand-600 dark:text-brand-400">{room.module}</p>
+                      <p className="eyebrow truncate">{room.module}</p>
                       <h3 className="truncate text-lg font-bold">{room.name}</h3>
                     </div>
-                    <span className={`chip shrink-0 ${room.is_active ? 'bg-accent-500/15 text-accent-600 dark:text-accent-400' : 'bg-slate-100 text-slate-500 dark:bg-ink-800'}`}>
+                    <span className={`chip shrink-0 ${room.is_active ? 'bg-accent-100 text-accent-800 dark:bg-accent-300/15 dark:text-accent-300' : 'bg-stone-100 text-stone-500 dark:bg-ink-800'}`}>
                       {room.is_active ? 'Abierta' : 'Cerrada'}
                     </span>
                   </div>
                   <dl className="mt-3 grid grid-cols-2 gap-2 text-sm">
                     <div>
-                      <dt className="text-xs text-slate-500">PIN</dt>
-                      <dd className="font-mono font-bold">{formatPin(room.pin)}</dd>
+                      <dt className="text-xs text-stone-500">PIN</dt>
+                      <dd className="font-mono text-lg font-bold tracking-wider">{formatPin(room.pin)}</dd>
                     </div>
                     <div>
-                      <dt className="text-xs text-slate-500">Recursos</dt>
-                      <dd className="font-bold">{room.resource_count}</dd>
+                      <dt className="text-xs text-stone-500">Recursos</dt>
+                      <dd className="font-display text-lg font-bold">{room.resource_count}</dd>
                     </div>
                   </dl>
-                  <p className="mt-2 text-xs text-slate-400">{formatDate(room.created_at)}</p>
-                  <div className="mt-4 flex gap-2 border-t border-slate-100 pt-4 dark:border-ink-800">
+                  <p className="mt-2 text-xs text-stone-400">{formatDate(room.created_at)}</p>
+                  <div className="mt-4 flex gap-2 border-t border-stone-100 pt-4 dark:border-ink-800">
                     <Link to={`/profesor/sala/${room.id}`} className="btn-primary btn-sm flex-1">
                       Abrir panel
                       <ArrowRight className="h-3.5 w-3.5" />

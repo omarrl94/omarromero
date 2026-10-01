@@ -54,7 +54,7 @@ export default function ResourceForm({ onSubmit, submitLabel = 'Publicar', submi
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div role="tablist" aria-label="Tipo de recurso" className="grid grid-cols-3 gap-1 rounded-xl bg-slate-100 p-1 dark:bg-ink-850">
+      <div role="tablist" aria-label="Tipo de recurso" className="grid grid-cols-3 gap-1 rounded-xl bg-stone-100 p-1 dark:bg-ink-850">
         {Object.entries(RESOURCE_TYPES).map(([type, { label }]) => {
           const Icon = TYPE_ICONS[type];
           const active = draft.type === type;
@@ -67,8 +67,8 @@ export default function ResourceForm({ onSubmit, submitLabel = 'Publicar', submi
               onClick={() => set({ type })}
               className={`flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-sm font-semibold transition ${
                 active
-                  ? 'bg-white text-brand-700 shadow-sm dark:bg-ink-700 dark:text-white'
-                  : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
+                  ? 'bg-white text-ink-950 shadow-sm ring-1 ring-stone-200 dark:bg-ink-700 dark:text-white dark:ring-0'
+                  : 'text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200'
               }`}
             >
               <Icon className="h-4 w-4" />
@@ -81,7 +81,7 @@ export default function ResourceForm({ onSubmit, submitLabel = 'Publicar', submi
       <div className={draft.type === 'code' ? 'grid gap-3 sm:grid-cols-[1fr_11rem]' : ''}>
         <div>
           <label className="label" htmlFor={`${idPrefix}-title`}>
-            Título <span className="font-normal text-slate-400">(opcional)</span>
+            Título <span className="font-normal text-stone-400">(opcional)</span>
           </label>
           <input
             id={`${idPrefix}-title`}
@@ -136,7 +136,7 @@ export default function ResourceForm({ onSubmit, submitLabel = 'Publicar', submi
           <textarea
             id={`${idPrefix}-content`}
             className={`input min-h-[11rem] resize-y scroll-thin ${
-              draft.type === 'code' ? 'bg-[#1e222a] font-mono text-[13px] leading-6 text-slate-100 dark:bg-[#1e222a]' : ''
+              draft.type === 'code' ? 'bg-[#1e1b19] font-mono text-[13px] leading-6 text-stone-100 dark:bg-[#1e1b19]' : ''
             }`}
             spellCheck={draft.type !== 'code'}
             maxLength={MAX_CONTENT_LENGTH}

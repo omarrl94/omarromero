@@ -38,7 +38,7 @@ export default function RoomControlPanel() {
     return (
       <div className="mx-auto max-w-md px-4 py-20 text-center">
         <h1 className="text-2xl font-bold">Sala no disponible</h1>
-        <p className="mt-2 text-slate-500">No existe o no pertenece a tu cuenta.</p>
+        <p className="mt-2 text-stone-500">No existe o no pertenece a tu cuenta.</p>
         <Link to="/profesor" className="btn-primary mt-8">Volver a mis salas</Link>
       </div>
     );
@@ -92,20 +92,20 @@ function ControlPanel({ onRoomChange }) {
           <ChevronLeft className="h-5 w-5" />
         </Link>
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-semibold uppercase tracking-wider text-brand-600 dark:text-brand-400">{room.module}</p>
+          <p className="eyebrow">{room.module}</p>
           <h1 className="truncate text-xl font-extrabold sm:text-2xl">{room.name}</h1>
         </div>
         <button
           onClick={() => setQrOpen(true)}
-          className="group flex items-center gap-3 rounded-xl border border-slate-200 px-4 py-2 transition hover:border-brand-400 dark:border-ink-700"
+          className="group flex items-center gap-3 rounded-xl border border-stone-200 px-4 py-2 transition hover:border-brand-400 dark:border-ink-700"
           title="Mostrar QR a pantalla completa"
         >
           <QrCode className="h-6 w-6 text-brand-600 dark:text-brand-400" />
           <span className="text-left">
-            <span className="block text-[10px] font-semibold uppercase tracking-wider text-slate-500">PIN</span>
+            <span className="block text-[10px] font-semibold uppercase tracking-wider text-stone-500">PIN</span>
             <span className="block font-mono text-xl font-extrabold tracking-widest">{formatPin(room.pin)}</span>
           </span>
-          <Maximize2 className="h-4 w-4 text-slate-400 group-hover:text-brand-500" />
+          <Maximize2 className="h-4 w-4 text-stone-400 group-hover:text-brand-500" />
         </button>
         <div className="flex flex-wrap items-center gap-2">
           <ConnectionBadge status={connection} />
@@ -121,7 +121,7 @@ function ControlPanel({ onRoomChange }) {
       </div>
 
       {!room.is_active && (
-        <p className="mb-4 rounded-xl bg-amber-100 px-4 py-3 text-sm font-medium text-amber-900 dark:bg-amber-500/15 dark:text-amber-200">
+        <p className="mb-4 rounded-xl bg-sun-100 px-4 py-3 text-sm font-medium text-sun-900 dark:bg-sun-500/15 dark:text-sun-200">
           La sala está cerrada: el PIN no admite nuevos alumnos ni aportaciones.
         </p>
       )}
@@ -130,7 +130,7 @@ function ControlPanel({ onRoomChange }) {
       )}
 
       {/* Pestañas en móvil/tablet; columnas en escritorio */}
-      <div role="tablist" className="mb-4 grid grid-cols-3 gap-1 rounded-xl bg-slate-100 p-1 dark:bg-ink-900 lg:hidden">
+      <div role="tablist" className="mb-4 grid grid-cols-3 gap-1 rounded-xl bg-stone-100 p-1 dark:bg-ink-900 lg:hidden">
         {TABS.map(({ id, label, icon: Icon }) => (
           <button
             key={id}
@@ -138,13 +138,13 @@ function ControlPanel({ onRoomChange }) {
             aria-selected={tab === id}
             onClick={() => setTab(id)}
             className={`relative flex items-center justify-center gap-1.5 rounded-lg py-2 text-sm font-semibold ${
-              tab === id ? 'bg-white text-brand-700 shadow-sm dark:bg-ink-700 dark:text-white' : 'text-slate-500'
+              tab === id ? 'bg-white text-brand-700 shadow-sm dark:bg-ink-700 dark:text-white' : 'text-stone-500'
             }`}
           >
             <Icon className="h-4 w-4" />
             {label}
             {id === 'inbox' && pendingRequests.length > 0 && (
-              <span className="chip absolute -right-1 -top-1 bg-amber-500 px-1.5 text-[10px] text-ink-950">{pendingRequests.length}</span>
+              <span className="chip absolute -right-1 -top-1 bg-sun-500 px-1.5 text-[10px] text-ink-950">{pendingRequests.length}</span>
             )}
           </button>
         ))}
@@ -164,7 +164,7 @@ function ControlPanel({ onRoomChange }) {
             <h2 id="feed-heading" className="section-title mb-3">
               <Megaphone className="h-4 w-4" />
               Muro publicado
-              <span className="chip bg-slate-200 text-slate-700 dark:bg-ink-800 dark:text-slate-300">{publishedResources.length}</span>
+              <span className="chip bg-stone-200 text-stone-700 dark:bg-ink-800 dark:text-stone-300">{publishedResources.length}</span>
             </h2>
             {publishedResources.length === 0 ? (
               <EmptyState icon={Megaphone} title="Todavía no hay nada publicado">

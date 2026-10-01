@@ -3,10 +3,10 @@ import { useRoomFeed } from '../hooks/useRoomFeed';
 import { RESOURCE_TYPES } from '../utils/constants';
 
 const STATUS = {
-  pending: { label: 'Esperando aprobación', icon: Clock, cls: 'text-amber-600 dark:text-amber-300' },
-  approved: { label: 'Publicado en el muro', icon: CircleCheck, cls: 'text-accent-600 dark:text-accent-400' },
+  pending: { label: 'Esperando aprobación', icon: Clock, cls: 'text-sun-700 dark:text-sun-300' },
+  approved: { label: 'Publicado en el muro', icon: CircleCheck, cls: 'text-accent-700 dark:text-accent-300' },
   rejected: { label: 'No aprobado', icon: CircleX, cls: 'text-red-600 dark:text-red-400' },
-  removed: { label: 'Retirado del muro', icon: CircleX, cls: 'text-slate-500' },
+  removed: { label: 'Retirado del muro', icon: CircleX, cls: 'text-stone-500' },
 };
 
 export default function MySubmissions() {
@@ -21,10 +21,10 @@ export default function MySubmissions() {
           const st = STATUS[s.status] ?? STATUS.pending;
           const Icon = st.icon;
           return (
-            <li key={s.id} className="flex items-center gap-3 rounded-xl bg-slate-50 px-3 py-2 dark:bg-ink-850">
+            <li key={s.id} className="flex items-center gap-3 rounded-xl bg-stone-50 px-3 py-2 dark:bg-ink-850">
               <Icon className={`h-5 w-5 shrink-0 ${st.cls} ${s.status === 'pending' ? 'animate-pulse' : ''}`} />
               <div className="min-w-0 flex-1">
-                <p className="truncate font-mono text-xs text-slate-600 dark:text-slate-300">{s.preview}</p>
+                <p className="truncate font-mono text-xs text-stone-600 dark:text-stone-300">{s.preview}</p>
                 <p className={`text-xs font-semibold ${st.cls}`}>
                   {RESOURCE_TYPES[s.type]?.label} · {st.label}
                 </p>

@@ -27,12 +27,12 @@ export default function ShareResourceModal({ open, onClose }) {
     <Modal open={open} onClose={handleClose} title="Compartir recurso con la clase">
       {sent ? (
         <div className="flex flex-col items-center py-6 text-center">
-          <span className="relative mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-500/15">
-            <span className="absolute inset-0 animate-ping rounded-full bg-amber-400/20" />
-            <Clock className="h-8 w-8 text-amber-600 dark:text-amber-300" />
+          <span className="relative mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-sun-100 dark:bg-sun-400/15">
+            <span className="absolute inset-0 animate-ping rounded-full bg-sun-400/20" />
+            <Clock className="h-8 w-8 text-sun-700 dark:text-sun-300" />
           </span>
           <p className="text-lg font-bold">Esperando aprobación del profesor…</p>
-          <p className="mt-1 max-w-sm text-sm text-slate-500 dark:text-slate-400">
+          <p className="mt-1 max-w-sm text-sm text-stone-500 dark:text-stone-400">
             Tu aportación ha llegado a la bandeja del profesor. Si la aprueba, aparecerá en el muro de la clase.
             Puedes seguir su estado en «Mis aportaciones».
           </p>
@@ -48,13 +48,13 @@ export default function ShareResourceModal({ open, onClose }) {
         </div>
       ) : (
         <>
-          <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">
+          <p className="mb-4 text-sm text-stone-500 dark:text-stone-400">
             El profesor revisará tu aportación antes de publicarla en el muro común.
           </p>
           <ResourceForm onSubmit={handleSubmit} submitLabel="Enviar al profesor" idPrefix="share">
             <div>
               <label className="label" htmlFor="share-alias">
-                Nombre o alias <span className="font-normal text-slate-400">(opcional)</span>
+                Nombre o alias <span className="font-normal text-stone-400">(opcional)</span>
               </label>
               <input
                 id="share-alias"

@@ -37,9 +37,9 @@ export default function StudentLiveFeed() {
   if (!state.room)
     return (
       <div className="mx-auto max-w-md px-4 py-20 text-center">
-        <DoorClosed className="mx-auto h-14 w-14 text-slate-400" />
+        <DoorClosed className="mx-auto h-14 w-14 text-stone-400" />
         <h1 className="mt-4 text-2xl font-bold">Sala no encontrada</h1>
-        <p className="mt-2 text-slate-500 dark:text-slate-400">
+        <p className="mt-2 text-stone-500 dark:text-stone-400">
           {state.error ?? (
             <>
               No hay ninguna sala abierta con el PIN <span className="font-mono font-bold">{formatPin(pin)}</span>.
@@ -68,17 +68,17 @@ function LiveFeed() {
     <div className="mx-auto max-w-3xl px-4 pb-32 pt-6 sm:px-6">
       <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-wider text-brand-600 dark:text-brand-400">
+          <p className="eyebrow">
             {room.module ?? 'Muro de la clase'}
           </p>
           <h1 className="truncate text-2xl font-extrabold tracking-tight sm:text-3xl">{room.name}</h1>
-          <p className="mt-1 font-mono text-xs text-slate-500">PIN {formatPin(room.pin)}</p>
+          <p className="mt-1 font-mono text-xs text-stone-500">PIN {formatPin(room.pin)}</p>
         </div>
         <ConnectionBadge status={connection} />
       </div>
 
       {roomClosed && (
-        <p className="mb-4 rounded-xl bg-amber-100 px-4 py-3 text-sm font-medium text-amber-900 dark:bg-amber-500/15 dark:text-amber-200">
+        <p className="mb-4 rounded-xl bg-sun-100 px-4 py-3 text-sm font-medium text-sun-900 dark:bg-sun-500/15 dark:text-sun-200">
           El profesor ha cerrado esta sala. Puedes seguir consultando los recursos, pero ya no se admiten aportaciones.
         </p>
       )}

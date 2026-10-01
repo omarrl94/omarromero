@@ -30,7 +30,7 @@ const customStyle = {
 
 export default function CodeBlock({ code, language = 'text', maxHeight = '28rem', showLineNumbers = true }) {
   return (
-    <div className="scroll-thin overflow-auto bg-[#1e222a]" style={{ maxHeight }}>
+    <div className="scroll-thin overflow-auto bg-[#1e1b19]" style={{ maxHeight }}>
       <SyntaxHighlighter
         language={language === 'text' ? undefined : language}
         style={oneDark}

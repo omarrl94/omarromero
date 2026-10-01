@@ -31,7 +31,7 @@ export default function ApprovalInbox() {
           <Inbox className="h-4 w-4" />
           Bandeja de aprobación
           {pendingRequests.length > 0 && (
-            <span className="chip bg-amber-500 text-ink-950">{pendingRequests.length}</span>
+            <span className="chip bg-sun-400 text-ink-950">{pendingRequests.length}</span>
           )}
         </h2>
         {pendingRequests.length > 1 && (
@@ -51,7 +51,7 @@ export default function ApprovalInbox() {
       ) : (
         <ul className="space-y-4">
           {pendingRequests.map((r) => (
-            <li key={r.id} className="rounded-2xl ring-2 ring-amber-400/60">
+            <li key={r.id} className="rounded-2xl ring-2 ring-sun-400">
               <ResourceCard
                 resource={r}
                 maxHeight="16rem"

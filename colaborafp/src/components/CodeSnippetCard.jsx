@@ -13,7 +13,7 @@ export default function CodeSnippetCard({ resource, actions, footer, maxHeight }
       typeLabel="Código"
       accent={resource.author === 'teacher' ? 'brand' : 'accent'}
       headerExtra={
-        <span className="chip bg-slate-100 font-mono text-slate-700 dark:bg-ink-800 dark:text-slate-300">
+        <span className="chip bg-stone-100 font-mono text-stone-700 dark:bg-ink-800 dark:text-stone-300">
           {languageLabel(resource.language)}
         </span>
       }
@@ -24,7 +24,7 @@ export default function CodeSnippetCard({ resource, actions, footer, maxHeight }
         </>
       }
     >
-      <div className="mt-3">
+      <div className="mt-4">
         <CodeBlock code={resource.content} language={resource.language} maxHeight={maxHeight} />
       </div>
     </CardShell>
