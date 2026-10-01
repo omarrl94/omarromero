@@ -8,6 +8,8 @@
 
 [build.environment]
   NODE_VERSION = "22"
+  # Netlify detectó Next.js al crear el proyecto: evitamos que ejecute su plugin
+  NETLIFY_NEXT_PLUGIN_SKIP = "true"
 
 # SPA routing: todas las rutas del router las resuelve index.html
 [[redirects]]
