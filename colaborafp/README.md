@@ -13,7 +13,7 @@ Plataforma de **sincronización de recursos en tiempo real para el aula** (códi
 | UI | React 18 + Vite 6 |
 | Estilos | Tailwind CSS 3 (modo oscuro por defecto en las salas) |
 | Routing | react-router-dom 6 (rutas públicas y privadas) |
-| Datos, Auth y Realtime | Supabase **o** mock local (modo demo) |
+| Datos, Auth y Realtime | Firebase (recomendado) **o** Supabase **o** mock local (modo demo) |
 | QR | react-qr-code |
 | Código | react-syntax-highlighter (Prism: Python, JS, TS, Bash, HTML, CSS, Java, SQL, PHP, C/C++, C#, JSON, YAML) |
 | Despliegue | Netlify (`netlify.toml` + `public/_redirects`) |
@@ -38,9 +38,22 @@ Prueba rápida del ciclo completo:
 2. Pestaña B → `/` → introduce el PIN (o pulsa *Vista alumno* en el panel).
 3. En B pulsa **Compartir recurso** → en A aparece en la **Bandeja de aprobación** → **Aprobar** → aparece en el muro de B.
 
-> El modo demo no sincroniza entre dispositivos distintos. Para usarlo en clase con los móviles del alumnado, conecta Supabase.
+> El modo demo no sincroniza entre dispositivos distintos. Para usarlo en clase con los móviles del alumnado, conecta Firebase o Supabase.
 
-### Modo producción (Supabase)
+### Modo producción con Firebase (recomendado, gratis sin tarjeta)
+
+1. [console.firebase.google.com](https://console.firebase.google.com) → *Crear proyecto* (sin Google Analytics).
+2. *Authentication → Comenzar → Correo electrónico/contraseña* → activar.
+3. *Firestore Database → Crear base de datos* → ubicación `eur3` → modo producción.
+4. *Firestore → Reglas* → pega [`firebase/firestore.rules`](firebase/firestore.rules) → *Publicar*.
+5. *Configuración del proyecto → Tus apps → Web (`</>`)* → copia el objeto `firebaseConfig`.
+6. Define `VITE_FIREBASE_CONFIG` con ese objeto (ver `.env.example`). Se admite tal cual lo muestra la consola.
+
+Las reglas garantizan que el alumnado (sin sesión) solo puede resolver un PIN concreto, leer lo aprobado y enviar
+peticiones `pending`; no puede listar salas, auto-aprobarse, borrar ni firmar como `teacher`. Están probadas contra el
+emulador oficial (`firebase emulators:start` usando `firebase.json`).
+
+### Modo producción con Supabase (alternativa)
 
 1. Crea un proyecto en [supabase.com](https://supabase.com).
 2. *SQL Editor* → pega y ejecuta [`supabase/schema.sql`](supabase/schema.sql) (tablas, RLS, funciones y publicación Realtime).
@@ -65,7 +78,7 @@ Este repositorio contiene más proyectos, así que en Netlify configura:
 
 - **Base directory**: `colaborafp`
 - **Build command**: `npm run build` · **Publish directory**: `dist` (ya definidos en `netlify.toml`)
-- **Environment variables**: `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY`
+- **Environment variables**: `VITE_FIREBASE_CONFIG` (o bien `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY`)
 
 El *rewrite* `/* → /index.html 200` (en `netlify.toml` y `public/_redirects`) hace que rutas como `/sala/123456`
 o `/profesor/sala/<id>` funcionen al recargar o al abrirlas desde el QR.

@@ -99,15 +99,20 @@ export function RoomProvider({ room, role, children }) {
     [updateMine],
   );
 
+  const handleEvent = useCallback(
+    (event) => {
+      if (event.eventType === 'DELETE') handleRemove(event.old?.id);
+      else if (event.new) handleUpsert(event.new);
+    },
+    [handleRemove, handleUpsert],
+  );
+
   // Suscripción realtime ANTES de la carga inicial para no perder eventos
   useEffect(() => {
     let alive = true;
     deletedRef.current = new Set();
     const unsubscribe = backend.realtime.subscribeRoom(roomId, {
-      onResource: (event) => {
-        if (event.eventType === 'DELETE') handleRemove(event.old?.id);
-        else if (event.new) handleUpsert(event.new);
-      },
+      onResource: handleEvent,
       onRoom: (event) => {
         if (event.eventType === 'DELETE' || event.new?.is_active === false) setRoomClosed(true);
         else if (event.new?.is_active) setRoomClosed(false);
@@ -118,7 +123,7 @@ export function RoomProvider({ room, role, children }) {
         else if (['CHANNEL_ERROR', 'TIMED_OUT'].includes(status)) setConnection('error');
         else if (status === 'CLOSED') setConnection('connecting');
       },
-    });
+    }, { role, pin: room.pin });
 
     backend.resources
       .list(roomId, { role })
@@ -144,7 +149,17 @@ export function RoomProvider({ room, role, children }) {
       alive = false;
       unsubscribe();
     };
-  }, [roomId, role, handleUpsert, handleRemove, updateMine]);
+  }, [roomId, role, room.pin, handleEvent, updateMine]);
+
+  // Backends sin eventos de borrado para el alumnado (Firebase): vigila sus propias peticiones pendientes
+  const pendingMineKey = useMemo(
+    () => Object.keys(mine).filter((id) => mine[id].status === 'pending').sort().join(','),
+    [mine],
+  );
+  useEffect(() => {
+    if (!pendingMineKey || !backend.realtime.watchResources) return undefined;
+    return backend.realtime.watchResources(pendingMineKey.split(','), handleEvent);
+  }, [pendingMineKey, handleEvent]);
 
   // ---------------- Acciones ----------------
   const publish = useCallback(

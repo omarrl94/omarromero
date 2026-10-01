@@ -1,0 +1,88 @@
+rules_version = '2';
+
+// =====================================================================
+// ColaboraFP — Reglas de seguridad de Cloud Firestore
+// Firebase Console → Firestore Database → Reglas → pegar → Publicar
+// =====================================================================
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+    function roomPath(roomId) {
+      return /databases/$(database)/documents/rooms/$(roomId);
+    }
+    function isOwner(roomId) {
+      return signedIn() && exists(roomPath(roomId))
+        && get(roomPath(roomId)).data.teacher_id == request.auth.uid;
+    }
+    function ownsRoomAfter(roomId, pin) {
+      let room = getAfter(roomPath(roomId));
+      return room != null && room.data.teacher_id == request.auth.uid && room.data.pin == pin;
+    }
+
+    // ----- Salas: solo su profesor/a -----
+    match /rooms/{roomId} {
+      allow read, delete: if signedIn() && resource.data.teacher_id == request.auth.uid;
+      allow create: if signedIn()
+        && request.resource.data.teacher_id == request.auth.uid
+        && request.resource.data.pin is string && request.resource.data.pin.matches('^[0-9]{6}$')
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 120
+        && request.resource.data.is_active is bool;
+      allow update: if signedIn()
+        && resource.data.teacher_id == request.auth.uid
+        && request.resource.data.teacher_id == resource.data.teacher_id
+        && request.resource.data.pin == resource.data.pin;
+    }
+
+    // ----- PINs: el alumnado puede resolver UN pin concreto, pero no listarlos -----
+    match /pins/{pin} {
+      allow get: if true;
+      allow create: if signedIn()
+        && request.resource.data.teacher_id == request.auth.uid
+        && ownsRoomAfter(request.resource.data.room_id, pin);
+      // Se puede reutilizar un PIN libre (sala cerrada) o actualizar el propio
+      allow update: if signedIn()
+        && request.resource.data.teacher_id == request.auth.uid
+        && (resource.data.teacher_id == request.auth.uid || resource.data.active == false)
+        && ownsRoomAfter(request.resource.data.room_id, pin);
+      allow delete: if signedIn() && resource.data.teacher_id == request.auth.uid;
+    }
+
+    // ----- Recursos -----
+    match /resources/{resId} {
+      function valid(d) {
+        return d.keys().hasOnly(['room_id', 'author', 'type', 'content', 'language', 'title', 'status', 'timestamp'])
+          && d.room_id is string
+          && d.author is string && d.author.size() > 0 && d.author.size() <= 30
+          && d.type in ['code', 'task', 'link']
+          && d.content is string && d.content.size() > 0 && d.content.size() <= 20000
+          && (d.get('language', null) == null || (d.language is string && d.language.size() <= 20))
+          && (d.get('title', null) == null || (d.title is string && d.title.size() <= 120))
+          && d.status in ['pending', 'approved']
+          && d.timestamp is number;
+      }
+
+      // Lectura de un recurso concreto por su id (aleatorio): el alumno sigue el estado de su petición
+      allow get: if true;
+      // Listados: lo aprobado es público; el profesor dueño ve también lo pendiente
+      allow list: if resource.data.status == 'approved' || isOwner(resource.data.room_id);
+
+      // Alumnado: solo peticiones pendientes, en salas abiertas, sin firmar como 'teacher'
+      // Profesor dueño: publica directamente
+      allow create: if valid(request.resource.data) && (
+        isOwner(request.resource.data.room_id)
+        || (request.resource.data.status == 'pending'
+            && request.resource.data.author != 'teacher'
+            && exists(roomPath(request.resource.data.room_id))
+            && get(roomPath(request.resource.data.room_id)).data.is_active == true)
+      );
+      allow update: if isOwner(resource.data.room_id)
+        && valid(request.resource.data)
+        && request.resource.data.room_id == resource.data.room_id;
+      allow delete: if isOwner(resource.data.room_id);
+    }
+  }
+}
