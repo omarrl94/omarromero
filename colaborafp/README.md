@@ -49,6 +49,11 @@ Prueba rápida del ciclo completo:
 5. *Configuración del proyecto → Tus apps → Web (`</>`)* → copia el objeto `firebaseConfig`.
 6. Define `VITE_FIREBASE_CONFIG` con ese objeto (ver `.env.example`). Se admite tal cual lo muestra la consola.
 
+**Archivos (hasta 5 MB):** Cloud Storage ya no está incluido en el plan gratuito de Firebase, así que los archivos se
+guardan en Firestore troceados en base64 (colección `fileChunks`, ≤ 900 KB por documento) y se escriben en un único
+lote atómico junto con su recurso. Se bloquean ejecutables (.exe, .bat, .msi…). Cuota gratuita orientativa: 1 GiB
+almacenado y 50 000 lecturas/día (descargar un archivo de 5 MB ≈ 8 lecturas).
+
 Las reglas garantizan que el alumnado (sin sesión) solo puede resolver un PIN concreto, leer lo aprobado y enviar
 peticiones `pending`; no puede listar salas, auto-aprobarse, borrar ni firmar como `teacher`. Están probadas contra el
 emulador oficial (`firebase emulators:start` usando `firebase.json`).
@@ -112,8 +117,10 @@ src/
 Resource {
   id: string; room_id: string;
   author: 'teacher' | string;        // alias del alumno
-  type: 'code' | 'task' | 'link';
-  content: string; language?: string; title?: string;
+  type: 'code' | 'task' | 'link' | 'file';
+  content: string;                   // en archivos: nombre del archivo
+  language?: string; title?: string;
+  file_size?: number; file_type?: string;
   status: 'pending' | 'approved';
   timestamp: number;                 // momento de publicación en el muro
 }

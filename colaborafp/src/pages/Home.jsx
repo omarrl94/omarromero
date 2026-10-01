@@ -10,7 +10,7 @@ import { normalizePin } from '../utils/ids';
 const STEPS = [
   { icon: QrCode, title: 'Entra al instante', text: 'Escanea el QR de la pizarra o escribe el PIN. Sin cuentas ni contraseñas.', tone: 'bg-brand-100 text-brand-800 dark:bg-brand-400/15 dark:text-brand-300' },
   { icon: CodeXml, title: 'Código listo para usar', text: 'Ejemplos con resaltado de sintaxis y botón de copiar en un clic.', tone: 'bg-accent-100 text-accent-800 dark:bg-accent-300/15 dark:text-accent-300' },
-  { icon: Inbox, title: 'Comparte con tu clase', text: 'Propón tu solución; el profesor la revisa y la publica en el muro.', tone: 'bg-sun-100 text-sun-800 dark:bg-sun-400/15 dark:text-sun-300' },
+  { icon: Inbox, title: 'Comparte con tu clase', text: 'Propón tu código o sube archivos; el profesor los revisa y los publica.', tone: 'bg-sun-100 text-sun-800 dark:bg-sun-400/15 dark:text-sun-300' },
 ];
 
 export default function Home() {
@@ -41,7 +41,7 @@ export default function Home() {
             </span>
           </h1>
           <p className="mt-5 max-w-lg text-lg leading-relaxed text-stone-600 dark:text-stone-400">
-            Recibe en tiempo real el código, los enunciados y los enlaces de tu profesor, y comparte tus soluciones con el grupo.
+            Recibe en tiempo real el código, los enunciados, los enlaces y los archivos de tu profesor, y comparte tus soluciones con el grupo.
           </p>
 
           <form onSubmit={join} className="card mt-8 max-w-lg p-5 sm:p-6">

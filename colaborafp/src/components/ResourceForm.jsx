@@ -1,15 +1,16 @@
-import { CodeXml, FileText, Link2, Send } from 'lucide-react';
-import { useState } from 'react';
-import { LANGUAGES, MAX_CONTENT_LENGTH, RESOURCE_TYPES } from '../utils/constants';
+import { CodeXml, FileText, Link2, Paperclip, Send, Upload, X } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { LANGUAGES, MAX_CONTENT_LENGTH, MAX_FILE_SIZE, RESOURCE_TYPES } from '../utils/constants';
+import { formatBytes, validateFile } from '../utils/files';
 
-const TYPE_ICONS = { code: CodeXml, task: FileText, link: Link2 };
+const TYPE_ICONS = { code: CodeXml, task: FileText, link: Link2, file: Paperclip };
 const PLACEHOLDERS = {
   code: 'def saludar(nombre):\n    return f"Hola, {nombre}"',
   task: 'Ejercicio 3: Crea una función que reciba una lista de notas y devuelva la media.\nUsa `sum()` y `len()`.',
   link: 'https://developer.mozilla.org/es/',
 };
 
-const emptyDraft = (language) => ({ type: 'code', language, title: '', content: '' });
+const emptyDraft = (language) => ({ type: 'code', language, title: '', content: '', file: null });
 
 /**
  * Formulario único para emitir recursos (profesor) o proponerlos (alumno).
@@ -20,6 +21,19 @@ export default function ResourceForm({ onSubmit, submitLabel = 'Publicar', submi
   const [draft, setDraft] = useState(() => emptyDraft('python'));
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const [dragging, setDragging] = useState(false);
+  const fileInput = useRef(null);
+  const ready = draft.type === 'file' ? !!draft.file : !!draft.content.trim();
+
+  const pickFile = (file) => {
+    if (!file) return;
+    const problem = validateFile(file);
+    if (problem) {
+      setError(problem);
+      return;
+    }
+    set({ file, title: draft.title });
+  };
 
   const set = (patch) => {
     setError(null);
@@ -45,6 +59,7 @@ export default function ResourceForm({ onSubmit, submitLabel = 'Publicar', submi
     try {
       await onSubmit(draft);
       setDraft({ ...emptyDraft(lastLanguage), type: draft.type });
+      if (fileInput.current) fileInput.current.value = '';
     } catch (err) {
       setError(err.message);
     } finally {
@@ -54,7 +69,7 @@ export default function ResourceForm({ onSubmit, submitLabel = 'Publicar', submi
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div role="tablist" aria-label="Tipo de recurso" className="grid grid-cols-3 gap-1 rounded-xl bg-stone-100 p-1 dark:bg-ink-850">
+      <div role="tablist" aria-label="Tipo de recurso" className="grid grid-cols-2 gap-1 sm:grid-cols-4 rounded-xl bg-stone-100 p-1 dark:bg-ink-850">
         {Object.entries(RESOURCE_TYPES).map(([type, { label }]) => {
           const Icon = TYPE_ICONS[type];
           const active = draft.type === type;
@@ -87,7 +102,7 @@ export default function ResourceForm({ onSubmit, submitLabel = 'Publicar', submi
             id={`${idPrefix}-title`}
             className="input"
             maxLength={120}
-            placeholder={draft.type === 'link' ? 'Documentación oficial de…' : 'Ej.: Bucle for con range()'}
+            placeholder={{ link: 'Documentación oficial de…', file: 'Ej.: Plantilla de la práctica 2' }[draft.type] ?? 'Ej.: Bucle for con range()'}
             value={draft.title}
             onChange={(e) => set({ title: e.target.value })}
           />
@@ -118,9 +133,65 @@ export default function ResourceForm({ onSubmit, submitLabel = 'Publicar', submi
 
       <div>
         <label className="label" htmlFor={`${idPrefix}-content`}>
-          {draft.type === 'code' ? 'Código' : draft.type === 'task' ? 'Enunciado' : 'URL'}
+          {{ code: 'Código', task: 'Enunciado', link: 'URL', file: 'Archivo' }[draft.type]}
         </label>
-        {draft.type === 'link' ? (
+        {draft.type === 'file' ? (
+          <div
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragging(true);
+            }}
+            onDragLeave={() => setDragging(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setDragging(false);
+              pickFile(e.dataTransfer.files?.[0]);
+            }}
+            className={`rounded-xl border-2 border-dashed p-5 text-center transition ${
+              dragging
+                ? 'border-brand-400 bg-brand-50 dark:bg-brand-400/10'
+                : 'border-stone-300 bg-stone-50 dark:border-ink-700 dark:bg-ink-850'
+            }`}
+          >
+            <input
+              ref={fileInput}
+              id={`${idPrefix}-content`}
+              type="file"
+              className="sr-only"
+              onChange={(e) => pickFile(e.target.files?.[0])}
+            />
+            {draft.file ? (
+              <div className="flex items-center gap-3 text-left">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-100 text-brand-800 dark:bg-brand-400/15 dark:text-brand-300">
+                  <Paperclip className="h-5 w-5" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-semibold">{draft.file.name}</span>
+                  <span className="block text-xs text-stone-500">{formatBytes(draft.file.size)}</span>
+                </span>
+                <button
+                  type="button"
+                  className="btn-ghost btn-sm"
+                  aria-label="Quitar archivo"
+                  onClick={() => {
+                    set({ file: null });
+                    if (fileInput.current) fileInput.current.value = '';
+                  }}
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            ) : (
+              <label htmlFor={`${idPrefix}-content`} className="flex cursor-pointer flex-col items-center gap-2">
+                <Upload className="h-7 w-7 text-brand-500" />
+                <span className="text-sm font-semibold">
+                  Arrastra un archivo o <span className="text-brand-700 underline underline-offset-2 dark:text-brand-400">selecciónalo</span>
+                </span>
+                <span className="text-xs text-stone-500">PDF, imágenes, documentos, .zip… · máx. {formatBytes(MAX_FILE_SIZE)}</span>
+              </label>
+            )}
+          </div>
+        ) : draft.type === 'link' ? (
           <input
             id={`${idPrefix}-content`}
             className="input font-mono"
@@ -156,9 +227,9 @@ export default function ResourceForm({ onSubmit, submitLabel = 'Publicar', submi
         </p>
       )}
 
-      <button type="submit" className="btn-primary w-full" disabled={submitting || !draft.content.trim()}>
+      <button type="submit" className="btn-primary w-full" disabled={submitting || !ready}>
         <Send className="h-4 w-4" />
-        {submitting ? submittingLabel : submitLabel}
+        {submitting ? (draft.type === 'file' ? 'Subiendo archivo…' : submittingLabel) : submitLabel}
       </button>
     </form>
   );

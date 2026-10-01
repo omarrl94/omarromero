@@ -1,5 +1,6 @@
 import { MAX_ALIAS_LENGTH, MAX_CONTENT_LENGTH, RESOURCE_TYPES, TEACHER_AUTHOR } from './constants';
 import { safeUrl } from './format';
+import { safeFileName, validateFile } from './files';
 import { uuid } from './ids';
 
 /**
@@ -7,8 +8,10 @@ import { uuid } from './ids';
  * @property {string} id
  * @property {string} room_id
  * @property {'teacher' | string} author   'teacher' o el alias del alumno
- * @property {'code' | 'task' | 'link'} type
- * @property {string} content
+ * @property {'code' | 'task' | 'link' | 'file'} type
+ * @property {string} content            En archivos: el nombre del archivo
+ * @property {number} [file_size]
+ * @property {string} [file_type]
  * @property {string} [language]
  * @property {string} [title]
  * @property {'pending' | 'approved'} status
@@ -20,7 +23,12 @@ export const buildResource = ({ roomId, author, draft, status }) => {
   const type = draft.type;
   if (!RESOURCE_TYPES[type]) return { error: 'Tipo de recurso no válido.' };
 
-  const content = String(draft.content ?? '').replace(/\s+$/, '');
+  if (type === 'file') {
+    const fileError = validateFile(draft.file);
+    if (fileError) return { error: fileError };
+  }
+
+  const content = type === 'file' ? safeFileName(draft.file.name) : String(draft.content ?? '').replace(/\s+$/, '');
   if (!content.trim()) return { error: 'El contenido no puede estar vacío.' };
   if (content.length > MAX_CONTENT_LENGTH)
     return { error: `El contenido supera el máximo de ${MAX_CONTENT_LENGTH} caracteres.` };
@@ -53,6 +61,7 @@ export const buildResource = ({ roomId, author, draft, status }) => {
       title: title || null,
       status,
       timestamp: Date.now(),
+      ...(type === 'file' ? { file_size: draft.file.size, file_type: (draft.file.type || 'application/octet-stream').slice(0, 120) } : {}),
     },
   };
 };

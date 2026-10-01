@@ -54,10 +54,15 @@ service cloud.firestore {
     // ----- Recursos -----
     match /resources/{resId} {
       function valid(d) {
-        return d.keys().hasOnly(['room_id', 'author', 'type', 'content', 'language', 'title', 'status', 'timestamp'])
+        return d.keys().hasOnly(['room_id', 'author', 'type', 'content', 'language', 'title', 'status', 'timestamp',
+                                 'file_size', 'file_type', 'chunks'])
           && d.room_id is string
           && d.author is string && d.author.size() > 0 && d.author.size() <= 30
-          && d.type in ['code', 'task', 'link']
+          && d.type in ['code', 'task', 'link', 'file']
+          && (d.type == 'file') == (d.get('chunks', null) != null)
+          && (d.get('chunks', null) == null || (d.chunks is int && d.chunks > 0 && d.chunks <= 8))
+          && (d.get('file_size', null) == null || (d.file_size is int && d.file_size > 0 && d.file_size <= 5242880))
+          && (d.get('file_type', null) == null || (d.file_type is string && d.file_type.size() <= 120))
           && d.content is string && d.content.size() > 0 && d.content.size() <= 20000
           && (d.get('language', null) == null || (d.language is string && d.language.size() <= 20))
           && (d.get('title', null) == null || (d.title is string && d.title.size() <= 120))
@@ -81,8 +86,29 @@ service cloud.firestore {
       );
       allow update: if isOwner(resource.data.room_id)
         && valid(request.resource.data)
-        && request.resource.data.room_id == resource.data.room_id;
+        && request.resource.data.room_id == resource.data.room_id
+        && request.resource.data.get('chunks', null) == resource.data.get('chunks', null);
       allow delete: if isOwner(resource.data.room_id);
+    }
+
+    // ----- Trozos de archivo (base64). Solo se crean en el MISMO lote que su recurso -----
+    match /fileChunks/{chunkId} {
+      function resPath(fileId) {
+        return /databases/$(database)/documents/resources/$(fileId);
+      }
+
+      // Lectura por id (el id del recurso es aleatorio), igual que el recurso
+      allow get: if true;
+      allow create: if request.resource.data.keys().hasOnly(['file_id', 'room_id', 'index', 'data'])
+        && request.resource.data.file_id is string
+        && request.resource.data.index is int && request.resource.data.index >= 0
+        && chunkId == request.resource.data.file_id + '_' + string(request.resource.data.index)
+        && request.resource.data.data is string && request.resource.data.data.size() <= 950000
+        && !exists(resPath(request.resource.data.file_id))
+        && getAfter(resPath(request.resource.data.file_id)).data.type == 'file'
+        && getAfter(resPath(request.resource.data.file_id)).data.room_id == request.resource.data.room_id
+        && request.resource.data.index < getAfter(resPath(request.resource.data.file_id)).data.chunks;
+      allow delete: if isOwner(get(resPath(resource.data.file_id)).data.room_id);
     }
   }
 }

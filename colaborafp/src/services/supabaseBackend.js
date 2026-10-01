@@ -23,8 +23,13 @@ const toResource = (r) =>
     language: r.language,
     title: r.title,
     status: r.status,
+    file_size: r.file_size ?? undefined,
+    file_type: r.file_type ?? undefined,
     timestamp: r.created_at ? Date.parse(r.created_at) : Date.now(),
   };
+
+// file_data se descarga solo bajo demanda
+const LIST_COLUMNS = 'id, room_id, author, type, content, language, title, status, file_size, file_type, created_at';
 
 const friendlyError = (error) => {
   const msg = error?.message ?? String(error);
@@ -116,14 +121,19 @@ export const createSupabaseBackend = (url, anonKey) => {
     async list(roomId) {
       // La RLS ya filtra: el profesor dueño ve pendientes, el alumnado solo aprobados
       const data = check(
-        await supabase.from('resources').select('*').eq('room_id', roomId).order('created_at', { ascending: true }),
+        await supabase.from('resources').select(LIST_COLUMNS).eq('room_id', roomId).order('created_at', { ascending: true }),
       );
       return data.map(toResource);
     },
-    async create(resource) {
+    async create(resource, file) {
       const { timestamp: _ignored, ...row } = resource;
       // Sin .select(): el alumnado no tiene permiso para leer su propia petición pendiente
-      check(await supabase.from('resources').insert(row));
+      check(await supabase.from('resources').insert(file ? { ...row, file_data: file.data } : row));
+    },
+    async getFile(resource) {
+      const data = check(await supabase.from('resources').select('file_data').eq('id', resource.id).maybeSingle());
+      if (!data?.file_data) throw new Error('El archivo ya no está disponible.');
+      return { data: data.file_data, type: resource.file_type, name: resource.content };
     },
     async setStatus(id, status) {
       // created_at pasa a ser el momento de publicación en el muro

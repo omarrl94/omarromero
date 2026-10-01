@@ -14,6 +14,7 @@ import { generatePin, uuid } from '../utils/ids';
 const DB_KEY = 'colaborafp:mockdb:v1';
 const SESSION_KEY = 'colaborafp:mocksession:v1';
 const CHANNEL_NAME = 'colaborafp-realtime';
+const FILE_KEY = (id) => `colaborafp:mockfile:${id}`;
 const LATENCY_MS = 120;
 
 const delay = (ms = LATENCY_MS) => new Promise((r) => setTimeout(r, ms));
@@ -159,6 +160,9 @@ const rooms = {
     await delay(60);
     const db = readDb();
     db.rooms = db.rooms.filter((r) => r.id !== id);
+    db.resources
+      .filter((r) => r.room_id === id && r.type === 'file')
+      .forEach((r) => localStorage.removeItem(FILE_KEY(r.id)));
     db.resources = db.resources.filter((r) => r.room_id !== id);
     writeDb(db);
     emit({ table: 'rooms', eventType: 'DELETE', roomId: id, old: { id } });
@@ -174,11 +178,18 @@ const resources = {
       .resources.filter((r) => r.room_id === roomId && (role === 'teacher' || r.status === 'approved'))
       .sort((a, b) => a.timestamp - b.timestamp);
   },
-  async create(resource) {
+  async create(resource, file) {
     await delay();
     const db = readDb();
     const room = db.rooms.find((r) => r.id === resource.room_id);
     if (!room || !room.is_active) throw new Error('La sala no existe o está cerrada.');
+    if (file) {
+      try {
+        localStorage.setItem(FILE_KEY(resource.id), file.data);
+      } catch {
+        throw new Error('En modo demo el navegador no tiene espacio para este archivo. Prueba con uno más pequeño.');
+      }
+    }
     db.resources.push(resource);
     writeDb(db);
     emit({ table: 'resources', eventType: 'INSERT', roomId: resource.room_id, new: clone(resource) });
@@ -194,8 +205,15 @@ const resources = {
     writeDb(db);
     emit({ table: 'resources', eventType: 'UPDATE', roomId: res.room_id, new: clone(res) });
   },
+  async getFile(resource) {
+    await delay(60);
+    const data = localStorage.getItem(FILE_KEY(resource.id));
+    if (!data) throw new Error('El archivo ya no está disponible.');
+    return { data, type: resource.file_type, name: resource.content };
+  },
   async remove(id) {
     await delay(60);
+    localStorage.removeItem(FILE_KEY(id));
     const db = readDb();
     const res = db.resources.find((r) => r.id === id);
     db.resources = db.resources.filter((r) => r.id !== id);

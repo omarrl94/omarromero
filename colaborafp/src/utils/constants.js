@@ -8,7 +8,12 @@ export const RESOURCE_TYPES = {
   code: { label: 'Código', description: 'Fragmento de código con resaltado' },
   task: { label: 'Enunciado', description: 'Texto, ejercicio o instrucciones' },
   link: { label: 'Enlace', description: 'URL a documentación o recurso' },
+  file: { label: 'Archivo', description: 'Documento, imagen o proyecto comprimido' },
 };
+
+// Los archivos se guardan troceados en la base de datos (gratis en Firebase Spark)
+export const MAX_FILE_SIZE = 5 * 1024 * 1024;
+export const BLOCKED_EXTENSIONS = ['exe', 'msi', 'bat', 'cmd', 'com', 'scr', 'pif', 'vbs', 'vbe', 'lnk', 'ps1', 'reg', 'hta', 'cpl', 'dll'];
 
 export const LANGUAGES = [
   { value: 'python', label: 'Python' },

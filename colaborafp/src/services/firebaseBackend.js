@@ -8,7 +8,11 @@
  * Colecciones:
  *   rooms/{id}      { pin, name, module, teacher_id, is_active, created_at }   — solo su profesor
  *   pins/{pin}      { room_id, name, module, teacher_id, active }              — el alumnado resuelve el PIN
- *   resources/{id}  { room_id, author, type, content, language, title, status, timestamp }
+ *   resources/{id}  { room_id, author, type, content, language, title, status, timestamp,
+ *                     file_size?, file_type?, chunks? }
+ *   fileChunks/{id_n} { file_id, room_id, index, data }  — archivo en base64 troceado (≤ 5 MB)
+ *
+ * Cloud Storage ya no está incluido en el plan gratuito: los archivos se guardan en Firestore.
  */
 import { initializeApp } from 'firebase/app';
 import {
@@ -38,6 +42,8 @@ import {
   writeBatch,
 } from 'firebase/firestore';
 import { generatePin } from '../utils/ids';
+
+const CHUNK_SIZE = 900_000; // caracteres base64 por documento (límite de Firestore: 1 MiB)
 
 const PIN_TAKEN = 'El PIN de esta sala está en uso por otra sala abierta. Crea una sala nueva.';
 
@@ -101,6 +107,8 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
 
   const roomsCol = collection(db, 'rooms');
   const resourcesCol = collection(db, 'resources');
+  const chunksCol = collection(db, 'fileChunks');
+  const chunkRef = (fileId, i) => doc(chunksCol, `${fileId}_${i}`);
   const pinRef = (pin) => doc(db, 'pins', pin);
 
   // ---------- Auth ----------
@@ -209,9 +217,13 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
         if (!roomSnap.exists()) return;
         // Primero los recursos (las reglas comprueban la propiedad a través de la sala)
         const res = await getDocs(query(resourcesCol, where('room_id', '==', id)));
-        for (let i = 0; i < res.docs.length; i += 400) {
+        const refs = res.docs.flatMap((d) => [
+          ...Array.from({ length: d.data().chunks || 0 }, (_, i) => chunkRef(d.id, i)),
+          d.ref,
+        ]);
+        for (let i = 0; i < refs.length; i += 400) {
           const batch = writeBatch(db);
-          res.docs.slice(i, i + 400).forEach((d) => batch.delete(d.ref));
+          refs.slice(i, i + 400).forEach((ref) => batch.delete(ref));
           await batch.commit();
         }
         const p = await getDoc(pinRef(roomSnap.data().pin));
@@ -232,12 +244,41 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
         const snap = await getDocs(roomQuery(roomId, role));
         return snap.docs.map(toResource).sort((a, b) => a.timestamp - b.timestamp);
       }),
-    create: ({ id, ...data }) => wrap(() => setDoc(doc(resourcesCol, id), data)),
+    /** `file` = { data: base64 } para recursos de tipo archivo. Se escribe todo en un único lote atómico. */
+    create: ({ id, ...data }, file) =>
+      wrap(async () => {
+        if (!file) return setDoc(doc(resourcesCol, id), data);
+        const parts = [];
+        for (let i = 0; i < file.data.length; i += CHUNK_SIZE) parts.push(file.data.slice(i, i + CHUNK_SIZE));
+        const batch = writeBatch(db);
+        batch.set(doc(resourcesCol, id), { ...data, chunks: parts.length });
+        parts.forEach((part, index) =>
+          batch.set(chunkRef(id, index), { file_id: id, room_id: data.room_id, index, data: part }),
+        );
+        await batch.commit();
+      }),
+    getFile: (resource) =>
+      wrap(async () => {
+        const chunks = resource.chunks ?? (await getDoc(doc(resourcesCol, resource.id))).data()?.chunks;
+        if (!chunks) throw new Error('El archivo ya no está disponible.');
+        const snaps = await Promise.all(Array.from({ length: chunks }, (_, i) => getDoc(chunkRef(resource.id, i))));
+        if (snaps.some((s) => !s.exists())) throw new Error('El archivo ya no está disponible.');
+        return { data: snaps.map((s) => s.data().data).join(''), type: resource.file_type, name: resource.content };
+      }),
     setStatus: (id, status) =>
       wrap(() =>
         updateDoc(doc(resourcesCol, id), status === 'approved' ? { status, timestamp: Date.now() } : { status }),
       ),
-    remove: (id) => wrap(() => deleteDoc(doc(resourcesCol, id))),
+    remove: (id) =>
+      wrap(async () => {
+        const ref = doc(resourcesCol, id);
+        const snap = await getDoc(ref);
+        if (!snap.exists()) return;
+        const batch = writeBatch(db);
+        Array.from({ length: snap.data().chunks || 0 }, (_, i) => batch.delete(chunkRef(id, i)));
+        batch.delete(ref);
+        await batch.commit();
+      }),
   };
 
   // ---------- Realtime ----------

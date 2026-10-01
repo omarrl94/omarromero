@@ -29,15 +29,25 @@ create table if not exists public.resources (
   id          uuid primary key default gen_random_uuid(),
   room_id     uuid not null references public.rooms (id) on delete cascade,
   author      text not null check (char_length(author) between 1 and 30),   -- 'teacher' o alias del alumno
-  type        text not null check (type in ('code', 'task', 'link')),
+  type        text not null check (type in ('code', 'task', 'link', 'file')),
   content     text not null check (char_length(content) between 1 and 20000),
   language    text,
   title       text check (title is null or char_length(title) <= 120),
   status      text not null default 'pending' check (status in ('pending', 'approved')),
+  file_size   integer check (file_size is null or file_size between 1 and 5242880),
+  file_type   text check (file_type is null or char_length(file_type) <= 120),
+  file_data   text check (file_data is null or char_length(file_data) <= 7000000),  -- base64 (≤ 5 MB)
   created_at  timestamptz not null default now()
 );
 
 create index if not exists resources_room_idx on public.resources (room_id, created_at);
+
+-- Migración para instalaciones previas
+alter table public.resources drop constraint if exists resources_type_check;
+alter table public.resources add constraint resources_type_check check (type in ('code', 'task', 'link', 'file'));
+alter table public.resources add column if not exists file_size integer;
+alter table public.resources add column if not exists file_type text;
+alter table public.resources add column if not exists file_data text;
 
 -- ---------------------------------------------------------------------
 -- Funciones auxiliares (security definer: saltan la RLS de forma controlada)

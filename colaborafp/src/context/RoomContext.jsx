@@ -1,7 +1,10 @@
 import { createContext, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { backend } from '../services/backend';
 import { TEACHER_AUTHOR } from '../utils/constants';
+import { fileToBase64 } from '../utils/files';
 import { buildResource } from '../utils/resource';
+
+const readFile = async (draft) => (draft.type === 'file' ? { data: await fileToBase64(draft.file) } : undefined);
 
 /**
  * Motor de sincronización de una sala.
@@ -166,7 +169,7 @@ export function RoomProvider({ room, role, children }) {
     async (draft) => {
       const { resource, error: err } = buildResource({ roomId, author: TEACHER_AUTHOR, draft, status: 'approved' });
       if (err) throw new Error(err);
-      await backend.resources.create(resource);
+      await backend.resources.create(resource, await readFile(draft));
       handleUpsert(resource);
       return resource;
     },
@@ -177,7 +180,7 @@ export function RoomProvider({ room, role, children }) {
     async (draft, alias) => {
       const { resource, error: err } = buildResource({ roomId, author: alias, draft, status: 'pending' });
       if (err) throw new Error(err);
-      await backend.resources.create(resource);
+      await backend.resources.create(resource, await readFile(draft));
       updateMine((m) => ({
         ...m,
         [resource.id]: { status: 'pending', type: resource.type, preview: resource.title || resource.content.slice(0, 60), at: resource.timestamp },
