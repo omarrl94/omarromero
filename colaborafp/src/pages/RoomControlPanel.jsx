@@ -92,7 +92,7 @@ function ControlPanel({ onRoomChange }) {
           <ChevronLeft className="h-5 w-5" />
         </Link>
         <div className="min-w-0 flex-1">
-          <p className="eyebrow">{room.module}</p>
+          <p className="eyebrow">{room.module || 'Sala de clase'}</p>
           <h1 className="truncate text-xl font-extrabold sm:text-2xl">{room.name}</h1>
         </div>
         <button

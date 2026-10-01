@@ -1,7 +1,7 @@
 # ColaboraFP
 
 Plataforma de **sincronización de recursos en tiempo real para el aula** (código, enunciados y enlaces) del
-**Centro de Formación Profesional José Ramón Otero** — módulos de informática.
+**Centro de Formación Profesional José Ramón Otero** — abierta a todos los ciclos formativos.
 
 - **Profesorado**: se registra, crea *Salas de Clase*, proyecta un QR/PIN, publica recursos y modera las aportaciones del alumnado.
 - **Alumnado**: entra sin registro (QR o PIN de 6 dígitos), recibe el contenido al instante y puede **proponer** su código o enlaces, que llegan a la **Bandeja de Aprobación** del profesor.

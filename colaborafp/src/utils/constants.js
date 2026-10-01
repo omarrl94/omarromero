@@ -31,18 +31,6 @@ export const LANGUAGES = [
 export const languageLabel = (value) =>
   LANGUAGES.find((l) => l.value === value)?.label ?? value ?? 'Texto';
 
-export const MODULES = [
-  'Programación',
-  'Bases de Datos',
-  'Lenguajes de Marcas',
-  'Entornos de Desarrollo',
-  'Sistemas Informáticos',
-  'Desarrollo Web en Entorno Cliente',
-  'Desarrollo Web en Entorno Servidor',
-  'Redes Locales',
-  'Sistemas Operativos',
-  'Otro',
-];
 
 export const PIN_LENGTH = 6;
 export const MAX_CONTENT_LENGTH = 20000;

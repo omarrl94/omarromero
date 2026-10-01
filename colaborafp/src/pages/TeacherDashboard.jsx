@@ -6,7 +6,6 @@ import Spinner from '../components/Spinner';
 import { useAuth } from '../hooks/useAuth';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { backend } from '../services/backend';
-import { MODULES } from '../utils/constants';
 import { formatDate } from '../utils/format';
 import { formatPin } from '../utils/ids';
 
@@ -16,7 +15,7 @@ export default function TeacherDashboard() {
   const navigate = useNavigate();
   const [rooms, setRooms] = useState(null);
   const [error, setError] = useState(null);
-  const [form, setForm] = useState({ name: '', module: MODULES[0] });
+  const [form, setForm] = useState({ name: '' });
   const [creating, setCreating] = useState(false);
 
   const load = useCallback(() => {
@@ -95,13 +94,9 @@ export default function TeacherDashboard() {
             <div>
               <label className="label" htmlFor="room-name">Nombre de la sesión</label>
               <input id="room-name" className="input" required maxLength={120} placeholder="1º DAM · Bucles en Python"
+                aria-describedby="room-name-help"
                 value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-            </div>
-            <div>
-              <label className="label" htmlFor="room-module">Módulo</label>
-              <select id="room-module" className="input" value={form.module} onChange={(e) => setForm({ ...form, module: e.target.value })}>
-                {MODULES.map((m) => <option key={m}>{m}</option>)}
-              </select>
+              <p id="room-name-help" className="mt-1.5 text-xs text-stone-500">Indica el curso o grupo y el tema. Válido para cualquier ciclo.</p>
             </div>
             <button type="submit" className="btn-primary w-full" disabled={creating || !form.name.trim()}>
               <Presentation className="h-4 w-4" />
@@ -126,7 +121,7 @@ export default function TeacherDashboard() {
                   <span className={`absolute inset-x-0 top-0 h-1 ${room.is_active ? 'bg-brand-400' : 'bg-stone-200 dark:bg-ink-700'}`} aria-hidden="true" />
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="eyebrow truncate">{room.module}</p>
+                      <p className="eyebrow truncate">{room.module || 'Sala de clase'}</p>
                       <h3 className="truncate text-lg font-bold">{room.name}</h3>
                     </div>
                     <span className={`chip shrink-0 ${room.is_active ? 'bg-accent-100 text-accent-800 dark:bg-accent-300/15 dark:text-accent-300' : 'bg-stone-100 text-stone-500 dark:bg-ink-800'}`}>

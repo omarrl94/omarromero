@@ -31,7 +31,7 @@ export default function Home() {
       <section className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-4 pb-16 pt-12 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:pb-24 lg:pt-20">
         {/* Columna de acceso */}
         <div className="min-w-0 animate-fade-in-up">
-          <p className="eyebrow">Formación Profesional · Informática</p>
+          <p className="eyebrow">Formación Profesional · Todos los ciclos</p>
           <h1 className="mt-4 text-4xl font-extrabold leading-[1.05] tracking-tight text-ink-950 dark:text-white sm:text-5xl lg:text-[3.6rem]">
             Tu clase,
             <br />

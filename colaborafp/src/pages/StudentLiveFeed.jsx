@@ -69,7 +69,7 @@ function LiveFeed() {
       <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div className="min-w-0">
           <p className="eyebrow">
-            {room.module ?? 'Muro de la clase'}
+            {room.module || 'Muro de la clase'}
           </p>
           <h1 className="truncate text-2xl font-extrabold tracking-tight sm:text-3xl">{room.name}</h1>
           <p className="mt-1 font-mono text-xs text-stone-500">PIN {formatPin(room.pin)}</p>

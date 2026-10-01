@@ -83,7 +83,7 @@ export default function AppLayout() {
           <div className="flex items-center gap-2.5 text-sm text-stone-500 dark:text-stone-400">
             <BrandMark className="h-5 w-5" />
             <span>
-              <span className="font-display font-bold text-ink-900 dark:text-stone-200">ColaboraFP</span> · Departamento de Informática y Comunicaciones
+              <span className="font-display font-bold text-ink-900 dark:text-stone-200">ColaboraFP</span> · Plataforma colaborativa para todos los ciclos
             </span>
           </div>
         </div>
