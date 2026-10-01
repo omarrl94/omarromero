@@ -7,6 +7,7 @@ import EmptyState from '../components/EmptyState';
 import Modal from '../components/Modal';
 import ResourceCard from '../components/ResourceCard';
 import ResourceForm from '../components/ResourceForm';
+import RoomNotice from '../components/RoomNotice';
 import RoomQRCode from '../components/RoomQRCode';
 import Spinner from '../components/Spinner';
 import { RoomProvider } from '../context/RoomContext';
@@ -57,7 +58,7 @@ const TABS = [
 ];
 
 function ControlPanel({ onRoomChange }) {
-  const { room, publish, publishedResources, pendingRequests, remove, connection, error } = useRoomFeed();
+  const { room, publish, publishedResources, pendingRequests, remove, connection, error, isFresh } = useRoomFeed();
   const [tab, setTab] = useState('emit');
   const [qrOpen, setQrOpen] = useState(false);
   const [actionError, setActionError] = useState(null);
@@ -173,7 +174,7 @@ function ControlPanel({ onRoomChange }) {
             ) : (
               <ol className="space-y-4">
                 {publishedResources.map((r) => (
-                  <li key={r.id}>
+                  <li key={r.id} className={isFresh(r.id) ? 'animate-arrive rounded-2xl' : undefined}>
                     <ResourceCard
                       resource={r}
                       maxHeight="20rem"
@@ -195,6 +196,7 @@ function ControlPanel({ onRoomChange }) {
         </div>
       </div>
 
+      <RoomNotice />
       <Modal open={qrOpen} onClose={() => setQrOpen(false)} title="Únete a la clase" size="full">
         <div className="py-6">
           <RoomQRCode room={room} size="giant" />

@@ -6,7 +6,7 @@ import ResourceCard from './ResourceCard';
 
 /** Bandeja de Aprobación: peticiones de alumnos en tiempo real, con previsualización. */
 export default function ApprovalInbox() {
-  const { pendingRequests, approve, reject } = useRoomFeed();
+  const { pendingRequests, approve, reject, isFresh } = useRoomFeed();
   const [busy, setBusy] = useState({});
   const [error, setError] = useState(null);
 
@@ -51,7 +51,7 @@ export default function ApprovalInbox() {
       ) : (
         <ul className="space-y-4">
           {pendingRequests.map((r) => (
-            <li key={r.id} className="rounded-2xl ring-2 ring-sun-400">
+            <li key={r.id} className={`rounded-2xl ring-2 ring-sun-400 ${isFresh(r.id) ? 'animate-arrive' : ''}`}>
               <ResourceCard
                 resource={r}
                 maxHeight="16rem"

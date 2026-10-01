@@ -1,8 +1,11 @@
+import { LoaderCircle } from 'lucide-react';
+import { useNow } from '../hooks/useNow';
 import { timeAgo, formatDate } from '../utils/format';
 import AuthorBadge from './AuthorBadge';
 
 /** Estructura común de las tarjetas: cabecera (tipo, autor, hora, acciones) + cuerpo. */
 export default function CardShell({ resource, icon: Icon, typeLabel, headerExtra, actions, footer, children, accent = 'brand' }) {
+  const now = useNow();
   const bar = { brand: 'bg-brand-400', accent: 'bg-accent-300', sun: 'bg-sun-400' }[accent];
   return (
     <article className="card relative animate-fade-in-up overflow-hidden">
@@ -15,8 +18,14 @@ export default function CardShell({ resource, icon: Icon, typeLabel, headerExtra
         <AuthorBadge author={resource.author} />
         {headerExtra}
         <time className="text-xs text-stone-400" dateTime={new Date(resource.timestamp).toISOString()} title={formatDate(resource.timestamp)}>
-          {timeAgo(resource.timestamp)}
+          {timeAgo(resource.timestamp, now)}
         </time>
+        {resource.pending && (
+          <span className="chip bg-sun-100 text-sun-800 dark:bg-sun-400/15 dark:text-sun-300" role="status">
+            <LoaderCircle className="h-3 w-3 animate-spin" />
+            {resource.type === 'file' ? 'Subiendo…' : 'Enviando…'}
+          </span>
+        )}
         {actions && <div className="ml-auto flex items-center gap-1.5">{actions}</div>}
       </header>
       {resource.title && (

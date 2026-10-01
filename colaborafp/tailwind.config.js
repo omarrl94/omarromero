@@ -71,9 +71,17 @@ export default {
           '0%': { opacity: '0', transform: 'translateY(8px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
+        // Resalte de un recurso recién llegado en directo
+        arrive: {
+          // Solo brillo, sin desplazamiento: los botones no se mueven mientras se pulsan
+          '0%': { boxShadow: '0 0 0 0 rgb(239 205 47 / 0)' },
+          '20%': { boxShadow: '0 0 0 4px rgb(239 205 47 / 0.8)' },
+          '100%': { boxShadow: '0 0 0 0 rgb(239 205 47 / 0)' },
+        },
       },
       animation: {
         'fade-in-up': 'fade-in-up 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both',
+        arrive: 'arrive 2.4s cubic-bezier(0.2, 0.7, 0.2, 1) both',
       },
     },
   },

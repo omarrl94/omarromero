@@ -28,11 +28,14 @@ import {
   collection,
   connectFirestoreEmulator,
   deleteDoc,
+  enableNetwork,
   doc,
   getCountFromServer,
   getDoc,
   getDocs,
   initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
   onSnapshot,
   query,
   runTransaction,
@@ -92,13 +95,18 @@ export const parseFirebaseConfig = (raw) => {
 };
 
 const toUser = (u) => (u ? { id: u.uid, email: u.email, name: u.displayName || u.email.split('@')[0] } : null);
-const toResource = (snap) => ({ id: snap.id, ...snap.data() });
+const toResource = (snap) => ({ id: snap.id, ...snap.data(), pending: snap.metadata.hasPendingWrites });
 
 export const createFirebaseBackend = (config, { emulator } = {}) => {
   const app = initializeApp(config);
   const auth = getAuth(app);
   // Long polling automático: funciona también tras proxies/firewalls de centros educativos
-  const db = initializeFirestore(app, { experimentalAutoDetectLongPolling: true });
+  // Caché persistente (IndexedDB, compartida entre pestañas): el muro aparece al instante al entrar o recargar,
+  // y las escrituras se muestran antes de que el servidor confirme (compensación de latencia).
+  const db = initializeFirestore(app, {
+    experimentalAutoDetectLongPolling: true,
+    localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
+  });
 
   if (emulator) {
     connectAuthEmulator(auth, `http://${emulator}:9099`, { disableWarnings: true });
@@ -285,14 +293,30 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
   const EVENT = { added: 'INSERT', modified: 'UPDATE' };
 
   const realtime = {
-    subscribeRoom(roomId, { onResource, onRoom, onStatus }, { role, pin } = {}) {
+    /** Esta implementación entrega la carga inicial por `onInitial`: no hace falta llamar a `list()`. */
+    deliversInitialSnapshot: true,
+
+    /** Reactiva la red tras volver a la pestaña o recuperar la conexión (no-op si ya está activa). */
+    reconnect: () => enableNetwork(db).catch(() => {}),
+
+    subscribeRoom(roomId, { onResource, onRoom, onStatus, onInitial }, { role, pin } = {}) {
       const unsubs = [];
+      let first = true;
       unsubs.push(
         onSnapshot(
           roomQuery(roomId, role),
+          { includeMetadataChanges: true },
           (snap) => {
-            onStatus?.('SUBSCRIBED');
-            snap.docChanges().forEach((change) => {
+            // fromCache = datos locales mientras (re)conecta con el servidor
+            onStatus?.(snap.metadata.fromCache ? 'CONNECTING' : 'SUBSCRIBED');
+            if (first) {
+              // Caché vacía (primer acceso en este dispositivo): esperar al servidor para no mostrar "vacío"
+              if (snap.metadata.fromCache && snap.empty) return;
+              first = false;
+              onInitial?.(snap.docs.map(toResource));
+              return;
+            }
+            snap.docChanges({ includeMetadataChanges: true }).forEach((change) => {
               if (change.type === 'removed') onResource?.({ eventType: 'DELETE', old: { id: change.doc.id } });
               else onResource?.({ eventType: EVENT[change.type], new: toResource(change.doc) });
             });

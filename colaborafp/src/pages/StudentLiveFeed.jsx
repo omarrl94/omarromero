@@ -1,14 +1,16 @@
-import { DoorClosed, Megaphone, Share2 } from 'lucide-react';
+import { ArrowUp, DoorClosed, Megaphone, Share2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import ConnectionBadge from '../components/ConnectionBadge';
 import EmptyState from '../components/EmptyState';
 import MySubmissions from '../components/MySubmissions';
 import ResourceCard from '../components/ResourceCard';
+import RoomNotice from '../components/RoomNotice';
 import ShareResourceModal from '../components/ShareResourceModal';
 import Spinner from '../components/Spinner';
 import { RoomProvider } from '../context/RoomContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { useNewArrivals } from '../hooks/useNewArrivals';
 import { useRoomFeed } from '../hooks/useRoomFeed';
 import { backend } from '../services/backend';
 import { formatPin, normalizePin } from '../utils/ids';
@@ -61,8 +63,9 @@ export default function StudentLiveFeed() {
 }
 
 function LiveFeed() {
-  const { room, publishedResources, loading, error, connection, roomClosed } = useRoomFeed();
+  const { room, publishedResources, loading, error, connection, roomClosed, isFresh } = useRoomFeed();
   const [shareOpen, setShareOpen] = useState(false);
+  const { unseenBelow, jumpToTop } = useNewArrivals(publishedResources, loading, room.name);
 
   return (
     <div className="mx-auto max-w-3xl px-4 pb-32 pt-6 sm:px-6">
@@ -98,7 +101,7 @@ function LiveFeed() {
       ) : (
         <ol className="space-y-5" aria-live="polite" aria-label="Recursos publicados">
           {publishedResources.map((r) => (
-            <li key={r.id}>
+            <li key={r.id} className={isFresh(r.id) ? 'animate-arrive rounded-2xl' : undefined}>
               <ResourceCard resource={r} />
             </li>
           ))}
@@ -114,6 +117,16 @@ function LiveFeed() {
           Compartir recurso
         </button>
       )}
+      {unseenBelow > 0 && (
+        <button
+          onClick={jumpToTop}
+          className="btn fixed left-1/2 top-20 z-30 -translate-x-1/2 animate-fade-in-up rounded-full bg-ink-900 px-4 py-2 text-white shadow-lift hover:bg-ink-700 dark:bg-brand-400 dark:text-ink-950 dark:hover:bg-brand-300"
+        >
+          <ArrowUp className="h-4 w-4" />
+          {unseenBelow === 1 ? '1 recurso nuevo' : `${unseenBelow} recursos nuevos`}
+        </button>
+      )}
+      <RoomNotice />
       <ShareResourceModal open={shareOpen} onClose={() => setShareOpen(false)} />
     </div>
   );

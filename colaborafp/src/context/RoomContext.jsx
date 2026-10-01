@@ -62,7 +62,15 @@ export function RoomProvider({ room, role, children }) {
   const [error, setError] = useState(null);
   const [roomClosed, setRoomClosed] = useState(room.is_active === false);
   const [mine, setMine] = useState(() => (isTeacher ? {} : readMine(roomId)));
+  const [notice, setNotice] = useState(null);
   const deletedRef = useRef(new Set());
+  // Recursos llegados en directo (tras la carga inicial): las tarjetas se resaltan al aparecer
+  const freshRef = useRef(new Set());
+  const stateRef = useRef(state);
+  stateRef.current = state;
+
+  const notify = useCallback((message, tone = 'error') => setNotice({ message, tone, at: Date.now() }), []);
+  const clearNotice = useCallback(() => setNotice(null), []);
 
   const updateMine = useCallback(
     (updater) => {
@@ -80,6 +88,13 @@ export function RoomProvider({ room, role, children }) {
     (resource) => {
       // El alumnado nunca ve peticiones pendientes de otros (en Supabase lo garantiza la RLS)
       if (!isTeacher && resource.status !== 'approved') return;
+      // Un recurso borrado nunca "resucita" por un evento atrasado
+      if (deletedRef.current.has(resource.id)) return;
+      const { loaded, byId } = stateRef.current;
+      if (loaded && (!byId[resource.id] || byId[resource.id].status !== resource.status)) {
+        freshRef.current.add(resource.id);
+        setTimeout(() => freshRef.current.delete(resource.id), 8000);
+      }
       dispatch({ type: 'UPSERT', resource });
       if (resource.status === 'approved')
         updateMine((m) => (m[resource.id] && m[resource.id].status !== 'approved'
@@ -110,49 +125,75 @@ export function RoomProvider({ room, role, children }) {
     [handleRemove, handleUpsert],
   );
 
-  // Suscripción realtime ANTES de la carga inicial para no perder eventos
+  // Carga inicial + conciliación de "mis aportaciones" ya aprobadas
+  const applyInitial = useCallback(
+    (resources) => {
+      dispatch({ type: 'LOAD', resources, deleted: deletedRef.current });
+      const approved = new Set(resources.filter((r) => r.status === 'approved').map((r) => r.id));
+      updateMine((m) => {
+        let changed = false;
+        const next = { ...m };
+        Object.entries(m).forEach(([id, s]) => {
+          if (s.status === 'pending' && approved.has(id)) {
+            next[id] = { ...s, status: 'approved' };
+            changed = true;
+          }
+        });
+        return changed ? next : m;
+      });
+    },
+    [updateMine],
+  );
+
+  // Suscripción realtime ANTES de la carga inicial para no perder eventos.
+  // Si el backend entrega la carga inicial en la propia suscripción (Firebase), no se hace una segunda lectura.
   useEffect(() => {
     let alive = true;
     deletedRef.current = new Set();
-    const unsubscribe = backend.realtime.subscribeRoom(roomId, {
-      onResource: handleEvent,
-      onRoom: (event) => {
-        if (event.eventType === 'DELETE' || event.new?.is_active === false) setRoomClosed(true);
-        else if (event.new?.is_active) setRoomClosed(false);
+    const live = !!backend.realtime.deliversInitialSnapshot;
+    const unsubscribe = backend.realtime.subscribeRoom(
+      roomId,
+      {
+        onResource: handleEvent,
+        onInitial: (resources) => alive && applyInitial(resources),
+        onRoom: (event) => {
+          if (event.eventType === 'DELETE' || event.new?.is_active === false) setRoomClosed(true);
+          else if (event.new?.is_active) setRoomClosed(false);
+        },
+        onStatus: (status) => {
+          if (!alive) return;
+          if (status === 'SUBSCRIBED') setConnection('live');
+          else if (['CHANNEL_ERROR', 'TIMED_OUT'].includes(status)) setConnection('error');
+          else if (['CLOSED', 'CONNECTING'].includes(status)) setConnection('connecting');
+        },
       },
-      onStatus: (status) => {
-        if (!alive) return;
-        if (status === 'SUBSCRIBED') setConnection('live');
-        else if (['CHANNEL_ERROR', 'TIMED_OUT'].includes(status)) setConnection('error');
-        else if (status === 'CLOSED') setConnection('connecting');
-      },
-    }, { role, pin: room.pin });
+      { role, pin: room.pin },
+    );
 
-    backend.resources
-      .list(roomId, { role })
-      .then((resources) => {
-        if (!alive) return;
-        dispatch({ type: 'LOAD', resources, deleted: deletedRef.current });
-        const approved = new Set(resources.filter((r) => r.status === 'approved').map((r) => r.id));
-        updateMine((m) => {
-          let changed = false;
-          const next = { ...m };
-          Object.entries(m).forEach(([id, s]) => {
-            if (s.status === 'pending' && approved.has(id)) {
-              next[id] = { ...s, status: 'approved' };
-              changed = true;
-            }
-          });
-          return changed ? next : m;
-        });
-      })
-      .catch((e) => alive && setError(e.message));
+    if (!live)
+      backend.resources
+        .list(roomId, { role })
+        .then((resources) => alive && applyInitial(resources))
+        .catch((e) => alive && setError(e.message));
 
     return () => {
       alive = false;
       unsubscribe();
     };
-  }, [roomId, role, room.pin, handleEvent, updateMine]);
+  }, [roomId, role, room.pin, handleEvent, applyInitial]);
+
+  // Reconexión inmediata al volver a la pestaña o recuperar la red (móviles que bloquean la pantalla)
+  useEffect(() => {
+    const refresh = () => {
+      if (document.visibilityState === 'visible') backend.realtime.reconnect?.();
+    };
+    document.addEventListener('visibilitychange', refresh);
+    window.addEventListener('online', refresh);
+    return () => {
+      document.removeEventListener('visibilitychange', refresh);
+      window.removeEventListener('online', refresh);
+    };
+  }, []);
 
   // Backends sin eventos de borrado para el alumnado (Firebase): vigila sus propias peticiones pendientes
   const pendingMineKey = useMemo(
@@ -165,15 +206,26 @@ export function RoomProvider({ room, role, children }) {
   }, [pendingMineKey, handleEvent]);
 
   // ---------------- Acciones ----------------
+  /**
+   * Publicación optimista: el recurso aparece en el muro AL INSTANTE (marcado "Enviando…")
+   * y el formulario queda libre. Si el servidor lo rechaza, se retira y se avisa.
+   */
   const publish = useCallback(
     async (draft) => {
       const { resource, error: err } = buildResource({ roomId, author: TEACHER_AUTHOR, draft, status: 'approved' });
       if (err) throw new Error(err);
-      await backend.resources.create(resource, await readFile(draft));
-      handleUpsert(resource);
+      const fileData = await readFile(draft);
+      handleUpsert({ ...resource, pending: true });
+      backend.resources
+        .create(resource, fileData)
+        .then(() => handleUpsert({ ...resource, pending: false }))
+        .catch((e) => {
+          handleRemove(resource.id);
+          notify(`No se pudo publicar «${resource.title || resource.content.slice(0, 40)}»: ${e.message}`);
+        });
       return resource;
     },
-    [roomId, handleUpsert],
+    [roomId, handleUpsert, handleRemove, notify],
   );
 
   const requestShare = useCallback(
@@ -190,22 +242,40 @@ export function RoomProvider({ room, role, children }) {
     [roomId, updateMine],
   );
 
+  /** Aprobación optimista: pasa al muro en el acto; si falla, vuelve a la bandeja. */
   const approve = useCallback(
     async (id) => {
-      await backend.resources.setStatus(id, 'approved');
-      const current = state.byId[id];
+      const current = stateRef.current.byId[id];
       if (current) handleUpsert({ ...current, status: 'approved', timestamp: Date.now() });
+      try {
+        await backend.resources.setStatus(id, 'approved');
+      } catch (e) {
+        if (current) dispatch({ type: 'UPSERT', resource: current });
+        notify(`No se pudo aprobar: ${e.message}`);
+      }
     },
-    [state.byId, handleUpsert],
+    [handleUpsert, notify],
   );
 
+  /** Borrado/rechazo optimista: desaparece en el acto; si falla, se restaura. */
   const remove = useCallback(
     async (id) => {
-      await backend.resources.remove(id);
+      const current = stateRef.current.byId[id];
       handleRemove(id);
+      try {
+        await backend.resources.remove(id);
+      } catch (e) {
+        if (current) {
+          deletedRef.current.delete(id);
+          dispatch({ type: 'UPSERT', resource: current });
+        }
+        notify(`No se pudo eliminar: ${e.message}`);
+      }
     },
-    [handleRemove],
+    [handleRemove, notify],
   );
+
+  const isFresh = useCallback((id) => freshRef.current.has(id), []);
 
   const dismissSubmission = useCallback(
     (id) =>
@@ -248,8 +318,11 @@ export function RoomProvider({ room, role, children }) {
       reject: remove,
       remove,
       dismissSubmission,
+      isFresh,
+      notice,
+      clearNotice,
     }),
-    [room, role, state.loaded, error, connection, roomClosed, publishedResources, pendingRequests, mySubmissions, publish, requestShare, approve, remove, dismissSubmission],
+    [room, role, state.loaded, error, connection, roomClosed, publishedResources, pendingRequests, mySubmissions, publish, requestShare, approve, remove, dismissSubmission, isFresh, notice, clearNotice],
   );
 
   return <RoomContext.Provider value={value}>{children}</RoomContext.Provider>;
