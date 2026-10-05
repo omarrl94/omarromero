@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Exámenes · FP José Ramón Otero</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600;800&display=swap">
+<style>
+  :root{--bg:#F3F5F6;--card:#fff;--fg:#232833;--muted:#5F6673;--border:#E3E6E4;--amarillo:#EFCD2F}
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#15181d;--card:#232833;--fg:#F2F4F6;--muted:#AEB4BE;--border:#3A404C;color-scheme:dark}}
+  :root[data-theme="dark"]{--bg:#15181d;--card:#232833;--fg:#F2F4F6;--muted:#AEB4BE;--border:#3A404C;color-scheme:dark}
+  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--fg);font-family:'Geist','Segoe UI',system-ui,sans-serif}
+  .topbar{height:8px;background:linear-gradient(90deg,#EFCD2F 0 33.3%,#A9CABB 33.3% 66.6%,#E39F7D 66.6% 100%)}
+  .wrap{max-width:760px;margin:0 auto;padding:32px 16px 64px}
+  h1{font-size:30px;font-weight:800;margin:0 0 6px} p{color:var(--muted)}
+  a.ex{display:block;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin:12px 0;color:inherit;text-decoration:none}
+  a.ex:hover{border-color:var(--amarillo)} a.ex b{font-size:18px} a.ex span{display:block;color:var(--muted);font-size:14px;margin-top:4px}
+</style>
+</head>
+<body>
+<div class="topbar"></div>
+<div class="wrap">
+  <h1>Exámenes y cuestionarios</h1>
+  <p>FP José Ramón Otero. Elige el cuestionario que te ha indicado tu profesor.</p>
+  <div id="list"><p>Cargando…</p></div>
+</div>
+<script>
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
+fetch('/api/examen').then(r=>r.json()).then(d=>{
+  document.getElementById('list').innerHTML=d.examenes.map(e=>`<a class="ex" href="/examen/?id=${encodeURIComponent(e.id)}"><b>${esc(e.titulo)}</b><span>${esc(e.modulo)} (${esc(e.ciclo)}) · ${e.nMc} tipo test + ${e.nOpen} abiertas</span></a>`).join('');
+}).catch(()=>{document.getElementById('list').innerHTML='<p>No se ha podido cargar el listado.</p>';});
+</script>
+</body>
+</html>

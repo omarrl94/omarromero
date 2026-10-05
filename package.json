@@ -1,0 +1,16 @@
+{
+  "name": "examenes-jrotero",
+  "private": true,
+  "type": "module",
+  "description": "Cuestionarios de FP José Ramón Otero con corrección en servidor y envío automático de resultados por correo (Netlify).",
+  "scripts": {
+    "dev": "netlify dev",
+    "test": "node scripts/prueba-local.mjs",
+    "deploy": "node scripts/deploy.mjs",
+    "deploy:preview": "node scripts/deploy.mjs --preview"
+  },
+  "dependencies": {
+    "nodemailer": "^6.9.16"
+  },
+  "engines": { "node": ">=20" }
+}
