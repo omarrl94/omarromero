@@ -72,24 +72,25 @@ Funciona en **Netlify** (plan gratuito): páginas estáticas + una Netlify Funct
 
 ## Ciclos y módulos
 
-Se definen en `netlify/lib/catalogo.mjs`. Ahora mismo:
+Los **ciclos** del centro están en `netlify/lib/catalogo.mjs`:
 
-- **ASIR** — Administración de Sistemas Informáticos en Red
-  - Seguridad y Alta Disponibilidad (`sad`) · Temas 1 y 2
-- **DAM** — Desarrollo de Aplicaciones Multiplataforma
-  - Inteligencia Artificial (`ia`) · Tema 1 · Introducción a la IA
+| Ciclo | Nombre | Grado |
+|---|---|---|
+| SEA | Sistemas Electrotécnicos y Automatizados | GS |
+| DAM | Desarrollo de Aplicaciones Multiplataforma | GS |
+| ASIR | Administración de Sistemas Informáticos en Red | GS |
+| DAW | Desarrollo de Aplicaciones Web | GS |
+| IEA | Instalaciones Eléctricas y Automáticas | GM |
+| Comercio | Actividades Comerciales | GM |
+| Gestión Adm. | Gestión Administrativa | GM |
+| AYF | Administración y Finanzas | GS |
+| AUT | Automatización y Robótica Industrial | GS |
 
-Para añadir otro ciclo o módulo basta con añadir una línea en ese archivo (y hacer push). Los grupos del registro se generan solos a partir de los ciclos (`CURSOS`: 1.º y 2.º).
+Los grupos del registro de alumnos se generan solos (1.º y 2.º de cada ciclo, `CURSOS`). Para añadir un ciclo, añade una línea en `CICLOS` (con un `id` nuevo que no cambie nunca) y haz push.
+
+Los **módulos** los crean el administrador y los profesores desde el panel (botón **«Módulos»**), cada uno en sus ciclos; se guardan en Netlify Blobs. Solo se pueden borrar los módulos sin exámenes. Vienen de serie: ASIR › Seguridad y Alta Disponibilidad y DAM › Inteligencia Artificial.
 
 Los exámenes que vienen con la plataforma están en `netlify/lib/semilla-*.mjs` y se cargan **una sola vez** al desplegar; si los borras o editas desde el panel, no se vuelven a crear.
-
-## Generar exámenes con IA
-
-- El **navegador del profesor** extrae el texto del archivo (diapositivas con sus notas del orador, PDF o Word); al servidor solo llega el texto. Las diapositivas que son solo imágenes no aportan contenido.
-- El servidor pide las preguntas a **Google Gemini** (`GEMINI_API_KEY`, modelo `GEMINI_MODEL`, por defecto `gemini-2.5-flash`) en **lotes** de 10 tipo test o 5 abiertas, para no superar el límite de tiempo de las funciones de Netlify ni el de peticiones por minuto del plan gratuito; el panel muestra el progreso y, si se alcanza el límite, espera 30 s y repite. Si en lugar de Gemini se configura `ANTHROPIC_API_KEY`, usa Claude (`claude-opus-5-5`) con lotes de 5 y 3.
-- La respuesta llega en JSON con esquema fijo; el servidor descarta preguntas mal formadas, **baraja las opciones** (la correcta queda repartida entre a/b/c/d) y normaliza los conceptos clave.
-- Coste: con el plan gratuito de Gemini, 0 € (tiene límites de peticiones por minuto y por día; un examen son unas 5 peticiones). En el plan gratuito, Google puede usar el contenido enviado para mejorar sus productos: envía material del curso, nunca datos de alumnos. El consumo de cada lote aparece en los logs de la función (`ia-lote`).
-- Para cambiar el estilo de las preguntas, edita el texto `SISTEMA` en `netlify/lib/ia.mjs`, o usa el campo «Indicaciones para la IA» del panel.
 
 ## Formato de un examen
 

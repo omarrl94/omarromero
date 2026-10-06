@@ -12,7 +12,7 @@ async function profesores(req) {
   await requiereAdmin(req);
   const lista = (await leerTodas(usuarios(), await usuarios().list())).filter((u) => u.rol === "profesor" && !esAdmin(u.email));
   return json({
-    ciclos: CATALOGO.map(({ id, nombre, descripcion }) => ({ id, nombre, descripcion })),
+    ciclos: CATALOGO.map(({ id, nombre, grado, descripcion }) => ({ id, nombre, grado, descripcion })),
     profesores: lista
       .map((u) => ({ email: u.email, nombre: u.nombre, apellidos: u.apellidos, ciclos: u.ciclos || [], aprobado: !!u.aprobado, verificado: !!u.verificado, creado: u.creado }))
       .sort((a, b) => Number(a.aprobado) - Number(b.aprobado) || `${a.apellidos} ${a.nombre}`.localeCompare(`${b.apellidos} ${b.nombre}`, "es")),

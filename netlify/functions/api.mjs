@@ -10,6 +10,7 @@ import cuenta from "../lib/rutas-cuenta.mjs";
 import alumno from "../lib/rutas-alumno.mjs";
 import profesor from "../lib/rutas-profesor.mjs";
 import admin from "../lib/rutas-admin.mjs";
+import { cargarModulos } from "../lib/catalogo.mjs";
 
 const RUTAS = { ...cuenta, ...alumno, ...profesor, ...admin };
 
@@ -21,6 +22,7 @@ export default async (req) => {
   if (req.method !== "GET" && !(req.headers.get("content-type") || "").includes("application/json"))
     return json({ error: "Tipo de contenido no admitido" }, 415);
   try {
+    await cargarModulos(); // módulos creados desde el panel
     return await ruta(req, url);
   } catch (e) {
     if (e instanceof HttpError) return json({ error: e.message }, e.status);

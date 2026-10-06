@@ -86,7 +86,7 @@ function chipsEstado(lista) {
     $("#sub").textContent = "Selecciona el ciclo formativo para ver sus módulos.";
     v.innerHTML = `<div class="grid">${catalogo.map((c) => `
       <a class="tile" href="?ciclo=${encodeURIComponent(c.id)}"><span class="big">${esc(c.nombre)}</span>
-        <span class="muted">${esc(c.descripcion || "")}</span>${chipsEstado(examenes.filter((e) => e.cicloId === c.id))}</a>`).join("")}</div>`;
+        <span class="muted">${esc(c.descripcion || "")}${c.grado ? ` · ${esc(c.grado)}` : ""}</span>${chipsEstado(examenes.filter((e) => e.cicloId === c.id))}</a>`).join("")}</div>`;
     return;
   }
 
@@ -96,6 +96,7 @@ function chipsEstado(lista) {
     $("#crumbs").innerHTML = `${inicio}<b>${esc(ciclo.nombre)}</b>`;
     $("#titulo").textContent = `${ciclo.nombre} · Elige el módulo`;
     $("#sub").textContent = ciclo.descripcion || "";
+    if (!ciclo.modulos.length) { v.innerHTML = `<div class="empty">Todavía no hay módulos ni exámenes en este ciclo.</div>`; return; }
     v.innerHTML = `<div class="grid">${ciclo.modulos.map((m) => `
       <a class="tile" href="?ciclo=${encodeURIComponent(ciclo.id)}&modulo=${encodeURIComponent(m.id)}"><span class="mid">${esc(m.nombre)}</span>
         ${chipsEstado(enCiclo.filter((e) => e.moduloId === m.id))}</a>`).join("")}</div>`;

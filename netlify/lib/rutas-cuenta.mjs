@@ -216,7 +216,7 @@ async function elegirGrupo(req) {
 
 /** Ciclos y grupos para el formulario de registro (público). */
 async function catalogoPublico() {
-  return json({ grupos: GRUPOS(), ciclos: CATALOGO.map(({ id, nombre, descripcion }) => ({ id, nombre, descripcion })) });
+  return json({ grupos: GRUPOS(), ciclos: CATALOGO.map(({ id, nombre, grado, descripcion }) => ({ id, nombre, grado, descripcion })) });
 }
 
 async function yo(req) {

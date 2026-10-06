@@ -41,7 +41,7 @@
 
   <!-- Exámenes -->
   <section id="vExamenes">
-    <div class="toolbar"><h2>Exámenes</h2><div class="acts"><select id="filtroModulo" style="width:auto"></select><button class="btn v" id="nuevoIA">✨ Generar con IA</button><button class="btn" id="nuevo">＋ Subir examen</button></div></div>
+    <div class="toolbar"><h2>Exámenes</h2><div class="acts"><select id="filtroModulo" style="width:auto"></select><button class="btn ghost" id="verModulos">Módulos</button><button class="btn v" id="nuevoIA">✨ Generar con IA</button><button class="btn" id="nuevo">＋ Subir examen</button></div></div>
     <div id="tablaExamenes"><p class="loading">Cargando…</p></div>
   </section>
 
@@ -95,6 +95,16 @@
       <div class="msg bad" data-err hidden></div>
       <div class="actions"><button class="btn" type="submit">Guardar examen</button></div>
     </form>
+  </div>
+</dialog>
+
+<!-- Módulos de los ciclos -->
+<dialog id="dModulos">
+  <div class="dhead"><h2>Módulos de tus ciclos</h2><button class="btn ghost sm" data-close>Cerrar</button></div>
+  <div class="dbody">
+    <p class="muted" style="margin-top:0">Cada examen pertenece a un módulo. Crea aquí los módulos de tus ciclos; los alumnos los verán al entrar en su ciclo. Solo se pueden borrar los módulos sin exámenes.</p>
+    <div class="msg bad" id="modErr" hidden></div>
+    <div id="listaModulos"></div>
   </div>
 </dialog>
 
@@ -395,8 +405,8 @@ function mostrarFormulario(ex, resumen) {
     const c = CATALOGO.find((x) => x.id === ex.cicloId || normTxt(x.nombre) === normTxt(ex.ciclo)) || CATALOGO.find((x) => x.id === fc) || CATALOGO[0];
     $("#eCiclo").value = c.id; rellenarModulos();
     const m = c.modulos.find((x) => x.id === ex.moduloId || normTxt(x.nombre) === normTxt(ex.modulo)) || c.modulos.find((x) => x.id === fm) || c.modulos[0];
-    $("#eModulo").value = m.id;
-    $("#eOrden").value = ex.orden ?? EXAMENES.filter((e) => e.cicloId === c.id && e.moduloId === m.id).length + 1;
+    if (m) $("#eModulo").value = m.id; // un ciclo sin módulos deja el desplegable vacío (se avisa al guardar)
+    $("#eOrden").value = ex.orden ?? EXAMENES.filter((e) => e.cicloId === c.id && e.moduloId === m?.id).length + 1;
     $("#ePub").checked = !!ex.publicado; $("#eSol").checked = ex.mostrarSoluciones !== false; $("#eSobre").checked = false;
     $("#resumenImport").innerHTML = resumen;
     comprobarId();
@@ -423,6 +433,33 @@ function pintarPrevia() {
     pintarPrevia();
   }));
 }
+/* ── Módulos ── */
+function pintarModulos() {
+  $("#listaModulos").innerHTML = CATALOGO.map((c) => `<div class="card" style="padding:16px 18px;margin-bottom:12px" data-ciclo-mod="${esc(c.id)}">
+    <b>${esc(c.nombre)}</b> <span class="muted">· ${esc(c.descripcion || "")} (${esc(c.grado || "")})</span>
+    <div style="margin:10px 0">${c.modulos.length ? c.modulos.map((m) => `<span class="chip v" style="margin:0 6px 6px 0;display:inline-flex;align-items:center;gap:6px">${esc(m.nombre)}
+      ${m.propio ? `<button type="button" class="link" style="color:inherit;text-decoration:none;font-weight:800" title="Borrar módulo" data-borrar-mod="${esc(m.id)}">×</button>` : ""}</span>`).join("") : `<span class="muted">Sin módulos todavía.</span>`}</div>
+    <form style="display:flex;gap:8px" data-nuevo-mod><input type="text" placeholder="Nuevo módulo (p. ej. Programación)" maxlength="120" style="flex:1"><button class="btn sm" type="submit">Añadir</button></form>
+  </div>`).join("");
+  const err = (m) => { $("#modErr").textContent = m; $("#modErr").hidden = !m; };
+  $$("[data-nuevo-mod]").forEach((f) => (f.onsubmit = async (ev) => {
+    ev.preventDefault(); err("");
+    const nombre = $("input", f).value.trim(); if (!nombre) return;
+    try { await api("/api/profesor/modulo", { cicloId: f.closest("[data-ciclo-mod]").dataset.cicloMod, nombre }); await cargarExamenes(); pintarModulos(); }
+    catch (e) { err(e.message); }
+  }));
+  $$("[data-borrar-mod]").forEach((b) => (b.onclick = async () => {
+    err("");
+    if (!confirm("¿Borrar este módulo?")) return;
+    try { await api("/api/profesor/modulo/borrar", { cicloId: b.closest("[data-ciclo-mod]").dataset.cicloMod, moduloId: b.dataset.borrarMod }); await cargarExamenes(); pintarModulos(); }
+    catch (e) { err(e.message); }
+  }));
+}
+$("#verModulos").onclick = () => { $("#modErr").hidden = true; pintarModulos(); $("#dModulos").showModal(); };
+
+/** Aviso si el ciclo elegido aún no tiene módulos. */
+const sinModulos = (cicloId) => !CATALOGO.find((c) => c.id === cicloId)?.modulos.length;
+
 /* ── Generar con IA ── */
 const CDN = {
   jszip: "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js",
@@ -517,6 +554,7 @@ $("#fIA").onsubmit = async (ev) => {
   err.hidden = true;
   const nMc = Math.max(0, Math.min(40, Number($("#iaNmc").value) || 0)), nOpen = Math.max(0, Math.min(15, Number($("#iaNopen").value) || 0));
   const titulo = $("#iaTitulo").value.trim();
+  if (sinModulos($("#iaCiclo").value)) return error("Este ciclo todavía no tiene módulos. Créalo antes con el botón «Módulos».");
   if (!IA_ARCHIVO) return error("Elige el archivo del tema.");
   if (!titulo) return error("Escribe el título del tema.");
   if (!nMc && !nOpen) return error("Pide al menos una pregunta.");
@@ -573,6 +611,7 @@ $("#eId").oninput = comprobarId;
 $("#fExamen").onsubmit = async (ev) => {
   ev.preventDefault();
   const f = ev.target, err = $("[data-err]", f); err.hidden = true;
+  if (sinModulos($("#eCiclo").value)) { err.textContent = "Este ciclo todavía no tiene módulos. Créalo antes con el botón «Módulos»."; err.hidden = false; return; }
   const btn = $("button[type=submit]", f); btn.disabled = true;
   try {
     await api("/api/profesor/examen", {

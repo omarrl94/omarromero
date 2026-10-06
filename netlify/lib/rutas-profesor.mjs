@@ -8,7 +8,7 @@ import { requiereProfesor, esAdmin, rolDe, ciclosDe, gestionaCiclo } from "./aut
 import { todosLosExamenes, obtenerExamen, validarExamen, resumen } from "./examenes.mjs";
 import { claveEntrega, vistaEntrega } from "./entregas.mjs";
 import { proveedorConfigurado } from "./correo.mjs";
-import { CATALOGO, GRUPOS, cicloDe, buscarModulo } from "./catalogo.mjs";
+import { CATALOGO, GRUPOS, cicloDe, buscarModulo, crearModulo, borrarModulo } from "./catalogo.mjs";
 import { iaDisponible, generarLote, proveedorIA, tamLote, comprobarIA } from "./ia.mjs";
 
 const examenes = () => almacen("examenes");
@@ -220,6 +220,29 @@ async function borrarAlumno(req) {
   return json({ ok: true });
 }
 
+/* ── Módulos de los ciclos (los crea el profesor o el admin) ── */
+async function nuevoModulo(req) {
+  const u = await requiereProfesor(req);
+  const b = await leerCuerpo(req);
+  if (!gestionaCiclo(u, b.cicloId)) fallo(403, "Solo puedes crear módulos en tus ciclos");
+  const nombre = texto(b.nombre, 120);
+  if (nombre.length < 3) fallo(400, "Escribe el nombre del módulo");
+  return json({ ok: true, modulo: await crearModulo(b.cicloId, nombre) });
+}
+
+async function quitarModulo(req) {
+  const u = await requiereProfesor(req);
+  const b = await leerCuerpo(req);
+  if (!gestionaCiclo(u, b.cicloId)) fallo(403, "Solo puedes borrar módulos de tus ciclos");
+  const m = buscarModulo(b.cicloId, b.moduloId);
+  if (!m) fallo(404, "Módulo no encontrado");
+  if (!m.modulo.propio) fallo(400, "Este módulo viene de serie y no se puede borrar");
+  const usados = (await todosLosExamenes()).filter((e) => e.cicloId === b.cicloId && e.moduloId === b.moduloId).length;
+  if (usados) fallo(409, `El módulo tiene ${usados} examen(es). Bórralos o muévelos antes de borrar el módulo.`);
+  await borrarModulo(b.cicloId, b.moduloId);
+  return json({ ok: true });
+}
+
 /* ── IA: generar preguntas a partir del material de un tema ── */
 async function iaEstado(req) {
   await requiereProfesor(req);
@@ -247,6 +270,8 @@ async function iaPreguntas(req) {
 }
 
 export default {
+  "POST /api/profesor/modulo": nuevoModulo,
+  "POST /api/profesor/modulo/borrar": quitarModulo,
   "GET /api/profesor/ia": iaEstado,
   "POST /api/profesor/ia/preguntas": iaPreguntas,
   "GET /api/profesor/examenes": listar,

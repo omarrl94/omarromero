@@ -199,8 +199,10 @@ $("#fRec").onsubmit = (ev) => { ev.preventDefault(); const f = ev.target; enviar
 
 // Grupos disponibles (definidos por ciclo en el servidor).
 api("/api/cuenta/grupos", undefined, { redirigir401: false }).then(({ grupos, ciclos }) => {
-  $("#rGrupo").insertAdjacentHTML("beforeend", grupos.map((g) => `<option>${esc(g.grupo)}</option>`).join(""));
-  $("#rCiclos").innerHTML = (ciclos || []).map((c) => `<label class="check"><input type="checkbox" value="${esc(c.id)}"> <b>${esc(c.nombre)}</b> <span class="muted">· ${esc(c.descripcion || "")}</span></label>`).join("");
+  // Grupos agrupados por ciclo (GM / GS).
+  $("#rGrupo").insertAdjacentHTML("beforeend", (ciclos || []).map((c) => `<optgroup label="${esc(c.grado)} · ${esc(c.descripcion)}">${
+    grupos.filter((g) => g.cicloId === c.id).map((g) => `<option>${esc(g.grupo)}</option>`).join("")}</optgroup>`).join(""));
+  $("#rCiclos").innerHTML = (ciclos || []).map((c) => `<label class="check"><input type="checkbox" value="${esc(c.id)}"> <b>${esc(c.nombre)}</b> <span class="muted">· ${esc(c.descripcion || "")} (${esc(c.grado)})</span></label>`).join("");
 }).catch(() => {});
 
 if (location.hash === "#registro") mostrar("#fReg");
