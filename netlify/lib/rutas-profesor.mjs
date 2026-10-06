@@ -1,7 +1,10 @@
-/** /api/profesor/* — gestión de exámenes, entregas y alumnos (solo ADMIN_EMAILS). */
+/**
+ * /api/profesor/* — gestión de exámenes, entregas y alumnos.
+ * Admin: todo. Profesor aprobado: solo lo de sus ciclos (lo comprueba cada ruta).
+ */
 import { almacen, leerTodas } from "./almacen.mjs";
 import { json, fallo, leerCuerpo, texto } from "./http.mjs";
-import { requiereAdmin, esAdmin } from "./auth.mjs";
+import { requiereProfesor, esAdmin, rolDe, ciclosDe, gestionaCiclo } from "./auth.mjs";
 import { todosLosExamenes, obtenerExamen, validarExamen, resumen } from "./examenes.mjs";
 import { claveEntrega, vistaEntrega } from "./entregas.mjs";
 import { proveedorConfigurado } from "./correo.mjs";
@@ -13,42 +16,59 @@ const entregas = () => almacen("entregas");
 const progreso = () => almacen("progreso");
 const usuarios = () => almacen("usuarios");
 
-async function existente(id) {
+/** Examen existente de uno de los ciclos del profesor. */
+async function existente(id, u) {
   const ex = await obtenerExamen(id);
-  if (!ex) fallo(404, "Examen no encontrado");
+  if (!ex || !gestionaCiclo(u, ex.cicloId)) fallo(404, "Examen no encontrado");
   return ex;
 }
 
+/** Entrega de un examen de los ciclos del profesor. */
+async function entregaPermitida(id, email, u) {
+  const k = claveEntrega(String(id || ""), String(email || "").toLowerCase());
+  const e = await entregas().get(k);
+  if (!e || !gestionaCiclo(u, e.examen.cicloId)) fallo(404, "Entrega no encontrada");
+  return { k, e };
+}
+
+const catalogoDe = (u) => CATALOGO.filter((c) => ciclosDe(u).includes(c.id));
+const gruposDe = (u) => GRUPOS().filter((g) => ciclosDe(u).includes(g.cicloId));
+
 async function listar(req) {
-  await requiereAdmin(req);
-  const lista = await todosLosExamenes();
+  const u = await requiereProfesor(req);
+  const lista = (await todosLosExamenes()).filter((ex) => gestionaCiclo(u, ex.cicloId));
   const filas = await Promise.all(lista.map(async (ex) => ({
     ...resumen(ex), entregas: (await entregas().list(ex.id + "/")).length,
   })));
-  return json({ catalogo: CATALOGO, examenes: filas, correo: !!proveedorConfigurado() });
+  return json({ catalogo: catalogoDe(u), examenes: filas, correo: !!proveedorConfigurado() });
 }
 
 async function verExamen(req, url) {
-  await requiereAdmin(req);
-  const { publicado, mostrarSoluciones, ...ex } = await existente(url.searchParams.get("id"));
+  const u = await requiereProfesor(req);
+  const { publicado, mostrarSoluciones, ...ex } = await existente(url.searchParams.get("id"), u);
   return json({ ...ex, publicado, mostrarSoluciones });
 }
 
 async function guardar(req) {
-  await requiereAdmin(req);
+  const u = await requiereProfesor(req);
   const b = await leerCuerpo(req, 2_000_000);
   const ex = validarExamen(b);
+  if (!gestionaCiclo(u, ex.cicloId)) fallo(403, "Solo puedes crear exámenes de tus ciclos");
   const previo = await examenes().get(ex.id);
+  if (previo && !gestionaCiclo(u, previo.cicloId)) fallo(409, `El identificador «${ex.id}» ya lo usa otro examen. Elige otro.`);
   if (previo && !b.sobrescribir) fallo(409, `Ya existe un examen con el identificador «${ex.id}». Marca «Reemplazar» o cambia el identificador.`);
   const ahora = new Date().toISOString();
-  await examenes().set(ex.id, { ...ex, creado: previo?.creado || ahora, actualizado: ahora });
+  await examenes().set(ex.id, {
+    ...ex, creado: previo?.creado || ahora, actualizado: ahora,
+    autor: previo?.autor || { email: u.email, nombre: `${u.nombre} ${u.apellidos}`.trim() },
+  });
   return json({ ok: true, id: ex.id });
 }
 
 async function ajustes(req) {
-  await requiereAdmin(req);
+  const u = await requiereProfesor(req);
   const b = await leerCuerpo(req);
-  const ex = await existente(b.id);
+  const ex = await existente(b.id, u);
   if (typeof b.publicado === "boolean") ex.publicado = b.publicado;
   if (typeof b.mostrarSoluciones === "boolean") ex.mostrarSoluciones = b.mostrarSoluciones;
   if (Number.isFinite(b.orden)) ex.orden = b.orden;
@@ -58,9 +78,9 @@ async function ajustes(req) {
 }
 
 async function borrar(req) {
-  await requiereAdmin(req);
+  const u = await requiereProfesor(req);
   const { id } = await leerCuerpo(req);
-  const ex = await existente(id);
+  const ex = await existente(id, u);
   const [ke, kp] = await Promise.all([entregas().list(ex.id + "/"), progreso().list(ex.id + "/")]);
   await Promise.all([...ke.map((k) => entregas().del(k)), ...kp.map((k) => progreso().del(k))]);
   await examenes().del(ex.id);
@@ -96,14 +116,14 @@ async function filasEntregas(id) {
 }
 
 async function listarEntregas(req, url) {
-  await requiereAdmin(req);
-  const ex = await existente(url.searchParams.get("id"));
+  const u = await requiereProfesor(req);
+  const ex = await existente(url.searchParams.get("id"), u);
   return json({ examen: resumen(ex), filas: await filasEntregas(ex.id) });
 }
 
 async function csv(req, url) {
-  await requiereAdmin(req);
-  const ex = await existente(url.searchParams.get("id"));
+  const u = await requiereProfesor(req);
+  const ex = await existente(url.searchParams.get("id"), u);
   const filas = await filasEntregas(ex.id);
   const c = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
   const n = (v) => (v == null ? "" : String(v).replace(".", ","));
@@ -122,19 +142,16 @@ async function csv(req, url) {
 }
 
 async function verEntrega(req, url) {
-  await requiereAdmin(req);
-  const e = await entregas().get(claveEntrega(url.searchParams.get("id") || "", (url.searchParams.get("email") || "").toLowerCase()));
-  if (!e) fallo(404, "Entrega no encontrada");
+  const u = await requiereProfesor(req);
+  const { e } = await entregaPermitida(url.searchParams.get("id"), url.searchParams.get("email"), u);
   const p = await progreso().get(claveEntrega(e.examen.id, e.email));
   return json({ ...vistaEntrega(e, { soluciones: true }), registroSalidas: p?.salidas || [] });
 }
 
 async function revisar(req) {
-  await requiereAdmin(req);
+  const u = await requiereProfesor(req);
   const b = await leerCuerpo(req);
-  const k = claveEntrega(String(b.id || ""), String(b.email || "").toLowerCase());
-  const e = await entregas().get(k);
-  if (!e) fallo(404, "Entrega no encontrada");
+  const { k, e } = await entregaPermitida(b.id, b.email, u);
   if (b.notaProfesor === null || b.notaProfesor === "") delete e.notaProfesor;
   else {
     const n = Number(String(b.notaProfesor).replace(",", "."));
@@ -147,31 +164,43 @@ async function revisar(req) {
 }
 
 async function reabrir(req) {
-  await requiereAdmin(req);
+  const u = await requiereProfesor(req);
   const b = await leerCuerpo(req);
-  const k = claveEntrega(String(b.id || ""), String(b.email || "").toLowerCase());
+  const ex = await existente(b.id, u);
+  const k = claveEntrega(ex.id, String(b.email || "").toLowerCase());
   await Promise.all([entregas().del(k), progreso().del(k)]);
   return json({ ok: true });
 }
 
+/** Alumno al que este profesor puede gestionar (de sus ciclos; el admin, cualquiera). */
+async function alumnoPermitido(email, yo) {
+  const u = await usuarios().get(String(email || "").toLowerCase());
+  const esAlumno = u && rolDe(u) === "alumno";
+  if (!u || (!esAdmin(yo.email) && !(esAlumno && gestionaCiclo(yo, cicloDe(u))))) fallo(404, "Alumno no encontrado");
+  return u;
+}
+
 async function alumnos(req) {
-  await requiereAdmin(req);
-  const lista = await leerTodas(usuarios(), await usuarios().list());
+  const yo = await requiereProfesor(req);
+  const admin = esAdmin(yo.email);
+  // El profesor ve los alumnos de sus ciclos; el admin, todas las cuentas de alumno
+  // (los profesores se gestionan en la pestaña «Profesores»).
+  const lista = (await leerTodas(usuarios(), await usuarios().list()))
+    .filter((u) => rolDe(u) === "alumno" && (admin || gestionaCiclo(yo, cicloDe(u))));
   return json({
-    grupos: GRUPOS(),
+    grupos: gruposDe(yo),
     alumnos: lista
-      .map((u) => ({ email: u.email, nombre: u.nombre, apellidos: u.apellidos, grupo: u.grupo, cicloId: cicloDe(u), verificado: !!u.verificado, creado: u.creado, profesor: esAdmin(u.email) }))
+      .map((u) => ({ email: u.email, nombre: u.nombre, apellidos: u.apellidos, grupo: u.grupo, cicloId: cicloDe(u), verificado: !!u.verificado, creado: u.creado, profesor: false }))
       .sort((a, b) => `${a.grupo} ${a.apellidos}`.localeCompare(`${b.grupo} ${b.apellidos}`, "es")),
   });
 }
 
 async function editarAlumno(req) {
-  await requiereAdmin(req);
+  const yo = await requiereProfesor(req);
   const b = await leerCuerpo(req);
-  const u = await usuarios().get(String(b.email || "").toLowerCase());
-  if (!u) fallo(404, "Alumno no encontrado");
+  const u = await alumnoPermitido(b.email, yo);
   if (b.grupo !== undefined) {
-    const g = GRUPOS().find((x) => x.grupo === texto(b.grupo, 60));
+    const g = gruposDe(yo).find((x) => x.grupo === texto(b.grupo, 60));
     if (!g) fallo(400, "Grupo no válido");
     u.grupo = g.grupo;
     u.cicloId = g.cicloId;
@@ -182,22 +211,25 @@ async function editarAlumno(req) {
 }
 
 async function borrarAlumno(req) {
-  const yo = await requiereAdmin(req);
+  const yo = await requiereProfesor(req);
   const email = String((await leerCuerpo(req)).email || "").toLowerCase();
   if (email === yo.email) fallo(400, "No puedes borrar tu propia cuenta");
-  await usuarios().del(email);
+  const u = await alumnoPermitido(email, yo);
+  if (esAdmin(u.email)) fallo(400, "No se puede borrar la cuenta del administrador");
+  await usuarios().del(u.email);
   return json({ ok: true });
 }
 
 /* ── IA: generar preguntas a partir del material de un tema ── */
 async function iaEstado(req) {
-  await requiereAdmin(req);
+  await requiereProfesor(req);
   return json({ disponible: iaDisponible(), proveedor: proveedorIA(), lote: tamLote(), ...(await comprobarIA()) });
 }
 
 async function iaPreguntas(req) {
-  await requiereAdmin(req);
+  const yo = await requiereProfesor(req);
   const b = await leerCuerpo(req, 1_500_000);
+  if (!gestionaCiclo(yo, b.cicloId)) fallo(403, "Solo puedes generar exámenes de tus ciclos");
   const tipo = b.tipo === "open" ? "open" : "mc";
   const material = String(b.material || "").trim();
   if (material.length < 200) fallo(400, "El material tiene muy poco texto. ¿Son diapositivas con solo imágenes?");

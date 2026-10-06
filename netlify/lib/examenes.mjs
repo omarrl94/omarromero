@@ -76,7 +76,7 @@ export const resumen = (ex) => ({
   id: ex.id, titulo: ex.titulo, subtitulo: ex.subtitulo, modulo: ex.modulo, ciclo: ex.ciclo,
   cicloId: ex.cicloId, moduloId: ex.moduloId, orden: ex.orden || 0,
   nMc: ex.mc.length, nOpen: ex.open.length, publicado: ex.publicado, mostrarSoluciones: ex.mostrarSoluciones,
-  creado: ex.creado, actualizado: ex.actualizado,
+  creado: ex.creado, actualizado: ex.actualizado, autor: ex.autor?.nombre || "",
 });
 
 /**

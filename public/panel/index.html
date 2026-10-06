@@ -49,6 +49,15 @@ function chipsEstado(lista) {
   const esProfe = yo.rol === "profesor";
   const v = $("#vista");
 
+  // Profesor pendiente de aprobación.
+  if (yo.rol === "pendiente") {
+    $("#titulo").textContent = "Cuenta de profesor pendiente";
+    $("#sub").textContent = "";
+    v.innerHTML = `<div class="card" style="max-width:560px"><p style="margin-top:0">Hola, <b>${esc(yo.nombre)}</b>. Tu solicitud de acceso como <b>profesor</b> está pendiente.</p>
+      <p class="muted">El administrador la revisará y te dará acceso a los ciclos en los que das clase. Recibirás un correo cuando esté aprobada; después, vuelve a entrar.</p></div>`;
+    return;
+  }
+
   // Cuenta antigua sin ciclo: elegir grupo una vez.
   if (!esProfe && !yo.cicloId) {
     const { grupos } = await api("/api/cuenta/grupos");

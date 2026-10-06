@@ -9,7 +9,7 @@ import { scrypt as _scrypt, randomBytes, randomInt, timingSafeEqual, createHmac 
 import { promisify } from "node:util";
 import { almacen } from "./almacen.mjs";
 import { fallo, leerCookie, env } from "./http.mjs";
-import { cicloDe } from "./catalogo.mjs";
+import { cicloDe, CATALOGO } from "./catalogo.mjs";
 
 const scrypt = promisify(_scrypt);
 const COOKIE = "jro_sesion";
@@ -106,13 +106,49 @@ export async function requiereUsuario(req) {
   if (!u) fallo(401, "Inicia sesión para continuar");
   return u;
 }
+/* ── Roles ──────────────────────────────────────────────────
+ *  admin     · correos de ADMIN_EMAILS: todo, y aprueba profesores.
+ *  profesor  · cuenta de profesor aprobada por el admin: gestiona solo
+ *              los exámenes y alumnos de sus ciclos (u.ciclos).
+ *  pendiente · profesor registrado que aún no ha aprobado el admin.
+ *  alumno    · ve los exámenes de su ciclo (el de su grupo).
+ */
+export function rolDe(u) {
+  if (esAdmin(u.email)) return "admin";
+  if (u.rol === "profesor") return u.aprobado ? "profesor" : "pendiente";
+  return "alumno";
+}
+export const esStaff = (u) => ["admin", "profesor"].includes(rolDe(u));
+
+/** Ciclos a los que tiene acceso: todos (admin), los suyos (profesor) o el de su grupo (alumno). */
+export function ciclosDe(u) {
+  const todos = CATALOGO.map((c) => c.id);
+  const rol = rolDe(u);
+  if (rol === "admin") return todos;
+  if (rol === "profesor") return (u.ciclos || []).filter((id) => todos.includes(id));
+  if (rol === "pendiente") return [];
+  return [cicloDe(u)].filter(Boolean);
+}
+export const gestionaCiclo = (u, cicloId) => esStaff(u) && ciclosDe(u).includes(cicloId);
+
+/** Profesor aprobado o admin. */
+export async function requiereProfesor(req) {
+  const u = await requiereUsuario(req);
+  if (!esStaff(u)) fallo(403, rolDe(u) === "pendiente" ? "Tu cuenta de profesor está pendiente de aprobación." : "Solo para profesorado");
+  return u;
+}
+/** Solo el administrador (ADMIN_EMAILS). */
 export async function requiereAdmin(req) {
   const u = await requiereUsuario(req);
-  if (!esAdmin(u.email)) fallo(403, "Solo para profesorado");
+  if (!esAdmin(u.email)) fallo(403, "Solo para el administrador");
   return u;
 }
 
-export const perfilPublico = (u) => ({
-  email: u.email, nombre: u.nombre, apellidos: u.apellidos, grupo: u.grupo, cicloId: cicloDe(u),
-  rol: esAdmin(u.email) ? "profesor" : "alumno",
-});
+export const perfilPublico = (u) => {
+  const rol = rolDe(u);
+  return {
+    email: u.email, nombre: u.nombre, apellidos: u.apellidos, grupo: u.grupo, cicloId: cicloDe(u),
+    // «profesor» para admin y profesores aprobados (lo usan las páginas para mostrar el panel).
+    rol: esStaff(u) ? "profesor" : rol, admin: rol === "admin", ciclos: ciclosDe(u),
+  };
+};

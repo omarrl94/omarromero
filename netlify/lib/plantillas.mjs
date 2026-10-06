@@ -40,6 +40,19 @@ export function correoCodigo(tipo, nombre, codigo) {
   };
 }
 
+/* ── Aviso genérico (aprobación de profesores, solicitudes…) ── */
+export function correoAviso(nombre, titulo, mensaje) {
+  const cuerpo = `<tr><td style="padding:4px 28px 20px">
+    <h1 style="font-size:22px;margin:6px 0 12px">${esc(titulo)}</h1>
+    <p style="font-size:15px;color:${GRIS}">Hola, ${esc(nombre)}:</p>
+    <p style="font-size:15px">${esc(mensaje)}</p></td></tr>`;
+  return {
+    asunto: titulo,
+    html: marco(`${CENTRO()} · Exámenes`, cuerpo, "Correo automático de la plataforma de exámenes."),
+    text: `Hola, ${nombre}:\n\n${mensaje}`,
+  };
+}
+
 /* ── Resultado de un examen ───────────────────────────────── */
 export function correoResultado(ex, e) {
   const res = e.resultado;

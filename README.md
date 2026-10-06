@@ -23,7 +23,11 @@ Funciona en **Netlify** (plan gratuito): páginas estáticas + una Netlify Funct
 5. Al entregar, el servidor corrige, guarda la entrega y **envía el correo** con la nota y la corrección (con copia oculta al profesor si se configura `PROFESOR_EMAIL`).
 6. Puede volver a ver su corrección y descargar el PDF desde el panel en cualquier momento.
 
-**Profesor** (`/profesor/`, solo los correos de `ADMIN_EMAILS`)
+**Profesores y administrador**
+- **Administrador** (`ADMIN_EMAILS`): acceso a todo y pestaña **«Profesores»** para aprobar solicitudes, quitar el acceso y decidir a qué ciclos tiene acceso cada profesor. Recibe un correo cuando alguien se registra como profesor.
+- **Profesor**: se registra en la página principal eligiendo **«Profesor/a»** y marcando los ciclos en los que da clase (correo `@jrotero.es` confirmado con código). Hasta que el administrador lo aprueba ve un aviso de «pendiente». Una vez aprobado, en `/profesor/` **solo ve y gestiona lo de sus ciclos**: crear, subir y generar exámenes con IA, publicarlos, entregas y notas, revisión, CSV y sus alumnos (cambiar grupo, activar, borrar). El servidor lo comprueba en cada petición.
+
+**Panel del profesor** (`/profesor/`)
 - **Acceso**: entra desde la página principal con su correo y `ADMIN_PASSWORD`; la cuenta se crea sola, sin registro ni código.
 - **Subir examen**: arrastra el HTML del cuestionario (con los arrays `MC` y `OPEN`) o un JSON, elige **ciclo, módulo y orden** del tema, y guarda.
 - **✨ Generar con IA**: sube las diapositivas (.pptx), un PDF o un Word del tema, elige ciclo, módulo y cuántas preguntas quieres, y la IA (Google Gemini) redacta las preguntas tipo test y abiertas con sus soluciones y conceptos clave. Se muestran para **revisarlas y quitar** las que no convenzan, y el examen se guarda **sin publicar**. Necesita `GEMINI_API_KEY`.

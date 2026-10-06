@@ -1,15 +1,15 @@
 /** /api/examenes, /api/examen/*, /api/entrega — lo que hace el alumno. */
 import { almacen } from "./almacen.mjs";
 import { json, fallo, leerCuerpo, texto, env } from "./http.mjs";
-import { requiereUsuario, esAdmin } from "./auth.mjs";
+import { requiereUsuario, esStaff, ciclosDe, gestionaCiclo } from "./auth.mjs";
 import { todosLosExamenes, obtenerExamen, enunciado, resumen } from "./examenes.mjs";
 import { corregir, limpiarRespuestas } from "./correccion.mjs";
 import { claveEntrega, vistaEntrega } from "./entregas.mjs";
 import { enviarCorreo, proveedorConfigurado } from "./correo.mjs";
 import { CATALOGO, cicloDe } from "./catalogo.mjs";
 
-/** El alumno solo ve los exámenes de su ciclo; el profesor, todos. */
-const puedeVer = (u, ex) => esAdmin(u.email) || ex.cicloId === cicloDe(u);
+/** El alumno solo ve los exámenes de su ciclo; el profesor, los de sus ciclos (el admin, todos). */
+const puedeVer = (u, ex) => (esStaff(u) ? gestionaCiclo(u, ex.cicloId) : ex.cicloId === cicloDe(u));
 import { correoResultado } from "./plantillas.mjs";
 
 const entregas = () => almacen("entregas");
@@ -18,7 +18,7 @@ const progreso = () => almacen("progreso");
 async function examenPublicado(id, u) {
   const ex = await obtenerExamen(id);
   // El profesor puede abrir también los no publicados, para probarlos antes.
-  if (!ex || (!ex.publicado && !esAdmin(u.email)) || !puedeVer(u, ex)) fallo(404, "Este examen no existe o no está disponible para tu ciclo");
+  if (!ex || (!ex.publicado && !esStaff(u)) || !puedeVer(u, ex)) fallo(404, "Este examen no existe o no está disponible para tu ciclo");
   return ex;
 }
 
@@ -36,7 +36,7 @@ async function listar(req) {
       fecha: e?.fechaTexto || null,
     };
   }));
-  const catalogo = esAdmin(u.email) ? CATALOGO : CATALOGO.filter((c) => c.id === cicloDe(u));
+  const catalogo = CATALOGO.filter((c) => ciclosDe(u).includes(c.id));
   return json({ catalogo, examenes: filas });
 }
 

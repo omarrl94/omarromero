@@ -2,13 +2,24 @@
 import { almacen } from "./almacen.mjs";
 import { json, fallo, leerCuerpo, texto, cookie, env } from "./http.mjs";
 import {
-  EMAIL_RE, emailPermitido, dominiosPermitidos, esAdmin, hashPassword, comprobarPassword, validarPassword,
+  EMAIL_RE, emailPermitido, dominiosPermitidos, esAdmin, admins, rolDe, hashPassword, comprobarPassword, validarPassword,
   nuevoCodigo, comprobarCodigo, crearToken, usuarioSesion, perfilPublico, NOMBRE_COOKIE, DURACION_SESION,
 } from "./auth.mjs";
 import { enviarCorreo, proveedorConfigurado } from "./correo.mjs";
 import { timingSafeEqual, createHash } from "node:crypto";
-import { correoCodigo } from "./plantillas.mjs";
-import { GRUPOS, cicloDe } from "./catalogo.mjs";
+import { correoCodigo, correoAviso } from "./plantillas.mjs";
+import { GRUPOS, cicloDe, CATALOGO } from "./catalogo.mjs";
+
+/** Avisa al administrador de que un profesor espera aprobación. */
+function avisarAdmin(u) {
+  if (!proveedorConfigurado() || u.rol !== "profesor" || u.aprobado) return;
+  const nombres = CATALOGO.filter((c) => (u.ciclos || []).includes(c.id)).map((c) => c.nombre).join(", ");
+  for (const a of admins()) {
+    const c = correoAviso("administrador", "Nuevo profesor pendiente de aprobar",
+      `${u.nombre} ${u.apellidos} (${u.email}) se ha registrado como profesor de ${nombres}. Apruébalo en el panel del profesor, pestaña «Profesores».`);
+    enviarCorreo({ to: a, subject: c.asunto, html: c.html, text: c.text }).catch((e) => console.error("Aviso al admin:", e));
+  }
+}
 
 /** El grupo debe ser uno de la lista (así sabemos el ciclo del alumno). */
 function leerGrupo(v) {
@@ -63,7 +74,15 @@ async function registro(req) {
   if (!emailPermitido(email)) fallo(400, `Regístrate con tu correo del centro (@${dominiosPermitidos()[0]})`);
   const nombre = texto(b.nombre, 80), apellidos = texto(b.apellidos, 120);
   if (!nombre || !apellidos) fallo(400, "Escribe tu nombre y tus apellidos");
-  const { grupo, cicloId } = leerGrupo(b.grupo);
+  // Profesor: elige los ciclos que imparte y espera a que el admin lo apruebe.
+  const esProfesor = b.tipo === "profesor";
+  let grupo = "Profesorado", cicloId = null, ciclos;
+  if (esProfesor) {
+    ciclos = [...new Set((Array.isArray(b.ciclos) ? b.ciclos : []).filter((c) => CATALOGO.some((x) => x.id === c)))];
+    if (!ciclos.length) fallo(400, "Marca al menos un ciclo en el que des clase");
+  } else {
+    ({ grupo, cicloId } = leerGrupo(b.grupo));
+  }
   validarPassword(b.password);
 
   const previo = await usuarios().get(email);
@@ -71,6 +90,7 @@ async function registro(req) {
 
   const u = {
     email, nombre, apellidos, grupo, cicloId,
+    ...(esProfesor ? { rol: "profesor", aprobado: false, ciclos } : {}),
     pass: await hashPassword(b.password),
     verificado: false, ver: 0, creado: new Date().toISOString(),
     codigo: previo?.codigo,
@@ -97,6 +117,7 @@ async function verificar(req) {
   u.verificado = true;
   delete u.codigo;
   await usuarios().set(email, u);
+  avisarAdmin(u);
   return iniciarSesion(req, u);
 }
 
@@ -185,6 +206,7 @@ async function restablecer(req) {
 async function elegirGrupo(req) {
   const u = await usuarioSesion(req);
   if (!u) fallo(401, "Inicia sesión para continuar");
+  if (rolDe(u) !== "alumno") fallo(400, "Solo para alumnos");
   if (cicloDe(u)) fallo(409, "Tu ciclo ya está asignado. Si es incorrecto, avisa al profesor.");
   const { grupo, cicloId } = leerGrupo((await leerCuerpo(req)).grupo);
   Object.assign(u, { grupo, cicloId });
@@ -194,7 +216,7 @@ async function elegirGrupo(req) {
 
 /** Ciclos y grupos para el formulario de registro (público). */
 async function catalogoPublico() {
-  return json({ grupos: GRUPOS() });
+  return json({ grupos: GRUPOS(), ciclos: CATALOGO.map(({ id, nombre, descripcion }) => ({ id, nombre, descripcion })) });
 }
 
 async function yo(req) {

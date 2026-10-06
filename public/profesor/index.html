@@ -34,6 +34,7 @@
     <div class="tabs inline" role="tablist">
       <button role="tab" aria-selected="true" data-tab="vExamenes">Exámenes</button>
       <button role="tab" aria-selected="false" data-tab="vAlumnos">Alumnos</button>
+      <button role="tab" aria-selected="false" data-tab="vProfes" hidden>Profesores <span class="chip" id="nPend" hidden style="margin-left:4px;padding:1px 8px"></span></button>
     </div>
   </div>
   <div class="msg bad" id="avisoCorreo" hidden>El <b>envío de correo no está configurado</b>: los alumnos se registran sin código de verificación y no reciben la corrección por correo. Configura las variables SMTP en Netlify (ver README).</div>
@@ -51,6 +52,13 @@
       <div class="acts"><select id="filtroGrupo" style="width:auto"></select><a class="btn v" id="csv">⬇ Exportar notas (CSV/Excel)</a></div>
     </div>
     <div id="tablaEntregas"></div>
+  </section>
+
+  <!-- Profesores (solo administrador) -->
+  <section id="vProfes" hidden>
+    <div class="toolbar"><h2>Profesores</h2></div>
+    <p class="muted" style="margin-top:-6px">Los profesores se registran en la página principal eligiendo «Profesor/a» y los ciclos en los que dan clase. Aquí los apruebas y decides a qué ciclos tienen acceso: solo podrán crear exámenes y gestionar alumnos de esos ciclos.</p>
+    <div id="tablaProfes"><p class="loading">Cargando…</p></div>
   </section>
 
   <!-- Alumnos -->
@@ -138,6 +146,7 @@
 
 <script src="/assets/app.js"></script>
 <script>
+const CATALOGO_NOMBRES = (ids) => ids.map((id) => id.toUpperCase()).join(", ");
 let CATALOGO = [], EXAMENES = [], ACTUAL = null, FILAS = [], ALUMNOS = [], GRUPOS = [], IMPORT = null;
 const fecha = (iso) => iso ? new Date(iso).toLocaleDateString("es-ES", { day: "2-digit", month: "short", year: "numeric" }) : "—";
 $$("dialog [data-close]").forEach((b) => (b.onclick = () => b.closest("dialog").close()));
@@ -147,8 +156,34 @@ $$("[data-tab]").forEach((b) => (b.onclick = () => {
   $$("[data-tab]").forEach((x) => x.setAttribute("aria-selected", x === b));
   $("#vExamenes").hidden = b.dataset.tab !== "vExamenes"; $("#vEntregas").hidden = true;
   $("#vAlumnos").hidden = b.dataset.tab !== "vAlumnos";
-  if (b.dataset.tab === "vAlumnos") cargarAlumnos(); else cargarExamenes();
+  $("#vProfes").hidden = b.dataset.tab !== "vProfes";
+  if (b.dataset.tab === "vAlumnos") cargarAlumnos(); else if (b.dataset.tab === "vProfes") cargarProfes(); else cargarExamenes();
 }));
+
+/* ── Profesores (solo administrador) ── */
+async function cargarProfes() {
+  const { ciclos, profesores } = await api("/api/admin/profesores");
+  const pend = profesores.filter((p) => !p.aprobado).length;
+  $("#nPend").hidden = !pend; $("#nPend").textContent = pend;
+  if (!profesores.length) { $("#tablaProfes").innerHTML = `<div class="empty">Todavía no se ha registrado ningún profesor.</div>`; return; }
+  $("#tablaProfes").innerHTML = `<div class="tablewrap"><table class="t"><thead><tr><th>Profesor/a</th><th>Ciclos con acceso</th><th>Estado</th><th></th></tr></thead><tbody>
+    ${profesores.map((p) => `<tr data-email="${esc(p.email)}">
+      <td><b>${esc(p.apellidos)}, ${esc(p.nombre)}</b><div class="muted" style="font-size:13px">${esc(p.email)} · alta ${fecha(p.creado)}</div></td>
+      <td><div style="display:flex;flex-wrap:wrap;gap:6px 14px">${ciclos.map((c) => `<label class="check" style="font-size:14px"><input type="checkbox" data-ciclo value="${esc(c.id)}" ${p.ciclos.includes(c.id) ? "checked" : ""}> ${esc(c.nombre)}</label>`).join("")}</div></td>
+      <td>${p.aprobado ? `<span class="chip ok">Con acceso</span>` : `<span class="chip">Pendiente</span>${p.verificado ? "" : ` <span class="chip gray">correo sin confirmar</span>`}`}</td>
+      <td><div class="acts">${p.aprobado ? `<button class="btn ghost sm" data-quitar-acceso>Quitar acceso</button>` : `<button class="btn v sm" data-aprobar>Aprobar</button>`}
+        <button class="btn danger sm" data-borrar-profe>Borrar</button></div></td></tr>`).join("")}</tbody></table></div>`;
+  const fila = (el) => el.closest("tr").dataset.email;
+  const ciclosFila = (el) => $$("[data-ciclo]:checked", el.closest("tr")).map((i) => i.value);
+  const guardar = async (el, datos) => { try { await api("/api/admin/profesor", { email: fila(el), ...datos }); cargarProfes(); } catch (e) { alert(e.message); cargarProfes(); } };
+  $$("#tablaProfes [data-ciclo]").forEach((c) => (c.onchange = () => guardar(c, { ciclos: ciclosFila(c) })));
+  $$("#tablaProfes [data-aprobar]").forEach((b) => (b.onclick = () => guardar(b, { ciclos: ciclosFila(b), aprobado: true })));
+  $$("#tablaProfes [data-quitar-acceso]").forEach((b) => (b.onclick = () => { if (confirm("¿Quitarle el acceso de profesor? Sus exámenes se conservan.")) guardar(b, { aprobado: false }); }));
+  $$("#tablaProfes [data-borrar-profe]").forEach((b) => (b.onclick = async () => {
+    if (!confirm(`¿Borrar la cuenta de ${fila(b)}? Sus exámenes se conservan.`)) return;
+    try { await api("/api/admin/profesor/borrar", { email: fila(b) }); cargarProfes(); } catch (e) { alert(e.message); }
+  }));
+}
 
 /* ── Exámenes ── */
 async function cargarExamenes() {
@@ -169,7 +204,7 @@ function pintarExamenes() {
   t.innerHTML = `<div class="tablewrap"><table class="t"><thead><tr><th>Ciclo · Módulo</th><th>Tema / examen</th><th>Preguntas</th><th>Entregas</th><th>Publicado</th><th>Corrección visible</th><th></th></tr></thead><tbody>
     ${lista.map((e) => `<tr data-id="${esc(e.id)}">
       <td><b>${esc(e.ciclo)}</b><div class="muted" style="font-size:13px">${esc(e.modulo)}</div></td>
-      <td><b>${esc(e.titulo)}</b><div class="muted" style="font-size:13px">Orden ${e.orden} · <code>${esc(e.id)}</code></div></td>
+      <td><b>${esc(e.titulo)}</b><div class="muted" style="font-size:13px">Orden ${e.orden} · <code>${esc(e.id)}</code>${e.autor ? ` · ${esc(e.autor)}` : ""}</div></td>
       <td>${e.nMc} test · ${e.nOpen} abiertas</td>
       <td class="num">${e.entregas}</td>
       <td><label class="switch" title="Visible para los alumnos"><input type="checkbox" data-aj="publicado" ${e.publicado ? "checked" : ""}><span></span></label></td>
@@ -587,6 +622,13 @@ function pintarAlumnos() {
 (async () => {
   const yo = await cabecera({ ciclo: "Profesor" });
   if (yo.rol !== "profesor") { location.replace("/panel/"); return; }
+  $(".tag").textContent = yo.admin ? "Admin" : "Profesor";
+  if (yo.admin) {
+    $("[data-tab=vProfes]").hidden = false;
+    api("/api/admin/profesores").then(({ profesores }) => { const n = profesores.filter((p) => !p.aprobado).length; $("#nPend").hidden = !n; $("#nPend").textContent = n; }).catch(() => {});
+  } else {
+    $("h1").insertAdjacentHTML("afterend", `<p class="muted" style="margin:4px 0 0">Tus ciclos: <b>${esc(CATALOGO_NOMBRES(yo.ciclos))}</b></p>`);
+  }
   await cargarExamenes();
 })().catch((e) => { $("#tablaExamenes").innerHTML = `<div class="msg bad">${esc(e.message)}</div>`; });
 </script>

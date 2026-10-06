@@ -2,14 +2,16 @@
  * Única función de la API: enruta /api/* a los manejadores.
  *   lib/rutas-cuenta.mjs    registro, acceso, recuperación
  *   lib/rutas-alumno.mjs    exámenes y entregas del alumno
- *   lib/rutas-profesor.mjs  panel del profesor
+ *   lib/rutas-profesor.mjs  panel del profesor (exámenes y alumnos de sus ciclos)
+ *   lib/rutas-admin.mjs     aprobación de profesores (solo el administrador)
  */
 import { json, HttpError } from "../lib/http.mjs";
 import cuenta from "../lib/rutas-cuenta.mjs";
 import alumno from "../lib/rutas-alumno.mjs";
 import profesor from "../lib/rutas-profesor.mjs";
+import admin from "../lib/rutas-admin.mjs";
 
-const RUTAS = { ...cuenta, ...alumno, ...profesor };
+const RUTAS = { ...cuenta, ...alumno, ...profesor, ...admin };
 
 export default async (req) => {
   const url = new URL(req.url);
