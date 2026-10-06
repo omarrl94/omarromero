@@ -9,49 +9,88 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&display=swap">
 <link rel="stylesheet" href="/assets/app.css">
+<style>
+  .crumbs{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:14px;color:var(--muted);margin-bottom:6px}
+  .crumbs a{color:var(--muted)} .crumbs b{color:var(--fg)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+  a.tile{display:flex;flex-direction:column;gap:6px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;box-shadow:var(--shadow);text-decoration:none;color:inherit;min-height:150px;border-top:6px solid var(--amarillo)}
+  a.tile:hover{border-color:var(--amarillo)}
+  a.tile:nth-child(3n+2){border-top-color:var(--verde)} a.tile:nth-child(3n+3){border-top-color:var(--salmon)}
+  a.tile .big{font-size:30px;font-weight:800;letter-spacing:-.02em;line-height:1.1}
+  a.tile .mid{font-size:19px;font-weight:700;line-height:1.25}
+  a.tile .meta{margin-top:auto}
+</style>
 </head>
 <body>
 <div class="topbar"></div>
 <div class="wrap">
   <header class="head" id="head"></header>
-  <h1>Mis exámenes</h1>
-  <p class="sub">Aquí aparecen los exámenes que ha publicado tu profesor. Cada uno se entrega una sola vez.</p>
-
-  <div class="toolbar" style="margin-top:6px"><h2>Pendientes</h2></div>
-  <div class="exlist" id="pendientes"><p class="loading">Cargando…</p></div>
-
-  <div class="toolbar"><h2>Entregados</h2></div>
-  <div class="exlist" id="entregados"></div>
-
+  <nav class="crumbs" id="crumbs" aria-label="Ruta"></nav>
+  <h1 id="titulo">Mis exámenes</h1>
+  <p class="sub" id="sub"></p>
+  <div id="vista"><p class="loading">Cargando…</p></div>
   <p class="foot">Si tienes algún problema con tu cuenta o un examen, avisa a tu profesor.</p>
 </div>
 
 <script src="/assets/app.js"></script>
 <script>
+const qs = new URLSearchParams(location.search);
+const cicloId = qs.get("ciclo"), moduloId = qs.get("modulo");
+const plural = (n, s, p) => `${n} ${n === 1 ? s : p}`;
+
+function chipsEstado(lista) {
+  const pend = lista.filter((e) => e.estado === "pendiente").length;
+  return `<div class="meta">${pend ? `<span class="chip">${plural(pend, "pendiente", "pendientes")}</span>` : ""}
+    <span class="chip gray">${plural(lista.length, "tema", "temas")}</span></div>`;
+}
+
 (async () => {
   await cabecera();
-  const { examenes } = await api("/api/examenes");
-  const pend = examenes.filter((e) => e.estado === "pendiente");
-  const hechos = examenes.filter((e) => e.estado === "entregado");
-  const meta = (e) => `<div class="meta">${e.ciclo ? `<span class="chip">${esc(e.ciclo)}</span>` : ""}
-    ${e.nMc ? `<span class="chip v">${e.nMc} tipo test</span>` : ""}${e.nOpen ? `<span class="chip s">${e.nOpen} abiertas</span>` : ""}</div>`;
+  const { catalogo, examenes } = await api("/api/examenes");
+  const ciclo = catalogo.find((c) => c.id === cicloId);
+  const modulo = ciclo?.modulos.find((m) => m.id === moduloId);
+  const v = $("#vista");
 
-  $("#pendientes").innerHTML = pend.length ? pend.map((e) => `
-    <article class="excard"><div class="info">
-      <div class="muted" style="font-size:13px;font-weight:600">${esc(e.modulo)}</div>
-      <h3>${esc(e.titulo)}</h3><div class="muted" style="font-size:14.5px">${esc(e.subtitulo)}</div>${meta(e)}</div>
-      <a class="btn" href="/examen/?id=${encodeURIComponent(e.id)}">Empezar</a></article>`).join("")
-    : `<div class="empty">No tienes exámenes pendientes. 🎉</div>`;
+  // 1 · Elegir ciclo
+  if (!ciclo) {
+    $("#titulo").textContent = "Elige tu ciclo";
+    $("#sub").textContent = "Selecciona el ciclo formativo para ver sus módulos.";
+    v.innerHTML = `<div class="grid">${catalogo.map((c) => `
+      <a class="tile" href="?ciclo=${encodeURIComponent(c.id)}"><span class="big">${esc(c.nombre)}</span>
+        <span class="muted">${esc(c.descripcion || "")}</span>${chipsEstado(examenes.filter((e) => e.cicloId === c.id))}</a>`).join("")}</div>`;
+    return;
+  }
 
-  $("#entregados").innerHTML = hechos.length ? hechos.map((e) => `
+  const enCiclo = examenes.filter((e) => e.cicloId === ciclo.id);
+  // 2 · Elegir módulo
+  if (!modulo) {
+    $("#crumbs").innerHTML = `<a href="/panel/">Ciclos</a> › <b>${esc(ciclo.nombre)}</b>`;
+    $("#titulo").textContent = `${ciclo.nombre} · Elige el módulo`;
+    $("#sub").textContent = ciclo.descripcion || "";
+    v.innerHTML = `<div class="grid">${ciclo.modulos.map((m) => `
+      <a class="tile" href="?ciclo=${encodeURIComponent(ciclo.id)}&modulo=${encodeURIComponent(m.id)}"><span class="mid">${esc(m.nombre)}</span>
+        ${chipsEstado(enCiclo.filter((e) => e.moduloId === m.id))}</a>`).join("")}</div>`;
+    return;
+  }
+
+  // 3 · Temas del módulo
+  $("#crumbs").innerHTML = `<a href="/panel/">Ciclos</a> › <a href="?ciclo=${encodeURIComponent(ciclo.id)}">${esc(ciclo.nombre)}</a> › <b>${esc(modulo.nombre)}</b>`;
+  $("#titulo").textContent = modulo.nombre;
+  $("#sub").textContent = "Elige el tema. Cada examen se entrega una sola vez.";
+  const temas = enCiclo.filter((e) => e.moduloId === modulo.id);
+  if (!temas.length) { v.innerHTML = `<div class="empty">Todavía no hay temas publicados en este módulo.</div>`; return; }
+  const enlace = (e) => `/examen/?id=${encodeURIComponent(e.id)}`;
+  v.innerHTML = `<div class="exlist">${temas.map((e) => e.estado === "pendiente" ? `
     <article class="excard"><div class="info">
-      <div class="muted" style="font-size:13px;font-weight:600">${esc(e.modulo)}</div>
+      <h3>${esc(e.titulo)}</h3><div class="muted" style="font-size:14.5px">${esc(e.subtitulo)}</div>
+      <div class="meta">${e.nMc ? `<span class="chip v">${e.nMc} tipo test</span>` : ""}${e.nOpen ? `<span class="chip s">${e.nOpen} abiertas</span>` : ""}<span class="chip">Pendiente</span></div></div>
+      <a class="btn" href="${enlace(e)}">Empezar</a></article>` : `
+    <article class="excard"><div class="info">
       <h3>${esc(e.titulo)}</h3><div class="muted" style="font-size:14px">Entregado el ${esc(e.fecha)}</div>
-      <div class="meta">${e.revisada ? `<span class="chip ok">Revisado por el profesor</span>` : e.nOpen ? `<span class="chip gray">Pendiente de revisión</span>` : ""}</div></div>
+      <div class="meta"><span class="chip ok">Entregado</span>${e.revisada ? `<span class="chip ok">Revisado por el profesor</span>` : e.nOpen ? `<span class="chip gray">Pendiente de revisión</span>` : ""}</div></div>
       <div style="display:flex;align-items:center;gap:16px"><div class="nota">${fmt(e.nota)}<small> /10</small></div>
-      <a class="btn ghost" href="/examen/?id=${encodeURIComponent(e.id)}&ver=1">${e.mostrarSoluciones ? "Ver corrección" : "Ver entrega"}</a></div></article>`).join("")
-    : `<div class="empty">Todavía no has entregado ningún examen.</div>`;
-})().catch((e) => { $("#pendientes").innerHTML = `<div class="msg bad">${esc(e.message)}</div>`; });
+      <a class="btn ghost" href="${enlace(e)}&ver=1">${e.mostrarSoluciones ? "Ver corrección" : "Ver entrega"}</a></div></article>`).join("")}</div>`;
+})().catch((e) => { $("#vista").innerHTML = `<div class="msg bad">${esc(e.message)}</div>`; });
 </script>
 </body>
 </html>

@@ -17,7 +17,7 @@
   <p class="loading" id="loading">Cargando…</p>
 
   <section id="intro" hidden>
-    <a href="/panel/" class="muted" style="font-size:14px">← Mis exámenes</a>
+    <a href="/panel/" class="muted" style="font-size:14px" data-volver>← Volver al módulo</a>
     <h1 id="titulo"></h1>
     <p class="sub" id="subtitulo"></p>
     <div class="card">
@@ -38,6 +38,7 @@
 <script>
 const params = new URLSearchParams(location.search);
 const examId = params.get("id") || "";
+const urlModulo = (ex) => ex.cicloId ? `/panel/?ciclo=${encodeURIComponent(ex.cicloId)}&modulo=${encodeURIComponent(ex.moduloId)}` : "/panel/";
 let EX = null, YO = null, PAYLOAD = null;
 
 /* ── Modo examen (disuasorio): cierra el examen si se sale de la página ── */
@@ -53,7 +54,7 @@ function lockTest(motivo) {
   l.innerHTML = `<div class="card" style="border-left:6px solid var(--bad)">
     <h1 style="color:var(--bad)">Examen cerrado</h1>
     <p class="sub">${esc(motivo)}. Has salido de la página, así que el intento se ha cerrado y las respuestas se han borrado. Queda registrado para el profesor; avísale si ha sido un error.</p>
-    <div class="actions"><button class="btn" id="relock">Volver a empezar</button><a class="btn ghost" href="/panel/">Mis exámenes</a></div></div>`;
+    <div class="actions"><button class="btn" id="relock">Volver a empezar</button><a class="btn ghost" href="${urlModulo(EX)}">Volver al módulo</a></div></div>`;
   $("#relock").onclick = () => { l.hidden = true; $("#intro").hidden = false; window.scrollTo({ top: 0 }); };
   window.scrollTo({ top: 0 });
 }
@@ -82,6 +83,7 @@ async function init() {
   if (EX.ciclo) $(".tag").textContent = EX.ciclo;
   $("#titulo").textContent = EX.titulo; $("#subtitulo").textContent = EX.subtitulo || EX.modulo || "";
   $("#miEmail").textContent = YO.email;
+  $$("[data-volver]").forEach((a) => (a.href = urlModulo(EX)));
   $("#chips").innerHTML = [EX.modulo && `<span class="chip gray">${esc(EX.modulo)}</span>`,
     EX.mc.length && `<span class="chip">${EX.mc.length} preguntas tipo test</span>`,
     EX.open.length && `<span class="chip v">${EX.open.length} preguntas abiertas</span>`,
@@ -96,7 +98,7 @@ async function verEntrega() {
   if (d.examen.ciclo) $(".tag").textContent = d.examen.ciclo;
   $("#loading").hidden = true;
   const r = $("#result"); r.hidden = false;
-  r.insertAdjacentHTML("beforebegin", `<a href="/panel/" class="muted" style="font-size:14px">← Mis exámenes</a><h1>${esc(d.examen.titulo)}</h1><p class="sub">${esc(d.examen.subtitulo || "")}</p>`);
+  r.insertAdjacentHTML("beforebegin", `<a href="${urlModulo(d.examen)}" class="muted" style="font-size:14px">← Volver a ${esc(d.examen.modulo || "mis exámenes")}</a><h1>${esc(d.examen.titulo)}</h1><p class="sub">${esc(d.examen.subtitulo || "")}</p>`);
   pintarEntrega(r, d);
 }
 
@@ -165,7 +167,7 @@ async function entregar() {
     const banner = d.correo.enviado
       ? `<div class="msg ok">✉ Te hemos enviado la corrección a <b>${esc(d.correo.destino)}</b>. Si no la ves en unos minutos, revisa «Correo no deseado».</div>`
       : `<div class="msg bad">✉ ${esc(d.correo.error || "No se ha podido enviar el correo.")} Tu entrega está guardada y puedes consultarla en tu panel.</div>`;
-    r.insertAdjacentHTML("beforebegin", `<h1>${esc(EX.titulo)}</h1><p class="sub">Examen entregado.</p>`);
+    r.insertAdjacentHTML("beforebegin", `<a href="${urlModulo(EX)}" class="muted" style="font-size:14px">← Volver a ${esc(EX.modulo)}</a><h1>${esc(EX.titulo)}</h1><p class="sub">Examen entregado.</p>`);
     pintarEntrega(r, d, banner);
     window.scrollTo({ top: 0, behavior: "smooth" });
   } catch (e) {

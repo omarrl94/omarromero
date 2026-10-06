@@ -5,6 +5,7 @@ import { requiereAdmin, esAdmin } from "./auth.mjs";
 import { todosLosExamenes, obtenerExamen, validarExamen, resumen } from "./examenes.mjs";
 import { claveEntrega, vistaEntrega } from "./entregas.mjs";
 import { proveedorConfigurado } from "./correo.mjs";
+import { CATALOGO } from "./catalogo.mjs";
 
 const examenes = () => almacen("examenes");
 const entregas = () => almacen("entregas");
@@ -23,7 +24,7 @@ async function listar(req) {
   const filas = await Promise.all(lista.map(async (ex) => ({
     ...resumen(ex), entregas: (await entregas().list(ex.id + "/")).length,
   })));
-  return json({ examenes: filas, correo: !!proveedorConfigurado() });
+  return json({ catalogo: CATALOGO, examenes: filas, correo: !!proveedorConfigurado() });
 }
 
 async function verExamen(req, url) {
@@ -49,6 +50,7 @@ async function ajustes(req) {
   const ex = await existente(b.id);
   if (typeof b.publicado === "boolean") ex.publicado = b.publicado;
   if (typeof b.mostrarSoluciones === "boolean") ex.mostrarSoluciones = b.mostrarSoluciones;
+  if (Number.isFinite(b.orden)) ex.orden = b.orden;
   ex.actualizado = new Date().toISOString();
   await examenes().set(ex.id, ex);
   return json({ ok: true });

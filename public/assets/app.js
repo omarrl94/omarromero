@@ -29,7 +29,8 @@ async function cabecera({ ciclo = "Exámenes" } = {}) {
     <a class="brand" href="/panel/">${LOGO}<div><div class="ey">Formación Profesional</div>
       <div class="nm">José Ramón Otero <span class="tag">${esc(ciclo)}</span></div></div></a>
     <div class="who"><span><b>${esc(usuario.nombre)} ${esc(usuario.apellidos)}</b>${usuario.grupo ? " · " + esc(usuario.grupo) : ""}</span>
-      ${usuario.rol === "profesor" ? `<a class="btn ghost sm" href="/profesor/">Panel del profesor</a>` : ""}
+      ${usuario.rol !== "profesor" ? "" : location.pathname.startsWith("/profesor")
+        ? `<a class="btn ghost sm" href="/panel/">Vista del alumno</a>` : `<a class="btn ghost sm" href="/profesor/">Panel del profesor</a>`}
       <button class="btn ghost sm" id="salir">Salir</button></div>`;
   $("#salir").onclick = async () => { await api("/api/cuenta/logout", {}).catch(() => {}); location.href = "/"; };
   return usuario;

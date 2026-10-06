@@ -11,6 +11,7 @@
 import { almacen } from "./almacen.mjs";
 import { fallo, texto } from "./http.mjs";
 import semilla from "./semilla-sad-temas-1-2.mjs";
+import { buscarModulo, moduloPorNombre } from "./catalogo.mjs";
 
 const str = (v, max, campo) => {
   if (typeof v !== "string" || !v.trim()) fallo(400, `Falta «${campo}»`);
@@ -46,12 +47,17 @@ export function validarExamen(e) {
       exp: typeof q.exp === "string" ? q.exp.trim().slice(0, 2000) : "",
     };
   });
+  const ubic = buscarModulo(e.cicloId, e.moduloId) || moduloPorNombre(e.ciclo, e.modulo);
+  if (!ubic) fallo(400, "Elige el ciclo y el módulo del examen");
   return {
     id,
     titulo: str(e.titulo, 200, "título"),
     subtitulo: texto(e.subtitulo, 300),
-    modulo: texto(e.modulo, 200),
-    ciclo: texto(e.ciclo, 30),
+    cicloId: ubic.ciclo.id,
+    moduloId: ubic.modulo.id,
+    ciclo: ubic.ciclo.nombre,
+    modulo: ubic.modulo.nombre,
+    orden: Number.isFinite(Number(e.orden)) ? Number(e.orden) : 0,
     publicado: e.publicado === true,
     mostrarSoluciones: e.mostrarSoluciones !== false,
     mc, open,
@@ -60,13 +66,14 @@ export function validarExamen(e) {
 
 /** Lo que ve el alumno antes de entregar: sin soluciones ni criterios. */
 export const enunciado = (ex) => ({
-  id: ex.id, titulo: ex.titulo, subtitulo: ex.subtitulo, modulo: ex.modulo, ciclo: ex.ciclo,
+  id: ex.id, titulo: ex.titulo, subtitulo: ex.subtitulo, modulo: ex.modulo, ciclo: ex.ciclo, cicloId: ex.cicloId, moduloId: ex.moduloId,
   mc: ex.mc.map(({ t, o }) => ({ t, o })),
   open: ex.open.map(({ act, t }) => ({ act, t })),
 });
 
 export const resumen = (ex) => ({
   id: ex.id, titulo: ex.titulo, subtitulo: ex.subtitulo, modulo: ex.modulo, ciclo: ex.ciclo,
+  cicloId: ex.cicloId, moduloId: ex.moduloId, orden: ex.orden || 0,
   nMc: ex.mc.length, nOpen: ex.open.length, publicado: ex.publicado, mostrarSoluciones: ex.mostrarSoluciones,
   creado: ex.creado, actualizado: ex.actualizado,
 });
@@ -87,7 +94,8 @@ export async function todosLosExamenes() {
   await sembrar();
   const store = almacen("examenes");
   const lista = (await Promise.all((await store.list()).map((k) => store.get(k)))).filter(Boolean);
-  return lista.sort((a, b) => String(b.creado).localeCompare(String(a.creado)));
+  // Orden: por `orden` y, a igualdad, por título (Tema 1, Tema 2…).
+  return lista.sort((a, b) => (a.orden || 0) - (b.orden || 0) || a.titulo.localeCompare(b.titulo, "es", { numeric: true }));
 }
 
 export async function obtenerExamen(id) {

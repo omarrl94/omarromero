@@ -11,9 +11,10 @@
  */
 export default {
   id: "sad-temas-1-2",
-  modulo: "Seguridad y Alta Disponibilidad",
-  ciclo: "ASIR",
-  titulo: "Cuestionario · Temas 1 y 2",
+  cicloId: "asir",
+  moduloId: "sad",
+  orden: 1,
+  titulo: "Temas 1 y 2",
   subtitulo: "Marco legal y normativo · Hacking ético y metodologías · Herramientas del auditor",
   mc: [
     {t:"Según el RGPD (Reglamento General de Protección de Datos), un dato personal es…",o:["Solo el DNI y el número de la Seguridad Social","Cualquier información sobre una persona identificada o identificable","Únicamente los datos de salud e ideología","Cualquier dato de una empresa"],c:1},

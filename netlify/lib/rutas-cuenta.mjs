@@ -2,11 +2,25 @@
 import { almacen } from "./almacen.mjs";
 import { json, fallo, leerCuerpo, texto, cookie } from "./http.mjs";
 import {
-  EMAIL_RE, emailPermitido, dominiosPermitidos, hashPassword, comprobarPassword, validarPassword,
+  EMAIL_RE, emailPermitido, dominiosPermitidos, esAdmin, hashPassword, comprobarPassword, validarPassword,
   nuevoCodigo, comprobarCodigo, crearToken, usuarioSesion, perfilPublico, NOMBRE_COOKIE, DURACION_SESION,
 } from "./auth.mjs";
 import { enviarCorreo, proveedorConfigurado } from "./correo.mjs";
+import { timingSafeEqual, createHash } from "node:crypto";
 import { correoCodigo } from "./plantillas.mjs";
+
+/**
+ * Cuenta del profesor sin registro: si ADMIN_PASSWORD está definida en Netlify,
+ * los correos de ADMIN_EMAILS pueden entrar con esa contraseña (la cuenta se
+ * crea sola la primera vez). Así la contraseña no está nunca en el código.
+ */
+function esPasswordAdmin(email, pw) {
+  const ref = (process.env.ADMIN_PASSWORD || "").trim();
+  if (!ref || !esAdmin(email)) return false;
+  const h = (s) => createHash("sha256").update(s).digest();
+  return timingSafeEqual(h(pw), h(ref));
+}
+const capital = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
 const usuarios = () => almacen("usuarios");
 const leerEmail = (v) => {
@@ -94,7 +108,17 @@ async function login(req) {
   const u = await usuarios().get(email);
   if (u?.fallos && u.fallos.n >= 8 && Date.now() - u.fallos.desde < 15 * 60_000)
     fallo(429, "Demasiados intentos. Espera 15 minutos o recupera la contraseña.");
-  const ok = await comprobarPassword(pw, u?.pass); // se ejecuta aunque no exista (tiempo constante)
+  const admin = esPasswordAdmin(email, pw);
+  if (admin && (!u || !u.verificado)) {
+    const [nom = "", ...ape] = email.split("@")[0].split(/[._-]+/);
+    const nuevo = {
+      email, nombre: u?.nombre || capital(nom), apellidos: u?.apellidos || ape.map(capital).join(" "), grupo: u?.grupo || "Profesorado",
+      pass: await hashPassword(pw), verificado: true, ver: u?.ver || 0, creado: u?.creado || new Date().toISOString(),
+    };
+    await usuarios().set(email, nuevo);
+    return iniciarSesion(req, nuevo);
+  }
+  const ok = admin || (await comprobarPassword(pw, u?.pass)); // se ejecuta aunque no exista (tiempo constante)
   if (!u || !ok) {
     if (u) {
       const f = u.fallos && Date.now() - u.fallos.desde < 15 * 60_000 ? u.fallos : { n: 0, desde: Date.now() };

@@ -40,7 +40,7 @@
 
   <!-- Exámenes -->
   <section id="vExamenes">
-    <div class="toolbar"><h2>Exámenes</h2><button class="btn" id="nuevo">＋ Subir examen</button></div>
+    <div class="toolbar"><h2>Exámenes</h2><div class="acts"><select id="filtroModulo" style="width:auto"></select><button class="btn" id="nuevo">＋ Subir examen</button></div></div>
     <div id="tablaExamenes"><p class="loading">Cargando…</p></div>
   </section>
 
@@ -74,9 +74,10 @@
       </div>
       <div class="field"><label class="flab" for="eSub">Subtítulo / temas</label><input type="text" id="eSub"></div>
       <div class="row2">
-        <div class="field"><label class="flab" for="eModulo">Módulo</label><input type="text" id="eModulo"></div>
-        <div class="field"><label class="flab" for="eCiclo">Ciclo</label><input type="text" id="eCiclo" placeholder="ASIR"></div>
+        <div class="field"><label class="flab" for="eCiclo">Ciclo</label><select id="eCiclo"></select></div>
+        <div class="field"><label class="flab" for="eModulo">Módulo</label><select id="eModulo"></select></div>
       </div>
+      <div class="field" style="max-width:220px"><label class="flab" for="eOrden">Orden en el módulo</label><input type="number" id="eOrden" min="0" step="1" value="1"></div>
       <div style="display:grid;gap:10px;margin:4px 0 8px">
         <label class="check"><input type="checkbox" id="ePub"> Publicar ya (visible para los alumnos)</label>
         <label class="check"><input type="checkbox" id="eSol" checked> Mostrar la corrección al alumno al entregar (en pantalla y en el correo)</label>
@@ -107,7 +108,7 @@
 
 <script src="/assets/app.js"></script>
 <script>
-let EXAMENES = [], ACTUAL = null, FILAS = [], ALUMNOS = [], IMPORT = null;
+let CATALOGO = [], EXAMENES = [], ACTUAL = null, FILAS = [], ALUMNOS = [], IMPORT = null;
 const fecha = (iso) => iso ? new Date(iso).toLocaleDateString("es-ES", { day: "2-digit", month: "short", year: "numeric" }) : "—";
 $$("dialog [data-close]").forEach((b) => (b.onclick = () => b.closest("dialog").close()));
 
@@ -122,12 +123,23 @@ $$("[data-tab]").forEach((b) => (b.onclick = () => {
 /* ── Exámenes ── */
 async function cargarExamenes() {
   const d = await api("/api/profesor/examenes");
-  EXAMENES = d.examenes; $("#avisoCorreo").hidden = d.correo;
-  const t = $("#tablaExamenes");
-  if (!EXAMENES.length) { t.innerHTML = `<div class="empty">Todavía no hay exámenes. Pulsa «Subir examen».</div>`; return; }
-  t.innerHTML = `<div class="tablewrap"><table class="t"><thead><tr><th>Examen</th><th>Preguntas</th><th>Entregas</th><th>Publicado</th><th>Corrección visible</th><th></th></tr></thead><tbody>
-    ${EXAMENES.map((e) => `<tr data-id="${esc(e.id)}">
-      <td><b>${esc(e.titulo)}</b><div class="muted" style="font-size:13px">${esc([e.modulo, e.ciclo].filter(Boolean).join(" · "))} · <code>${esc(e.id)}</code></div></td>
+  EXAMENES = d.examenes; CATALOGO = d.catalogo; $("#avisoCorreo").hidden = d.correo;
+  const f = $("#filtroModulo"), sel = f.value;
+  f.innerHTML = `<option value="">Todos los módulos</option>` + CATALOGO.map((c) => `<optgroup label="${esc(c.nombre)}">${c.modulos.map((m) =>
+    `<option value="${esc(c.id + "/" + m.id)}">${esc(m.nombre)}</option>`).join("")}</optgroup>`).join("");
+  f.value = sel;
+  pintarExamenes();
+}
+$("#filtroModulo").onchange = () => pintarExamenes();
+function pintarExamenes() {
+  const t = $("#tablaExamenes"), filtro = $("#filtroModulo").value;
+  const pos = (e) => { const ci = CATALOGO.findIndex((c) => c.id === e.cicloId); const mi = ci < 0 ? 0 : CATALOGO[ci].modulos.findIndex((m) => m.id === e.moduloId); return ci * 1000 + mi; };
+  const lista = EXAMENES.filter((e) => !filtro || `${e.cicloId}/${e.moduloId}` === filtro).sort((a, b) => pos(a) - pos(b));
+  if (!lista.length) { t.innerHTML = `<div class="empty">${EXAMENES.length ? "No hay exámenes en este módulo." : "Todavía no hay exámenes."} Pulsa «Subir examen».</div>`; return; }
+  t.innerHTML = `<div class="tablewrap"><table class="t"><thead><tr><th>Ciclo · Módulo</th><th>Tema / examen</th><th>Preguntas</th><th>Entregas</th><th>Publicado</th><th>Corrección visible</th><th></th></tr></thead><tbody>
+    ${lista.map((e) => `<tr data-id="${esc(e.id)}">
+      <td><b>${esc(e.ciclo)}</b><div class="muted" style="font-size:13px">${esc(e.modulo)}</div></td>
+      <td><b>${esc(e.titulo)}</b><div class="muted" style="font-size:13px">Orden ${e.orden} · <code>${esc(e.id)}</code></div></td>
       <td>${e.nMc} test · ${e.nOpen} abiertas</td>
       <td class="num">${e.entregas}</td>
       <td><label class="switch" title="Visible para los alumnos"><input type="checkbox" data-aj="publicado" ${e.publicado ? "checked" : ""}><span></span></label></td>
@@ -254,6 +266,13 @@ const drop = $("#drop");
 drop.addEventListener("drop", (e) => { if (e.dataTransfer.files[0]) leerArchivo(e.dataTransfer.files[0]); });
 $("#archivo").onchange = (e) => { if (e.target.files[0]) leerArchivo(e.target.files[0]); };
 
+function rellenarModulos() {
+  const c = CATALOGO.find((x) => x.id === $("#eCiclo").value);
+  $("#eModulo").innerHTML = (c?.modulos || []).map((m) => `<option value="${esc(m.id)}">${esc(m.nombre)}</option>`).join("");
+}
+$("#eCiclo").onchange = rellenarModulos;
+const normTxt = (s) => String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+
 /** Extrae un array literal `const NOMBRE = [ ... ]` de un script. */
 function extraerArray(src, nombre) {
   const m = new RegExp(`(?:const|let|var)\\s+${nombre}\\s*=\\s*\\[`).exec(src);
@@ -295,7 +314,15 @@ async function leerArchivo(file) {
     }
     IMPORT = ex;
     $("#eTitulo").value = ex.titulo || ""; $("#eId").value = ex.id || slug(ex.titulo || "examen");
-    $("#eSub").value = ex.subtitulo || ""; $("#eModulo").value = ex.modulo || ""; $("#eCiclo").value = ex.ciclo || "";
+    $("#eSub").value = ex.subtitulo || "";
+    // Ciclo y módulo: por id (JSON) o por nombre (HTML); si no, el filtro actual o el primero.
+    $("#eCiclo").innerHTML = CATALOGO.map((c) => `<option value="${esc(c.id)}">${esc(c.nombre)}</option>`).join("");
+    const [fc, fm] = ($("#filtroModulo").value || "/").split("/");
+    const c = CATALOGO.find((x) => x.id === ex.cicloId || normTxt(x.nombre) === normTxt(ex.ciclo)) || CATALOGO.find((x) => x.id === fc) || CATALOGO[0];
+    $("#eCiclo").value = c.id; rellenarModulos();
+    const m = c.modulos.find((x) => x.id === ex.moduloId || normTxt(x.nombre) === normTxt(ex.modulo)) || c.modulos.find((x) => x.id === fm) || c.modulos[0];
+    $("#eModulo").value = m.id;
+    $("#eOrden").value = ex.orden ?? EXAMENES.filter((e) => e.cicloId === c.id && e.moduloId === m.id).length + 1;
     $("#ePub").checked = !!ex.publicado; $("#eSol").checked = ex.mostrarSoluciones !== false; $("#eSobre").checked = false;
     $("#resumenImport").innerHTML = `Encontradas <b>${(ex.mc || []).length} preguntas tipo test</b> y <b>${(ex.open || []).length} abiertas</b>. Revisa los datos y guarda.`;
     comprobarId();
@@ -315,7 +342,7 @@ $("#fExamen").onsubmit = async (ev) => {
   try {
     await api("/api/profesor/examen", {
       ...IMPORT, id: $("#eId").value.trim(), titulo: $("#eTitulo").value.trim(), subtitulo: $("#eSub").value.trim(),
-      modulo: $("#eModulo").value.trim(), ciclo: $("#eCiclo").value.trim(),
+      cicloId: $("#eCiclo").value, moduloId: $("#eModulo").value, orden: Number($("#eOrden").value) || 0,
       publicado: $("#ePub").checked, mostrarSoluciones: $("#eSol").checked, sobrescribir: $("#eSobre").checked,
     });
     $("#dSubir").close(); cargarExamenes();

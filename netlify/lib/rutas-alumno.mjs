@@ -6,6 +6,7 @@ import { todosLosExamenes, obtenerExamen, enunciado, resumen } from "./examenes.
 import { corregir, limpiarRespuestas } from "./correccion.mjs";
 import { claveEntrega, vistaEntrega } from "./entregas.mjs";
 import { enviarCorreo, proveedorConfigurado } from "./correo.mjs";
+import { CATALOGO } from "./catalogo.mjs";
 import { correoResultado } from "./plantillas.mjs";
 
 const entregas = () => almacen("entregas");
@@ -31,7 +32,7 @@ async function listar(req) {
       fecha: e?.fechaTexto || null,
     };
   }));
-  return json({ examenes: filas });
+  return json({ catalogo: CATALOGO, examenes: filas });
 }
 
 async function ver(req, url) {
