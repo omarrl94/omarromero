@@ -95,6 +95,7 @@
   <div class="dhead"><h2>✨ Generar examen con IA</h2><button class="btn ghost sm" data-close>Cerrar</button></div>
   <div class="dbody">
     <div class="msg bad" id="iaNoDisp" hidden>La IA no está configurada. Añade la variable <code>GEMINI_API_KEY</code> en Netlify y vuelve a desplegar.</div>
+    <div class="msg" id="iaConexion" hidden></div>
     <form id="fIA" novalidate>
       <p class="muted" style="margin-top:0">Sube las diapositivas o el PDF del tema y la IA redactará las preguntas (tipo test y abiertas) con sus soluciones. Después podrás revisarlas y quitar las que no te gusten antes de guardar. El examen se guarda <b>sin publicar</b>.</p>
       <label class="drop" id="iaDrop"><input type="file" id="iaArchivo" accept=".pptx,.pdf,.docx,.txt,.md" hidden><span id="iaDropTxt">Arrastra aquí el PowerPoint (.pptx), PDF o Word (.docx), o haz clic para elegirlo</span></label>
@@ -452,11 +453,17 @@ $("#nuevoIA").onclick = async () => {
   if (fc) $("#iaCiclo").value = fc;
   rellenarModulosIA();
   if (fm) $("#iaModulo").value = fm;
-  $("#iaGo").disabled = false;
+  $("#iaGo").disabled = true;
+  const con = $("#iaConexion");
+  con.hidden = false; con.className = "msg info"; con.textContent = "Comprobando la conexión con la IA…";
   $("#dIA").showModal();
-  const { disponible, lote } = await api("/api/profesor/ia").catch(() => ({ disponible: false }));
-  if (lote) IA_LOTE = lote;
-  $("#iaNoDisp").hidden = disponible; $("#iaGo").disabled = !disponible;
+  const r = await api("/api/profesor/ia").catch((e) => ({ disponible: false, error: e.message }));
+  if (r.lote) IA_LOTE = r.lote;
+  $("#iaNoDisp").hidden = r.disponible;
+  if (!r.disponible) { con.hidden = true; return; }
+  if (r.ok) { con.className = "msg ok"; con.textContent = `✓ Conectado con ${r.proveedor === "gemini" ? `Gemini (${r.modelo})` : "Claude"}.`; }
+  else { con.className = "msg bad"; con.textContent = r.error || "No se ha podido conectar con la IA."; }
+  $("#iaGo").disabled = !r.ok;
 };
 const iaDrop = $("#iaDrop");
 ["dragenter", "dragover"].forEach((ev) => iaDrop.addEventListener(ev, (e) => { e.preventDefault(); iaDrop.classList.add("over"); }));

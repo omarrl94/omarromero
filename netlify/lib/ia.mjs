@@ -15,13 +15,19 @@ import { randomInt } from "node:crypto";
 import { env, fallo } from "./http.mjs";
 
 const MODELO_CLAUDE = "claude-opus-5-5";
-const MODELO_GEMINI = () => env("GEMINI_MODEL", "gemini-2.5-flash");
+const BASE_GEMINI = () => env("GEMINI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta");
+/**
+ * Clave de Gemini tolerando errores al pegarla: espacios o saltos de línea y
+ * el texto «GEMINI_API_KEY=» delante (Netlify ya guarda solo el valor).
+ */
+const claveGemini = () => env("GEMINI_API_KEY").replace(/^GEMINI_API_KEY\s*[=:]\s*/i, "").replace(/\s+/g, "");
+let modeloGemini = null; // modelo elegido (GEMINI_MODEL, o uno disponible si ese no existe)
 
 let cliente;
 const claude = () =>
   (cliente ||= new Anthropic({ apiKey: env("ANTHROPIC_API_KEY"), timeout: 55_000, maxRetries: 1 }));
 
-export const proveedorIA = () => (env("GEMINI_API_KEY") ? "gemini" : env("ANTHROPIC_API_KEY") ? "claude" : null);
+export const proveedorIA = () => (claveGemini() ? "gemini" : env("ANTHROPIC_API_KEY") ? "claude" : null);
 export const iaDisponible = () => !!proveedorIA();
 
 /** Preguntas por petición: Gemini Flash es rápido y el plan gratuito limita peticiones/minuto. */
@@ -160,41 +166,86 @@ async function pedirClaude(tipo, material, instruccion) {
   return datos;
 }
 
-/** Gemini (API REST de Google AI Studio) con salida JSON según esquema. */
-async function pedirGemini(tipo, material, instruccion) {
-  const base = env("GEMINI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta");
-  let res;
+/** Llamada a la API REST de Gemini (Google AI Studio). Devuelve { res, data }. */
+async function llamarGemini(ruta, cuerpo) {
   try {
-    res = await fetch(`${base}/models/${encodeURIComponent(MODELO_GEMINI())}:generateContent`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "x-goog-api-key": env("GEMINI_API_KEY") },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: SISTEMA }] },
-        contents: [{ role: "user", parts: [{ text: `<material>\n${material}\n</material>` }, { text: instruccion }] }],
-        generationConfig: { responseMimeType: "application/json", responseSchema: ESQUEMAS_GEMINI[tipo], temperature: 0.7 },
-      }),
+    const res = await fetch(`${BASE_GEMINI()}/${ruta}`, {
+      method: cuerpo ? "POST" : "GET",
+      headers: { "Content-Type": "application/json", "x-goog-api-key": claveGemini() },
+      body: cuerpo ? JSON.stringify(cuerpo) : undefined,
       signal: AbortSignal.timeout(55_000),
     });
+    return { res, data: await res.json().catch(() => ({})) };
   } catch (e) {
     console.error("[ia gemini]", e);
     fallo(504, e.name === "TimeoutError" ? "La IA ha tardado demasiado. Vuelve a intentarlo." : "No se ha podido conectar con Gemini.");
   }
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    console.error("[ia gemini]", res.status, JSON.stringify(data).slice(0, 500));
-    const msg = data?.error?.message || "";
-    if (res.status === 429) fallo(429, "Se ha alcanzado el límite gratuito de Gemini por minuto o por día. Espera un poco y vuelve a intentarlo.");
-    if (res.status === 400 && /api key/i.test(msg)) fallo(502, "La clave GEMINI_API_KEY no es válida.");
-    if (res.status === 403) fallo(502, "La clave GEMINI_API_KEY no tiene permiso para usar Gemini.");
-    if (res.status === 404) fallo(502, `El modelo «${MODELO_GEMINI()}» no existe o no está disponible. Revisa GEMINI_MODEL.`);
-    fallo(502, `Error de Gemini (${res.status}). Vuelve a intentarlo.`);
+}
+
+/**
+ * Convierte un error de Google en un mensaje claro para el profesor.
+ * Los errores de configuración (clave, permisos) van con 400 para que el panel
+ * no reintente: repetir no los arregla.
+ */
+function falloGemini(res, data) {
+  const msg = data?.error?.message || "";
+  const k = claveGemini();
+  console.error("[ia gemini]", res.status, msg, `(clave de ${k.length} caracteres, empieza por «${k.slice(0, 4)}»)`);
+  if (res.status === 429) fallo(429, "Se ha alcanzado el límite gratuito de Gemini por minuto o por día. Espera un poco y vuelve a intentarlo.");
+  if (/api.?key/i.test(msg) || res.status === 401) {
+    const pista = k.startsWith("AIza") ? "" : " Las claves de Google AI Studio empiezan por «AIza»: comprueba que has copiado la clave completa.";
+    fallo(400, `Google rechaza la clave GEMINI_API_KEY: «${msg || res.status}».${pista} Créala en aistudio.google.com/apikey, guárdala en Netlify y vuelve a desplegar.`);
   }
+  if (res.status === 403) fallo(400, `La clave GEMINI_API_KEY no tiene permiso para usar Gemini: «${msg}». Crea la clave desde aistudio.google.com/apikey.`);
+  fallo(502, `Error de Gemini (${res.status}${msg ? `: ${msg}` : ""}). Vuelve a intentarlo.`);
+}
+
+/** Modelo a usar: GEMINI_MODEL (o gemini-2.5-flash); si no existe, el «flash» más reciente disponible. */
+async function modeloGeminiDisponible() {
+  if (modeloGemini) return modeloGemini;
+  const pedido = env("GEMINI_MODEL", "gemini-2.5-flash").replace(/^models\//, "");
+  const { res, data } = await llamarGemini(`models/${encodeURIComponent(pedido)}`);
+  if (res.ok) return (modeloGemini = pedido);
+  if (res.status !== 404) falloGemini(res, data);
+  const lista = await llamarGemini("models?pageSize=200");
+  if (!lista.res.ok) falloGemini(lista.res, lista.data);
+  const candidatos = (lista.data.models || [])
+    .filter((m) => (m.supportedGenerationMethods || []).includes("generateContent"))
+    .map((m) => m.name.replace(/^models\//, ""))
+    .filter((n) => /^gemini-[\d.]+-flash(-latest)?$/.test(n) || n === "gemini-flash-latest")
+    .sort((a, b) => parseFloat(b.split("-")[1]) - parseFloat(a.split("-")[1]));
+  if (!candidatos.length) fallo(400, `El modelo «${pedido}» no está disponible y no he encontrado otro modelo Flash. Revisa GEMINI_MODEL.`);
+  console.warn(`[ia gemini] «${pedido}» no existe; uso «${candidatos[0]}».`);
+  return (modeloGemini = candidatos[0]);
+}
+
+/** Para el panel: comprueba que la clave funciona y qué modelo se usará. */
+export async function comprobarIA() {
+  const proveedor = proveedorIA();
+  if (proveedor !== "gemini") return { ok: !!proveedor, proveedor };
+  try {
+    return { ok: true, proveedor, modelo: await modeloGeminiDisponible() };
+  } catch (e) {
+    return { ok: false, proveedor, error: e.message };
+  }
+}
+
+/** Gemini con salida JSON según esquema. */
+async function pedirGemini(tipo, material, instruccion) {
+  const modelo = await modeloGeminiDisponible();
+  const { res, data } = await llamarGemini(`models/${encodeURIComponent(modelo)}:generateContent`, {
+    systemInstruction: { parts: [{ text: SISTEMA }] },
+    contents: [{ role: "user", parts: [{ text: `<material>\n${material}\n</material>` }, { text: instruccion }] }],
+    generationConfig: { responseMimeType: "application/json", responseSchema: ESQUEMAS_GEMINI[tipo], temperature: 0.7 },
+  });
+  if (!res.ok) falloGemini(res, data);
   if (data.promptFeedback?.blockReason) fallo(422, "Gemini no ha querido generar preguntas con este material.");
   const cand = data.candidates?.[0];
   if (!cand || ["SAFETY", "PROHIBITED_CONTENT", "RECITATION", "BLOCKLIST"].includes(cand.finishReason))
     fallo(422, "Gemini no ha querido generar preguntas con este material.");
+  if (cand.finishReason === "MAX_TOKENS") fallo(502, "La respuesta de Gemini se ha cortado. Vuelve a intentarlo.");
   const texto = (cand.content?.parts || []).filter((p) => !p.thought).map((p) => p.text || "").join("");
   const datos = leerJSON(texto);
-  datos._uso = data.usageMetadata;
+  datos._uso = { ...data.usageMetadata, modelo };
   return datos;
 }

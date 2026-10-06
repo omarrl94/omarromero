@@ -57,7 +57,7 @@ Funciona en **Netlify** (plan gratuito): páginas estáticas + una Netlify Funct
    | `PROFESOR_EMAIL` | no | recibe copia oculta de cada entrega |
    | `DOMINIOS_PERMITIDOS` | no | `jrotero.es` (por defecto) |
    | `GEMINI_API_KEY` | para la IA | clave gratuita de aistudio.google.com/apikey (márcala como *secret*) |
-   | `GEMINI_MODEL` | no | `gemini-2.5-flash` (por defecto) |
+   | `GEMINI_MODEL` | no | `gemini-2.5-flash` (por defecto; si no existe, se usa el Flash más reciente disponible) |
 
 3. **Redesplegar** (*Deploys → Trigger deploy*) para que coja las variables.
 4. Entra en la web con el correo de `ADMIN_EMAILS` y la contraseña de `ADMIN_PASSWORD` (pestaña «Entrar», sin registrarte) y llegarás al panel del profesor. El examen de **ASIR › Seguridad y Alta Disponibilidad › Temas 1 y 2** ya aparece cargado y publicado.

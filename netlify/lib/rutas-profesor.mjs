@@ -6,7 +6,7 @@ import { todosLosExamenes, obtenerExamen, validarExamen, resumen } from "./exame
 import { claveEntrega, vistaEntrega } from "./entregas.mjs";
 import { proveedorConfigurado } from "./correo.mjs";
 import { CATALOGO, GRUPOS, cicloDe, buscarModulo } from "./catalogo.mjs";
-import { iaDisponible, generarLote, proveedorIA, tamLote } from "./ia.mjs";
+import { iaDisponible, generarLote, proveedorIA, tamLote, comprobarIA } from "./ia.mjs";
 
 const examenes = () => almacen("examenes");
 const entregas = () => almacen("entregas");
@@ -192,7 +192,7 @@ async function borrarAlumno(req) {
 /* ── IA: generar preguntas a partir del material de un tema ── */
 async function iaEstado(req) {
   await requiereAdmin(req);
-  return json({ disponible: iaDisponible(), proveedor: proveedorIA(), lote: tamLote() });
+  return json({ disponible: iaDisponible(), proveedor: proveedorIA(), lote: tamLote(), ...(await comprobarIA()) });
 }
 
 async function iaPreguntas(req) {
