@@ -138,6 +138,7 @@ function buildQuiz() {
   let parte = 0, n = 0;
   if (EX.mc.length) {
     h += sec("ABC"[parte++], T.mc, "amarillo");
+    h += `<p class="hintline" style="margin-top:-4px">Para quitar una respuesta marcada, vuelve a pulsarla.</p>`;
     if (EX.confianza) h += `<div class="note" style="margin:6px 0 12px">Marca la respuesta y <b>tu nivel de confianza</b>. Si aciertas sumas, si fallas restas; sin nivel de confianza la pregunta cuenta como en blanco. La nota de esta parte no baja de 0.
       <table class="tabla-conf"><tr><th>Confianza</th><th>Si aciertas</th><th>Si fallas</th></tr>${EX.confianzaTabla.map((c) =>
         `<tr><td>${esc(c.nombre)}</td><td>+${Math.round(c.acierto * 100)} %</td><td>${Math.round(c.fallo * 100)} %</td></tr>`).join("")}</table></div>`;
@@ -171,6 +172,14 @@ function buildQuiz() {
   f.innerHTML = h;
   f.addEventListener("input", progreso);
   f.addEventListener("change", progreso);
+  // Las opciones (y la confianza) se pueden desmarcar pulsando otra vez la marcada.
+  const marcadas = {};
+  f.addEventListener("click", (e) => {
+    const r = e.target;
+    if (!(r instanceof HTMLInputElement) || r.type !== "radio") return;
+    if (marcadas[r.name] === r.value) { r.checked = false; delete marcadas[r.name]; progreso(); }
+    else marcadas[r.name] = r.value;
+  });
   progreso();
 }
 
