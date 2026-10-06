@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Mis exámenes · FP José Ramón Otero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/app.css">
+</head>
+<body>
+<div class="topbar"></div>
+<div class="wrap">
+  <header class="head" id="head"></header>
+  <h1>Mis exámenes</h1>
+  <p class="sub">Aquí aparecen los exámenes que ha publicado tu profesor. Cada uno se entrega una sola vez.</p>
+
+  <div class="toolbar" style="margin-top:6px"><h2>Pendientes</h2></div>
+  <div class="exlist" id="pendientes"><p class="loading">Cargando…</p></div>
+
+  <div class="toolbar"><h2>Entregados</h2></div>
+  <div class="exlist" id="entregados"></div>
+
+  <p class="foot">Si tienes algún problema con tu cuenta o un examen, avisa a tu profesor.</p>
+</div>
+
+<script src="/assets/app.js"></script>
+<script>
+(async () => {
+  await cabecera();
+  const { examenes } = await api("/api/examenes");
+  const pend = examenes.filter((e) => e.estado === "pendiente");
+  const hechos = examenes.filter((e) => e.estado === "entregado");
+  const meta = (e) => `<div class="meta">${e.ciclo ? `<span class="chip">${esc(e.ciclo)}</span>` : ""}
+    ${e.nMc ? `<span class="chip v">${e.nMc} tipo test</span>` : ""}${e.nOpen ? `<span class="chip s">${e.nOpen} abiertas</span>` : ""}</div>`;
+
+  $("#pendientes").innerHTML = pend.length ? pend.map((e) => `
+    <article class="excard"><div class="info">
+      <div class="muted" style="font-size:13px;font-weight:600">${esc(e.modulo)}</div>
+      <h3>${esc(e.titulo)}</h3><div class="muted" style="font-size:14.5px">${esc(e.subtitulo)}</div>${meta(e)}</div>
+      <a class="btn" href="/examen/?id=${encodeURIComponent(e.id)}">Empezar</a></article>`).join("")
+    : `<div class="empty">No tienes exámenes pendientes. 🎉</div>`;
+
+  $("#entregados").innerHTML = hechos.length ? hechos.map((e) => `
+    <article class="excard"><div class="info">
+      <div class="muted" style="font-size:13px;font-weight:600">${esc(e.modulo)}</div>
+      <h3>${esc(e.titulo)}</h3><div class="muted" style="font-size:14px">Entregado el ${esc(e.fecha)}</div>
+      <div class="meta">${e.revisada ? `<span class="chip ok">Revisado por el profesor</span>` : e.nOpen ? `<span class="chip gray">Pendiente de revisión</span>` : ""}</div></div>
+      <div style="display:flex;align-items:center;gap:16px"><div class="nota">${fmt(e.nota)}<small> /10</small></div>
+      <a class="btn ghost" href="/examen/?id=${encodeURIComponent(e.id)}&ver=1">${e.mostrarSoluciones ? "Ver corrección" : "Ver entrega"}</a></div></article>`).join("")
+    : `<div class="empty">Todavía no has entregado ningún examen.</div>`;
+})().catch((e) => { $("#pendientes").innerHTML = `<div class="msg bad">${esc(e.message)}</div>`; });
+</script>
+</body>
+</html>

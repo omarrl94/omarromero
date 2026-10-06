@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Panel del profesor · FP José Ramón Otero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/app.css">
+<style>
+  .switch{position:relative;display:inline-block;width:42px;height:24px;flex:none}
+  .switch input{opacity:0;width:0;height:0}
+  .switch span{position:absolute;inset:0;background:var(--border);border-radius:99px;cursor:pointer;transition:.15s}
+  .switch span::before{content:"";position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.15s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+  .switch input:checked + span{background:var(--ok)}
+  .switch input:checked + span::before{transform:translateX(18px)}
+  .switch input:focus-visible + span{outline:3px solid var(--amarillo);outline-offset:1px}
+  .acts{display:flex;gap:6px;flex-wrap:wrap}
+  .drop{border:2px dashed var(--border);border-radius:14px;padding:22px;text-align:center;color:var(--muted);cursor:pointer}
+  .drop.over{border-color:var(--amarillo);background:var(--amarillo-soft)}
+  .tabs.inline{display:inline-flex;margin:0}
+  .tabs.inline button{flex:none}
+  td input.mini{width:90px;padding:6px 10px;font-size:14px}
+</style>
+</head>
+<body>
+<div class="topbar"></div>
+<div class="wrap wide">
+  <header class="head" id="head"></header>
+  <div class="toolbar" style="margin-top:0">
+    <div><h1 style="margin:0">Panel del profesor</h1></div>
+    <div class="tabs inline" role="tablist">
+      <button role="tab" aria-selected="true" data-tab="vExamenes">Exámenes</button>
+      <button role="tab" aria-selected="false" data-tab="vAlumnos">Alumnos</button>
+    </div>
+  </div>
+  <div class="msg bad" id="avisoCorreo" hidden>El <b>envío de correo no está configurado</b>: los alumnos se registran sin código de verificación y no reciben la corrección por correo. Configura las variables SMTP en Netlify (ver README).</div>
+
+  <!-- Exámenes -->
+  <section id="vExamenes">
+    <div class="toolbar"><h2>Exámenes</h2><button class="btn" id="nuevo">＋ Subir examen</button></div>
+    <div id="tablaExamenes"><p class="loading">Cargando…</p></div>
+  </section>
+
+  <!-- Entregas de un examen -->
+  <section id="vEntregas" hidden>
+    <div class="toolbar">
+      <div><button class="link" id="atras">← Volver a exámenes</button><h2 id="entTitulo" style="margin-top:6px"></h2></div>
+      <div class="acts"><select id="filtroGrupo" style="width:auto"></select><a class="btn v" id="csv">⬇ Exportar notas (CSV/Excel)</a></div>
+    </div>
+    <div id="tablaEntregas"></div>
+  </section>
+
+  <!-- Alumnos -->
+  <section id="vAlumnos" hidden>
+    <div class="toolbar"><h2>Alumnos registrados</h2><input type="text" id="buscar" placeholder="Buscar por nombre, correo o grupo" style="max-width:320px"></div>
+    <div id="tablaAlumnos"><p class="loading">Cargando…</p></div>
+  </section>
+</div>
+
+<!-- Subir examen -->
+<dialog id="dSubir">
+  <div class="dhead"><h2>Subir examen</h2><button class="btn ghost sm" data-close>Cerrar</button></div>
+  <div class="dbody">
+    <p class="muted" style="margin-top:0">Sube el <b>HTML del cuestionario</b> (con los arrays <code>MC</code> y <code>OPEN</code>, como el de SAD) o un <b>JSON</b> con el mismo formato. <a href="#" id="plantilla">Descargar plantilla JSON</a>.</p>
+    <label class="drop" id="drop"><input type="file" id="archivo" accept=".html,.htm,.json" hidden><span id="dropTxt">Arrastra aquí el archivo o haz clic para elegirlo</span></label>
+    <form id="fExamen" hidden style="margin-top:18px" novalidate>
+      <div class="msg info" id="resumenImport"></div>
+      <div class="row2">
+        <div class="field"><label class="flab" for="eTitulo">Título</label><input type="text" id="eTitulo" required></div>
+        <div class="field"><label class="flab" for="eId">Identificador (en la URL)</label><input type="text" id="eId" pattern="[a-z0-9-]+" required></div>
+      </div>
+      <div class="field"><label class="flab" for="eSub">Subtítulo / temas</label><input type="text" id="eSub"></div>
+      <div class="row2">
+        <div class="field"><label class="flab" for="eModulo">Módulo</label><input type="text" id="eModulo"></div>
+        <div class="field"><label class="flab" for="eCiclo">Ciclo</label><input type="text" id="eCiclo" placeholder="ASIR"></div>
+      </div>
+      <div style="display:grid;gap:10px;margin:4px 0 8px">
+        <label class="check"><input type="checkbox" id="ePub"> Publicar ya (visible para los alumnos)</label>
+        <label class="check"><input type="checkbox" id="eSol" checked> Mostrar la corrección al alumno al entregar (en pantalla y en el correo)</label>
+        <label class="check" id="eSobreWrap" hidden><input type="checkbox" id="eSobre"> Reemplazar el examen existente con este identificador</label>
+      </div>
+      <div class="msg bad" data-err hidden></div>
+      <div class="actions"><button class="btn" type="submit">Guardar examen</button></div>
+    </form>
+  </div>
+</dialog>
+
+<!-- Detalle de una entrega -->
+<dialog id="dEntrega">
+  <div class="dhead"><h2 id="dEntTitulo">Entrega</h2><button class="btn ghost sm" data-close>Cerrar</button></div>
+  <div class="dbody">
+    <form id="fRevisar" class="card" style="margin-bottom:18px" novalidate>
+      <div class="row2">
+        <div class="field"><label class="flab" for="rNota">Nota revisada (0–10, vacío = automática)</label><input type="text" id="rNota" inputmode="decimal"></div>
+        <div class="field"><label class="flab">Salidas de la ventana</label><div id="rSalidas" style="padding-top:8px"></div></div>
+      </div>
+      <div class="field"><label class="flab" for="rCom">Comentario para el alumno</label><textarea id="rCom" style="min-height:70px"></textarea></div>
+      <div class="msg bad" data-err hidden></div><div class="msg ok" data-ok hidden></div>
+      <button class="btn v" type="submit">Guardar revisión</button>
+    </form>
+    <div id="dEntCont"></div>
+  </div>
+</dialog>
+
+<script src="/assets/app.js"></script>
+<script>
+let EXAMENES = [], ACTUAL = null, FILAS = [], ALUMNOS = [], IMPORT = null;
+const fecha = (iso) => iso ? new Date(iso).toLocaleDateString("es-ES", { day: "2-digit", month: "short", year: "numeric" }) : "—";
+$$("dialog [data-close]").forEach((b) => (b.onclick = () => b.closest("dialog").close()));
+
+/* ── Pestañas ── */
+$$("[data-tab]").forEach((b) => (b.onclick = () => {
+  $$("[data-tab]").forEach((x) => x.setAttribute("aria-selected", x === b));
+  $("#vExamenes").hidden = b.dataset.tab !== "vExamenes"; $("#vEntregas").hidden = true;
+  $("#vAlumnos").hidden = b.dataset.tab !== "vAlumnos";
+  if (b.dataset.tab === "vAlumnos") cargarAlumnos(); else cargarExamenes();
+}));
+
+/* ── Exámenes ── */
+async function cargarExamenes() {
+  const d = await api("/api/profesor/examenes");
+  EXAMENES = d.examenes; $("#avisoCorreo").hidden = d.correo;
+  const t = $("#tablaExamenes");
+  if (!EXAMENES.length) { t.innerHTML = `<div class="empty">Todavía no hay exámenes. Pulsa «Subir examen».</div>`; return; }
+  t.innerHTML = `<div class="tablewrap"><table class="t"><thead><tr><th>Examen</th><th>Preguntas</th><th>Entregas</th><th>Publicado</th><th>Corrección visible</th><th></th></tr></thead><tbody>
+    ${EXAMENES.map((e) => `<tr data-id="${esc(e.id)}">
+      <td><b>${esc(e.titulo)}</b><div class="muted" style="font-size:13px">${esc([e.modulo, e.ciclo].filter(Boolean).join(" · "))} · <code>${esc(e.id)}</code></div></td>
+      <td>${e.nMc} test · ${e.nOpen} abiertas</td>
+      <td class="num">${e.entregas}</td>
+      <td><label class="switch" title="Visible para los alumnos"><input type="checkbox" data-aj="publicado" ${e.publicado ? "checked" : ""}><span></span></label></td>
+      <td><label class="switch" title="El alumno ve la corrección al entregar"><input type="checkbox" data-aj="mostrarSoluciones" ${e.mostrarSoluciones ? "checked" : ""}><span></span></label></td>
+      <td><div class="acts"><button class="btn sm" data-ent>Entregas</button><button class="btn ghost sm" data-copiar>Copiar enlace</button><button class="btn ghost sm" data-json>JSON</button><button class="btn danger sm" data-borrar>Borrar</button></div></td>
+    </tr>`).join("")}</tbody></table></div>`;
+  $$("[data-aj]", t).forEach((c) => (c.onchange = async () => {
+    const id = c.closest("tr").dataset.id;
+    try { await api("/api/profesor/examen/ajustes", { id, [c.dataset.aj]: c.checked }); } catch (e) { alert(e.message); c.checked = !c.checked; }
+  }));
+  $$("[data-ent]", t).forEach((b) => (b.onclick = () => abrirEntregas(b.closest("tr").dataset.id)));
+  $$("[data-copiar]", t).forEach((b) => (b.onclick = async () => {
+    const url = `${location.origin}/examen/?id=${encodeURIComponent(b.closest("tr").dataset.id)}`;
+    try { await navigator.clipboard.writeText(url); b.textContent = "¡Copiado!"; } catch { b.textContent = url; }
+    setTimeout(() => (b.textContent = "Copiar enlace"), 2000);
+  }));
+  $$("[data-json]", t).forEach((b) => (b.onclick = async () => {
+    const ex = await api(`/api/profesor/examen?id=${encodeURIComponent(b.closest("tr").dataset.id)}`);
+    descargar(`${ex.id}.json`, JSON.stringify(ex, null, 2), "application/json");
+  }));
+  $$("[data-borrar]", t).forEach((b) => (b.onclick = async () => {
+    const e = EXAMENES.find((x) => x.id === b.closest("tr").dataset.id);
+    if (!confirm(`¿Borrar «${e.titulo}»?\n\nSe borrarán también sus ${e.entregas} entregas. Exporta antes las notas si las necesitas. No se puede deshacer.`)) return;
+    try { await api("/api/profesor/examen/borrar", { id: e.id }); cargarExamenes(); } catch (err) { alert(err.message); }
+  }));
+}
+
+function descargar(nombre, contenido, tipo) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([contenido], { type: tipo }));
+  a.download = nombre; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+/* ── Entregas ── */
+async function abrirEntregas(id) {
+  ACTUAL = id;
+  $("#vExamenes").hidden = true; $("#vEntregas").hidden = false;
+  $("#tablaEntregas").innerHTML = `<p class="loading">Cargando…</p>`;
+  const d = await api(`/api/profesor/entregas?id=${encodeURIComponent(id)}`);
+  FILAS = d.filas;
+  $("#entTitulo").textContent = d.examen.titulo;
+  $("#csv").href = `/api/profesor/entregas.csv?id=${encodeURIComponent(id)}`;
+  const grupos = [...new Set(FILAS.map((f) => f.grupo).filter(Boolean))].sort();
+  $("#filtroGrupo").innerHTML = `<option value="">Todos los grupos</option>` + grupos.map((g) => `<option>${esc(g)}</option>`).join("");
+  pintarEntregas();
+}
+$("#filtroGrupo").onchange = pintarEntregas;
+$("#atras").onclick = () => { $("#vEntregas").hidden = true; $("#vExamenes").hidden = false; cargarExamenes(); };
+
+function pintarEntregas() {
+  const g = $("#filtroGrupo").value;
+  const filas = FILAS.filter((f) => !g || f.grupo === g);
+  const ent = filas.filter((f) => f.estado === "entregado");
+  const media = ent.length ? ent.reduce((s, f) => s + (f.notaProfesor ?? f.nota), 0) / ent.length : null;
+  if (!filas.length) { $("#tablaEntregas").innerHTML = `<div class="empty">Nadie ha empezado este examen todavía.</div>`; return; }
+  $("#tablaEntregas").innerHTML = `<div class="meta" style="margin-bottom:12px"><span class="chip v">${ent.length} entregas</span>
+    <span class="chip gray">${filas.length - ent.length} sin entregar</span>${media != null ? `<span class="chip">Media: ${fmt(Math.round(media * 100) / 100)}</span>` : ""}</div>
+    <div class="tablewrap"><table class="t"><thead><tr><th>Alumno/a</th><th>Grupo</th><th>Estado</th><th>Nota auto.</th><th>Nota final</th><th>Salidas</th><th>Fecha</th><th></th></tr></thead><tbody>
+    ${filas.map((f) => `<tr data-email="${esc(f.email)}">
+      <td><b>${esc(f.apellidos)}, ${esc(f.nombre)}</b><div class="muted" style="font-size:13px">${esc(f.email)}</div></td>
+      <td>${esc(f.grupo)}</td>
+      <td>${f.estado === "entregado" ? `<span class="chip ok">Entregado</span>` : `<span class="chip gray">Sin entregar</span>`}</td>
+      <td class="num">${f.nota != null ? fmt(f.nota) : "—"}</td>
+      <td class="num">${f.estado === "entregado" ? fmt(f.notaProfesor ?? f.nota) + (f.notaProfesor != null ? ` <span class="chip ok" style="font-size:11px">revisada</span>` : "") : "—"}</td>
+      <td class="num">${f.salidas ? `<span class="chip bad">${f.salidas}</span>` : "0"}</td>
+      <td style="white-space:nowrap">${esc(f.fechaTexto || fecha(f.fecha))}</td>
+      <td><div class="acts">${f.estado === "entregado" ? `<button class="btn sm" data-ver>Ver / revisar</button>` : ""}
+        <button class="btn ghost sm" data-reabrir title="Borra la entrega para que pueda volver a hacerlo">Reabrir</button></div></td>
+    </tr>`).join("")}</tbody></table></div>`;
+  $$("[data-ver]").forEach((b) => (b.onclick = () => verEntrega(b.closest("tr").dataset.email)));
+  $$("[data-reabrir]").forEach((b) => (b.onclick = async () => {
+    const f = FILAS.find((x) => x.email === b.closest("tr").dataset.email);
+    if (!confirm(`¿Reabrir el examen a ${f.nombre} ${f.apellidos}?\n\nSe borrará su entrega (nota y respuestas) y podrá hacerlo otra vez.`)) return;
+    try { await api("/api/profesor/entrega/reabrir", { id: ACTUAL, email: f.email }); abrirEntregas(ACTUAL); } catch (e) { alert(e.message); }
+  }));
+}
+
+let ENT = null;
+async function verEntrega(email) {
+  const d = await api(`/api/profesor/entrega?id=${encodeURIComponent(ACTUAL)}&email=${encodeURIComponent(email)}`);
+  ENT = d;
+  $("#dEntTitulo").textContent = `${d.alumno.nombre} ${d.alumno.apellidos} · ${d.alumno.grupo}`;
+  $("#rNota").value = d.notaProfesor != null ? String(d.notaProfesor).replace(".", ",") : "";
+  $("#rCom").value = d.comentario || "";
+  $("#rSalidas").innerHTML = d.registroSalidas.length
+    ? d.registroSalidas.map((s) => `<div style="font-size:13.5px">${new Date(s.t).toLocaleString("es-ES")} — ${esc(s.motivo)}</div>`).join("")
+    : `<span class="muted">Ninguna</span>`;
+  $$("#fRevisar [data-err], #fRevisar [data-ok]").forEach((x) => (x.hidden = true));
+  const c = $("#dEntCont");
+  pintarEntrega(c, d);
+  $("[data-rev]", c).hidden = false; $("[data-toggle-rev]", c).remove();
+  $("#dEntrega").showModal();
+}
+$("#fRevisar").onsubmit = async (ev) => {
+  ev.preventDefault();
+  const f = ev.target; $("[data-err]", f).hidden = true; $("[data-ok]", f).hidden = true;
+  try {
+    await api("/api/profesor/entrega/revisar", { id: ACTUAL, email: ENT.alumno.email, notaProfesor: $("#rNota").value.trim(), comentario: $("#rCom").value });
+    $("[data-ok]", f).textContent = "Revisión guardada. El alumno la verá en su panel."; $("[data-ok]", f).hidden = false;
+    const fila = FILAS.find((x) => x.email === ENT.alumno.email);
+    const n = $("#rNota").value.trim();
+    if (fila) fila.notaProfesor = n ? Number(n.replace(",", ".")) : null;
+    pintarEntregas();
+  } catch (e) { $("[data-err]", f).textContent = e.message; $("[data-err]", f).hidden = false; }
+};
+
+/* ── Subir examen ── */
+$("#nuevo").onclick = () => {
+  IMPORT = null; $("#fExamen").hidden = true; $("#archivo").value = "";
+  $("#dropTxt").textContent = "Arrastra aquí el archivo o haz clic para elegirlo";
+  $("#dSubir").showModal();
+};
+$("#plantilla").onclick = (e) => {
+  e.preventDefault();
+  descargar("plantilla-examen.json", JSON.stringify({
+    id: "modulo-tema-3", titulo: "Cuestionario · Tema 3", subtitulo: "Temas que entran", modulo: "Seguridad y Alta Disponibilidad", ciclo: "ASIR",
+    mc: [{ t: "Pregunta tipo test", o: ["Opción a", "Opción b", "Opción c", "Opción d"], c: 1 }],
+    open: [{ act: "Actividad 1", t: "Pregunta abierta", groups: [["concepto1", "sinonimo"], ["concepto2"]], full: 2, partial: 1, exp: "Lo que se esperaba en la respuesta" }],
+  }, null, 2), "application/json");
+};
+const drop = $("#drop");
+["dragenter", "dragover"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", (e) => { if (e.dataTransfer.files[0]) leerArchivo(e.dataTransfer.files[0]); });
+$("#archivo").onchange = (e) => { if (e.target.files[0]) leerArchivo(e.target.files[0]); };
+
+/** Extrae un array literal `const NOMBRE = [ ... ]` de un script. */
+function extraerArray(src, nombre) {
+  const m = new RegExp(`(?:const|let|var)\\s+${nombre}\\s*=\\s*\\[`).exec(src);
+  if (!m) return null;
+  const ini = m.index + m[0].length - 1;
+  let prof = 0, str = null, escp = false;
+  for (let j = ini; j < src.length; j++) {
+    const ch = src[j];
+    if (str) { if (escp) escp = false; else if (ch === "\\") escp = true; else if (ch === str) str = null; continue; }
+    if (ch === '"' || ch === "'" || ch === "`") { str = ch; continue; }
+    if (ch === "[") prof++;
+    else if (ch === "]" && --prof === 0) return Function(`"use strict"; return (${src.slice(ini, j + 1)});`)();
+  }
+  return null;
+}
+const slug = (s) => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60);
+const capitalizar = (s) => s.toLowerCase().replace(/(^|\s)(\p{L})/gu, (m, a, b) => a + b.toUpperCase()).replace(/\s(Y|De|Del|La|Las|Los|E|En)(?=\s)/g, (m) => m.toLowerCase());
+
+async function leerArchivo(file) {
+  $("#dropTxt").textContent = file.name;
+  const txt = await file.text();
+  try {
+    let ex;
+    if (/\.json$/i.test(file.name) || txt.trim().startsWith("{")) {
+      ex = JSON.parse(txt);
+    } else {
+      const doc = new DOMParser().parseFromString(txt, "text/html");
+      const scripts = [...doc.querySelectorAll("script:not([src])")].map((s) => s.textContent).join("\n");
+      const mc = extraerArray(scripts, "MC") || [], open = extraerArray(scripts, "OPEN") || [];
+      if (!mc.length && !open.length) throw new Error("No he encontrado los arrays MC ni OPEN en el HTML.");
+      const h1 = doc.querySelector("#intro h1, h1")?.textContent.trim() || doc.title;
+      const mod = /FP [^·'"`]*·\s*([^'"`(]+?)\s*\(([^)]+)\)/.exec(scripts);
+      ex = {
+        titulo: h1, subtitulo: doc.querySelector("#intro .sub, .sub")?.textContent.trim() || "",
+        modulo: mod ? capitalizar(mod[1].trim()) : "", ciclo: mod ? mod[2].trim() : doc.querySelector(".tag")?.textContent.trim() || "",
+        mc, open,
+      };
+      ex.id = slug([ex.ciclo, ex.titulo].filter(Boolean).join(" "));
+    }
+    IMPORT = ex;
+    $("#eTitulo").value = ex.titulo || ""; $("#eId").value = ex.id || slug(ex.titulo || "examen");
+    $("#eSub").value = ex.subtitulo || ""; $("#eModulo").value = ex.modulo || ""; $("#eCiclo").value = ex.ciclo || "";
+    $("#ePub").checked = !!ex.publicado; $("#eSol").checked = ex.mostrarSoluciones !== false; $("#eSobre").checked = false;
+    $("#resumenImport").innerHTML = `Encontradas <b>${(ex.mc || []).length} preguntas tipo test</b> y <b>${(ex.open || []).length} abiertas</b>. Revisa los datos y guarda.`;
+    comprobarId();
+    $("[data-err]", $("#fExamen")).hidden = true;
+    $("#fExamen").hidden = false;
+  } catch (e) {
+    $("#fExamen").hidden = true;
+    $("#dropTxt").innerHTML = `<span style="color:var(--bad)">No se ha podido leer «${esc(file.name)}»: ${esc(e.message)}</span>`;
+  }
+}
+function comprobarId() { $("#eSobreWrap").hidden = !EXAMENES.some((e) => e.id === $("#eId").value.trim()); }
+$("#eId").oninput = comprobarId;
+$("#fExamen").onsubmit = async (ev) => {
+  ev.preventDefault();
+  const f = ev.target, err = $("[data-err]", f); err.hidden = true;
+  const btn = $("button[type=submit]", f); btn.disabled = true;
+  try {
+    await api("/api/profesor/examen", {
+      ...IMPORT, id: $("#eId").value.trim(), titulo: $("#eTitulo").value.trim(), subtitulo: $("#eSub").value.trim(),
+      modulo: $("#eModulo").value.trim(), ciclo: $("#eCiclo").value.trim(),
+      publicado: $("#ePub").checked, mostrarSoluciones: $("#eSol").checked, sobrescribir: $("#eSobre").checked,
+    });
+    $("#dSubir").close(); cargarExamenes();
+  } catch (e) { err.textContent = e.message; err.hidden = false; }
+  finally { btn.disabled = false; }
+};
+
+/* ── Alumnos ── */
+async function cargarAlumnos() {
+  ALUMNOS = (await api("/api/profesor/alumnos")).alumnos;
+  pintarAlumnos();
+}
+$("#buscar").oninput = pintarAlumnos;
+function pintarAlumnos() {
+  const q = $("#buscar").value.trim().toLowerCase();
+  const lista = ALUMNOS.filter((a) => !q || `${a.nombre} ${a.apellidos} ${a.email} ${a.grupo}`.toLowerCase().includes(q));
+  if (!lista.length) { $("#tablaAlumnos").innerHTML = `<div class="empty">${ALUMNOS.length ? "Ningún alumno coincide con la búsqueda." : "Todavía no se ha registrado nadie."}</div>`; return; }
+  $("#tablaAlumnos").innerHTML = `<p class="muted">${lista.length} cuentas</p><div class="tablewrap"><table class="t"><thead><tr><th>Alumno/a</th><th>Grupo</th><th>Estado</th><th>Alta</th><th></th></tr></thead><tbody>
+    ${lista.map((a) => `<tr data-email="${esc(a.email)}">
+      <td><b>${esc(a.apellidos)}, ${esc(a.nombre)}</b> ${a.profesor ? `<span class="chip">Profesor</span>` : ""}<div class="muted" style="font-size:13px">${esc(a.email)}</div></td>
+      <td><input class="mini" type="text" value="${esc(a.grupo)}" data-grupo style="width:120px"></td>
+      <td>${a.verificado ? `<span class="chip ok">Activa</span>` : `<span class="chip gray">Sin confirmar</span> <button class="btn ghost sm" data-activar>Activar</button>`}</td>
+      <td style="white-space:nowrap">${fecha(a.creado)}</td>
+      <td>${a.profesor ? "" : `<button class="btn danger sm" data-borrar>Borrar</button>`}</td></tr>`).join("")}</tbody></table></div>`;
+  $$("[data-grupo]").forEach((i) => (i.onchange = async () => {
+    try { await api("/api/profesor/alumno", { email: i.closest("tr").dataset.email, grupo: i.value }); i.style.borderColor = "var(--ok)"; }
+    catch (e) { alert(e.message); }
+  }));
+  $$("[data-activar]").forEach((b) => (b.onclick = async () => {
+    try { await api("/api/profesor/alumno", { email: b.closest("tr").dataset.email, verificado: true }); cargarAlumnos(); } catch (e) { alert(e.message); }
+  }));
+  $$("#tablaAlumnos [data-borrar]").forEach((b) => (b.onclick = async () => {
+    const email = b.closest("tr").dataset.email;
+    if (!confirm(`¿Borrar la cuenta ${email}?\n\nSus entregas se conservan. Podrá registrarse de nuevo.`)) return;
+    try { await api("/api/profesor/alumno/borrar", { email }); cargarAlumnos(); } catch (e) { alert(e.message); }
+  }));
+}
+
+(async () => {
+  const yo = await cabecera({ ciclo: "Profesor" });
+  if (yo.rol !== "profesor") { location.replace("/panel/"); return; }
+  await cargarExamenes();
+})().catch((e) => { $("#tablaExamenes").innerHTML = `<div class="msg bad">${esc(e.message)}</div>`; });
+</script>
+</body>
+</html>

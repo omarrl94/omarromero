@@ -4,116 +4,28 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
-<title>Cuestionario · FP José Ramón Otero</title>
+<title>Examen · FP José Ramón Otero</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&display=swap">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
-<style>
-  :root{
-    --amarillo:#EFCD2F; --amarillo-soft:#FBF1C2; --amarillo-ink:#5E4D09;
-    --verde:#A9CABB; --verde-soft:#E1EDE7; --verde-ink:#2D4439;
-    --salmon:#E39F7D; --salmon-soft:#F8E2D6; --salmon-ink:#643925;
-    --grafito:#232833;
-    --bg:#F3F5F6; --card:#FFFFFF; --fg:#232833; --muted:#5F6673; --border:#E3E6E4;
-    --ok:#2E7D53; --ok-soft:#E3F2E9; --bad:#C0392B; --bad-soft:#FBE7E4; --warn:#B9820B; --warn-soft:#FBF0D6;
-    --shadow:0 2px 10px rgba(35,40,51,.07);
-    --sans:'Geist','Segoe UI',system-ui,-apple-system,sans-serif;
-  }
-  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-    --bg:#15181d; --card:#232833; --fg:#F2F4F6; --muted:#AEB4BE; --border:#3A404C;
-    --verde-soft:#243a31; --verde-ink:#C6DCD1; --amarillo-soft:#3a3410; --amarillo-ink:#F6E485;
-    --salmon-soft:#3a2418; --salmon-ink:#F0C6AF; --ok-soft:#163026; --bad-soft:#3a1d19; --warn-soft:#332a10;
-    --shadow:0 2px 12px rgba(0,0,0,.35); color-scheme:dark;
-  }}
-  :root[data-theme="dark"]{
-    --bg:#15181d; --card:#232833; --fg:#F2F4F6; --muted:#AEB4BE; --border:#3A404C;
-    --verde-soft:#243a31; --verde-ink:#C6DCD1; --amarillo-soft:#3a3410; --amarillo-ink:#F6E485;
-    --salmon-soft:#3a2418; --salmon-ink:#F0C6AF; --ok-soft:#163026; --bad-soft:#3a1d19; --warn-soft:#332a10;
-    --shadow:0 2px 12px rgba(0,0,0,.35); color-scheme:dark;
-  }
-  *{box-sizing:border-box} html,body{margin:0}
-  body{background:var(--bg);color:var(--fg);font-family:var(--sans);line-height:1.5}
-  .topbar{height:8px;background:linear-gradient(90deg,var(--amarillo) 0 33.3%,var(--verde) 33.3% 66.6%,var(--salmon) 66.6% 100%)}
-  .wrap{max-width:860px;margin:0 auto;padding-inline:16px;padding-block:28px 64px}
-  .brand{display:flex;align-items:center;gap:12px;margin-bottom:22px}
-  .brand svg{width:46px;height:46px;flex:none}
-  .brand .ey{font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
-  .brand .nm{font-size:17px;font-weight:800;text-transform:uppercase;letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
-  .brand .tag{font-size:11px;font-weight:700;background:var(--amarillo);color:#2B2305;padding:1px 7px;border-radius:5px}
-  h1{font-size:34px;font-weight:800;letter-spacing:-.02em;line-height:1.1;margin:.2em 0 .1em}
-  .sub{color:var(--muted);font-size:16px;margin:0 0 20px}
-  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:26px;box-shadow:var(--shadow)}
-  .field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
-  label.flab{font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
-  input[type=text],input[type=email]{font:inherit;font-size:17px;padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--fg)}
-  input:focus-visible,textarea:focus-visible{outline:3px solid var(--amarillo);outline-offset:1px}
-  .note{background:var(--verde-soft);color:var(--verde-ink);border-radius:12px;padding:14px 16px;font-size:14.5px;margin-top:4px}
-  .btn{font:inherit;font-weight:700;font-size:16px;border:none;border-radius:999px;padding:13px 26px;cursor:pointer;background:var(--amarillo);color:#2B2305}
-  .btn:hover{filter:brightness(.97)} .btn:active{transform:translateY(1px)} .btn:disabled{opacity:.5;cursor:not-allowed}
-  .btn.ghost{background:transparent;border:1.5px solid var(--border);color:var(--fg)}
-  .btn.v{background:var(--verde);color:#15271f} .btn.s{background:var(--salmon);color:#3A1F12}
-  .meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
-  .chip{font-size:13px;font-weight:700;padding:5px 12px;border-radius:999px;background:var(--amarillo-soft);color:var(--amarillo-ink)}
-  .chip.v{background:var(--verde-soft);color:var(--verde-ink)} .chip.s{background:var(--salmon-soft);color:var(--salmon-ink)}
-  .sec{margin:30px 0 10px;display:flex;align-items:center;gap:12px}
-  .sec .n{font-size:13px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;padding:5px 14px;border-radius:999px}
-  .sec h2{font-size:23px;font-weight:700;margin:0}
-  .q{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 22px;margin:14px 0;box-shadow:var(--shadow)}
-  .q .qh{font-weight:700;font-size:17px;margin:0 0 14px;display:flex;gap:10px}
-  .q .qh .qi{color:var(--muted);font-variant-numeric:tabular-nums;flex:none}
-  .opt{display:flex;align-items:flex-start;gap:11px;padding:11px 13px;border:1px solid var(--border);border-radius:10px;margin:7px 0;cursor:pointer}
-  .opt:hover{border-color:var(--amarillo)}
-  .opt input{margin-top:3px;flex:none;accent-color:var(--grafito);width:18px;height:18px}
-  .opt span{font-size:15.5px}
-  textarea{font:inherit;font-size:15.5px;width:100%;min-height:92px;padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--fg);resize:vertical}
-  .hintline{font-size:13px;color:var(--muted);margin-top:8px}
-  .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
-  .score{display:flex;flex-wrap:wrap;align-items:center;gap:22px}
-  .bigscore{font-size:64px;font-weight:800;line-height:1;letter-spacing:-.02em}
-  .bigscore small{font-size:26px;color:var(--muted);font-weight:700}
-  .bars{display:flex;flex-direction:column;gap:8px;flex:1;min-width:220px}
-  .bar{display:flex;justify-content:space-between;font-size:14.5px;font-weight:600}
-  .verdict{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;padding:4px 11px;border-radius:999px}
-  .v-ok{background:var(--ok-soft);color:var(--ok)} .v-bad{background:var(--bad-soft);color:var(--bad)} .v-warn{background:var(--warn-soft);color:var(--warn)}
-  .rev{border:1px solid var(--border);border-left:4px solid var(--border);padding:12px 16px;margin:10px 0;border-radius:0 10px 10px 0;background:var(--card)}
-  .rev.ok{border-left-color:var(--ok)} .rev.bad{border-left-color:var(--bad)} .rev.warn{border-left-color:var(--warn)}
-  .rev .rq{font-weight:700;font-size:15px;margin:0 0 6px} .rev .rd{font-size:14px;color:var(--muted);margin:3px 0} .rev .rd b{color:var(--fg)}
-  .disc{font-size:13.5px;background:var(--salmon-soft);color:var(--salmon-ink);border-radius:12px;padding:13px 16px;margin:16px 0}
-  @media (max-width:430px){ h1{font-size:27px} .bigscore{font-size:52px} }
-  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
-  body.exam{-webkit-user-select:none;user-select:none}
-  body.exam input,body.exam textarea{-webkit-user-select:text;user-select:text}
-  body.exam img,body.exam svg{-webkit-user-drag:none;user-drag:none;pointer-events:none}
-  .mailok{font-size:14.5px;background:var(--ok-soft);color:var(--ok);border-radius:12px;padding:13px 16px;margin:16px 0}
-  .mailbad{font-size:14.5px;background:var(--bad-soft);color:var(--bad);border-radius:12px;padding:13px 16px;margin:16px 0}
-  .err{color:var(--bad);font-weight:600;font-size:14.5px;margin-top:12px}
-  .loading{color:var(--muted);padding:40px 0;text-align:center}
-  .examwarn{font-size:13.5px;background:var(--amarillo-soft);color:var(--amarillo-ink);border-radius:12px;padding:12px 16px;margin-top:4px}
-</style>
+<link rel="stylesheet" href="/assets/app.css">
 </head>
 <body>
 <div class="topbar"></div>
 <div class="wrap">
-  <div class="brand">
-    <svg viewBox="0 0 100 100" aria-label="Logo FP José Ramón Otero"><circle cx="50" cy="50" r="50" fill="#E6A57F"/><path d="M14 15 C 28 28, 30 38, 34 49 L 43 71 A 21 21 0 1 0 70 43 L 53 36 C 40 31, 28 25, 16 13 Z" fill="#fff"/></svg>
-    <div><div class="ey">Formación Profesional</div><div class="nm">José Ramón Otero <span class="tag" id="ciclo">ASIR</span></div></div>
-  </div>
-
-  <p class="loading" id="loading">Cargando el cuestionario…</p>
+  <header class="head" id="head"></header>
+  <p class="loading" id="loading">Cargando…</p>
 
   <section id="intro" hidden>
+    <a href="/panel/" class="muted" style="font-size:14px">← Mis exámenes</a>
     <h1 id="titulo"></h1>
     <p class="sub" id="subtitulo"></p>
     <div class="card">
-      <div class="field"><label class="flab" for="nombre">Nombre y apellidos</label><input type="text" id="nombre" autocomplete="name" maxlength="120" placeholder="Escribe tu nombre"></div>
-      <div class="field"><label class="flab" for="email">Correo del centro</label><input type="email" id="email" autocomplete="email" maxlength="160" placeholder="nombre.apellido@jrotero.es"></div>
-      <div class="field"><label class="flab" for="grupo">Grupo (opcional)</label><input type="text" id="grupo" maxlength="60" placeholder="Ej.: 1.º ASIR"></div>
-      <div class="meta"><span class="chip" id="chipMc"></span><span class="chip v" id="chipOpen"></span><span class="chip s">Nota automática /10</span></div>
-      <div class="note">Al entregar verás tu nota y <b>recibirás automáticamente un correo</b> en tu cuenta del centro con tus respuestas y la corrección. También podrás <b>descargar un PDF</b> para subirlo a la tarea de Teams. Las preguntas abiertas se corrigen de forma automática por conceptos clave: es una estimación que revisa el profesor.</div>
-      <div class="examwarn"><b>Modo examen:</b> una vez empieces, si cambias de pestaña, minimizas o sales de la ventana, <b>el test se cerrará y se borrarán tus respuestas</b>. No salgas de esta página hasta terminar.</div>
-      <p class="err" id="introErr" hidden></p>
-      <div class="actions"><button class="btn" id="start">Comenzar</button></div>
+      <div class="meta" id="chips"></div>
+      <div class="note" style="margin-top:16px">Al entregar verás tu nota y <b>recibirás automáticamente un correo</b> en <b id="miEmail"></b> con tus respuestas y la corrección. Solo se puede entregar <b>una vez</b>. Las preguntas abiertas se corrigen de forma automática por conceptos clave: es una estimación que revisa el profesor.</div>
+      <div class="examwarn"><b>Modo examen:</b> una vez empieces, si cambias de pestaña, minimizas o sales de la ventana, <b>el examen se cerrará y se borrarán tus respuestas</b>. El profesor verá cuántas veces has salido. No salgas de esta página hasta entregar.</div>
+      <div class="msg bad" id="introErr" hidden></div>
+      <div class="actions"><button class="btn" id="start">Comenzar el examen</button></div>
     </div>
   </section>
 
@@ -122,220 +34,150 @@
   <section id="locked" hidden></section>
 </div>
 
+<script src="/assets/app.js"></script>
 <script>
-const $ = s => document.querySelector(s);
-const letters = ["a","b","c","d","e"];
-const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
-const fmt = n => n.toLocaleString('es-ES');
-const examId = new URLSearchParams(location.search).get('id') || 'sad-temas-1-2';
-let DOMINIOS = ['jrotero.es'], EX = null, LAST = null, PAYLOAD = null;
+const params = new URLSearchParams(location.search);
+const examId = params.get("id") || "";
+let EX = null, YO = null, PAYLOAD = null;
 
-/* ---- Modo examen (disuasorio): cierra el test si se sale de la página ---- */
-let examOn=false;
-function startExam(){ examOn=true; document.body.classList.add('exam'); }
-function stopExam(){ examOn=false; document.body.classList.remove('exam'); }
-function clearAnswers(){ $('#quiz').reset(); EX.open.forEach((q,i)=>{const t=$('#op'+i); if(t) t.value='';}); }
-function lockTest(motivo){
-  if(!examOn) return; stopExam(); clearAnswers();
-  $('#intro').hidden=true; $('#quiz').hidden=true; $('#result').hidden=true;
-  const l=$('#locked'); l.hidden=false;
-  l.innerHTML=`<div class="card" style="border-left:6px solid var(--bad)">
-    <h1 style="color:var(--bad)">Test cerrado</h1>
-    <p class="sub">${motivo}. Has salido de la página, así que el intento se ha cerrado y las respuestas se han borrado. Avisa al profesor si ha sido un error.</p>
-    <div class="actions"><button class="btn" id="relock">Volver a empezar</button></div></div>`;
-  $('#relock').onclick=()=>{ l.hidden=true; $('#intro').hidden=false; window.scrollTo({top:0}); };
-  window.scrollTo({top:0});
+/* ── Modo examen (disuasorio): cierra el examen si se sale de la página ── */
+let examOn = false;
+function startExam() { examOn = true; document.body.classList.add("exam"); }
+function stopExam() { examOn = false; document.body.classList.remove("exam"); }
+function clearAnswers() { $("#quiz").reset(); progreso(); }
+function lockTest(motivo) {
+  if (!examOn) return; stopExam(); clearAnswers();
+  fetch("/api/examen/incidencia", { method: "POST", keepalive: true, credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: examId, motivo }) }).catch(() => {});
+  $("#intro").hidden = true; $("#quiz").hidden = true; $("#result").hidden = true;
+  const l = $("#locked"); l.hidden = false;
+  l.innerHTML = `<div class="card" style="border-left:6px solid var(--bad)">
+    <h1 style="color:var(--bad)">Examen cerrado</h1>
+    <p class="sub">${esc(motivo)}. Has salido de la página, así que el intento se ha cerrado y las respuestas se han borrado. Queda registrado para el profesor; avísale si ha sido un error.</p>
+    <div class="actions"><button class="btn" id="relock">Volver a empezar</button><a class="btn ghost" href="/panel/">Mis exámenes</a></div></div>`;
+  $("#relock").onclick = () => { l.hidden = true; $("#intro").hidden = false; window.scrollTo({ top: 0 }); };
+  window.scrollTo({ top: 0 });
 }
-document.addEventListener('visibilitychange',()=>{ if(examOn && document.hidden) lockTest('Has cambiado de pestaña o minimizado la ventana'); });
-window.addEventListener('blur',()=>{ if(examOn) lockTest('Has salido de la ventana del test'); });
-window.addEventListener('beforeunload',e=>{ if(examOn){ e.preventDefault(); e.returnValue=''; } });
-document.addEventListener('contextmenu',e=>{ if(examOn) e.preventDefault(); });
-['copy','cut','selectstart'].forEach(ev=>document.addEventListener(ev,e=>{ if(examOn && !/TEXTAREA|INPUT/.test(e.target.tagName)) e.preventDefault(); }));
-document.addEventListener('keydown',e=>{
-  if(!examOn) return;
-  const k=(e.key||'').toLowerCase();
-  if(e.key==='PrintScreen'){ try{ navigator.clipboard && navigator.clipboard.writeText(''); }catch(_){} }
-  if(e.key==='F12' || (e.ctrlKey&&e.shiftKey&&['i','j','c','s'].includes(k)) || (e.ctrlKey&&['p','u','s'].includes(k))){ e.preventDefault(); }
+document.addEventListener("visibilitychange", () => { if (examOn && document.hidden) lockTest("Has cambiado de pestaña o minimizado la ventana"); });
+window.addEventListener("blur", () => { if (examOn) lockTest("Has salido de la ventana del examen"); });
+window.addEventListener("beforeunload", (e) => { if (examOn) { e.preventDefault(); e.returnValue = ""; } });
+document.addEventListener("contextmenu", (e) => { if (examOn) e.preventDefault(); });
+["copy", "cut", "selectstart"].forEach((ev) => document.addEventListener(ev, (e) => { if (examOn && !/TEXTAREA|INPUT/.test(e.target.tagName)) e.preventDefault(); }));
+document.addEventListener("keydown", (e) => {
+  if (!examOn) return;
+  const k = (e.key || "").toLowerCase();
+  if (e.key === "PrintScreen") { try { navigator.clipboard && navigator.clipboard.writeText(""); } catch (_) {} }
+  if (e.key === "F12" || (e.ctrlKey && e.shiftKey && ["i", "j", "c", "s"].includes(k)) || (e.ctrlKey && ["p", "u", "s"].includes(k))) e.preventDefault();
 });
 
-function store(k,v){ try{ localStorage.setItem(k,v); }catch(_){} }
-function load(k){ try{ return localStorage.getItem(k)||''; }catch(_){ return ''; } }
-
-/* ---- Carga del enunciado (las soluciones nunca llegan al navegador) ---- */
-async function init(){
-  try{
-    const r=await fetch(`/api/examen?id=${encodeURIComponent(examId)}`);
-    if(!r.ok) throw new Error((await r.json().catch(()=>({}))).error||'No disponible');
-    EX=await r.json();
-    if(Array.isArray(EX.dominios) && EX.dominios.length) DOMINIOS=EX.dominios;
-  }catch(e){
-    $('#loading').textContent=`No se ha podido cargar el cuestionario (${e.message}). Recarga la página o avisa al profesor.`;
-    return;
+/* ── Carga ── */
+async function init() {
+  YO = await cabecera();
+  if (params.get("ver")) return verEntrega();
+  try { EX = await api(`/api/examen?id=${encodeURIComponent(examId)}`); }
+  catch (e) {
+    if (e.status === 409) { history.replaceState(null, "", `?id=${encodeURIComponent(examId)}&ver=1`); return verEntrega(); }
+    throw e;
   }
-  document.title=`${EX.titulo} · FP José Ramón Otero`;
-  $('#ciclo').textContent=EX.ciclo; $('#titulo').textContent=EX.titulo; $('#subtitulo').textContent=EX.subtitulo;
-  $('#chipMc').textContent=`${EX.mc.length} preguntas tipo test`; $('#chipOpen').textContent=`${EX.open.length} preguntas abiertas`;
-  $('#nombre').value=load('jro_nombre'); $('#email').value=load('jro_email'); $('#grupo').value=load('jro_grupo');
+  document.title = `${EX.titulo} · FP José Ramón Otero`;
+  if (EX.ciclo) $(".tag").textContent = EX.ciclo;
+  $("#titulo").textContent = EX.titulo; $("#subtitulo").textContent = EX.subtitulo || EX.modulo || "";
+  $("#miEmail").textContent = YO.email;
+  $("#chips").innerHTML = [EX.modulo && `<span class="chip gray">${esc(EX.modulo)}</span>`,
+    EX.mc.length && `<span class="chip">${EX.mc.length} preguntas tipo test</span>`,
+    EX.open.length && `<span class="chip v">${EX.open.length} preguntas abiertas</span>`,
+    `<span class="chip s">Nota automática /10</span>`].filter(Boolean).join("");
   buildQuiz();
-  $('#loading').hidden=true; $('#intro').hidden=false;
+  $("#loading").hidden = true; $("#intro").hidden = false;
 }
 
-function buildQuiz(){
-  const f=$('#quiz'); f.innerHTML='';
-  f.insertAdjacentHTML('beforeend',`<div class="sec"><span class="n" style="background:var(--amarillo-soft);color:var(--amarillo-ink)">Parte A</span><h2>Test de conceptos</h2></div>`);
-  EX.mc.forEach((q,i)=>{
-    const opts=q.o.map((o,j)=>`<label class="opt"><input type="radio" name="mc${i}" value="${j}"><span><b>${letters[j]})</b> ${esc(o)}</span></label>`).join('');
-    f.insertAdjacentHTML('beforeend',`<div class="q"><p class="qh"><span class="qi">${i+1}.</span><span>${esc(q.t)}</span></p>${opts}</div>`);
-  });
-  f.insertAdjacentHTML('beforeend',`<div class="sec"><span class="n" style="background:var(--salmon-soft);color:var(--salmon-ink)">Parte B</span><h2>Preguntas abiertas (actividades)</h2></div>`);
-  let last="";
-  EX.open.forEach((q,i)=>{
-    const head=q.act!==last?`<p class="hintline" style="font-weight:700;color:var(--salmon-ink);margin-bottom:-4px">${esc(q.act)}</p>`:"";
-    last=q.act;
-    f.insertAdjacentHTML('beforeend',`${head}<div class="q"><p class="qh"><span class="qi">${EX.mc.length+i+1}.</span><span>${esc(q.t)}</span></p><textarea id="op${i}" maxlength="4000" placeholder="Escribe tu respuesta…"></textarea></div>`);
-  });
-  f.insertAdjacentHTML('beforeend',`<p class="err" id="sendErr" hidden></p><div class="actions"><button type="submit" class="btn" id="submit">Entregar y ver mi nota</button><button type="button" class="btn ghost" id="toTop">Volver arriba</button></div>`);
+async function verEntrega() {
+  const d = await api(`/api/entrega?id=${encodeURIComponent(examId)}`);
+  document.title = `${d.examen.titulo} · Resultado`;
+  if (d.examen.ciclo) $(".tag").textContent = d.examen.ciclo;
+  $("#loading").hidden = true;
+  const r = $("#result"); r.hidden = false;
+  r.insertAdjacentHTML("beforebegin", `<a href="/panel/" class="muted" style="font-size:14px">← Mis exámenes</a><h1>${esc(d.examen.titulo)}</h1><p class="sub">${esc(d.examen.subtitulo || "")}</p>`);
+  pintarEntrega(r, d);
 }
 
-/* ---- Entrega: corrige el servidor y envía el correo ---- */
-async function post(payload){
-  const r=await fetch('/api/entregar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-  const data=await r.json().catch(()=>({}));
-  if(!r.ok) throw new Error(data.error||`Error ${r.status}`);
-  return data;
-}
-
-async function submitQuiz(){
-  const blanks=EX.mc.filter((_,i)=>!$(`input[name="mc${i}"]:checked`)).length;
-  const btn=$('#submit'), err=$('#sendErr');
-  if(blanks && btn.dataset.confirm!=='1'){
-    err.hidden=false; err.textContent=`Te faltan ${blanks} preguntas tipo test por contestar. Pulsa de nuevo «Entregar» si quieres entregar igualmente.`;
-    btn.dataset.confirm='1'; return;
+function buildQuiz() {
+  const f = $("#quiz"); let h = `<div class="progress"><span id="progTxt"></span><div class="track"><div class="fill" id="progFill"></div></div></div>`;
+  if (EX.mc.length) {
+    h += `<div class="sec"><span class="n" style="background:var(--amarillo-soft);color:var(--amarillo-ink)">Parte A</span><h2>Test de conceptos</h2></div>`;
+    EX.mc.forEach((q, i) => {
+      const opts = q.o.map((o, j) => `<label class="opt"><input type="radio" name="mc${i}" value="${j}"><span><b>${LETRAS[j]})</b> ${esc(o)}</span></label>`).join("");
+      h += `<div class="q"><p class="qh"><span class="qi">${i + 1}.</span><span>${esc(q.t)}</span></p>${opts}</div>`;
+    });
   }
-  PAYLOAD={
-    id:EX.id, nombre:$('#nombre').value.trim(), email:$('#email').value.trim(), grupo:$('#grupo').value.trim(),
-    mc:EX.mc.map((_,i)=>{const s=$(`input[name="mc${i}"]:checked`);return s?+s.value:-1;}),
-    open:EX.open.map((_,i)=>$(`#op${i}`).value)
-  };
-  btn.disabled=true; btn.textContent='Entregando…'; err.hidden=true;
-  try{
-    const data=await post(PAYLOAD);
-    stopExam();
-    LAST={...data, answers:PAYLOAD};
-    render(LAST);
-  }catch(e){
-    err.hidden=false; err.textContent=`No se ha podido entregar: ${e.message}. Tus respuestas siguen aquí; comprueba la conexión y vuelve a pulsar «Entregar».`;
-    btn.disabled=false; btn.textContent='Entregar y ver mi nota';
+  if (EX.open.length) {
+    h += `<div class="sec"><span class="n" style="background:var(--salmon-soft);color:var(--salmon-ink)">Parte B</span><h2>Preguntas abiertas</h2></div>`;
+    let last = "";
+    EX.open.forEach((q, i) => {
+      if (q.act && q.act !== last) h += `<p class="hintline" style="font-weight:700;color:var(--salmon-ink);margin-bottom:-4px">${esc(q.act)}</p>`;
+      last = q.act;
+      h += `<div class="q"><p class="qh"><span class="qi">${EX.mc.length + i + 1}.</span><span>${esc(q.t)}</span></p><textarea id="op${i}" maxlength="4000" placeholder="Escribe tu respuesta…"></textarea></div>`;
+    });
   }
+  h += `<div class="msg bad" id="sendErr" hidden></div><div class="actions"><button type="submit" class="btn" id="submit">Entregar examen</button><button type="button" class="btn ghost" id="toTop">Volver arriba</button></div>`;
+  f.innerHTML = h;
+  f.addEventListener("input", progreso);
+  progreso();
 }
 
-function vchip(v){ if(v==='full'||v===true)return `<span class="verdict v-ok">✓ Bien</span>`; if(v==='partial')return `<span class="verdict v-warn">~ Casi</span>`; return `<span class="verdict v-bad">✗ Revisar</span>`; }
-
-function mailBanner(c){
-  return c.enviado
-    ? `<div class="mailok" id="mailstate">✉ Te hemos enviado la corrección a <b>${esc(c.destino)}</b>. Si no la ves en unos minutos, revisa la carpeta de correo no deseado.</div>`
-    : `<div class="mailbad" id="mailstate">✉ ${esc(c.error||'No se ha podido enviar el correo.')} <button class="btn ghost" id="remail" style="padding:6px 14px;font-size:14px;margin-left:6px">Reintentar envío</button></div>`;
+function respondidas() {
+  return EX.mc.filter((_, i) => $(`input[name="mc${i}"]:checked`)).length + EX.open.filter((_, i) => $(`#op${i}`).value.trim()).length;
+}
+function progreso() {
+  if (!EX) return;
+  const n = respondidas(), t = EX.mc.length + EX.open.length;
+  $("#progTxt").textContent = `${n} de ${t} respondidas`;
+  $("#progFill").style.width = `${(100 * n) / t}%`;
 }
 
-function render(d){
-  $('#quiz').hidden=true; $('#intro').hidden=true; const r=$('#result'); r.hidden=false;
-  const openOver2=Math.round(d.openPts*2)/2;
-  let html=`<div class="card">
-    <div class="score"><div class="bigscore">${fmt(d.nota)}<small> /10</small></div>
-      <div class="bars">
-        <div class="bar"><span>Test (Parte A)</span><span>${d.mcOk} / ${EX.mc.length}</span></div>
-        <div class="bar"><span>Abiertas (Parte B, estimación)</span><span>${fmt(openOver2)} / ${EX.open.length}</span></div>
-        <div class="bar"><span>Alumno/a</span><span>${esc(d.alumno.nombre)}</span></div>
-      </div></div>
-    ${mailBanner(d.correo)}
-    <div class="disc">La nota de las preguntas abiertas es una <b>estimación automática</b> por conceptos clave; la revisa el profesor.</div>
-    <div class="actions">
-      <button class="btn" id="pdf">⬇ Descargar PDF (para Teams)</button>
-      <button class="btn ghost" id="review">Ver corrección</button>
-    </div></div>
-    <div id="revbox" hidden><div class="sec"><span class="n" style="background:var(--amarillo-soft);color:var(--amarillo-ink)">Parte A</span><h2>Corrección del test</h2></div>`;
-  d.mc.forEach((m,i)=>{
-    const q=EX.mc[i];
-    const your=m.val>=0?`${letters[m.val]}) ${q.o[m.val]}`:'—';
-    html+=`<div class="rev ${m.ok?'ok':'bad'}"><p class="rq">${i+1}. ${esc(q.t)} ${vchip(m.ok)}</p><p class="rd">Tu respuesta: <b>${esc(your)}</b></p>${m.ok?'':`<p class="rd">Correcta: <b>${letters[m.correcta]}) ${esc(q.o[m.correcta])}</b></p>`}</div>`;
-  });
-  html+=`<div class="sec"><span class="n" style="background:var(--salmon-soft);color:var(--salmon-ink)">Parte B</span><h2>Corrección de las abiertas</h2></div>`;
-  d.open.forEach((o,i)=>{
-    const q=EX.open[i], ans=d.answers.open[i].trim();
-    const cls=o.v==='full'?'ok':o.v==='partial'?'warn':'bad';
-    html+=`<div class="rev ${cls}"><p class="rq">${EX.mc.length+i+1}. ${esc(q.t)} ${vchip(o.v)}</p><p class="rd">Tu respuesta: <b>${ans?esc(ans):'—'}</b></p><p class="rd">${o.v==='full'?'Has mencionado los conceptos esperados.':'Qué se esperaba: '+esc(o.exp)}</p></div>`;
-  });
-  html+=`</div>`;
-  r.innerHTML=html; window.scrollTo({top:0,behavior:'smooth'});
-  $('#review').onclick=()=>{const b=$('#revbox');b.hidden=!b.hidden;if(!b.hidden)b.scrollIntoView({behavior:'smooth'});};
-  $('#pdf').onclick=()=>buildPDF(d);
-  const re=$('#remail');
-  if(re) re.onclick=async()=>{
-    re.disabled=true; re.textContent='Enviando…';
-    try{ const n=await post(PAYLOAD); d.correo=n.correo; }catch(e){ d.correo={enviado:false,destino:PAYLOAD.email,error:e.message}; }
-    render(d);
-  };
-}
-
-function buildPDF(d){
-  if(!window.jspdf){ $('#mailstate').insertAdjacentHTML('afterend','<p class="err">No se ha podido cargar el generador de PDF. Comprueba la conexión a Internet.</p>'); return; }
-  const {jsPDF}=window.jspdf; const doc=new jsPDF({unit:'pt',format:'a4'});
-  const W=doc.internal.pageSize.getWidth(), H=doc.internal.pageSize.getHeight(), M=48; let y=0;
-  doc.setFillColor(239,205,47); doc.rect(0,0,W/3,8,'F');
-  doc.setFillColor(169,202,187); doc.rect(W/3,0,W/3,8,'F');
-  doc.setFillColor(227,159,125); doc.rect(2*W/3,0,W/3,8,'F');
-  y=40;
-  const line=(txt,{size=10,bold=false,color=[35,40,51],gap=3,indent=0}={})=>{
-    doc.setFont('helvetica',bold?'bold':'normal'); doc.setFontSize(size); doc.setTextColor(color[0],color[1],color[2]);
-    const ls=doc.splitTextToSize(txt,W-2*M-indent);
-    for(const ln of ls){ if(y>H-40){doc.addPage();y=40;} doc.text(ln,M+indent,y); y+=size*1.28; }
-    y+=gap;
-  };
-  line(`FP JOSÉ RAMÓN OTERO · ${EX.modulo.toUpperCase()} (${EX.ciclo})`,{size:9,bold:true,color:[95,102,115],gap:6});
-  line(`${EX.titulo} — Resultados`,{size:17,bold:true,gap:8});
-  const openOver2=Math.round(d.openPts*2)/2;
-  line(`Alumno/a: ${d.alumno.nombre}     Grupo: ${d.alumno.grupo||'—'}`,{size:10,color:[80,85,95],gap:2});
-  line(`Correo: ${d.alumno.email}     Entregado: ${d.alumno.fecha}`,{size:10,color:[80,85,95],gap:8});
-  line(`NOTA: ${fmt(d.nota)} / 10    (Test ${d.mcOk}/${EX.mc.length}  ·  Abiertas est. ${fmt(openOver2)}/${EX.open.length})`,{size:14,bold:true,gap:10});
-  doc.setDrawColor(227,230,228); if(y>H-40){doc.addPage();y=40;} doc.line(M,y,W-M,y); y+=14;
-  line('PARTE A · Test',{size:12,bold:true,color:[142,117,13],gap:4});
-  d.mc.forEach((m,i)=>{
-    const q=EX.mc[i];
-    line(`${i+1}. ${q.t}`,{size:10,bold:true,gap:1});
-    line(`Tu respuesta: ${m.val>=0?letters[m.val]+') '+q.o[m.val]:'—'}  ${m.ok?'[CORRECTA]':'[INCORRECTA]'}`,{size:9.5,color:m.ok?[46,125,83]:[192,57,43],indent:10,gap:m.ok?3:1});
-    if(!m.ok) line(`Correcta: ${letters[m.correcta]}) ${q.o[m.correcta]}`,{size:9.5,color:[46,125,83],indent:10,gap:3});
-  });
-  if(y>H-60){doc.addPage();y=40;}
-  line('PARTE B · Preguntas abiertas',{size:12,bold:true,color:[149,86,56],gap:4});
-  d.open.forEach((o,i)=>{
-    const q=EX.open[i], ans=d.answers.open[i].trim();
-    const vt=o.v==='full'?'[BIEN]':o.v==='partial'?'[CASI]':'[REVISAR]';
-    const vc=o.v==='full'?[46,125,83]:o.v==='partial'?[185,130,11]:[192,57,43];
-    line(`${EX.mc.length+i+1}. ${q.t}  ${vt}`,{size:10,bold:true,color:vc,gap:1});
-    line(`Tu respuesta: ${ans||'—'}`,{size:9.5,color:[80,85,95],indent:10,gap:1});
-    if(o.v!=='full') line(`Qué se esperaba: ${o.exp}`,{size:9.5,color:[80,85,95],indent:10,gap:3}); else y+=2;
-  });
-  const safe=(d.alumno.nombre||'alumno').replace(/[^\p{L}\p{N}]+/gu,'_').replace(/^_+|_+$/g,'')||'alumno';
-  doc.save(`${EX.id}_${safe}.pdf`);
-}
-
-$('#start').onclick=()=>{
-  const n=$('#nombre').value.trim(); const em=$('#email').value.trim(); const err=$('#introErr');
-  err.hidden=true;
-  if(!n){$('#nombre').focus();$('#nombre').style.borderColor='var(--bad)';return;}
-  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){$('#email').focus();$('#email').style.borderColor='var(--bad)';return;}
-  const dom=em.split('@')[1].toLowerCase();
-  if(!DOMINIOS.includes('*') && !DOMINIOS.some(d=>dom===d||dom.endsWith('.'+d))){
-    $('#email').focus();$('#email').style.borderColor='var(--bad)';
-    err.hidden=false; err.textContent=`Usa tu correo del centro (@${DOMINIOS[0]}): ahí recibirás la corrección.`; return;
-  }
-  store('jro_nombre',n); store('jro_email',em); store('jro_grupo',$('#grupo').value.trim());
-  $('#intro').hidden=true; $('#quiz').hidden=false; startExam(); window.scrollTo({top:0});
+$("#start").onclick = async () => {
+  const b = $("#start"); b.disabled = true; $("#introErr").hidden = true;
+  try { await api("/api/examen/iniciar", { id: examId }); }
+  catch (e) { $("#introErr").textContent = e.message; $("#introErr").hidden = false; b.disabled = false; return; }
+  b.disabled = false;
+  $("#intro").hidden = true; $("#quiz").hidden = false; startExam(); window.scrollTo({ top: 0 });
 };
-['#nombre','#email'].forEach(s=>$(s).addEventListener('input',()=>{$(s).style.borderColor='';}));
-$('#quiz').addEventListener('submit',e=>{e.preventDefault();submitQuiz();});
-$('#quiz').addEventListener('click',e=>{if(e.target&&e.target.id==='toTop')window.scrollTo({top:0,behavior:'smooth'});});
-init();
+
+/* ── Entrega: corrige el servidor y envía el correo ── */
+async function entregar() {
+  const btn = $("#submit"), err = $("#sendErr");
+  const total = EX.mc.length + EX.open.length, faltan = total - respondidas();
+  if (faltan && btn.dataset.confirm !== "1") {
+    err.hidden = false; err.textContent = `Te faltan ${faltan} preguntas por contestar. Pulsa otra vez «Entregar» si quieres entregar igualmente. Recuerda que solo se puede entregar una vez.`;
+    btn.dataset.confirm = "1"; btn.textContent = "Entregar igualmente"; return;
+  }
+  PAYLOAD = {
+    id: examId,
+    mc: EX.mc.map((_, i) => { const s = $(`input[name="mc${i}"]:checked`); return s ? +s.value : -1; }),
+    open: EX.open.map((_, i) => $(`#op${i}`).value),
+  };
+  btn.disabled = true; btn.textContent = "Entregando…"; err.hidden = true;
+  try {
+    const d = await api("/api/examen/entregar", PAYLOAD);
+    stopExam();
+    history.replaceState(null, "", `?id=${encodeURIComponent(examId)}&ver=1`);
+    $("#quiz").hidden = true; $("#intro").hidden = true;
+    const r = $("#result"); r.hidden = false;
+    const banner = d.correo.enviado
+      ? `<div class="msg ok">✉ Te hemos enviado la corrección a <b>${esc(d.correo.destino)}</b>. Si no la ves en unos minutos, revisa «Correo no deseado».</div>`
+      : `<div class="msg bad">✉ ${esc(d.correo.error || "No se ha podido enviar el correo.")} Tu entrega está guardada y puedes consultarla en tu panel.</div>`;
+    r.insertAdjacentHTML("beforebegin", `<h1>${esc(EX.titulo)}</h1><p class="sub">Examen entregado.</p>`);
+    pintarEntrega(r, d, banner);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  } catch (e) {
+    if (e.status === 409) { stopExam(); location.replace(`?id=${encodeURIComponent(examId)}&ver=1`); return; }
+    err.hidden = false; err.textContent = `No se ha podido entregar: ${e.message}. Tus respuestas siguen aquí; comprueba la conexión y vuelve a pulsar «Entregar».`;
+    btn.disabled = false; btn.textContent = "Entregar examen";
+  }
+}
+$("#quiz").addEventListener("submit", (e) => { e.preventDefault(); entregar(); });
+$("#quiz").addEventListener("click", (e) => { if (e.target && e.target.id === "toTop") window.scrollTo({ top: 0, behavior: "smooth" }); });
+
+init().catch((e) => { $("#loading").innerHTML = `<div class="msg bad">${esc(e.message)}</div><a class="btn ghost" href="/panel/">Volver a mis exámenes</a>`; });
 </script>
 </body>
 </html>

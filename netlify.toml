@@ -1,4 +1,4 @@
-# Sitio estático (public/) + Netlify Functions (corrección y correo).
+# Páginas estáticas (public/) + API en Netlify Functions + datos en Netlify Blobs.
 [build]
   publish = "public"
   functions = "netlify/functions"

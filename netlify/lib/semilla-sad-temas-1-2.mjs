@@ -1,9 +1,9 @@
 /**
- * Cuestionario SAD · Temas 1 y 2.
+ * Examen de ejemplo que se carga la primera vez (Cuestionario SAD · Temas 1 y 2).
  *
  * Este archivo SOLO vive en el servidor: contiene las soluciones (`c`)
  * y los criterios de corrección de las abiertas (`groups`, `exp`).
- * Al navegador únicamente le llega el enunciado (ver lib/examenes/index.mjs).
+ * Al navegador únicamente le llega el enunciado (ver lib/examenes.mjs).
  *
  * Abiertas: `groups` es una lista de conceptos; cada concepto se da por
  * mencionado si aparece cualquiera de sus raíces (sin tildes ni mayúsculas).
