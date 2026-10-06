@@ -14,6 +14,14 @@ export const CATALOGO = [
       { id: "sad", nombre: "Seguridad y Alta Disponibilidad" },
     ],
   },
+  {
+    id: "dam",
+    nombre: "DAM",
+    descripcion: "Desarrollo de Aplicaciones Multiplataforma",
+    modulos: [
+      { id: "ia", nombre: "Inteligencia Artificial" },
+    ],
+  },
 ];
 
 export function buscarModulo(cicloId, moduloId) {

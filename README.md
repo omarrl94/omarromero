@@ -67,9 +67,13 @@ Funciona en **Netlify** (plan gratuito): páginas estáticas + una Netlify Funct
 Se definen en `netlify/lib/catalogo.mjs`. Ahora mismo:
 
 - **ASIR** — Administración de Sistemas Informáticos en Red
-  - Seguridad y Alta Disponibilidad (`sad`)
+  - Seguridad y Alta Disponibilidad (`sad`) · Temas 1 y 2
+- **DAM** — Desarrollo de Aplicaciones Multiplataforma
+  - Inteligencia Artificial (`ia`) · Tema 1 · Introducción a la IA
 
 Para añadir otro ciclo o módulo basta con añadir una línea en ese archivo (y hacer push).
+
+Los exámenes que vienen con la plataforma están en `netlify/lib/semilla-*.mjs` y se cargan **una sola vez** al desplegar; si los borras o editas desde el panel, no se vuelven a crear.
 
 ## Formato de un examen
 

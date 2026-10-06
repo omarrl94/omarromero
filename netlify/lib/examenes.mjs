@@ -10,7 +10,8 @@
  */
 import { almacen } from "./almacen.mjs";
 import { fallo, texto } from "./http.mjs";
-import semilla from "./semilla-sad-temas-1-2.mjs";
+import semillaSad from "./semilla-sad-temas-1-2.mjs";
+import semillaIa from "./semilla-ia-tema-1.mjs";
 import { buscarModulo, moduloPorNombre } from "./catalogo.mjs";
 
 const str = (v, max, campo) => {
@@ -78,16 +79,33 @@ export const resumen = (ex) => ({
   creado: ex.creado, actualizado: ex.actualizado,
 });
 
-/** La primera vez se carga el cuestionario de ejemplo (publicado). */
+/**
+ * Exámenes que vienen con la plataforma. Cada uno se carga UNA sola vez:
+ * si el profesor lo borra o lo edita después, no se vuelve a crear.
+ * Para añadir otro: crea su archivo semilla-*.mjs y añádelo aquí.
+ */
+const SEMILLAS = [semillaSad, semillaIa];
+let sembrado = false;
+
 async function sembrar() {
+  if (sembrado) return;
   const sis = almacen("sistema");
-  if (await sis.get("semilla")) return;
+  const hechas = (await sis.get("semillas")) || {};
+  const antigua = await sis.get("semilla"); // versión anterior: solo marcaba el de SAD
+  if (antigua && !hechas[semillaSad.id]) hechas[semillaSad.id] = antigua.fecha || true;
   const store = almacen("examenes");
-  if (!(await store.get(semilla.id))) {
-    const ahora = new Date().toISOString();
-    await store.set(semilla.id, { ...validarExamen({ ...semilla, publicado: true }), creado: ahora, actualizado: ahora });
+  let cambios = false;
+  for (const s of SEMILLAS) {
+    if (hechas[s.id]) continue;
+    if (!(await store.get(s.id))) {
+      const ahora = new Date().toISOString();
+      await store.set(s.id, { ...validarExamen({ ...s, publicado: true }), creado: ahora, actualizado: ahora });
+    }
+    hechas[s.id] = new Date().toISOString();
+    cambios = true;
   }
-  await sis.set("semilla", { fecha: new Date().toISOString() });
+  if (cambios) await sis.set("semillas", hechas);
+  sembrado = true;
 }
 
 export async function todosLosExamenes() {
