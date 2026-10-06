@@ -10,8 +10,8 @@
  * y el examen sigue funcionando (el alumno ve su nota y descarga el PDF).
  */
 import nodemailer from "nodemailer";
+import { env } from "./http.mjs";
 
-const env = (k) => (process.env[k] || "").trim();
 
 export function proveedorConfigurado() {
   if (env("MAIL_MODE") === "log") return "log";

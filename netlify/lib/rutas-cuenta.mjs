@@ -1,6 +1,6 @@
 /** /api/cuenta/* — registro, verificación por correo, acceso y recuperación. */
 import { almacen } from "./almacen.mjs";
-import { json, fallo, leerCuerpo, texto, cookie } from "./http.mjs";
+import { json, fallo, leerCuerpo, texto, cookie, env } from "./http.mjs";
 import {
   EMAIL_RE, emailPermitido, dominiosPermitidos, esAdmin, hashPassword, comprobarPassword, validarPassword,
   nuevoCodigo, comprobarCodigo, crearToken, usuarioSesion, perfilPublico, NOMBRE_COOKIE, DURACION_SESION,
@@ -15,7 +15,7 @@ import { correoCodigo } from "./plantillas.mjs";
  * crea sola la primera vez). Así la contraseña no está nunca en el código.
  */
 function esPasswordAdmin(email, pw) {
-  const ref = (process.env.ADMIN_PASSWORD || "").trim();
+  const ref = env("ADMIN_PASSWORD");
   if (!ref || !esAdmin(email)) return false;
   const h = (s) => createHash("sha256").update(s).digest();
   return timingSafeEqual(h(pw), h(ref));
@@ -120,6 +120,13 @@ async function login(req) {
   }
   const ok = admin || (await comprobarPassword(pw, u?.pass)); // se ejecuta aunque no exista (tiempo constante)
   if (!u || !ok) {
+    // Pista en los logs de Netlify (Logs → Functions → api) para el acceso del profesor.
+    if (esAdmin(email) && !env("ADMIN_PASSWORD"))
+      console.warn(`[acceso profesor] ${email}: ADMIN_PASSWORD no está definida en esta versión desplegada (¿falta la variable, el scope «Functions» o volver a desplegar?).`);
+    else if (esAdmin(email))
+      console.warn(`[acceso profesor] ${email}: la contraseña no coincide con ADMIN_PASSWORD (${env("ADMIN_PASSWORD").length} caracteres configurados, ${pw.length} escritos).`);
+    else if (!u && email.endsWith("@" + (dominiosPermitidos()[0] || "")))
+      console.warn(`[acceso] ${email}: no existe la cuenta${env("ADMIN_EMAILS") ? "" : " (ADMIN_EMAILS no está definida)"}.`);
     if (u) {
       const f = u.fallos && Date.now() - u.fallos.desde < 15 * 60_000 ? u.fallos : { n: 0, desde: Date.now() };
       u.fallos = { ...f, n: f.n + 1 };

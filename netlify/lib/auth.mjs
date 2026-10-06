@@ -8,12 +8,11 @@
 import { scrypt as _scrypt, randomBytes, randomInt, timingSafeEqual, createHmac } from "node:crypto";
 import { promisify } from "node:util";
 import { almacen } from "./almacen.mjs";
-import { fallo, leerCookie } from "./http.mjs";
+import { fallo, leerCookie, env } from "./http.mjs";
 
 const scrypt = promisify(_scrypt);
 const COOKIE = "jro_sesion";
 export const DURACION_SESION = 12 * 3600;
-const env = (k, d = "") => (process.env[k] || d).trim();
 
 /* ── Dominios y roles ─────────────────────────────────────── */
 export const dominiosPermitidos = () =>

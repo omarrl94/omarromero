@@ -1,6 +1,6 @@
 /** /api/examenes, /api/examen/*, /api/entrega — lo que hace el alumno. */
 import { almacen } from "./almacen.mjs";
-import { json, fallo, leerCuerpo, texto } from "./http.mjs";
+import { json, fallo, leerCuerpo, texto, env } from "./http.mjs";
 import { requiereUsuario } from "./auth.mjs";
 import { todosLosExamenes, obtenerExamen, enunciado, resumen } from "./examenes.mjs";
 import { corregir, limpiarRespuestas } from "./correccion.mjs";
@@ -94,7 +94,7 @@ async function entregar(req) {
   } else {
     try {
       const c = correoResultado(ex, e);
-      const profesor = (process.env.PROFESOR_EMAIL || "").trim();
+      const profesor = env("PROFESOR_EMAIL");
       await enviarCorreo({ to: u.email, bcc: profesor || undefined, replyTo: profesor || undefined, subject: c.asunto, html: c.html, text: c.text });
       correo.enviado = true;
     } catch (err) {

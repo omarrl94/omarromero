@@ -1,11 +1,12 @@
 /** Correos (HTML con estilos en línea, compatibles con Outlook) + versión en texto. */
 import { LETRAS } from "./correccion.mjs";
+import { env } from "./http.mjs";
 
 const esc = (s) =>
   String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 const fmt = (n) => Number(n).toLocaleString("es-ES");
 const VERDE = "#2E7D53", ROJO = "#C0392B", AMBAR = "#B9820B", GRIS = "#5F6673", TINTA = "#232833";
-const CENTRO = () => (process.env.NOMBRE_CENTRO || "FP José Ramón Otero").trim();
+const CENTRO = () => env("NOMBRE_CENTRO", "FP José Ramón Otero");
 
 function marco(cabecera, cuerpo, pie) {
   return `<!doctype html><html lang="es"><body style="margin:0;background:#F3F5F6;font-family:Segoe UI,Arial,sans-serif;color:${TINTA}">

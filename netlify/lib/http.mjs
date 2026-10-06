@@ -1,5 +1,15 @@
 /** Utilidades HTTP compartidas por la API. */
 
+/**
+ * Lee una variable de entorno tolerando errores típicos al pegarla en Netlify:
+ * espacios alrededor y comillas envolventes ("valor" o 'valor').
+ */
+export function env(k, def = "") {
+  let v = String(process.env[k] ?? "").trim();
+  if (v.length >= 2 && (v[0] === '"' || v[0] === "'") && v.at(-1) === v[0]) v = v.slice(1, -1).trim();
+  return v || def;
+}
+
 export class HttpError extends Error {
   constructor(status, message) { super(message); this.status = status; }
 }
