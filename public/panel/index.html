@@ -12,22 +12,11 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&display=swap">
 <link rel="stylesheet" href="/assets/app.css">
-<style>
-  .crumbs{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:14px;color:var(--muted);margin-bottom:6px}
-  .crumbs a{color:var(--muted)} .crumbs b{color:var(--fg)}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
-  a.tile{display:flex;flex-direction:column;gap:6px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;box-shadow:var(--shadow);text-decoration:none;color:inherit;min-height:150px;border-top:6px solid var(--amarillo)}
-  a.tile:hover{border-color:var(--amarillo)}
-  a.tile:nth-child(3n+2){border-top-color:var(--verde)} a.tile:nth-child(3n+3){border-top-color:var(--salmon)}
-  a.tile .big{font-size:30px;font-weight:800;letter-spacing:-.02em;line-height:1.1}
-  a.tile .mid{font-size:19px;font-weight:700;line-height:1.25}
-  a.tile .meta{margin-top:auto}
-</style>
 </head>
 <body>
 <div class="topbar"></div>
+<header class="appbar"><div class="appbar-in" id="head"></div></header>
 <div class="wrap">
-  <header class="head" id="head"></header>
   <nav class="crumbs" id="crumbs" aria-label="Ruta"></nav>
   <h1 id="titulo">Mis exámenes</h1>
   <p class="sub" id="sub"></p>

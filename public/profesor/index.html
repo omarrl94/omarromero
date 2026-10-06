@@ -12,39 +12,24 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&display=swap">
 <link rel="stylesheet" href="/assets/app.css">
-<style>
-  .switch{position:relative;display:inline-block;width:42px;height:24px;flex:none}
-  .switch input{opacity:0;width:0;height:0}
-  .switch span{position:absolute;inset:0;background:var(--border);border-radius:99px;cursor:pointer;transition:.15s}
-  .switch span::before{content:"";position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.15s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
-  .switch input:checked + span{background:var(--ok)}
-  .switch input:checked + span::before{transform:translateX(18px)}
-  .switch input:focus-visible + span{outline:3px solid var(--amarillo);outline-offset:1px}
-  .acts{display:flex;gap:6px;flex-wrap:wrap}
-  .drop{border:2px dashed var(--border);border-radius:14px;padding:22px;text-align:center;color:var(--muted);cursor:pointer}
-  .drop.over{border-color:var(--amarillo);background:var(--amarillo-soft)}
-  .tabs.inline{display:inline-flex;margin:0}
-  .tabs.inline button{flex:none}
-  td input.mini{width:90px;padding:6px 10px;font-size:14px}
-</style>
 </head>
 <body>
 <div class="topbar"></div>
+<header class="appbar"><div class="appbar-in" id="head"></div></header>
 <div class="wrap wide">
-  <header class="head" id="head"></header>
-  <div class="toolbar" style="margin-top:0">
-    <div><h1 style="margin:0">Panel del profesor</h1></div>
+  <div class="pagehead">
+    <div><h1 style="margin:0">Panel del profesor</h1><p class="muted" style="margin:2px 0 0" id="subPanel">Crea y publica exámenes, revisa entregas y gestiona tus grupos.</p></div>
     <div class="tabs inline" role="tablist">
       <button role="tab" aria-selected="true" data-tab="vExamenes">Exámenes</button>
       <button role="tab" aria-selected="false" data-tab="vAlumnos">Alumnos</button>
-      <button role="tab" aria-selected="false" data-tab="vProfes" hidden>Profesores <span class="chip" id="nPend" hidden style="margin-left:4px;padding:1px 8px"></span></button>
+      <button role="tab" aria-selected="false" data-tab="vProfes" hidden>Profesores <span class="chip s" id="nPend" hidden style="padding:0 7px"></span></button>
     </div>
   </div>
   <div class="msg bad" id="avisoCorreo" hidden>El <b>envío de correo no está configurado</b>: los alumnos se registran sin código de verificación y no reciben la corrección por correo. Configura las variables SMTP en Netlify (ver README).</div>
 
   <!-- Exámenes -->
   <section id="vExamenes">
-    <div class="toolbar"><h2>Exámenes</h2><div class="acts"><select id="filtroModulo" style="width:auto"></select><button class="btn ghost" id="verModulos">Módulos</button><button class="btn v" id="nuevoIA">✨ Generar con IA</button><button class="btn" id="nuevo">＋ Subir examen</button></div></div>
+    <div class="toolbar"><h2>Exámenes</h2><div class="acts"><select id="filtroModulo" style="width:auto"></select><button class="btn ghost" id="verModulos">Módulos</button><button class="btn accent" id="nuevoIA">✨ Generar con IA</button><button class="btn" id="nuevo">＋ Subir examen</button></div></div>
     <div id="tablaExamenes"><p class="loading">Cargando…</p></div>
   </section>
 
@@ -52,7 +37,7 @@
   <section id="vEntregas" hidden>
     <div class="toolbar">
       <div><button class="link" id="atras">← Volver a exámenes</button><h2 id="entTitulo" style="margin-top:6px"></h2></div>
-      <div class="acts"><select id="filtroGrupo" style="width:auto"></select><a class="btn v" id="csv">⬇ Exportar notas (CSV/Excel)</a></div>
+      <div class="acts"><select id="filtroGrupo" style="width:auto"></select><a class="btn ghost" id="csv">⬇ Exportar notas (Excel)</a></div>
     </div>
     <div id="tablaEntregas"></div>
   </section>
@@ -147,7 +132,7 @@
         <p class="hintline">Puede tardar unos minutos. No cierres esta ventana.</p>
       </div>
       <div class="msg bad" data-err hidden></div>
-      <div class="actions"><button class="btn v" type="submit" id="iaGo">Generar preguntas</button></div>
+      <div class="actions"><button class="btn" type="submit" id="iaGo">Generar preguntas</button></div>
     </form>
   </div>
 </dialog>
@@ -163,7 +148,7 @@
       </div>
       <div class="field"><label class="flab" for="rCom">Comentario para el alumno</label><textarea id="rCom" style="min-height:70px"></textarea></div>
       <div class="msg bad" data-err hidden></div><div class="msg ok" data-ok hidden></div>
-      <button class="btn v" type="submit">Guardar revisión</button>
+      <button class="btn" type="submit">Guardar revisión</button>
     </form>
     <div id="dEntCont"></div>
   </div>
@@ -171,6 +156,13 @@
 
 <script src="/assets/app.js"></script>
 <script>
+const svg = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const ICONO = {
+  enlace: svg('<path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/>'),
+  descargar: svg('<path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/>'),
+  borrar: svg('<path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/>'),
+  ok: svg('<path d="m5 12 5 5 9-10"/>'),
+};
 const CATALOGO_NOMBRES = (ids) => ids.map((id) => id.toUpperCase()).join(", ");
 let CATALOGO = [], EXAMENES = [], ACTUAL = null, FILAS = [], ALUMNOS = [], GRUPOS = [], IMPORT = null;
 const fecha = (iso) => iso ? new Date(iso).toLocaleDateString("es-ES", { day: "2-digit", month: "short", year: "numeric" }) : "—";
@@ -196,7 +188,7 @@ async function cargarProfes() {
       <td><b>${esc(p.apellidos)}, ${esc(p.nombre)}</b><div class="muted" style="font-size:13px">${esc(p.email)} · alta ${fecha(p.creado)}</div></td>
       <td><div style="display:flex;flex-wrap:wrap;gap:6px 14px">${ciclos.map((c) => `<label class="check" style="font-size:14px"><input type="checkbox" data-ciclo value="${esc(c.id)}" ${p.ciclos.includes(c.id) ? "checked" : ""}> ${esc(c.nombre)}</label>`).join("")}</div></td>
       <td>${p.aprobado ? `<span class="chip ok">Con acceso</span>` : `<span class="chip">Pendiente</span>${p.verificado ? "" : ` <span class="chip gray">correo sin confirmar</span>`}`}</td>
-      <td><div class="acts">${p.aprobado ? `<button class="btn ghost sm" data-quitar-acceso>Quitar acceso</button>` : `<button class="btn v sm" data-aprobar>Aprobar</button>`}
+      <td><div class="acts">${p.aprobado ? `<button class="btn ghost sm" data-quitar-acceso>Quitar acceso</button>` : `<button class="btn sm" data-aprobar>Aprobar</button>`}
         <button class="btn danger sm" data-borrar-profe>Borrar</button></div></td></tr>`).join("")}</tbody></table></div>`;
   const fila = (el) => el.closest("tr").dataset.email;
   const ciclosFila = (el) => $$("[data-ciclo]:checked", el.closest("tr")).map((i) => i.value);
@@ -224,35 +216,50 @@ $("#filtroModulo").onchange = () => pintarExamenes();
 function pintarExamenes() {
   const t = $("#tablaExamenes"), filtro = $("#filtroModulo").value;
   const pos = (e) => { const ci = CATALOGO.findIndex((c) => c.id === e.cicloId); const mi = ci < 0 ? 0 : CATALOGO[ci].modulos.findIndex((m) => m.id === e.moduloId); return ci * 1000 + mi; };
-  const lista = EXAMENES.filter((e) => !filtro || `${e.cicloId}/${e.moduloId}` === filtro).sort((a, b) => pos(a) - pos(b));
-  if (!lista.length) { t.innerHTML = `<div class="empty">${EXAMENES.length ? "No hay exámenes en este módulo." : "Todavía no hay exámenes."} Pulsa «Subir examen».</div>`; return; }
-  t.innerHTML = `<div class="tablewrap"><table class="t"><thead><tr><th>Ciclo · Módulo</th><th>Tema / examen</th><th>Preguntas</th><th>Entregas</th><th>Publicado</th><th>Corrección visible</th><th title="Si el alumno cambia de pantalla, el examen se entrega solo">Modo seguro</th><th></th></tr></thead><tbody>
-    ${lista.map((e) => `<tr data-id="${esc(e.id)}">
-      <td><b>${esc(e.ciclo)}</b><div class="muted" style="font-size:13px">${esc(e.modulo)}</div></td>
-      <td><b>${esc(e.titulo)}</b><div class="muted" style="font-size:13px">Orden ${e.orden} · <code>${esc(e.id)}</code>${e.autor ? ` · ${esc(e.autor)}` : ""}</div></td>
-      <td>${e.nMc} test · ${e.nOpen} abiertas${e.nNum ? ` · ${e.nNum} ejercicios` : ""}</td>
-      <td class="num">${e.entregas}</td>
-      <td><label class="switch" title="Visible para los alumnos"><input type="checkbox" data-aj="publicado" ${e.publicado ? "checked" : ""}><span></span></label></td>
-      <td><label class="switch" title="El alumno ve la corrección al entregar"><input type="checkbox" data-aj="mostrarSoluciones" ${e.mostrarSoluciones ? "checked" : ""}><span></span></label></td>
-      <td><label class="switch" title="Si el alumno cambia de pestaña o de ventana, el examen termina y se entrega solo"><input type="checkbox" data-aj="seguridad" ${e.seguridad ? "checked" : ""}><span></span></label></td>
-      <td><div class="acts"><button class="btn sm" data-ent>Entregas</button><a class="btn ghost sm" target="_blank" href="/examen/?id=${encodeURIComponent(e.id)}" title="Ábrelo como alumno (también sin publicar). Si lo entregas, usa «Reabrir» para borrar tu intento.">Probar</a><button class="btn ghost sm" data-copiar>Copiar enlace</button><button class="btn ghost sm" data-json>JSON</button><button class="btn danger sm" data-borrar>Borrar</button></div></td>
-    </tr>`).join("")}</tbody></table></div>`;
+  const lista = EXAMENES.filter((e) => !filtro || `${e.cicloId}/${e.moduloId}` === filtro).sort((a, b) => pos(a) - pos(b) || a.orden - b.orden);
+  if (!lista.length) { t.innerHTML = `<div class="empty">${EXAMENES.length ? "No hay exámenes en este módulo." : "Todavía no hay exámenes."} Pulsa «Subir examen» o «Generar con IA».</div>`; return; }
+  const sw = (e, campo, txt, tip) => `<label title="${tip}">${txt}<span class="switch"><input type="checkbox" data-aj="${campo}" ${e[campo] ? "checked" : ""}><span></span></span></label>`;
+  t.innerHTML = `<div class="exgrid">${lista.map((e) => `<article class="excard2" data-id="${esc(e.id)}">
+      <div class="top">
+        <div class="where"><span class="tag">${esc(e.ciclo)}</span><span>${esc(e.modulo)}</span></div>
+        <h3>${esc(e.titulo)}</h3>
+        <div class="id">Orden ${e.orden} · <code>${esc(e.id)}</code>${e.autor ? ` · ${esc(e.autor)}` : ""}</div>
+      </div>
+      <div class="stats">
+        <span><b>${e.nMc}</b>test</span><span><b>${e.nOpen}</b>abiertas</span>${e.nNum ? `<span><b>${e.nNum}</b>ejercicios</span>` : ""}
+        <span style="margin-left:auto;text-align:right"><b>${e.entregas}</b>entregas</span>
+      </div>
+      <div class="toggles">
+        ${sw(e, "publicado", "Publicado", "Visible para los alumnos")}
+        ${sw(e, "mostrarSoluciones", "Corrección", "El alumno ve la corrección al entregar")}
+        ${sw(e, "seguridad", "Modo seguro", "Si el alumno cambia de pestaña o de ventana, el examen termina y se entrega solo")}
+      </div>
+      <div class="foot2">
+        <button class="btn sm" data-ent>Entregas</button>
+        <a class="btn ghost sm" target="_blank" href="/examen/?id=${encodeURIComponent(e.id)}" title="Ábrelo como alumno (también sin publicar). Si lo entregas, usa «Reabrir» para borrar tu intento.">Probar</a>
+        <span class="iconos">
+          <button class="btn ghost sm icono" data-copiar title="Copiar el enlace del examen" aria-label="Copiar enlace">${ICONO.enlace}</button>
+          <button class="btn ghost sm icono" data-json title="Descargar el examen completo con soluciones (JSON)" aria-label="Descargar JSON">${ICONO.descargar}</button>
+          <button class="btn danger sm icono" data-borrar title="Borrar el examen y sus entregas" aria-label="Borrar">${ICONO.borrar}</button>
+        </span>
+      </div>
+    </article>`).join("")}</div>`;
+  const idDe = (el) => el.closest("[data-id]").dataset.id;
   $$("[data-aj]", t).forEach((c) => (c.onchange = async () => {
-    const id = c.closest("tr").dataset.id;
-    try { await api("/api/profesor/examen/ajustes", { id, [c.dataset.aj]: c.checked }); } catch (e) { alert(e.message); c.checked = !c.checked; }
+    try { await api("/api/profesor/examen/ajustes", { id: idDe(c), [c.dataset.aj]: c.checked }); } catch (e) { alert(e.message); c.checked = !c.checked; }
   }));
-  $$("[data-ent]", t).forEach((b) => (b.onclick = () => abrirEntregas(b.closest("tr").dataset.id)));
+  $$("[data-ent]", t).forEach((b) => (b.onclick = () => abrirEntregas(idDe(b))));
   $$("[data-copiar]", t).forEach((b) => (b.onclick = async () => {
-    const url = `${location.origin}/examen/?id=${encodeURIComponent(b.closest("tr").dataset.id)}`;
-    try { await navigator.clipboard.writeText(url); b.textContent = "¡Copiado!"; } catch { b.textContent = url; }
-    setTimeout(() => (b.textContent = "Copiar enlace"), 2000);
+    const url = `${location.origin}/examen/?id=${encodeURIComponent(idDe(b))}`;
+    try { await navigator.clipboard.writeText(url); b.innerHTML = ICONO.ok; b.title = "¡Enlace copiado!"; } catch { prompt("Enlace del examen:", url); }
+    setTimeout(() => { b.innerHTML = ICONO.enlace; b.title = "Copiar el enlace del examen"; }, 2000);
   }));
   $$("[data-json]", t).forEach((b) => (b.onclick = async () => {
-    const ex = await api(`/api/profesor/examen?id=${encodeURIComponent(b.closest("tr").dataset.id)}`);
+    const ex = await api(`/api/profesor/examen?id=${encodeURIComponent(idDe(b))}`);
     descargar(`${ex.id}.json`, JSON.stringify(ex, null, 2), "application/json");
   }));
   $$("[data-borrar]", t).forEach((b) => (b.onclick = async () => {
-    const e = EXAMENES.find((x) => x.id === b.closest("tr").dataset.id);
+    const e = EXAMENES.find((x) => x.id === idDe(b));
     if (!confirm(`¿Borrar «${e.titulo}»?\n\nSe borrarán también sus ${e.entregas} entregas. Exporta antes las notas si las necesitas. No se puede deshacer.`)) return;
     try { await api("/api/profesor/examen/borrar", { id: e.id }); cargarExamenes(); } catch (err) { alert(err.message); }
   }));
@@ -816,7 +823,7 @@ function pintarAlumnos() {
     $("[data-tab=vProfes]").hidden = false;
     api("/api/admin/profesores").then(({ profesores }) => { const n = profesores.filter((p) => !p.aprobado).length; $("#nPend").hidden = !n; $("#nPend").textContent = n; }).catch(() => {});
   } else {
-    $("h1").insertAdjacentHTML("afterend", `<p class="muted" style="margin:4px 0 0">Tus ciclos: <b>${esc(CATALOGO_NOMBRES(yo.ciclos))}</b></p>`);
+    $("#subPanel").innerHTML = `Tus ciclos: <b>${esc(CATALOGO_NOMBRES(yo.ciclos))}</b> · crea y publica exámenes, revisa entregas y gestiona tus grupos.`;
   }
   await cargarExamenes();
 })().catch((e) => { $("#tablaExamenes").innerHTML = `<div class="msg bad">${esc(e.message)}</div>`; });

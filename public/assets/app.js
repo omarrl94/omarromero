@@ -25,13 +25,19 @@ async function api(ruta, cuerpo, { redirigir401 = true } = {}) {
 /** Cabecera con logo y usuario. Devuelve el usuario (o redirige si no hay sesión). */
 async function cabecera({ ciclo = "Exámenes" } = {}) {
   const { usuario } = await api("/api/cuenta/yo");
+  const iniciales = `${usuario.nombre?.[0] || ""}${usuario.apellidos?.[0] || ""}`.toUpperCase();
+  const rol = usuario.admin ? "Administración" : usuario.rol === "profesor" ? "Profesorado" : usuario.grupo || "Alumno/a";
+  const enProfe = location.pathname.startsWith("/profesor");
   $("#head").innerHTML = `
-    <a class="brand" href="/panel/">${LOGO}<div><div class="ey">Formación Profesional</div>
+    <a class="brand" href="${usuario.rol === "profesor" && enProfe ? "/profesor/" : "/panel/"}">${LOGO}<div><div class="ey">Formación Profesional</div>
       <div class="nm">José Ramón Otero <span class="tag">${esc(ciclo)}</span></div></div></a>
-    <div class="who"><span><b>${esc(usuario.nombre)} ${esc(usuario.apellidos)}</b>${usuario.grupo ? " · " + esc(usuario.grupo) : ""}</span>
-      ${usuario.rol !== "profesor" ? "" : location.pathname.startsWith("/profesor")
-        ? `<a class="btn ghost sm" href="/panel/">Vista del alumno</a>` : `<a class="btn ghost sm" href="/profesor/">Panel del profesor</a>`}
-      <button class="btn ghost sm" id="salir">Salir</button></div>`;
+    <div class="who">
+      <div class="user"><span class="avatar" aria-hidden="true">${esc(iniciales)}</span>
+        <span><b>${esc(usuario.nombre)} ${esc(usuario.apellidos)}</b><small>${esc(rol)}</small></span></div>
+      <span class="sep"></span>
+      ${usuario.rol !== "profesor" ? "" : enProfe
+        ? `<a class="btn ghost sm" href="/panel/" title="Ver la plataforma como un alumno">Vista alumno</a>` : `<a class="btn ghost sm" href="/profesor/">Panel profesor</a>`}
+      <button class="btn ghost sm" id="salir" title="Cerrar sesión">Salir</button></div>`;
   $("#salir").onclick = async () => { await api("/api/cuenta/logout", {}).catch(() => {}); location.href = "/"; };
   return usuario;
 }
@@ -78,13 +84,15 @@ const partesVista = (d) => d.partes || { mc: { pts: d.mcOk, max: d.examen.mc.len
 function htmlNota(d, extra = "") {
   const ex = d.examen, P = partesVista(d), T = titulosPartes(ex);
   const final = d.notaProfesor ?? d.nota;
-  const fila = (k) => P[k]?.max ? `<div class="bar"><span>${esc(T[k])}</span><span>${fmt(P[k].pts)} / ${fmt(P[k].max)}</span></div>` : "";
+  const fila = (k) => P[k]?.max ? `<div class="bar"><span>${esc(T[k])}</span><span>${fmt(P[k].pts)} / ${fmt(P[k].max)}</span>
+    <span class="meter"><i style="width:${Math.max(0, Math.min(100, (100 * P[k].pts) / P[k].max))}%"></i></span></div>` : "";
+  const color = final >= 5 ? "var(--ok)" : "var(--bad)";
   return `<div class="card">
-    <div class="score"><div class="bigscore">${fmt(final)}<small> /10</small></div>
+    <div class="score"><div class="ring" style="--p:${Math.max(0, Math.min(100, final * 10))};--c:${color}"><div><div class="bigscore">${fmt(final)}</div><small class="muted">sobre 10</small></div></div>
       <div class="bars">
-        ${d.notaProfesor != null ? `<div class="bar"><span>Nota revisada por el profesor</span><span>${fmt(d.notaProfesor)}</span></div><div class="bar"><span>Nota automática</span><span>${fmt(d.nota)}</span></div>` : ""}
+        ${d.notaProfesor != null ? `<div class="bar"><span>Nota revisada por el profesor</span><span>${fmt(d.notaProfesor)}</span></div><div class="bar"><span class="muted">Nota automática</span><span class="muted">${fmt(d.nota)}</span></div>` : ""}
         ${fila("mc")}${fila("open")}${fila("num")}
-        <div class="bar"><span>Entregado</span><span>${esc(d.fechaTexto)}</span></div>
+        <div class="bar"><span class="muted">Entregado</span><span class="muted">${esc(d.fechaTexto)}</span></div>
       </div></div>
     ${d.comentario ? `<div class="msg info"><b>Comentario del profesor:</b> ${esc(d.comentario)}</div>` : ""}
     ${d.finalizadoPorSalida && !extra ? `<div class="msg bad">🔒 Examen finalizado automáticamente al salir de la ventana (${esc(d.finalizadoPorSalida)}).</div>` : ""}
