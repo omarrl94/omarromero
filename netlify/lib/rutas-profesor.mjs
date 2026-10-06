@@ -5,7 +5,8 @@ import { requiereAdmin, esAdmin } from "./auth.mjs";
 import { todosLosExamenes, obtenerExamen, validarExamen, resumen } from "./examenes.mjs";
 import { claveEntrega, vistaEntrega } from "./entregas.mjs";
 import { proveedorConfigurado } from "./correo.mjs";
-import { CATALOGO, GRUPOS, cicloDe } from "./catalogo.mjs";
+import { CATALOGO, GRUPOS, cicloDe, buscarModulo } from "./catalogo.mjs";
+import { iaDisponible, generarLote } from "./ia.mjs";
 
 const examenes = () => almacen("examenes");
 const entregas = () => almacen("entregas");
@@ -188,7 +189,34 @@ async function borrarAlumno(req) {
   return json({ ok: true });
 }
 
+/* ── IA: generar preguntas a partir del material de un tema ── */
+async function iaEstado(req) {
+  await requiereAdmin(req);
+  return json({ disponible: iaDisponible() });
+}
+
+async function iaPreguntas(req) {
+  await requiereAdmin(req);
+  const b = await leerCuerpo(req, 1_500_000);
+  const tipo = b.tipo === "open" ? "open" : "mc";
+  const material = String(b.material || "").trim();
+  if (material.length < 200) fallo(400, "El material tiene muy poco texto. ¿Son diapositivas con solo imágenes?");
+  if (material.length > 400_000) fallo(413, "El material es demasiado largo. Súbelo por partes (por ejemplo, un tema cada vez).");
+  const n = Math.min(Math.max(Number(b.n) || 5, 1), 8);
+  const ubic = buscarModulo(b.cicloId, b.moduloId);
+  const preguntas = await generarLote({
+    tipo, material, n,
+    ya: (Array.isArray(b.ya) ? b.ya : []).slice(0, 100).map((t) => texto(t, 300)),
+    lote: Number(b.lote) || 1, lotes: Number(b.lotes) || 1,
+    titulo: texto(b.titulo, 200), modulo: ubic?.modulo.nombre || "",
+    indicaciones: texto(b.indicaciones, 1000),
+  });
+  return json({ preguntas });
+}
+
 export default {
+  "GET /api/profesor/ia": iaEstado,
+  "POST /api/profesor/ia/preguntas": iaPreguntas,
   "GET /api/profesor/examenes": listar,
   "GET /api/profesor/examen": verExamen,
   "POST /api/profesor/examen": guardar,

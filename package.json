@@ -10,6 +10,7 @@
     "deploy:preview": "node scripts/deploy.mjs --preview"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.131.0",
     "@netlify/blobs": "^11.1.3",
     "nodemailer": "^6.9.16"
   },

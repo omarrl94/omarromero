@@ -40,7 +40,7 @@
 
   <!-- Exámenes -->
   <section id="vExamenes">
-    <div class="toolbar"><h2>Exámenes</h2><div class="acts"><select id="filtroModulo" style="width:auto"></select><button class="btn" id="nuevo">＋ Subir examen</button></div></div>
+    <div class="toolbar"><h2>Exámenes</h2><div class="acts"><select id="filtroModulo" style="width:auto"></select><button class="btn v" id="nuevoIA">✨ Generar con IA</button><button class="btn" id="nuevo">＋ Subir examen</button></div></div>
     <div id="tablaExamenes"><p class="loading">Cargando…</p></div>
   </section>
 
@@ -83,8 +83,37 @@
         <label class="check"><input type="checkbox" id="eSol" checked> Mostrar la corrección al alumno al entregar (en pantalla y en el correo)</label>
         <label class="check" id="eSobreWrap" hidden><input type="checkbox" id="eSobre"> Reemplazar el examen existente con este identificador</label>
       </div>
+      <details id="previa" style="margin:6px 0 14px"><summary style="cursor:pointer;font-weight:700">Revisar las preguntas</summary><div id="previaLista"></div></details>
       <div class="msg bad" data-err hidden></div>
       <div class="actions"><button class="btn" type="submit">Guardar examen</button></div>
+    </form>
+  </div>
+</dialog>
+
+<!-- Generar con IA -->
+<dialog id="dIA">
+  <div class="dhead"><h2>✨ Generar examen con IA</h2><button class="btn ghost sm" data-close>Cerrar</button></div>
+  <div class="dbody">
+    <div class="msg bad" id="iaNoDisp" hidden>La IA no está configurada. Añade la variable <code>ANTHROPIC_API_KEY</code> en Netlify y vuelve a desplegar.</div>
+    <form id="fIA" novalidate>
+      <p class="muted" style="margin-top:0">Sube las diapositivas o el PDF del tema y la IA redactará las preguntas (tipo test y abiertas) con sus soluciones. Después podrás revisarlas y quitar las que no te gusten antes de guardar. El examen se guarda <b>sin publicar</b>.</p>
+      <label class="drop" id="iaDrop"><input type="file" id="iaArchivo" accept=".pptx,.pdf,.docx,.txt,.md" hidden><span id="iaDropTxt">Arrastra aquí el PowerPoint (.pptx), PDF o Word (.docx), o haz clic para elegirlo</span></label>
+      <div class="row2" style="margin-top:16px">
+        <div class="field"><label class="flab" for="iaCiclo">Ciclo</label><select id="iaCiclo"></select></div>
+        <div class="field"><label class="flab" for="iaModulo">Módulo</label><select id="iaModulo"></select></div>
+      </div>
+      <div class="field"><label class="flab" for="iaTitulo">Título del tema</label><input type="text" id="iaTitulo" placeholder="Tema 2 · …"></div>
+      <div class="row2">
+        <div class="field"><label class="flab" for="iaNmc">Preguntas tipo test</label><input type="number" id="iaNmc" min="0" max="40" value="20"></div>
+        <div class="field"><label class="flab" for="iaNopen">Preguntas abiertas</label><input type="number" id="iaNopen" min="0" max="15" value="6"></div>
+      </div>
+      <div class="field"><label class="flab" for="iaInd">Indicaciones para la IA (opcional)</label><textarea id="iaInd" style="min-height:60px" placeholder="Ej.: nivel de 1.º, céntrate en los conceptos y no en las fechas…"></textarea></div>
+      <div id="iaProgreso" hidden>
+        <div class="progress" style="position:static"><span id="iaEstado"></span><div class="track"><div class="fill" id="iaFill"></div></div></div>
+        <p class="hintline">Puede tardar unos minutos. No cierres esta ventana.</p>
+      </div>
+      <div class="msg bad" data-err hidden></div>
+      <div class="actions"><button class="btn v" type="submit" id="iaGo">Generar preguntas</button></div>
     </form>
   </div>
 </dialog>
@@ -144,7 +173,7 @@ function pintarExamenes() {
       <td class="num">${e.entregas}</td>
       <td><label class="switch" title="Visible para los alumnos"><input type="checkbox" data-aj="publicado" ${e.publicado ? "checked" : ""}><span></span></label></td>
       <td><label class="switch" title="El alumno ve la corrección al entregar"><input type="checkbox" data-aj="mostrarSoluciones" ${e.mostrarSoluciones ? "checked" : ""}><span></span></label></td>
-      <td><div class="acts"><button class="btn sm" data-ent>Entregas</button><button class="btn ghost sm" data-copiar>Copiar enlace</button><button class="btn ghost sm" data-json>JSON</button><button class="btn danger sm" data-borrar>Borrar</button></div></td>
+      <td><div class="acts"><button class="btn sm" data-ent>Entregas</button><a class="btn ghost sm" target="_blank" href="/examen/?id=${encodeURIComponent(e.id)}" title="Ábrelo como alumno (también sin publicar). Si lo entregas, usa «Reabrir» para borrar tu intento.">Probar</a><button class="btn ghost sm" data-copiar>Copiar enlace</button><button class="btn ghost sm" data-json>JSON</button><button class="btn danger sm" data-borrar>Borrar</button></div></td>
     </tr>`).join("")}</tbody></table></div>`;
   $$("[data-aj]", t).forEach((c) => (c.onchange = async () => {
     const id = c.closest("tr").dataset.id;
@@ -312,6 +341,15 @@ async function leerArchivo(file) {
       };
       ex.id = slug([ex.ciclo, ex.titulo].filter(Boolean).join(" "));
     }
+    mostrarFormulario(ex, `Encontradas <b>${(ex.mc || []).length} preguntas tipo test</b> y <b>${(ex.open || []).length} abiertas</b>. Revisa los datos y guarda.`);
+  } catch (e) {
+    $("#fExamen").hidden = true;
+    $("#dropTxt").innerHTML = `<span style="color:var(--bad)">No se ha podido leer «${esc(file.name)}»: ${esc(e.message)}</span>`;
+  }
+}
+
+/** Rellena el formulario de guardado con un examen (importado o generado con IA). */
+function mostrarFormulario(ex, resumen) {
     IMPORT = ex;
     $("#eTitulo").value = ex.titulo || ""; $("#eId").value = ex.id || slug(ex.titulo || "examen");
     $("#eSub").value = ex.subtitulo || "";
@@ -324,15 +362,166 @@ async function leerArchivo(file) {
     $("#eModulo").value = m.id;
     $("#eOrden").value = ex.orden ?? EXAMENES.filter((e) => e.cicloId === c.id && e.moduloId === m.id).length + 1;
     $("#ePub").checked = !!ex.publicado; $("#eSol").checked = ex.mostrarSoluciones !== false; $("#eSobre").checked = false;
-    $("#resumenImport").innerHTML = `Encontradas <b>${(ex.mc || []).length} preguntas tipo test</b> y <b>${(ex.open || []).length} abiertas</b>. Revisa los datos y guarda.`;
+    $("#resumenImport").innerHTML = resumen;
     comprobarId();
+    pintarPrevia();
     $("[data-err]", $("#fExamen")).hidden = true;
     $("#fExamen").hidden = false;
-  } catch (e) {
-    $("#fExamen").hidden = true;
-    $("#dropTxt").innerHTML = `<span style="color:var(--bad)">No se ha podido leer «${esc(file.name)}»: ${esc(e.message)}</span>`;
-  }
 }
+
+/** Lista de preguntas con la respuesta correcta y botón para quitar cada una. */
+function pintarPrevia() {
+  const mc = IMPORT.mc || [], open = IMPORT.open || [];
+  $("#previa").querySelector("summary").textContent = `Revisar las preguntas (${mc.length} tipo test · ${open.length} abiertas)`;
+  $("#previaLista").innerHTML =
+    mc.map((q, i) => `<div class="rev ok"><p class="rq" style="display:flex;justify-content:space-between;gap:10px"><span>${i + 1}. ${esc(q.t)}</span>
+      <button type="button" class="btn danger sm" data-quitar="mc:${i}">Quitar</button></p>
+      ${q.o.map((o, j) => `<p class="rd">${j === q.c ? "<b>✓ " : ""}${LETRAS[j]}) ${esc(o)}${j === q.c ? "</b>" : ""}</p>`).join("")}</div>`).join("") +
+    open.map((q, i) => `<div class="rev warn"><p class="rq" style="display:flex;justify-content:space-between;gap:10px"><span>${mc.length + i + 1}. ${esc(q.t)}</span>
+      <button type="button" class="btn danger sm" data-quitar="open:${i}">Quitar</button></p>
+      ${q.act ? `<p class="rd">Bloque: ${esc(q.act)}</p>` : ""}<p class="rd">Respuesta esperada: <b>${esc(q.exp)}</b></p>
+      <p class="rd">Conceptos clave (${q.full} para «Bien», ${q.partial} para «Casi»): ${q.groups.map((g) => esc(g.join(" / "))).join(" · ")}</p></div>`).join("");
+  $$("[data-quitar]").forEach((b) => (b.onclick = () => {
+    const [tipo, i] = b.dataset.quitar.split(":");
+    IMPORT[tipo].splice(Number(i), 1);
+    pintarPrevia();
+  }));
+}
+/* ── Generar con IA ── */
+const CDN = {
+  jszip: "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js",
+  pdf: "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js",
+  pdfWorker: "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js",
+};
+const cargarScript = (src) => new Promise((ok, ko) => {
+  const s = document.createElement("script"); s.src = src; s.onload = ok;
+  s.onerror = () => ko(new Error("no se ha podido cargar el lector de archivos; comprueba la conexión")); document.head.appendChild(s);
+});
+const parrafos = (xml, p, t) => [...new DOMParser().parseFromString(xml, "application/xml").getElementsByTagName(p)]
+  .map((n) => [...n.getElementsByTagName(t)].map((x) => x.textContent).join("").trim()).filter(Boolean);
+
+/** Extrae el texto del archivo en el navegador (solo se envía el texto, no el archivo). */
+async function textoDeArchivo(file) {
+  const ext = file.name.split(".").pop().toLowerCase();
+  if (ext === "txt" || ext === "md") return file.text();
+  if (ext === "pdf") {
+    if (!window.pdfjsLib) await cargarScript(CDN.pdf);
+    pdfjsLib.GlobalWorkerOptions.workerSrc = CDN.pdfWorker;
+    const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+    const out = [];
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const c = await (await pdf.getPage(i)).getTextContent();
+      out.push(`--- Página ${i} ---\n` + c.items.map((it) => it.str + (it.hasEOL ? "\n" : " ")).join(""));
+    }
+    return out.join("\n\n");
+  }
+  if (ext === "pptx" || ext === "docx") {
+    if (!window.JSZip) await cargarScript(CDN.jszip);
+    const zip = await JSZip.loadAsync(await file.arrayBuffer());
+    if (ext === "docx") return parrafos(await zip.file("word/document.xml").async("string"), "w:p", "w:t").join("\n");
+    const num = (n) => Number(n.match(/(\d+)\.xml$/)[1]);
+    const diapos = Object.keys(zip.files).filter((n) => /^ppt\/slides\/slide\d+\.xml$/.test(n)).sort((a, b) => num(a) - num(b));
+    const out = [];
+    for (const [i, n] of diapos.entries()) {
+      let txt = parrafos(await zip.file(n).async("string"), "a:p", "a:t").join("\n");
+      // Notas del orador, si las hay (suelen tener la explicación).
+      const rels = zip.file(n.replace("slides/", "slides/_rels/") + ".rels");
+      const nota = rels && /notesSlides\/(notesSlide\d+\.xml)/.exec(await rels.async("string"));
+      if (nota && zip.file(`ppt/notesSlides/${nota[1]}`)) {
+        const notas = parrafos(await zip.file(`ppt/notesSlides/${nota[1]}`).async("string"), "a:p", "a:t").filter((t) => !/^\d+$/.test(t));
+        if (notas.length) txt += `\n[Notas] ${notas.join(" ")}`;
+      }
+      out.push(`--- Diapositiva ${i + 1} ---\n${txt}`);
+    }
+    return out.join("\n\n");
+  }
+  throw new Error("formato no admitido (usa .pptx, .pdf, .docx o .txt)");
+}
+
+let IA_ARCHIVO = null;
+function rellenarModulosIA() {
+  const c = CATALOGO.find((x) => x.id === $("#iaCiclo").value);
+  $("#iaModulo").innerHTML = (c?.modulos || []).map((m) => `<option value="${esc(m.id)}">${esc(m.nombre)}</option>`).join("");
+}
+$("#iaCiclo").onchange = rellenarModulosIA;
+$("#nuevoIA").onclick = async () => {
+  IA_ARCHIVO = null; $("#iaArchivo").value = ""; $("#iaProgreso").hidden = true; $("[data-err]", $("#fIA")).hidden = true;
+  $("#iaDropTxt").textContent = "Arrastra aquí el PowerPoint (.pptx), PDF o Word (.docx), o haz clic para elegirlo";
+  $("#iaCiclo").innerHTML = CATALOGO.map((c) => `<option value="${esc(c.id)}">${esc(c.nombre)}</option>`).join("");
+  const [fc, fm] = ($("#filtroModulo").value || "/").split("/");
+  if (fc) $("#iaCiclo").value = fc;
+  rellenarModulosIA();
+  if (fm) $("#iaModulo").value = fm;
+  $("#iaGo").disabled = false;
+  $("#dIA").showModal();
+  const { disponible } = await api("/api/profesor/ia").catch(() => ({ disponible: false }));
+  $("#iaNoDisp").hidden = disponible; $("#iaGo").disabled = !disponible;
+};
+const iaDrop = $("#iaDrop");
+["dragenter", "dragover"].forEach((ev) => iaDrop.addEventListener(ev, (e) => { e.preventDefault(); iaDrop.classList.add("over"); }));
+["dragleave", "drop"].forEach((ev) => iaDrop.addEventListener(ev, (e) => { e.preventDefault(); iaDrop.classList.remove("over"); }));
+const elegirIA = (f) => {
+  IA_ARCHIVO = f; $("#iaDropTxt").textContent = f.name;
+  if (!$("#iaTitulo").value.trim()) $("#iaTitulo").value = f.name.replace(/\.[^.]+$/, "").replace(/[_]+/g, " ").replace(/\s+/g, " ").trim();
+};
+iaDrop.addEventListener("drop", (e) => { if (e.dataTransfer.files[0]) elegirIA(e.dataTransfer.files[0]); });
+$("#iaArchivo").onchange = (e) => { if (e.target.files[0]) elegirIA(e.target.files[0]); };
+
+$("#fIA").onsubmit = async (ev) => {
+  ev.preventDefault();
+  const f = ev.target, err = $("[data-err]", f), btn = $("#iaGo");
+  const error = (m) => { err.textContent = m; err.hidden = false; };
+  err.hidden = true;
+  const nMc = Math.max(0, Math.min(40, Number($("#iaNmc").value) || 0)), nOpen = Math.max(0, Math.min(15, Number($("#iaNopen").value) || 0));
+  const titulo = $("#iaTitulo").value.trim();
+  if (!IA_ARCHIVO) return error("Elige el archivo del tema.");
+  if (!titulo) return error("Escribe el título del tema.");
+  if (!nMc && !nOpen) return error("Pide al menos una pregunta.");
+
+  btn.disabled = true; $("#iaProgreso").hidden = false;
+  const estado = (txt, hechas, total) => { $("#iaEstado").textContent = txt; $("#iaFill").style.width = `${total ? (100 * hechas) / total : 5}%`; };
+  try {
+    estado("Leyendo el archivo…", 0, 0);
+    const material = (await textoDeArchivo(IA_ARCHIVO)).trim();
+    if (material.length < 200) throw new Error("el archivo apenas tiene texto (¿diapositivas solo con imágenes?)");
+
+    // Lotes pequeños: cada petición tarda poco.
+    const plan = [];
+    for (let i = 0, lotes = Math.ceil(nMc / 5); i < lotes; i++) plan.push({ tipo: "mc", n: Math.min(5, nMc - i * 5), lote: i + 1, lotes });
+    for (let i = 0, lotes = Math.ceil(nOpen / 3); i < lotes; i++) plan.push({ tipo: "open", n: Math.min(3, nOpen - i * 3), lote: i + 1, lotes });
+    const ex = { titulo, subtitulo: "", cicloId: $("#iaCiclo").value, moduloId: $("#iaModulo").value, mc: [], open: [], publicado: false, mostrarSoluciones: true };
+    const total = nMc + nOpen;
+    let avisos = "";
+    for (const paso of plan) {
+      const hechas = ex.mc.length + ex.open.length;
+      estado(`Generando ${paso.tipo === "mc" ? "preguntas tipo test" : "preguntas abiertas"}… (${hechas} de ${total})`, hechas, total);
+      const cuerpo = { ...paso, material, titulo, cicloId: ex.cicloId, moduloId: ex.moduloId, indicaciones: $("#iaInd").value.trim(),
+        ya: [...ex.mc, ...ex.open].map((q) => q.t) };
+      let r;
+      try { r = await api("/api/profesor/ia/preguntas", cuerpo); }
+      catch (e1) {
+        if (e1.status && e1.status < 500 && e1.status !== 429) throw e1;
+        estado("La IA ha tardado demasiado; reintentando…", hechas, total);
+        try { r = await api("/api/profesor/ia/preguntas", { ...cuerpo, n: Math.max(1, Math.ceil(paso.n / 2)) }); }
+        catch (e2) { avisos = `Algún lote ha fallado (${e2.message}); revisa si faltan preguntas.`; continue; }
+      }
+      ex[paso.tipo].push(...r.preguntas);
+    }
+    if (!ex.mc.length && !ex.open.length) throw new Error(avisos || "la IA no ha devuelto preguntas");
+    estado("¡Listo!", total, total);
+    ex.id = slug(`${ex.moduloId} ${titulo}`);
+    $("#dIA").close();
+    $("#archivo").value = ""; $("#dropTxt").textContent = `Generado con IA a partir de «${IA_ARCHIVO.name}»`;
+    $("#dSubir").showModal();
+    mostrarFormulario(ex, `La IA ha generado <b>${ex.mc.length} preguntas tipo test</b> y <b>${ex.open.length} abiertas</b>. <b>Revísalas</b> (despliega «Revisar las preguntas»), quita las que no te convenzan y guarda. Se guardará sin publicar.${avisos ? `<br><span style="color:var(--bad)">${esc(avisos)}</span>` : ""}`);
+    $("#previa").open = true;
+  } catch (e) {
+    error(`No se ha podido generar: ${e.message}`);
+  } finally {
+    btn.disabled = false;
+  }
+};
+
 function comprobarId() { $("#eSobreWrap").hidden = !EXAMENES.some((e) => e.id === $("#eId").value.trim()); }
 $("#eId").oninput = comprobarId;
 $("#fExamen").onsubmit = async (ev) => {

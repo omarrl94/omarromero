@@ -17,7 +17,8 @@ const progreso = () => almacen("progreso");
 
 async function examenPublicado(id, u) {
   const ex = await obtenerExamen(id);
-  if (!ex || !ex.publicado || !puedeVer(u, ex)) fallo(404, "Este examen no existe o no está disponible para tu ciclo");
+  // El profesor puede abrir también los no publicados, para probarlos antes.
+  if (!ex || (!ex.publicado && !esAdmin(u.email)) || !puedeVer(u, ex)) fallo(404, "Este examen no existe o no está disponible para tu ciclo");
   return ex;
 }
 

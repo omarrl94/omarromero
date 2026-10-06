@@ -26,6 +26,8 @@ Funciona en **Netlify** (plan gratuito): páginas estáticas + una Netlify Funct
 **Profesor** (`/profesor/`, solo los correos de `ADMIN_EMAILS`)
 - **Acceso**: entra desde la página principal con su correo y `ADMIN_PASSWORD`; la cuenta se crea sola, sin registro ni código.
 - **Subir examen**: arrastra el HTML del cuestionario (con los arrays `MC` y `OPEN`) o un JSON, elige **ciclo, módulo y orden** del tema, y guarda.
+- **✨ Generar con IA**: sube las diapositivas (.pptx), un PDF o un Word del tema, elige ciclo, módulo y cuántas preguntas quieres, y la IA (Claude) redacta las preguntas tipo test y abiertas con sus soluciones y conceptos clave. Se muestran para **revisarlas y quitar** las que no convenzan, y el examen se guarda **sin publicar**. Necesita `ANTHROPIC_API_KEY`.
+- **Probar**: abre el examen como lo verá el alumno, aunque no esté publicado.
 - **Publicado**: interruptor para mostrarlo u ocultarlo a los alumnos.
 - **Corrección visible**: si se desactiva, el alumno solo ve su nota y sus respuestas (en pantalla y en el correo), sin las soluciones.
 - **Entregas**: tabla por alumno con nota automática, nota final, salidas de la ventana y fecha; filtro por grupo y media.
@@ -54,6 +56,7 @@ Funciona en **Netlify** (plan gratuito): páginas estáticas + una Netlify Funct
    | `MAIL_FROM` | para correo | `"Exámenes FP José Ramón Otero <examenes@jrotero.es>"` |
    | `PROFESOR_EMAIL` | no | recibe copia oculta de cada entrega |
    | `DOMINIOS_PERMITIDOS` | no | `jrotero.es` (por defecto) |
+   | `ANTHROPIC_API_KEY` | para la IA | clave de console.anthropic.com (márcala como *secret*) |
 
 3. **Redesplegar** (*Deploys → Trigger deploy*) para que coja las variables.
 4. Entra en la web con el correo de `ADMIN_EMAILS` y la contraseña de `ADMIN_PASSWORD` (pestaña «Entrar», sin registrarte) y llegarás al panel del profesor. El examen de **ASIR › Seguridad y Alta Disponibilidad › Temas 1 y 2** ya aparece cargado y publicado.
@@ -74,6 +77,14 @@ Se definen en `netlify/lib/catalogo.mjs`. Ahora mismo:
 Para añadir otro ciclo o módulo basta con añadir una línea en ese archivo (y hacer push). Los grupos del registro se generan solos a partir de los ciclos (`CURSOS`: 1.º y 2.º).
 
 Los exámenes que vienen con la plataforma están en `netlify/lib/semilla-*.mjs` y se cargan **una sola vez** al desplegar; si los borras o editas desde el panel, no se vuelven a crear.
+
+## Generar exámenes con IA
+
+- El **navegador del profesor** extrae el texto del archivo (diapositivas con sus notas del orador, PDF o Word); al servidor solo llega el texto. Las diapositivas que son solo imágenes no aportan contenido.
+- El servidor pide las preguntas a Claude (`claude-opus-5-5`) en **lotes pequeños** (5 tipo test o 3 abiertas por petición) para no superar el límite de tiempo de las funciones de Netlify; el panel muestra el progreso.
+- La respuesta llega en JSON con esquema fijo; el servidor descarta preguntas mal formadas, **baraja las opciones** (la correcta queda repartida entre a/b/c/d) y normaliza los conceptos clave.
+- Coste orientativo: entre 0,30 y 1 € por examen de unas 25 preguntas, según la longitud del material (el material se cachea entre lotes). El consumo de cada lote aparece en los logs de la función (`ia-lote`).
+- Para cambiar el estilo de las preguntas, edita el texto `SISTEMA` en `netlify/lib/ia.mjs`, o usa el campo «Indicaciones para la IA» del panel.
 
 ## Formato de un examen
 
@@ -113,5 +124,6 @@ netlify/lib/auth.mjs           Contraseñas, sesiones y códigos
 netlify/lib/almacen.mjs        Netlify Blobs (o carpeta local)
 netlify/lib/correccion.mjs     Corrección automática
 netlify/lib/correo.mjs         Envío por SMTP o Resend
+netlify/lib/ia.mjs             Generación de preguntas con Claude
 netlify/lib/plantillas.mjs     Correos (código y resultado)
 ```
