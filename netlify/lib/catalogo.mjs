@@ -20,7 +20,9 @@ const CICLOS = [
   { id: "comercio", nombre: "Comercio", grado: "GM", descripcion: "Actividades Comerciales", modulos: [] },
   { id: "gestionadm", nombre: "Gestión Adm.", grado: "GM", descripcion: "Gestión Administrativa", modulos: [] },
   { id: "ayf", nombre: "AYF", grado: "GS", descripcion: "Administración y Finanzas", modulos: [] },
-  { id: "aut", nombre: "AUT", grado: "GS", descripcion: "Automatización y Robótica Industrial", modulos: [] },
+  // Automoción: agrupa todos los ciclos de automoción de grado medio y superior.
+  { id: "aut", nombre: "AUT", grado: "GM y GS", descripcion: "Automoción", modulos: [],
+    grupos: ["1.º AUT (GM)", "2.º AUT (GM)", "1.º AUT (GS)", "2.º AUT (GS)"] },
 ];
 
 /**
@@ -88,7 +90,7 @@ export function moduloPorNombre(cicloNombre, moduloNombre) {
 export const CURSOS = ["1.º", "2.º"];
 
 export const GRUPOS = () =>
-  CATALOGO.flatMap((c) => CURSOS.map((k) => ({ grupo: `${k} ${c.nombre}`, cicloId: c.id })));
+  CATALOGO.flatMap((c) => (c.grupos || CURSOS.map((k) => `${k} ${c.nombre}`)).map((grupo) => ({ grupo, cicloId: c.id })));
 
 /** Ciclo al que pertenece un grupo escrito a mano («1º asir», «2 DAM»…), o null. */
 export function cicloDeGrupo(grupo) {

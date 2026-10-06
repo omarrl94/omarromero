@@ -84,9 +84,9 @@ Los **ciclos** del centro están en `netlify/lib/catalogo.mjs`:
 | Comercio | Actividades Comerciales | GM |
 | Gestión Adm. | Gestión Administrativa | GM |
 | AYF | Administración y Finanzas | GS |
-| AUT | Automatización y Robótica Industrial | GS |
+| AUT | Automoción (todos los ciclos de automoción) | GM y GS |
 
-Los grupos del registro de alumnos se generan solos (1.º y 2.º de cada ciclo, `CURSOS`). Para añadir un ciclo, añade una línea en `CICLOS` (con un `id` nuevo que no cambie nunca) y haz push.
+Los grupos del registro de alumnos se generan solos (1.º y 2.º de cada ciclo, `CURSOS`); AUT tiene sus propios grupos: 1.º/2.º de GM y 1.º/2.º de GS. Para añadir un ciclo, añade una línea en `CICLOS` (con un `id` nuevo que no cambie nunca) y haz push.
 
 Los **módulos** los crean el administrador y los profesores desde el panel (botón **«Módulos»**), cada uno en sus ciclos; se guardan en Netlify Blobs. Solo se pueden borrar los módulos sin exámenes. Vienen de serie: ASIR › Seguridad y Alta Disponibilidad y DAM › Inteligencia Artificial.
 
