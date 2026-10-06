@@ -10,7 +10,8 @@
 import { almacen } from "./almacen.mjs";
 
 const CICLOS = [
-  { id: "sea", nombre: "SEA", grado: "GS", descripcion: "Sistemas Electrotécnicos y Automatizados", modulos: [] },
+  { id: "sea", nombre: "SEA", grado: "GS", descripcion: "Sistemas Electrotécnicos y Automatizados",
+    modulos: [{ id: "fundamentos-electricidad", nombre: "Fundamentos de la Electricidad" }] },
   { id: "dam", nombre: "DAM", grado: "GS", descripcion: "Desarrollo de Aplicaciones Multiplataforma",
     modulos: [{ id: "ia", nombre: "Inteligencia Artificial" }] },
   { id: "asir", nombre: "ASIR", grado: "GS", descripcion: "Administración de Sistemas Informáticos en Red",

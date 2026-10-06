@@ -72,8 +72,8 @@
 <dialog id="dSubir">
   <div class="dhead"><h2>Subir examen</h2><button class="btn ghost sm" data-close>Cerrar</button></div>
   <div class="dbody">
-    <p class="muted" style="margin-top:0">Sube el <b>HTML del cuestionario</b> (con los arrays <code>MC</code> y <code>OPEN</code>, como el de SAD) o un <b>JSON</b> con el mismo formato. <a href="#" id="plantilla">Descargar plantilla JSON</a>.</p>
-    <label class="drop" id="drop"><input type="file" id="archivo" accept=".html,.htm,.json" hidden><span id="dropTxt">Arrastra aquí el archivo o haz clic para elegirlo</span></label>
+    <p class="muted" style="margin-top:0">Sube el <b>HTML del cuestionario</b> (con los arrays <code>MC</code> y <code>OPEN</code>, como el de SAD), un <b>JSON</b> con el mismo formato o un examen en <b>Word (.docx)</b>, que se adapta con la IA. <a href="#" id="plantilla">Descargar plantilla JSON</a>.</p>
+    <label class="drop" id="drop"><input type="file" id="archivo" accept=".html,.htm,.json,.docx" hidden><span id="dropTxt">Arrastra aquí el archivo (.html, .json o .docx) o haz clic para elegirlo</span></label>
     <form id="fExamen" hidden style="margin-top:18px" novalidate>
       <div class="msg info" id="resumenImport"></div>
       <div class="row2">
@@ -116,14 +116,25 @@
     <div class="msg bad" id="iaNoDisp" hidden>La IA no está configurada. Añade la variable <code>GEMINI_API_KEY</code> en Netlify y vuelve a desplegar.</div>
     <div class="msg" id="iaConexion" hidden></div>
     <form id="fIA" novalidate>
-      <p class="muted" style="margin-top:0">Sube las diapositivas o el PDF del tema y la IA redactará las preguntas (tipo test y abiertas) con sus soluciones. Después podrás revisarlas y quitar las que no te gusten antes de guardar. El examen se guarda <b>sin publicar</b>.</p>
-      <label class="drop" id="iaDrop"><input type="file" id="iaArchivo" accept=".pptx,.pdf,.docx,.txt,.md" hidden><span id="iaDropTxt">Arrastra aquí el PowerPoint (.pptx), PDF o Word (.docx), o haz clic para elegirlo</span></label>
+      <div class="tabs" role="tablist" style="margin-bottom:14px">
+        <button type="button" role="tab" aria-selected="true" data-modo-ia="tema">Desde el temario</button>
+        <button type="button" role="tab" aria-selected="false" data-modo-ia="word">Adaptar examen de Word</button>
+      </div>
+      <p class="muted" style="margin-top:0" data-solo="tema">Sube las diapositivas o el PDF del tema y la IA redactará las preguntas (tipo test y abiertas) con sus soluciones. Después podrás revisarlas y quitar las que no te gusten antes de guardar. El examen se guarda <b>sin publicar</b>.</p>
+      <div data-solo="word" hidden>
+        <p class="muted" style="margin-top:0">Sube tu examen en Word y, si lo tienes, el <b>solucionario</b>. La IA lo pasa a la plataforma tal cual: test (también con nivel de confianza), preguntas abiertas con su rúbrica y ejercicios con sus resultados y figuras. Revísalo antes de guardar; se guarda <b>sin publicar</b>.</p>
+        <div class="row2">
+          <div class="field"><label class="flab" for="wExamen">Examen (.docx)</label><input type="file" id="wExamen" accept=".docx"></div>
+          <div class="field"><label class="flab" for="wSol">Solucionario (.docx, opcional)</label><input type="file" id="wSol" accept=".docx"></div>
+        </div>
+      </div>
+      <label class="drop" id="iaDrop" data-solo="tema"><input type="file" id="iaArchivo" accept=".pptx,.pdf,.docx,.txt,.md" hidden><span id="iaDropTxt">Arrastra aquí el PowerPoint (.pptx), PDF o Word (.docx), o haz clic para elegirlo</span></label>
       <div class="row2" style="margin-top:16px">
         <div class="field"><label class="flab" for="iaCiclo">Ciclo</label><select id="iaCiclo"></select></div>
         <div class="field"><label class="flab" for="iaModulo">Módulo</label><select id="iaModulo"></select></div>
       </div>
       <div class="field"><label class="flab" for="iaTitulo">Título del tema</label><input type="text" id="iaTitulo" placeholder="Tema 2 · …"></div>
-      <div class="row2">
+      <div class="row2" data-solo="tema">
         <div class="field"><label class="flab" for="iaNmc">Preguntas tipo test</label><input type="number" id="iaNmc" min="0" max="40" value="20"></div>
         <div class="field"><label class="flab" for="iaNopen">Preguntas abiertas</label><input type="number" id="iaNopen" min="0" max="15" value="6"></div>
       </div>
@@ -216,7 +227,7 @@ function pintarExamenes() {
     ${lista.map((e) => `<tr data-id="${esc(e.id)}">
       <td><b>${esc(e.ciclo)}</b><div class="muted" style="font-size:13px">${esc(e.modulo)}</div></td>
       <td><b>${esc(e.titulo)}</b><div class="muted" style="font-size:13px">Orden ${e.orden} · <code>${esc(e.id)}</code>${e.autor ? ` · ${esc(e.autor)}` : ""}</div></td>
-      <td>${e.nMc} test · ${e.nOpen} abiertas</td>
+      <td>${e.nMc} test · ${e.nOpen} abiertas${e.nNum ? ` · ${e.nNum} ejercicios` : ""}</td>
       <td class="num">${e.entregas}</td>
       <td><label class="switch" title="Visible para los alumnos"><input type="checkbox" data-aj="publicado" ${e.publicado ? "checked" : ""}><span></span></label></td>
       <td><label class="switch" title="El alumno ve la corrección al entregar"><input type="checkbox" data-aj="mostrarSoluciones" ${e.mostrarSoluciones ? "checked" : ""}><span></span></label></td>
@@ -370,6 +381,14 @@ const slug = (s) => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCa
 const capitalizar = (s) => s.toLowerCase().replace(/(^|\s)(\p{L})/gu, (m, a, b) => a + b.toUpperCase()).replace(/\s(Y|De|Del|La|Las|Los|E|En)(?=\s)/g, (m) => m.toLowerCase());
 
 async function leerArchivo(file) {
+  // Un examen en Word se adapta con la IA.
+  if (/\.docx$/i.test(file.name)) {
+    $("#dSubir").close();
+    await $("#nuevoIA").onclick();
+    modoIA("word");
+    const dt = new DataTransfer(); dt.items.add(file); $("#wExamen").files = dt.files; $("#wExamen").onchange({ target: $("#wExamen") });
+    return;
+  }
   $("#dropTxt").textContent = file.name;
   const txt = await file.text();
   try {
@@ -420,16 +439,22 @@ function mostrarFormulario(ex, resumen) {
 
 /** Lista de preguntas con la respuesta correcta y botón para quitar cada una. */
 function pintarPrevia() {
-  const mc = IMPORT.mc || [], open = IMPORT.open || [];
-  $("#previa").querySelector("summary").textContent = `Revisar las preguntas (${mc.length} tipo test · ${open.length} abiertas)`;
+  const mc = IMPORT.mc || [], open = IMPORT.open || [], num = IMPORT.num || [];
+  const cab = cabeceraBloques(IMPORT), P = (q) => fmtP(q.puntos ?? 1);
+  const total = [...mc, ...open, ...num].reduce((s, q) => s + Number(q.puntos ?? 1), 0);
+  $("#previa").querySelector("summary").textContent = `Revisar las preguntas (${mc.length} tipo test · ${open.length} abiertas${num.length ? ` · ${num.length} apartados de ejercicios` : ""} · ${fmt(Math.round(total * 100) / 100)} puntos)`;
+  const quitar = (tipo, i) => `<button type="button" class="btn danger sm" data-quitar="${tipo}:${i}">Quitar</button>`;
   $("#previaLista").innerHTML =
-    mc.map((q, i) => `<div class="rev ok"><p class="rq" style="display:flex;justify-content:space-between;gap:10px"><span>${i + 1}. ${esc(q.t)}</span>
-      <button type="button" class="btn danger sm" data-quitar="mc:${i}">Quitar</button></p>
-      ${q.o.map((o, j) => `<p class="rd">${j === q.c ? "<b>✓ " : ""}${LETRAS[j]}) ${esc(o)}${j === q.c ? "</b>" : ""}</p>`).join("")}</div>`).join("") +
-    open.map((q, i) => `<div class="rev warn"><p class="rq" style="display:flex;justify-content:space-between;gap:10px"><span>${mc.length + i + 1}. ${esc(q.t)}</span>
-      <button type="button" class="btn danger sm" data-quitar="open:${i}">Quitar</button></p>
+    (IMPORT.confianza ? `<div class="msg info">El test se puntúa <b>con nivel de confianza</b> (Muy seguro ±100 % · Seguro +70/−50 % · Poco seguro +50/−30 %).</div>` : "") +
+    mc.map((q, i) => cab(q) + `<div class="rev ok"><p class="rq" style="display:flex;justify-content:space-between;gap:10px"><span>${i + 1}. ${esc(q.t)} ${P(q)}</span>${quitar("mc", i)}</p>
+      ${q.o.map((o, j) => `<p class="rd">${j === q.c ? "<b>✓ " : ""}${LETRAS[j]}) ${esc(o)}${j === q.c ? "</b>" : ""}</p>`).join("")}
+      ${q.exp ? `<p class="rd">Justificación: ${esc(q.exp)}</p>` : ""}</div>`).join("") +
+    open.map((q, i) => cab(q) + `<div class="rev warn"><p class="rq" style="display:flex;justify-content:space-between;gap:10px"><span>${mc.length + i + 1}. ${esc(q.t)} ${P(q)}</span>${quitar("open", i)}</p>
       ${q.act ? `<p class="rd">Bloque: ${esc(q.act)}</p>` : ""}<p class="rd">Respuesta esperada: <b>${esc(q.exp)}</b></p>
-      <p class="rd">Conceptos clave (${q.full} para «Bien», ${q.partial} para «Casi»): ${q.groups.map((g) => esc(g.join(" / "))).join(" · ")}</p></div>`).join("");
+      <p class="rd">${q.pesos ? "Rúbrica" : `Conceptos clave (${q.full} para «Bien», ${q.partial} para «Casi»)`}: ${q.groups.map((g, k) => esc(g.join(" / ")) + (q.pesos ? ` <b>(${fmt(q.pesos[k])} p)</b>` : "")).join(" · ")}</p></div>`).join("") +
+    num.map((q, i) => cab(q) + `<div class="rev"><p class="rq" style="display:flex;justify-content:space-between;gap:10px"><span>${esc(q.t)} ${P(q)}</span>${quitar("num", i)}</p>
+      ${q.campos.map((c) => `<p class="rd">${esc(c.etiqueta)}: <b>${c.tipo === "opcion" ? esc(c.opciones[c.correcta]) + ` <span class="muted">(entre: ${c.opciones.map(esc).join(" / ")})</span>` : `${fmtV(c.valor)} ${esc(c.unidad || "")}`}</b>${c.tipo !== "opcion" ? ` <span class="muted">± ${fmt(c.tolerancia ?? 2)} %</span>` : ""}</p>`).join("")}
+      ${q.exp ? `<p class="rd" style="white-space:pre-wrap">Resolución: ${esc(q.exp)}</p>` : ""}</div>`).join("");
   $$("[data-quitar]").forEach((b) => (b.onclick = () => {
     const [tipo, i] = b.dataset.quitar.split(":");
     IMPORT[tipo].splice(Number(i), 1);
@@ -514,7 +539,105 @@ async function textoDeArchivo(file) {
   throw new Error("formato no admitido (usa .pptx, .pdf, .docx o .txt)");
 }
 
-let IA_ARCHIVO = null, IA_LOTE = { mc: 5, open: 3 };
+let IA_ARCHIVO = null, IA_LOTE = { mc: 5, open: 3 }, MODO_IA = "tema";
+function modoIA(m) {
+  MODO_IA = m;
+  $$("[data-modo-ia]").forEach((b) => b.setAttribute("aria-selected", b.dataset.modoIa === m));
+  $$("#fIA [data-solo]").forEach((el) => (el.hidden = el.dataset.solo !== m));
+  $("#iaGo").textContent = m === "word" ? "Adaptar examen" : "Generar preguntas";
+  $("label[for=iaTitulo]").textContent = m === "word" ? "Título del examen" : "Título del tema";
+}
+$$("[data-modo-ia]").forEach((b) => (b.onclick = () => modoIA(b.dataset.modoIa)));
+$("#wExamen").onchange = (e) => {
+  const f = e.target.files[0];
+  if (f && !$("#iaTitulo").value.trim()) $("#iaTitulo").value = f.name.replace(/\.[^.]+$/, "").replace(/_/g, " ").replace(/\s+/g, " ").replace(/\s*alumnado\s*$/i, "").trim();
+};
+
+/**
+ * Texto de un .docx con marcas [FIGURA n] donde hay imágenes, y las imágenes
+ * (data URL, reducidas si son grandes). Recorre párrafos y tablas en orden.
+ */
+async function docxConFiguras(file) {
+  if (!window.JSZip) await cargarScript(CDN.jszip);
+  const zip = await JSZip.loadAsync(await file.arrayBuffer());
+  const xml = new DOMParser().parseFromString(await zip.file("word/document.xml").async("string"), "application/xml");
+  const rels = new DOMParser().parseFromString(await zip.file("word/_rels/document.xml.rels").async("string"), "application/xml");
+  const destino = Object.fromEntries([...rels.getElementsByTagName("Relationship")].map((r) => [r.getAttribute("Id"), r.getAttribute("Target")]));
+  const figuras = [], lineas = [];
+  for (const p of xml.getElementsByTagName("w:p")) {
+    let t = "";
+    for (const n of p.getElementsByTagName("*")) {
+      if (n.tagName === "w:t") t += n.textContent;
+      else if (n.tagName === "w:tab") t += " ";
+      else if (n.tagName === "a:blip") {
+        const ruta = destino[n.getAttribute("r:embed")];
+        const f = ruta && zip.file("word/" + ruta.replace(/^\.\//, ""));
+        const ext = (ruta || "").split(".").pop().toLowerCase();
+        if (f && ["png", "jpg", "jpeg", "gif"].includes(ext)) {
+          figuras.push(await reducirImagen(`data:image/${ext === "jpg" ? "jpeg" : ext};base64,${await f.async("base64")}`));
+          t += ` [FIGURA ${figuras.length}] `;
+        }
+      }
+    }
+    if (t.trim()) lineas.push(t.trim());
+  }
+  return { texto: lineas.join("\n"), figuras };
+}
+/** Reduce imágenes grandes (máx. 1400 px de ancho y ~300 KB) para que quepan en el examen. */
+function reducirImagen(dataUrl) {
+  if (dataUrl.length < 300_000) return Promise.resolve(dataUrl);
+  return new Promise((ok) => {
+    const img = new Image();
+    img.onload = () => {
+      const k = Math.min(1, 1400 / img.width), c = document.createElement("canvas");
+      c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
+      ok(c.toDataURL("image/jpeg", 0.85));
+    };
+    img.onerror = () => ok(dataUrl);
+    img.src = dataUrl;
+  });
+}
+
+/** Adaptar un examen de Word: estructura, test, abiertas y ejercicios (una petición cada una). */
+async function adaptarWord(estado) {
+  const fe = $("#wExamen").files[0], fs = $("#wSol").files[0];
+  if (!fe) throw new Error("elige el archivo del examen (.docx)");
+  estado("Leyendo el Word…", 0, 5);
+  const ex1 = await docxConFiguras(fe);
+  // En el solucionario no se marcan las figuras: las del examen son las que cuentan.
+  const sol = fs ? { texto: (await docxConFiguras(fs)).texto.replace(/\s*\[FIGURA \d+\]\s*/g, " ") } : { texto: "" };
+  if (ex1.texto.length < 100) throw new Error("el examen apenas tiene texto");
+  const base = { examen: ex1.texto, solucionario: sol.texto, cicloId: $("#iaCiclo").value, moduloId: $("#iaModulo").value, indicaciones: $("#iaInd").value.trim() };
+  const pedir = async (parte) => {
+    try { return await api("/api/profesor/ia/adaptar", { ...base, parte }); }
+    catch (e) {
+      if (e.status && e.status < 500 && e.status !== 429) throw e;
+      if (e.status === 429) { estado("Límite de peticiones de la IA; esperando 30 s…", 0, 5); await new Promise((ok) => setTimeout(ok, 30_000)); }
+      return api("/api/profesor/ia/adaptar", { ...base, parte });
+    }
+  };
+  estado("Analizando la estructura del examen…", 1, 5);
+  const est = await pedir("estructura");
+  estado("Pasando el test…", 2, 5);
+  const mc = (await pedir("mc")).preguntas;
+  estado("Pasando las preguntas abiertas y su rúbrica…", 3, 5);
+  const open = (await pedir("open")).preguntas;
+  estado("Pasando los ejercicios y sus resultados…", 4, 5);
+  const { ejercicios } = await pedir("num");
+  const bloques = [], num = [];
+  ejercicios.forEach((e, i) => {
+    const id = `ej${i + 1}`;
+    bloques.push({ id, titulo: e.titulo, texto: e.texto, imagen: ex1.figuras[e.figura - 1] || "" });
+    e.apartados.forEach((a) => num.push({ ...a, bloque: id }));
+  });
+  return {
+    titulo: $("#iaTitulo").value.trim() || est.titulo, subtitulo: est.subtitulo, confianza: est.confianza && mc.length > 0,
+    partes: est.partes, bloques, mc, open, num,
+    cicloId: base.cicloId, moduloId: base.moduloId, publicado: false, mostrarSoluciones: true, seguridad: true,
+    _figuras: ex1.figuras.length, _sinSol: !fs,
+  };
+}
 function rellenarModulosIA() {
   const c = CATALOGO.find((x) => x.id === $("#iaCiclo").value);
   $("#iaModulo").innerHTML = (c?.modulos || []).map((m) => `<option value="${esc(m.id)}">${esc(m.nombre)}</option>`).join("");
@@ -528,6 +651,7 @@ $("#nuevoIA").onclick = async () => {
   if (fc) $("#iaCiclo").value = fc;
   rellenarModulosIA();
   if (fm) $("#iaModulo").value = fm;
+  modoIA("tema"); $("#wExamen").value = ""; $("#wSol").value = "";
   $("#iaGo").disabled = true;
   const con = $("#iaConexion");
   con.hidden = false; con.className = "msg info"; con.textContent = "Comprobando la conexión con la IA…";
@@ -558,6 +682,26 @@ $("#fIA").onsubmit = async (ev) => {
   const nMc = Math.max(0, Math.min(40, Number($("#iaNmc").value) || 0)), nOpen = Math.max(0, Math.min(15, Number($("#iaNopen").value) || 0));
   const titulo = $("#iaTitulo").value.trim();
   if (sinModulos($("#iaCiclo").value)) return error("Este ciclo todavía no tiene módulos. Créalo antes con el botón «Módulos».");
+  if (MODO_IA === "word") {
+    btn.disabled = true; $("#iaProgreso").hidden = false;
+    const estado = (txt, h, t) => { $("#iaEstado").textContent = txt; $("#iaFill").style.width = `${(100 * h) / t}%`; };
+    try {
+      const ex = await adaptarWord(estado);
+      if (!ex.mc.length && !ex.open.length && !ex.num.length) throw new Error("la IA no ha encontrado preguntas en el documento");
+      ex.id = slug(`${ex.moduloId} ${ex.titulo}`);
+      estado("¡Listo!", 5, 5);
+      $("#dIA").close();
+      $("#archivo").value = ""; $("#dropTxt").textContent = `Adaptado con IA desde «${$("#wExamen").files[0].name}»`;
+      $("#dSubir").showModal();
+      const total = [...ex.mc, ...ex.open, ...ex.num].reduce((s, q) => s + Number(q.puntos ?? 1), 0);
+      mostrarFormulario(ex, `La IA ha adaptado el examen: <b>${ex.mc.length} preguntas tipo test</b>${ex.confianza ? " con nivel de confianza" : ""}, <b>${ex.open.length} abiertas</b> y <b>${ex.num.length} apartados de ejercicios</b> (${ex.bloques.filter((b) => b.imagen).length} con figura) · <b>${fmt(Math.round(total * 100) / 100)} puntos</b> en total.
+        <b>Revísalo</b> (despliega «Revisar las preguntas»): comprueba sobre todo las respuestas correctas y los resultados.${ex._sinSol ? ` <span style="color:var(--bad)">Sin solucionario, las respuestas las ha resuelto la IA: revísalas con especial cuidado.</span>` : ""}`);
+      delete ex._figuras; delete ex._sinSol;
+      $("#previa").open = true;
+    } catch (e) { error(`No se ha podido adaptar: ${e.message}`); }
+    finally { btn.disabled = false; }
+    return;
+  }
   if (!IA_ARCHIVO) return error("Elige el archivo del tema.");
   if (!titulo) return error("Escribe el título del tema.");
   if (!nMc && !nOpen) return error("Pide al menos una pregunta.");

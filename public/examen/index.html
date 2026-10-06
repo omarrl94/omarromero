@@ -49,10 +49,13 @@ let EX = null, YO = null, PAYLOAD = null;
 let examOn = false;
 function startExam() { examOn = true; document.body.classList.add("exam"); }
 function stopExam() { examOn = false; document.body.classList.remove("exam"); }
+const marcado = (name) => { const s = $(`input[name="${name}"]:checked`); return s ? +s.value : -1; };
 const respuestasActuales = () => ({
   id: examId,
-  mc: EX.mc.map((_, i) => { const s = $(`input[name="mc${i}"]:checked`); return s ? +s.value : -1; }),
+  mc: EX.mc.map((_, i) => marcado(`mc${i}`)),
+  conf: EX.mc.map((_, i) => (EX.confianza ? marcado(`conf${i}`) : -1)),
   open: EX.open.map((_, i) => $(`#op${i}`).value),
+  num: EX.num.map((q, i) => q.campos.map((c, j) => (c.tipo === "opcion" ? Number($(`#nm${i}_${j}`).value) : $(`#nm${i}_${j}`).value))),
 });
 function avisarSalida(motivo) {
   fetch("/api/examen/incidencia", { method: "POST", keepalive: true, credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: examId, motivo }) }).catch(() => {});
@@ -110,8 +113,9 @@ async function init() {
     : `<b>Modo examen:</b> no salgas de esta página hasta entregar. Si cambias de pestaña o de ventana, quedará registrado para el profesor.`;
   $$("[data-volver]").forEach((a) => (a.href = urlModulo(EX)));
   $("#chips").innerHTML = [EX.modulo && `<span class="chip gray">${esc(EX.modulo)}</span>`,
-    EX.mc.length && `<span class="chip">${EX.mc.length} preguntas tipo test</span>`,
+    EX.mc.length && `<span class="chip">${EX.mc.length} preguntas tipo test${EX.confianza ? " con confianza" : ""}</span>`,
     EX.open.length && `<span class="chip v">${EX.open.length} preguntas abiertas</span>`,
+    EX.num.length && `<span class="chip s">${EX.num.length} apartados de ejercicios</span>`,
     `<span class="chip s">Nota automática /10</span>`].filter(Boolean).join("");
   buildQuiz();
   $("#loading").hidden = true; $("#intro").hidden = false;
@@ -128,35 +132,58 @@ async function verEntrega() {
 }
 
 function buildQuiz() {
-  const f = $("#quiz"); let h = `<div class="progress"><span id="progTxt"></span><div class="track"><div class="fill" id="progFill"></div></div></div>`;
+  const f = $("#quiz"); const T = titulosPartes(EX); const cab = cabeceraBloques(EX);
+  let h = `<div class="progress"><span id="progTxt"></span><div class="track"><div class="fill" id="progFill"></div></div></div>`;
+  const sec = (letra, titulo, color) => `<div class="sec"><span class="n" style="background:var(--${color}-soft);color:var(--${color}-ink)">Parte ${letra}</span><h2>${esc(titulo)}</h2></div>`;
+  let parte = 0, n = 0;
   if (EX.mc.length) {
-    h += `<div class="sec"><span class="n" style="background:var(--amarillo-soft);color:var(--amarillo-ink)">Parte A</span><h2>Test de conceptos</h2></div>`;
+    h += sec("ABC"[parte++], T.mc, "amarillo");
+    if (EX.confianza) h += `<div class="note" style="margin:6px 0 12px">Marca la respuesta y <b>tu nivel de confianza</b>. Si aciertas sumas, si fallas restas; sin nivel de confianza la pregunta cuenta como en blanco. La nota de esta parte no baja de 0.
+      <table class="tabla-conf"><tr><th>Confianza</th><th>Si aciertas</th><th>Si fallas</th></tr>${EX.confianzaTabla.map((c) =>
+        `<tr><td>${esc(c.nombre)}</td><td>+${Math.round(c.acierto * 100)} %</td><td>${Math.round(c.fallo * 100)} %</td></tr>`).join("")}</table></div>`;
     EX.mc.forEach((q, i) => {
       const opts = q.o.map((o, j) => `<label class="opt"><input type="radio" name="mc${i}" value="${j}"><span><b>${LETRAS[j]})</b> ${esc(o)}</span></label>`).join("");
-      h += `<div class="q"><p class="qh"><span class="qi">${i + 1}.</span><span>${esc(q.t)}</span></p>${opts}</div>`;
+      const conf = EX.confianza ? `<div class="conf">Confianza: ${EX.confianzaTabla.map((c, k) => `<label><input type="radio" name="conf${i}" value="${k}"> ${esc(c.nombre)}</label>`).join("")}</div>` : "";
+      h += cab(q) + `<div class="q"><p class="qh"><span class="qi">${++n}.</span><span>${esc(q.t)} ${fmtP(q.puntos)}</span></p>${opts}${conf}</div>`;
     });
   }
   if (EX.open.length) {
-    h += `<div class="sec"><span class="n" style="background:var(--salmon-soft);color:var(--salmon-ink)">Parte B</span><h2>Preguntas abiertas</h2></div>`;
+    h += sec("ABC"[parte++], T.open, "salmon");
     let last = "";
     EX.open.forEach((q, i) => {
+      h += cab(q);
       if (q.act && q.act !== last) h += `<p class="hintline" style="font-weight:700;color:var(--salmon-ink);margin-bottom:-4px">${esc(q.act)}</p>`;
       last = q.act;
-      h += `<div class="q"><p class="qh"><span class="qi">${EX.mc.length + i + 1}.</span><span>${esc(q.t)}</span></p><textarea id="op${i}" maxlength="4000" placeholder="Escribe tu respuesta…"></textarea></div>`;
+      h += `<div class="q"><p class="qh"><span class="qi">${++n}.</span><span>${esc(q.t)} ${fmtP(q.puntos)}</span></p><textarea id="op${i}" maxlength="4000" placeholder="Escribe tu respuesta…"></textarea></div>`;
+    });
+  }
+  if (EX.num.length) {
+    h += sec("ABC"[parte++], T.num, "verde");
+    h += `<p class="hintline">Escribe solo el resultado final de cada apartado (por ejemplo <b>2,5</b> o <b>1,87·10^21</b>). Puedes usar coma o punto decimal; la unidad ya está indicada.</p>`;
+    EX.num.forEach((q, i) => {
+      const campos = q.campos.map((c, j) => c.tipo === "opcion"
+        ? `<div class="campo"><label for="nm${i}_${j}">${esc(c.etiqueta)}</label><select id="nm${i}_${j}" style="flex:0 1 260px;width:auto"><option value="-1">Elige…</option>${c.opciones.map((o, k) => `<option value="${k}">${esc(o)}</option>`).join("")}</select></div>`
+        : `<div class="campo"><label for="nm${i}_${j}">${esc(c.etiqueta)}</label><input type="text" id="nm${i}_${j}" inputmode="decimal" autocomplete="off" maxlength="40"><span class="ud">${esc(c.unidad || "")}</span></div>`).join("");
+      h += cab(q) + `<div class="q"><p class="qh"><span>${esc(q.t)} ${fmtP(q.puntos)}</span></p>${campos}</div>`;
     });
   }
   h += `<div class="msg bad" id="sendErr" hidden></div><div class="actions"><button type="submit" class="btn" id="submit">Entregar examen</button><button type="button" class="btn ghost" id="toTop">Volver arriba</button></div>`;
   f.innerHTML = h;
   f.addEventListener("input", progreso);
+  f.addEventListener("change", progreso);
   progreso();
 }
 
+/** Respondida = test con respuesta (y confianza si se pide), abierta con texto, ejercicio con todos sus resultados. */
 function respondidas() {
-  return EX.mc.filter((_, i) => $(`input[name="mc${i}"]:checked`)).length + EX.open.filter((_, i) => $(`#op${i}`).value.trim()).length;
+  const r = respuestasActuales();
+  return r.mc.filter((v, i) => v >= 0 && (!EX.confianza || r.conf[i] >= 0)).length
+    + r.open.filter((t) => t.trim()).length
+    + r.num.filter((campos) => campos.every((v) => (typeof v === "number" ? v >= 0 : String(v).trim()))).length;
 }
 function progreso() {
   if (!EX) return;
-  const n = respondidas(), t = EX.mc.length + EX.open.length;
+  const n = respondidas(), t = EX.mc.length + EX.open.length + EX.num.length;
   $("#progTxt").textContent = `${n} de ${t} respondidas`;
   $("#progFill").style.width = `${(100 * n) / t}%`;
 }
@@ -184,9 +211,9 @@ function mostrarResultado(d, extra = "") {
 
 async function entregar() {
   const btn = $("#submit"), err = $("#sendErr");
-  const total = EX.mc.length + EX.open.length, faltan = total - respondidas();
+  const total = EX.mc.length + EX.open.length + EX.num.length, faltan = total - respondidas();
   if (faltan && btn.dataset.confirm !== "1") {
-    err.hidden = false; err.textContent = `Te faltan ${faltan} preguntas por contestar. Pulsa otra vez «Entregar» si quieres entregar igualmente. Recuerda que solo se puede entregar una vez.`;
+    err.hidden = false; err.textContent = `Te ${faltan === 1 ? "falta 1 pregunta" : `faltan ${faltan} preguntas`} por contestar (o sin nivel de confianza). Pulsa otra vez «Entregar» si quieres entregar igualmente. Recuerda que solo se puede entregar una vez.`;
     btn.dataset.confirm = "1"; btn.textContent = "Entregar igualmente"; return;
   }
   PAYLOAD = respuestasActuales();

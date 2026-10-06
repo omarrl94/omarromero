@@ -6,10 +6,10 @@ import { almacen, leerTodas } from "./almacen.mjs";
 import { json, fallo, leerCuerpo, texto } from "./http.mjs";
 import { requiereProfesor, esAdmin, rolDe, ciclosDe, gestionaCiclo, gestionaExamen } from "./auth.mjs";
 import { todosLosExamenes, obtenerExamen, validarExamen, resumen } from "./examenes.mjs";
-import { claveEntrega, vistaEntrega } from "./entregas.mjs";
+import { claveEntrega, vistaEntrega, partesDe } from "./entregas.mjs";
 import { proveedorConfigurado } from "./correo.mjs";
 import { CATALOGO, GRUPOS, cicloDe, buscarModulo, crearModulo, borrarModulo } from "./catalogo.mjs";
-import { iaDisponible, generarLote, proveedorIA, tamLote, comprobarIA } from "./ia.mjs";
+import { iaDisponible, generarLote, proveedorIA, tamLote, comprobarIA, adaptarParte } from "./ia.mjs";
 
 const examenes = () => almacen("examenes");
 const entregas = () => almacen("entregas");
@@ -98,7 +98,7 @@ async function filasEntregas(id) {
   const filas = es.map((e) => ({
     email: e.email, nombre: e.nombre, apellidos: e.apellidos, grupo: e.grupo,
     estado: "entregado", nota: e.resultado.nota, notaProfesor: e.notaProfesor ?? null,
-    mcOk: e.resultado.mcOk, openPts: e.resultado.openPts, fecha: e.fecha, fechaTexto: e.fechaTexto,
+    partes: partesDe(e), fecha: e.fecha, fechaTexto: e.fechaTexto,
     salidas: prog[e.email]?.salidas?.length ?? e.salidas ?? 0,
     finalizadoPorSalida: e.finalizadoPorSalida || "",
   }));
@@ -130,9 +130,11 @@ async function csv(req, url) {
   const c = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
   const n = (v) => (v == null ? "" : String(v).replace(".", ","));
   const lineas = [
-    ["Apellidos", "Nombre", "Correo", "Grupo", "Estado", "Nota automática", "Nota revisada", "Nota final", "Aciertos test", "Puntos abiertas", "Fecha de entrega", "Salidas de la ventana", "Finalizado al salir"].map(c).join(";"),
+    ["Apellidos", "Nombre", "Correo", "Grupo", "Estado", "Nota automática", "Nota revisada", "Nota final",
+      `Test (/${ex.mc.reduce((s, q) => s + (q.puntos ?? 1), 0)})`, `Abiertas (/${ex.open.reduce((s, q) => s + (q.puntos ?? 1), 0)})`,
+      `Ejercicios (/${(ex.num || []).reduce((s, q) => s + (q.puntos ?? 1), 0)})`, "Fecha de entrega", "Salidas de la ventana", "Finalizado al salir"].map(c).join(";"),
     ...filas.map((f) => [c(f.apellidos), c(f.nombre), c(f.email), c(f.grupo), c(f.estado), n(f.nota), n(f.notaProfesor),
-      n(f.notaProfesor ?? f.nota), n(f.mcOk), n(f.openPts), c(f.fechaTexto), n(f.salidas), c(f.finalizadoPorSalida ? "Sí" : "")].join(";")),
+      n(f.notaProfesor ?? f.nota), n(f.partes?.mc.pts), n(f.partes?.open.pts), n(f.partes?.num.pts), c(f.fechaTexto), n(f.salidas), c(f.finalizadoPorSalida ? "Sí" : "")].join(";")),
   ];
   return new Response("﻿" + lineas.join("\r\n"), {
     headers: {
@@ -271,7 +273,19 @@ async function iaPreguntas(req) {
   return json({ preguntas });
 }
 
+/** Adaptar un examen de Word: una parte por petición (estructura, mc, open, num). */
+async function iaAdaptar(req) {
+  const yo = await requiereProfesor(req);
+  const b = await leerCuerpo(req, 1_500_000);
+  if (!gestionaCiclo(yo, b.cicloId)) fallo(403, "Solo puedes adaptar exámenes de tus ciclos");
+  const examen = String(b.examen || "").trim(), solucionario = String(b.solucionario || "").trim();
+  if (examen.length < 100) fallo(400, "El examen apenas tiene texto.");
+  if (examen.length + solucionario.length > 300_000) fallo(413, "El examen es demasiado largo.");
+  return json(await adaptarParte({ parte: String(b.parte || ""), examen, solucionario, indicaciones: texto(b.indicaciones, 1000) }));
+}
+
 export default {
+  "POST /api/profesor/ia/adaptar": iaAdaptar,
   "POST /api/profesor/modulo": nuevoModulo,
   "POST /api/profesor/modulo/borrar": quitarModulo,
   "GET /api/profesor/ia": iaEstado,

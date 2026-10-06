@@ -31,6 +31,7 @@ Funciona en **Netlify** (plan gratuito): páginas estáticas + una Netlify Funct
 - **Acceso**: entra desde la página principal con su correo y `ADMIN_PASSWORD`; la cuenta se crea sola, sin registro ni código.
 - **Subir examen**: arrastra el HTML del cuestionario (con los arrays `MC` y `OPEN`) o un JSON, elige **ciclo, módulo y orden** del tema, y guarda.
 - **✨ Generar con IA**: sube las diapositivas (.pptx), un PDF o un Word del tema, elige ciclo, módulo y cuántas preguntas quieres, y la IA (Google Gemini) redacta las preguntas tipo test y abiertas con sus soluciones y conceptos clave. Se muestran para **revisarlas y quitar** las que no convenzan, y el examen se guarda **sin publicar**. Necesita `GEMINI_API_KEY`.
+- **Adaptar examen de Word** (en «✨ Generar con IA», o arrastrando un .docx a «Subir examen»): sube el examen y, si lo tienes, el solucionario. La IA lo pasa a la plataforma tal cual —test (también con nivel de confianza), preguntas abiertas con su rúbrica y ejercicios con sus resultados y figuras— y lo revisas antes de guardar.
 - **Probar**: abre el examen como lo verá el alumno, aunque no esté publicado.
 - **Publicado**: interruptor para mostrarlo u ocultarlo a los alumnos.
 - **🔒 Modo seguro** (activado por defecto): si el alumno cambia de pestaña, minimiza o sale de la ventana, **el examen termina y se entrega solo** con lo que llevaba respondido, y no puede volver a empezarlo (el profesor puede «Reabrir»). En las entregas aparece «Finalizado al salir» y en el correo del alumno se indica. Si se desactiva, el examen sigue abierto aunque salga, pero cada salida queda registrada.
@@ -95,17 +96,28 @@ Los exámenes que vienen con la plataforma están en `netlify/lib/semilla-*.mjs`
 
 ## Formato de un examen
 
-El mismo de los HTML de cuestionario (también se puede subir como JSON; en el panel hay una plantilla):
+Un examen puede tener hasta tres partes; cada pregunta vale `puntos` (1 si no se indica) y la nota es *puntos obtenidos / puntos posibles × 10*.
 
 ```js
-mc:   [{ t: "Pregunta", o: ["opción a", "opción b", "opción c", "opción d"], c: 1 }]   // c = índice de la correcta
-open: [{ act: "Actividad 1", t: "Pregunta abierta",
-         groups: [["salud", "medic"], ["biometr", "huella"]],   // conceptos clave (raíces, sin tildes)
-         full: 2, partial: 1,                                     // conceptos para «Bien» / «Casi»
-         exp: "Lo que se esperaba" }]
+// Parte A · Test
+mc: [{ t: "Pregunta", o: ["opción a", "opción b", "opción c"], c: 1, puntos: 0.4, exp: "justificación" }]
+confianza: true   // opcional: test con nivel de confianza (Muy seguro ±100 % · Seguro +70/−50 % · Poco seguro +50/−30 %; la parte no baja de 0)
+
+// Parte B · Abiertas: conceptos clave (raíces sin tildes) para «Bien»/«Casi»…
+open: [{ t: "Pregunta abierta", groups: [["salud", "medic"], ["biometr"]], full: 2, partial: 1, exp: "Lo que se esperaba",
+         puntos: 0.4, pesos: [0.2, 0.2] }]   // …o rúbrica: puntos de cada concepto mencionado
+
+// Parte C · Ejercicios: apartados con resultados numéricos (tolerancia en %) u opciones cerradas
+num: [{ t: "a) Calcula la intensidad", puntos: 0.2, bloque: "ej1", exp: "I = V/R = 5 A",
+        campos: [{ etiqueta: "Intensidad", tipo: "numero", valor: 5, unidad: "A", tolerancia: 2 },
+                 { etiqueta: "Tipo de fuerza", tipo: "opcion", opciones: ["Atracción", "Repulsión"], correcta: 0 }] }]
+bloques: [{ id: "ej1", titulo: "Ejercicio 1", texto: "Datos comunes…", imagen: "data:image/png;base64,…" }]
+partes: { mc: "Test con nivel de confianza", open: "Definiciones", num: "Ejercicios" }   // títulos de las partes
 ```
 
-Nota: cada pregunta vale 1 punto (abiertas: Bien 1 · Casi 0,5), sobre 10.
+En los ejercicios, el alumno escribe solo el resultado: se acepta coma o punto decimal, miles con punto, notación científica (`1,872·10^21`, `1.872e21`) y unidades con prefijo (`1,15 kW` cuando se espera W). Se corrige el resultado final, no el desarrollo: el profesor puede ajustar la nota en «Ver / revisar».
+
+Exámenes de ejemplo incluidos: ASIR › SAD › Temas 1 y 2 · DAM › IA › Tema 1 · **SEA › Fundamentos de la Electricidad › Examen Temas 1 y 2** (adaptado del Word: test con confianza, definiciones con rúbrica y 3 ejercicios con figuras).
 
 ## Desarrollo local
 

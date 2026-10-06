@@ -133,7 +133,7 @@ function leerJSON(texto) {
   try { return JSON.parse(texto); } catch { fallo(502, "La IA ha devuelto una respuesta incompleta. Vuelve a intentarlo."); }
 }
 
-async function pedirClaude(tipo, material, instruccion) {
+async function pedirClaude(tipo, material, instruccion, { sistema = SISTEMA, esquema = ESQUEMAS[tipo] } = {}) {
   let r;
   try {
     r = await claude().beta.messages.stream({
@@ -141,8 +141,8 @@ async function pedirClaude(tipo, material, instruccion) {
       max_tokens: 16000,
       betas: ["server-side-fallback-2026-07-01"],
       fallbacks: "default",
-      output_config: { effort: "medium", format: { type: "json_schema", schema: ESQUEMAS[tipo] } },
-      system: SISTEMA,
+      output_config: { effort: "medium", format: { type: "json_schema", schema: esquema } },
+      system: sistema,
       messages: [{
         role: "user",
         content: [
@@ -231,12 +231,12 @@ export async function comprobarIA() {
 }
 
 /** Gemini con salida JSON según esquema. */
-async function pedirGemini(tipo, material, instruccion) {
+async function pedirGemini(tipo, material, instruccion, { sistema = SISTEMA, esquemaG = ESQUEMAS_GEMINI[tipo], temperatura = 0.7 } = {}) {
   const modelo = await modeloGeminiDisponible();
   const { res, data } = await llamarGemini(`models/${encodeURIComponent(modelo)}:generateContent`, {
-    systemInstruction: { parts: [{ text: SISTEMA }] },
+    systemInstruction: { parts: [{ text: sistema }] },
     contents: [{ role: "user", parts: [{ text: `<material>\n${material}\n</material>` }, { text: instruccion }] }],
-    generationConfig: { responseMimeType: "application/json", responseSchema: ESQUEMAS_GEMINI[tipo], temperature: 0.7 },
+    generationConfig: { responseMimeType: "application/json", responseSchema: esquemaG, temperature: temperatura },
   });
   if (!res.ok) falloGemini(res, data);
   if (data.promptFeedback?.blockReason) fallo(422, "Gemini no ha querido generar preguntas con este material.");
@@ -248,4 +248,113 @@ async function pedirGemini(tipo, material, instruccion) {
   const datos = leerJSON(texto);
   datos._uso = { ...data.usageMetadata, modelo };
   return datos;
+}
+
+/* ════════════════════════════════════════════════════════════════
+ * Adaptar un examen existente (Word) a la plataforma.
+ * El navegador extrae el texto del examen y del solucionario (con marcas
+ * [FIGURA n] donde hay imágenes) y pide cada parte por separado.
+ * ════════════════════════════════════════════════════════════════ */
+const SISTEMA_ADAPTAR = `Eres profesor de Formación Profesional en un centro de España. Vas a ADAPTAR un examen que ya existe (escrito en Word) a una plataforma de exámenes online con corrección automática.
+
+Reglas:
+- Transcribe fielmente: mismas preguntas, mismos datos, mismo orden y misma puntuación. No inventes preguntas ni cambies valores.
+- Usa el SOLUCIONARIO para las respuestas correctas, las justificaciones, las rúbricas y los resultados. Si no hay solucionario, resuelve tú cada pregunta con mucho cuidado y comprueba los cálculos.
+- Ignora portada, logotipos, datos del alumno (nombre, grupo, fecha), instrucciones de entrega y tablas de resumen de puntuación.
+- Conserva subíndices, superíndices y símbolos (R₁, 10⁹, Ω, µC) tal como aparecen.
+- Las marcas [FIGURA n] indican dónde hay una imagen en el documento.`;
+
+const PARTES_ADAPTAR = {
+  estructura: {
+    instruccion: `Devuelve los datos generales del examen: título corto (por ejemplo «Examen Temas 1 y 2»), subtítulo (temas o contenidos), si el test se puntúa con NIVEL DE CONFIANZA (el alumno marca lo seguro que está y se suma o resta según acierte) y el nombre de cada parte tal como aparece (test, preguntas abiertas/definiciones, ejercicios). Deja vacío el nombre de las partes que no existan.`,
+    esquema: objeto({ titulo: { type: "string" }, subtitulo: { type: "string" }, confianza: { type: "boolean" },
+      partes: objeto({ test: { type: "string" }, abiertas: { type: "string" }, ejercicios: { type: "string" } }) }),
+    esquemaG: gObj({ titulo: G.s, subtitulo: G.s, confianza: { type: "BOOLEAN" }, partes: gObj({ test: G.s, abiertas: G.s, ejercicios: G.s }) }),
+  },
+  mc: {
+    instruccion: `Devuelve TODAS las preguntas tipo test (opción múltiple con una sola respuesta correcta), en su orden, con sus opciones (sin la letra delante), el índice de la correcta (0 = primera), los puntos de cada pregunta y la justificación del solucionario (vacía si no hay). Si el examen no tiene test, devuelve una lista vacía.`,
+    esquema: objeto({ preguntas: lista(objeto({ enunciado: { type: "string" }, opciones: lista({ type: "string" }), correcta: { type: "integer" }, puntos: { type: "number" }, justificacion: { type: "string" } })) }),
+    esquemaG: gObj({ preguntas: gArr(gObj({ enunciado: G.s, opciones: gArr(G.s), correcta: G.i, puntos: { type: "NUMBER" }, justificacion: G.s })) }),
+  },
+  open: {
+    instruccion: `Devuelve TODAS las preguntas de respuesta abierta corta (definiciones, explicaciones, razonamientos; NO los ejercicios de cálculo), en su orden, con sus puntos. Para corregirlas automáticamente, convierte la rúbrica del solucionario en conceptos: cada concepto lleva su peso en puntos (la suma de pesos = puntos de la pregunta) y varias raíces cortas en minúsculas y sin tildes que detecten si el alumno lo menciona, incluyendo sinónimos y las fórmulas escritas de varias formas (por ejemplo «i=q/t», «q/t», «q / t»). Incluye la respuesta modelo. Si no hay preguntas abiertas, devuelve una lista vacía.`,
+    esquema: objeto({ preguntas: lista(objeto({ enunciado: { type: "string" }, puntos: { type: "number" },
+      conceptos: lista(objeto({ nombre: { type: "string" }, raices: lista({ type: "string" }), peso: { type: "number" } })), respuestaModelo: { type: "string" } })) }),
+    esquemaG: gObj({ preguntas: gArr(gObj({ enunciado: G.s, puntos: { type: "NUMBER" },
+      conceptos: gArr(gObj({ nombre: G.s, raices: gArr(G.s), peso: { type: "NUMBER" } })), respuestaModelo: G.s })) }),
+  },
+  num: {
+    instruccion: `Devuelve TODOS los ejercicios prácticos o de cálculo, en su orden. Para cada ejercicio: título (con su puntuación si aparece), enunciado común (datos), número de la [FIGURA n] que lo acompaña (0 si no tiene; nunca un logotipo) y sus apartados. Para cada apartado: enunciado (empezando por su letra, p. ej. «a) …»), puntos y los RESULTADOS FINALES que debe dar el alumno según el solucionario:
+- tipo «numero»: valor numérico en la unidad indicada (unidad, p. ej. «A», «Ω», «kWh», «€»);
+- tipo «opcion»: cuando la respuesta es cualitativa (p. ej. atracción/repulsión, aumenta/disminuye/no cambia), con 2 a 4 opciones y el índice de la correcta.
+Máximo 6 resultados por apartado: si un apartado pide más, divídelo en dos (a.1, a.2) repartiendo los puntos. Incluye la resolución breve del solucionario. Si no hay ejercicios, devuelve una lista vacía.`,
+    esquema: objeto({ ejercicios: lista(objeto({ titulo: { type: "string" }, texto: { type: "string" }, figura: { type: "integer" },
+      apartados: lista(objeto({ enunciado: { type: "string" }, puntos: { type: "number" }, resolucion: { type: "string" },
+        resultados: lista(objeto({ etiqueta: { type: "string" }, tipo: { type: "string", enum: ["numero", "opcion"] }, valor: { type: "number" }, unidad: { type: "string" },
+          opciones: lista({ type: "string" }), correcta: { type: "integer" } })) })) })) }),
+    esquemaG: gObj({ ejercicios: gArr(gObj({ titulo: G.s, texto: G.s, figura: G.i,
+      apartados: gArr(gObj({ enunciado: G.s, puntos: { type: "NUMBER" }, resolucion: G.s,
+        resultados: gArr(gObj({ etiqueta: G.s, tipo: { type: "STRING", format: "enum", enum: ["numero", "opcion"] }, valor: { type: "NUMBER" }, unidad: G.s, opciones: gArr(G.s), correcta: G.i })) })) })) }),
+  },
+};
+
+const puntosValidos = (p) => (Number.isFinite(Number(p)) && Number(p) > 0 ? Math.round(Number(p) * 1000) / 1000 : 1);
+
+const ADAPTADORES = {
+  estructura: (d) => ({
+    titulo: String(d.titulo || "").trim(), subtitulo: String(d.subtitulo || "").trim(), confianza: d.confianza === true,
+    partes: { mc: String(d.partes?.test || "").trim(), open: String(d.partes?.abiertas || "").trim(), num: String(d.partes?.ejercicios || "").trim() },
+  }),
+  mc: (d) => ({
+    preguntas: (d.preguntas || []).map((p) => {
+      const o = (p.opciones || []).map((x) => String(x).replace(/^\s*[a-fA-F][).]\s+/, "").trim()).filter(Boolean).slice(0, 5);
+      if (!p.enunciado?.trim() || o.length < 2 || !Number.isInteger(p.correcta) || p.correcta < 0 || p.correcta >= o.length) return null;
+      return { t: p.enunciado.trim(), o, c: p.correcta, puntos: puntosValidos(p.puntos), exp: String(p.justificacion || "").trim() };
+    }).filter(Boolean),
+  }),
+  open: (d) => ({
+    preguntas: (d.preguntas || []).map((p) => {
+      const conceptos = (p.conceptos || []).map((c) => ({ raices: [...new Set((c.raices || []).map(norm).filter((r) => r.length >= 2))], peso: Number(c.peso) }))
+        .filter((c) => c.raices.length);
+      if (!p.enunciado?.trim() || !conceptos.length) return null;
+      const puntos = puntosValidos(p.puntos);
+      const suma = conceptos.reduce((s, c) => s + (Number.isFinite(c.peso) && c.peso > 0 ? c.peso : 0), 0);
+      // Pesos de la rúbrica escalados para que sumen los puntos de la pregunta.
+      const pesos = suma > 0 ? conceptos.map((c) => Math.round(((Number.isFinite(c.peso) && c.peso > 0 ? c.peso : 0) * puntos / suma) * 1000) / 1000) : null;
+      return { act: "", t: p.enunciado.trim(), groups: conceptos.map((c) => c.raices), ...(pesos ? { pesos } : {}),
+        full: conceptos.length, partial: 1, exp: String(p.respuestaModelo || "").trim(), puntos };
+    }).filter(Boolean),
+  }),
+  num: (d) => ({
+    ejercicios: (d.ejercicios || []).map((e) => ({
+      titulo: String(e.titulo || "").trim(), texto: String(e.texto || "").trim(), figura: Number.isInteger(e.figura) ? e.figura : 0,
+      apartados: (e.apartados || []).map((a) => {
+        const campos = (a.resultados || []).map((r) => {
+          const etiqueta = String(r.etiqueta || "").trim() || "Resultado";
+          if (r.tipo === "opcion") {
+            const opciones = (r.opciones || []).map((x) => String(x).trim()).filter(Boolean).slice(0, 6);
+            return opciones.length >= 2 && Number.isInteger(r.correcta) && r.correcta >= 0 && r.correcta < opciones.length
+              ? { etiqueta, tipo: "opcion", opciones, correcta: r.correcta } : null;
+          }
+          return Number.isFinite(Number(r.valor)) ? { etiqueta, tipo: "numero", valor: Number(r.valor), unidad: String(r.unidad || "").trim().slice(0, 20), tolerancia: 2 } : null;
+        }).filter(Boolean).slice(0, 6);
+        return campos.length && a.enunciado?.trim() ? { t: a.enunciado.trim(), puntos: puntosValidos(a.puntos), campos, exp: String(a.resolucion || "").trim() } : null;
+      }).filter(Boolean),
+    })).filter((e) => e.apartados.length),
+  }),
+};
+
+/** Pide a la IA una parte del examen adaptado: estructura | mc | open | num. */
+export async function adaptarParte({ parte, examen, solucionario = "", indicaciones = "" }) {
+  if (!iaDisponible()) fallo(503, "Falta configurar GEMINI_API_KEY en Netlify para usar la IA.");
+  const P = PARTES_ADAPTAR[parte];
+  if (!P) fallo(400, "Parte no válida");
+  const material = `<examen>\n${examen}\n</examen>` + (solucionario ? `\n\n<solucionario>\n${solucionario}\n</solucionario>` : "\n\n(No hay solucionario: resuelve tú las respuestas.)");
+  const instruccion = P.instruccion + (indicaciones ? `\n\nIndicaciones del profesor: ${indicaciones}` : "");
+  const datos = proveedorIA() === "gemini"
+    ? await pedirGemini(parte, material, instruccion, { sistema: SISTEMA_ADAPTAR, esquemaG: P.esquemaG, temperatura: 0.2 })
+    : await pedirClaude(parte, material, instruccion, { sistema: SISTEMA_ADAPTAR, esquema: P.esquema });
+  const r = ADAPTADORES[parte](datos);
+  console.log(JSON.stringify({ evento: "ia-adaptar", proveedor: proveedorIA(), parte, uso: datos._uso }));
+  return r;
 }

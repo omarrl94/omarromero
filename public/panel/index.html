@@ -113,7 +113,7 @@ function chipsEstado(lista) {
   v.innerHTML = `<div class="exlist">${temas.map((e) => e.estado === "pendiente" ? `
     <article class="excard"><div class="info">
       <h3>${esc(e.titulo)}</h3><div class="muted" style="font-size:14.5px">${esc(e.subtitulo)}</div>
-      <div class="meta">${e.nMc ? `<span class="chip v">${e.nMc} tipo test</span>` : ""}${e.nOpen ? `<span class="chip s">${e.nOpen} abiertas</span>` : ""}<span class="chip">Pendiente</span></div></div>
+      <div class="meta">${e.nMc ? `<span class="chip v">${e.nMc} tipo test</span>` : ""}${e.nOpen ? `<span class="chip s">${e.nOpen} abiertas</span>` : ""}${e.nNum ? `<span class="chip">${e.nNum} apartados de ejercicios</span>` : ""}<span class="chip">Pendiente</span></div></div>
       <a class="btn" href="${enlace(e)}">Empezar</a></article>` : `
     <article class="excard"><div class="info">
       <h3>${esc(e.titulo)}</h3><div class="muted" style="font-size:14px">Entregado el ${esc(e.fecha)}</div>
