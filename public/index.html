@@ -58,8 +58,8 @@
           <div class="field"><label class="flab" for="rApellidos">Apellidos</label><input type="text" id="rApellidos" autocomplete="family-name" maxlength="120" required></div>
         </div>
         <div class="field"><label class="flab" for="rEmail">Correo del centro</label><input type="email" id="rEmail" autocomplete="email" placeholder="nombre.apellido@jrotero.es" required></div>
-        <div class="field"><label class="flab" for="rGrupo">Grupo</label><input type="text" id="rGrupo" maxlength="60" placeholder="Ej.: 1.º ASIR" list="grupos" required>
-          <datalist id="grupos"><option>1.º ASIR</option><option>2.º ASIR</option><option>1.º DAM</option><option>2.º DAM</option><option>1.º DAW</option><option>2.º DAW</option><option>1.º SMR</option><option>2.º SMR</option></datalist></div>
+        <div class="field"><label class="flab" for="rGrupo">Grupo</label><select id="rGrupo" required><option value="">Elige tu grupo…</option></select>
+          <span class="hintline" style="margin-top:2px">Solo verás los exámenes de tu ciclo.</span></div>
         <div class="row2">
           <div class="field"><label class="flab" for="rPass">Contraseña</label><input type="password" id="rPass" autocomplete="new-password" minlength="8" required></div>
           <div class="field"><label class="flab" for="rPass2">Repítela</label><input type="password" id="rPass2" autocomplete="new-password" minlength="8" required></div>
@@ -147,7 +147,8 @@ $("#fLogin").onsubmit = (ev) => { ev.preventDefault(); enviar(ev.target, async (
 
 $("#fReg").onsubmit = (ev) => { ev.preventDefault(); enviar(ev.target, async () => {
   const d = { nombre: $("#rNombre").value.trim(), apellidos: $("#rApellidos").value.trim(), email: $("#rEmail").value.trim(), grupo: $("#rGrupo").value.trim(), password: $("#rPass").value };
-  if (!d.nombre || !d.apellidos || !d.email || !d.grupo) throw new Error("Rellena todos los campos");
+  if (!d.nombre || !d.apellidos || !d.email) throw new Error("Rellena todos los campos");
+  if (!d.grupo) throw new Error("Elige tu grupo");
   if (d.password.length < 8) throw new Error("La contraseña debe tener al menos 8 caracteres");
   if (d.password !== $("#rPass2").value) throw new Error("Las contraseñas no coinciden");
   trasAcceso(await api("/api/cuenta/registro", d), d.email);
@@ -177,6 +178,11 @@ $("#fRec").onsubmit = (ev) => { ev.preventDefault(); const f = ev.target; enviar
   const r = await api("/api/cuenta/restablecer", { email, codigo: $("#pCod").value.trim(), password: $("#pPass").value }, { redirigir401: false });
   location.href = destino(r.usuario);
 }); };
+
+// Grupos disponibles (definidos por ciclo en el servidor).
+api("/api/cuenta/grupos", undefined, { redirigir401: false }).then(({ grupos }) => {
+  $("#rGrupo").insertAdjacentHTML("beforeend", grupos.map((g) => `<option>${esc(g.grupo)}</option>`).join(""));
+}).catch(() => {});
 
 if (location.hash === "#registro") mostrar("#fReg");
 </script>

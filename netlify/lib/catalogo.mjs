@@ -41,3 +41,18 @@ export function moduloPorNombre(cicloNombre, moduloNombre) {
   }
   return null;
 }
+
+/** Cursos de cada ciclo. Los grupos del registro salen de aquí: «1.º ASIR», «2.º DAM»… */
+export const CURSOS = ["1.º", "2.º"];
+
+export const GRUPOS = () =>
+  CATALOGO.flatMap((c) => CURSOS.map((k) => ({ grupo: `${k} ${c.nombre}`, cicloId: c.id })));
+
+/** Ciclo al que pertenece un grupo escrito a mano («1º asir», «2 DAM»…), o null. */
+export function cicloDeGrupo(grupo) {
+  const palabras = norm(grupo).split(/[^a-z0-9]+/);
+  return CATALOGO.find((c) => palabras.includes(norm(c.nombre)) || palabras.includes(c.id))?.id || null;
+}
+
+/** Ciclo de un alumno: el guardado o, en cuentas antiguas, el deducido de su grupo. */
+export const cicloDe = (u) => u?.cicloId || cicloDeGrupo(u?.grupo);

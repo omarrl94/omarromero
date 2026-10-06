@@ -5,7 +5,7 @@ import { requiereAdmin, esAdmin } from "./auth.mjs";
 import { todosLosExamenes, obtenerExamen, validarExamen, resumen } from "./examenes.mjs";
 import { claveEntrega, vistaEntrega } from "./entregas.mjs";
 import { proveedorConfigurado } from "./correo.mjs";
-import { CATALOGO } from "./catalogo.mjs";
+import { CATALOGO, GRUPOS, cicloDe } from "./catalogo.mjs";
 
 const examenes = () => almacen("examenes");
 const entregas = () => almacen("entregas");
@@ -157,8 +157,9 @@ async function alumnos(req) {
   await requiereAdmin(req);
   const lista = await leerTodas(usuarios(), await usuarios().list());
   return json({
+    grupos: GRUPOS(),
     alumnos: lista
-      .map((u) => ({ email: u.email, nombre: u.nombre, apellidos: u.apellidos, grupo: u.grupo, verificado: !!u.verificado, creado: u.creado, profesor: esAdmin(u.email) }))
+      .map((u) => ({ email: u.email, nombre: u.nombre, apellidos: u.apellidos, grupo: u.grupo, cicloId: cicloDe(u), verificado: !!u.verificado, creado: u.creado, profesor: esAdmin(u.email) }))
       .sort((a, b) => `${a.grupo} ${a.apellidos}`.localeCompare(`${b.grupo} ${b.apellidos}`, "es")),
   });
 }
@@ -168,7 +169,12 @@ async function editarAlumno(req) {
   const b = await leerCuerpo(req);
   const u = await usuarios().get(String(b.email || "").toLowerCase());
   if (!u) fallo(404, "Alumno no encontrado");
-  if (b.grupo !== undefined) u.grupo = texto(b.grupo, 60);
+  if (b.grupo !== undefined) {
+    const g = GRUPOS().find((x) => x.grupo === texto(b.grupo, 60));
+    if (!g) fallo(400, "Grupo no válido");
+    u.grupo = g.grupo;
+    u.cicloId = g.cicloId;
+  }
   if (b.verificado === true) { u.verificado = true; delete u.codigo; }
   await usuarios().set(u.email, u);
   return json({ ok: true });

@@ -1,27 +1,30 @@
 /** /api/examenes, /api/examen/*, /api/entrega — lo que hace el alumno. */
 import { almacen } from "./almacen.mjs";
 import { json, fallo, leerCuerpo, texto, env } from "./http.mjs";
-import { requiereUsuario } from "./auth.mjs";
+import { requiereUsuario, esAdmin } from "./auth.mjs";
 import { todosLosExamenes, obtenerExamen, enunciado, resumen } from "./examenes.mjs";
 import { corregir, limpiarRespuestas } from "./correccion.mjs";
 import { claveEntrega, vistaEntrega } from "./entregas.mjs";
 import { enviarCorreo, proveedorConfigurado } from "./correo.mjs";
-import { CATALOGO } from "./catalogo.mjs";
+import { CATALOGO, cicloDe } from "./catalogo.mjs";
+
+/** El alumno solo ve los exámenes de su ciclo; el profesor, todos. */
+const puedeVer = (u, ex) => esAdmin(u.email) || ex.cicloId === cicloDe(u);
 import { correoResultado } from "./plantillas.mjs";
 
 const entregas = () => almacen("entregas");
 const progreso = () => almacen("progreso");
 
-async function examenPublicado(id) {
+async function examenPublicado(id, u) {
   const ex = await obtenerExamen(id);
-  if (!ex || !ex.publicado) fallo(404, "Este examen no existe o no está disponible");
+  if (!ex || !ex.publicado || !puedeVer(u, ex)) fallo(404, "Este examen no existe o no está disponible para tu ciclo");
   return ex;
 }
 
 /** Exámenes publicados + estado del alumno en cada uno. */
 async function listar(req) {
   const u = await requiereUsuario(req);
-  const lista = (await todosLosExamenes()).filter((e) => e.publicado);
+  const lista = (await todosLosExamenes()).filter((e) => e.publicado && puedeVer(u, e));
   const filas = await Promise.all(lista.map(async (ex) => {
     const e = await entregas().get(claveEntrega(ex.id, u.email));
     return {
@@ -32,12 +35,13 @@ async function listar(req) {
       fecha: e?.fechaTexto || null,
     };
   }));
-  return json({ catalogo: CATALOGO, examenes: filas });
+  const catalogo = esAdmin(u.email) ? CATALOGO : CATALOGO.filter((c) => c.id === cicloDe(u));
+  return json({ catalogo, examenes: filas });
 }
 
 async function ver(req, url) {
   const u = await requiereUsuario(req);
-  const ex = await examenPublicado(url.searchParams.get("id"));
+  const ex = await examenPublicado(url.searchParams.get("id"), u);
   if (await entregas().get(claveEntrega(ex.id, u.email))) fallo(409, "Ya has entregado este examen");
   return json(enunciado(ex));
 }
@@ -45,7 +49,7 @@ async function ver(req, url) {
 async function iniciar(req) {
   const u = await requiereUsuario(req);
   const { id } = await leerCuerpo(req);
-  const ex = await examenPublicado(id);
+  const ex = await examenPublicado(id, u);
   if (await entregas().get(claveEntrega(ex.id, u.email))) fallo(409, "Ya has entregado este examen");
   const k = claveEntrega(ex.id, u.email);
   const p = (await progreso().get(k)) || { email: u.email, examen: ex.id, salidas: [] };
@@ -70,7 +74,7 @@ async function incidencia(req) {
 async function entregar(req) {
   const u = await requiereUsuario(req);
   const b = await leerCuerpo(req);
-  const ex = await examenPublicado(b.id);
+  const ex = await examenPublicado(b.id, u);
   const k = claveEntrega(ex.id, u.email);
   if (await entregas().get(k)) fallo(409, "Ya has entregado este examen");
 

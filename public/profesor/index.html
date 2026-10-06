@@ -108,7 +108,7 @@
 
 <script src="/assets/app.js"></script>
 <script>
-let CATALOGO = [], EXAMENES = [], ACTUAL = null, FILAS = [], ALUMNOS = [], IMPORT = null;
+let CATALOGO = [], EXAMENES = [], ACTUAL = null, FILAS = [], ALUMNOS = [], GRUPOS = [], IMPORT = null;
 const fecha = (iso) => iso ? new Date(iso).toLocaleDateString("es-ES", { day: "2-digit", month: "short", year: "numeric" }) : "—";
 $$("dialog [data-close]").forEach((b) => (b.onclick = () => b.closest("dialog").close()));
 
@@ -352,7 +352,7 @@ $("#fExamen").onsubmit = async (ev) => {
 
 /* ── Alumnos ── */
 async function cargarAlumnos() {
-  ALUMNOS = (await api("/api/profesor/alumnos")).alumnos;
+  ({ alumnos: ALUMNOS, grupos: GRUPOS } = await api("/api/profesor/alumnos"));
   pintarAlumnos();
 }
 $("#buscar").oninput = pintarAlumnos;
@@ -360,14 +360,17 @@ function pintarAlumnos() {
   const q = $("#buscar").value.trim().toLowerCase();
   const lista = ALUMNOS.filter((a) => !q || `${a.nombre} ${a.apellidos} ${a.email} ${a.grupo}`.toLowerCase().includes(q));
   if (!lista.length) { $("#tablaAlumnos").innerHTML = `<div class="empty">${ALUMNOS.length ? "Ningún alumno coincide con la búsqueda." : "Todavía no se ha registrado nadie."}</div>`; return; }
-  $("#tablaAlumnos").innerHTML = `<p class="muted">${lista.length} cuentas</p><div class="tablewrap"><table class="t"><thead><tr><th>Alumno/a</th><th>Grupo</th><th>Estado</th><th>Alta</th><th></th></tr></thead><tbody>
+  $("#tablaAlumnos").innerHTML = `<p class="muted">${lista.length} cuentas</p><div class="tablewrap"><table class="t"><thead><tr><th>Alumno/a</th><th>Grupo (define su ciclo)</th><th>Estado</th><th>Alta</th><th></th></tr></thead><tbody>
     ${lista.map((a) => `<tr data-email="${esc(a.email)}">
       <td><b>${esc(a.apellidos)}, ${esc(a.nombre)}</b> ${a.profesor ? `<span class="chip">Profesor</span>` : ""}<div class="muted" style="font-size:13px">${esc(a.email)}</div></td>
-      <td><input class="mini" type="text" value="${esc(a.grupo)}" data-grupo style="width:120px"></td>
+      <td>${a.profesor ? esc(a.grupo) : `<select data-grupo style="width:auto;padding:6px 10px;font-size:14px">
+        ${GRUPOS.some((g) => g.grupo === a.grupo) ? "" : `<option value="" selected>${esc(a.grupo || "—")} (${a.cicloId ? "ciclo " + esc(a.cicloId.toUpperCase()) : "sin ciclo"})</option>`}
+        ${GRUPOS.map((g) => `<option ${g.grupo === a.grupo ? "selected" : ""}>${esc(g.grupo)}</option>`).join("")}</select>`}</td>
       <td>${a.verificado ? `<span class="chip ok">Activa</span>` : `<span class="chip gray">Sin confirmar</span> <button class="btn ghost sm" data-activar>Activar</button>`}</td>
       <td style="white-space:nowrap">${fecha(a.creado)}</td>
       <td>${a.profesor ? "" : `<button class="btn danger sm" data-borrar>Borrar</button>`}</td></tr>`).join("")}</tbody></table></div>`;
   $$("[data-grupo]").forEach((i) => (i.onchange = async () => {
+    if (!i.value) return;
     try { await api("/api/profesor/alumno", { email: i.closest("tr").dataset.email, grupo: i.value }); i.style.borderColor = "var(--ok)"; }
     catch (e) { alert(e.message); }
   }));

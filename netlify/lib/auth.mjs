@@ -9,6 +9,7 @@ import { scrypt as _scrypt, randomBytes, randomInt, timingSafeEqual, createHmac 
 import { promisify } from "node:util";
 import { almacen } from "./almacen.mjs";
 import { fallo, leerCookie, env } from "./http.mjs";
+import { cicloDe } from "./catalogo.mjs";
 
 const scrypt = promisify(_scrypt);
 const COOKIE = "jro_sesion";
@@ -112,5 +113,6 @@ export async function requiereAdmin(req) {
 }
 
 export const perfilPublico = (u) => ({
-  email: u.email, nombre: u.nombre, apellidos: u.apellidos, grupo: u.grupo, rol: esAdmin(u.email) ? "profesor" : "alumno",
+  email: u.email, nombre: u.nombre, apellidos: u.apellidos, grupo: u.grupo, cicloId: cicloDe(u),
+  rol: esAdmin(u.email) ? "profesor" : "alumno",
 });

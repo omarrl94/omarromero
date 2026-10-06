@@ -8,6 +8,14 @@ import {
 import { enviarCorreo, proveedorConfigurado } from "./correo.mjs";
 import { timingSafeEqual, createHash } from "node:crypto";
 import { correoCodigo } from "./plantillas.mjs";
+import { GRUPOS, cicloDe } from "./catalogo.mjs";
+
+/** El grupo debe ser uno de la lista (así sabemos el ciclo del alumno). */
+function leerGrupo(v) {
+  const g = GRUPOS().find((x) => x.grupo === texto(v, 60));
+  if (!g) fallo(400, "Elige tu grupo de la lista");
+  return g;
+}
 
 /**
  * Cuenta del profesor sin registro: si ADMIN_PASSWORD está definida en Netlify,
@@ -53,16 +61,16 @@ async function registro(req) {
   const b = await leerCuerpo(req);
   const email = leerEmail(b.email);
   if (!emailPermitido(email)) fallo(400, `Regístrate con tu correo del centro (@${dominiosPermitidos()[0]})`);
-  const nombre = texto(b.nombre, 80), apellidos = texto(b.apellidos, 120), grupo = texto(b.grupo, 60);
+  const nombre = texto(b.nombre, 80), apellidos = texto(b.apellidos, 120);
   if (!nombre || !apellidos) fallo(400, "Escribe tu nombre y tus apellidos");
-  if (!grupo) fallo(400, "Indica tu grupo");
+  const { grupo, cicloId } = leerGrupo(b.grupo);
   validarPassword(b.password);
 
   const previo = await usuarios().get(email);
   if (previo?.verificado) fallo(409, "Ya existe una cuenta con ese correo. Inicia sesión o recupera la contraseña.");
 
   const u = {
-    email, nombre, apellidos, grupo,
+    email, nombre, apellidos, grupo, cicloId,
     pass: await hashPassword(b.password),
     verificado: false, ver: 0, creado: new Date().toISOString(),
     codigo: previo?.codigo,
@@ -173,6 +181,22 @@ async function restablecer(req) {
   return iniciarSesion(req, u);
 }
 
+/** Cuentas antiguas sin ciclo: el alumno lo elige una vez. Después solo lo cambia el profesor. */
+async function elegirGrupo(req) {
+  const u = await usuarioSesion(req);
+  if (!u) fallo(401, "Inicia sesión para continuar");
+  if (cicloDe(u)) fallo(409, "Tu ciclo ya está asignado. Si es incorrecto, avisa al profesor.");
+  const { grupo, cicloId } = leerGrupo((await leerCuerpo(req)).grupo);
+  Object.assign(u, { grupo, cicloId });
+  await usuarios().set(u.email, u);
+  return json({ ok: true, usuario: perfilPublico(u) });
+}
+
+/** Ciclos y grupos para el formulario de registro (público). */
+async function catalogoPublico() {
+  return json({ grupos: GRUPOS() });
+}
+
 async function yo(req) {
   const u = await usuarioSesion(req);
   if (!u) fallo(401, "Sin sesión");
@@ -188,4 +212,6 @@ export default {
   "POST /api/cuenta/recuperar": recuperar,
   "POST /api/cuenta/restablecer": restablecer,
   "GET /api/cuenta/yo": yo,
+  "POST /api/cuenta/grupo": elegirGrupo,
+  "GET /api/cuenta/grupos": catalogoPublico,
 };

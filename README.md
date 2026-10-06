@@ -16,9 +16,9 @@ Funciona en **Netlify** (plan gratuito): páginas estáticas + una Netlify Funct
 ## Cómo funciona
 
 **Alumno**
-1. Se registra en `/` con nombre, apellidos, grupo, correo `@jrotero.es` y contraseña.
+1. Se registra en `/` con nombre, apellidos, correo `@jrotero.es`, contraseña y **grupo** (1.º/2.º ASIR, 1.º/2.º DAM…). **El grupo fija su ciclo: solo verá los exámenes de ese ciclo** (también lo comprueba el servidor, aunque tenga el enlace directo). El profesor puede cambiarle el grupo en la pestaña «Alumnos».
 2. Recibe un **código de 6 cifras** por correo para confirmar que el correo es suyo.
-3. En su panel **elige el ciclo** (p. ej. ASIR), luego **el módulo** (p. ej. Seguridad y Alta Disponibilidad) y ve **los temas** publicados. Cada examen se **entrega una sola vez**.
+3. En su panel entra directamente en **su ciclo**, elige **el módulo** (p. ej. Seguridad y Alta Disponibilidad) y ve **los temas** publicados. Cada examen se **entrega una sola vez**.
 4. Hace el examen en **modo examen**: si cambia de pestaña o sale de la ventana, se cierra y se borran las respuestas. **Cada salida queda registrada** para el profesor.
 5. Al entregar, el servidor corrige, guarda la entrega y **envía el correo** con la nota y la corrección (con copia oculta al profesor si se configura `PROFESOR_EMAIL`).
 6. Puede volver a ver su corrección y descargar el PDF desde el panel en cualquier momento.
@@ -71,7 +71,7 @@ Se definen en `netlify/lib/catalogo.mjs`. Ahora mismo:
 - **DAM** — Desarrollo de Aplicaciones Multiplataforma
   - Inteligencia Artificial (`ia`) · Tema 1 · Introducción a la IA
 
-Para añadir otro ciclo o módulo basta con añadir una línea en ese archivo (y hacer push).
+Para añadir otro ciclo o módulo basta con añadir una línea en ese archivo (y hacer push). Los grupos del registro se generan solos a partir de los ciclos (`CURSOS`: 1.º y 2.º).
 
 Los exámenes que vienen con la plataforma están en `netlify/lib/semilla-*.mjs` y se cargan **una sola vez** al desplegar; si los borras o editas desde el panel, no se vuelven a crear.
 

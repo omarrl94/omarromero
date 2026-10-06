@@ -45,11 +45,31 @@ function chipsEstado(lista) {
 }
 
 (async () => {
-  await cabecera();
-  const { catalogo, examenes } = await api("/api/examenes");
-  const ciclo = catalogo.find((c) => c.id === cicloId);
-  const modulo = ciclo?.modulos.find((m) => m.id === moduloId);
+  const yo = await cabecera();
+  const esProfe = yo.rol === "profesor";
   const v = $("#vista");
+
+  // Cuenta antigua sin ciclo: elegir grupo una vez.
+  if (!esProfe && !yo.cicloId) {
+    const { grupos } = await api("/api/cuenta/grupos");
+    $("#titulo").textContent = "¿Cuál es tu grupo?";
+    $("#sub").textContent = "Elígelo una sola vez: solo verás los exámenes de tu ciclo. Si te equivocas, avisa al profesor.";
+    v.innerHTML = `<form class="card" id="fGrupo" style="max-width:420px"><div class="field"><label class="flab" for="selGrupo">Grupo</label>
+      <select id="selGrupo"><option value="">Elige tu grupo…</option>${grupos.map((g) => `<option>${esc(g.grupo)}</option>`).join("")}</select></div>
+      <div class="msg bad" data-err hidden></div><button class="btn" type="submit">Guardar</button></form>`;
+    $("#fGrupo").onsubmit = async (ev) => {
+      ev.preventDefault();
+      try { await api("/api/cuenta/grupo", { grupo: $("#selGrupo").value }); location.href = "/panel/"; }
+      catch (e) { const er = $("[data-err]", ev.target); er.textContent = e.message; er.hidden = false; }
+    };
+    return;
+  }
+
+  const { catalogo, examenes } = await api("/api/examenes");
+  // El alumno entra directamente en su ciclo (el servidor solo le devuelve el suyo).
+  const ciclo = catalogo.find((c) => c.id === (esProfe ? cicloId : yo.cicloId));
+  const modulo = ciclo?.modulos.find((m) => m.id === moduloId);
+  const inicio = esProfe ? `<a href="/panel/">Ciclos</a> › ` : "";
 
   // 1 · Elegir ciclo
   if (!ciclo) {
@@ -64,7 +84,7 @@ function chipsEstado(lista) {
   const enCiclo = examenes.filter((e) => e.cicloId === ciclo.id);
   // 2 · Elegir módulo
   if (!modulo) {
-    $("#crumbs").innerHTML = `<a href="/panel/">Ciclos</a> › <b>${esc(ciclo.nombre)}</b>`;
+    $("#crumbs").innerHTML = `${inicio}<b>${esc(ciclo.nombre)}</b>`;
     $("#titulo").textContent = `${ciclo.nombre} · Elige el módulo`;
     $("#sub").textContent = ciclo.descripcion || "";
     v.innerHTML = `<div class="grid">${ciclo.modulos.map((m) => `
@@ -74,7 +94,7 @@ function chipsEstado(lista) {
   }
 
   // 3 · Temas del módulo
-  $("#crumbs").innerHTML = `<a href="/panel/">Ciclos</a> › <a href="?ciclo=${encodeURIComponent(ciclo.id)}">${esc(ciclo.nombre)}</a> › <b>${esc(modulo.nombre)}</b>`;
+  $("#crumbs").innerHTML = `${inicio}<a href="?ciclo=${encodeURIComponent(ciclo.id)}">${esc(ciclo.nombre)}</a> › <b>${esc(modulo.nombre)}</b>`;
   $("#titulo").textContent = modulo.nombre;
   $("#sub").textContent = "Elige el tema. Cada examen se entrega una sola vez.";
   const temas = enCiclo.filter((e) => e.moduloId === modulo.id);
