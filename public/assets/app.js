@@ -95,7 +95,7 @@ function htmlNota(d, extra = "") {
         <div class="bar"><span class="muted">Entregado</span><span class="muted">${esc(d.fechaTexto)}</span></div>
       </div></div>
     ${d.comentario ? `<div class="msg info"><b>Comentario del profesor:</b> ${esc(d.comentario)}</div>` : ""}
-    ${d.finalizadoPorSalida && !extra ? `<div class="msg bad">🔒 Examen finalizado automáticamente al salir de la ventana (${esc(d.finalizadoPorSalida)}).</div>` : ""}
+    ${d.finalizadoPorSalida && !extra.includes("finalizado automáticamente") ? `<div class="msg bad">🔒 Examen finalizado automáticamente al salir de la ventana (${esc(d.finalizadoPorSalida)}).</div>` : ""}
     ${extra}
     ${(ex.open.length || (ex.num || []).length) && d.notaProfesor == null ? `<div class="disc">La corrección automática de las preguntas abiertas y de los ejercicios es una <b>estimación</b> (conceptos clave y resultados finales); la revisa el profesor.</div>` : ""}
     <div class="actions" id="notaActions">

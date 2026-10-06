@@ -98,20 +98,20 @@ function chipsEstado(lista) {
   // 3 · Temas del módulo
   $("#crumbs").innerHTML = `${inicio}<a href="?ciclo=${encodeURIComponent(ciclo.id)}">${esc(ciclo.nombre)}</a> › <b>${esc(modulo.nombre)}</b>`;
   $("#titulo").textContent = modulo.nombre;
-  $("#sub").textContent = "Elige el tema. Cada examen se entrega una sola vez.";
+  $("#sub").textContent = "Elige el tema. Salvo que el profesor permita más intentos, cada examen se entrega una sola vez.";
   const temas = enCiclo.filter((e) => e.moduloId === modulo.id);
   if (!temas.length) { v.innerHTML = `<div class="empty">Todavía no hay temas publicados en este módulo.</div>`; return; }
   const enlace = (e) => `/examen/?id=${encodeURIComponent(e.id)}`;
   v.innerHTML = `<div class="exlist">${temas.map((e) => e.estado === "pendiente" ? `
     <article class="excard"><div class="info">
       <h3>${esc(e.titulo)}</h3><div class="muted" style="font-size:14.5px">${esc(e.subtitulo)}</div>
-      <div class="meta">${e.nMc ? `<span class="chip v">${e.nMc} tipo test</span>` : ""}${e.nOpen ? `<span class="chip s">${e.nOpen} abiertas</span>` : ""}${e.nNum ? `<span class="chip">${e.nNum} apartados de ejercicios</span>` : ""}<span class="chip">Pendiente</span></div></div>
+      <div class="meta">${e.nMc ? `<span class="chip v">${e.nMc} tipo test</span>` : ""}${e.nOpen ? `<span class="chip s">${e.nOpen} abiertas</span>` : ""}${e.nNum ? `<span class="chip">${e.nNum} apartados de ejercicios</span>` : ""}${e.intentos !== 1 ? `<span class="chip gray">${e.intentos ? plural(e.intentos, "intento", "intentos") : "Intentos sin límite"}</span>` : ""}<span class="chip">Pendiente</span></div></div>
       <a class="btn" href="${enlace(e)}">Empezar</a></article>` : `
     <article class="excard"><div class="info">
       <h3>${esc(e.titulo)}</h3><div class="muted" style="font-size:14px">Entregado el ${esc(e.fecha)}</div>
-      <div class="meta"><span class="chip ok">Entregado</span>${e.revisada ? `<span class="chip ok">Revisado por el profesor</span>` : e.nOpen ? `<span class="chip gray">Pendiente de revisión</span>` : ""}</div></div>
-      <div style="display:flex;align-items:center;gap:16px"><div class="nota">${fmt(e.nota)}<small> /10</small></div>
-      <a class="btn ghost" href="${enlace(e)}&ver=1">${e.mostrarSoluciones ? "Ver corrección" : "Ver entrega"}</a></div></article>`).join("")}</div>`;
+      <div class="meta"><span class="chip ok">Entregado</span>${e.intentosAlumno.hechos > 1 || e.puedeRepetir ? `<span class="chip gray">${plural(e.intentosAlumno.hechos, "intento", "intentos")}${e.intentosAlumno.permitidos ? ` de ${e.intentosAlumno.permitidos}` : ""}</span>` : ""}${e.revisada ? `<span class="chip ok">Revisado por el profesor</span>` : e.nOpen ? `<span class="chip gray">Pendiente de revisión</span>` : ""}</div></div>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><div class="nota">${fmt(e.nota)}<small> /10</small></div>
+      <a class="btn ghost" href="${enlace(e)}&ver=1">${e.mostrarSoluciones ? "Ver corrección" : "Ver entrega"}</a>${e.puedeRepetir ? `<a class="btn" href="${enlace(e)}" title="${e.intentosAlumno.quedan == null ? "Intentos sin límite" : plural(e.intentosAlumno.quedan, "intento restante", "intentos restantes")}">Repetir</a>` : ""}</div></article>`).join("")}</div>`;
 })().catch((e) => { $("#vista").innerHTML = `<div class="msg bad">${esc(e.message)}</div>`; });
 </script>
 </body>

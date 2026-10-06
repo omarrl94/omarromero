@@ -141,16 +141,26 @@ export function validarExamen(e) {
     mostrarSoluciones: e.mostrarSoluciones !== false,
     // Modo seguro: si el alumno cambia de pantalla, el examen se entrega solo.
     seguridad: e.seguridad !== false,
+    // Intentos por alumno (0 = sin límite) y qué intento cuenta para la nota.
+    intentos: intentosValidos(e.intentos),
+    calificacion: e.calificacion === "ultima" ? "ultima" : "mejor",
     confianza: e.confianza === true,
     partes: { mc: opc(e.partes?.mc, 80), open: opc(e.partes?.open, 80), num: opc(e.partes?.num, 80) },
     bloques, mc, open, num,
   };
 }
 
+/** Número de intentos: entero de 0 (sin límite) a 50; por defecto, 1. */
+export function intentosValidos(v) {
+  const n = Number(v ?? 1);
+  return Number.isInteger(n) && n >= 0 && n <= 50 ? n : 1;
+}
+
 /** Lo que ve el alumno antes de entregar: sin soluciones ni criterios. */
 export const enunciado = (ex) => ({
   id: ex.id, titulo: ex.titulo, subtitulo: ex.subtitulo, modulo: ex.modulo, ciclo: ex.ciclo, cicloId: ex.cicloId, moduloId: ex.moduloId,
   seguridad: ex.seguridad !== false,
+  intentos: ex.intentos ?? 1, calificacion: ex.calificacion || "mejor",
   confianza: !!ex.confianza, confianzaTabla: ex.confianza ? CONFIANZA : null,
   partes: ex.partes || {}, bloques: ex.bloques || [],
   mc: ex.mc.map(({ t, o, puntos, bloque }) => ({ t, o, puntos: puntos ?? 1, bloque: bloque || "" })),
@@ -166,6 +176,7 @@ export const resumen = (ex) => ({
   cicloId: ex.cicloId, moduloId: ex.moduloId, orden: ex.orden || 0,
   nMc: ex.mc.length, nOpen: ex.open.length, nNum: (ex.num || []).length, publicado: ex.publicado, mostrarSoluciones: ex.mostrarSoluciones,
   seguridad: ex.seguridad !== false,
+  intentos: ex.intentos ?? 1, calificacion: ex.calificacion || "mejor",
   creado: ex.creado, actualizado: ex.actualizado, autor: ex.autor?.nombre || "",
 });
 

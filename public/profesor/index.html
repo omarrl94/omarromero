@@ -142,13 +142,15 @@
   <div class="dhead"><h2 id="dEntTitulo">Entrega</h2><button class="btn ghost sm" data-close>Cerrar</button></div>
   <div class="dbody">
     <form id="fRevisar" class="card" style="margin-bottom:18px" novalidate>
+      <div class="intsel" id="rIntentos"></div>
       <div class="row2">
         <div class="field"><label class="flab" for="rNota">Nota revisada (0–10, vacío = automática)</label><input type="text" id="rNota" inputmode="decimal"></div>
         <div class="field"><label class="flab">Salidas de la ventana</label><div id="rSalidas" style="padding-top:8px"></div></div>
       </div>
       <div class="field"><label class="flab" for="rCom">Comentario para el alumno</label><textarea id="rCom" style="min-height:70px"></textarea></div>
+      <p class="hintline" id="rAjustesInfo"></p>
       <div class="msg bad" data-err hidden></div><div class="msg ok" data-ok hidden></div>
-      <button class="btn" type="submit">Guardar revisión</button>
+      <button class="btn" type="submit">Guardar revisión y puntos</button>
     </form>
     <div id="dEntCont"></div>
   </div>
@@ -234,6 +236,12 @@ function pintarExamenes() {
         ${sw(e, "mostrarSoluciones", "Corrección", "El alumno ve la corrección al entregar")}
         ${sw(e, "seguridad", "Modo seguro", "Si el alumno cambia de pestaña o de ventana, el examen termina y se entrega solo")}
       </div>
+      <div class="intentosbar">
+        <label title="Cuántas veces puede entregarlo cada alumno. A un alumno concreto le puedes dar más desde «Entregas».">Intentos
+          <select data-intentos>${[...new Set([1, 2, 3, 4, 5, 10, e.intentos || 1])].sort((a, b) => a - b).map((n) => `<option value="${n}" ${e.intentos === n ? "selected" : ""}>${n}</option>`).join("")}<option value="0" ${e.intentos === 0 ? "selected" : ""}>Sin límite</option></select></label>
+        <label title="Qué intento cuenta para la nota cuando hay varios">Nota que cuenta
+          <select data-calif ${e.intentos === 1 ? "disabled" : ""}><option value="mejor">La mejor</option><option value="ultima" ${e.calificacion === "ultima" ? "selected" : ""}>La última</option></select></label>
+      </div>
       <div class="foot2">
         <button class="btn sm" data-ent>Entregas</button>
         <a class="btn ghost sm" target="_blank" href="/examen/?id=${encodeURIComponent(e.id)}" title="Ábrelo como alumno (también sin publicar). Si lo entregas, usa «Reabrir» para borrar tu intento.">Probar</a>
@@ -247,6 +255,16 @@ function pintarExamenes() {
   const idDe = (el) => el.closest("[data-id]").dataset.id;
   $$("[data-aj]", t).forEach((c) => (c.onchange = async () => {
     try { await api("/api/profesor/examen/ajustes", { id: idDe(c), [c.dataset.aj]: c.checked }); } catch (e) { alert(e.message); c.checked = !c.checked; }
+  }));
+  $$("[data-intentos]", t).forEach((c) => (c.onchange = async () => {
+    const e = EXAMENES.find((x) => x.id === idDe(c)), antes = e.intentos;
+    try { await api("/api/profesor/examen/ajustes", { id: e.id, intentos: Number(c.value) }); e.intentos = Number(c.value); $("[data-calif]", c.closest("[data-id]")).disabled = e.intentos === 1; }
+    catch (err) { alert(err.message); c.value = String(antes); }
+  }));
+  $$("[data-calif]", t).forEach((c) => (c.onchange = async () => {
+    const e = EXAMENES.find((x) => x.id === idDe(c)), antes = e.calificacion;
+    try { await api("/api/profesor/examen/ajustes", { id: e.id, calificacion: c.value }); e.calificacion = c.value; }
+    catch (err) { alert(err.message); c.value = antes; }
   }));
   $$("[data-ent]", t).forEach((b) => (b.onclick = () => abrirEntregas(idDe(b))));
   $$("[data-copiar]", t).forEach((b) => (b.onclick = async () => {
@@ -287,6 +305,12 @@ async function abrirEntregas(id) {
 $("#filtroGrupo").onchange = pintarEntregas;
 $("#atras").onclick = () => { $("#vEntregas").hidden = true; $("#vExamenes").hidden = false; cargarExamenes(); };
 
+/** Vuelve a pedir las filas sin salir de la vista (tras cambiar intentos o notas). */
+async function recargarFilas() {
+  FILAS = (await api(`/api/profesor/entregas?id=${encodeURIComponent(ACTUAL)}`)).filas;
+  pintarEntregas();
+}
+
 function pintarEntregas() {
   const g = $("#filtroGrupo").value;
   const filas = FILAS.filter((f) => !g || f.grupo === g);
@@ -295,7 +319,7 @@ function pintarEntregas() {
   if (!filas.length) { $("#tablaEntregas").innerHTML = `<div class="empty">Nadie ha empezado este examen todavía.</div>`; return; }
   $("#tablaEntregas").innerHTML = `<div class="meta" style="margin-bottom:12px"><span class="chip v">${ent.length} entregas</span>
     <span class="chip gray">${filas.length - ent.length} sin entregar</span>${media != null ? `<span class="chip">Media: ${fmt(Math.round(media * 100) / 100)}</span>` : ""}</div>
-    <div class="tablewrap"><table class="t"><thead><tr><th>Alumno/a</th><th>Grupo</th><th>Estado</th><th>Nota auto.</th><th>Nota final</th><th>Salidas</th><th>Fecha</th><th></th></tr></thead><tbody>
+    <div class="tablewrap"><table class="t"><thead><tr><th>Alumno/a</th><th>Grupo</th><th>Estado</th><th>Nota auto.</th><th>Nota final</th><th>Intentos</th><th>Salidas</th><th>Fecha</th><th></th></tr></thead><tbody>
     ${filas.map((f) => `<tr data-email="${esc(f.email)}">
       <td><b>${esc(f.apellidos)}, ${esc(f.nombre)}</b><div class="muted" style="font-size:13px">${esc(f.email)}</div></td>
       <td>${esc(f.grupo)}</td>
@@ -303,24 +327,43 @@ function pintarEntregas() {
         ${f.finalizadoPorSalida ? `<div><span class="chip bad" title="${esc(f.finalizadoPorSalida)}" style="margin-top:4px">🔒 Finalizado al salir</span></div>` : ""}</td>
       <td class="num">${f.nota != null ? fmt(f.nota) : "—"}</td>
       <td class="num">${f.estado === "entregado" ? fmt(f.notaProfesor ?? f.nota) + (f.notaProfesor != null ? ` <span class="chip ok" style="font-size:11px">revisada</span>` : "") : "—"}</td>
+      <td class="num"><div class="intcel"><span title="${f.extra ? `Incluye ${f.extra} extra` : ""}">${f.intentos} / ${f.permitidos ?? "∞"}</span>${f.permitidos != null ? `<button class="btn ghost sm" data-extra="1" title="Dar un intento más a este alumno">+1</button>${f.extra ? `<button class="btn ghost sm" data-extra="-1" title="Quitar un intento extra">−1</button>` : ""}` : ""}</div></td>
       <td class="num">${f.salidas ? `<span class="chip bad">${f.salidas}</span>` : "0"}</td>
       <td style="white-space:nowrap">${esc(f.fechaTexto || fecha(f.fecha))}</td>
       <td><div class="acts">${f.estado === "entregado" ? `<button class="btn sm" data-ver>Ver / revisar</button>` : ""}
-        <button class="btn ghost sm" data-reabrir title="Borra la entrega para que pueda volver a hacerlo">Reabrir</button></div></td>
+        <button class="btn ghost sm" data-reabrir title="Borra todos sus intentos y sus intentos extra: empieza de cero">Reabrir</button></div></td>
     </tr>`).join("")}</tbody></table></div>`;
   $$("[data-ver]").forEach((b) => (b.onclick = () => verEntrega(b.closest("tr").dataset.email)));
+  $$("[data-extra]").forEach((b) => (b.onclick = async () => {
+    const f = FILAS.find((x) => x.email === b.closest("tr").dataset.email);
+    try { await api("/api/profesor/entrega/intento-extra", { id: ACTUAL, email: f.email, cambio: Number(b.dataset.extra) }); await recargarFilas(); } catch (e) { alert(e.message); }
+  }));
   $$("[data-reabrir]").forEach((b) => (b.onclick = async () => {
     const f = FILAS.find((x) => x.email === b.closest("tr").dataset.email);
-    if (!confirm(`¿Reabrir el examen a ${f.nombre} ${f.apellidos}?\n\nSe borrará su entrega (nota y respuestas) y podrá hacerlo otra vez.`)) return;
+    if (!confirm(`¿Reabrir el examen a ${f.nombre} ${f.apellidos}?\n\nSe borrarán todos sus intentos (notas y respuestas) y empezará de cero.`)) return;
     try { await api("/api/profesor/entrega/reabrir", { id: ACTUAL, email: f.email }); abrirEntregas(ACTUAL); } catch (e) { alert(e.message); }
   }));
 }
 
 let ENT = null;
-async function verEntrega(email) {
-  const d = await api(`/api/profesor/entrega?id=${encodeURIComponent(ACTUAL)}&email=${encodeURIComponent(email)}`);
+async function verEntrega(email, intento) {
+  const d = await api(`/api/profesor/entrega?id=${encodeURIComponent(ACTUAL)}&email=${encodeURIComponent(email)}${intento ? `&intento=${intento}` : ""}`);
   ENT = d;
   $("#dEntTitulo").textContent = `${d.alumno.nombre} ${d.alumno.apellidos} · ${d.alumno.grupo}`;
+  // Intentos: elegir cuál ver / revisar y borrar el que no valga.
+  $("#rIntentos").innerHTML = `<span class="flab" style="margin:0">Intentos</span>${d.intentos.map((x) => `<button type="button" class="btn sm ${x.n === d.intento ? "" : "ghost"}" data-int="${x.n}" title="${esc(x.fechaTexto || "")}">${x.n}.º · ${fmt(x.nota)}${x.vigente ? " ✓" : ""}</button>`).join("")}
+    <span class="muted" style="font-size:12.5px">✓ = el que cuenta</span>
+    <button type="button" class="btn danger sm" id="rBorrarInt" style="margin-left:auto">Borrar este intento</button>`;
+  $$("[data-int]", $("#rIntentos")).forEach((b) => (b.onclick = () => verEntrega(email, Number(b.dataset.int))));
+  $("#rBorrarInt").onclick = async () => {
+    const solo = d.intentos.length === 1;
+    if (!confirm(`¿Borrar el intento ${d.intento} de ${d.alumno.nombre} ${d.alumno.apellidos}?\n\n${solo ? "Es su único intento: se borrará la entrega." : "Se borrarán sus respuestas y su nota."} El alumno recupera ese intento. No se puede deshacer.`)) return;
+    try {
+      const r = await api("/api/profesor/entrega/borrar-intento", { id: ACTUAL, email, intento: d.intento });
+      await recargarFilas();
+      if (r.borrada) $("#dEntrega").close(); else verEntrega(email);
+    } catch (e) { alert(e.message); }
+  };
   $("#rNota").value = d.notaProfesor != null ? String(d.notaProfesor).replace(".", ",") : "";
   $("#rCom").value = d.comentario || "";
   $("#rSalidas").innerHTML = d.registroSalidas.length
@@ -330,20 +373,51 @@ async function verEntrega(email) {
   const c = $("#dEntCont");
   pintarEntrega(c, d);
   $("[data-rev]", c).hidden = false; $("[data-toggle-rev]", c).remove();
-  $("#dEntrega").showModal();
+  ponerEditoresPuntos(c, d);
+  if (!$("#dEntrega").open) $("#dEntrega").showModal();
 }
-$("#fRevisar").onsubmit = async (ev) => {
-  ev.preventDefault();
-  const f = ev.target; $("[data-err]", f).hidden = true; $("[data-ok]", f).hidden = true;
+
+/** Junto a cada pregunta, una casilla para cambiar sus puntos. */
+function ponerEditoresPuntos(c, d) {
+  const ex = d.examen, orden = [...ex.mc.map((q, i) => ["mc", i, q]), ...ex.open.map((q, i) => ["open", i, q]), ...(ex.num || []).map((q, i) => ["num", i, q])];
+  $$(".rev", c).forEach((rev, n) => {
+    const [k, i, q] = orden[n] || [];
+    if (!k) return;
+    const max = q.puntos ?? 1, min = k === "mc" && ex.confianza ? -max : 0;
+    const v = d.pts?.[k]?.[i] ?? 0, aj = d.ajustados?.[k]?.[i];
+    const sp = $(".pts", rev); if (sp) sp.remove();
+    $(".rq", rev).insertAdjacentHTML("beforeend", `<span class="ajpts${aj ? " on" : ""}" title="Puntos de esta pregunta (entre ${fmt(min)} y ${fmt(max)}). Cámbialos si la corrección automática no es justa.">
+      <input type="text" inputmode="decimal" data-k="${k}" data-i="${i}" data-orig="${v}" value="${String(v).replace(".", ",")}" aria-label="Puntos"> / ${fmt(max)} p${aj ? " · cambiado" : ""}</span>`);
+  });
+  $("#rAjustesInfo").innerHTML = d.ajustes ? `Hay puntos cambiados a mano en este intento. <button type="button" class="link" id="rQuitarAj">Volver a la corrección automática</button>` : "Puedes cambiar los puntos de cada pregunta en la corrección de abajo; la nota se recalcula al guardar.";
+  const q = $("#rQuitarAj");
+  if (q) q.onclick = () => guardarRevision({ ajustes: null });
+}
+
+/** Puntos cambiados: los que ya estaban ajustados + los que se han editado ahora. */
+function ajustesEditados() {
+  const a = JSON.parse(JSON.stringify(ENT.ajustes || {}));
+  let cambios = false;
+  $$("#dEntCont .ajpts input").forEach((inp) => {
+    const v = inp.value.trim().replace(",", ".");
+    if (v === "" || Number(v) === Number(inp.dataset.orig)) return;
+    (a[inp.dataset.k] ||= {})[inp.dataset.i] = v; cambios = true;
+  });
+  return cambios || ENT.ajustes ? a : undefined;
+}
+
+async function guardarRevision(extra = {}) {
+  const f = $("#fRevisar"); $("[data-err]", f).hidden = true; $("[data-ok]", f).hidden = true;
   try {
-    await api("/api/profesor/entrega/revisar", { id: ACTUAL, email: ENT.alumno.email, notaProfesor: $("#rNota").value.trim(), comentario: $("#rCom").value });
-    $("[data-ok]", f).textContent = "Revisión guardada. El alumno la verá en su panel."; $("[data-ok]", f).hidden = false;
-    const fila = FILAS.find((x) => x.email === ENT.alumno.email);
-    const n = $("#rNota").value.trim();
-    if (fila) fila.notaProfesor = n ? Number(n.replace(",", ".")) : null;
-    pintarEntregas();
+    const email = ENT.alumno.email, intento = ENT.intento;
+    const r = await api("/api/profesor/entrega/revisar", { id: ACTUAL, email, intento, notaProfesor: $("#rNota").value.trim(), comentario: $("#rCom").value, ajustes: ajustesEditados(), ...extra });
+    await recargarFilas();
+    await verEntrega(email, intento);
+    $("[data-ok]", f).textContent = `Revisión guardada. Nota de este intento: ${fmt(r.nota)} · nota final: ${fmt(r.notaFinal)} (cuenta el intento ${r.vigente}). El alumno la verá en su panel.`;
+    $("[data-ok]", f).hidden = false;
   } catch (e) { $("[data-err]", f).textContent = e.message; $("[data-err]", f).hidden = false; }
-};
+}
+$("#fRevisar").onsubmit = (ev) => { ev.preventDefault(); guardarRevision(); };
 
 /* ── Subir examen ── */
 $("#nuevo").onclick = () => {

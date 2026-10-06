@@ -278,6 +278,9 @@ td input.mini{width:90px;padding:6px 10px;font-size:14px}
 .excard2 .stats b{display:block;font-size:18px;color:var(--fg);font-variant-numeric:tabular-nums;line-height:1.2}
 .excard2 .toggles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px 18px}
 .excard2 .toggles label{display:flex;flex-direction:column;align-items:flex-start;gap:6px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer}
+.excard2 .intentosbar{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 18px 12px}
+.excard2 .intentosbar label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--muted)}
+.excard2 .intentosbar select{padding:5px 8px;font-size:13.5px;height:32px}
 .excard2 .foot2{display:flex;gap:6px;align-items:center;padding:12px 18px 14px;margin-top:auto;border-top:1px solid var(--border)}
 .excard2 .foot2 .iconos{margin-left:auto;display:flex;gap:4px}
 .btn.icono{padding:0;width:32px;min-height:32px;height:32px}
@@ -338,3 +341,12 @@ body.exam img,body.exam svg{-webkit-user-drag:none;pointer-events:none}
   .who .btn.sm{padding:6px 9px;font-size:12.5px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* Intentos y puntos editables (revisión del profesor) */
+.intsel{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding-bottom:14px;margin-bottom:14px;border-bottom:1px solid var(--border)}
+.intcel{display:flex;align-items:center;justify-content:flex-end;gap:4px;white-space:nowrap}
+.intcel .btn{padding:2px 7px;min-height:0;height:26px;font-size:12.5px}
+.ajpts{display:inline-flex;align-items:center;gap:4px;margin-left:6px;font-size:12.5px;font-weight:600;color:var(--muted);white-space:nowrap;vertical-align:middle}
+.ajpts input{width:58px;padding:3px 6px;height:28px;font-size:13px;text-align:right;font-variant-numeric:tabular-nums}
+.ajpts.on{color:var(--amarillo-ink)}
+.ajpts.on input{border-color:var(--amarillo);background:var(--amarillo-soft)}

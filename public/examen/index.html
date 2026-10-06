@@ -25,7 +25,7 @@
     <p class="sub" id="subtitulo"></p>
     <div class="card">
       <div class="meta" id="chips"></div>
-      <div class="note" style="margin-top:16px">Al entregar verás tu nota y <b>recibirás automáticamente un correo</b> en <b id="miEmail"></b> con tus respuestas y la corrección. Solo se puede entregar <b>una vez</b>. Las preguntas abiertas se corrigen de forma automática por conceptos clave: es una estimación que revisa el profesor.</div>
+      <div class="note" style="margin-top:16px">Al entregar verás tu nota y <b>recibirás automáticamente un correo</b> en <b id="miEmail"></b> con tus respuestas y la corrección. <span id="txtIntentos">Solo se puede entregar <b>una vez</b>.</span> Las preguntas abiertas se corrigen de forma automática por conceptos clave: es una estimación que revisa el profesor.</div>
       <div class="examwarn" id="avisoModo"></div>
       <div class="msg bad" id="introErr" hidden></div>
       <div class="actions"><button class="btn" id="start">Comenzar el examen</button></div>
@@ -111,8 +111,9 @@ async function init() {
   if (EX.ciclo) $(".tag").textContent = EX.ciclo;
   $("#titulo").textContent = EX.titulo; $("#subtitulo").textContent = EX.subtitulo || EX.modulo || "";
   $("#miEmail").textContent = YO.email;
+  $("#txtIntentos").innerHTML = textoIntentos(EX.intentosAlumno, EX.calificacion);
   $("#avisoModo").innerHTML = EX.seguridad
-    ? `<b>🔒 Modo seguro:</b> si cambias de pestaña, minimizas, abres otra aplicación o sales de la ventana, <b>el examen se entregará automáticamente</b> con lo que lleves respondido y no podrás repetirlo. Ten preparado todo antes de empezar.`
+    ? `<b>🔒 Modo seguro:</b> si cambias de pestaña, minimizas, abres otra aplicación o sales de la ventana, <b>el examen se entregará automáticamente</b> con lo que lleves respondido${EX.intentosAlumno?.quedan === 1 ? " y no podrás repetirlo" : " y contará como un intento"}. Ten preparado todo antes de empezar.`
     : `<b>Modo examen:</b> no salgas de esta página hasta entregar. Si cambias de pestaña o de ventana, quedará registrado para el profesor.`;
   $$("[data-volver]").forEach((a) => (a.href = urlModulo(EX)));
   $("#chips").innerHTML = [EX.modulo && `<span class="chip gray">${esc(EX.modulo)}</span>`,
@@ -124,6 +125,32 @@ async function init() {
   $("#loading").hidden = true; $("#intro").hidden = false;
 }
 
+/** «Tienes 3 intentos (te quedan 2); cuenta la mejor nota.» */
+function textoIntentos(ia, calif) {
+  if (!ia) return "";
+  const cuenta = calif === "ultima" ? "cuenta la nota del <b>último</b>" : "cuenta la <b>mejor</b> nota";
+  if (ia.permitidos === 1) return "Solo se puede entregar <b>una vez</b>.";
+  if (ia.permitidos == null) return `Puedes hacerlo <b>las veces que quieras</b>; ${cuenta}.`;
+  return ia.quedan === 1 && ia.hechos ? `Es tu <b>último intento</b> (de ${ia.permitidos}); ${cuenta}.`
+    : `Tienes <b>${ia.quedan} ${ia.quedan === 1 ? "intento" : "intentos"}</b>${ia.hechos ? ` más (de ${ia.permitidos})` : ""}; ${cuenta}.`;
+}
+
+/** Aviso con los intentos hechos y, si quedan, el botón para repetir. */
+function avisoIntentos(d) {
+  const lista = d.intentos || [];
+  const quedan = d.quedan === null ? "sin límite" : d.quedan;
+  if (lista.length <= 1 && !d.quedan && d.quedan !== null) return "";
+  const vig = lista.find((x) => x.vigente);
+  const cuenta = d.calificacion === "ultima" ? "el último" : "el de mejor nota";
+  const filas = lista.length > 1 ? `<div class="meta" style="margin-top:8px">${lista.map((x) => `<span class="chip ${x.vigente ? "ok" : "gray"}" title="${esc(x.fechaTexto || "")}">Intento ${x.n}: ${fmt(x.nota)}${x.vigente ? " · cuenta" : ""}</span>`).join("")}</div>` : "";
+  const txt = lista.length > 1
+    ? `Llevas <b>${lista.length} intentos</b>. Para la nota cuenta ${cuenta}${vig ? ` (intento ${vig.n}: <b>${fmt(vig.nota)}</b>)` : ""}.`
+    : `Has hecho <b>1 intento</b>.`;
+  const rep = d.quedan === null || d.quedan > 0
+    ? `<div class="actions" style="margin-top:10px"><a class="btn" href="?id=${encodeURIComponent(examId)}">Volver a intentarlo</a><span class="muted" style="font-size:13.5px">Te ${d.quedan === 1 ? "queda 1 intento" : `quedan ${quedan === "sin límite" ? "intentos sin límite" : quedan + " intentos"}`}</span></div>` : "";
+  return `<div class="note" style="margin:14px 0">${txt}${filas}${rep}</div>`;
+}
+
 async function verEntrega() {
   const d = await api(`/api/entrega?id=${encodeURIComponent(examId)}`);
   document.title = `${d.examen.titulo} · Resultado`;
@@ -131,7 +158,7 @@ async function verEntrega() {
   $("#loading").hidden = true;
   const r = $("#result"); r.hidden = false;
   r.insertAdjacentHTML("beforebegin", `<a href="${urlModulo(d.examen)}" class="back">← Volver a ${esc(d.examen.modulo || "mis exámenes")}</a><h1>${esc(d.examen.titulo)}</h1><p class="sub">${esc(d.examen.subtitulo || "")}</p>`);
-  pintarEntrega(r, d);
+  pintarEntrega(r, d, avisoIntentos(d));
 }
 
 function buildQuiz() {
@@ -217,7 +244,7 @@ function mostrarResultado(d, extra = "") {
     ? `<div class="msg ok">✉ Te hemos enviado la corrección a <b>${esc(d.correo.destino)}</b>. Si no la ves en unos minutos, revisa «Correo no deseado».</div>`
     : `<div class="msg bad">✉ ${esc(d.correo.error || "No se ha podido enviar el correo.")} Tu entrega está guardada y puedes consultarla en tu panel.</div>`;
   r.insertAdjacentHTML("beforebegin", `<a href="${urlModulo(EX)}" class="back">← Volver a ${esc(EX.modulo)}</a><h1>${esc(EX.titulo)}</h1><p class="sub">Examen entregado.</p>`);
-  pintarEntrega(r, d, extra + banner);
+  pintarEntrega(r, d, extra + banner + avisoIntentos(d));
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -225,7 +252,7 @@ async function entregar() {
   const btn = $("#submit"), err = $("#sendErr");
   const total = EX.mc.length + EX.open.length + EX.num.length, faltan = total - respondidas();
   if (faltan && btn.dataset.confirm !== "1") {
-    err.hidden = false; err.textContent = `Te ${faltan === 1 ? "falta 1 pregunta" : `faltan ${faltan} preguntas`} por contestar (o sin nivel de confianza). Pulsa otra vez «Entregar» si quieres entregar igualmente. Recuerda que solo se puede entregar una vez.`;
+    err.hidden = false; err.textContent = `Te ${faltan === 1 ? "falta 1 pregunta" : `faltan ${faltan} preguntas`} por contestar (o sin nivel de confianza). Pulsa otra vez «Entregar» si quieres entregar igualmente. ${EX.intentosAlumno?.quedan === 1 ? "Recuerda que es tu último intento." : ""}`;
     btn.dataset.confirm = "1"; btn.textContent = "Entregar igualmente"; return;
   }
   PAYLOAD = respuestasActuales();
