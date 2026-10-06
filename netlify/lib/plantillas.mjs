@@ -92,6 +92,7 @@ export function correoResultado(ex, e) {
       <td style="padding:16px 20px;font-size:14px;color:#5E4D09;text-align:right">
         ${ex.mc.length ? `Test: <b>${res.mcOk} / ${ex.mc.length}</b><br>` : ""}${ex.open.length ? `Abiertas (estimación): <b>${fmt(openOver)} / ${ex.open.length}</b>` : ""}</td>
     </tr></table>
+    ${e.finalizadoPorSalida ? `<p style="font-size:13px;color:${ROJO};background:#FBE7E4;border-radius:10px;padding:10px 14px"><b>Examen finalizado automáticamente</b> al salir de la ventana (${esc(e.finalizadoPorSalida)}). Se entregaron las respuestas que había en ese momento.</p>` : ""}
     ${ex.open.length ? `<p style="font-size:13px;color:#643925;background:#F8E2D6;border-radius:10px;padding:10px 14px">La nota de las preguntas abiertas es una <b>estimación automática</b> por conceptos clave; la revisa el profesor.</p>` : ""}
   </td></tr>
   ${ex.mc.length ? `<tr><td style="padding:4px 28px"><h2 style="font-size:17px;margin:12px 0 0;color:#8E750D">Parte A · Test</h2>
@@ -102,6 +103,7 @@ export function correoResultado(ex, e) {
   const L = [
     `${ex.titulo}${ex.modulo ? ` — ${ex.modulo}` : ""}${ex.ciclo ? ` (${ex.ciclo})` : ""}`,
     `Alumno/a: ${nombre}   Grupo: ${e.grupo || "-"}   Entregado: ${e.fechaTexto}`,
+    ...(e.finalizadoPorSalida ? [`EXAMEN FINALIZADO AUTOMÁTICAMENTE al salir de la ventana (${e.finalizadoPorSalida}).`] : []),
     `NOTA: ${fmt(res.nota)}/10  (Test ${res.mcOk}/${ex.mc.length}, Abiertas est. ${fmt(openOver)}/${ex.open.length})`,
     "",
     ...ex.mc.map((q, i) => {

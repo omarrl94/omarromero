@@ -89,6 +89,7 @@
       <div style="display:grid;gap:10px;margin:4px 0 8px">
         <label class="check"><input type="checkbox" id="ePub"> Publicar ya (visible para los alumnos)</label>
         <label class="check"><input type="checkbox" id="eSol" checked> Mostrar la corrección al alumno al entregar (en pantalla y en el correo)</label>
+        <label class="check"><input type="checkbox" id="eSeg" checked> 🔒 Modo seguro: si el alumno cambia de pantalla, el examen termina y se entrega solo</label>
         <label class="check" id="eSobreWrap" hidden><input type="checkbox" id="eSobre"> Reemplazar el examen existente con este identificador</label>
       </div>
       <details id="previa" style="margin:6px 0 14px"><summary style="cursor:pointer;font-weight:700">Revisar las preguntas</summary><div id="previaLista"></div></details>
@@ -211,7 +212,7 @@ function pintarExamenes() {
   const pos = (e) => { const ci = CATALOGO.findIndex((c) => c.id === e.cicloId); const mi = ci < 0 ? 0 : CATALOGO[ci].modulos.findIndex((m) => m.id === e.moduloId); return ci * 1000 + mi; };
   const lista = EXAMENES.filter((e) => !filtro || `${e.cicloId}/${e.moduloId}` === filtro).sort((a, b) => pos(a) - pos(b));
   if (!lista.length) { t.innerHTML = `<div class="empty">${EXAMENES.length ? "No hay exámenes en este módulo." : "Todavía no hay exámenes."} Pulsa «Subir examen».</div>`; return; }
-  t.innerHTML = `<div class="tablewrap"><table class="t"><thead><tr><th>Ciclo · Módulo</th><th>Tema / examen</th><th>Preguntas</th><th>Entregas</th><th>Publicado</th><th>Corrección visible</th><th></th></tr></thead><tbody>
+  t.innerHTML = `<div class="tablewrap"><table class="t"><thead><tr><th>Ciclo · Módulo</th><th>Tema / examen</th><th>Preguntas</th><th>Entregas</th><th>Publicado</th><th>Corrección visible</th><th title="Si el alumno cambia de pantalla, el examen se entrega solo">Modo seguro</th><th></th></tr></thead><tbody>
     ${lista.map((e) => `<tr data-id="${esc(e.id)}">
       <td><b>${esc(e.ciclo)}</b><div class="muted" style="font-size:13px">${esc(e.modulo)}</div></td>
       <td><b>${esc(e.titulo)}</b><div class="muted" style="font-size:13px">Orden ${e.orden} · <code>${esc(e.id)}</code>${e.autor ? ` · ${esc(e.autor)}` : ""}</div></td>
@@ -219,6 +220,7 @@ function pintarExamenes() {
       <td class="num">${e.entregas}</td>
       <td><label class="switch" title="Visible para los alumnos"><input type="checkbox" data-aj="publicado" ${e.publicado ? "checked" : ""}><span></span></label></td>
       <td><label class="switch" title="El alumno ve la corrección al entregar"><input type="checkbox" data-aj="mostrarSoluciones" ${e.mostrarSoluciones ? "checked" : ""}><span></span></label></td>
+      <td><label class="switch" title="Si el alumno cambia de pestaña o de ventana, el examen termina y se entrega solo"><input type="checkbox" data-aj="seguridad" ${e.seguridad ? "checked" : ""}><span></span></label></td>
       <td><div class="acts"><button class="btn sm" data-ent>Entregas</button><a class="btn ghost sm" target="_blank" href="/examen/?id=${encodeURIComponent(e.id)}" title="Ábrelo como alumno (también sin publicar). Si lo entregas, usa «Reabrir» para borrar tu intento.">Probar</a><button class="btn ghost sm" data-copiar>Copiar enlace</button><button class="btn ghost sm" data-json>JSON</button><button class="btn danger sm" data-borrar>Borrar</button></div></td>
     </tr>`).join("")}</tbody></table></div>`;
   $$("[data-aj]", t).forEach((c) => (c.onchange = async () => {
@@ -276,7 +278,8 @@ function pintarEntregas() {
     ${filas.map((f) => `<tr data-email="${esc(f.email)}">
       <td><b>${esc(f.apellidos)}, ${esc(f.nombre)}</b><div class="muted" style="font-size:13px">${esc(f.email)}</div></td>
       <td>${esc(f.grupo)}</td>
-      <td>${f.estado === "entregado" ? `<span class="chip ok">Entregado</span>` : `<span class="chip gray">Sin entregar</span>`}</td>
+      <td>${f.estado === "entregado" ? `<span class="chip ok">Entregado</span>` : `<span class="chip gray">Sin entregar</span>`}
+        ${f.finalizadoPorSalida ? `<div><span class="chip bad" title="${esc(f.finalizadoPorSalida)}" style="margin-top:4px">🔒 Finalizado al salir</span></div>` : ""}</td>
       <td class="num">${f.nota != null ? fmt(f.nota) : "—"}</td>
       <td class="num">${f.estado === "entregado" ? fmt(f.notaProfesor ?? f.nota) + (f.notaProfesor != null ? ` <span class="chip ok" style="font-size:11px">revisada</span>` : "") : "—"}</td>
       <td class="num">${f.salidas ? `<span class="chip bad">${f.salidas}</span>` : "0"}</td>
@@ -407,7 +410,7 @@ function mostrarFormulario(ex, resumen) {
     const m = c.modulos.find((x) => x.id === ex.moduloId || normTxt(x.nombre) === normTxt(ex.modulo)) || c.modulos.find((x) => x.id === fm) || c.modulos[0];
     if (m) $("#eModulo").value = m.id; // un ciclo sin módulos deja el desplegable vacío (se avisa al guardar)
     $("#eOrden").value = ex.orden ?? EXAMENES.filter((e) => e.cicloId === c.id && e.moduloId === m?.id).length + 1;
-    $("#ePub").checked = !!ex.publicado; $("#eSol").checked = ex.mostrarSoluciones !== false; $("#eSobre").checked = false;
+    $("#ePub").checked = !!ex.publicado; $("#eSol").checked = ex.mostrarSoluciones !== false; $("#eSeg").checked = ex.seguridad !== false; $("#eSobre").checked = false;
     $("#resumenImport").innerHTML = resumen;
     comprobarId();
     pintarPrevia();
@@ -617,7 +620,7 @@ $("#fExamen").onsubmit = async (ev) => {
     await api("/api/profesor/examen", {
       ...IMPORT, id: $("#eId").value.trim(), titulo: $("#eTitulo").value.trim(), subtitulo: $("#eSub").value.trim(),
       cicloId: $("#eCiclo").value, moduloId: $("#eModulo").value, orden: Number($("#eOrden").value) || 0,
-      publicado: $("#ePub").checked, mostrarSoluciones: $("#eSol").checked, sobrescribir: $("#eSobre").checked,
+      publicado: $("#ePub").checked, mostrarSoluciones: $("#eSol").checked, seguridad: $("#eSeg").checked, sobrescribir: $("#eSobre").checked,
     });
     $("#dSubir").close(); cargarExamenes();
   } catch (e) { err.textContent = e.message; err.hidden = false; }

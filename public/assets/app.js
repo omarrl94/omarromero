@@ -56,6 +56,7 @@ function htmlNota(d, extra = "") {
         <div class="bar"><span>Entregado</span><span>${esc(d.fechaTexto)}</span></div>
       </div></div>
     ${d.comentario ? `<div class="msg info"><b>Comentario del profesor:</b> ${esc(d.comentario)}</div>` : ""}
+    ${d.finalizadoPorSalida && !extra ? `<div class="msg bad">🔒 Examen finalizado automáticamente al salir de la ventana (${esc(d.finalizadoPorSalida)}).</div>` : ""}
     ${extra}
     ${ex.open.length && d.notaProfesor == null ? `<div class="disc">La nota de las preguntas abiertas es una <b>estimación automática</b> por conceptos clave; la revisa el profesor.</div>` : ""}
     <div class="actions" id="notaActions">

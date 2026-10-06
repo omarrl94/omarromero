@@ -25,7 +25,7 @@ Funciona en **Netlify** (plan gratuito): páginas estáticas + una Netlify Funct
 
 **Profesores y administrador**
 - **Administrador** (`ADMIN_EMAILS`): acceso a todo y pestaña **«Profesores»** para aprobar solicitudes, quitar el acceso y decidir a qué ciclos tiene acceso cada profesor. Recibe un correo cuando alguien se registra como profesor.
-- **Profesor**: se registra en la página principal eligiendo **«Profesor/a»** y marcando los ciclos en los que da clase (correo `@jrotero.es` confirmado con código). Hasta que el administrador lo aprueba ve un aviso de «pendiente». Una vez aprobado, en `/profesor/` **solo ve y gestiona lo de sus ciclos**: crear, subir y generar exámenes con IA, publicarlos, entregas y notas, revisión, CSV y sus alumnos (cambiar grupo, activar, borrar). El servidor lo comprueba en cada petición.
+- **Profesor**: se registra en la página principal eligiendo **«Profesor/a»** y marcando los ciclos en los que da clase (correo `@jrotero.es` confirmado con código). Hasta que el administrador lo aprueba ve un aviso de «pendiente». Una vez aprobado, en `/profesor/` crea, sube y genera exámenes con IA **en sus ciclos**, y **solo ve y gestiona los exámenes que ha creado él** (publicarlos, entregas y notas, revisión, CSV). También gestiona a los alumnos de sus ciclos (cambiar grupo, activar, borrar). El administrador ve todos los exámenes. El servidor lo comprueba en cada petición.
 
 **Panel del profesor** (`/profesor/`)
 - **Acceso**: entra desde la página principal con su correo y `ADMIN_PASSWORD`; la cuenta se crea sola, sin registro ni código.
@@ -33,6 +33,7 @@ Funciona en **Netlify** (plan gratuito): páginas estáticas + una Netlify Funct
 - **✨ Generar con IA**: sube las diapositivas (.pptx), un PDF o un Word del tema, elige ciclo, módulo y cuántas preguntas quieres, y la IA (Google Gemini) redacta las preguntas tipo test y abiertas con sus soluciones y conceptos clave. Se muestran para **revisarlas y quitar** las que no convenzan, y el examen se guarda **sin publicar**. Necesita `GEMINI_API_KEY`.
 - **Probar**: abre el examen como lo verá el alumno, aunque no esté publicado.
 - **Publicado**: interruptor para mostrarlo u ocultarlo a los alumnos.
+- **🔒 Modo seguro** (activado por defecto): si el alumno cambia de pestaña, minimiza o sale de la ventana, **el examen termina y se entrega solo** con lo que llevaba respondido, y no puede volver a empezarlo (el profesor puede «Reabrir»). En las entregas aparece «Finalizado al salir» y en el correo del alumno se indica. Si se desactiva, el examen sigue abierto aunque salga, pero cada salida queda registrada.
 - **Corrección visible**: si se desactiva, el alumno solo ve su nota y sus respuestas (en pantalla y en el correo), sin las soluciones.
 - **Entregas**: tabla por alumno con nota automática, nota final, salidas de la ventana y fecha; filtro por grupo y media.
 - **Ver / revisar**: respuestas completas, **nota revisada** y **comentario** para el alumno (lo ve en su panel).

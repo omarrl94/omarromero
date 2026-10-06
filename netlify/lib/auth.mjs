@@ -131,6 +131,13 @@ export function ciclosDe(u) {
 }
 export const gestionaCiclo = (u, cicloId) => esStaff(u) && ciclosDe(u).includes(cicloId);
 
+/**
+ * Exámenes: el admin gestiona todos; cada profesor, solo los que ha creado él
+ * (y mientras siga teniendo acceso a ese ciclo).
+ */
+export const gestionaExamen = (u, ex) =>
+  !!ex && (rolDe(u) === "admin" || (rolDe(u) === "profesor" && ex.autor?.email === u.email && gestionaCiclo(u, ex.cicloId)));
+
 /** Profesor aprobado o admin. */
 export async function requiereProfesor(req) {
   const u = await requiereUsuario(req);

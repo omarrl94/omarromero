@@ -4,7 +4,7 @@
  */
 import { almacen, leerTodas } from "./almacen.mjs";
 import { json, fallo, leerCuerpo, texto } from "./http.mjs";
-import { requiereProfesor, esAdmin, rolDe, ciclosDe, gestionaCiclo } from "./auth.mjs";
+import { requiereProfesor, esAdmin, rolDe, ciclosDe, gestionaCiclo, gestionaExamen } from "./auth.mjs";
 import { todosLosExamenes, obtenerExamen, validarExamen, resumen } from "./examenes.mjs";
 import { claveEntrega, vistaEntrega } from "./entregas.mjs";
 import { proveedorConfigurado } from "./correo.mjs";
@@ -16,18 +16,18 @@ const entregas = () => almacen("entregas");
 const progreso = () => almacen("progreso");
 const usuarios = () => almacen("usuarios");
 
-/** Examen existente de uno de los ciclos del profesor. */
+/** Examen que este profesor puede gestionar (el admin, cualquiera; el profesor, los suyos). */
 async function existente(id, u) {
   const ex = await obtenerExamen(id);
-  if (!ex || !gestionaCiclo(u, ex.cicloId)) fallo(404, "Examen no encontrado");
+  if (!gestionaExamen(u, ex)) fallo(404, "Examen no encontrado");
   return ex;
 }
 
-/** Entrega de un examen de los ciclos del profesor. */
+/** Entrega de uno de los exámenes del profesor. */
 async function entregaPermitida(id, email, u) {
   const k = claveEntrega(String(id || ""), String(email || "").toLowerCase());
   const e = await entregas().get(k);
-  if (!e || !gestionaCiclo(u, e.examen.cicloId)) fallo(404, "Entrega no encontrada");
+  if (!e || !gestionaExamen(u, (await obtenerExamen(e.examen.id)) || e.examen)) fallo(404, "Entrega no encontrada");
   return { k, e };
 }
 
@@ -36,7 +36,7 @@ const gruposDe = (u) => GRUPOS().filter((g) => ciclosDe(u).includes(g.cicloId));
 
 async function listar(req) {
   const u = await requiereProfesor(req);
-  const lista = (await todosLosExamenes()).filter((ex) => gestionaCiclo(u, ex.cicloId));
+  const lista = (await todosLosExamenes()).filter((ex) => gestionaExamen(u, ex));
   const filas = await Promise.all(lista.map(async (ex) => ({
     ...resumen(ex), entregas: (await entregas().list(ex.id + "/")).length,
   })));
@@ -55,7 +55,7 @@ async function guardar(req) {
   const ex = validarExamen(b);
   if (!gestionaCiclo(u, ex.cicloId)) fallo(403, "Solo puedes crear exámenes de tus ciclos");
   const previo = await examenes().get(ex.id);
-  if (previo && !gestionaCiclo(u, previo.cicloId)) fallo(409, `El identificador «${ex.id}» ya lo usa otro examen. Elige otro.`);
+  if (previo && !gestionaExamen(u, previo)) fallo(409, `El identificador «${ex.id}» ya lo usa otro examen. Elige otro.`);
   if (previo && !b.sobrescribir) fallo(409, `Ya existe un examen con el identificador «${ex.id}». Marca «Reemplazar» o cambia el identificador.`);
   const ahora = new Date().toISOString();
   await examenes().set(ex.id, {
@@ -71,6 +71,7 @@ async function ajustes(req) {
   const ex = await existente(b.id, u);
   if (typeof b.publicado === "boolean") ex.publicado = b.publicado;
   if (typeof b.mostrarSoluciones === "boolean") ex.mostrarSoluciones = b.mostrarSoluciones;
+  if (typeof b.seguridad === "boolean") ex.seguridad = b.seguridad;
   if (Number.isFinite(b.orden)) ex.orden = b.orden;
   ex.actualizado = new Date().toISOString();
   await examenes().set(ex.id, ex);
@@ -99,6 +100,7 @@ async function filasEntregas(id) {
     estado: "entregado", nota: e.resultado.nota, notaProfesor: e.notaProfesor ?? null,
     mcOk: e.resultado.mcOk, openPts: e.resultado.openPts, fecha: e.fecha, fechaTexto: e.fechaTexto,
     salidas: prog[e.email]?.salidas?.length ?? e.salidas ?? 0,
+    finalizadoPorSalida: e.finalizadoPorSalida || "",
   }));
   const entregados = new Set(es.map((e) => e.email));
   const sinEntregar = ps.filter((p) => !entregados.has(p.email));
@@ -128,9 +130,9 @@ async function csv(req, url) {
   const c = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
   const n = (v) => (v == null ? "" : String(v).replace(".", ","));
   const lineas = [
-    ["Apellidos", "Nombre", "Correo", "Grupo", "Estado", "Nota automática", "Nota revisada", "Nota final", "Aciertos test", "Puntos abiertas", "Fecha de entrega", "Salidas de la ventana"].map(c).join(";"),
+    ["Apellidos", "Nombre", "Correo", "Grupo", "Estado", "Nota automática", "Nota revisada", "Nota final", "Aciertos test", "Puntos abiertas", "Fecha de entrega", "Salidas de la ventana", "Finalizado al salir"].map(c).join(";"),
     ...filas.map((f) => [c(f.apellidos), c(f.nombre), c(f.email), c(f.grupo), c(f.estado), n(f.nota), n(f.notaProfesor),
-      n(f.notaProfesor ?? f.nota), n(f.mcOk), n(f.openPts), c(f.fechaTexto), n(f.salidas)].join(";")),
+      n(f.notaProfesor ?? f.nota), n(f.mcOk), n(f.openPts), c(f.fechaTexto), n(f.salidas), c(f.finalizadoPorSalida ? "Sí" : "")].join(";")),
   ];
   return new Response("﻿" + lineas.join("\r\n"), {
     headers: {

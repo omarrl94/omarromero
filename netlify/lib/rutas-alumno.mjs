@@ -1,15 +1,15 @@
 /** /api/examenes, /api/examen/*, /api/entrega — lo que hace el alumno. */
 import { almacen } from "./almacen.mjs";
 import { json, fallo, leerCuerpo, texto, env } from "./http.mjs";
-import { requiereUsuario, esStaff, ciclosDe, gestionaCiclo } from "./auth.mjs";
+import { requiereUsuario, esStaff, ciclosDe, gestionaExamen } from "./auth.mjs";
 import { todosLosExamenes, obtenerExamen, enunciado, resumen } from "./examenes.mjs";
 import { corregir, limpiarRespuestas } from "./correccion.mjs";
 import { claveEntrega, vistaEntrega } from "./entregas.mjs";
 import { enviarCorreo, proveedorConfigurado } from "./correo.mjs";
 import { CATALOGO, cicloDe } from "./catalogo.mjs";
 
-/** El alumno solo ve los exámenes de su ciclo; el profesor, los de sus ciclos (el admin, todos). */
-const puedeVer = (u, ex) => (esStaff(u) ? gestionaCiclo(u, ex.cicloId) : ex.cicloId === cicloDe(u));
+/** El alumno ve los exámenes de su ciclo; el profesor, los suyos (para probarlos); el admin, todos. */
+const puedeVer = (u, ex) => (esStaff(u) ? gestionaExamen(u, ex) : ex.cicloId === cicloDe(u));
 import { correoResultado } from "./plantillas.mjs";
 
 const entregas = () => almacen("entregas");
@@ -54,6 +54,9 @@ async function iniciar(req) {
   if (await entregas().get(claveEntrega(ex.id, u.email))) fallo(409, "Ya has entregado este examen");
   const k = claveEntrega(ex.id, u.email);
   const p = (await progreso().get(k)) || { email: u.email, examen: ex.id, salidas: [] };
+  // En modo seguro solo se puede empezar una vez (salir de la página lo entrega o lo cierra).
+  if (ex.seguridad !== false && p.inicios?.length && !esStaff(u))
+    fallo(409, "Ya empezaste este examen en modo seguro y no se puede repetir. Si ha sido un error, pide a tu profesor que te lo reabra.");
   p.inicios = [...(p.inicios || []), new Date().toISOString()].slice(-20);
   await progreso().set(k, p);
   return json({ ok: true });
@@ -82,7 +85,13 @@ async function entregar(req) {
   const respuestas = limpiarRespuestas(ex, b);
   const resultado = corregir(ex, respuestas);
   const ahora = new Date();
-  const p = await progreso().get(k);
+  const p = (await progreso().get(k)) || { email: u.email, examen: ex.id, salidas: [] };
+  // Entrega automática al cambiar de pantalla (modo seguro): se registra la salida.
+  const salida = ex.seguridad !== false && b.salida ? texto(b.salida, 120) : "";
+  if (salida) {
+    p.salidas = [...(p.salidas || []), { t: ahora.toISOString(), motivo: `${salida} (examen finalizado)` }].slice(-50);
+    await progreso().set(k, p);
+  }
   const { publicado, mostrarSoluciones, creado, actualizado, ...copia } = ex;
   const e = {
     email: u.email, nombre: u.nombre, apellidos: u.apellidos, grupo: u.grupo,
@@ -90,6 +99,7 @@ async function entregar(req) {
     fecha: ahora.toISOString(),
     fechaTexto: ahora.toLocaleString("es-ES", { timeZone: "Europe/Madrid", day: "2-digit", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }),
     salidas: p?.salidas?.length || 0,
+    ...(salida ? { finalizadoPorSalida: salida } : {}),
   };
   await entregas().set(k, e);
 

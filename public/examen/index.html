@@ -23,7 +23,7 @@
     <div class="card">
       <div class="meta" id="chips"></div>
       <div class="note" style="margin-top:16px">Al entregar verás tu nota y <b>recibirás automáticamente un correo</b> en <b id="miEmail"></b> con tus respuestas y la corrección. Solo se puede entregar <b>una vez</b>. Las preguntas abiertas se corrigen de forma automática por conceptos clave: es una estimación que revisa el profesor.</div>
-      <div class="examwarn"><b>Modo examen:</b> una vez empieces, si cambias de pestaña, minimizas o sales de la ventana, <b>el examen se cerrará y se borrarán tus respuestas</b>. El profesor verá cuántas veces has salido. No salgas de esta página hasta entregar.</div>
+      <div class="examwarn" id="avisoModo"></div>
       <div class="msg bad" id="introErr" hidden></div>
       <div class="actions"><button class="btn" id="start">Comenzar el examen</button></div>
     </div>
@@ -41,22 +41,44 @@ const examId = params.get("id") || "";
 const urlModulo = (ex) => ex.cicloId ? `/panel/?ciclo=${encodeURIComponent(ex.cicloId)}&modulo=${encodeURIComponent(ex.moduloId)}` : "/panel/";
 let EX = null, YO = null, PAYLOAD = null;
 
-/* ── Modo examen (disuasorio): cierra el examen si se sale de la página ── */
+/* ── Modo examen ──
+ * Modo seguro (lo activa el profesor): si el alumno cambia de pestaña, minimiza o
+ * sale de la ventana, el examen se entrega solo con lo que haya respondido.
+ * Sin modo seguro: el examen sigue abierto, pero la salida queda registrada.
+ */
 let examOn = false;
 function startExam() { examOn = true; document.body.classList.add("exam"); }
 function stopExam() { examOn = false; document.body.classList.remove("exam"); }
-function clearAnswers() { $("#quiz").reset(); progreso(); }
-function lockTest(motivo) {
-  if (!examOn) return; stopExam(); clearAnswers();
+const respuestasActuales = () => ({
+  id: examId,
+  mc: EX.mc.map((_, i) => { const s = $(`input[name="mc${i}"]:checked`); return s ? +s.value : -1; }),
+  open: EX.open.map((_, i) => $(`#op${i}`).value),
+});
+function avisarSalida(motivo) {
   fetch("/api/examen/incidencia", { method: "POST", keepalive: true, credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: examId, motivo }) }).catch(() => {});
-  $("#intro").hidden = true; $("#quiz").hidden = true; $("#result").hidden = true;
+}
+function lockTest(motivo) {
+  if (!examOn) return;
+  if (!EX.seguridad) { avisarSalida(motivo); return; } // examen libre: solo se registra
+  stopExam();
+  PAYLOAD = { ...respuestasActuales(), salida: motivo };
+  $("#intro").hidden = true; $("#quiz").hidden = true;
   const l = $("#locked"); l.hidden = false;
   l.innerHTML = `<div class="card" style="border-left:6px solid var(--bad)">
-    <h1 style="color:var(--bad)">Examen cerrado</h1>
-    <p class="sub">${esc(motivo)}. Has salido de la página, así que el intento se ha cerrado y las respuestas se han borrado. Queda registrado para el profesor; avísale si ha sido un error.</p>
-    <div class="actions"><button class="btn" id="relock">Volver a empezar</button><a class="btn ghost" href="${urlModulo(EX)}">Volver al módulo</a></div></div>`;
-  $("#relock").onclick = () => { l.hidden = true; $("#intro").hidden = false; window.scrollTo({ top: 0 }); };
+    <h1 style="color:var(--bad)">Examen finalizado</h1>
+    <p class="sub">${esc(motivo)}. Este examen está en <b>modo seguro</b>, así que se ha entregado automáticamente con las respuestas que tenías.</p>
+    <p class="muted" id="estadoFin">Entregando…</p></div>`;
   window.scrollTo({ top: 0 });
+  // keepalive: la entrega sale aunque el alumno cierre la pestaña (límite ~64 KB).
+  const cuerpo = JSON.stringify(PAYLOAD);
+  fetch("/api/examen/entregar", { method: "POST", keepalive: cuerpo.length < 60000, credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: cuerpo })
+    .then(async (r) => ({ r, d: await r.json().catch(() => ({})) }))
+    .then(({ r, d }) => {
+      if (r.ok) { l.hidden = true; mostrarResultado(d, `<div class="msg bad"><b>Examen finalizado automáticamente</b> al salir de la ventana: ${esc(motivo)}.</div>`); return; }
+      if (r.status === 409) { location.replace(`?id=${encodeURIComponent(examId)}&ver=1`); return; }
+      $("#estadoFin").textContent = `No se ha podido entregar (${d.error || r.status}). Avisa a tu profesor.`;
+    })
+    .catch(() => { $("#estadoFin").textContent = "No se ha podido entregar por un problema de conexión. Avisa a tu profesor."; });
 }
 document.addEventListener("visibilitychange", () => { if (examOn && document.hidden) lockTest("Has cambiado de pestaña o minimizado la ventana"); });
 window.addEventListener("blur", () => { if (examOn) lockTest("Has salido de la ventana del examen"); });
@@ -83,6 +105,9 @@ async function init() {
   if (EX.ciclo) $(".tag").textContent = EX.ciclo;
   $("#titulo").textContent = EX.titulo; $("#subtitulo").textContent = EX.subtitulo || EX.modulo || "";
   $("#miEmail").textContent = YO.email;
+  $("#avisoModo").innerHTML = EX.seguridad
+    ? `<b>🔒 Modo seguro:</b> si cambias de pestaña, minimizas, abres otra aplicación o sales de la ventana, <b>el examen se entregará automáticamente</b> con lo que lleves respondido y no podrás repetirlo. Ten preparado todo antes de empezar.`
+    : `<b>Modo examen:</b> no salgas de esta página hasta entregar. Si cambias de pestaña o de ventana, quedará registrado para el profesor.`;
   $$("[data-volver]").forEach((a) => (a.href = urlModulo(EX)));
   $("#chips").innerHTML = [EX.modulo && `<span class="chip gray">${esc(EX.modulo)}</span>`,
     EX.mc.length && `<span class="chip">${EX.mc.length} preguntas tipo test</span>`,
@@ -145,6 +170,18 @@ $("#start").onclick = async () => {
 };
 
 /* ── Entrega: corrige el servidor y envía el correo ── */
+function mostrarResultado(d, extra = "") {
+  history.replaceState(null, "", `?id=${encodeURIComponent(examId)}&ver=1`);
+  $("#quiz").hidden = true; $("#intro").hidden = true;
+  const r = $("#result"); r.hidden = false;
+  const banner = d.correo.enviado
+    ? `<div class="msg ok">✉ Te hemos enviado la corrección a <b>${esc(d.correo.destino)}</b>. Si no la ves en unos minutos, revisa «Correo no deseado».</div>`
+    : `<div class="msg bad">✉ ${esc(d.correo.error || "No se ha podido enviar el correo.")} Tu entrega está guardada y puedes consultarla en tu panel.</div>`;
+  r.insertAdjacentHTML("beforebegin", `<a href="${urlModulo(EX)}" class="muted" style="font-size:14px">← Volver a ${esc(EX.modulo)}</a><h1>${esc(EX.titulo)}</h1><p class="sub">Examen entregado.</p>`);
+  pintarEntrega(r, d, extra + banner);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
 async function entregar() {
   const btn = $("#submit"), err = $("#sendErr");
   const total = EX.mc.length + EX.open.length, faltan = total - respondidas();
@@ -152,25 +189,13 @@ async function entregar() {
     err.hidden = false; err.textContent = `Te faltan ${faltan} preguntas por contestar. Pulsa otra vez «Entregar» si quieres entregar igualmente. Recuerda que solo se puede entregar una vez.`;
     btn.dataset.confirm = "1"; btn.textContent = "Entregar igualmente"; return;
   }
-  PAYLOAD = {
-    id: examId,
-    mc: EX.mc.map((_, i) => { const s = $(`input[name="mc${i}"]:checked`); return s ? +s.value : -1; }),
-    open: EX.open.map((_, i) => $(`#op${i}`).value),
-  };
+  PAYLOAD = respuestasActuales();
   btn.disabled = true; btn.textContent = "Entregando…"; err.hidden = true;
+  stopExam(); // mientras se entrega, salir de la ventana ya no cuenta
   try {
-    const d = await api("/api/examen/entregar", PAYLOAD);
-    stopExam();
-    history.replaceState(null, "", `?id=${encodeURIComponent(examId)}&ver=1`);
-    $("#quiz").hidden = true; $("#intro").hidden = true;
-    const r = $("#result"); r.hidden = false;
-    const banner = d.correo.enviado
-      ? `<div class="msg ok">✉ Te hemos enviado la corrección a <b>${esc(d.correo.destino)}</b>. Si no la ves en unos minutos, revisa «Correo no deseado».</div>`
-      : `<div class="msg bad">✉ ${esc(d.correo.error || "No se ha podido enviar el correo.")} Tu entrega está guardada y puedes consultarla en tu panel.</div>`;
-    r.insertAdjacentHTML("beforebegin", `<a href="${urlModulo(EX)}" class="muted" style="font-size:14px">← Volver a ${esc(EX.modulo)}</a><h1>${esc(EX.titulo)}</h1><p class="sub">Examen entregado.</p>`);
-    pintarEntrega(r, d, banner);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    mostrarResultado(await api("/api/examen/entregar", PAYLOAD));
   } catch (e) {
+    startExam();
     if (e.status === 409) { stopExam(); location.replace(`?id=${encodeURIComponent(examId)}&ver=1`); return; }
     err.hidden = false; err.textContent = `No se ha podido entregar: ${e.message}. Tus respuestas siguen aquí; comprueba la conexión y vuelve a pulsar «Entregar».`;
     btn.disabled = false; btn.textContent = "Entregar examen";

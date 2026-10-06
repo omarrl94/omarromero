@@ -17,6 +17,7 @@ export function vistaEntrega(e, { soluciones }) {
     nota: e.resultado.nota, mcOk: e.resultado.mcOk, openPts: e.resultado.openPts,
     notaProfesor: e.notaProfesor ?? null, comentario: e.comentario || "",
     salidas: e.salidas || 0,
+    finalizadoPorSalida: e.finalizadoPorSalida || "",
     respuestas: e.respuestas,
     soluciones,
     mc: soluciones ? ex.mc.map((q, i) => ({ correcta: q.c, ok: e.resultado.mcRev[i].ok })) : null,

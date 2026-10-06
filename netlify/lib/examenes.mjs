@@ -61,6 +61,8 @@ export function validarExamen(e) {
     orden: Number.isFinite(Number(e.orden)) ? Number(e.orden) : 0,
     publicado: e.publicado === true,
     mostrarSoluciones: e.mostrarSoluciones !== false,
+    // Modo seguro: si el alumno cambia de pantalla, el examen se entrega solo.
+    seguridad: e.seguridad !== false,
     mc, open,
   };
 }
@@ -68,6 +70,7 @@ export function validarExamen(e) {
 /** Lo que ve el alumno antes de entregar: sin soluciones ni criterios. */
 export const enunciado = (ex) => ({
   id: ex.id, titulo: ex.titulo, subtitulo: ex.subtitulo, modulo: ex.modulo, ciclo: ex.ciclo, cicloId: ex.cicloId, moduloId: ex.moduloId,
+  seguridad: ex.seguridad !== false,
   mc: ex.mc.map(({ t, o }) => ({ t, o })),
   open: ex.open.map(({ act, t }) => ({ act, t })),
 });
@@ -76,6 +79,7 @@ export const resumen = (ex) => ({
   id: ex.id, titulo: ex.titulo, subtitulo: ex.subtitulo, modulo: ex.modulo, ciclo: ex.ciclo,
   cicloId: ex.cicloId, moduloId: ex.moduloId, orden: ex.orden || 0,
   nMc: ex.mc.length, nOpen: ex.open.length, publicado: ex.publicado, mostrarSoluciones: ex.mostrarSoluciones,
+  seguridad: ex.seguridad !== false,
   creado: ex.creado, actualizado: ex.actualizado, autor: ex.autor?.nombre || "",
 });
 
