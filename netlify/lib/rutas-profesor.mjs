@@ -6,7 +6,7 @@ import { todosLosExamenes, obtenerExamen, validarExamen, resumen } from "./exame
 import { claveEntrega, vistaEntrega } from "./entregas.mjs";
 import { proveedorConfigurado } from "./correo.mjs";
 import { CATALOGO, GRUPOS, cicloDe, buscarModulo } from "./catalogo.mjs";
-import { iaDisponible, generarLote } from "./ia.mjs";
+import { iaDisponible, generarLote, proveedorIA, tamLote } from "./ia.mjs";
 
 const examenes = () => almacen("examenes");
 const entregas = () => almacen("entregas");
@@ -192,7 +192,7 @@ async function borrarAlumno(req) {
 /* ── IA: generar preguntas a partir del material de un tema ── */
 async function iaEstado(req) {
   await requiereAdmin(req);
-  return json({ disponible: iaDisponible() });
+  return json({ disponible: iaDisponible(), proveedor: proveedorIA(), lote: tamLote() });
 }
 
 async function iaPreguntas(req) {
@@ -202,7 +202,7 @@ async function iaPreguntas(req) {
   const material = String(b.material || "").trim();
   if (material.length < 200) fallo(400, "El material tiene muy poco texto. ¿Son diapositivas con solo imágenes?");
   if (material.length > 400_000) fallo(413, "El material es demasiado largo. Súbelo por partes (por ejemplo, un tema cada vez).");
-  const n = Math.min(Math.max(Number(b.n) || 5, 1), 8);
+  const n = Math.min(Math.max(Number(b.n) || 5, 1), 12);
   const ubic = buscarModulo(b.cicloId, b.moduloId);
   const preguntas = await generarLote({
     tipo, material, n,

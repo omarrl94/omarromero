@@ -94,7 +94,7 @@
 <dialog id="dIA">
   <div class="dhead"><h2>✨ Generar examen con IA</h2><button class="btn ghost sm" data-close>Cerrar</button></div>
   <div class="dbody">
-    <div class="msg bad" id="iaNoDisp" hidden>La IA no está configurada. Añade la variable <code>ANTHROPIC_API_KEY</code> en Netlify y vuelve a desplegar.</div>
+    <div class="msg bad" id="iaNoDisp" hidden>La IA no está configurada. Añade la variable <code>GEMINI_API_KEY</code> en Netlify y vuelve a desplegar.</div>
     <form id="fIA" novalidate>
       <p class="muted" style="margin-top:0">Sube las diapositivas o el PDF del tema y la IA redactará las preguntas (tipo test y abiertas) con sus soluciones. Después podrás revisarlas y quitar las que no te gusten antes de guardar. El examen se guarda <b>sin publicar</b>.</p>
       <label class="drop" id="iaDrop"><input type="file" id="iaArchivo" accept=".pptx,.pdf,.docx,.txt,.md" hidden><span id="iaDropTxt">Arrastra aquí el PowerPoint (.pptx), PDF o Word (.docx), o haz clic para elegirlo</span></label>
@@ -438,7 +438,7 @@ async function textoDeArchivo(file) {
   throw new Error("formato no admitido (usa .pptx, .pdf, .docx o .txt)");
 }
 
-let IA_ARCHIVO = null;
+let IA_ARCHIVO = null, IA_LOTE = { mc: 5, open: 3 };
 function rellenarModulosIA() {
   const c = CATALOGO.find((x) => x.id === $("#iaCiclo").value);
   $("#iaModulo").innerHTML = (c?.modulos || []).map((m) => `<option value="${esc(m.id)}">${esc(m.nombre)}</option>`).join("");
@@ -454,7 +454,8 @@ $("#nuevoIA").onclick = async () => {
   if (fm) $("#iaModulo").value = fm;
   $("#iaGo").disabled = false;
   $("#dIA").showModal();
-  const { disponible } = await api("/api/profesor/ia").catch(() => ({ disponible: false }));
+  const { disponible, lote } = await api("/api/profesor/ia").catch(() => ({ disponible: false }));
+  if (lote) IA_LOTE = lote;
   $("#iaNoDisp").hidden = disponible; $("#iaGo").disabled = !disponible;
 };
 const iaDrop = $("#iaDrop");
@@ -487,8 +488,9 @@ $("#fIA").onsubmit = async (ev) => {
 
     // Lotes pequeños: cada petición tarda poco.
     const plan = [];
-    for (let i = 0, lotes = Math.ceil(nMc / 5); i < lotes; i++) plan.push({ tipo: "mc", n: Math.min(5, nMc - i * 5), lote: i + 1, lotes });
-    for (let i = 0, lotes = Math.ceil(nOpen / 3); i < lotes; i++) plan.push({ tipo: "open", n: Math.min(3, nOpen - i * 3), lote: i + 1, lotes });
+    const L = IA_LOTE;
+    for (let i = 0, lotes = Math.ceil(nMc / L.mc); i < lotes; i++) plan.push({ tipo: "mc", n: Math.min(L.mc, nMc - i * L.mc), lote: i + 1, lotes });
+    for (let i = 0, lotes = Math.ceil(nOpen / L.open); i < lotes; i++) plan.push({ tipo: "open", n: Math.min(L.open, nOpen - i * L.open), lote: i + 1, lotes });
     const ex = { titulo, subtitulo: "", cicloId: $("#iaCiclo").value, moduloId: $("#iaModulo").value, mc: [], open: [], publicado: false, mostrarSoluciones: true };
     const total = nMc + nOpen;
     let avisos = "";
@@ -501,8 +503,10 @@ $("#fIA").onsubmit = async (ev) => {
       try { r = await api("/api/profesor/ia/preguntas", cuerpo); }
       catch (e1) {
         if (e1.status && e1.status < 500 && e1.status !== 429) throw e1;
-        estado("La IA ha tardado demasiado; reintentando…", hechas, total);
-        try { r = await api("/api/profesor/ia/preguntas", { ...cuerpo, n: Math.max(1, Math.ceil(paso.n / 2)) }); }
+        estado(e1.status === 429 ? "Límite de peticiones de la IA; esperando 30 s…" : "La IA ha tardado demasiado; reintentando…", hechas, total);
+        if (e1.status === 429) await new Promise((ok) => setTimeout(ok, 30_000));
+        // Tras un límite de peticiones se repite igual; tras un tiempo excedido, con la mitad de preguntas.
+        try { r = await api("/api/profesor/ia/preguntas", e1.status === 429 ? cuerpo : { ...cuerpo, n: Math.max(1, Math.ceil(paso.n / 2)) }); }
         catch (e2) { avisos = `Algún lote ha fallado (${e2.message}); revisa si faltan preguntas.`; continue; }
       }
       ex[paso.tipo].push(...r.preguntas);

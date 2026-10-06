@@ -1,24 +1,31 @@
 /**
- * Generación de preguntas con IA (Claude) a partir del material de un tema.
+ * Generación de preguntas con IA a partir del material de un tema.
  *
  * El navegador del profesor extrae el texto de las diapositivas/PDF y pide las
  * preguntas en lotes pequeños (cada petición dura poco y no choca con el límite
- * de tiempo de las funciones de Netlify). El material va en un bloque cacheado,
- * así los lotes siguientes del mismo tema salen más baratos y rápidos.
+ * de tiempo de las funciones de Netlify).
  *
- * Requiere la variable de entorno ANTHROPIC_API_KEY.
+ * Proveedor, según las variables de entorno:
+ *  · GEMINI_API_KEY    → Google Gemini (tiene plan gratuito). Modelo: GEMINI_MODEL
+ *                        (por defecto gemini-2.5-flash).
+ *  · ANTHROPIC_API_KEY → Claude (si no hay clave de Gemini).
  */
 import Anthropic from "@anthropic-ai/sdk";
 import { randomInt } from "node:crypto";
 import { env, fallo } from "./http.mjs";
 
-const MODELO = "claude-opus-5-5";
+const MODELO_CLAUDE = "claude-opus-5-5";
+const MODELO_GEMINI = () => env("GEMINI_MODEL", "gemini-2.5-flash");
 
 let cliente;
 const claude = () =>
   (cliente ||= new Anthropic({ apiKey: env("ANTHROPIC_API_KEY"), timeout: 55_000, maxRetries: 1 }));
 
-export const iaDisponible = () => !!env("ANTHROPIC_API_KEY");
+export const proveedorIA = () => (env("GEMINI_API_KEY") ? "gemini" : env("ANTHROPIC_API_KEY") ? "claude" : null);
+export const iaDisponible = () => !!proveedorIA();
+
+/** Preguntas por petición: Gemini Flash es rápido y el plan gratuito limita peticiones/minuto. */
+export const tamLote = () => (proveedorIA() === "gemini" ? { mc: 10, open: 5 } : { mc: 5, open: 3 });
 
 const SISTEMA = `Eres profesor de Formación Profesional (ciclos de grado superior de informática) en un centro de España y redactas preguntas de examen a partir del material de un tema.
 
@@ -51,6 +58,17 @@ const ESQUEMAS = {
       exp: { type: "string" },
     })),
   }),
+};
+
+/** Mismos esquemas en el formato de Gemini (subconjunto de OpenAPI). */
+const gObj = (properties) => ({ type: "OBJECT", properties, required: Object.keys(properties), propertyOrdering: Object.keys(properties) });
+const gArr = (items) => ({ type: "ARRAY", items });
+const G = { s: { type: "STRING" }, i: { type: "INTEGER" } };
+const ESQUEMAS_GEMINI = {
+  mc: gObj({ preguntas: gArr(gObj({ enunciado: G.s, opciones: gArr(G.s), correcta: { ...G.i, description: "Índice (0-3) de la opción correcta" } })) }),
+  open: gObj({ preguntas: gArr(gObj({
+    act: G.s, enunciado: G.s, conceptos: gArr(gObj({ nombre: G.s, raices: gArr(G.s) })), full: G.i, partial: G.i, exp: G.s,
+  })) }),
 };
 
 const norm = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/\s+/g, " ").trim();
@@ -90,8 +108,8 @@ function normalizarAbierta(p) {
  * @param lote/lotes posición del lote, para repartir el temario
  */
 export async function generarLote({ tipo, material, n, ya = [], lote = 1, lotes = 1, titulo = "", modulo = "", indicaciones = "" }) {
-  if (!iaDisponible()) fallo(503, "Falta configurar ANTHROPIC_API_KEY en Netlify para usar la IA.");
-  const que = tipo === "mc" ? `${n} preguntas tipo test` : `${n} preguntas abiertas`;
+  if (!iaDisponible()) fallo(503, "Falta configurar GEMINI_API_KEY en Netlify para usar la IA.");
+  const que = tipo === "mc" ? `${n} ${n === 1 ? "pregunta" : "preguntas"} tipo test` : `${n} ${n === 1 ? "pregunta abierta" : "preguntas abiertas"}`;
   const instruccion = [
     `Genera exactamente ${que} sobre el tema «${titulo}»${modulo ? ` del módulo «${modulo}»` : ""}.`,
     lotes > 1 ? `Es el lote ${lote} de ${lotes}: céntrate sobre todo en la parte ${lote} de ${lotes} del material (por orden de aparición), sin salirte del temario.` : "",
@@ -99,10 +117,21 @@ export async function generarLote({ tipo, material, n, ya = [], lote = 1, lotes 
     indicaciones ? `Indicaciones del profesor: ${indicaciones}` : "",
   ].filter(Boolean).join("\n\n");
 
+  const datos = proveedorIA() === "gemini" ? await pedirGemini(tipo, material, instruccion) : await pedirClaude(tipo, material, instruccion);
+  const preguntas = (datos.preguntas || []).map(tipo === "mc" ? normalizarMc : normalizarAbierta).filter(Boolean);
+  console.log(JSON.stringify({ evento: "ia-lote", proveedor: proveedorIA(), tipo, pedidas: n, validas: preguntas.length, uso: datos._uso }));
+  return preguntas;
+}
+
+function leerJSON(texto) {
+  try { return JSON.parse(texto); } catch { fallo(502, "La IA ha devuelto una respuesta incompleta. Vuelve a intentarlo."); }
+}
+
+async function pedirClaude(tipo, material, instruccion) {
   let r;
   try {
     r = await claude().beta.messages.stream({
-      model: MODELO,
+      model: MODELO_CLAUDE,
       max_tokens: 16000,
       betas: ["server-side-fallback-2026-07-01"],
       fallbacks: "default",
@@ -126,9 +155,46 @@ export async function generarLote({ tipo, material, n, ya = [], lote = 1, lotes 
   }
   if (r.stop_reason === "refusal") fallo(422, "La IA no ha querido generar preguntas con este material.");
   const texto = r.content.filter((b) => b.type === "text").map((b) => b.text).join("");
-  let datos;
-  try { datos = JSON.parse(texto); } catch { fallo(502, "La IA ha devuelto una respuesta incompleta. Vuelve a intentarlo."); }
-  const preguntas = (datos.preguntas || []).map(tipo === "mc" ? normalizarMc : normalizarAbierta).filter(Boolean);
-  console.log(JSON.stringify({ evento: "ia-lote", tipo, pedidas: n, validas: preguntas.length, uso: r.usage }));
-  return preguntas;
+  const datos = leerJSON(texto);
+  datos._uso = r.usage;
+  return datos;
+}
+
+/** Gemini (API REST de Google AI Studio) con salida JSON según esquema. */
+async function pedirGemini(tipo, material, instruccion) {
+  const base = env("GEMINI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta");
+  let res;
+  try {
+    res = await fetch(`${base}/models/${encodeURIComponent(MODELO_GEMINI())}:generateContent`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-goog-api-key": env("GEMINI_API_KEY") },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: SISTEMA }] },
+        contents: [{ role: "user", parts: [{ text: `<material>\n${material}\n</material>` }, { text: instruccion }] }],
+        generationConfig: { responseMimeType: "application/json", responseSchema: ESQUEMAS_GEMINI[tipo], temperature: 0.7 },
+      }),
+      signal: AbortSignal.timeout(55_000),
+    });
+  } catch (e) {
+    console.error("[ia gemini]", e);
+    fallo(504, e.name === "TimeoutError" ? "La IA ha tardado demasiado. Vuelve a intentarlo." : "No se ha podido conectar con Gemini.");
+  }
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    console.error("[ia gemini]", res.status, JSON.stringify(data).slice(0, 500));
+    const msg = data?.error?.message || "";
+    if (res.status === 429) fallo(429, "Se ha alcanzado el límite gratuito de Gemini por minuto o por día. Espera un poco y vuelve a intentarlo.");
+    if (res.status === 400 && /api key/i.test(msg)) fallo(502, "La clave GEMINI_API_KEY no es válida.");
+    if (res.status === 403) fallo(502, "La clave GEMINI_API_KEY no tiene permiso para usar Gemini.");
+    if (res.status === 404) fallo(502, `El modelo «${MODELO_GEMINI()}» no existe o no está disponible. Revisa GEMINI_MODEL.`);
+    fallo(502, `Error de Gemini (${res.status}). Vuelve a intentarlo.`);
+  }
+  if (data.promptFeedback?.blockReason) fallo(422, "Gemini no ha querido generar preguntas con este material.");
+  const cand = data.candidates?.[0];
+  if (!cand || ["SAFETY", "PROHIBITED_CONTENT", "RECITATION", "BLOCKLIST"].includes(cand.finishReason))
+    fallo(422, "Gemini no ha querido generar preguntas con este material.");
+  const texto = (cand.content?.parts || []).filter((p) => !p.thought).map((p) => p.text || "").join("");
+  const datos = leerJSON(texto);
+  datos._uso = data.usageMetadata;
+  return datos;
 }
