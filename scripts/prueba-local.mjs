@@ -20,7 +20,7 @@ process.env.ADMIN_PASSWORD ||= "profesor-local";
 const PUBLIC = join(ROOT, "public");
 const PORT = Number(process.env.PORT || 8888);
 const api = (await import("../netlify/functions/api.mjs")).default;
-const TIPOS = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".json": "application/json", ".svg": "image/svg+xml" };
+const TIPOS = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".json": "application/json", ".svg": "image/svg+xml", ".png": "image/png" };
 
 createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
