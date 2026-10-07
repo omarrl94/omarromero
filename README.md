@@ -50,22 +50,30 @@ Funciona en **Netlify** (plan gratuito): páginas estáticas + una Netlify Funct
 
 ## Puesta en marcha en Netlify
 
-1. **Crear el sitio**: Netlify → *Add new site → Import an existing project* → GitHub → tu repositorio con Examentia. No hay que cambiar nada: `netlify.toml` ya indica la carpeta `public` y las funciones.
-2. **Variables de entorno** (*Site configuration → Environment variables*), ver `.env.example`:
+1. **Crear el sitio**: Netlify → *Add new site → Import an existing project* → GitHub → elige el repositorio y, en **Branch to deploy**, la rama **`Examentia`**. El resto lo toma de `netlify.toml` (carpeta `public`, funciones en `netlify/functions`, Node 20): no cambies *Build command* ni *Publish directory*.
+2. **Variables de entorno** (*Site configuration → Environment variables*, ver `.env.example`). Al crearlas deja los *scopes* por defecto (deben incluir **Functions**) y marca como **secret** las contraseñas y claves:
 
-   | Variable | Obligatoria | Ejemplo |
+   | Variable | ¿Obligatoria? | Ejemplo / para qué |
    |---|---|---|
-   | `ADMIN_EMAILS` | **sí** | `admin@tucentro.es` (varios separados por comas) |
-   | `ADMIN_PASSWORD` | **sí** | contraseña del profesor (márcala como *secret*) |
-   | `SMTP_HOST` / `SMTP_PORT` | para correo | `smtp.office365.com` / `587` |
-   | `SMTP_USER` / `SMTP_PASS` | para correo | cuenta que envía, p. ej. `examenes@tucentro.es` |
-   | `MAIL_FROM` | para correo | `"Examentia <examenes@tucentro.es>"` |
+   | `ADMIN_EMAILS` | **sí** | `admin@tucentro.es` — administradores (varios separados por comas) |
+   | `ADMIN_PASSWORD` | **sí** · *secret* | contraseña con la que entran los administradores (la cuenta se crea sola) |
+   | `SMTP_HOST` | correo (opción A) | `smtp.office365.com` · Gmail: `smtp.gmail.com` |
+   | `SMTP_PORT` | correo (opción A) | `587` (o `465`) |
+   | `SMTP_USER` | correo (opción A) | cuenta que envía, p. ej. `examenes@tucentro.es` |
+   | `SMTP_PASS` | correo (opción A) · *secret* | su contraseña (o contraseña de aplicación) |
+   | `RESEND_API_KEY` | correo (opción B) · *secret* | en lugar de SMTP, clave de resend.com |
+   | `MAIL_FROM` | con correo | `"Examentia <examenes@tucentro.es>"` |
+   | `DOMINIOS_PERMITIDOS` | recomendable | `tucentro.es` — dominios de correo con los que se puede registrar (por defecto `*`, cualquiera) |
    | `PROFESOR_EMAIL` | no | recibe copia oculta de cada entrega |
-   | `DOMINIOS_PERMITIDOS` | no | `tucentro.es` (varios separados por comas; por defecto `*`, cualquier dominio) |
-   | `GEMINI_API_KEY` | para la IA | clave gratuita de aistudio.google.com/apikey (márcala como *secret*) |
-   | `GEMINI_MODEL` | no | `gemini-2.5-flash` (por defecto; si no existe, se usa el Flash más reciente disponible) |
+   | `GEMINI_API_KEY` | para la IA · *secret* | clave gratuita de aistudio.google.com/apikey |
+   | `GEMINI_MODEL` | no | `gemini-2.5-flash` (por defecto; si no existe, se usa el Flash más reciente) |
+   | `ANTHROPIC_API_KEY` | no · *secret* | alternativa a Gemini (Claude, de pago); solo se usa si no hay `GEMINI_API_KEY` |
+   | `NOMBRE_CENTRO` | no | mejor ponerlo desde el panel (pestaña «Centro») |
+   | `SESSION_SECRET` | no · *secret* | si no se pone, se genera uno solo y se guarda |
 
-3. **Redesplegar** (*Deploys → Trigger deploy*) para que coja las variables.
+   No hace falta configurar nada para los datos: **Netlify Blobs** viene incluido en el sitio.
+
+3. **Redesplegar** (*Deploys → Trigger deploy → Deploy site*) para que coja las variables.
 4. Entra en la web con el correo de `ADMIN_EMAILS` y la contraseña de `ADMIN_PASSWORD` (pestaña «Entrar», sin registrarte) y llegarás al panel del profesor, en la pestaña **«Centro»**, para configurar tu centro (ver abajo).
 
 **Microsoft 365:** la cuenta que envía debe tener activado *SMTP autenticado* (Centro de administración → Usuarios → la cuenta → Correo → Administrar aplicaciones de correo electrónico). Si la organización obliga a MFA, usa una cuenta de servicio sin MFA o **Resend** (`RESEND_API_KEY`).
