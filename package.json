@@ -1,0 +1,20 @@
+{
+  "name": "evalua-t",
+  "private": true,
+  "type": "module",
+  "description": "evalua-T, plataforma de exámenes online: registro de alumnos, corrección en servidor y envío automático de resultados por correo (Netlify).",
+  "scripts": {
+    "dev": "npx netlify-cli dev",
+    "test": "node scripts/prueba-local.mjs",
+    "deploy": "node scripts/deploy.mjs",
+    "deploy:preview": "node scripts/deploy.mjs --preview"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.131.0",
+    "@netlify/blobs": "^11.1.3",
+    "nodemailer": "^6.9.16"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Mis exámenes · evalua-T</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/app.css">
+</head>
+<body>
+<div class="topbar"></div>
+<header class="appbar"><div class="appbar-in" id="head"></div></header>
+<div class="wrap">
+  <nav class="crumbs" id="crumbs" aria-label="Ruta"></nav>
+  <h1 id="titulo">Mis exámenes</h1>
+  <p class="sub" id="sub"></p>
+  <div id="vista"><p class="loading">Cargando…</p></div>
+  <p class="foot">Si tienes algún problema con tu cuenta o un examen, avisa a tu profesor.</p>
+</div>
+
+<script src="/assets/app.js"></script>
+<script>
+const qs = new URLSearchParams(location.search);
+const cicloId = qs.get("ciclo"), moduloId = qs.get("modulo");
+const plural = (n, s, p) => `${n} ${n === 1 ? s : p}`;
+
+function chipsEstado(lista) {
+  const pend = lista.filter((e) => e.estado === "pendiente").length;
+  return `<div class="meta">${pend ? `<span class="chip">${plural(pend, "pendiente", "pendientes")}</span>` : ""}
+    <span class="chip gray">${plural(lista.length, "tema", "temas")}</span></div>`;
+}
+
+(async () => {
+  const yo = await cabecera();
+  const esProfe = yo.rol === "profesor";
+  const v = $("#vista");
+
+  // Profesor pendiente de aprobación.
+  if (yo.rol === "pendiente") {
+    $("#titulo").textContent = "Cuenta de profesor pendiente";
+    $("#sub").textContent = "";
+    v.innerHTML = `<div class="card" style="max-width:560px"><p style="margin-top:0">Hola, <b>${esc(yo.nombre)}</b>. Tu solicitud de acceso como <b>profesor</b> está pendiente.</p>
+      <p class="muted">El administrador la revisará y te dará acceso a los ciclos en los que das clase. Recibirás un correo cuando esté aprobada; después, vuelve a entrar.</p></div>`;
+    return;
+  }
+
+  // Cuenta antigua sin ciclo: elegir grupo una vez.
+  if (!esProfe && !yo.cicloId) {
+    const { grupos } = await api("/api/cuenta/grupos");
+    $("#titulo").textContent = "¿Cuál es tu grupo?";
+    $("#sub").textContent = "Elígelo una sola vez: solo verás los exámenes de tu ciclo. Si te equivocas, avisa al profesor.";
+    v.innerHTML = `<form class="card" id="fGrupo" style="max-width:420px"><div class="field"><label class="flab" for="selGrupo">Grupo</label>
+      <select id="selGrupo"><option value="">Elige tu grupo…</option>${grupos.map((g) => `<option>${esc(g.grupo)}</option>`).join("")}</select></div>
+      <div class="msg bad" data-err hidden></div><button class="btn" type="submit">Guardar</button></form>`;
+    $("#fGrupo").onsubmit = async (ev) => {
+      ev.preventDefault();
+      try { await api("/api/cuenta/grupo", { grupo: $("#selGrupo").value }); location.href = "/panel/"; }
+      catch (e) { const er = $("[data-err]", ev.target); er.textContent = e.message; er.hidden = false; }
+    };
+    return;
+  }
+
+  const { catalogo, examenes } = await api("/api/examenes");
+  // El alumno entra directamente en su ciclo (el servidor solo le devuelve el suyo).
+  const ciclo = catalogo.find((c) => c.id === (esProfe ? cicloId : yo.cicloId));
+  const modulo = ciclo?.modulos.find((m) => m.id === moduloId);
+  const inicio = esProfe ? `<a href="/panel/">Ciclos</a> › ` : "";
+
+  // 1 · Elegir ciclo
+  if (!ciclo) {
+    $("#titulo").textContent = "Elige tu ciclo";
+    $("#sub").textContent = "Selecciona el ciclo formativo para ver sus módulos.";
+    if (!catalogo.length) { v.innerHTML = `<div class="empty">Todavía no hay ciclos${esProfe ? "" : " en los que tengas exámenes"}.</div>`; return; }
+    v.innerHTML = `<div class="grid">${catalogo.map((c) => `
+      <a class="tile" href="?ciclo=${encodeURIComponent(c.id)}"><span class="big">${esc(c.nombre)}</span>
+        <span class="muted">${esc(c.descripcion || "")}${c.grado ? ` · ${esc(c.grado)}` : ""}</span>${chipsEstado(examenes.filter((e) => e.cicloId === c.id))}</a>`).join("")}</div>`;
+    return;
+  }
+
+  const enCiclo = examenes.filter((e) => e.cicloId === ciclo.id);
+  // 2 · Elegir módulo
+  if (!modulo) {
+    $("#crumbs").innerHTML = `${inicio}<b>${esc(ciclo.nombre)}</b>`;
+    $("#titulo").textContent = `${ciclo.nombre} · Elige el módulo`;
+    $("#sub").textContent = ciclo.descripcion || "";
+    if (!ciclo.modulos.length) { v.innerHTML = `<div class="empty">Todavía no hay módulos ni exámenes en este ciclo.</div>`; return; }
+    v.innerHTML = `<div class="grid">${ciclo.modulos.map((m) => `
+      <a class="tile" href="?ciclo=${encodeURIComponent(ciclo.id)}&modulo=${encodeURIComponent(m.id)}"><span class="mid">${esc(m.nombre)}</span>
+        ${chipsEstado(enCiclo.filter((e) => e.moduloId === m.id))}</a>`).join("")}</div>`;
+    return;
+  }
+
+  // 3 · Temas del módulo
+  $("#crumbs").innerHTML = `${inicio}<a href="?ciclo=${encodeURIComponent(ciclo.id)}">${esc(ciclo.nombre)}</a> › <b>${esc(modulo.nombre)}</b>`;
+  $("#titulo").textContent = modulo.nombre;
+  $("#sub").textContent = "Elige el tema. Salvo que el profesor permita más intentos, cada examen se entrega una sola vez.";
+  const temas = enCiclo.filter((e) => e.moduloId === modulo.id);
+  if (!temas.length) { v.innerHTML = `<div class="empty">Todavía no hay temas publicados en este módulo.</div>`; return; }
+  const enlace = (e) => `/examen/?id=${encodeURIComponent(e.id)}`;
+  v.innerHTML = `<div class="exlist">${temas.map((e) => e.estado === "pendiente" ? `
+    <article class="excard"><div class="info">
+      <h3>${esc(e.titulo)}</h3><div class="muted" style="font-size:14.5px">${esc(e.subtitulo)}</div>
+      <div class="meta">${e.nMc ? `<span class="chip v">${e.nMc} tipo test</span>` : ""}${e.nOpen ? `<span class="chip s">${e.nOpen} abiertas</span>` : ""}${e.nNum ? `<span class="chip">${e.nNum} apartados de ejercicios</span>` : ""}${e.intentos !== 1 ? `<span class="chip gray">${e.intentos ? plural(e.intentos, "intento", "intentos") : "Intentos sin límite"}</span>` : ""}<span class="chip">Pendiente</span></div></div>
+      <a class="btn" href="${enlace(e)}">Empezar</a></article>` : `
+    <article class="excard"><div class="info">
+      <h3>${esc(e.titulo)}</h3><div class="muted" style="font-size:14px">Entregado el ${esc(e.fecha)}</div>
+      <div class="meta"><span class="chip ok">Entregado</span>${e.intentosAlumno.hechos > 1 || e.puedeRepetir ? `<span class="chip gray">${plural(e.intentosAlumno.hechos, "intento", "intentos")}${e.intentosAlumno.permitidos ? ` de ${e.intentosAlumno.permitidos}` : ""}</span>` : ""}${e.revisada ? `<span class="chip ok">Revisado por el profesor</span>` : e.nOpen ? `<span class="chip gray">Pendiente de revisión</span>` : ""}</div></div>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><div class="nota">${fmt(e.nota)}<small> /10</small></div>
+      <a class="btn ghost" href="${enlace(e)}&ver=1">${e.mostrarSoluciones ? "Ver corrección" : "Ver entrega"}</a>${e.puedeRepetir ? `<a class="btn" href="${enlace(e)}" title="${e.intentosAlumno.quedan == null ? "Intentos sin límite" : plural(e.intentosAlumno.quedan, "intento restante", "intentos restantes")}">Repetir</a>` : ""}</div></article>`).join("")}</div>`;
+})().catch((e) => { $("#vista").innerHTML = `<div class="msg bad">${esc(e.message)}</div>`; });
+</script>
+</body>
+</html>

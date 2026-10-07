@@ -1,0 +1,1131 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Panel del profesor · evalua-T</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/app.css">
+</head>
+<body>
+<div class="topbar"></div>
+<header class="appbar"><div class="appbar-in" id="head"></div></header>
+<div class="wrap wide">
+  <div class="pagehead">
+    <div><h1 style="margin:0">Panel del profesor</h1><p class="muted" style="margin:2px 0 0" id="subPanel">Crea y publica exámenes, revisa entregas y gestiona tus grupos.</p></div>
+    <div class="tabs inline" role="tablist">
+      <button role="tab" aria-selected="true" data-tab="vExamenes">Exámenes</button>
+      <button role="tab" aria-selected="false" data-tab="vAlumnos">Alumnos</button>
+      <button role="tab" aria-selected="false" data-tab="vCentro" hidden>Centro</button>
+      <button role="tab" aria-selected="false" data-tab="vProfes" hidden>Profesores <span class="chip s" id="nPend" hidden style="padding:0 7px"></span></button>
+    </div>
+  </div>
+  <div class="msg bad" id="avisoCorreo" hidden>El <b>envío de correo no está configurado</b>: los alumnos se registran sin código de verificación y no reciben la corrección por correo. Configura las variables SMTP en Netlify (ver README).</div>
+
+  <!-- Exámenes -->
+  <section id="vExamenes">
+    <div class="toolbar"><h2>Exámenes</h2><div class="acts"><select id="filtroModulo" style="width:auto"></select><button class="btn ghost" id="verModulos">Módulos</button><button class="btn accent" id="nuevoIA">✨ Generar con IA</button><button class="btn" id="nuevo">＋ Subir examen</button></div></div>
+    <div id="tablaExamenes"><p class="loading">Cargando…</p></div>
+  </section>
+
+  <!-- Entregas de un examen -->
+  <section id="vEntregas" hidden>
+    <div class="toolbar">
+      <div><button class="link" id="atras">← Volver a exámenes</button><h2 id="entTitulo" style="margin-top:6px"></h2></div>
+      <div class="acts"><button class="btn accent" id="revisarResp" hidden>✍ Revisar respuestas</button><select id="filtroGrupo" style="width:auto"></select><a class="btn ghost" id="csv">⬇ Exportar notas (Excel)</a></div>
+    </div>
+    <div id="tablaEntregas"></div>
+  </section>
+
+  <!-- Revisión rápida de respuestas escritas -->
+  <section id="vRespuestas" hidden>
+    <div class="toolbar">
+      <div><button class="link" id="atrasResp">← Volver a las entregas</button><h2 id="respTitulo" style="margin-top:6px"></h2></div>
+      <div class="acts"><label class="check" style="font-size:14px"><input type="checkbox" id="soloPend" checked> Solo sin revisar</label></div>
+    </div>
+    <div class="qtabs" id="respPreguntas" role="tablist" aria-label="Preguntas"></div>
+    <div id="respPregunta"></div>
+    <div id="respLista"></div>
+  </section>
+
+  <!-- Centro: nombre, ciclos y módulos (solo administrador) -->
+  <section id="vCentro" hidden>
+    <div class="msg ok" id="bienvenida" hidden><b>¡Bienvenido/a a evalua-T!</b> Para empezar, escribe el nombre de tu centro y crea sus ciclos y módulos. Los alumnos elegirán su grupo al registrarse y los profesores, los ciclos en los que dan clase.</div>
+    <div class="toolbar"><h2>Datos del centro</h2></div>
+    <form class="card" id="fCentro" style="padding:16px 18px;margin-bottom:22px;display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+      <div class="field" style="flex:1;min-width:240px;margin:0"><label class="flab" for="cNombre">Nombre del centro</label><input type="text" id="cNombre" maxlength="120" placeholder="p. ej. IES Ejemplo" required></div>
+      <button class="btn" type="submit">Guardar</button>
+      <span class="hintline" id="cNombreOk" hidden>Guardado ✓</span>
+    </form>
+    <div class="toolbar"><h2>Ciclos y módulos</h2></div>
+    <p class="muted" style="margin-top:-6px">Crea los ciclos (o cursos) de tu centro y, dentro de cada uno, sus módulos (asignaturas). Cada ciclo genera los grupos del registro de alumnos: por defecto «1.º» y «2.º», o los que escribas. Solo se pueden borrar ciclos y módulos sin exámenes.</p>
+    <div class="msg bad" id="centroErr" hidden></div>
+    <div id="listaCiclos"></div>
+    <form class="card" id="fCiclo" style="padding:16px 18px">
+      <b>Nuevo ciclo</b>
+      <div class="row2" style="margin-top:10px">
+        <div class="field"><label class="flab" for="nCNombre">Nombre corto</label><input type="text" id="nCNombre" maxlength="40" placeholder="p. ej. DAM, 4.º ESO, Bachillerato" required></div>
+        <div class="field"><label class="flab" for="nCGrado">Nivel o grado (opcional)</label><input type="text" id="nCGrado" maxlength="20" placeholder="p. ej. GS, GM, ESO"></div>
+      </div>
+      <div class="field"><label class="flab" for="nCDesc">Nombre completo (opcional)</label><input type="text" id="nCDesc" maxlength="120" placeholder="p. ej. Desarrollo de Aplicaciones Multiplataforma"></div>
+      <div class="field"><label class="flab" for="nCGrupos">Grupos (opcional, separados por comas)</label><input type="text" id="nCGrupos" placeholder="Vacío = «1.º NOMBRE, 2.º NOMBRE»"></div>
+      <div class="field"><label class="flab" for="nCModulos">Módulos (opcional, separados por comas)</label><input type="text" id="nCModulos" placeholder="p. ej. Programación, Bases de Datos, Sistemas Informáticos"></div>
+      <button class="btn" type="submit">＋ Crear ciclo</button>
+    </form>
+  </section>
+
+  <!-- Profesores (solo administrador) -->
+  <section id="vProfes" hidden>
+    <div class="toolbar"><h2>Profesores</h2></div>
+    <p class="muted" style="margin-top:-6px">Los profesores se registran en la página principal eligiendo «Profesor/a» y los ciclos en los que dan clase. Aquí los apruebas y decides a qué ciclos tienen acceso: solo podrán crear exámenes y gestionar alumnos de esos ciclos.</p>
+    <div id="tablaProfes"><p class="loading">Cargando…</p></div>
+  </section>
+
+  <!-- Alumnos -->
+  <section id="vAlumnos" hidden>
+    <div class="toolbar"><h2>Alumnos registrados</h2><input type="text" id="buscar" placeholder="Buscar por nombre, correo o grupo" style="max-width:320px"></div>
+    <div id="tablaAlumnos"><p class="loading">Cargando…</p></div>
+  </section>
+</div>
+
+<!-- Subir examen -->
+<dialog id="dSubir">
+  <div class="dhead"><h2>Subir examen</h2><button class="btn ghost sm" data-close>Cerrar</button></div>
+  <div class="dbody">
+    <p class="muted" style="margin-top:0">Sube el <b>HTML del cuestionario</b> (con los arrays <code>MC</code> y <code>OPEN</code>), un <b>JSON</b> con el mismo formato o un examen en <b>Word (.docx)</b>, que se adapta con la IA. <a href="#" id="plantilla">Descargar plantilla JSON</a>.</p>
+    <label class="drop" id="drop"><input type="file" id="archivo" accept=".html,.htm,.json,.docx" hidden><span id="dropTxt">Arrastra aquí el archivo (.html, .json o .docx) o haz clic para elegirlo</span></label>
+    <form id="fExamen" hidden style="margin-top:18px" novalidate>
+      <div class="msg info" id="resumenImport"></div>
+      <div class="row2">
+        <div class="field"><label class="flab" for="eTitulo">Título</label><input type="text" id="eTitulo" required></div>
+        <div class="field"><label class="flab" for="eId">Identificador (en la URL)</label><input type="text" id="eId" pattern="[a-z0-9-]+" required></div>
+      </div>
+      <div class="field"><label class="flab" for="eSub">Subtítulo / temas</label><input type="text" id="eSub"></div>
+      <div class="row2">
+        <div class="field"><label class="flab" for="eCiclo">Ciclo</label><select id="eCiclo"></select></div>
+        <div class="field"><label class="flab" for="eModulo">Módulo</label><select id="eModulo"></select></div>
+      </div>
+      <div class="field" style="max-width:220px"><label class="flab" for="eOrden">Orden en el módulo</label><input type="number" id="eOrden" min="0" step="1" value="1"></div>
+      <div style="display:grid;gap:10px;margin:4px 0 8px">
+        <label class="check"><input type="checkbox" id="ePub"> Publicar ya (visible para los alumnos)</label>
+        <label class="check"><input type="checkbox" id="eSol" checked> Mostrar la corrección al alumno al entregar (en pantalla y en el correo)</label>
+        <label class="check"><input type="checkbox" id="eSeg" checked> 🔒 Modo seguro: si el alumno cambia de pantalla, el examen termina y se entrega solo</label>
+        <label class="check" id="eSobreWrap" hidden><input type="checkbox" id="eSobre"> Reemplazar el examen existente con este identificador</label>
+      </div>
+      <details id="previa" style="margin:6px 0 14px"><summary style="cursor:pointer;font-weight:700">Revisar las preguntas</summary><div id="previaLista"></div></details>
+      <div class="msg bad" data-err hidden></div>
+      <div class="actions"><button class="btn" type="submit">Guardar examen</button></div>
+    </form>
+  </div>
+</dialog>
+
+<!-- Módulos de los ciclos -->
+<dialog id="dModulos">
+  <div class="dhead"><h2>Módulos de tus ciclos</h2><button class="btn ghost sm" data-close>Cerrar</button></div>
+  <div class="dbody">
+    <p class="muted" style="margin-top:0">Cada examen pertenece a un módulo. Crea aquí los módulos de tus ciclos; los alumnos los verán al entrar en su ciclo. Solo se pueden borrar los módulos sin exámenes.</p>
+    <div class="msg bad" id="modErr" hidden></div>
+    <div id="listaModulos"></div>
+  </div>
+</dialog>
+
+<!-- Generar con IA -->
+<dialog id="dIA">
+  <div class="dhead"><h2>✨ Generar examen con IA</h2><button class="btn ghost sm" data-close>Cerrar</button></div>
+  <div class="dbody">
+    <div class="msg bad" id="iaNoDisp" hidden>La IA no está configurada. Añade la variable <code>GEMINI_API_KEY</code> en Netlify y vuelve a desplegar.</div>
+    <div class="msg" id="iaConexion" hidden></div>
+    <form id="fIA" novalidate>
+      <div class="tabs" role="tablist" style="margin-bottom:14px">
+        <button type="button" role="tab" aria-selected="true" data-modo-ia="tema">Desde el temario</button>
+        <button type="button" role="tab" aria-selected="false" data-modo-ia="word">Adaptar examen de Word</button>
+      </div>
+      <p class="muted" style="margin-top:0" data-solo="tema">Sube las diapositivas o el PDF del tema y la IA redactará las preguntas (tipo test y abiertas) con sus soluciones. Después podrás revisarlas y quitar las que no te gusten antes de guardar. El examen se guarda <b>sin publicar</b>.</p>
+      <div data-solo="word" hidden>
+        <p class="muted" style="margin-top:0">Sube tu examen en Word y, si lo tienes, el <b>solucionario</b>. La IA lo pasa a la plataforma tal cual: test (también con nivel de confianza), preguntas abiertas con su rúbrica y ejercicios con sus resultados y figuras. Revísalo antes de guardar; se guarda <b>sin publicar</b>.</p>
+        <div class="row2">
+          <div class="field"><label class="flab" for="wExamen">Examen (.docx)</label><input type="file" id="wExamen" accept=".docx"></div>
+          <div class="field"><label class="flab" for="wSol">Solucionario (.docx, opcional)</label><input type="file" id="wSol" accept=".docx"></div>
+        </div>
+      </div>
+      <label class="drop" id="iaDrop" data-solo="tema"><input type="file" id="iaArchivo" accept=".pptx,.pdf,.docx,.txt,.md" hidden><span id="iaDropTxt">Arrastra aquí el PowerPoint (.pptx), PDF o Word (.docx), o haz clic para elegirlo</span></label>
+      <div class="row2" style="margin-top:16px">
+        <div class="field"><label class="flab" for="iaCiclo">Ciclo</label><select id="iaCiclo"></select></div>
+        <div class="field"><label class="flab" for="iaModulo">Módulo</label><select id="iaModulo"></select></div>
+      </div>
+      <div class="field"><label class="flab" for="iaTitulo">Título del tema</label><input type="text" id="iaTitulo" placeholder="Tema 2 · …"></div>
+      <div class="row2" data-solo="tema">
+        <div class="field"><label class="flab" for="iaNmc">Preguntas tipo test</label><input type="number" id="iaNmc" min="0" max="40" value="20"></div>
+        <div class="field"><label class="flab" for="iaNopen">Preguntas abiertas</label><input type="number" id="iaNopen" min="0" max="15" value="6"></div>
+      </div>
+      <div class="field"><label class="flab" for="iaInd">Indicaciones para la IA (opcional)</label><textarea id="iaInd" style="min-height:60px" placeholder="Ej.: nivel de 1.º, céntrate en los conceptos y no en las fechas…"></textarea></div>
+      <div id="iaProgreso" hidden>
+        <div class="progress" style="position:static"><span id="iaEstado"></span><div class="track"><div class="fill" id="iaFill"></div></div></div>
+        <p class="hintline">Puede tardar unos minutos. No cierres esta ventana.</p>
+      </div>
+      <div class="msg bad" data-err hidden></div>
+      <div class="actions"><button class="btn" type="submit" id="iaGo">Generar preguntas</button></div>
+    </form>
+  </div>
+</dialog>
+
+<!-- Detalle de una entrega -->
+<dialog id="dEntrega">
+  <div class="dhead"><h2 id="dEntTitulo">Entrega</h2><button class="btn ghost sm" data-close>Cerrar</button></div>
+  <div class="dbody">
+    <form id="fRevisar" class="card" style="margin-bottom:18px" novalidate>
+      <div class="intsel" id="rIntentos"></div>
+      <div class="row2">
+        <div class="field"><label class="flab" for="rNota">Nota revisada (0–10, vacío = automática)</label><input type="text" id="rNota" inputmode="decimal"></div>
+        <div class="field"><label class="flab">Salidas de la ventana</label><div id="rSalidas" style="padding-top:8px"></div></div>
+      </div>
+      <div class="field"><label class="flab" for="rCom">Comentario para el alumno</label><textarea id="rCom" style="min-height:70px"></textarea></div>
+      <p class="hintline" id="rAjustesInfo"></p>
+      <div class="msg bad" data-err hidden></div><div class="msg ok" data-ok hidden></div>
+      <button class="btn" type="submit">Guardar revisión y puntos</button>
+    </form>
+    <div id="dEntCont"></div>
+  </div>
+</dialog>
+
+<script src="/assets/app.js"></script>
+<script>
+const svg = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const ICONO = {
+  enlace: svg('<path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/>'),
+  descargar: svg('<path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/>'),
+  borrar: svg('<path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/>'),
+  ok: svg('<path d="m5 12 5 5 9-10"/>'),
+};
+const CATALOGO_NOMBRES = (ids) => ids.map((id) => id.toUpperCase()).join(", ");
+let CATALOGO = [], EXAMENES = [], ACTUAL = null, FILAS = [], ALUMNOS = [], GRUPOS = [], IMPORT = null;
+const fecha = (iso) => iso ? new Date(iso).toLocaleDateString("es-ES", { day: "2-digit", month: "short", year: "numeric" }) : "—";
+$$("dialog [data-close]").forEach((b) => (b.onclick = () => b.closest("dialog").close()));
+
+/* ── Pestañas ── */
+$$("[data-tab]").forEach((b) => (b.onclick = () => {
+  $$("[data-tab]").forEach((x) => x.setAttribute("aria-selected", x === b));
+  $("#vExamenes").hidden = b.dataset.tab !== "vExamenes"; $("#vEntregas").hidden = true; $("#vRespuestas").hidden = true;
+  $("#vAlumnos").hidden = b.dataset.tab !== "vAlumnos";
+  $("#vProfes").hidden = b.dataset.tab !== "vProfes";
+  $("#vCentro").hidden = b.dataset.tab !== "vCentro";
+  if (b.dataset.tab === "vAlumnos") cargarAlumnos(); else if (b.dataset.tab === "vProfes") cargarProfes();
+  else if (b.dataset.tab === "vCentro") cargarCentro(); else cargarExamenes();
+}));
+
+/* ── Centro: nombre, ciclos y módulos (solo administrador) ── */
+const errCentro = (m) => { $("#centroErr").textContent = m || ""; $("#centroErr").hidden = !m; };
+const listaComas = (txt) => String(txt || "").split(",").map((x) => x.trim()).filter(Boolean);
+async function cargarCentro() {
+  const d = await api("/api/admin/centro");
+  if (document.activeElement !== $("#cNombre")) $("#cNombre").value = d.nombre === "evalua-T" ? "" : d.nombre;
+  $("#listaCiclos").innerHTML = d.ciclos.length ? d.ciclos.map((c) => `<div class="card" style="padding:16px 18px;margin-bottom:12px" data-ciclo="${esc(c.id)}">
+    <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap">
+      <div><b style="font-size:16px">${esc(c.nombre)}</b> <span class="muted">${esc([c.descripcion, c.grado].filter(Boolean).join(" · "))}</span>
+        <div class="muted" style="font-size:13px;margin-top:2px">Grupos: ${c.grupos.map(esc).join(", ")}</div></div>
+      <div class="acts"><button class="btn ghost sm" type="button" data-editar>Editar</button><button class="btn danger sm" type="button" data-borrar-ciclo>Borrar</button></div>
+    </div>
+    <form data-form-ciclo hidden style="margin-top:12px">
+      <div class="row2">
+        <div class="field"><label class="flab">Nombre corto</label><input type="text" name="nombre" maxlength="40" value="${esc(c.nombre)}" required></div>
+        <div class="field"><label class="flab">Nivel o grado</label><input type="text" name="grado" maxlength="20" value="${esc(c.grado)}"></div>
+      </div>
+      <div class="field"><label class="flab">Nombre completo</label><input type="text" name="descripcion" maxlength="120" value="${esc(c.descripcion)}"></div>
+      <div class="field"><label class="flab">Grupos (separados por comas; vacío = 1.º y 2.º)</label><input type="text" name="grupos" value="${esc(c.gruposPropios ? c.grupos.join(", ") : "")}"></div>
+      <button class="btn sm" type="submit">Guardar cambios</button> <button class="btn ghost sm" type="button" data-cancelar>Cancelar</button>
+    </form>
+    <div style="margin:12px 0 10px">${c.modulos.length ? c.modulos.map((m) => `<span class="chip v" style="margin:0 6px 6px 0;display:inline-flex;align-items:center;gap:6px">${esc(m.nombre)}
+      <button type="button" class="link" style="color:inherit;text-decoration:none;font-weight:800" title="Borrar módulo" data-borrar-mod="${esc(m.id)}">×</button></span>`).join("") : `<span class="muted">Sin módulos todavía.</span>`}</div>
+    <form style="display:flex;gap:8px" data-nuevo-mod><input type="text" placeholder="Nuevo módulo (p. ej. Programación)" maxlength="120" style="flex:1"><button class="btn sm" type="submit">Añadir módulo</button></form>
+  </div>`).join("") : `<div class="empty" style="margin-bottom:12px">Todavía no hay ciclos. Crea el primero aquí abajo.</div>`;
+  const id = (el) => el.closest("[data-ciclo]").dataset.ciclo;
+  const accion = async (fn) => { errCentro(""); try { await fn(); await cargarCentro(); } catch (e) { errCentro(e.message); } };
+  $$("#listaCiclos [data-editar]").forEach((b) => (b.onclick = () => { $("[data-form-ciclo]", b.closest("[data-ciclo]")).hidden = false; }));
+  $$("#listaCiclos [data-cancelar]").forEach((b) => (b.onclick = () => { b.closest("form").hidden = true; }));
+  $$("#listaCiclos [data-form-ciclo]").forEach((f) => (f.onsubmit = (ev) => {
+    ev.preventDefault();
+    accion(() => api("/api/admin/ciclo", { id: id(f), nombre: f.nombre.value, grado: f.grado.value, descripcion: f.descripcion.value, grupos: listaComas(f.grupos.value) }));
+  }));
+  $$("#listaCiclos [data-borrar-ciclo]").forEach((b) => (b.onclick = () => {
+    if (confirm("¿Borrar este ciclo y sus módulos?")) accion(() => api("/api/admin/ciclo/borrar", { id: id(b) }));
+  }));
+  $$("#listaCiclos [data-nuevo-mod]").forEach((f) => (f.onsubmit = (ev) => {
+    ev.preventDefault();
+    const nombre = $("input", f).value.trim();
+    if (nombre) accion(() => api("/api/profesor/modulo", { cicloId: id(f), nombre }));
+  }));
+  $$("#listaCiclos [data-borrar-mod]").forEach((b) => (b.onclick = () => {
+    if (confirm("¿Borrar este módulo?")) accion(() => api("/api/profesor/modulo/borrar", { cicloId: id(b), moduloId: b.dataset.borrarMod }));
+  }));
+}
+$("#fCentro").onsubmit = async (ev) => {
+  ev.preventDefault(); errCentro("");
+  try { const r = await api("/api/admin/centro", { nombre: $("#cNombre").value }); $(".brand .ey").textContent = r.nombre; $("#cNombreOk").hidden = false; setTimeout(() => ($("#cNombreOk").hidden = true), 2500); }
+  catch (e) { errCentro(e.message); }
+};
+$("#fCiclo").onsubmit = async (ev) => {
+  ev.preventDefault(); errCentro("");
+  try {
+    const { ciclo } = await api("/api/admin/ciclo", { nombre: $("#nCNombre").value, grado: $("#nCGrado").value, descripcion: $("#nCDesc").value, grupos: listaComas($("#nCGrupos").value) });
+    for (const nombre of listaComas($("#nCModulos").value)) await api("/api/profesor/modulo", { cicloId: ciclo.id, nombre });
+    ev.target.reset(); $("#bienvenida").hidden = true;
+  } catch (e) { errCentro(e.message); }
+  await cargarCentro();
+};
+
+/* ── Profesores (solo administrador) ── */
+async function cargarProfes() {
+  const { ciclos, profesores } = await api("/api/admin/profesores");
+  const pend = profesores.filter((p) => !p.aprobado).length;
+  $("#nPend").hidden = !pend; $("#nPend").textContent = pend;
+  if (!profesores.length) { $("#tablaProfes").innerHTML = `<div class="empty">Todavía no se ha registrado ningún profesor.</div>`; return; }
+  $("#tablaProfes").innerHTML = `<div class="tablewrap"><table class="t"><thead><tr><th>Profesor/a</th><th>Ciclos con acceso</th><th>Estado</th><th></th></tr></thead><tbody>
+    ${profesores.map((p) => `<tr data-email="${esc(p.email)}">
+      <td><b>${esc(p.apellidos)}, ${esc(p.nombre)}</b><div class="muted" style="font-size:13px">${esc(p.email)} · alta ${fecha(p.creado)}</div></td>
+      <td><div style="display:flex;flex-wrap:wrap;gap:6px 14px">${ciclos.map((c) => `<label class="check" style="font-size:14px"><input type="checkbox" data-ciclo value="${esc(c.id)}" ${p.ciclos.includes(c.id) ? "checked" : ""}> ${esc(c.nombre)}</label>`).join("")}</div></td>
+      <td>${p.aprobado ? `<span class="chip ok">Con acceso</span>` : `<span class="chip">Pendiente</span>${p.verificado ? "" : ` <span class="chip gray">correo sin confirmar</span>`}`}</td>
+      <td><div class="acts">${p.aprobado ? `<button class="btn ghost sm" data-quitar-acceso>Quitar acceso</button>` : `<button class="btn sm" data-aprobar>Aprobar</button>`}
+        <button class="btn danger sm" data-borrar-profe>Borrar</button></div></td></tr>`).join("")}</tbody></table></div>`;
+  const fila = (el) => el.closest("tr").dataset.email;
+  const ciclosFila = (el) => $$("[data-ciclo]:checked", el.closest("tr")).map((i) => i.value);
+  const guardar = async (el, datos) => { try { await api("/api/admin/profesor", { email: fila(el), ...datos }); cargarProfes(); } catch (e) { alert(e.message); cargarProfes(); } };
+  $$("#tablaProfes [data-ciclo]").forEach((c) => (c.onchange = () => guardar(c, { ciclos: ciclosFila(c) })));
+  $$("#tablaProfes [data-aprobar]").forEach((b) => (b.onclick = () => guardar(b, { ciclos: ciclosFila(b), aprobado: true })));
+  $$("#tablaProfes [data-quitar-acceso]").forEach((b) => (b.onclick = () => { if (confirm("¿Quitarle el acceso de profesor? Sus exámenes se conservan.")) guardar(b, { aprobado: false }); }));
+  $$("#tablaProfes [data-borrar-profe]").forEach((b) => (b.onclick = async () => {
+    if (!confirm(`¿Borrar la cuenta de ${fila(b)}? Sus exámenes se conservan.`)) return;
+    try { await api("/api/admin/profesor/borrar", { email: fila(b) }); cargarProfes(); } catch (e) { alert(e.message); }
+  }));
+}
+
+/* ── Exámenes ── */
+async function cargarExamenes() {
+  const d = await api("/api/profesor/examenes");
+  EXAMENES = d.examenes; CATALOGO = d.catalogo; $("#avisoCorreo").hidden = d.correo;
+  const f = $("#filtroModulo"), sel = f.value;
+  f.innerHTML = `<option value="">Todos los módulos</option>` + CATALOGO.map((c) => `<optgroup label="${esc(c.nombre)}">${c.modulos.map((m) =>
+    `<option value="${esc(c.id + "/" + m.id)}">${esc(m.nombre)}</option>`).join("")}</optgroup>`).join("");
+  f.value = sel;
+  pintarExamenes();
+}
+$("#filtroModulo").onchange = () => pintarExamenes();
+function pintarExamenes() {
+  const t = $("#tablaExamenes"), filtro = $("#filtroModulo").value;
+  const pos = (e) => { const ci = CATALOGO.findIndex((c) => c.id === e.cicloId); const mi = ci < 0 ? 0 : CATALOGO[ci].modulos.findIndex((m) => m.id === e.moduloId); return ci * 1000 + mi; };
+  const lista = EXAMENES.filter((e) => !filtro || `${e.cicloId}/${e.moduloId}` === filtro).sort((a, b) => pos(a) - pos(b) || a.orden - b.orden);
+  if (!lista.length) { t.innerHTML = `<div class="empty">${EXAMENES.length ? "No hay exámenes en este módulo." : "Todavía no hay exámenes."} Pulsa «Subir examen» o «Generar con IA».</div>`; return; }
+  const sw = (e, campo, txt, tip) => `<label title="${tip}">${txt}<span class="switch"><input type="checkbox" data-aj="${campo}" ${e[campo] ? "checked" : ""}><span></span></span></label>`;
+  t.innerHTML = `<div class="exgrid">${lista.map((e) => `<article class="excard2" data-id="${esc(e.id)}">
+      <div class="top">
+        <div class="where"><span class="tag">${esc(e.ciclo)}</span><span>${esc(e.modulo)}</span></div>
+        <h3>${esc(e.titulo)}</h3>
+        <div class="id">Orden ${e.orden} · <code>${esc(e.id)}</code>${e.autor ? ` · ${esc(e.autor)}` : ""}</div>
+      </div>
+      <div class="stats">
+        <span><b>${e.nMc}</b>test</span><span><b>${e.nOpen}</b>abiertas</span>${e.nNum ? `<span><b>${e.nNum}</b>ejercicios</span>` : ""}
+        <span style="margin-left:auto;text-align:right"><b>${e.entregas}</b>entregas</span>
+      </div>
+      <div class="toggles">
+        ${sw(e, "publicado", "Publicado", "Visible para los alumnos")}
+        ${sw(e, "mostrarSoluciones", "Corrección", "El alumno ve la corrección al entregar")}
+        ${sw(e, "seguridad", "Modo seguro", "Si el alumno cambia de pestaña o de ventana, el examen termina y se entrega solo")}
+      </div>
+      <div class="intentosbar">
+        <label title="Cuántas veces puede entregarlo cada alumno. A un alumno concreto le puedes dar más desde «Entregas».">Intentos
+          <select data-intentos>${[...new Set([1, 2, 3, 4, 5, 10, e.intentos || 1])].sort((a, b) => a - b).map((n) => `<option value="${n}" ${e.intentos === n ? "selected" : ""}>${n}</option>`).join("")}<option value="0" ${e.intentos === 0 ? "selected" : ""}>Sin límite</option></select></label>
+        <label title="Qué intento cuenta para la nota cuando hay varios">Nota que cuenta
+          <select data-calif ${e.intentos === 1 ? "disabled" : ""}><option value="mejor">La mejor</option><option value="ultima" ${e.calificacion === "ultima" ? "selected" : ""}>La última</option></select></label>
+      </div>
+      <div class="foot2">
+        <button class="btn sm" data-ent>Entregas</button>
+        <a class="btn ghost sm" target="_blank" href="/examen/?id=${encodeURIComponent(e.id)}" title="Ábrelo como alumno (también sin publicar). Si lo entregas, usa «Reabrir» para borrar tu intento.">Probar</a>
+        <span class="iconos">
+          <button class="btn ghost sm icono" data-copiar title="Copiar el enlace del examen" aria-label="Copiar enlace">${ICONO.enlace}</button>
+          <button class="btn ghost sm icono" data-json title="Descargar el examen completo con soluciones (JSON)" aria-label="Descargar JSON">${ICONO.descargar}</button>
+          <button class="btn danger sm icono" data-borrar title="Borrar el examen y sus entregas" aria-label="Borrar">${ICONO.borrar}</button>
+        </span>
+      </div>
+    </article>`).join("")}</div>`;
+  const idDe = (el) => el.closest("[data-id]").dataset.id;
+  $$("[data-aj]", t).forEach((c) => (c.onchange = async () => {
+    try { await api("/api/profesor/examen/ajustes", { id: idDe(c), [c.dataset.aj]: c.checked }); } catch (e) { alert(e.message); c.checked = !c.checked; }
+  }));
+  $$("[data-intentos]", t).forEach((c) => (c.onchange = async () => {
+    const e = EXAMENES.find((x) => x.id === idDe(c)), antes = e.intentos;
+    try { await api("/api/profesor/examen/ajustes", { id: e.id, intentos: Number(c.value) }); e.intentos = Number(c.value); $("[data-calif]", c.closest("[data-id]")).disabled = e.intentos === 1; }
+    catch (err) { alert(err.message); c.value = String(antes); }
+  }));
+  $$("[data-calif]", t).forEach((c) => (c.onchange = async () => {
+    const e = EXAMENES.find((x) => x.id === idDe(c)), antes = e.calificacion;
+    try { await api("/api/profesor/examen/ajustes", { id: e.id, calificacion: c.value }); e.calificacion = c.value; }
+    catch (err) { alert(err.message); c.value = antes; }
+  }));
+  $$("[data-ent]", t).forEach((b) => (b.onclick = () => abrirEntregas(idDe(b))));
+  $$("[data-copiar]", t).forEach((b) => (b.onclick = async () => {
+    const url = `${location.origin}/examen/?id=${encodeURIComponent(idDe(b))}`;
+    try { await navigator.clipboard.writeText(url); b.innerHTML = ICONO.ok; b.title = "¡Enlace copiado!"; } catch { prompt("Enlace del examen:", url); }
+    setTimeout(() => { b.innerHTML = ICONO.enlace; b.title = "Copiar el enlace del examen"; }, 2000);
+  }));
+  $$("[data-json]", t).forEach((b) => (b.onclick = async () => {
+    const ex = await api(`/api/profesor/examen?id=${encodeURIComponent(idDe(b))}`);
+    descargar(`${ex.id}.json`, JSON.stringify(ex, null, 2), "application/json");
+  }));
+  $$("[data-borrar]", t).forEach((b) => (b.onclick = async () => {
+    const e = EXAMENES.find((x) => x.id === idDe(b));
+    if (!confirm(`¿Borrar «${e.titulo}»?\n\nSe borrarán también sus ${e.entregas} entregas. Exporta antes las notas si las necesitas. No se puede deshacer.`)) return;
+    try { await api("/api/profesor/examen/borrar", { id: e.id }); cargarExamenes(); } catch (err) { alert(err.message); }
+  }));
+}
+
+function descargar(nombre, contenido, tipo) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([contenido], { type: tipo }));
+  a.download = nombre; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+/* ── Entregas ── */
+async function abrirEntregas(id) {
+  ACTUAL = id;
+  $("#vExamenes").hidden = true; $("#vEntregas").hidden = false;
+  $("#tablaEntregas").innerHTML = `<p class="loading">Cargando…</p>`;
+  const d = await api(`/api/profesor/entregas?id=${encodeURIComponent(id)}`);
+  FILAS = d.filas;
+  $("#entTitulo").textContent = d.examen.titulo;
+  $("#revisarResp").hidden = !(d.examen.nOpen || d.examen.nNum) || !FILAS.some((f) => f.estado === "entregado");
+  $("#csv").href = `/api/profesor/entregas.csv?id=${encodeURIComponent(id)}`;
+  const grupos = [...new Set(FILAS.map((f) => f.grupo).filter(Boolean))].sort();
+  $("#filtroGrupo").innerHTML = `<option value="">Todos los grupos</option>` + grupos.map((g) => `<option>${esc(g)}</option>`).join("");
+  pintarEntregas();
+}
+$("#filtroGrupo").onchange = pintarEntregas;
+$("#atras").onclick = () => { $("#vEntregas").hidden = true; $("#vExamenes").hidden = false; cargarExamenes(); };
+
+/** Vuelve a pedir las filas sin salir de la vista (tras cambiar intentos o notas). */
+async function recargarFilas() {
+  FILAS = (await api(`/api/profesor/entregas?id=${encodeURIComponent(ACTUAL)}`)).filas;
+  pintarEntregas();
+}
+
+function pintarEntregas() {
+  const g = $("#filtroGrupo").value;
+  const filas = FILAS.filter((f) => !g || f.grupo === g);
+  const ent = filas.filter((f) => f.estado === "entregado");
+  const media = ent.length ? ent.reduce((s, f) => s + (f.notaProfesor ?? f.nota), 0) / ent.length : null;
+  if (!filas.length) { $("#tablaEntregas").innerHTML = `<div class="empty">Nadie ha empezado este examen todavía.</div>`; return; }
+  $("#tablaEntregas").innerHTML = `<div class="meta" style="margin-bottom:12px"><span class="chip v">${ent.length} entregas</span>
+    <span class="chip gray">${filas.length - ent.length} sin entregar</span>${media != null ? `<span class="chip">Media: ${fmt(Math.round(media * 100) / 100)}</span>` : ""}</div>
+    <div class="tablewrap"><table class="t"><thead><tr><th>Alumno/a</th><th>Grupo</th><th>Estado</th><th>Nota auto.</th><th>Nota final</th><th>Intentos</th><th>Salidas</th><th>Fecha</th><th></th></tr></thead><tbody>
+    ${filas.map((f) => `<tr data-email="${esc(f.email)}">
+      <td><b>${esc(f.apellidos)}, ${esc(f.nombre)}</b><div class="muted" style="font-size:13px">${esc(f.email)}</div></td>
+      <td>${esc(f.grupo)}</td>
+      <td>${f.estado === "entregado" ? `<span class="chip ok">Entregado</span>` : `<span class="chip gray">Sin entregar</span>`}
+        ${f.porRevisar ? `<div><span class="chip" title="Respuestas escritas sin revisar en el intento que cuenta" style="margin-top:4px">✍ ${f.porRevisar} por revisar</span></div>` : ""}
+        ${f.finalizadoPorSalida ? `<div><span class="chip bad" title="${esc(f.finalizadoPorSalida)}" style="margin-top:4px">🔒 Finalizado al salir</span></div>` : ""}</td>
+      <td class="num">${f.nota != null ? fmt(f.nota) : "—"}</td>
+      <td class="num">${f.estado === "entregado" ? fmt(f.notaProfesor ?? f.nota) + (f.notaProfesor != null ? ` <span class="chip ok" style="font-size:11px">revisada</span>` : "") : "—"}</td>
+      <td class="num"><div class="intcel"><span title="${f.extra ? `Incluye ${f.extra} extra` : ""}">${f.intentos} / ${f.permitidos ?? "∞"}</span>${f.permitidos != null ? `<button class="btn ghost sm" data-extra="1" title="Dar un intento más a este alumno">+1</button>${f.extra ? `<button class="btn ghost sm" data-extra="-1" title="Quitar un intento extra">−1</button>` : ""}` : ""}</div></td>
+      <td class="num">${f.salidas ? `<span class="chip bad">${f.salidas}</span>` : "0"}</td>
+      <td style="white-space:nowrap">${esc(f.fechaTexto || fecha(f.fecha))}</td>
+      <td><div class="acts">${f.estado === "entregado" ? `<button class="btn sm" data-ver>Ver / revisar</button>` : ""}
+        <button class="btn ghost sm" data-reabrir title="Borra todos sus intentos y sus intentos extra: empieza de cero">Reabrir</button></div></td>
+    </tr>`).join("")}</tbody></table></div>`;
+  $$("[data-ver]").forEach((b) => (b.onclick = () => verEntrega(b.closest("tr").dataset.email)));
+  $$("[data-extra]").forEach((b) => (b.onclick = async () => {
+    const f = FILAS.find((x) => x.email === b.closest("tr").dataset.email);
+    try { await api("/api/profesor/entrega/intento-extra", { id: ACTUAL, email: f.email, cambio: Number(b.dataset.extra) }); await recargarFilas(); } catch (e) { alert(e.message); }
+  }));
+  $$("[data-reabrir]").forEach((b) => (b.onclick = async () => {
+    const f = FILAS.find((x) => x.email === b.closest("tr").dataset.email);
+    if (!confirm(`¿Reabrir el examen a ${f.nombre} ${f.apellidos}?\n\nSe borrarán todos sus intentos (notas y respuestas) y empezará de cero.`)) return;
+    try { await api("/api/profesor/entrega/reabrir", { id: ACTUAL, email: f.email }); abrirEntregas(ACTUAL); } catch (e) { alert(e.message); }
+  }));
+}
+
+/* ── Revisión rápida: una pregunta cada vez, todas las respuestas ── */
+let RESP = null, RESP_SEL = null, SUGERENCIAS = {};
+const VALOR_TXT = { full: "Válida", partial: "Medio válida", none: "No válida" };
+const botonesValor = (actual) => `<div class="valbtns" role="group" aria-label="Corrección">
+  <button type="button" class="vb ok ${actual === "full" ? "on" : ""}" data-valor="full" title="Válida: puntuación completa">✓ Válida</button>
+  <button type="button" class="vb warn ${actual === "partial" ? "on" : ""}" data-valor="partial" title="Medio válida: la mitad de los puntos">½ Medio válida</button>
+  <button type="button" class="vb bad ${actual === "none" ? "on" : ""}" data-valor="none" title="No válida: 0 puntos">✗ No válida</button>
+  <button type="button" class="vb auto" data-valor="auto" title="Volver a la corrección automática">↺</button></div>`;
+/** Sin revisar: ni la ha corregido el profesor ni está en blanco (las de ejercicios en blanco tampoco). */
+const pendiente = (r) => !!r && !r.revisada && !r.blanco && !(r.campos && r.campos.every((c) => !String(c.resp).trim()));
+const valorDe = (pts, max) => (pts >= max - 1e-9 ? "full" : pts > 0 ? "partial" : "none");
+
+$("#revisarResp").onclick = () => abrirRespuestas();
+$("#atrasResp").onclick = () => { $("#vRespuestas").hidden = true; abrirEntregas(ACTUAL); };
+$("#soloPend").onchange = () => pintarRespuestas();
+
+async function abrirRespuestas(sel) {
+  $("#vEntregas").hidden = true; $("#vRespuestas").hidden = false;
+  $("#respLista").innerHTML = `<p class="loading">Cargando…</p>`;
+  RESP = await api(`/api/profesor/respuestas?id=${encodeURIComponent(ACTUAL)}`);
+  $("#respTitulo").textContent = `Revisar respuestas · ${RESP.examen.titulo}`;
+  const ex = RESP.examen;
+  const preguntas = [...ex.open.map((q, i) => ({ k: "open", i, et: `P${i + 1}` })), ...ex.num.map((q, i) => ({ k: "num", i, et: `E${i + 1}` }))];
+  RESP_SEL = sel || RESP_SEL && preguntas.find((p) => p.k === RESP_SEL.k && p.i === RESP_SEL.i) || preguntas[0];
+  $("#respPreguntas").innerHTML = preguntas.map((p) => {
+    const pend = RESP.filas.filter((f) => pendiente(f[p.k][p.i])).length;
+    return `<button type="button" role="tab" data-q="${p.k}:${p.i}" aria-selected="${p.k === RESP_SEL.k && p.i === RESP_SEL.i}" title="${pend ? pend + " sin revisar" : "Todas revisadas"}">${p.et}${pend ? `<span class="badge">${pend}</span>` : ` <span class="hecho">✓</span>`}</button>`;
+  }).join("");
+  $$("[data-q]", $("#respPreguntas")).forEach((b) => (b.onclick = () => { const [k, i] = b.dataset.q.split(":"); RESP_SEL = { k, i: Number(i) }; abrirRespuestas(RESP_SEL); }));
+  pintarRespuestas();
+}
+
+function pintarRespuestas() {
+  const { k, i } = RESP_SEL, ex = RESP.examen, q = ex[k][i];
+  const filas = RESP.filas.filter((f) => f[k][i] && (!$("#soloPend").checked || pendiente(f[k][i])));
+  const pendientes = RESP.filas.filter((f) => pendiente(f[k][i])).length;
+  const conSug = filas.filter((f) => SUGERENCIAS[`${k}:${i}:${f.email}#${f.intento}`]);
+  $("#respPregunta").innerHTML = `<div class="card qhead">
+    <div class="muted" style="font-size:13px;font-weight:600">${k === "open" ? `Pregunta abierta ${i + 1}` : `Ejercicio ${i + 1}`} · ${fmt(q.puntos)} p${q.act ? ` · ${esc(q.act)}` : ""}</div>
+    <p style="margin:6px 0 10px;font-weight:600;white-space:pre-wrap">${esc(q.t)}</p>
+    ${k === "open" ? `${q.exp ? `<p class="rd"><b>Respuesta modelo:</b> ${esc(q.exp)}</p>` : ""}
+      <p class="rd"><b>Conceptos que busca la corrección automática:</b> ${q.conceptos.map((c) => `<span class="chip gray">${esc(c)}</span>`).join(" ")}</p>`
+      : `<p class="rd"><b>Resultados correctos:</b> ${q.campos.map((c) => `${esc(c.etiqueta)} = <b>${esc(c.correcto)}</b>`).join(" · ")}</p>`}
+    <div class="actions" style="margin-top:10px">
+      <span class="muted" style="font-size:13.5px">${pendientes ? `<b>${pendientes}</b> sin revisar` : "Todas revisadas ✓"}</span>
+      ${k === "open" && RESP.ia ? `<button class="btn accent sm" id="sugerirIA" ${filas.length ? "" : "disabled"}>✨ Sugerir corrección con IA</button>` : ""}
+      ${conSug.length ? `<button class="btn sm" id="aplicarSug">Aplicar las ${conSug.length} sugerencias</button>` : ""}
+      <span class="msg bad" id="respErr" hidden style="margin:0"></span>
+    </div></div>`;
+  if (!filas.length) { $("#respLista").innerHTML = `<div class="empty">${pendientes ? "" : "No queda ninguna respuesta por revisar en esta pregunta. Desmarca «Solo sin revisar» para verlas todas."}</div>`; }
+  else $("#respLista").innerHTML = filas.map((f) => {
+    const r = f[k][i], ref = `${f.email}#${f.intento}`, sug = SUGERENCIAS[`${k}:${i}:${ref}`];
+    const cuerpo = k === "open"
+      ? `<div class="resp">${r.texto.trim() ? esc(r.texto) : `<span class="muted">(en blanco)</span>`}</div>
+         ${r.hechos ? `<div class="meta" style="margin-top:8px">${q.conceptos.map((c, j) => `<span class="chip ${r.hechos[j] ? "ok" : "gray"}" title="${r.hechos[j] ? "Encontrado" : "No encontrado"}">${r.hechos[j] ? "✓" : "✗"} ${esc(c)}</span>`).join("")}</div>` : ""}`
+      : `<div class="resp">${r.campos.map((c, j) => `${esc(q.campos[j]?.etiqueta || "")}: <b>${esc(c.resp || "—")}</b> ${c.ok ? `<span class="verdict v-ok">✓</span>` : `<span class="verdict v-bad">✗</span>`}`).join("<br>")}</div>`;
+    return `<article class="rcard ${r.revisada ? "hecha" : ""}" data-email="${esc(f.email)}" data-intento="${f.intento}">
+      <div class="rtop"><b>${esc(f.apellidos)}, ${esc(f.nombre)}</b><span class="muted">${esc(f.grupo)}${f.intentos > 1 ? ` · intento ${f.intento}${f.vigente ? " (cuenta)" : ""}` : ""}</span>
+        <span class="rpts" data-pts>${fmt(r.pts)} / ${fmt(r.max)} p ${r.revisada ? `<span class="chip ok" style="font-size:11px">revisada</span>` : `<span class="chip gray" style="font-size:11px">automática</span>`}</span></div>
+      ${cuerpo}
+      ${sug ? `<div class="sug ${sug.v}">✨ IA: <b>${VALOR_TXT[sug.v]}</b> — ${esc(sug.motivo)}</div>` : ""}
+      ${botonesValor(r.revisada ? valorDe(r.pts, r.max) : null)}
+    </article>`;
+  }).join("");
+  $$("#respLista [data-valor]").forEach((b) => (b.onclick = () => marcar(b.closest(".rcard"), b.dataset.valor)));
+  const sb = $("#sugerirIA"); if (sb) sb.onclick = () => sugerirIA(filas);
+  const ap = $("#aplicarSug"); if (ap) ap.onclick = async () => {
+    ap.disabled = true;
+    for (const f of conSug) await marcar($(`.rcard[data-email="${CSS.escape(f.email)}"][data-intento="${f.intento}"]`), SUGERENCIAS[`${k}:${i}:${f.email}#${f.intento}`].v, false);
+    abrirRespuestas(RESP_SEL);
+  };
+}
+
+/** Guarda al momento: válida / medio válida / no válida / auto. */
+async function marcar(card, valor, repintar = true) {
+  if (!card) return;
+  const { k, i } = RESP_SEL;
+  $$("[data-valor]", card).forEach((b) => (b.disabled = true));
+  try {
+    const r = await api("/api/profesor/entrega/puntuar", { id: ACTUAL, email: card.dataset.email, intento: Number(card.dataset.intento), k, i, valor });
+    const f = RESP.filas.find((x) => x.email === card.dataset.email && x.intento === Number(card.dataset.intento));
+    f[k][i].pts = r.pts; f[k][i].revisada = valor !== "auto"; f.nota = r.notaIntento;
+    $$("[data-valor]", card).forEach((b) => b.classList.toggle("on", b.dataset.valor === valor));
+    card.classList.toggle("hecha", valor !== "auto");
+    $("[data-pts]", card).innerHTML = `${fmt(r.pts)} / ${fmt(f[k][i].max)} p <span class="chip ${valor !== "auto" ? "ok" : "gray"}" style="font-size:11px">${valor !== "auto" ? "revisada" : "automática"}</span>`;
+    if (repintar) {
+      // Pequeña pausa para que se vea el cambio antes de que la tarjeta desaparezca del filtro.
+      setTimeout(() => abrirRespuestas(RESP_SEL), $("#soloPend").checked && valor !== "auto" ? 450 : 0);
+    }
+  } catch (e) { alert(e.message); }
+  finally { $$("[data-valor]", card).forEach((b) => (b.disabled = false)); }
+}
+
+async function sugerirIA(filas) {
+  const { k, i } = RESP_SEL, b = $("#sugerirIA"), err = $("#respErr");
+  b.disabled = true; err.hidden = true;
+  try {
+    for (let n = 0; n < filas.length; n += 20) {
+      b.textContent = `✨ Corrigiendo ${Math.min(n + 20, filas.length)} de ${filas.length}…`;
+      const { sugerencias } = await api("/api/profesor/ia/corregir", { id: ACTUAL, i, refs: filas.slice(n, n + 20).map((f) => ({ email: f.email, intento: f.intento })) });
+      sugerencias.forEach((s) => (SUGERENCIAS[`${k}:${i}:${s.ref}`] = s));
+    }
+    pintarRespuestas();
+  } catch (e) { err.textContent = e.message; err.hidden = false; b.disabled = false; b.textContent = "✨ Sugerir corrección con IA"; }
+}
+
+let ENT = null;
+async function verEntrega(email, intento) {
+  const d = await api(`/api/profesor/entrega?id=${encodeURIComponent(ACTUAL)}&email=${encodeURIComponent(email)}${intento ? `&intento=${intento}` : ""}`);
+  ENT = d;
+  $("#dEntTitulo").textContent = `${d.alumno.nombre} ${d.alumno.apellidos} · ${d.alumno.grupo}`;
+  // Intentos: elegir cuál ver / revisar y borrar el que no valga.
+  $("#rIntentos").innerHTML = `<span class="flab" style="margin:0">Intentos</span>${d.intentos.map((x) => `<button type="button" class="btn sm ${x.n === d.intento ? "" : "ghost"}" data-int="${x.n}" title="${esc(x.fechaTexto || "")}">${x.n}.º · ${fmt(x.nota)}${x.vigente ? " ✓" : ""}</button>`).join("")}
+    <span class="muted" style="font-size:12.5px">✓ = el que cuenta</span>
+    <button type="button" class="btn danger sm" id="rBorrarInt" style="margin-left:auto">Borrar este intento</button>`;
+  $$("[data-int]", $("#rIntentos")).forEach((b) => (b.onclick = () => verEntrega(email, Number(b.dataset.int))));
+  $("#rBorrarInt").onclick = async () => {
+    const solo = d.intentos.length === 1;
+    if (!confirm(`¿Borrar el intento ${d.intento} de ${d.alumno.nombre} ${d.alumno.apellidos}?\n\n${solo ? "Es su único intento: se borrará la entrega." : "Se borrarán sus respuestas y su nota."} El alumno recupera ese intento. No se puede deshacer.`)) return;
+    try {
+      const r = await api("/api/profesor/entrega/borrar-intento", { id: ACTUAL, email, intento: d.intento });
+      await recargarFilas();
+      if (r.borrada) $("#dEntrega").close(); else verEntrega(email);
+    } catch (e) { alert(e.message); }
+  };
+  $("#rNota").value = d.notaProfesor != null ? String(d.notaProfesor).replace(".", ",") : "";
+  $("#rCom").value = d.comentario || "";
+  $("#rSalidas").innerHTML = d.registroSalidas.length
+    ? d.registroSalidas.map((s) => `<div style="font-size:13.5px">${new Date(s.t).toLocaleString("es-ES")} — ${esc(s.motivo)}</div>`).join("")
+    : `<span class="muted">Ninguna</span>`;
+  $$("#fRevisar [data-err], #fRevisar [data-ok]").forEach((x) => (x.hidden = true));
+  const c = $("#dEntCont");
+  pintarEntrega(c, d);
+  $("[data-rev]", c).hidden = false; $("[data-toggle-rev]", c).remove();
+  ponerEditoresPuntos(c, d);
+  if (!$("#dEntrega").open) $("#dEntrega").showModal();
+}
+
+/** Junto a cada pregunta, una casilla para cambiar sus puntos. */
+function ponerEditoresPuntos(c, d) {
+  const ex = d.examen, orden = [...ex.mc.map((q, i) => ["mc", i, q]), ...ex.open.map((q, i) => ["open", i, q]), ...(ex.num || []).map((q, i) => ["num", i, q])];
+  $$(".rev", c).forEach((rev, n) => {
+    const [k, i, q] = orden[n] || [];
+    if (!k) return;
+    const max = q.puntos ?? 1, min = k === "mc" && ex.confianza ? -max : 0;
+    const v = d.pts?.[k]?.[i] ?? 0, aj = d.ajustados?.[k]?.[i];
+    const sp = $(".pts", rev); if (sp) sp.remove();
+    $(".rq", rev).insertAdjacentHTML("beforeend", `<span class="ajpts${aj ? " on" : ""}" title="Puntos de esta pregunta (entre ${fmt(min)} y ${fmt(max)}). Cámbialos si la corrección automática no es justa.">
+      <input type="text" inputmode="decimal" data-k="${k}" data-i="${i}" data-orig="${v}" value="${String(v).replace(".", ",")}" aria-label="Puntos"> / ${fmt(max)} p${aj ? " · cambiado" : ""}</span>`);
+    // Respuestas escritas y ejercicios: corrección con un clic.
+    if (k === "open" || k === "num") {
+      rev.insertAdjacentHTML("beforeend", botonesValor(aj ? valorDe(v, max) : null));
+      if (k === "open" && d.open?.[i]?.hechos) $(".rq", rev).insertAdjacentHTML("afterend", `<div class="meta" style="margin:4px 0 6px">${d.open[i].conceptos.map((cpt, j) =>
+        `<span class="chip ${d.open[i].hechos[j] ? "ok" : "gray"}" style="font-size:11.5px">${d.open[i].hechos[j] ? "✓" : "✗"} ${esc(cpt)}</span>`).join("")}</div>`);
+      $$("[data-valor]", rev).forEach((b) => (b.onclick = async () => {
+        $$("[data-valor]", rev).forEach((x) => (x.disabled = true));
+        try {
+          await api("/api/profesor/entrega/puntuar", { id: ACTUAL, email: d.alumno.email, intento: d.intento, k, i, valor: b.dataset.valor });
+          const y = c.closest("dialog").scrollTop;
+          await recargarFilas(); await verEntrega(d.alumno.email, d.intento);
+          $("#dEntrega").scrollTop = y;
+        } catch (e) { alert(e.message); $$("[data-valor]", rev).forEach((x) => (x.disabled = false)); }
+      }));
+    }
+  });
+  $("#rAjustesInfo").innerHTML = d.ajustes ? `Hay puntos cambiados a mano en este intento. <button type="button" class="link" id="rQuitarAj">Volver a la corrección automática</button>` : "Puedes cambiar los puntos de cada pregunta en la corrección de abajo; la nota se recalcula al guardar.";
+  const q = $("#rQuitarAj");
+  if (q) q.onclick = () => guardarRevision({ ajustes: null });
+}
+
+/** Puntos cambiados: los que ya estaban ajustados + los que se han editado ahora. */
+function ajustesEditados() {
+  const a = JSON.parse(JSON.stringify(ENT.ajustes || {}));
+  let cambios = false;
+  $$("#dEntCont .ajpts input").forEach((inp) => {
+    const v = inp.value.trim().replace(",", ".");
+    if (v === "" || Number(v) === Number(inp.dataset.orig)) return;
+    (a[inp.dataset.k] ||= {})[inp.dataset.i] = v; cambios = true;
+  });
+  return cambios || ENT.ajustes ? a : undefined;
+}
+
+async function guardarRevision(extra = {}) {
+  const f = $("#fRevisar"); $("[data-err]", f).hidden = true; $("[data-ok]", f).hidden = true;
+  try {
+    const email = ENT.alumno.email, intento = ENT.intento;
+    const r = await api("/api/profesor/entrega/revisar", { id: ACTUAL, email, intento, notaProfesor: $("#rNota").value.trim(), comentario: $("#rCom").value, ajustes: ajustesEditados(), ...extra });
+    await recargarFilas();
+    await verEntrega(email, intento);
+    $("[data-ok]", f).textContent = `Revisión guardada. Nota de este intento: ${fmt(r.nota)} · nota final: ${fmt(r.notaFinal)} (cuenta el intento ${r.vigente}). El alumno la verá en su panel.`;
+    $("[data-ok]", f).hidden = false;
+  } catch (e) { $("[data-err]", f).textContent = e.message; $("[data-err]", f).hidden = false; }
+}
+$("#fRevisar").onsubmit = (ev) => { ev.preventDefault(); guardarRevision(); };
+
+/* ── Subir examen ── */
+$("#nuevo").onclick = () => {
+  IMPORT = null; $("#fExamen").hidden = true; $("#archivo").value = "";
+  $("#dropTxt").textContent = "Arrastra aquí el archivo o haz clic para elegirlo";
+  $("#dSubir").showModal();
+};
+$("#plantilla").onclick = (e) => {
+  e.preventDefault();
+  descargar("plantilla-examen.json", JSON.stringify({
+    id: "modulo-tema-3", titulo: "Cuestionario · Tema 3", subtitulo: "Temas que entran", modulo: "Bases de Datos", ciclo: "DAM",
+    mc: [{ t: "Pregunta tipo test", o: ["Opción a", "Opción b", "Opción c", "Opción d"], c: 1 }],
+    open: [{ act: "Actividad 1", t: "Pregunta abierta", groups: [["concepto1", "sinonimo"], ["concepto2"]], full: 2, partial: 1, exp: "Lo que se esperaba en la respuesta" }],
+  }, null, 2), "application/json");
+};
+const drop = $("#drop");
+["dragenter", "dragover"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", (e) => { if (e.dataTransfer.files[0]) leerArchivo(e.dataTransfer.files[0]); });
+$("#archivo").onchange = (e) => { if (e.target.files[0]) leerArchivo(e.target.files[0]); };
+
+function rellenarModulos() {
+  const c = CATALOGO.find((x) => x.id === $("#eCiclo").value);
+  $("#eModulo").innerHTML = (c?.modulos || []).map((m) => `<option value="${esc(m.id)}">${esc(m.nombre)}</option>`).join("");
+}
+$("#eCiclo").onchange = rellenarModulos;
+const normTxt = (s) => String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+
+/** Extrae un array literal `const NOMBRE = [ ... ]` de un script. */
+function extraerArray(src, nombre) {
+  const m = new RegExp(`(?:const|let|var)\\s+${nombre}\\s*=\\s*\\[`).exec(src);
+  if (!m) return null;
+  const ini = m.index + m[0].length - 1;
+  let prof = 0, str = null, escp = false;
+  for (let j = ini; j < src.length; j++) {
+    const ch = src[j];
+    if (str) { if (escp) escp = false; else if (ch === "\\") escp = true; else if (ch === str) str = null; continue; }
+    if (ch === '"' || ch === "'" || ch === "`") { str = ch; continue; }
+    if (ch === "[") prof++;
+    else if (ch === "]" && --prof === 0) return Function(`"use strict"; return (${src.slice(ini, j + 1)});`)();
+  }
+  return null;
+}
+const slug = (s) => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60);
+const capitalizar = (s) => s.toLowerCase().replace(/(^|\s)(\p{L})/gu, (m, a, b) => a + b.toUpperCase()).replace(/\s(Y|De|Del|La|Las|Los|E|En)(?=\s)/g, (m) => m.toLowerCase());
+
+async function leerArchivo(file) {
+  // Un examen en Word se adapta con la IA.
+  if (/\.docx$/i.test(file.name)) {
+    $("#dSubir").close();
+    await $("#nuevoIA").onclick();
+    modoIA("word");
+    const dt = new DataTransfer(); dt.items.add(file); $("#wExamen").files = dt.files; $("#wExamen").onchange({ target: $("#wExamen") });
+    return;
+  }
+  $("#dropTxt").textContent = file.name;
+  const txt = await file.text();
+  try {
+    let ex;
+    if (/\.json$/i.test(file.name) || txt.trim().startsWith("{")) {
+      ex = JSON.parse(txt);
+    } else {
+      const doc = new DOMParser().parseFromString(txt, "text/html");
+      const scripts = [...doc.querySelectorAll("script:not([src])")].map((s) => s.textContent).join("\n");
+      const mc = extraerArray(scripts, "MC") || [], open = extraerArray(scripts, "OPEN") || [];
+      if (!mc.length && !open.length) throw new Error("No he encontrado los arrays MC ni OPEN en el HTML.");
+      const h1 = doc.querySelector("#intro h1, h1")?.textContent.trim() || doc.title;
+      const mod = /FP [^·'"`]*·\s*([^'"`(]+?)\s*\(([^)]+)\)/.exec(scripts);
+      ex = {
+        titulo: h1, subtitulo: doc.querySelector("#intro .sub, .sub")?.textContent.trim() || "",
+        modulo: mod ? capitalizar(mod[1].trim()) : "", ciclo: mod ? mod[2].trim() : doc.querySelector(".tag")?.textContent.trim() || "",
+        mc, open,
+      };
+      ex.id = slug([ex.ciclo, ex.titulo].filter(Boolean).join(" "));
+    }
+    mostrarFormulario(ex, `Encontradas <b>${(ex.mc || []).length} preguntas tipo test</b> y <b>${(ex.open || []).length} abiertas</b>. Revisa los datos y guarda.`);
+  } catch (e) {
+    $("#fExamen").hidden = true;
+    $("#dropTxt").innerHTML = `<span style="color:var(--bad)">No se ha podido leer «${esc(file.name)}»: ${esc(e.message)}</span>`;
+  }
+}
+
+/** Rellena el formulario de guardado con un examen (importado o generado con IA). */
+function mostrarFormulario(ex, resumen) {
+    IMPORT = ex;
+    $("#eTitulo").value = ex.titulo || ""; $("#eId").value = ex.id || slug(ex.titulo || "examen");
+    $("#eSub").value = ex.subtitulo || "";
+    // Ciclo y módulo: por id (JSON) o por nombre (HTML); si no, el filtro actual o el primero.
+    $("#eCiclo").innerHTML = CATALOGO.map((c) => `<option value="${esc(c.id)}">${esc(c.nombre)}</option>`).join("");
+    const [fc, fm] = ($("#filtroModulo").value || "/").split("/");
+    const c = CATALOGO.find((x) => x.id === ex.cicloId || normTxt(x.nombre) === normTxt(ex.ciclo)) || CATALOGO.find((x) => x.id === fc) || CATALOGO[0];
+    $("#eCiclo").value = c.id; rellenarModulos();
+    const m = c.modulos.find((x) => x.id === ex.moduloId || normTxt(x.nombre) === normTxt(ex.modulo)) || c.modulos.find((x) => x.id === fm) || c.modulos[0];
+    if (m) $("#eModulo").value = m.id; // un ciclo sin módulos deja el desplegable vacío (se avisa al guardar)
+    $("#eOrden").value = ex.orden ?? EXAMENES.filter((e) => e.cicloId === c.id && e.moduloId === m?.id).length + 1;
+    $("#ePub").checked = !!ex.publicado; $("#eSol").checked = ex.mostrarSoluciones !== false; $("#eSeg").checked = ex.seguridad !== false; $("#eSobre").checked = false;
+    $("#resumenImport").innerHTML = resumen;
+    comprobarId();
+    pintarPrevia();
+    $("[data-err]", $("#fExamen")).hidden = true;
+    $("#fExamen").hidden = false;
+}
+
+/** Lista de preguntas con la respuesta correcta y botón para quitar cada una. */
+function pintarPrevia() {
+  const mc = IMPORT.mc || [], open = IMPORT.open || [], num = IMPORT.num || [];
+  const cab = cabeceraBloques(IMPORT), P = (q) => fmtP(q.puntos ?? 1);
+  const total = [...mc, ...open, ...num].reduce((s, q) => s + Number(q.puntos ?? 1), 0);
+  $("#previa").querySelector("summary").textContent = `Revisar las preguntas (${mc.length} tipo test · ${open.length} abiertas${num.length ? ` · ${num.length} apartados de ejercicios` : ""} · ${fmt(Math.round(total * 100) / 100)} puntos)`;
+  const quitar = (tipo, i) => `<button type="button" class="btn danger sm" data-quitar="${tipo}:${i}">Quitar</button>`;
+  $("#previaLista").innerHTML =
+    (IMPORT.confianza ? `<div class="msg info">El test se puntúa <b>con nivel de confianza</b> (Muy seguro ±100 % · Seguro +70/−50 % · Poco seguro +50/−30 %).</div>` : "") +
+    mc.map((q, i) => cab(q) + `<div class="rev ok"><p class="rq" style="display:flex;justify-content:space-between;gap:10px"><span>${i + 1}. ${esc(q.t)} ${P(q)}</span>${quitar("mc", i)}</p>
+      ${q.o.map((o, j) => `<p class="rd">${j === q.c ? "<b>✓ " : ""}${LETRAS[j]}) ${esc(o)}${j === q.c ? "</b>" : ""}</p>`).join("")}
+      ${q.exp ? `<p class="rd">Justificación: ${esc(q.exp)}</p>` : ""}</div>`).join("") +
+    open.map((q, i) => cab(q) + `<div class="rev warn"><p class="rq" style="display:flex;justify-content:space-between;gap:10px"><span>${mc.length + i + 1}. ${esc(q.t)} ${P(q)}</span>${quitar("open", i)}</p>
+      ${q.act ? `<p class="rd">Bloque: ${esc(q.act)}</p>` : ""}<p class="rd">Respuesta esperada: <b>${esc(q.exp)}</b></p>
+      <p class="rd">${q.pesos ? "Rúbrica" : `Conceptos clave (${q.full} para «Bien», ${q.partial} para «Casi»)`}: ${q.groups.map((g, k) => esc(g.join(" / ")) + (q.pesos ? ` <b>(${fmt(q.pesos[k])} p)</b>` : "")).join(" · ")}</p></div>`).join("") +
+    num.map((q, i) => cab(q) + `<div class="rev"><p class="rq" style="display:flex;justify-content:space-between;gap:10px"><span>${esc(q.t)} ${P(q)}</span>${quitar("num", i)}</p>
+      ${q.campos.map((c) => `<p class="rd">${esc(c.etiqueta)}: <b>${c.tipo === "opcion" ? esc(c.opciones[c.correcta]) + ` <span class="muted">(entre: ${c.opciones.map(esc).join(" / ")})</span>` : `${fmtV(c.valor)} ${esc(c.unidad || "")}`}</b>${c.tipo !== "opcion" ? ` <span class="muted">± ${fmt(c.tolerancia ?? 2)} %</span>` : ""}</p>`).join("")}
+      ${q.exp ? `<p class="rd" style="white-space:pre-wrap">Resolución: ${esc(q.exp)}</p>` : ""}</div>`).join("");
+  $$("[data-quitar]").forEach((b) => (b.onclick = () => {
+    const [tipo, i] = b.dataset.quitar.split(":");
+    IMPORT[tipo].splice(Number(i), 1);
+    pintarPrevia();
+  }));
+}
+/* ── Módulos ── */
+function pintarModulos() {
+  $("#listaModulos").innerHTML = CATALOGO.map((c) => `<div class="card" style="padding:16px 18px;margin-bottom:12px" data-ciclo-mod="${esc(c.id)}">
+    <b>${esc(c.nombre)}</b> <span class="muted">· ${esc(c.descripcion || "")} (${esc(c.grado || "")})</span>
+    <div style="margin:10px 0">${c.modulos.length ? c.modulos.map((m) => `<span class="chip v" style="margin:0 6px 6px 0;display:inline-flex;align-items:center;gap:6px">${esc(m.nombre)}
+      ${`<button type="button" class="link" style="color:inherit;text-decoration:none;font-weight:800" title="Borrar módulo" data-borrar-mod="${esc(m.id)}">×</button>`}</span>`).join("") : `<span class="muted">Sin módulos todavía.</span>`}</div>
+    <form style="display:flex;gap:8px" data-nuevo-mod><input type="text" placeholder="Nuevo módulo (p. ej. Programación)" maxlength="120" style="flex:1"><button class="btn sm" type="submit">Añadir</button></form>
+  </div>`).join("");
+  const err = (m) => { $("#modErr").textContent = m; $("#modErr").hidden = !m; };
+  $$("[data-nuevo-mod]").forEach((f) => (f.onsubmit = async (ev) => {
+    ev.preventDefault(); err("");
+    const nombre = $("input", f).value.trim(); if (!nombre) return;
+    try { await api("/api/profesor/modulo", { cicloId: f.closest("[data-ciclo-mod]").dataset.cicloMod, nombre }); await cargarExamenes(); pintarModulos(); }
+    catch (e) { err(e.message); }
+  }));
+  $$("[data-borrar-mod]").forEach((b) => (b.onclick = async () => {
+    err("");
+    if (!confirm("¿Borrar este módulo?")) return;
+    try { await api("/api/profesor/modulo/borrar", { cicloId: b.closest("[data-ciclo-mod]").dataset.cicloMod, moduloId: b.dataset.borrarMod }); await cargarExamenes(); pintarModulos(); }
+    catch (e) { err(e.message); }
+  }));
+}
+$("#verModulos").onclick = () => { $("#modErr").hidden = true; pintarModulos(); $("#dModulos").showModal(); };
+
+/** Aviso si el ciclo elegido aún no tiene módulos. */
+const sinModulos = (cicloId) => !CATALOGO.find((c) => c.id === cicloId)?.modulos.length;
+
+/* ── Generar con IA ── */
+const CDN = {
+  jszip: "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js",
+  pdf: "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js",
+  pdfWorker: "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js",
+};
+const cargarScript = (src) => new Promise((ok, ko) => {
+  const s = document.createElement("script"); s.src = src; s.onload = ok;
+  s.onerror = () => ko(new Error("no se ha podido cargar el lector de archivos; comprueba la conexión")); document.head.appendChild(s);
+});
+const parrafos = (xml, p, t) => [...new DOMParser().parseFromString(xml, "application/xml").getElementsByTagName(p)]
+  .map((n) => [...n.getElementsByTagName(t)].map((x) => x.textContent).join("").trim()).filter(Boolean);
+
+/** Extrae el texto del archivo en el navegador (solo se envía el texto, no el archivo). */
+async function textoDeArchivo(file) {
+  const ext = file.name.split(".").pop().toLowerCase();
+  if (ext === "txt" || ext === "md") return file.text();
+  if (ext === "pdf") {
+    if (!window.pdfjsLib) await cargarScript(CDN.pdf);
+    pdfjsLib.GlobalWorkerOptions.workerSrc = CDN.pdfWorker;
+    const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+    const out = [];
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const c = await (await pdf.getPage(i)).getTextContent();
+      out.push(`--- Página ${i} ---\n` + c.items.map((it) => it.str + (it.hasEOL ? "\n" : " ")).join(""));
+    }
+    return out.join("\n\n");
+  }
+  if (ext === "pptx" || ext === "docx") {
+    if (!window.JSZip) await cargarScript(CDN.jszip);
+    const zip = await JSZip.loadAsync(await file.arrayBuffer());
+    if (ext === "docx") return parrafos(await zip.file("word/document.xml").async("string"), "w:p", "w:t").join("\n");
+    const num = (n) => Number(n.match(/(\d+)\.xml$/)[1]);
+    const diapos = Object.keys(zip.files).filter((n) => /^ppt\/slides\/slide\d+\.xml$/.test(n)).sort((a, b) => num(a) - num(b));
+    const out = [];
+    for (const [i, n] of diapos.entries()) {
+      let txt = parrafos(await zip.file(n).async("string"), "a:p", "a:t").join("\n");
+      // Notas del orador, si las hay (suelen tener la explicación).
+      const rels = zip.file(n.replace("slides/", "slides/_rels/") + ".rels");
+      const nota = rels && /notesSlides\/(notesSlide\d+\.xml)/.exec(await rels.async("string"));
+      if (nota && zip.file(`ppt/notesSlides/${nota[1]}`)) {
+        const notas = parrafos(await zip.file(`ppt/notesSlides/${nota[1]}`).async("string"), "a:p", "a:t").filter((t) => !/^\d+$/.test(t));
+        if (notas.length) txt += `\n[Notas] ${notas.join(" ")}`;
+      }
+      out.push(`--- Diapositiva ${i + 1} ---\n${txt}`);
+    }
+    return out.join("\n\n");
+  }
+  throw new Error("formato no admitido (usa .pptx, .pdf, .docx o .txt)");
+}
+
+let IA_ARCHIVO = null, IA_LOTE = { mc: 5, open: 3 }, MODO_IA = "tema";
+function modoIA(m) {
+  MODO_IA = m;
+  $$("[data-modo-ia]").forEach((b) => b.setAttribute("aria-selected", b.dataset.modoIa === m));
+  $$("#fIA [data-solo]").forEach((el) => (el.hidden = el.dataset.solo !== m));
+  $("#iaGo").textContent = m === "word" ? "Adaptar examen" : "Generar preguntas";
+  $("label[for=iaTitulo]").textContent = m === "word" ? "Título del examen" : "Título del tema";
+}
+$$("[data-modo-ia]").forEach((b) => (b.onclick = () => modoIA(b.dataset.modoIa)));
+$("#wExamen").onchange = (e) => {
+  const f = e.target.files[0];
+  if (f && !$("#iaTitulo").value.trim()) $("#iaTitulo").value = f.name.replace(/\.[^.]+$/, "").replace(/_/g, " ").replace(/\s+/g, " ").replace(/\s*alumnado\s*$/i, "").trim();
+};
+
+/**
+ * Texto de un .docx con marcas [FIGURA n] donde hay imágenes, y las imágenes
+ * (data URL, reducidas si son grandes). Recorre párrafos y tablas en orden.
+ */
+async function docxConFiguras(file) {
+  if (!window.JSZip) await cargarScript(CDN.jszip);
+  const zip = await JSZip.loadAsync(await file.arrayBuffer());
+  const xml = new DOMParser().parseFromString(await zip.file("word/document.xml").async("string"), "application/xml");
+  const rels = new DOMParser().parseFromString(await zip.file("word/_rels/document.xml.rels").async("string"), "application/xml");
+  const destino = Object.fromEntries([...rels.getElementsByTagName("Relationship")].map((r) => [r.getAttribute("Id"), r.getAttribute("Target")]));
+  const figuras = [], lineas = [];
+  for (const p of xml.getElementsByTagName("w:p")) {
+    let t = "";
+    for (const n of p.getElementsByTagName("*")) {
+      if (n.tagName === "w:t") t += n.textContent;
+      else if (n.tagName === "w:tab") t += " ";
+      else if (n.tagName === "a:blip") {
+        const ruta = destino[n.getAttribute("r:embed")];
+        const f = ruta && zip.file("word/" + ruta.replace(/^\.\//, ""));
+        const ext = (ruta || "").split(".").pop().toLowerCase();
+        if (f && ["png", "jpg", "jpeg", "gif"].includes(ext)) {
+          figuras.push(await reducirImagen(`data:image/${ext === "jpg" ? "jpeg" : ext};base64,${await f.async("base64")}`));
+          t += ` [FIGURA ${figuras.length}] `;
+        }
+      }
+    }
+    if (t.trim()) lineas.push(t.trim());
+  }
+  return { texto: lineas.join("\n"), figuras };
+}
+/** Reduce imágenes grandes (máx. 1400 px de ancho y ~300 KB) para que quepan en el examen. */
+function reducirImagen(dataUrl) {
+  if (dataUrl.length < 300_000) return Promise.resolve(dataUrl);
+  return new Promise((ok) => {
+    const img = new Image();
+    img.onload = () => {
+      const k = Math.min(1, 1400 / img.width), c = document.createElement("canvas");
+      c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
+      ok(c.toDataURL("image/jpeg", 0.85));
+    };
+    img.onerror = () => ok(dataUrl);
+    img.src = dataUrl;
+  });
+}
+
+/** Adaptar un examen de Word: estructura, test, abiertas y ejercicios (una petición cada una). */
+async function adaptarWord(estado) {
+  const fe = $("#wExamen").files[0], fs = $("#wSol").files[0];
+  if (!fe) throw new Error("elige el archivo del examen (.docx)");
+  estado("Leyendo el Word…", 0, 5);
+  const ex1 = await docxConFiguras(fe);
+  // En el solucionario no se marcan las figuras: las del examen son las que cuentan.
+  const sol = fs ? { texto: (await docxConFiguras(fs)).texto.replace(/\s*\[FIGURA \d+\]\s*/g, " ") } : { texto: "" };
+  if (ex1.texto.length < 100) throw new Error("el examen apenas tiene texto");
+  const base = { examen: ex1.texto, solucionario: sol.texto, cicloId: $("#iaCiclo").value, moduloId: $("#iaModulo").value, indicaciones: $("#iaInd").value.trim() };
+  const pedir = async (parte) => {
+    try { return await api("/api/profesor/ia/adaptar", { ...base, parte }); }
+    catch (e) {
+      if (e.status && e.status < 500 && e.status !== 429) throw e;
+      if (e.status === 429) { estado("Límite de peticiones de la IA; esperando 30 s…", 0, 5); await new Promise((ok) => setTimeout(ok, 30_000)); }
+      return api("/api/profesor/ia/adaptar", { ...base, parte });
+    }
+  };
+  estado("Analizando la estructura del examen…", 1, 5);
+  const est = await pedir("estructura");
+  estado("Pasando el test…", 2, 5);
+  const mc = (await pedir("mc")).preguntas;
+  estado("Pasando las preguntas abiertas y su rúbrica…", 3, 5);
+  const open = (await pedir("open")).preguntas;
+  estado("Pasando los ejercicios y sus resultados…", 4, 5);
+  const { ejercicios } = await pedir("num");
+  const bloques = [], num = [];
+  ejercicios.forEach((e, i) => {
+    const id = `ej${i + 1}`;
+    bloques.push({ id, titulo: e.titulo, texto: e.texto, imagen: ex1.figuras[e.figura - 1] || "" });
+    e.apartados.forEach((a) => num.push({ ...a, bloque: id }));
+  });
+  return {
+    titulo: $("#iaTitulo").value.trim() || est.titulo, subtitulo: est.subtitulo, confianza: est.confianza && mc.length > 0,
+    partes: est.partes, bloques, mc, open, num,
+    cicloId: base.cicloId, moduloId: base.moduloId, publicado: false, mostrarSoluciones: true, seguridad: true,
+    _figuras: ex1.figuras.length, _sinSol: !fs,
+  };
+}
+function rellenarModulosIA() {
+  const c = CATALOGO.find((x) => x.id === $("#iaCiclo").value);
+  $("#iaModulo").innerHTML = (c?.modulos || []).map((m) => `<option value="${esc(m.id)}">${esc(m.nombre)}</option>`).join("");
+}
+$("#iaCiclo").onchange = rellenarModulosIA;
+$("#nuevoIA").onclick = async () => {
+  IA_ARCHIVO = null; $("#iaArchivo").value = ""; $("#iaProgreso").hidden = true; $("[data-err]", $("#fIA")).hidden = true;
+  $("#iaDropTxt").textContent = "Arrastra aquí el PowerPoint (.pptx), PDF o Word (.docx), o haz clic para elegirlo";
+  $("#iaCiclo").innerHTML = CATALOGO.map((c) => `<option value="${esc(c.id)}">${esc(c.nombre)}</option>`).join("");
+  const [fc, fm] = ($("#filtroModulo").value || "/").split("/");
+  if (fc) $("#iaCiclo").value = fc;
+  rellenarModulosIA();
+  if (fm) $("#iaModulo").value = fm;
+  modoIA("tema"); $("#wExamen").value = ""; $("#wSol").value = "";
+  $("#iaGo").disabled = true;
+  const con = $("#iaConexion");
+  con.hidden = false; con.className = "msg info"; con.textContent = "Comprobando la conexión con la IA…";
+  $("#dIA").showModal();
+  const r = await api("/api/profesor/ia").catch((e) => ({ disponible: false, error: e.message }));
+  if (r.lote) IA_LOTE = r.lote;
+  $("#iaNoDisp").hidden = r.disponible;
+  if (!r.disponible) { con.hidden = true; return; }
+  if (r.ok) { con.className = "msg ok"; con.textContent = `✓ Conectado con ${r.proveedor === "gemini" ? `Gemini (${r.modelo})` : "Claude"}.`; }
+  else { con.className = "msg bad"; con.textContent = r.error || "No se ha podido conectar con la IA."; }
+  $("#iaGo").disabled = !r.ok;
+};
+const iaDrop = $("#iaDrop");
+["dragenter", "dragover"].forEach((ev) => iaDrop.addEventListener(ev, (e) => { e.preventDefault(); iaDrop.classList.add("over"); }));
+["dragleave", "drop"].forEach((ev) => iaDrop.addEventListener(ev, (e) => { e.preventDefault(); iaDrop.classList.remove("over"); }));
+const elegirIA = (f) => {
+  IA_ARCHIVO = f; $("#iaDropTxt").textContent = f.name;
+  if (!$("#iaTitulo").value.trim()) $("#iaTitulo").value = f.name.replace(/\.[^.]+$/, "").replace(/[_]+/g, " ").replace(/\s+/g, " ").trim();
+};
+iaDrop.addEventListener("drop", (e) => { if (e.dataTransfer.files[0]) elegirIA(e.dataTransfer.files[0]); });
+$("#iaArchivo").onchange = (e) => { if (e.target.files[0]) elegirIA(e.target.files[0]); };
+
+$("#fIA").onsubmit = async (ev) => {
+  ev.preventDefault();
+  const f = ev.target, err = $("[data-err]", f), btn = $("#iaGo");
+  const error = (m) => { err.textContent = m; err.hidden = false; };
+  err.hidden = true;
+  const nMc = Math.max(0, Math.min(40, Number($("#iaNmc").value) || 0)), nOpen = Math.max(0, Math.min(15, Number($("#iaNopen").value) || 0));
+  const titulo = $("#iaTitulo").value.trim();
+  if (sinModulos($("#iaCiclo").value)) return error("Este ciclo todavía no tiene módulos. Créalo antes con el botón «Módulos».");
+  if (MODO_IA === "word") {
+    btn.disabled = true; $("#iaProgreso").hidden = false;
+    const estado = (txt, h, t) => { $("#iaEstado").textContent = txt; $("#iaFill").style.width = `${(100 * h) / t}%`; };
+    try {
+      const ex = await adaptarWord(estado);
+      if (!ex.mc.length && !ex.open.length && !ex.num.length) throw new Error("la IA no ha encontrado preguntas en el documento");
+      ex.id = slug(`${ex.moduloId} ${ex.titulo}`);
+      estado("¡Listo!", 5, 5);
+      $("#dIA").close();
+      $("#archivo").value = ""; $("#dropTxt").textContent = `Adaptado con IA desde «${$("#wExamen").files[0].name}»`;
+      $("#dSubir").showModal();
+      const total = [...ex.mc, ...ex.open, ...ex.num].reduce((s, q) => s + Number(q.puntos ?? 1), 0);
+      mostrarFormulario(ex, `La IA ha adaptado el examen: <b>${ex.mc.length} preguntas tipo test</b>${ex.confianza ? " con nivel de confianza" : ""}, <b>${ex.open.length} abiertas</b> y <b>${ex.num.length} apartados de ejercicios</b> (${ex.bloques.filter((b) => b.imagen).length} con figura) · <b>${fmt(Math.round(total * 100) / 100)} puntos</b> en total.
+        <b>Revísalo</b> (despliega «Revisar las preguntas»): comprueba sobre todo las respuestas correctas y los resultados.${ex._sinSol ? ` <span style="color:var(--bad)">Sin solucionario, las respuestas las ha resuelto la IA: revísalas con especial cuidado.</span>` : ""}`);
+      delete ex._figuras; delete ex._sinSol;
+      $("#previa").open = true;
+    } catch (e) { error(`No se ha podido adaptar: ${e.message}`); }
+    finally { btn.disabled = false; }
+    return;
+  }
+  if (!IA_ARCHIVO) return error("Elige el archivo del tema.");
+  if (!titulo) return error("Escribe el título del tema.");
+  if (!nMc && !nOpen) return error("Pide al menos una pregunta.");
+
+  btn.disabled = true; $("#iaProgreso").hidden = false;
+  const estado = (txt, hechas, total) => { $("#iaEstado").textContent = txt; $("#iaFill").style.width = `${total ? (100 * hechas) / total : 5}%`; };
+  try {
+    estado("Leyendo el archivo…", 0, 0);
+    const material = (await textoDeArchivo(IA_ARCHIVO)).trim();
+    if (material.length < 200) throw new Error("el archivo apenas tiene texto (¿diapositivas solo con imágenes?)");
+
+    // Lotes pequeños: cada petición tarda poco.
+    const plan = [];
+    const L = IA_LOTE;
+    for (let i = 0, lotes = Math.ceil(nMc / L.mc); i < lotes; i++) plan.push({ tipo: "mc", n: Math.min(L.mc, nMc - i * L.mc), lote: i + 1, lotes });
+    for (let i = 0, lotes = Math.ceil(nOpen / L.open); i < lotes; i++) plan.push({ tipo: "open", n: Math.min(L.open, nOpen - i * L.open), lote: i + 1, lotes });
+    const ex = { titulo, subtitulo: "", cicloId: $("#iaCiclo").value, moduloId: $("#iaModulo").value, mc: [], open: [], publicado: false, mostrarSoluciones: true };
+    const total = nMc + nOpen;
+    let avisos = "";
+    for (const paso of plan) {
+      const hechas = ex.mc.length + ex.open.length;
+      estado(`Generando ${paso.tipo === "mc" ? "preguntas tipo test" : "preguntas abiertas"}… (${hechas} de ${total})`, hechas, total);
+      const cuerpo = { ...paso, material, titulo, cicloId: ex.cicloId, moduloId: ex.moduloId, indicaciones: $("#iaInd").value.trim(),
+        ya: [...ex.mc, ...ex.open].map((q) => q.t) };
+      let r;
+      try { r = await api("/api/profesor/ia/preguntas", cuerpo); }
+      catch (e1) {
+        if (e1.status && e1.status < 500 && e1.status !== 429) throw e1;
+        estado(e1.status === 429 ? "Límite de peticiones de la IA; esperando 30 s…" : "La IA ha tardado demasiado; reintentando…", hechas, total);
+        if (e1.status === 429) await new Promise((ok) => setTimeout(ok, 30_000));
+        // Tras un límite de peticiones se repite igual; tras un tiempo excedido, con la mitad de preguntas.
+        try { r = await api("/api/profesor/ia/preguntas", e1.status === 429 ? cuerpo : { ...cuerpo, n: Math.max(1, Math.ceil(paso.n / 2)) }); }
+        catch (e2) { avisos = `Algún lote ha fallado (${e2.message}); revisa si faltan preguntas.`; continue; }
+      }
+      ex[paso.tipo].push(...r.preguntas);
+    }
+    if (!ex.mc.length && !ex.open.length) throw new Error(avisos || "la IA no ha devuelto preguntas");
+    estado("¡Listo!", total, total);
+    ex.id = slug(`${ex.moduloId} ${titulo}`);
+    $("#dIA").close();
+    $("#archivo").value = ""; $("#dropTxt").textContent = `Generado con IA a partir de «${IA_ARCHIVO.name}»`;
+    $("#dSubir").showModal();
+    mostrarFormulario(ex, `La IA ha generado <b>${ex.mc.length} preguntas tipo test</b> y <b>${ex.open.length} abiertas</b>. <b>Revísalas</b> (despliega «Revisar las preguntas»), quita las que no te convenzan y guarda. Se guardará sin publicar.${avisos ? `<br><span style="color:var(--bad)">${esc(avisos)}</span>` : ""}`);
+    $("#previa").open = true;
+  } catch (e) {
+    error(`No se ha podido generar: ${e.message}`);
+  } finally {
+    btn.disabled = false;
+  }
+};
+
+function comprobarId() { $("#eSobreWrap").hidden = !EXAMENES.some((e) => e.id === $("#eId").value.trim()); }
+$("#eId").oninput = comprobarId;
+$("#fExamen").onsubmit = async (ev) => {
+  ev.preventDefault();
+  const f = ev.target, err = $("[data-err]", f); err.hidden = true;
+  if (sinModulos($("#eCiclo").value)) { err.textContent = "Este ciclo todavía no tiene módulos. Créalo antes con el botón «Módulos»."; err.hidden = false; return; }
+  const btn = $("button[type=submit]", f); btn.disabled = true;
+  try {
+    await api("/api/profesor/examen", {
+      ...IMPORT, id: $("#eId").value.trim(), titulo: $("#eTitulo").value.trim(), subtitulo: $("#eSub").value.trim(),
+      cicloId: $("#eCiclo").value, moduloId: $("#eModulo").value, orden: Number($("#eOrden").value) || 0,
+      publicado: $("#ePub").checked, mostrarSoluciones: $("#eSol").checked, seguridad: $("#eSeg").checked, sobrescribir: $("#eSobre").checked,
+    });
+    $("#dSubir").close(); cargarExamenes();
+  } catch (e) { err.textContent = e.message; err.hidden = false; }
+  finally { btn.disabled = false; }
+};
+
+/* ── Alumnos ── */
+async function cargarAlumnos() {
+  ({ alumnos: ALUMNOS, grupos: GRUPOS } = await api("/api/profesor/alumnos"));
+  pintarAlumnos();
+}
+$("#buscar").oninput = pintarAlumnos;
+function pintarAlumnos() {
+  const q = $("#buscar").value.trim().toLowerCase();
+  const lista = ALUMNOS.filter((a) => !q || `${a.nombre} ${a.apellidos} ${a.email} ${a.grupo}`.toLowerCase().includes(q));
+  if (!lista.length) { $("#tablaAlumnos").innerHTML = `<div class="empty">${ALUMNOS.length ? "Ningún alumno coincide con la búsqueda." : "Todavía no se ha registrado nadie."}</div>`; return; }
+  $("#tablaAlumnos").innerHTML = `<p class="muted">${lista.length} cuentas</p><div class="tablewrap"><table class="t"><thead><tr><th>Alumno/a</th><th>Grupo (define su ciclo)</th><th>Estado</th><th>Alta</th><th></th></tr></thead><tbody>
+    ${lista.map((a) => `<tr data-email="${esc(a.email)}">
+      <td><b>${esc(a.apellidos)}, ${esc(a.nombre)}</b> ${a.profesor ? `<span class="chip">Profesor</span>` : ""}<div class="muted" style="font-size:13px">${esc(a.email)}</div></td>
+      <td>${a.profesor ? esc(a.grupo) : `<select data-grupo style="width:auto;padding:6px 10px;font-size:14px">
+        ${GRUPOS.some((g) => g.grupo === a.grupo) ? "" : `<option value="" selected>${esc(a.grupo || "—")} (${a.cicloId ? "ciclo " + esc(a.cicloId.toUpperCase()) : "sin ciclo"})</option>`}
+        ${GRUPOS.map((g) => `<option ${g.grupo === a.grupo ? "selected" : ""}>${esc(g.grupo)}</option>`).join("")}</select>`}</td>
+      <td>${a.verificado ? `<span class="chip ok">Activa</span>` : `<span class="chip gray">Sin confirmar</span> <button class="btn ghost sm" data-activar>Activar</button>`}</td>
+      <td style="white-space:nowrap">${fecha(a.creado)}</td>
+      <td>${a.profesor ? "" : `<button class="btn danger sm" data-borrar>Borrar</button>`}</td></tr>`).join("")}</tbody></table></div>`;
+  $$("[data-grupo]").forEach((i) => (i.onchange = async () => {
+    if (!i.value) return;
+    try { await api("/api/profesor/alumno", { email: i.closest("tr").dataset.email, grupo: i.value }); i.style.borderColor = "var(--ok)"; }
+    catch (e) { alert(e.message); }
+  }));
+  $$("[data-activar]").forEach((b) => (b.onclick = async () => {
+    try { await api("/api/profesor/alumno", { email: b.closest("tr").dataset.email, verificado: true }); cargarAlumnos(); } catch (e) { alert(e.message); }
+  }));
+  $$("#tablaAlumnos [data-borrar]").forEach((b) => (b.onclick = async () => {
+    const email = b.closest("tr").dataset.email;
+    if (!confirm(`¿Borrar la cuenta ${email}?\n\nSus entregas se conservan. Podrá registrarse de nuevo.`)) return;
+    try { await api("/api/profesor/alumno/borrar", { email }); cargarAlumnos(); } catch (e) { alert(e.message); }
+  }));
+}
+
+(async () => {
+  const yo = await cabecera({ ciclo: "Profesor" });
+  if (yo.rol !== "profesor") { location.replace("/panel/"); return; }
+  $(".tag").textContent = yo.admin ? "Admin" : "Profesor";
+  if (yo.admin) {
+    $("[data-tab=vProfes]").hidden = false; $("[data-tab=vCentro]").hidden = false;
+    api("/api/admin/profesores").then(({ profesores }) => { const n = profesores.filter((p) => !p.aprobado).length; $("#nPend").hidden = !n; $("#nPend").textContent = n; }).catch(() => {});
+  } else {
+    $("#subPanel").innerHTML = `Tus ciclos: <b>${esc(CATALOGO_NOMBRES(yo.ciclos))}</b> · crea y publica exámenes, revisa entregas y gestiona tus grupos.`;
+  }
+  await cargarExamenes();
+  // Primera vez: el administrador configura el centro antes de nada.
+  if (yo.admin && !CATALOGO.length) { $("#bienvenida").hidden = false; $("[data-tab=vCentro]").click(); }
+})().catch((e) => { $("#tablaExamenes").innerHTML = `<div class="msg bad">${esc(e.message)}</div>`; });
+</script>
+</body>
+</html>
