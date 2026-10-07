@@ -17,7 +17,7 @@
   .panel-marca{position:relative;background:#1F2430;color:#EEF0F3;padding:48px 56px;display:flex;flex-direction:column;overflow:hidden}
   .panel-marca::after{content:"";position:absolute;right:-180px;bottom:-180px;width:520px;height:520px;border-radius:50%;
     border:1px solid rgba(230,165,127,.18);box-shadow:0 0 0 60px rgba(230,165,127,.04),0 0 0 120px rgba(169,202,187,.03)}
-  .panel-marca .brand .ey{color:#A5ADB9} .panel-marca .brand .nm{color:#fff}
+  .panel-marca .brand .ey{color:#A5ADB9} .panel-marca .brand .nm{color:#fff} .panel-marca .brand .wm{color:#9CC0EA}
   .panel-marca h1{font-size:44px;line-height:1.08;letter-spacing:-.035em;margin:auto 0 14px;max-width:14ch;color:#fff}
   .panel-marca h1 em{font-style:normal;background:linear-gradient(90deg,#EFCD2F,#E39F7D);-webkit-background-clip:text;background-clip:text;color:transparent}
   .panel-marca .lead{color:#C4CAD3;font-size:16.5px;max-width:46ch;margin:0 0 30px}
@@ -131,7 +131,7 @@
 
 <script src="/assets/app.js"></script>
 <script>
-$("#brand").innerHTML = `${LOGO}<div><div class="ey">Plataforma de exámenes</div><div class="nm">Examentia <span class="tag">Exámenes</span></div></div>`;
+$("#brand").innerHTML = `${LOGO}<div><div class="ey">Plataforma de exámenes</div><div class="nm"><span class="wm">Examentia</span> <span class="tag">Exámenes</span></div></div>`;
 
 const volver = (() => {
   const v = new URLSearchParams(location.search).get("volver") || "";

@@ -5,7 +5,7 @@ const LETRAS = ["a", "b", "c", "d", "e"];
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 const fmt = (n) => Number(n).toLocaleString("es-ES");
 
-const LOGO = `<svg viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" rx="24" fill="#E6A57F"/><path d="M26 52 L43 68 L75 34" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const LOGO = `<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M22 40 H78 V60 C78 74 66 84 50 93 C34 84 22 74 22 60 Z" fill="#2F5F94"/><path d="M50 8 L96 26 L50 44 L4 26 Z" fill="#3D6FA6" stroke="#fff" stroke-width="3.5" stroke-linejoin="round"/><path d="M13 30 V50" stroke="#2F5F94" stroke-width="3" stroke-linecap="round"/><path d="M10 56 L13 47 L16 56 Z" fill="#2F5F94"/><path d="M33 61 L46 73 L86 30" fill="none" stroke="#fff" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/><path d="M33 61 L46 73 L86 30" fill="none" stroke="#2F5F94" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
 /** Llamada a la API. Lanza Error con el mensaje del servidor. 401 → al inicio. */
 async function api(ruta, cuerpo, { redirigir401 = true } = {}) {
@@ -30,7 +30,7 @@ async function cabecera({ ciclo = "Exámenes" } = {}) {
   const enProfe = location.pathname.startsWith("/profesor");
   $("#head").innerHTML = `
     <a class="brand" href="${usuario.rol === "profesor" && enProfe ? "/profesor/" : "/panel/"}">${LOGO}<div><div class="ey">${esc(centro && centro !== "Examentia" ? centro : "Plataforma de exámenes")}</div>
-      <div class="nm">Examentia <span class="tag">${esc(ciclo)}</span></div></div></a>
+      <div class="nm"><span class="wm">Examentia</span> <span class="tag">${esc(ciclo)}</span></div></div></a>
     <div class="who">
       <div class="user"><span class="avatar" aria-hidden="true">${esc(iniciales)}</span>
         <span><b>${esc(usuario.nombre)} ${esc(usuario.apellidos)}</b><small>${esc(rol)}</small></span></div>

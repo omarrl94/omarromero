@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════════════════
    Examentia — sistema de diseño
-   Marca: amarillo · verde · salmón (franja superior y acentos).
+   Logo y nombre en azul (--marca). Paleta: amarillo · verde · salmón (franja superior y acentos).
    Base sobria: grafito para la acción principal, neutros fríos y
    tarjetas blancas con borde fino. Modo claro y oscuro.
    ════════════════════════════════════════════════════════════════ */
@@ -10,6 +10,7 @@
   --verde:#A9CABB;    --verde-soft:#EAF3EE;    --verde-ink:#2D4A3E;
   --salmon:#E39F7D;   --salmon-soft:#FBEDE5;   --salmon-ink:#7A3F22;
   --grafito:#1F2430;
+  --marca:#2F5F94; /* azul del logo de Examentia */
   /* Superficies y texto */
   --bg:#F5F6F8; --card:#FFFFFF; --sunken:#F0F2F5; --fg:#1F2430; --muted:#5D6573; --faint:#8A919C;
   --border:#E3E6EA; --border-strong:#CDD2D9;
@@ -26,7 +27,7 @@
   --mono:'Geist Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-  --amarillo-soft:#3A3212; --amarillo-ink:#F4DE7A; --verde-soft:#1E3129; --verde-ink:#BFD9CC; --salmon-soft:#3A2419; --salmon-ink:#F2C4AC;
+  --marca:#9CC0EA; --amarillo-soft:#3A3212; --amarillo-ink:#F4DE7A; --verde-soft:#1E3129; --verde-ink:#BFD9CC; --salmon-soft:#3A2419; --salmon-ink:#F2C4AC;
   --bg:#12151A; --card:#1B1F27; --sunken:#161A21; --fg:#EEF0F3; --muted:#A5ADB9; --faint:#7D8590; --border:#2C323D; --border-strong:#3C4350;
   --primary:#EEF0F3; --primary-fg:#12151A; --primary-hover:#FFFFFF;
   --ok:#5CC08A; --ok-soft:#173325; --bad:#F07A6B; --bad-soft:#3A1D19; --warn:#E8B649; --warn-soft:#352A10;
@@ -34,7 +35,7 @@
   color-scheme:dark;
 }}
 :root[data-theme="dark"]{
-  --amarillo-soft:#3A3212; --amarillo-ink:#F4DE7A; --verde-soft:#1E3129; --verde-ink:#BFD9CC; --salmon-soft:#3A2419; --salmon-ink:#F2C4AC;
+  --marca:#9CC0EA; --amarillo-soft:#3A3212; --amarillo-ink:#F4DE7A; --verde-soft:#1E3129; --verde-ink:#BFD9CC; --salmon-soft:#3A2419; --salmon-ink:#F2C4AC;
   --bg:#12151A; --card:#1B1F27; --sunken:#161A21; --fg:#EEF0F3; --muted:#A5ADB9; --faint:#7D8590; --border:#2C323D; --border-strong:#3C4350;
   --primary:#EEF0F3; --primary-fg:#12151A; --primary-hover:#FFFFFF;
   --ok:#5CC08A; --ok-soft:#173325; --bad:#F07A6B; --bad-soft:#3A1D19; --warn:#E8B649; --warn-soft:#352A10;
@@ -57,7 +58,8 @@ code{font-family:var(--mono);font-size:.88em;background:var(--sunken);border:1px
 .appbar{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--card) 92%,transparent);backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid var(--border)}
 .appbar-in{max-width:1180px;margin:0 auto;padding:0 20px;height:64px;display:flex;align-items:center;justify-content:space-between;gap:16px}
 .brand{display:flex;align-items:center;gap:11px;text-decoration:none;min-width:0}
-.brand svg{width:36px;height:36px;flex:none}
+.brand svg{width:38px;height:38px;flex:none;background:#fff;border-radius:10px;padding:3px}
+.brand .wm{color:var(--marca);text-transform:uppercase;letter-spacing:.06em;font-weight:800}
 .brand .ey{font-size:10.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);line-height:1.2}
 .brand .nm{font-size:15px;font-weight:750;letter-spacing:-.01em;display:flex;align-items:center;gap:8px;line-height:1.25;white-space:nowrap}
 .tag{font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;background:var(--amarillo);color:#2B2305;padding:2px 7px;border-radius:5px}
