@@ -8,20 +8,77 @@ const norm = (s) =>
 const r2 = (x) => Math.round(x * 100) / 100;
 const pts = (q) => q.puntos ?? 1;
 
+/* ── Respuestas escritas: búsqueda de conceptos clave ─────────
+ * La respuesta se trocea en palabras (sin tildes ni signos) y cada raíz
+ * de un concepto se busca así:
+ *  · 1-2 letras («ia»): palabra exacta.
+ *  · 3 letras («ssl»): principio de palabra.
+ *  · 4 o más («cifr»): dentro de una palabra («descifrar»).
+ *  · 5 o más: además se perdona una errata (dos si tiene 9 o más letras):
+ *    «encritpación» encuentra «encript».
+ * Las raíces de varias palabras («sin etiquet») deben aparecer en orden,
+ * con como mucho dos palabras de separación («sin ninguna etiqueta»).
+ */
+const palabras = (s) => norm(s).replace(/[^a-z0-9ñ]+/g, " ").trim().split(" ").filter(Boolean);
+
+/** Distancia de edición con trasposiciones (Damerau), cortando en cuanto supera `max`. */
+function distancia(a, b, max) {
+  if (Math.abs(a.length - b.length) > max) return max + 1;
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i]);
+  for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++) {
+    let minFila = Infinity;
+    for (let j = 1; j <= b.length; j++) {
+      const c = a[i - 1] === b[j - 1] ? 0 : 1;
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + c);
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+      minFila = Math.min(minFila, d[i][j]);
+    }
+    if (minFila > max) return max + 1;
+  }
+  return d[a.length][b.length];
+}
+
+function palabraCoincide(t, w) {
+  if (w.length <= 2) return t === w;
+  if (w.length === 3) return t.startsWith(w);
+  if (t.includes(w)) return true;
+  if (w.length < 5) return false;
+  const max = w.length >= 9 ? 2 : 1;
+  // La raíz es el principio de la palabra: se compara con el principio (de la misma longitud ±1).
+  for (const n of [w.length - 1, w.length, w.length + 1]) {
+    if (n <= t.length && distancia(t.slice(0, n), w, max) <= max) return true;
+  }
+  return t.length < w.length && t.length >= w.length - max && distancia(t, w, max) <= max;
+}
+
+/** ¿Aparece la raíz (de una o varias palabras) en la respuesta ya troceada? */
+export function contieneRaiz(tokens, raiz) {
+  const ws = palabras(raiz);
+  if (!ws.length) return false;
+  const buscar = (k, desde, hasta) => {
+    for (let p = desde; p < Math.min(tokens.length, hasta); p++) {
+      if (palabraCoincide(tokens[p], ws[k]) && (k === ws.length - 1 || buscar(k + 1, p + 1, p + 4))) return true;
+    }
+    return false;
+  };
+  return buscar(0, 0, tokens.length);
+}
+
 /** Abiertas: conceptos clave. Con rúbrica (`pesos`) suma los puntos de cada concepto mencionado. */
-function puntuarAbierta(respuesta, q) {
-  const t = norm(respuesta);
+export function puntuarAbierta(respuesta, q) {
   const p = pts(q);
-  if (t.trim().length < 3) return { v: "none", pts: 0 };
-  const hechos = q.groups.map((g) => g.some((s) => t.includes(norm(s))));
+  const tokens = palabras(respuesta);
+  const hechos = q.groups.map((g) => tokens.length > 0 && g.some((s) => contieneRaiz(tokens, s)));
+  if (norm(respuesta).trim().length < 3) return { v: "none", pts: 0, hechos };
   if (q.pesos) {
     const suma = Math.min(p, hechos.reduce((s, h, i) => s + (h ? q.pesos[i] : 0), 0));
-    return { v: suma >= p - 1e-9 ? "full" : suma > 0 ? "partial" : "none", pts: r2(suma) };
+    return { v: suma >= p - 1e-9 ? "full" : suma > 0 ? "partial" : "none", pts: r2(suma), hechos };
   }
   const m = hechos.filter(Boolean).length;
-  if (m >= q.full) return { v: "full", pts: p };
-  if (m >= q.partial) return { v: "partial", pts: p / 2 };
-  return { v: "none", pts: 0 };
+  if (m >= q.full) return { v: "full", pts: p, hechos };
+  if (m >= q.partial) return { v: "partial", pts: p / 2, hechos };
+  return { v: "none", pts: 0, hechos };
 }
 
 /* ── Números escritos por el alumno ───────────────────────────

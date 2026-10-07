@@ -358,3 +358,39 @@ export async function adaptarParte({ parte, examen, solucionario = "", indicacio
   console.log(JSON.stringify({ evento: "ia-adaptar", proveedor: proveedorIA(), parte, uso: datos._uso }));
   return r;
 }
+
+/* ════════════════════════════════════════════════════════════════
+ * Sugerencia de corrección de respuestas escritas (la pide el profesor).
+ * Nunca se aplica sola: el profesor la ve y decide si la acepta.
+ * ════════════════════════════════════════════════════════════════ */
+const SISTEMA_CORREGIR = `Eres profesor de Formación Profesional en un centro de España y corriges respuestas escritas de alumnos a una pregunta de examen.
+
+Para cada respuesta decide:
+- "full": responde correctamente a lo que se pregunta y recoge lo esencial de la respuesta modelo, aunque lo diga con otras palabras, de forma más breve o con faltas de ortografía.
+- "partial": va bien encaminada pero está incompleta, es imprecisa o mezcla algo correcto con algún error.
+- "none": está en blanco, no responde a la pregunta, es incorrecta o solo repite el enunciado.
+No valores la ortografía ni el estilo, solo el contenido. Los conceptos clave son orientativos: una respuesta correcta expresada con otras palabras es "full".
+El "motivo" es una frase corta (máximo 20 palabras) dirigida al profesor que justifica la decisión.`;
+
+const ESQUEMA_CORREGIR = objeto({
+  correcciones: lista(objeto({ ref: { type: "string" }, veredicto: { type: "string", enum: ["full", "partial", "none"] }, motivo: { type: "string" } })),
+});
+const ESQUEMA_CORREGIR_G = gObj({
+  correcciones: gArr(gObj({ ref: G.s, veredicto: { type: "STRING", enum: ["full", "partial", "none"] }, motivo: G.s })),
+});
+
+/** respuestas: [{ ref, texto }] → [{ ref, v, motivo }] */
+export async function sugerirCorreccion({ pregunta, modelo = "", conceptos = [], respuestas }) {
+  if (!iaDisponible()) fallo(503, "Falta configurar GEMINI_API_KEY en Netlify para usar la IA.");
+  const material = `<pregunta>\n${pregunta}\n</pregunta>\n<respuesta_modelo>\n${modelo || "(no hay; usa tu criterio)"}\n</respuesta_modelo>\n<conceptos_clave>\n${conceptos.join("\n") || "(no hay)"}\n</conceptos_clave>`;
+  const instruccion = `Corrige estas ${respuestas.length} respuestas. Devuelve una corrección por cada una, con el mismo "ref".\n\n` +
+    respuestas.map((r) => `<respuesta ref="${r.ref}">\n${r.texto || "(en blanco)"}\n</respuesta>`).join("\n");
+  const datos = proveedorIA() === "gemini"
+    ? await pedirGemini("corregir", material, instruccion, { sistema: SISTEMA_CORREGIR, esquemaG: ESQUEMA_CORREGIR_G, temperatura: 0 })
+    : await pedirClaude("corregir", material, instruccion, { sistema: SISTEMA_CORREGIR, esquema: ESQUEMA_CORREGIR });
+  console.log(JSON.stringify({ evento: "ia-corregir", proveedor: proveedorIA(), n: respuestas.length, uso: datos._uso }));
+  const refs = new Set(respuestas.map((r) => r.ref));
+  return (datos.correcciones || [])
+    .filter((c) => refs.has(c.ref) && ["full", "partial", "none"].includes(c.veredicto))
+    .map((c) => ({ ref: c.ref, v: c.veredicto, motivo: String(c.motivo || "").trim().slice(0, 300) }));
+}

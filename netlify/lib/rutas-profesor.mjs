@@ -8,11 +8,11 @@ import { requiereProfesor, esAdmin, rolDe, ciclosDe, gestionaCiclo, gestionaExam
 import { todosLosExamenes, obtenerExamen, validarExamen, resumen, intentosValidos } from "./examenes.mjs";
 import {
   claveEntrega, vistaEntrega, partesDe, historialDe, intentosHechos, intentosPermitidos,
-  consolidar, conIntento, validarAjustes, resultadoCon,
+  consolidar, conIntento, validarAjustes, resultadoCon, puntuarPregunta, porRevisar,
 } from "./entregas.mjs";
 import { proveedorConfigurado } from "./correo.mjs";
 import { CATALOGO, GRUPOS, cicloDe, buscarModulo, crearModulo, borrarModulo } from "./catalogo.mjs";
-import { iaDisponible, generarLote, proveedorIA, tamLote, comprobarIA, adaptarParte } from "./ia.mjs";
+import { iaDisponible, generarLote, proveedorIA, tamLote, comprobarIA, adaptarParte, sugerirCorreccion } from "./ia.mjs";
 
 const examenes = () => almacen("examenes");
 const entregas = () => almacen("entregas");
@@ -127,6 +127,7 @@ async function filasEntregas(ex) {
     partes: partesDe(e), fecha: e.fecha, fechaTexto: e.fechaTexto,
     salidas: prog[e.email]?.salidas?.length ?? e.salidas ?? 0,
     finalizadoPorSalida: e.finalizadoPorSalida || "",
+    porRevisar: porRevisar(e),
     ...intentosFila(ex, e, prog[e.email]),
   }));
   const entregados = new Set(es.map((e) => e.email));
@@ -216,6 +217,84 @@ async function reabrir(req) {
   const k = claveEntrega(ex.id, String(b.email || "").toLowerCase());
   await Promise.all([entregas().del(k), progreso().del(k)]);
   return json({ ok: true });
+}
+
+/* ── Revisión rápida de respuestas escritas ── */
+
+/** Todas las respuestas escritas y de ejercicios de un examen, para revisarlas pregunta a pregunta. */
+async function respuestas(req, url) {
+  const u = await requiereProfesor(req);
+  const ex = await existente(url.searchParams.get("id"), u);
+  const es = await entregas().list(ex.id + "/").then((k) => leerTodas(entregas(), k));
+  const filas = [];
+  for (const e of es) {
+    historialDe(e).forEach((x, n) => {
+      const r = x.resultado, a = x.ajustes || {};
+      filas.push({
+        email: e.email, nombre: e.nombre, apellidos: e.apellidos, grupo: e.grupo,
+        intento: n + 1, intentos: historialDe(e).length, vigente: n === (e.vigente ?? 0),
+        nota: x.resultado.nota, notaProfesor: x.notaProfesor ?? null,
+        open: x.examen.open.map((q, i) => ({
+          texto: x.respuestas.open[i] || "", v: r.opRev[i].v, pts: r.opRev[i].pts ?? 0, max: q.puntos ?? 1,
+          hechos: r.opRev[i].hechos || null, revisada: a.open?.[i] != null, blanco: !String(x.respuestas.open[i] || "").trim(),
+        })),
+        num: (x.examen.num || []).map((q, i) => ({
+          campos: q.campos.map((c, j) => ({
+            resp: c.tipo === "opcion" ? (x.respuestas.num?.[i]?.[j] >= 0 ? c.opciones[x.respuestas.num[i][j]] : "") : String(x.respuestas.num?.[i]?.[j] ?? ""),
+            ok: !!r.numRev?.[i]?.campos[j]?.ok,
+          })),
+          pts: r.numRev?.[i]?.pts ?? 0, max: q.puntos ?? 1, revisada: a.num?.[i] != null,
+        })),
+      });
+    });
+  }
+  filas.sort((a, b) => `${a.grupo} ${a.apellidos} ${a.nombre}`.localeCompare(`${b.grupo} ${b.apellidos} ${b.nombre}`, "es") || a.intento - b.intento);
+  return json({
+    examen: {
+      id: ex.id, titulo: ex.titulo, confianza: !!ex.confianza,
+      open: ex.open.map((q) => ({ t: q.t, act: q.act || "", exp: q.exp || "", puntos: q.puntos ?? 1, conceptos: q.groups.map((g) => g[0]) })),
+      num: (ex.num || []).map((q) => ({
+        t: q.t, puntos: q.puntos ?? 1,
+        campos: q.campos.map((c) => ({ etiqueta: c.etiqueta, correcto: c.tipo === "opcion" ? c.opciones[c.correcta] : `${c.valor} ${c.unidad || ""}`.trim() })),
+      })),
+    },
+    ia: iaDisponible(),
+    filas,
+  });
+}
+
+/** Válida / medio válida / no válida (o «auto») en una pregunta de un intento. Se guarda al momento. */
+async function puntuar(req) {
+  const u = await requiereProfesor(req);
+  const b = await leerCuerpo(req);
+  const { k, e } = await entregaPermitida(b.id, b.email, u);
+  const ex = await obtenerExamen(e.examen.id);
+  const i = Number(b.i);
+  if (!Number.isInteger(i) || i < 0) fallo(400, "Pregunta no válida");
+  puntuarPregunta(e, b.intento == null ? null : Number(b.intento) - 1, String(b.k), i, String(b.valor), ex?.calificacion);
+  await entregas().set(k, e);
+  const x = historialDe(e)[b.intento == null ? e.vigente : Number(b.intento) - 1];
+  const rev = b.k === "num" ? x.resultado.numRev[i] : b.k === "mc" ? x.resultado.mcRev[i] : x.resultado.opRev[i];
+  return json({ ok: true, pts: rev.pts, notaIntento: x.resultado.nota, notaFinal: e.notaProfesor ?? e.resultado.nota, porRevisar: porRevisar(e) });
+}
+
+/** La IA propone cómo corregir las respuestas de una pregunta abierta. No guarda nada. */
+async function iaCorregir(req) {
+  const u = await requiereProfesor(req);
+  const b = await leerCuerpo(req, 200_000);
+  const ex = await existente(b.id, u);
+  const i = Number(b.i), q = ex.open[i];
+  if (!q) fallo(400, "Pregunta no válida");
+  const pedidas = (Array.isArray(b.refs) ? b.refs : []).slice(0, 40);
+  const respuestas = [];
+  for (const r of pedidas) {
+    const e = await entregas().get(claveEntrega(ex.id, String(r.email || "").toLowerCase()));
+    const x = historialDe(e)[Number(r.intento) - 1];
+    if (x && x.examen.open[i]?.t === q.t) respuestas.push({ ref: `${e.email}#${r.intento}`, texto: String(x.respuestas.open[i] || "").slice(0, 3000) });
+  }
+  if (!respuestas.length) return json({ sugerencias: [] });
+  const sugerencias = await sugerirCorreccion({ pregunta: q.t, modelo: q.exp, conceptos: q.groups.map((g) => g.join(", ")), respuestas });
+  return json({ sugerencias });
 }
 
 /** Da (o quita) intentos extra a un alumno en un examen. */
@@ -376,6 +455,9 @@ export default {
   "POST /api/profesor/entrega/revisar": revisar,
   "POST /api/profesor/entrega/reabrir": reabrir,
   "POST /api/profesor/entrega/intento-extra": intentoExtra,
+  "GET /api/profesor/respuestas": respuestas,
+  "POST /api/profesor/entrega/puntuar": puntuar,
+  "POST /api/profesor/ia/corregir": iaCorregir,
   "POST /api/profesor/entrega/borrar-intento": borrarIntento,
   "GET /api/profesor/alumnos": alumnos,
   "POST /api/profesor/alumno": editarAlumno,

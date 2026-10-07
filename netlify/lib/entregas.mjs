@@ -73,6 +73,8 @@ export function resultadoCon(ex, respuestas, ajustes) {
   if (!ajustes) return r;
   const aplica = (lista, k) => lista.forEach((x, i) => { if (ajustes[k]?.[i] != null) { x.pts = ajustes[k][i]; x.ajustado = true; } });
   aplica(r.mcRev, "mc"); aplica(r.opRev, "open"); aplica(r.numRev, "num");
+  // En las abiertas, el veredicto que ve el alumno pasa a ser el del profesor.
+  r.opRev.forEach((x, i) => { if (x.ajustado) { const max = ex.open[i].puntos ?? 1; x.v = x.pts >= max - 1e-9 ? "full" : x.pts > 0 ? "partial" : "none"; } });
   const suma = (l) => l.reduce((s, x) => s + x.pts, 0);
   r.partes.mc.pts = r2(Math.max(0, suma(r.mcRev)));
   r.partes.open.pts = r2(suma(r.opRev));
@@ -120,10 +122,46 @@ export function vistaEntrega(e, { soluciones }) {
       num: (e.resultado.numRev || []).map((r) => r.pts),
     },
     mc: soluciones ? ex.mc.map((q, i) => ({ correcta: q.c, ok: e.resultado.mcRev[i].ok, exp: q.exp || "" })) : null,
-    open: soluciones ? ex.open.map((q, i) => ({ v: e.resultado.opRev[i].v, exp: q.exp })) : null,
+    open: soluciones ? ex.open.map((q, i) => ({
+      v: e.resultado.opRev[i].v, exp: q.exp, profesor: !!e.resultado.opRev[i].ajustado,
+      conceptos: q.groups.map((g) => g[0]), hechos: e.resultado.opRev[i].hechos || null,
+    })) : null,
     num: soluciones ? (ex.num || []).map((q, i) => ({
       exp: q.exp || "",
       campos: q.campos.map((c, j) => ({ ok: e.resultado.numRev[i].campos[j].ok, valor: c.tipo === "opcion" ? c.opciones[c.correcta] : c.valor, unidad: c.unidad || "" })),
     })) : null,
   };
+}
+
+/**
+ * El profesor marca una pregunta como válida, medio válida o no válida
+ * (o la devuelve a la corrección automática con `valor: "auto"`).
+ * Devuelve la entrega ya recalculada.
+ */
+export const VALORES = { full: 1, partial: 0.5, none: 0 };
+export function puntuarPregunta(e, intento, k, i, valor, calificacion) {
+  const h = historialDe(e).map((x) => ({ ...x }));
+  const n = intento == null ? e.vigente ?? 0 : intento;
+  const x = h[n];
+  if (!x) fallo(404, "Ese intento no existe");
+  const lista = k === "num" ? x.examen.num || [] : x.examen[k];
+  const q = lista?.[i];
+  if (!q || !["open", "num", "mc"].includes(k)) fallo(400, "Pregunta no válida");
+  const aj = JSON.parse(JSON.stringify(x.ajustes || {}));
+  if (valor === "auto") { if (aj[k]) delete aj[k][i]; }
+  else if (valor in VALORES) (aj[k] ||= {})[i] = r2((q.puntos ?? 1) * VALORES[valor]);
+  else fallo(400, "Valor no válido");
+  if (aj[k] && !Object.keys(aj[k]).length) delete aj[k];
+  const limpio = Object.keys(aj).length ? aj : null;
+  if (limpio) x.ajustes = limpio; else delete x.ajustes;
+  x.resultado = resultadoCon(x.examen, x.respuestas, limpio);
+  return consolidar(e, h, calificacion);
+}
+
+/** Cuántas respuestas escritas y de ejercicios del intento que cuenta faltan por revisar. */
+export function porRevisar(e) {
+  if (!e?.examen) return 0;
+  const a = e.ajustes || {};
+  // Las que están en blanco no hace falta revisarlas (valen 0).
+  return e.examen.open.filter((_, i) => a.open?.[i] == null && String(e.respuestas?.open?.[i] || "").trim()).length;
 }

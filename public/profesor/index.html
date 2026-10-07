@@ -37,9 +37,20 @@
   <section id="vEntregas" hidden>
     <div class="toolbar">
       <div><button class="link" id="atras">← Volver a exámenes</button><h2 id="entTitulo" style="margin-top:6px"></h2></div>
-      <div class="acts"><select id="filtroGrupo" style="width:auto"></select><a class="btn ghost" id="csv">⬇ Exportar notas (Excel)</a></div>
+      <div class="acts"><button class="btn accent" id="revisarResp" hidden>✍ Revisar respuestas</button><select id="filtroGrupo" style="width:auto"></select><a class="btn ghost" id="csv">⬇ Exportar notas (Excel)</a></div>
     </div>
     <div id="tablaEntregas"></div>
+  </section>
+
+  <!-- Revisión rápida de respuestas escritas -->
+  <section id="vRespuestas" hidden>
+    <div class="toolbar">
+      <div><button class="link" id="atrasResp">← Volver a las entregas</button><h2 id="respTitulo" style="margin-top:6px"></h2></div>
+      <div class="acts"><label class="check" style="font-size:14px"><input type="checkbox" id="soloPend" checked> Solo sin revisar</label></div>
+    </div>
+    <div class="qtabs" id="respPreguntas" role="tablist" aria-label="Preguntas"></div>
+    <div id="respPregunta"></div>
+    <div id="respLista"></div>
   </section>
 
   <!-- Profesores (solo administrador) -->
@@ -173,7 +184,7 @@ $$("dialog [data-close]").forEach((b) => (b.onclick = () => b.closest("dialog").
 /* ── Pestañas ── */
 $$("[data-tab]").forEach((b) => (b.onclick = () => {
   $$("[data-tab]").forEach((x) => x.setAttribute("aria-selected", x === b));
-  $("#vExamenes").hidden = b.dataset.tab !== "vExamenes"; $("#vEntregas").hidden = true;
+  $("#vExamenes").hidden = b.dataset.tab !== "vExamenes"; $("#vEntregas").hidden = true; $("#vRespuestas").hidden = true;
   $("#vAlumnos").hidden = b.dataset.tab !== "vAlumnos";
   $("#vProfes").hidden = b.dataset.tab !== "vProfes";
   if (b.dataset.tab === "vAlumnos") cargarAlumnos(); else if (b.dataset.tab === "vProfes") cargarProfes(); else cargarExamenes();
@@ -297,6 +308,7 @@ async function abrirEntregas(id) {
   const d = await api(`/api/profesor/entregas?id=${encodeURIComponent(id)}`);
   FILAS = d.filas;
   $("#entTitulo").textContent = d.examen.titulo;
+  $("#revisarResp").hidden = !(d.examen.nOpen || d.examen.nNum) || !FILAS.some((f) => f.estado === "entregado");
   $("#csv").href = `/api/profesor/entregas.csv?id=${encodeURIComponent(id)}`;
   const grupos = [...new Set(FILAS.map((f) => f.grupo).filter(Boolean))].sort();
   $("#filtroGrupo").innerHTML = `<option value="">Todos los grupos</option>` + grupos.map((g) => `<option>${esc(g)}</option>`).join("");
@@ -324,6 +336,7 @@ function pintarEntregas() {
       <td><b>${esc(f.apellidos)}, ${esc(f.nombre)}</b><div class="muted" style="font-size:13px">${esc(f.email)}</div></td>
       <td>${esc(f.grupo)}</td>
       <td>${f.estado === "entregado" ? `<span class="chip ok">Entregado</span>` : `<span class="chip gray">Sin entregar</span>`}
+        ${f.porRevisar ? `<div><span class="chip" title="Respuestas escritas sin revisar en el intento que cuenta" style="margin-top:4px">✍ ${f.porRevisar} por revisar</span></div>` : ""}
         ${f.finalizadoPorSalida ? `<div><span class="chip bad" title="${esc(f.finalizadoPorSalida)}" style="margin-top:4px">🔒 Finalizado al salir</span></div>` : ""}</td>
       <td class="num">${f.nota != null ? fmt(f.nota) : "—"}</td>
       <td class="num">${f.estado === "entregado" ? fmt(f.notaProfesor ?? f.nota) + (f.notaProfesor != null ? ` <span class="chip ok" style="font-size:11px">revisada</span>` : "") : "—"}</td>
@@ -343,6 +356,112 @@ function pintarEntregas() {
     if (!confirm(`¿Reabrir el examen a ${f.nombre} ${f.apellidos}?\n\nSe borrarán todos sus intentos (notas y respuestas) y empezará de cero.`)) return;
     try { await api("/api/profesor/entrega/reabrir", { id: ACTUAL, email: f.email }); abrirEntregas(ACTUAL); } catch (e) { alert(e.message); }
   }));
+}
+
+/* ── Revisión rápida: una pregunta cada vez, todas las respuestas ── */
+let RESP = null, RESP_SEL = null, SUGERENCIAS = {};
+const VALOR_TXT = { full: "Válida", partial: "Medio válida", none: "No válida" };
+const botonesValor = (actual) => `<div class="valbtns" role="group" aria-label="Corrección">
+  <button type="button" class="vb ok ${actual === "full" ? "on" : ""}" data-valor="full" title="Válida: puntuación completa">✓ Válida</button>
+  <button type="button" class="vb warn ${actual === "partial" ? "on" : ""}" data-valor="partial" title="Medio válida: la mitad de los puntos">½ Medio válida</button>
+  <button type="button" class="vb bad ${actual === "none" ? "on" : ""}" data-valor="none" title="No válida: 0 puntos">✗ No válida</button>
+  <button type="button" class="vb auto" data-valor="auto" title="Volver a la corrección automática">↺</button></div>`;
+/** Sin revisar: ni la ha corregido el profesor ni está en blanco (las de ejercicios en blanco tampoco). */
+const pendiente = (r) => !!r && !r.revisada && !r.blanco && !(r.campos && r.campos.every((c) => !String(c.resp).trim()));
+const valorDe = (pts, max) => (pts >= max - 1e-9 ? "full" : pts > 0 ? "partial" : "none");
+
+$("#revisarResp").onclick = () => abrirRespuestas();
+$("#atrasResp").onclick = () => { $("#vRespuestas").hidden = true; abrirEntregas(ACTUAL); };
+$("#soloPend").onchange = () => pintarRespuestas();
+
+async function abrirRespuestas(sel) {
+  $("#vEntregas").hidden = true; $("#vRespuestas").hidden = false;
+  $("#respLista").innerHTML = `<p class="loading">Cargando…</p>`;
+  RESP = await api(`/api/profesor/respuestas?id=${encodeURIComponent(ACTUAL)}`);
+  $("#respTitulo").textContent = `Revisar respuestas · ${RESP.examen.titulo}`;
+  const ex = RESP.examen;
+  const preguntas = [...ex.open.map((q, i) => ({ k: "open", i, et: `P${i + 1}` })), ...ex.num.map((q, i) => ({ k: "num", i, et: `E${i + 1}` }))];
+  RESP_SEL = sel || RESP_SEL && preguntas.find((p) => p.k === RESP_SEL.k && p.i === RESP_SEL.i) || preguntas[0];
+  $("#respPreguntas").innerHTML = preguntas.map((p) => {
+    const pend = RESP.filas.filter((f) => pendiente(f[p.k][p.i])).length;
+    return `<button type="button" role="tab" data-q="${p.k}:${p.i}" aria-selected="${p.k === RESP_SEL.k && p.i === RESP_SEL.i}" title="${pend ? pend + " sin revisar" : "Todas revisadas"}">${p.et}${pend ? `<span class="badge">${pend}</span>` : ` <span class="hecho">✓</span>`}</button>`;
+  }).join("");
+  $$("[data-q]", $("#respPreguntas")).forEach((b) => (b.onclick = () => { const [k, i] = b.dataset.q.split(":"); RESP_SEL = { k, i: Number(i) }; abrirRespuestas(RESP_SEL); }));
+  pintarRespuestas();
+}
+
+function pintarRespuestas() {
+  const { k, i } = RESP_SEL, ex = RESP.examen, q = ex[k][i];
+  const filas = RESP.filas.filter((f) => f[k][i] && (!$("#soloPend").checked || pendiente(f[k][i])));
+  const pendientes = RESP.filas.filter((f) => pendiente(f[k][i])).length;
+  const conSug = filas.filter((f) => SUGERENCIAS[`${k}:${i}:${f.email}#${f.intento}`]);
+  $("#respPregunta").innerHTML = `<div class="card qhead">
+    <div class="muted" style="font-size:13px;font-weight:600">${k === "open" ? `Pregunta abierta ${i + 1}` : `Ejercicio ${i + 1}`} · ${fmt(q.puntos)} p${q.act ? ` · ${esc(q.act)}` : ""}</div>
+    <p style="margin:6px 0 10px;font-weight:600;white-space:pre-wrap">${esc(q.t)}</p>
+    ${k === "open" ? `${q.exp ? `<p class="rd"><b>Respuesta modelo:</b> ${esc(q.exp)}</p>` : ""}
+      <p class="rd"><b>Conceptos que busca la corrección automática:</b> ${q.conceptos.map((c) => `<span class="chip gray">${esc(c)}</span>`).join(" ")}</p>`
+      : `<p class="rd"><b>Resultados correctos:</b> ${q.campos.map((c) => `${esc(c.etiqueta)} = <b>${esc(c.correcto)}</b>`).join(" · ")}</p>`}
+    <div class="actions" style="margin-top:10px">
+      <span class="muted" style="font-size:13.5px">${pendientes ? `<b>${pendientes}</b> sin revisar` : "Todas revisadas ✓"}</span>
+      ${k === "open" && RESP.ia ? `<button class="btn accent sm" id="sugerirIA" ${filas.length ? "" : "disabled"}>✨ Sugerir corrección con IA</button>` : ""}
+      ${conSug.length ? `<button class="btn sm" id="aplicarSug">Aplicar las ${conSug.length} sugerencias</button>` : ""}
+      <span class="msg bad" id="respErr" hidden style="margin:0"></span>
+    </div></div>`;
+  if (!filas.length) { $("#respLista").innerHTML = `<div class="empty">${pendientes ? "" : "No queda ninguna respuesta por revisar en esta pregunta. Desmarca «Solo sin revisar» para verlas todas."}</div>`; }
+  else $("#respLista").innerHTML = filas.map((f) => {
+    const r = f[k][i], ref = `${f.email}#${f.intento}`, sug = SUGERENCIAS[`${k}:${i}:${ref}`];
+    const cuerpo = k === "open"
+      ? `<div class="resp">${r.texto.trim() ? esc(r.texto) : `<span class="muted">(en blanco)</span>`}</div>
+         ${r.hechos ? `<div class="meta" style="margin-top:8px">${q.conceptos.map((c, j) => `<span class="chip ${r.hechos[j] ? "ok" : "gray"}" title="${r.hechos[j] ? "Encontrado" : "No encontrado"}">${r.hechos[j] ? "✓" : "✗"} ${esc(c)}</span>`).join("")}</div>` : ""}`
+      : `<div class="resp">${r.campos.map((c, j) => `${esc(q.campos[j]?.etiqueta || "")}: <b>${esc(c.resp || "—")}</b> ${c.ok ? `<span class="verdict v-ok">✓</span>` : `<span class="verdict v-bad">✗</span>`}`).join("<br>")}</div>`;
+    return `<article class="rcard ${r.revisada ? "hecha" : ""}" data-email="${esc(f.email)}" data-intento="${f.intento}">
+      <div class="rtop"><b>${esc(f.apellidos)}, ${esc(f.nombre)}</b><span class="muted">${esc(f.grupo)}${f.intentos > 1 ? ` · intento ${f.intento}${f.vigente ? " (cuenta)" : ""}` : ""}</span>
+        <span class="rpts" data-pts>${fmt(r.pts)} / ${fmt(r.max)} p ${r.revisada ? `<span class="chip ok" style="font-size:11px">revisada</span>` : `<span class="chip gray" style="font-size:11px">automática</span>`}</span></div>
+      ${cuerpo}
+      ${sug ? `<div class="sug ${sug.v}">✨ IA: <b>${VALOR_TXT[sug.v]}</b> — ${esc(sug.motivo)}</div>` : ""}
+      ${botonesValor(r.revisada ? valorDe(r.pts, r.max) : null)}
+    </article>`;
+  }).join("");
+  $$("#respLista [data-valor]").forEach((b) => (b.onclick = () => marcar(b.closest(".rcard"), b.dataset.valor)));
+  const sb = $("#sugerirIA"); if (sb) sb.onclick = () => sugerirIA(filas);
+  const ap = $("#aplicarSug"); if (ap) ap.onclick = async () => {
+    ap.disabled = true;
+    for (const f of conSug) await marcar($(`.rcard[data-email="${CSS.escape(f.email)}"][data-intento="${f.intento}"]`), SUGERENCIAS[`${k}:${i}:${f.email}#${f.intento}`].v, false);
+    abrirRespuestas(RESP_SEL);
+  };
+}
+
+/** Guarda al momento: válida / medio válida / no válida / auto. */
+async function marcar(card, valor, repintar = true) {
+  if (!card) return;
+  const { k, i } = RESP_SEL;
+  $$("[data-valor]", card).forEach((b) => (b.disabled = true));
+  try {
+    const r = await api("/api/profesor/entrega/puntuar", { id: ACTUAL, email: card.dataset.email, intento: Number(card.dataset.intento), k, i, valor });
+    const f = RESP.filas.find((x) => x.email === card.dataset.email && x.intento === Number(card.dataset.intento));
+    f[k][i].pts = r.pts; f[k][i].revisada = valor !== "auto"; f.nota = r.notaIntento;
+    $$("[data-valor]", card).forEach((b) => b.classList.toggle("on", b.dataset.valor === valor));
+    card.classList.toggle("hecha", valor !== "auto");
+    $("[data-pts]", card).innerHTML = `${fmt(r.pts)} / ${fmt(f[k][i].max)} p <span class="chip ${valor !== "auto" ? "ok" : "gray"}" style="font-size:11px">${valor !== "auto" ? "revisada" : "automática"}</span>`;
+    if (repintar) {
+      // Pequeña pausa para que se vea el cambio antes de que la tarjeta desaparezca del filtro.
+      setTimeout(() => abrirRespuestas(RESP_SEL), $("#soloPend").checked && valor !== "auto" ? 450 : 0);
+    }
+  } catch (e) { alert(e.message); }
+  finally { $$("[data-valor]", card).forEach((b) => (b.disabled = false)); }
+}
+
+async function sugerirIA(filas) {
+  const { k, i } = RESP_SEL, b = $("#sugerirIA"), err = $("#respErr");
+  b.disabled = true; err.hidden = true;
+  try {
+    for (let n = 0; n < filas.length; n += 20) {
+      b.textContent = `✨ Corrigiendo ${Math.min(n + 20, filas.length)} de ${filas.length}…`;
+      const { sugerencias } = await api("/api/profesor/ia/corregir", { id: ACTUAL, i, refs: filas.slice(n, n + 20).map((f) => ({ email: f.email, intento: f.intento })) });
+      sugerencias.forEach((s) => (SUGERENCIAS[`${k}:${i}:${s.ref}`] = s));
+    }
+    pintarRespuestas();
+  } catch (e) { err.textContent = e.message; err.hidden = false; b.disabled = false; b.textContent = "✨ Sugerir corrección con IA"; }
 }
 
 let ENT = null;
@@ -388,6 +507,21 @@ function ponerEditoresPuntos(c, d) {
     const sp = $(".pts", rev); if (sp) sp.remove();
     $(".rq", rev).insertAdjacentHTML("beforeend", `<span class="ajpts${aj ? " on" : ""}" title="Puntos de esta pregunta (entre ${fmt(min)} y ${fmt(max)}). Cámbialos si la corrección automática no es justa.">
       <input type="text" inputmode="decimal" data-k="${k}" data-i="${i}" data-orig="${v}" value="${String(v).replace(".", ",")}" aria-label="Puntos"> / ${fmt(max)} p${aj ? " · cambiado" : ""}</span>`);
+    // Respuestas escritas y ejercicios: corrección con un clic.
+    if (k === "open" || k === "num") {
+      rev.insertAdjacentHTML("beforeend", botonesValor(aj ? valorDe(v, max) : null));
+      if (k === "open" && d.open?.[i]?.hechos) $(".rq", rev).insertAdjacentHTML("afterend", `<div class="meta" style="margin:4px 0 6px">${d.open[i].conceptos.map((cpt, j) =>
+        `<span class="chip ${d.open[i].hechos[j] ? "ok" : "gray"}" style="font-size:11.5px">${d.open[i].hechos[j] ? "✓" : "✗"} ${esc(cpt)}</span>`).join("")}</div>`);
+      $$("[data-valor]", rev).forEach((b) => (b.onclick = async () => {
+        $$("[data-valor]", rev).forEach((x) => (x.disabled = true));
+        try {
+          await api("/api/profesor/entrega/puntuar", { id: ACTUAL, email: d.alumno.email, intento: d.intento, k, i, valor: b.dataset.valor });
+          const y = c.closest("dialog").scrollTop;
+          await recargarFilas(); await verEntrega(d.alumno.email, d.intento);
+          $("#dEntrega").scrollTop = y;
+        } catch (e) { alert(e.message); $$("[data-valor]", rev).forEach((x) => (x.disabled = false)); }
+      }));
+    }
   });
   $("#rAjustesInfo").innerHTML = d.ajustes ? `Hay puntos cambiados a mano en este intento. <button type="button" class="link" id="rQuitarAj">Volver a la corrección automática</button>` : "Puedes cambiar los puntos de cada pregunta en la corrección de abajo; la nota se recalcula al guardar.";
   const q = $("#rQuitarAj");
