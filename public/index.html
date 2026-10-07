@@ -219,11 +219,16 @@ $("#fRec").onsubmit = (ev) => { ev.preventDefault(); const f = ev.target; enviar
 }); };
 
 // Grupos disponibles (definidos por ciclo en el servidor).
-api("/api/cuenta/grupos", undefined, { redirigir401: false }).then(({ grupos, ciclos }) => {
-  // Grupos agrupados por ciclo (GM / GS).
-  $("#rGrupo").insertAdjacentHTML("beforeend", (ciclos || []).map((c) => `<optgroup label="${esc(c.grado)} · ${esc(c.descripcion)}">${
+api("/api/cuenta/grupos", undefined, { redirigir401: false }).then(({ centro, grupos, ciclos }) => {
+  if (centro && centro !== "evalua-T") $("#brand .ey").textContent = centro;
+  if (!ciclos?.length) {
+    const aviso = `<span class="hintline" style="margin-top:2px">El centro todavía no ha creado sus ciclos. Vuelve a intentarlo más tarde.</span>`;
+    $("#rGrupo").insertAdjacentHTML("afterend", aviso); $("#rCiclos").innerHTML = aviso;
+  }
+  // Grupos agrupados por ciclo.
+  $("#rGrupo").insertAdjacentHTML("beforeend", (ciclos || []).map((c) => `<optgroup label="${esc([c.grado, c.descripcion || c.nombre].filter(Boolean).join(" · "))}">${
     grupos.filter((g) => g.cicloId === c.id).map((g) => `<option>${esc(g.grupo)}</option>`).join("")}</optgroup>`).join(""));
-  $("#rCiclos").innerHTML = (ciclos || []).map((c) => `<label class="check"><input type="checkbox" value="${esc(c.id)}"> <b>${esc(c.nombre)}</b> <span class="muted">· ${esc(c.descripcion || "")} (${esc(c.grado)})</span></label>`).join("");
+  $("#rCiclos").innerHTML = (ciclos || []).map((c) => `<label class="check"><input type="checkbox" value="${esc(c.id)}"> <b>${esc(c.nombre)}</b> <span class="muted">${esc([c.descripcion, c.grado].filter(Boolean).join(" · "))}</span></label>`).join("");
 }).catch(() => {});
 
 if (location.hash === "#registro") mostrar("#fReg");

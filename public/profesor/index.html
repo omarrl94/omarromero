@@ -22,6 +22,7 @@
     <div class="tabs inline" role="tablist">
       <button role="tab" aria-selected="true" data-tab="vExamenes">Exámenes</button>
       <button role="tab" aria-selected="false" data-tab="vAlumnos">Alumnos</button>
+      <button role="tab" aria-selected="false" data-tab="vCentro" hidden>Centro</button>
       <button role="tab" aria-selected="false" data-tab="vProfes" hidden>Profesores <span class="chip s" id="nPend" hidden style="padding:0 7px"></span></button>
     </div>
   </div>
@@ -51,6 +52,32 @@
     <div class="qtabs" id="respPreguntas" role="tablist" aria-label="Preguntas"></div>
     <div id="respPregunta"></div>
     <div id="respLista"></div>
+  </section>
+
+  <!-- Centro: nombre, ciclos y módulos (solo administrador) -->
+  <section id="vCentro" hidden>
+    <div class="msg ok" id="bienvenida" hidden><b>¡Bienvenido/a a evalua-T!</b> Para empezar, escribe el nombre de tu centro y crea sus ciclos y módulos. Los alumnos elegirán su grupo al registrarse y los profesores, los ciclos en los que dan clase.</div>
+    <div class="toolbar"><h2>Datos del centro</h2></div>
+    <form class="card" id="fCentro" style="padding:16px 18px;margin-bottom:22px;display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+      <div class="field" style="flex:1;min-width:240px;margin:0"><label class="flab" for="cNombre">Nombre del centro</label><input type="text" id="cNombre" maxlength="120" placeholder="p. ej. IES Ejemplo" required></div>
+      <button class="btn" type="submit">Guardar</button>
+      <span class="hintline" id="cNombreOk" hidden>Guardado ✓</span>
+    </form>
+    <div class="toolbar"><h2>Ciclos y módulos</h2></div>
+    <p class="muted" style="margin-top:-6px">Crea los ciclos (o cursos) de tu centro y, dentro de cada uno, sus módulos (asignaturas). Cada ciclo genera los grupos del registro de alumnos: por defecto «1.º» y «2.º», o los que escribas. Solo se pueden borrar ciclos y módulos sin exámenes.</p>
+    <div class="msg bad" id="centroErr" hidden></div>
+    <div id="listaCiclos"></div>
+    <form class="card" id="fCiclo" style="padding:16px 18px">
+      <b>Nuevo ciclo</b>
+      <div class="row2" style="margin-top:10px">
+        <div class="field"><label class="flab" for="nCNombre">Nombre corto</label><input type="text" id="nCNombre" maxlength="40" placeholder="p. ej. DAM, 4.º ESO, Bachillerato" required></div>
+        <div class="field"><label class="flab" for="nCGrado">Nivel o grado (opcional)</label><input type="text" id="nCGrado" maxlength="20" placeholder="p. ej. GS, GM, ESO"></div>
+      </div>
+      <div class="field"><label class="flab" for="nCDesc">Nombre completo (opcional)</label><input type="text" id="nCDesc" maxlength="120" placeholder="p. ej. Desarrollo de Aplicaciones Multiplataforma"></div>
+      <div class="field"><label class="flab" for="nCGrupos">Grupos (opcional, separados por comas)</label><input type="text" id="nCGrupos" placeholder="Vacío = «1.º NOMBRE, 2.º NOMBRE»"></div>
+      <div class="field"><label class="flab" for="nCModulos">Módulos (opcional, separados por comas)</label><input type="text" id="nCModulos" placeholder="p. ej. Programación, Bases de Datos, Sistemas Informáticos"></div>
+      <button class="btn" type="submit">＋ Crear ciclo</button>
+    </form>
   </section>
 
   <!-- Profesores (solo administrador) -->
@@ -187,8 +214,70 @@ $$("[data-tab]").forEach((b) => (b.onclick = () => {
   $("#vExamenes").hidden = b.dataset.tab !== "vExamenes"; $("#vEntregas").hidden = true; $("#vRespuestas").hidden = true;
   $("#vAlumnos").hidden = b.dataset.tab !== "vAlumnos";
   $("#vProfes").hidden = b.dataset.tab !== "vProfes";
-  if (b.dataset.tab === "vAlumnos") cargarAlumnos(); else if (b.dataset.tab === "vProfes") cargarProfes(); else cargarExamenes();
+  $("#vCentro").hidden = b.dataset.tab !== "vCentro";
+  if (b.dataset.tab === "vAlumnos") cargarAlumnos(); else if (b.dataset.tab === "vProfes") cargarProfes();
+  else if (b.dataset.tab === "vCentro") cargarCentro(); else cargarExamenes();
 }));
+
+/* ── Centro: nombre, ciclos y módulos (solo administrador) ── */
+const errCentro = (m) => { $("#centroErr").textContent = m || ""; $("#centroErr").hidden = !m; };
+const listaComas = (txt) => String(txt || "").split(",").map((x) => x.trim()).filter(Boolean);
+async function cargarCentro() {
+  const d = await api("/api/admin/centro");
+  if (document.activeElement !== $("#cNombre")) $("#cNombre").value = d.nombre === "evalua-T" ? "" : d.nombre;
+  $("#listaCiclos").innerHTML = d.ciclos.length ? d.ciclos.map((c) => `<div class="card" style="padding:16px 18px;margin-bottom:12px" data-ciclo="${esc(c.id)}">
+    <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap">
+      <div><b style="font-size:16px">${esc(c.nombre)}</b> <span class="muted">${esc([c.descripcion, c.grado].filter(Boolean).join(" · "))}</span>
+        <div class="muted" style="font-size:13px;margin-top:2px">Grupos: ${c.grupos.map(esc).join(", ")}</div></div>
+      <div class="acts"><button class="btn ghost sm" type="button" data-editar>Editar</button><button class="btn danger sm" type="button" data-borrar-ciclo>Borrar</button></div>
+    </div>
+    <form data-form-ciclo hidden style="margin-top:12px">
+      <div class="row2">
+        <div class="field"><label class="flab">Nombre corto</label><input type="text" name="nombre" maxlength="40" value="${esc(c.nombre)}" required></div>
+        <div class="field"><label class="flab">Nivel o grado</label><input type="text" name="grado" maxlength="20" value="${esc(c.grado)}"></div>
+      </div>
+      <div class="field"><label class="flab">Nombre completo</label><input type="text" name="descripcion" maxlength="120" value="${esc(c.descripcion)}"></div>
+      <div class="field"><label class="flab">Grupos (separados por comas; vacío = 1.º y 2.º)</label><input type="text" name="grupos" value="${esc(c.gruposPropios ? c.grupos.join(", ") : "")}"></div>
+      <button class="btn sm" type="submit">Guardar cambios</button> <button class="btn ghost sm" type="button" data-cancelar>Cancelar</button>
+    </form>
+    <div style="margin:12px 0 10px">${c.modulos.length ? c.modulos.map((m) => `<span class="chip v" style="margin:0 6px 6px 0;display:inline-flex;align-items:center;gap:6px">${esc(m.nombre)}
+      <button type="button" class="link" style="color:inherit;text-decoration:none;font-weight:800" title="Borrar módulo" data-borrar-mod="${esc(m.id)}">×</button></span>`).join("") : `<span class="muted">Sin módulos todavía.</span>`}</div>
+    <form style="display:flex;gap:8px" data-nuevo-mod><input type="text" placeholder="Nuevo módulo (p. ej. Programación)" maxlength="120" style="flex:1"><button class="btn sm" type="submit">Añadir módulo</button></form>
+  </div>`).join("") : `<div class="empty" style="margin-bottom:12px">Todavía no hay ciclos. Crea el primero aquí abajo.</div>`;
+  const id = (el) => el.closest("[data-ciclo]").dataset.ciclo;
+  const accion = async (fn) => { errCentro(""); try { await fn(); await cargarCentro(); } catch (e) { errCentro(e.message); } };
+  $$("#listaCiclos [data-editar]").forEach((b) => (b.onclick = () => { $("[data-form-ciclo]", b.closest("[data-ciclo]")).hidden = false; }));
+  $$("#listaCiclos [data-cancelar]").forEach((b) => (b.onclick = () => { b.closest("form").hidden = true; }));
+  $$("#listaCiclos [data-form-ciclo]").forEach((f) => (f.onsubmit = (ev) => {
+    ev.preventDefault();
+    accion(() => api("/api/admin/ciclo", { id: id(f), nombre: f.nombre.value, grado: f.grado.value, descripcion: f.descripcion.value, grupos: listaComas(f.grupos.value) }));
+  }));
+  $$("#listaCiclos [data-borrar-ciclo]").forEach((b) => (b.onclick = () => {
+    if (confirm("¿Borrar este ciclo y sus módulos?")) accion(() => api("/api/admin/ciclo/borrar", { id: id(b) }));
+  }));
+  $$("#listaCiclos [data-nuevo-mod]").forEach((f) => (f.onsubmit = (ev) => {
+    ev.preventDefault();
+    const nombre = $("input", f).value.trim();
+    if (nombre) accion(() => api("/api/profesor/modulo", { cicloId: id(f), nombre }));
+  }));
+  $$("#listaCiclos [data-borrar-mod]").forEach((b) => (b.onclick = () => {
+    if (confirm("¿Borrar este módulo?")) accion(() => api("/api/profesor/modulo/borrar", { cicloId: id(b), moduloId: b.dataset.borrarMod }));
+  }));
+}
+$("#fCentro").onsubmit = async (ev) => {
+  ev.preventDefault(); errCentro("");
+  try { const r = await api("/api/admin/centro", { nombre: $("#cNombre").value }); $(".brand .ey").textContent = r.nombre; $("#cNombreOk").hidden = false; setTimeout(() => ($("#cNombreOk").hidden = true), 2500); }
+  catch (e) { errCentro(e.message); }
+};
+$("#fCiclo").onsubmit = async (ev) => {
+  ev.preventDefault(); errCentro("");
+  try {
+    const { ciclo } = await api("/api/admin/ciclo", { nombre: $("#nCNombre").value, grado: $("#nCGrado").value, descripcion: $("#nCDesc").value, grupos: listaComas($("#nCGrupos").value) });
+    for (const nombre of listaComas($("#nCModulos").value)) await api("/api/profesor/modulo", { cicloId: ciclo.id, nombre });
+    ev.target.reset(); $("#bienvenida").hidden = true;
+  } catch (e) { errCentro(e.message); }
+  await cargarCentro();
+};
 
 /* ── Profesores (solo administrador) ── */
 async function cargarProfes() {
@@ -684,7 +773,7 @@ function pintarModulos() {
   $("#listaModulos").innerHTML = CATALOGO.map((c) => `<div class="card" style="padding:16px 18px;margin-bottom:12px" data-ciclo-mod="${esc(c.id)}">
     <b>${esc(c.nombre)}</b> <span class="muted">· ${esc(c.descripcion || "")} (${esc(c.grado || "")})</span>
     <div style="margin:10px 0">${c.modulos.length ? c.modulos.map((m) => `<span class="chip v" style="margin:0 6px 6px 0;display:inline-flex;align-items:center;gap:6px">${esc(m.nombre)}
-      ${m.propio ? `<button type="button" class="link" style="color:inherit;text-decoration:none;font-weight:800" title="Borrar módulo" data-borrar-mod="${esc(m.id)}">×</button>` : ""}</span>`).join("") : `<span class="muted">Sin módulos todavía.</span>`}</div>
+      ${`<button type="button" class="link" style="color:inherit;text-decoration:none;font-weight:800" title="Borrar módulo" data-borrar-mod="${esc(m.id)}">×</button>`}</span>`).join("") : `<span class="muted">Sin módulos todavía.</span>`}</div>
     <form style="display:flex;gap:8px" data-nuevo-mod><input type="text" placeholder="Nuevo módulo (p. ej. Programación)" maxlength="120" style="flex:1"><button class="btn sm" type="submit">Añadir</button></form>
   </div>`).join("");
   const err = (m) => { $("#modErr").textContent = m; $("#modErr").hidden = !m; };
@@ -1028,12 +1117,14 @@ function pintarAlumnos() {
   if (yo.rol !== "profesor") { location.replace("/panel/"); return; }
   $(".tag").textContent = yo.admin ? "Admin" : "Profesor";
   if (yo.admin) {
-    $("[data-tab=vProfes]").hidden = false;
+    $("[data-tab=vProfes]").hidden = false; $("[data-tab=vCentro]").hidden = false;
     api("/api/admin/profesores").then(({ profesores }) => { const n = profesores.filter((p) => !p.aprobado).length; $("#nPend").hidden = !n; $("#nPend").textContent = n; }).catch(() => {});
   } else {
     $("#subPanel").innerHTML = `Tus ciclos: <b>${esc(CATALOGO_NOMBRES(yo.ciclos))}</b> · crea y publica exámenes, revisa entregas y gestiona tus grupos.`;
   }
   await cargarExamenes();
+  // Primera vez: el administrador configura el centro antes de nada.
+  if (yo.admin && !CATALOGO.length) { $("#bienvenida").hidden = false; $("[data-tab=vCentro]").click(); }
 })().catch((e) => { $("#tablaExamenes").innerHTML = `<div class="msg bad">${esc(e.message)}</div>`; });
 </script>
 </body>

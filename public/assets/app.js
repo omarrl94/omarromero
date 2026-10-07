@@ -24,12 +24,12 @@ async function api(ruta, cuerpo, { redirigir401 = true } = {}) {
 
 /** Cabecera con logo y usuario. Devuelve el usuario (o redirige si no hay sesión). */
 async function cabecera({ ciclo = "Exámenes" } = {}) {
-  const { usuario } = await api("/api/cuenta/yo");
+  const { usuario, centro } = await api("/api/cuenta/yo");
   const iniciales = `${usuario.nombre?.[0] || ""}${usuario.apellidos?.[0] || ""}`.toUpperCase();
   const rol = usuario.admin ? "Administración" : usuario.rol === "profesor" ? "Profesorado" : usuario.grupo || "Alumno/a";
   const enProfe = location.pathname.startsWith("/profesor");
   $("#head").innerHTML = `
-    <a class="brand" href="${usuario.rol === "profesor" && enProfe ? "/profesor/" : "/panel/"}">${LOGO}<div><div class="ey">Plataforma de exámenes</div>
+    <a class="brand" href="${usuario.rol === "profesor" && enProfe ? "/profesor/" : "/panel/"}">${LOGO}<div><div class="ey">${esc(centro && centro !== "evalua-T" ? centro : "Plataforma de exámenes")}</div>
       <div class="nm">evalua-T <span class="tag">${esc(ciclo)}</span></div></div></a>
     <div class="who">
       <div class="user"><span class="avatar" aria-hidden="true">${esc(iniciales)}</span>

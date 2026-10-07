@@ -394,7 +394,6 @@ async function quitarModulo(req) {
   if (!gestionaCiclo(u, b.cicloId)) fallo(403, "Solo puedes borrar módulos de tus ciclos");
   const m = buscarModulo(b.cicloId, b.moduloId);
   if (!m) fallo(404, "Módulo no encontrado");
-  if (!m.modulo.propio) fallo(400, "Este módulo viene de serie y no se puede borrar");
   const usados = (await todosLosExamenes()).filter((e) => e.cicloId === b.cicloId && e.moduloId === b.moduloId).length;
   if (usados) fallo(409, `El módulo tiene ${usados} examen(es). Bórralos o muévelos antes de borrar el módulo.`);
   await borrarModulo(b.cicloId, b.moduloId);

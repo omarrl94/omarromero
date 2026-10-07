@@ -1,6 +1,6 @@
 /** Correos (HTML con estilos en línea, compatibles con Outlook) + versión en texto. */
 import { LETRAS } from "./correccion.mjs";
-import { env } from "./http.mjs";
+import { nombreCentro } from "./catalogo.mjs";
 
 const esc = (s) =>
   String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -15,7 +15,7 @@ const fmtV = (v) => {
   return x.toLocaleString("es-ES", { maximumFractionDigits: 4 });
 };
 const VERDE = "#2E7D53", ROJO = "#C0392B", AMBAR = "#B9820B", GRIS = "#5F6673", TINTA = "#232833";
-const CENTRO = () => env("NOMBRE_CENTRO", "evalua-T");
+const CENTRO = nombreCentro;
 
 function marco(cabecera, cuerpo, pie) {
   return `<!doctype html><html lang="es"><body style="margin:0;background:#F3F5F6;font-family:Segoe UI,Arial,sans-serif;color:${TINTA}">

@@ -8,7 +8,7 @@ import {
 import { enviarCorreo, proveedorConfigurado } from "./correo.mjs";
 import { timingSafeEqual, createHash } from "node:crypto";
 import { correoCodigo, correoAviso } from "./plantillas.mjs";
-import { GRUPOS, cicloDe, CATALOGO } from "./catalogo.mjs";
+import { GRUPOS, cicloDe, CATALOGO, nombreCentro } from "./catalogo.mjs";
 
 /** Avisa al administrador de que un profesor espera aprobación. */
 function avisarAdmin(u) {
@@ -216,13 +216,13 @@ async function elegirGrupo(req) {
 
 /** Ciclos y grupos para el formulario de registro (público). */
 async function catalogoPublico() {
-  return json({ grupos: GRUPOS(), ciclos: CATALOGO.map(({ id, nombre, grado, descripcion }) => ({ id, nombre, grado, descripcion })) });
+  return json({ centro: nombreCentro(), grupos: GRUPOS(), ciclos: CATALOGO.map(({ id, nombre, grado, descripcion }) => ({ id, nombre, grado, descripcion })) });
 }
 
 async function yo(req) {
   const u = await usuarioSesion(req);
   if (!u) fallo(401, "Sin sesión");
-  return json({ usuario: perfilPublico(u) });
+  return json({ usuario: perfilPublico(u), centro: nombreCentro() });
 }
 
 export default {

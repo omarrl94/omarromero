@@ -16,7 +16,7 @@ Funciona en **Netlify** (plan gratuito): páginas estáticas + una Netlify Funct
 ## Cómo funciona
 
 **Alumno**
-1. Se registra en `/` con nombre, apellidos, correo de un dominio permitido, contraseña y **grupo** (1.º/2.º ASIR, 1.º/2.º DAM…). **El grupo fija su ciclo: solo verá los exámenes de ese ciclo** (también lo comprueba el servidor, aunque tenga el enlace directo). El profesor puede cambiarle el grupo en la pestaña «Alumnos».
+1. Se registra en `/` con nombre, apellidos, correo de un dominio permitido, contraseña y **grupo** (los que el centro ha definido para cada ciclo). **El grupo fija su ciclo: solo verá los exámenes de ese ciclo** (también lo comprueba el servidor, aunque tenga el enlace directo). El profesor puede cambiarle el grupo en la pestaña «Alumnos».
 2. Recibe un **código de 6 cifras** por correo para confirmar que el correo es suyo.
 3. En su panel entra directamente en **su ciclo**, elige **el módulo** (p. ej. Bases de Datos) y ve **los temas** publicados. Cada examen se **entrega una sola vez**.
 4. Hace el examen en **modo examen**: si cambia de pestaña o sale de la ventana, se cierra y se borran las respuestas. **Cada salida queda registrada** para el profesor.
@@ -24,7 +24,7 @@ Funciona en **Netlify** (plan gratuito): páginas estáticas + una Netlify Funct
 6. Puede volver a ver su corrección y descargar el PDF desde el panel en cualquier momento.
 
 **Profesores y administrador**
-- **Administrador** (`ADMIN_EMAILS`): acceso a todo y pestaña **«Profesores»** para aprobar solicitudes, quitar el acceso y decidir a qué ciclos tiene acceso cada profesor. Recibe un correo cuando alguien se registra como profesor.
+- **Administrador** (`ADMIN_EMAILS`): acceso a todo, pestaña **«Centro»** para configurar el centro, sus ciclos y módulos, y pestaña **«Profesores»** para aprobar solicitudes, quitar el acceso y decidir a qué ciclos tiene acceso cada profesor. Recibe un correo cuando alguien se registra como profesor.
 - **Profesor**: se registra en la página principal eligiendo **«Profesor/a»** y marcando los ciclos en los que da clase (correo confirmado con código). Hasta que el administrador lo aprueba ve un aviso de «pendiente». Una vez aprobado, en `/profesor/` crea, sube y genera exámenes con IA **en sus ciclos**, y **solo ve y gestiona los exámenes que ha creado él** (publicarlos, entregas y notas, revisión, CSV). También gestiona a los alumnos de sus ciclos (cambiar grupo, activar, borrar). El administrador ve todos los exámenes. El servidor lo comprueba en cada petición.
 
 **Panel del profesor** (`/profesor/`)
@@ -62,26 +62,27 @@ Funciona en **Netlify** (plan gratuito): páginas estáticas + una Netlify Funct
    | `MAIL_FROM` | para correo | `"evalua-T <examenes@tucentro.es>"` |
    | `PROFESOR_EMAIL` | no | recibe copia oculta de cada entrega |
    | `DOMINIOS_PERMITIDOS` | no | `tucentro.es` (varios separados por comas; por defecto `*`, cualquier dominio) |
-   | `NOMBRE_CENTRO` | no | nombre que aparece en los correos (por defecto `evalua-T`) |
    | `GEMINI_API_KEY` | para la IA | clave gratuita de aistudio.google.com/apikey (márcala como *secret*) |
    | `GEMINI_MODEL` | no | `gemini-2.5-flash` (por defecto; si no existe, se usa el Flash más reciente disponible) |
 
 3. **Redesplegar** (*Deploys → Trigger deploy*) para que coja las variables.
-4. Entra en la web con el correo de `ADMIN_EMAILS` y la contraseña de `ADMIN_PASSWORD` (pestaña «Entrar», sin registrarte) y llegarás al panel del profesor. Crea los módulos y sube o genera tu primer examen.
+4. Entra en la web con el correo de `ADMIN_EMAILS` y la contraseña de `ADMIN_PASSWORD` (pestaña «Entrar», sin registrarte) y llegarás al panel del profesor, en la pestaña **«Centro»**, para configurar tu centro (ver abajo).
 
 **Microsoft 365:** la cuenta que envía debe tener activado *SMTP autenticado* (Centro de administración → Usuarios → la cuenta → Correo → Administrar aplicaciones de correo electrónico). Si la organización obliga a MFA, usa una cuenta de servicio sin MFA o **Resend** (`RESEND_API_KEY`).
 
 **Sin correo configurado** todo funciona igual, salvo que las cuentas se activan sin código, no se puede recuperar la contraseña por correo y no se envía la corrección (el alumno la ve en pantalla y en su panel). El panel del profesor muestra un aviso.
 
-## Ciclos y módulos
+## Primera puesta en marcha: centro, ciclos y módulos
 
-Los **ciclos** están en `netlify/lib/catalogo.mjs`. Vienen unos de ejemplo (SMR, ASIR, DAM, DAW): **cámbialos por los de tu centro** antes de abrir el registro.
+Cada centro configura evalua-T desde el panel, sin tocar el código. La primera vez que el administrador entra, se abre la pestaña **«Centro»**:
 
-Los grupos del registro de alumnos se generan solos (1.º y 2.º de cada ciclo, `CURSOS`); un ciclo puede definir sus propios grupos con `grupos: [...]`. Para añadir un ciclo, añade una línea en `CICLOS` (con un `id` nuevo que no cambie nunca) y haz push.
+1. **Nombre del centro**: aparece en la cabecera, en la página de entrada y en los correos.
+2. **Ciclos** (o cursos, niveles…): nombre corto (p. ej. `DAM`, `4.º ESO`), nivel o grado opcional, nombre completo y **grupos**. Si no escribes grupos se crean «1.º NOMBRE» y «2.º NOMBRE». Los alumnos eligen su grupo al registrarse y **solo ven los exámenes de su ciclo**; los profesores marcan los ciclos en los que dan clase.
+3. **Módulos** (asignaturas) de cada ciclo: se pueden escribir al crear el ciclo (separados por comas) o añadir después. Los profesores también pueden crear módulos en sus ciclos con el botón **«Módulos»**.
 
-Los **módulos** los crean el administrador y los profesores desde el panel (botón **«Módulos»**), cada uno en sus ciclos; se guardan en Netlify Blobs. Solo se pueden borrar los módulos sin exámenes.
+Los ciclos se pueden editar en cualquier momento. Solo se pueden borrar los ciclos sin exámenes ni alumnos, y los módulos sin exámenes. Todo se guarda en Netlify Blobs (almacén `sistema`).
 
-Si quieres que la plataforma venga con exámenes cargados, créalos en `netlify/lib/semilla-*.mjs` y añádelos a `SEMILLAS` en `netlify/lib/examenes.mjs`: se cargan **una sola vez** al desplegar; si los borras o editas desde el panel, no se vuelven a crear.
+Si quieres que la plataforma venga con exámenes cargados, créalos en `netlify/lib/semilla-*.mjs` y añádelos a `SEMILLAS` en `netlify/lib/examenes.mjs`: se cargan **una sola vez**; si los borras o editas desde el panel, no se vuelven a crear.
 
 ## Formato de un examen
 
@@ -124,8 +125,8 @@ public/examen/                 Página del examen
 public/profesor/               Panel del profesor
 public/assets/app.css|app.js   Estilos y utilidades comunes (incluye el PDF)
 netlify/functions/api.mjs      API (/api/*)
-netlify/lib/catalogo.mjs       Ciclos y módulos
-netlify/lib/rutas-*.mjs        Rutas: cuenta, alumno, profesor
+netlify/lib/catalogo.mjs       Centro, ciclos y módulos (configurables desde el panel)
+netlify/lib/rutas-*.mjs        Rutas: cuenta, alumno, profesor, admin
 netlify/lib/auth.mjs           Contraseñas, sesiones y códigos
 netlify/lib/almacen.mjs        Netlify Blobs (o carpeta local)
 netlify/lib/correccion.mjs     Corrección automática
