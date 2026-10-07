@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Examentia · Exámenes online</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/app.css">
+<style>
+  .landing{min-height:calc(100vh - 4px);display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr)}
+  .panel-marca{position:relative;background:#1F2430;color:#EEF0F3;padding:48px 56px;display:flex;flex-direction:column;overflow:hidden}
+  .panel-marca::after{content:"";position:absolute;right:-180px;bottom:-180px;width:520px;height:520px;border-radius:50%;
+    border:1px solid rgba(230,165,127,.18);box-shadow:0 0 0 60px rgba(230,165,127,.04),0 0 0 120px rgba(169,202,187,.03)}
+  .panel-marca .brand .ey{color:#A5ADB9} .panel-marca .brand .nm{color:#fff}
+  .panel-marca h1{font-size:44px;line-height:1.08;letter-spacing:-.035em;margin:auto 0 14px;max-width:14ch;color:#fff}
+  .panel-marca h1 em{font-style:normal;background:linear-gradient(90deg,#EFCD2F,#E39F7D);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .panel-marca .lead{color:#C4CAD3;font-size:16.5px;max-width:46ch;margin:0 0 30px}
+  .points{list-style:none;padding:0;margin:0 0 auto;display:grid;gap:14px;max-width:48ch;position:relative;z-index:1}
+  .points li{display:flex;gap:14px;align-items:flex-start;font-size:15px;color:#C4CAD3}
+  .points li b{color:#fff;font-weight:650}
+  .points .dot{flex:none;width:32px;height:32px;border-radius:9px;display:grid;place-items:center;font-weight:800;font-size:14px;color:#1F2430}
+  .panel-marca .pie{margin-top:40px;font-size:12.5px;color:#7D8590;position:relative;z-index:1}
+  .panel-acceso{display:flex;align-items:center;justify-content:center;padding:40px 24px;background:var(--bg)}
+  .panel-acceso .card{width:100%;max-width:440px;padding:28px}
+  .panel-acceso h2.saludo{font-size:22px;margin:0 0 4px}
+  @media (max-width:900px){
+    .landing{grid-template-columns:1fr;min-height:0}
+    .panel-marca{padding:28px 20px 30px}
+    .panel-marca h1{font-size:30px;margin:28px 0 10px}
+    .panel-marca .lead{font-size:15px;margin-bottom:18px}
+    .points{gap:10px} .points li{font-size:14px}
+    .panel-marca .pie,.panel-marca::after{display:none}
+    .panel-acceso{padding:24px 16px 48px}
+  }
+</style>
+</head>
+<body>
+<div class="topbar"></div>
+<main class="landing">
+  <section class="panel-marca">
+    <div class="brand" id="brand"></div>
+    <h1>Exámenes online, <em>corregidos al momento</em></h1>
+    <p class="lead">Examentia, la plataforma de cuestionarios online: haz tus exámenes, recibe la corrección al momento y consulta tus notas cuando quieras.</p>
+    <ul class="points">
+      <li><span class="dot" style="background:#EFCD2F">1</span><span><b>Crea tu cuenta</b> con tu correo y confírmala con el código que te enviamos.</span></li>
+      <li><span class="dot" style="background:#A9CABB">2</span><span><b>Entra en tu ciclo y módulo</b> y haz los exámenes que publica tu profesor.</span></li>
+      <li><span class="dot" style="background:#E39F7D">3</span><span><b>Recibe la corrección por correo</b> en cuanto entregues y repásala en tu panel.</span></li>
+    </ul>
+    <p class="pie">Examentia · Plataforma de exámenes</p>
+  </section>
+
+  <section class="panel-acceso">
+    <section class="card">
+      <h2 class="saludo">Te damos la bienvenida</h2>
+      <p class="muted" style="margin:0 0 18px;font-size:14px">Entra con tu cuenta o crea una nueva.</p>
+
+      <div class="tabs" role="tablist">
+        <button role="tab" id="tabLogin" aria-selected="true">Entrar</button>
+        <button role="tab" id="tabReg" aria-selected="false">Crear cuenta</button>
+      </div>
+
+      <!-- Entrar -->
+      <form id="fLogin" novalidate>
+        <div class="field"><label class="flab" for="lEmail">Correo electrónico</label><input type="email" id="lEmail" autocomplete="username" required></div>
+        <div class="field"><label class="flab" for="lPass">Contraseña</label><input type="password" id="lPass" autocomplete="current-password" required></div>
+        <div class="msg bad" data-err hidden></div>
+        <button class="btn block" type="submit">Entrar</button>
+        <p style="text-align:center;margin:16px 0 0"><button type="button" class="link" id="olvido">¿Has olvidado la contraseña?</button></p>
+      </form>
+
+      <!-- Registro -->
+      <form id="fReg" novalidate hidden>
+        <div class="field"><span class="flab">Soy…</span>
+          <div class="tabs" style="margin:0" role="radiogroup">
+            <button type="button" role="radio" aria-selected="true" data-tipo="alumno">Alumno/a</button>
+            <button type="button" role="radio" aria-selected="false" data-tipo="profesor">Profesor/a</button>
+          </div></div>
+        <div class="row2">
+          <div class="field"><label class="flab" for="rNombre">Nombre</label><input type="text" id="rNombre" autocomplete="given-name" maxlength="80" required></div>
+          <div class="field"><label class="flab" for="rApellidos">Apellidos</label><input type="text" id="rApellidos" autocomplete="family-name" maxlength="120" required></div>
+        </div>
+        <div class="field"><label class="flab" for="rEmail">Correo electrónico</label><input type="email" id="rEmail" autocomplete="email" placeholder="nombre.apellido@tucentro.es" required></div>
+        <div class="field" id="campoCiclos" hidden><span class="flab">Ciclos en los que das clase</span>
+          <div id="rCiclos" style="display:grid;gap:8px;margin-top:4px"></div>
+          <span class="hintline" style="margin-top:2px">El administrador revisará tu solicitud y te dará acceso de profesor a estos ciclos.</span></div>
+        <div class="field" id="campoGrupo"><label class="flab" for="rGrupo">Grupo</label><select id="rGrupo" required><option value="">Elige tu grupo…</option></select>
+          <span class="hintline" style="margin-top:2px">Solo verás los exámenes de tu ciclo.</span></div>
+        <div class="row2">
+          <div class="field"><label class="flab" for="rPass">Contraseña</label><input type="password" id="rPass" autocomplete="new-password" minlength="8" required></div>
+          <div class="field"><label class="flab" for="rPass2">Repítela</label><input type="password" id="rPass2" autocomplete="new-password" minlength="8" required></div>
+        </div>
+        <p class="hintline" style="margin:-6px 0 14px">Mínimo 8 caracteres. Usa tu nombre real: así aparecerá en tus notas.</p>
+        <div class="msg bad" data-err hidden></div>
+        <button class="btn block" type="submit">Crear cuenta</button>
+      </form>
+
+      <!-- Verificar código -->
+      <form id="fCod" novalidate hidden>
+        <h2>Revisa tu correo</h2>
+        <p class="muted">Hemos enviado un código de 6 cifras a <b id="codEmail"></b>. Puede tardar un minuto; mira también en «Correo no deseado».</p>
+        <div class="field"><label class="flab" for="cCod">Código</label><input class="code" type="text" id="cCod" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required></div>
+        <div class="msg bad" data-err hidden></div>
+        <div class="msg ok" data-ok hidden></div>
+        <button class="btn block" type="submit">Confirmar y entrar</button>
+        <p style="text-align:center;margin:16px 0 0"><button type="button" class="link" id="reenviar">Reenviar código</button> · <button type="button" class="link" data-volver>Volver</button></p>
+      </form>
+
+      <!-- Recuperar contraseña -->
+      <form id="fRec" novalidate hidden>
+        <h2>Cambiar la contraseña</h2>
+        <p class="muted" data-paso1>Escribe tu correo y te enviaremos un código.</p>
+        <div class="field"><label class="flab" for="pEmail">Correo electrónico</label><input type="email" id="pEmail" autocomplete="username" required></div>
+        <div data-paso2 hidden>
+          <p class="muted">Si existe una cuenta con ese correo, te hemos enviado un código.</p>
+          <div class="field"><label class="flab" for="pCod">Código</label><input class="code" type="text" id="pCod" inputmode="numeric" autocomplete="one-time-code" maxlength="6"></div>
+          <div class="field"><label class="flab" for="pPass">Nueva contraseña</label><input type="password" id="pPass" autocomplete="new-password" minlength="8"></div>
+        </div>
+        <div class="msg bad" data-err hidden></div>
+        <button class="btn block" type="submit" data-enviar>Enviarme el código</button>
+        <p style="text-align:center;margin:16px 0 0"><button type="button" class="link" data-volver>Volver a «Entrar»</button></p>
+      </form>
+    </section>
+  </section>
+</main>
+
+<script src="/assets/app.js"></script>
+<script>
+$("#brand").innerHTML = `${LOGO}<div><div class="ey">Plataforma de exámenes</div><div class="nm">Examentia <span class="tag">Exámenes</span></div></div>`;
+
+const volver = (() => {
+  const v = new URLSearchParams(location.search).get("volver") || "";
+  return v.startsWith("/") && !v.startsWith("//") ? v : "";
+})();
+const destino = (u) => (u.rol === "profesor" ? volver || "/profesor/" : u.rol === "pendiente" ? "/panel/" : volver || "/panel/");
+
+// Alumno / profesor en el registro.
+let TIPO = "alumno";
+$$("[data-tipo]").forEach((b) => (b.onclick = () => {
+  TIPO = b.dataset.tipo;
+  $$("[data-tipo]").forEach((x) => x.setAttribute("aria-selected", x === b));
+  $("#campoGrupo").hidden = TIPO === "profesor"; $("#campoCiclos").hidden = TIPO !== "profesor";
+}));
+
+// Si ya hay sesión, directo al panel.
+api("/api/cuenta/yo", undefined, { redirigir401: false }).then(({ usuario }) => location.replace(destino(usuario))).catch(() => {});
+
+const forms = ["#fLogin", "#fReg", "#fCod", "#fRec"];
+function mostrar(id) {
+  forms.forEach((f) => ($(f).hidden = f !== id));
+  $(".tabs").hidden = id === "#fCod" || id === "#fRec";
+  $("#tabLogin").setAttribute("aria-selected", id === "#fLogin");
+  $("#tabReg").setAttribute("aria-selected", id === "#fReg");
+  $$("[data-err]").forEach((e) => (e.hidden = true));
+  const first = $(`${id} input`); if (first) first.focus();
+}
+$("#tabLogin").onclick = () => mostrar("#fLogin");
+$("#tabReg").onclick = () => mostrar("#fReg");
+$("#olvido").onclick = () => { $("#pEmail").value = $("#lEmail").value; mostrar("#fRec"); };
+$$("[data-volver]").forEach((b) => (b.onclick = () => mostrar("#fLogin")));
+
+function error(form, msg) { const e = $("[data-err]", form); e.textContent = msg; e.hidden = false; }
+async function enviar(form, fn) {
+  const btn = $("button[type=submit]", form); const txt = btn.textContent;
+  $("[data-err]", form).hidden = true; btn.disabled = true; btn.textContent = "Un momento…";
+  try { await fn(); } catch (e) { error(form, e.message); }
+  finally { btn.disabled = false; if (btn.textContent === "Un momento…") btn.textContent = txt; }
+}
+function trasAcceso(r, email) {
+  if (r.verificar) { $("#codEmail").textContent = email; mostrar("#fCod"); return; }
+  location.href = destino(r.usuario);
+}
+
+$("#fLogin").onsubmit = (ev) => { ev.preventDefault(); enviar(ev.target, async () => {
+  const email = $("#lEmail").value.trim();
+  if (!email || !$("#lPass").value) throw new Error("Escribe tu correo y tu contraseña");
+  trasAcceso(await api("/api/cuenta/login", { email, password: $("#lPass").value }, { redirigir401: false }), email);
+}); };
+
+$("#fReg").onsubmit = (ev) => { ev.preventDefault(); enviar(ev.target, async () => {
+  const d = { tipo: TIPO, nombre: $("#rNombre").value.trim(), apellidos: $("#rApellidos").value.trim(), email: $("#rEmail").value.trim(), grupo: $("#rGrupo").value.trim(), password: $("#rPass").value,
+    ciclos: $$("#rCiclos input:checked").map((i) => i.value) };
+  if (!d.nombre || !d.apellidos || !d.email) throw new Error("Rellena todos los campos");
+  if (TIPO === "alumno" && !d.grupo) throw new Error("Elige tu grupo");
+  if (TIPO === "profesor" && !d.ciclos.length) throw new Error("Marca al menos un ciclo en el que des clase");
+  if (d.password.length < 8) throw new Error("La contraseña debe tener al menos 8 caracteres");
+  if (d.password !== $("#rPass2").value) throw new Error("Las contraseñas no coinciden");
+  trasAcceso(await api("/api/cuenta/registro", d), d.email);
+}); };
+
+$("#fCod").onsubmit = (ev) => { ev.preventDefault(); enviar(ev.target, async () => {
+  const r = await api("/api/cuenta/verificar", { email: $("#codEmail").textContent, codigo: $("#cCod").value.trim() }, { redirigir401: false });
+  location.href = destino(r.usuario);
+}); };
+$("#reenviar").onclick = async () => {
+  const f = $("#fCod"), ok = $("[data-ok]", f); ok.hidden = true; $("[data-err]", f).hidden = true;
+  try { await api("/api/cuenta/reenviar", { email: $("#codEmail").textContent }); ok.textContent = "Código reenviado."; ok.hidden = false; }
+  catch (e) { error(f, e.message); }
+};
+
+let pasoRec = 1;
+$("#fRec").onsubmit = (ev) => { ev.preventDefault(); const f = ev.target; enviar(f, async () => {
+  const email = $("#pEmail").value.trim();
+  if (!email) throw new Error("Escribe tu correo");
+  if (pasoRec === 1) {
+    await api("/api/cuenta/recuperar", { email });
+    pasoRec = 2; $("[data-paso1]", f).hidden = true; $("[data-paso2]", f).hidden = false;
+    $("[data-enviar]", f).textContent = "Cambiar contraseña"; $("#pCod").focus();
+    return;
+  }
+  if ($("#pPass").value.length < 8) throw new Error("La contraseña debe tener al menos 8 caracteres");
+  const r = await api("/api/cuenta/restablecer", { email, codigo: $("#pCod").value.trim(), password: $("#pPass").value }, { redirigir401: false });
+  location.href = destino(r.usuario);
+}); };
+
+// Grupos disponibles (definidos por ciclo en el servidor).
+api("/api/cuenta/grupos", undefined, { redirigir401: false }).then(({ centro, grupos, ciclos }) => {
+  if (centro && centro !== "Examentia") $("#brand .ey").textContent = centro;
+  if (!ciclos?.length) {
+    const aviso = `<span class="hintline" style="margin-top:2px">El centro todavía no ha creado sus ciclos. Vuelve a intentarlo más tarde.</span>`;
+    $("#rGrupo").insertAdjacentHTML("afterend", aviso); $("#rCiclos").innerHTML = aviso;
+  }
+  // Grupos agrupados por ciclo.
+  $("#rGrupo").insertAdjacentHTML("beforeend", (ciclos || []).map((c) => `<optgroup label="${esc([c.grado, c.descripcion || c.nombre].filter(Boolean).join(" · "))}">${
+    grupos.filter((g) => g.cicloId === c.id).map((g) => `<option>${esc(g.grupo)}</option>`).join("")}</optgroup>`).join(""));
+  $("#rCiclos").innerHTML = (ciclos || []).map((c) => `<label class="check"><input type="checkbox" value="${esc(c.id)}"> <b>${esc(c.nombre)}</b> <span class="muted">${esc([c.descripcion, c.grado].filter(Boolean).join(" · "))}</span></label>`).join("");
+}).catch(() => {});
+
+if (location.hash === "#registro") mostrar("#fReg");
+</script>
+</body>
+</html>
