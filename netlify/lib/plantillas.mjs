@@ -15,7 +15,7 @@ const fmtV = (v) => {
   return x.toLocaleString("es-ES", { maximumFractionDigits: 4 });
 };
 const VERDE = "#2E7D53", ROJO = "#C0392B", AMBAR = "#B9820B", GRIS = "#5F6673", TINTA = "#232833";
-const CENTRO = () => env("NOMBRE_CENTRO", "FP José Ramón Otero");
+const CENTRO = () => env("NOMBRE_CENTRO", "evalua-T");
 
 function marco(cabecera, cuerpo, pie) {
   return `<!doctype html><html lang="es"><body style="margin:0;background:#F3F5F6;font-family:Segoe UI,Arial,sans-serif;color:${TINTA}">

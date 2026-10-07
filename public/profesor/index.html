@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
-<title>Panel del profesor · FP José Ramón Otero</title>
+<title>Panel del profesor · evalua-T</title>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -71,7 +71,7 @@
 <dialog id="dSubir">
   <div class="dhead"><h2>Subir examen</h2><button class="btn ghost sm" data-close>Cerrar</button></div>
   <div class="dbody">
-    <p class="muted" style="margin-top:0">Sube el <b>HTML del cuestionario</b> (con los arrays <code>MC</code> y <code>OPEN</code>, como el de SAD), un <b>JSON</b> con el mismo formato o un examen en <b>Word (.docx)</b>, que se adapta con la IA. <a href="#" id="plantilla">Descargar plantilla JSON</a>.</p>
+    <p class="muted" style="margin-top:0">Sube el <b>HTML del cuestionario</b> (con los arrays <code>MC</code> y <code>OPEN</code>), un <b>JSON</b> con el mismo formato o un examen en <b>Word (.docx)</b>, que se adapta con la IA. <a href="#" id="plantilla">Descargar plantilla JSON</a>.</p>
     <label class="drop" id="drop"><input type="file" id="archivo" accept=".html,.htm,.json,.docx" hidden><span id="dropTxt">Arrastra aquí el archivo (.html, .json o .docx) o haz clic para elegirlo</span></label>
     <form id="fExamen" hidden style="margin-top:18px" novalidate>
       <div class="msg info" id="resumenImport"></div>
@@ -562,7 +562,7 @@ $("#nuevo").onclick = () => {
 $("#plantilla").onclick = (e) => {
   e.preventDefault();
   descargar("plantilla-examen.json", JSON.stringify({
-    id: "modulo-tema-3", titulo: "Cuestionario · Tema 3", subtitulo: "Temas que entran", modulo: "Seguridad y Alta Disponibilidad", ciclo: "ASIR",
+    id: "modulo-tema-3", titulo: "Cuestionario · Tema 3", subtitulo: "Temas que entran", modulo: "Bases de Datos", ciclo: "DAM",
     mc: [{ t: "Pregunta tipo test", o: ["Opción a", "Opción b", "Opción c", "Opción d"], c: 1 }],
     open: [{ act: "Actividad 1", t: "Pregunta abierta", groups: [["concepto1", "sinonimo"], ["concepto2"]], full: 2, partial: 1, exp: "Lo que se esperaba en la respuesta" }],
   }, null, 2), "application/json");

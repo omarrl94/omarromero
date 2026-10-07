@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
-<title>Exámenes · FP José Ramón Otero</title>
+<title>evalua-T · Exámenes online</title>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -45,14 +45,14 @@
 <main class="landing">
   <section class="panel-marca">
     <div class="brand" id="brand"></div>
-    <h1>Exámenes online del <em>centro</em></h1>
-    <p class="lead">La plataforma de cuestionarios de FP José Ramón Otero: haz tus exámenes, recibe la corrección al momento y consulta tus notas cuando quieras.</p>
+    <h1>Exámenes online, <em>corregidos al momento</em></h1>
+    <p class="lead">evalua-T, la plataforma de cuestionarios online: haz tus exámenes, recibe la corrección al momento y consulta tus notas cuando quieras.</p>
     <ul class="points">
-      <li><span class="dot" style="background:#EFCD2F">1</span><span><b>Crea tu cuenta</b> con tu correo del centro y confírmala con el código que te enviamos.</span></li>
+      <li><span class="dot" style="background:#EFCD2F">1</span><span><b>Crea tu cuenta</b> con tu correo y confírmala con el código que te enviamos.</span></li>
       <li><span class="dot" style="background:#A9CABB">2</span><span><b>Entra en tu ciclo y módulo</b> y haz los exámenes que publica tu profesor.</span></li>
       <li><span class="dot" style="background:#E39F7D">3</span><span><b>Recibe la corrección por correo</b> en cuanto entregues y repásala en tu panel.</span></li>
     </ul>
-    <p class="pie">C.F.P. José Ramón Otero · Plataforma de exámenes</p>
+    <p class="pie">evalua-T · Plataforma de exámenes</p>
   </section>
 
   <section class="panel-acceso">
@@ -67,7 +67,7 @@
 
       <!-- Entrar -->
       <form id="fLogin" novalidate>
-        <div class="field"><label class="flab" for="lEmail">Correo del centro</label><input type="email" id="lEmail" autocomplete="username" required></div>
+        <div class="field"><label class="flab" for="lEmail">Correo electrónico</label><input type="email" id="lEmail" autocomplete="username" required></div>
         <div class="field"><label class="flab" for="lPass">Contraseña</label><input type="password" id="lPass" autocomplete="current-password" required></div>
         <div class="msg bad" data-err hidden></div>
         <button class="btn block" type="submit">Entrar</button>
@@ -85,7 +85,7 @@
           <div class="field"><label class="flab" for="rNombre">Nombre</label><input type="text" id="rNombre" autocomplete="given-name" maxlength="80" required></div>
           <div class="field"><label class="flab" for="rApellidos">Apellidos</label><input type="text" id="rApellidos" autocomplete="family-name" maxlength="120" required></div>
         </div>
-        <div class="field"><label class="flab" for="rEmail">Correo del centro</label><input type="email" id="rEmail" autocomplete="email" placeholder="nombre.apellido@jrotero.es" required></div>
+        <div class="field"><label class="flab" for="rEmail">Correo electrónico</label><input type="email" id="rEmail" autocomplete="email" placeholder="nombre.apellido@tucentro.es" required></div>
         <div class="field" id="campoCiclos" hidden><span class="flab">Ciclos en los que das clase</span>
           <div id="rCiclos" style="display:grid;gap:8px;margin-top:4px"></div>
           <span class="hintline" style="margin-top:2px">El administrador revisará tu solicitud y te dará acceso de profesor a estos ciclos.</span></div>
@@ -115,7 +115,7 @@
       <form id="fRec" novalidate hidden>
         <h2>Cambiar la contraseña</h2>
         <p class="muted" data-paso1>Escribe tu correo y te enviaremos un código.</p>
-        <div class="field"><label class="flab" for="pEmail">Correo del centro</label><input type="email" id="pEmail" autocomplete="username" required></div>
+        <div class="field"><label class="flab" for="pEmail">Correo electrónico</label><input type="email" id="pEmail" autocomplete="username" required></div>
         <div data-paso2 hidden>
           <p class="muted">Si existe una cuenta con ese correo, te hemos enviado un código.</p>
           <div class="field"><label class="flab" for="pCod">Código</label><input class="code" type="text" id="pCod" inputmode="numeric" autocomplete="one-time-code" maxlength="6"></div>
@@ -131,7 +131,7 @@
 
 <script src="/assets/app.js"></script>
 <script>
-$("#brand").innerHTML = `${LOGO}<div><div class="ey">Formación Profesional</div><div class="nm">José Ramón Otero <span class="tag">Exámenes</span></div></div>`;
+$("#brand").innerHTML = `${LOGO}<div><div class="ey">Plataforma de exámenes</div><div class="nm">evalua-T <span class="tag">Exámenes</span></div></div>`;
 
 const volver = (() => {
   const v = new URLSearchParams(location.search).get("volver") || "";

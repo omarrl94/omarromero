@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
-<title>Examen · FP José Ramón Otero</title>
+<title>Examen · evalua-T</title>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -107,7 +107,7 @@ async function init() {
     if (e.status === 409) { history.replaceState(null, "", `?id=${encodeURIComponent(examId)}&ver=1`); return verEntrega(); }
     throw e;
   }
-  document.title = `${EX.titulo} · FP José Ramón Otero`;
+  document.title = `${EX.titulo} · evalua-T`;
   if (EX.ciclo) $(".tag").textContent = EX.ciclo;
   $("#titulo").textContent = EX.titulo; $("#subtitulo").textContent = EX.subtitulo || EX.modulo || "";
   $("#miEmail").textContent = YO.email;

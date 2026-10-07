@@ -1,6 +1,6 @@
-# Exámenes · FP José Ramón Otero
+# evalua-T
 
-Plataforma de exámenes online para el centro. Los alumnos **se registran con su correo del centro**, hacen los exámenes que publica el profesor y **reciben la corrección automáticamente por correo**. El profesor **sube los exámenes** (el mismo HTML de cuestionario de siempre), ve las notas, las revisa y las exporta a Excel.
+**evalua-T** es una plataforma de exámenes online para centros educativos. Los alumnos **se registran con su correo del centro**, hacen los exámenes que publica el profesor y **reciben la corrección automáticamente por correo**. El profesor **sube los exámenes** (HTML de cuestionario, JSON o Word, o los genera con IA), ve las notas, las revisa y las exporta a Excel.
 
 Funciona en **Netlify** (plan gratuito): páginas estáticas + una Netlify Function + **Netlify Blobs** para guardar cuentas, exámenes y entregas. No hace falta base de datos.
 
@@ -16,16 +16,16 @@ Funciona en **Netlify** (plan gratuito): páginas estáticas + una Netlify Funct
 ## Cómo funciona
 
 **Alumno**
-1. Se registra en `/` con nombre, apellidos, correo `@jrotero.es`, contraseña y **grupo** (1.º/2.º ASIR, 1.º/2.º DAM…). **El grupo fija su ciclo: solo verá los exámenes de ese ciclo** (también lo comprueba el servidor, aunque tenga el enlace directo). El profesor puede cambiarle el grupo en la pestaña «Alumnos».
+1. Se registra en `/` con nombre, apellidos, correo de un dominio permitido, contraseña y **grupo** (1.º/2.º ASIR, 1.º/2.º DAM…). **El grupo fija su ciclo: solo verá los exámenes de ese ciclo** (también lo comprueba el servidor, aunque tenga el enlace directo). El profesor puede cambiarle el grupo en la pestaña «Alumnos».
 2. Recibe un **código de 6 cifras** por correo para confirmar que el correo es suyo.
-3. En su panel entra directamente en **su ciclo**, elige **el módulo** (p. ej. Seguridad y Alta Disponibilidad) y ve **los temas** publicados. Cada examen se **entrega una sola vez**.
+3. En su panel entra directamente en **su ciclo**, elige **el módulo** (p. ej. Bases de Datos) y ve **los temas** publicados. Cada examen se **entrega una sola vez**.
 4. Hace el examen en **modo examen**: si cambia de pestaña o sale de la ventana, se cierra y se borran las respuestas. **Cada salida queda registrada** para el profesor.
 5. Al entregar, el servidor corrige, guarda la entrega y **envía el correo** con la nota y la corrección (con copia oculta al profesor si se configura `PROFESOR_EMAIL`).
 6. Puede volver a ver su corrección y descargar el PDF desde el panel en cualquier momento.
 
 **Profesores y administrador**
 - **Administrador** (`ADMIN_EMAILS`): acceso a todo y pestaña **«Profesores»** para aprobar solicitudes, quitar el acceso y decidir a qué ciclos tiene acceso cada profesor. Recibe un correo cuando alguien se registra como profesor.
-- **Profesor**: se registra en la página principal eligiendo **«Profesor/a»** y marcando los ciclos en los que da clase (correo `@jrotero.es` confirmado con código). Hasta que el administrador lo aprueba ve un aviso de «pendiente». Una vez aprobado, en `/profesor/` crea, sube y genera exámenes con IA **en sus ciclos**, y **solo ve y gestiona los exámenes que ha creado él** (publicarlos, entregas y notas, revisión, CSV). También gestiona a los alumnos de sus ciclos (cambiar grupo, activar, borrar). El administrador ve todos los exámenes. El servidor lo comprueba en cada petición.
+- **Profesor**: se registra en la página principal eligiendo **«Profesor/a»** y marcando los ciclos en los que da clase (correo confirmado con código). Hasta que el administrador lo aprueba ve un aviso de «pendiente». Una vez aprobado, en `/profesor/` crea, sube y genera exámenes con IA **en sus ciclos**, y **solo ve y gestiona los exámenes que ha creado él** (publicarlos, entregas y notas, revisión, CSV). También gestiona a los alumnos de sus ciclos (cambiar grupo, activar, borrar). El administrador ve todos los exámenes. El servidor lo comprueba en cada petición.
 
 **Panel del profesor** (`/profesor/`)
 - **Acceso**: entra desde la página principal con su correo y `ADMIN_PASSWORD`; la cuenta se crea sola, sin registro ni código.
@@ -50,49 +50,38 @@ Funciona en **Netlify** (plan gratuito): páginas estáticas + una Netlify Funct
 
 ## Puesta en marcha en Netlify
 
-1. **Crear el sitio**: Netlify → *Add new site → Import an existing project* → GitHub → repositorio `omarrl94/omarromero` → rama **`examenes`**. No hay que cambiar nada: `netlify.toml` ya indica la carpeta `public` y las funciones.
+1. **Crear el sitio**: Netlify → *Add new site → Import an existing project* → GitHub → tu repositorio con evalua-T. No hay que cambiar nada: `netlify.toml` ya indica la carpeta `public` y las funciones.
 2. **Variables de entorno** (*Site configuration → Environment variables*), ver `.env.example`:
 
    | Variable | Obligatoria | Ejemplo |
    |---|---|---|
-   | `ADMIN_EMAILS` | **sí** | `omar.romero@jrotero.es` (varios separados por comas) |
+   | `ADMIN_EMAILS` | **sí** | `admin@tucentro.es` (varios separados por comas) |
    | `ADMIN_PASSWORD` | **sí** | contraseña del profesor (márcala como *secret*) |
    | `SMTP_HOST` / `SMTP_PORT` | para correo | `smtp.office365.com` / `587` |
-   | `SMTP_USER` / `SMTP_PASS` | para correo | cuenta que envía, p. ej. `examenes@jrotero.es` |
-   | `MAIL_FROM` | para correo | `"Exámenes FP José Ramón Otero <examenes@jrotero.es>"` |
+   | `SMTP_USER` / `SMTP_PASS` | para correo | cuenta que envía, p. ej. `examenes@tucentro.es` |
+   | `MAIL_FROM` | para correo | `"evalua-T <examenes@tucentro.es>"` |
    | `PROFESOR_EMAIL` | no | recibe copia oculta de cada entrega |
-   | `DOMINIOS_PERMITIDOS` | no | `jrotero.es` (por defecto) |
+   | `DOMINIOS_PERMITIDOS` | no | `tucentro.es` (varios separados por comas; por defecto `*`, cualquier dominio) |
+   | `NOMBRE_CENTRO` | no | nombre que aparece en los correos (por defecto `evalua-T`) |
    | `GEMINI_API_KEY` | para la IA | clave gratuita de aistudio.google.com/apikey (márcala como *secret*) |
    | `GEMINI_MODEL` | no | `gemini-2.5-flash` (por defecto; si no existe, se usa el Flash más reciente disponible) |
 
 3. **Redesplegar** (*Deploys → Trigger deploy*) para que coja las variables.
-4. Entra en la web con el correo de `ADMIN_EMAILS` y la contraseña de `ADMIN_PASSWORD` (pestaña «Entrar», sin registrarte) y llegarás al panel del profesor. El examen de **ASIR › Seguridad y Alta Disponibilidad › Temas 1 y 2** ya aparece cargado y publicado.
+4. Entra en la web con el correo de `ADMIN_EMAILS` y la contraseña de `ADMIN_PASSWORD` (pestaña «Entrar», sin registrarte) y llegarás al panel del profesor. Crea los módulos y sube o genera tu primer examen.
 
-**Microsoft 365:** la cuenta que envía debe tener activado *SMTP autenticado* (Centro de administración → Usuarios → la cuenta → Correo → Administrar aplicaciones de correo electrónico). Si el centro obliga a MFA, usa una cuenta de servicio sin MFA o **Resend** (`RESEND_API_KEY`).
+**Microsoft 365:** la cuenta que envía debe tener activado *SMTP autenticado* (Centro de administración → Usuarios → la cuenta → Correo → Administrar aplicaciones de correo electrónico). Si la organización obliga a MFA, usa una cuenta de servicio sin MFA o **Resend** (`RESEND_API_KEY`).
 
 **Sin correo configurado** todo funciona igual, salvo que las cuentas se activan sin código, no se puede recuperar la contraseña por correo y no se envía la corrección (el alumno la ve en pantalla y en su panel). El panel del profesor muestra un aviso.
 
 ## Ciclos y módulos
 
-Los **ciclos** del centro están en `netlify/lib/catalogo.mjs`:
+Los **ciclos** están en `netlify/lib/catalogo.mjs`. Vienen unos de ejemplo (SMR, ASIR, DAM, DAW): **cámbialos por los de tu centro** antes de abrir el registro.
 
-| Ciclo | Nombre | Grado |
-|---|---|---|
-| SEA | Sistemas Electrotécnicos y Automatizados | GS |
-| DAM | Desarrollo de Aplicaciones Multiplataforma | GS |
-| ASIR | Administración de Sistemas Informáticos en Red | GS |
-| DAW | Desarrollo de Aplicaciones Web | GS |
-| IEA | Instalaciones Eléctricas y Automáticas | GM |
-| Comercio | Actividades Comerciales | GM |
-| Gestión Adm. | Gestión Administrativa | GM |
-| AYF | Administración y Finanzas | GS |
-| AUT | Automoción (todos los ciclos de automoción) | GM y GS |
+Los grupos del registro de alumnos se generan solos (1.º y 2.º de cada ciclo, `CURSOS`); un ciclo puede definir sus propios grupos con `grupos: [...]`. Para añadir un ciclo, añade una línea en `CICLOS` (con un `id` nuevo que no cambie nunca) y haz push.
 
-Los grupos del registro de alumnos se generan solos (1.º y 2.º de cada ciclo, `CURSOS`); AUT tiene sus propios grupos: 1.º/2.º de GM y 1.º/2.º de GS. Para añadir un ciclo, añade una línea en `CICLOS` (con un `id` nuevo que no cambie nunca) y haz push.
+Los **módulos** los crean el administrador y los profesores desde el panel (botón **«Módulos»**), cada uno en sus ciclos; se guardan en Netlify Blobs. Solo se pueden borrar los módulos sin exámenes.
 
-Los **módulos** los crean el administrador y los profesores desde el panel (botón **«Módulos»**), cada uno en sus ciclos; se guardan en Netlify Blobs. Solo se pueden borrar los módulos sin exámenes. Vienen de serie: ASIR › Seguridad y Alta Disponibilidad y DAM › Inteligencia Artificial.
-
-Los exámenes que vienen con la plataforma están en `netlify/lib/semilla-*.mjs` y se cargan **una sola vez** al desplegar; si los borras o editas desde el panel, no se vuelven a crear.
+Si quieres que la plataforma venga con exámenes cargados, créalos en `netlify/lib/semilla-*.mjs` y añádelos a `SEMILLAS` en `netlify/lib/examenes.mjs`: se cargan **una sola vez** al desplegar; si los borras o editas desde el panel, no se vuelven a crear.
 
 ## Formato de un examen
 
@@ -117,8 +106,6 @@ partes: { mc: "Test con nivel de confianza", open: "Definiciones", num: "Ejercic
 
 En los ejercicios, el alumno escribe solo el resultado: se acepta coma o punto decimal, miles con punto, notación científica (`1,872·10^21`, `1.872e21`) y unidades con prefijo (`1,15 kW` cuando se espera W). Se corrige el resultado final, no el desarrollo: el profesor puede ajustar la nota en «Ver / revisar».
 
-Exámenes de ejemplo incluidos: ASIR › SAD › Temas 1 y 2 · DAM › IA › Tema 1 · **SEA › Fundamentos de la Electricidad › Examen Temas 1 y 2** (adaptado del Word: test con confianza, definiciones con rúbrica y 3 ejercicios con figuras).
-
 ## Desarrollo local
 
 ```bash
@@ -126,7 +113,7 @@ npm install
 npm test        # http://localhost:8888
 ```
 
-Guarda los datos en `.datos/` y **no envía correos**: los imprime en la consola (incluidos los códigos de verificación). Profesor de prueba: `profesor@jrotero.es` / `profesor-local`.
+Guarda los datos en `.datos/` y **no envía correos**: los imprime en la consola (incluidos los códigos de verificación). Profesor de prueba: `profesor@evalua-t.local` / `profesor-local`.
 
 ## Estructura
 

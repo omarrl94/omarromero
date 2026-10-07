@@ -4,7 +4,7 @@
  *   npm test   → http://localhost:8888
  * Guarda los datos en ./.datos y, por defecto, NO envía correos:
  * los imprime en la consola (MAIL_MODE=log).
- * Profesor de prueba: profesor@jrotero.es / profesor-local
+ * Profesor de prueba: profesor@evalua-t.local / profesor-local
  */
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
@@ -14,7 +14,7 @@ import { fileURLToPath } from "node:url";
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 process.env.ALMACEN_LOCAL ||= join(ROOT, ".datos");
 process.env.MAIL_MODE ||= "log";
-process.env.ADMIN_EMAILS ||= "profesor@jrotero.es";
+process.env.ADMIN_EMAILS ||= "profesor@evalua-t.local";
 process.env.ADMIN_PASSWORD ||= "profesor-local";
 
 const PUBLIC = join(ROOT, "public");

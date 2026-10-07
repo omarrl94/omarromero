@@ -1,8 +1,8 @@
 {
-  "name": "examenes-jrotero",
+  "name": "evalua-t",
   "private": true,
   "type": "module",
-  "description": "Plataforma de exámenes de FP José Ramón Otero: registro de alumnos, corrección en servidor y envío automático de resultados por correo (Netlify).",
+  "description": "evalua-T, plataforma de exámenes online: registro de alumnos, corrección en servidor y envío automático de resultados por correo (Netlify).",
   "scripts": {
     "dev": "npx netlify-cli dev",
     "test": "node scripts/prueba-local.mjs",

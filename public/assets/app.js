@@ -5,7 +5,7 @@ const LETRAS = ["a", "b", "c", "d", "e"];
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 const fmt = (n) => Number(n).toLocaleString("es-ES");
 
-const LOGO = `<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="50" fill="#E6A57F"/><path d="M14 15 C 28 28, 30 38, 34 49 L 43 71 A 21 21 0 1 0 70 43 L 53 36 C 40 31, 28 25, 16 13 Z" fill="#fff"/></svg>`;
+const LOGO = `<svg viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" rx="24" fill="#E6A57F"/><path d="M26 52 L43 68 L75 34" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
 /** Llamada a la API. Lanza Error con el mensaje del servidor. 401 → al inicio. */
 async function api(ruta, cuerpo, { redirigir401 = true } = {}) {
@@ -29,8 +29,8 @@ async function cabecera({ ciclo = "Exámenes" } = {}) {
   const rol = usuario.admin ? "Administración" : usuario.rol === "profesor" ? "Profesorado" : usuario.grupo || "Alumno/a";
   const enProfe = location.pathname.startsWith("/profesor");
   $("#head").innerHTML = `
-    <a class="brand" href="${usuario.rol === "profesor" && enProfe ? "/profesor/" : "/panel/"}">${LOGO}<div><div class="ey">Formación Profesional</div>
-      <div class="nm">José Ramón Otero <span class="tag">${esc(ciclo)}</span></div></div></a>
+    <a class="brand" href="${usuario.rol === "profesor" && enProfe ? "/profesor/" : "/panel/"}">${LOGO}<div><div class="ey">Plataforma de exámenes</div>
+      <div class="nm">evalua-T <span class="tag">${esc(ciclo)}</span></div></div></a>
     <div class="who">
       <div class="user"><span class="avatar" aria-hidden="true">${esc(iniciales)}</span>
         <span><b>${esc(usuario.nombre)} ${esc(usuario.apellidos)}</b><small>${esc(rol)}</small></span></div>
@@ -191,7 +191,7 @@ async function descargarPDF(d, boton) {
     y += gap;
   };
   const VERDE = [46, 125, 83], ROJO = [192, 57, 43], AMBAR = [185, 130, 11], GRIS = [80, 85, 95];
-  const cab = ["FP JOSÉ RAMÓN OTERO", ex.modulo && ex.modulo.toUpperCase()].filter(Boolean).join(" · ") + (ex.ciclo ? ` (${ex.ciclo})` : "");
+  const cab = ["EVALUA-T", ex.modulo && ex.modulo.toUpperCase()].filter(Boolean).join(" · ") + (ex.ciclo ? ` (${ex.ciclo})` : "");
   line(cab, { size: 9, bold: true, color: [95, 102, 115], gap: 6 });
   line(`${ex.titulo} — Resultados`, { size: 17, bold: true, gap: 8 });
   line(`Alumno/a: ${d.alumno.nombre} ${d.alumno.apellidos}     Grupo: ${d.alumno.grupo || "—"}`, { size: 10, color: GRIS, gap: 2 });

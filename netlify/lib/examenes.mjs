@@ -18,9 +18,6 @@
  */
 import { almacen } from "./almacen.mjs";
 import { fallo, texto } from "./http.mjs";
-import semillaSad from "./semilla-sad-temas-1-2.mjs";
-import semillaIa from "./semilla-ia-tema-1.mjs";
-import semillaSea from "./semilla-sea-temas-1-2.mjs";
 import { buscarModulo, moduloPorNombre } from "./catalogo.mjs";
 
 const str = (v, max, campo) => {
@@ -183,17 +180,15 @@ export const resumen = (ex) => ({
 /**
  * Exámenes que vienen con la plataforma. Cada uno se carga UNA sola vez:
  * si el profesor lo borra o lo edita después, no se vuelve a crear.
- * Para añadir otro: crea su archivo semilla-*.mjs y añádelo aquí.
+ * Para añadir uno: crea su archivo semilla-*.mjs, impórtalo y añádelo aquí.
  */
-const SEMILLAS = [semillaSad, semillaIa, semillaSea];
+const SEMILLAS = [];
 let sembrado = false;
 
 async function sembrar() {
   if (sembrado) return;
   const sis = almacen("sistema");
   const hechas = (await sis.get("semillas")) || {};
-  const antigua = await sis.get("semilla"); // versión anterior: solo marcaba el de SAD
-  if (antigua && !hechas[semillaSad.id]) hechas[semillaSad.id] = antigua.fecha || true;
   const store = almacen("examenes");
   let cambios = false;
   for (const s of SEMILLAS) {

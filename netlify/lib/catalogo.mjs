@@ -9,21 +9,12 @@
  */
 import { almacen } from "./almacen.mjs";
 
+// Ciclos de ejemplo: cámbialos por los de tu centro antes de abrir el registro.
 const CICLOS = [
-  { id: "sea", nombre: "SEA", grado: "GS", descripcion: "Sistemas Electrotécnicos y Automatizados",
-    modulos: [{ id: "fundamentos-electricidad", nombre: "Fundamentos de la Electricidad" }] },
-  { id: "dam", nombre: "DAM", grado: "GS", descripcion: "Desarrollo de Aplicaciones Multiplataforma",
-    modulos: [{ id: "ia", nombre: "Inteligencia Artificial" }] },
-  { id: "asir", nombre: "ASIR", grado: "GS", descripcion: "Administración de Sistemas Informáticos en Red",
-    modulos: [{ id: "sad", nombre: "Seguridad y Alta Disponibilidad" }] },
+  { id: "smr", nombre: "SMR", grado: "GM", descripcion: "Sistemas Microinformáticos y Redes", modulos: [] },
+  { id: "asir", nombre: "ASIR", grado: "GS", descripcion: "Administración de Sistemas Informáticos en Red", modulos: [] },
+  { id: "dam", nombre: "DAM", grado: "GS", descripcion: "Desarrollo de Aplicaciones Multiplataforma", modulos: [] },
   { id: "daw", nombre: "DAW", grado: "GS", descripcion: "Desarrollo de Aplicaciones Web", modulos: [] },
-  { id: "iea", nombre: "IEA", grado: "GM", descripcion: "Instalaciones Eléctricas y Automáticas", modulos: [] },
-  { id: "comercio", nombre: "Comercio", grado: "GM", descripcion: "Actividades Comerciales", modulos: [] },
-  { id: "gestionadm", nombre: "Gestión Adm.", grado: "GM", descripcion: "Gestión Administrativa", modulos: [] },
-  { id: "ayf", nombre: "AYF", grado: "GS", descripcion: "Administración y Finanzas", modulos: [] },
-  // Automoción: agrupa todos los ciclos de automoción de grado medio y superior.
-  { id: "aut", nombre: "AUT", grado: "GM y GS", descripcion: "Automoción", modulos: [],
-    grupos: ["1.º AUT (GM)", "2.º AUT (GM)", "1.º AUT (GS)", "2.º AUT (GS)"] },
 ];
 
 /**

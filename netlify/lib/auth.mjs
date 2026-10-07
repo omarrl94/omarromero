@@ -12,12 +12,12 @@ import { fallo, leerCookie, env } from "./http.mjs";
 import { cicloDe, CATALOGO } from "./catalogo.mjs";
 
 const scrypt = promisify(_scrypt);
-const COOKIE = "jro_sesion";
+const COOKIE = "evt_sesion";
 export const DURACION_SESION = 12 * 3600;
 
 /* ── Dominios y roles ─────────────────────────────────────── */
 export const dominiosPermitidos = () =>
-  env("DOMINIOS_PERMITIDOS", "jrotero.es").toLowerCase().split(",").map((d) => d.trim()).filter(Boolean);
+  env("DOMINIOS_PERMITIDOS", "*").toLowerCase().split(",").map((d) => d.trim()).filter(Boolean);
 export const admins = () =>
   env("ADMIN_EMAILS").toLowerCase().split(",").map((d) => d.trim()).filter(Boolean);
 export const esAdmin = (email) => admins().includes(email);
