@@ -377,3 +377,22 @@ body.exam img,body.exam svg{-webkit-user-drag:none;pointer-events:none}
 .vb.bad.on{background:var(--bad);border-color:var(--bad);color:var(--card)}
 .vb.auto{color:var(--muted)}
 .rev .valbtns{margin-top:8px}
+
+/* Módulos y cursos */
+.modcard{padding:16px 18px;margin-bottom:12px}
+.modt{margin:10px 0 12px}
+.modt td{vertical-align:middle}
+.cursos{display:flex;flex-wrap:wrap;gap:4px 14px}
+.nuevomod{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.nuevomod input[type=text]{flex:1 1 220px}
+.excard2 .where .curso{margin-left:auto;font-size:11.5px;font-weight:600;color:var(--muted);background:var(--sunken);border:1px solid var(--border);border-radius:99px;padding:1px 8px;white-space:nowrap}
+
+/* Grupos y calificaciones */
+.grupoopts{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 18px;margin:-4px 0 14px}
+.t.notas th.modh{text-align:center;border-left:2px solid var(--border-strong)}
+.t.notas th.exh{font-weight:600;font-size:12px;max-width:140px;white-space:normal;line-height:1.25}
+.t.notas td.nota-c{font-variant-numeric:tabular-nums;font-weight:500}
+.t.notas td.nota-c.ap{color:var(--ok)}
+.t.notas td.nota-c.su{color:var(--bad)}
+.t.notas td.nota-c.nd{color:var(--faint)}
+.t.notas td.nota-c.fin{font-weight:700;background:var(--sunken)}

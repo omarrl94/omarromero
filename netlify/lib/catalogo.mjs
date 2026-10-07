@@ -6,16 +6,19 @@
  * no lo cambies una vez haya alumnos o exámenes). Los MÓDULOS de cada ciclo
  * los crean el administrador y los profesores desde el panel (se guardan en
  * el almacén «sistema»); los que hay aquí abajo vienen de serie.
+ *
+ * Cada módulo es de uno o varios cursos (`grupos`: «1.º ASIR», «2.º ASIR»…).
+ * El alumno solo ve los módulos de su curso. Sin `grupos` = todos los cursos.
  */
 import { almacen } from "./almacen.mjs";
 
 const CICLOS = [
   { id: "sea", nombre: "SEA", grado: "GS", descripcion: "Sistemas Electrotécnicos y Automatizados",
-    modulos: [{ id: "fundamentos-electricidad", nombre: "Fundamentos de la Electricidad" }] },
+    modulos: [{ id: "fundamentos-electricidad", nombre: "Fundamentos de la Electricidad", grupos: ["1.º SEA"] }] },
   { id: "dam", nombre: "DAM", grado: "GS", descripcion: "Desarrollo de Aplicaciones Multiplataforma",
     modulos: [{ id: "ia", nombre: "Inteligencia Artificial" }] },
   { id: "asir", nombre: "ASIR", grado: "GS", descripcion: "Administración de Sistemas Informáticos en Red",
-    modulos: [{ id: "sad", nombre: "Seguridad y Alta Disponibilidad" }] },
+    modulos: [{ id: "sad", nombre: "Seguridad y Alta Disponibilidad", grupos: ["2.º ASIR"] }] },
   { id: "daw", nombre: "DAW", grado: "GS", descripcion: "Desarrollo de Aplicaciones Web", modulos: [] },
   { id: "iea", nombre: "IEA", grado: "GM", descripcion: "Instalaciones Eléctricas y Automáticas", modulos: [] },
   { id: "comercio", nombre: "Comercio", grado: "GM", descripcion: "Actividades Comerciales", modulos: [] },
@@ -32,20 +35,57 @@ const CICLOS = [
  */
 export const CATALOGO = CICLOS.map((c) => ({ ...c, modulos: [...c.modulos] }));
 
-const MODULOS = "modulos"; // clave en «sistema»: { [cicloId]: [{ id, nombre }] }
+const MODULOS = "modulos"; // clave en «sistema»: { [cicloId]: [{ id, nombre, grupos }] }
+const CURSOS_MODULOS = "modulos-cursos"; // cursos cambiados en los módulos de serie: { "ciclo/modulo": [grupos] }
 
 export async function cargarModulos() {
-  const extra = (await almacen("sistema").get(MODULOS)) || {};
+  const sis = almacen("sistema");
+  const [extra, cursos] = await Promise.all([sis.get(MODULOS), sis.get(CURSOS_MODULOS)]);
   for (const c of CATALOGO) {
     const base = CICLOS.find((x) => x.id === c.id).modulos;
-    c.modulos = [...base, ...(extra[c.id] || []).filter((m) => !base.some((b) => b.id === m.id)).map((m) => ({ ...m, propio: true }))];
+    c.modulos = [...base, ...((extra || {})[c.id] || []).filter((m) => !base.some((b) => b.id === m.id)).map((m) => ({ ...m, propio: true }))]
+      .map((m) => ({ ...m, grupos: (cursos || {})[`${c.id}/${m.id}`] ?? m.grupos ?? [] }));
   }
+}
+
+/** Grupos (cursos) de un ciclo: «1.º ASIR», «2.º ASIR»… */
+export const gruposDeCiclo = (c) => c?.grupos || CURSOS.map((k) => `${k} ${c.nombre}`);
+
+/** Solo grupos válidos de ese ciclo; todos marcados = lista vacía (todos los cursos). */
+function limpiarGrupos(ciclo, grupos) {
+  const validos = gruposDeCiclo(ciclo);
+  const g = validos.filter((x) => (Array.isArray(grupos) ? grupos : []).includes(x));
+  return g.length === validos.length ? [] : g;
+}
+
+/** Cambia los cursos de un módulo (de serie o creado desde el panel). */
+export async function cursosModulo(cicloId, moduloId, grupos) {
+  const ubic = buscarModulo(cicloId, moduloId);
+  if (!ubic) return null;
+  const g = limpiarGrupos(ubic.ciclo, grupos);
+  const sis = almacen("sistema");
+  const cursos = (await sis.get(CURSOS_MODULOS)) || {};
+  cursos[`${cicloId}/${moduloId}`] = g;
+  await sis.set(CURSOS_MODULOS, cursos);
+  await cargarModulos();
+  return g;
+}
+
+/**
+ * ¿Ve el alumno este módulo? Sí si el módulo es de todos los cursos, si es
+ * de su grupo, o si su grupo no es uno de la lista (cuentas antiguas).
+ */
+export function moduloVisible(cicloId, moduloId, u) {
+  const ubic = buscarModulo(cicloId, moduloId);
+  if (!ubic) return false;
+  const g = ubic.modulo.grupos || [];
+  return !g.length || g.includes(u?.grupo) || !gruposDeCiclo(ubic.ciclo).includes(u?.grupo);
 }
 
 const slug = (s) => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40);
 
 /** Crea un módulo en un ciclo. Devuelve el módulo (o el existente con ese nombre). */
-export async function crearModulo(cicloId, nombre) {
+export async function crearModulo(cicloId, nombre, grupos) {
   const sis = almacen("sistema");
   const extra = (await sis.get(MODULOS)) || {};
   const ciclo = CATALOGO.find((c) => c.id === cicloId);
@@ -53,7 +93,7 @@ export async function crearModulo(cicloId, nombre) {
   if (existente) return existente;
   let id = slug(nombre) || "modulo", n = 2;
   while (ciclo.modulos.some((m) => m.id === id)) id = `${slug(nombre)}-${n++}`;
-  const m = { id, nombre };
+  const m = { id, nombre, grupos: limpiarGrupos(ciclo, grupos) };
   extra[cicloId] = [...(extra[cicloId] || []), m];
   await sis.set(MODULOS, extra);
   await cargarModulos();
@@ -91,7 +131,7 @@ export function moduloPorNombre(cicloNombre, moduloNombre) {
 export const CURSOS = ["1.º", "2.º"];
 
 export const GRUPOS = () =>
-  CATALOGO.flatMap((c) => (c.grupos || CURSOS.map((k) => `${k} ${c.nombre}`)).map((grupo) => ({ grupo, cicloId: c.id })));
+  CATALOGO.flatMap((c) => gruposDeCiclo(c).map((grupo) => ({ grupo, cicloId: c.id })));
 
 /** Ciclo al que pertenece un grupo escrito a mano («1º asir», «2 DAM»…), o null. */
 export function cicloDeGrupo(grupo) {

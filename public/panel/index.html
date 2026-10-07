@@ -86,11 +86,11 @@ function chipsEstado(lista) {
   // 2 · Elegir módulo
   if (!modulo) {
     $("#crumbs").innerHTML = `${inicio}<b>${esc(ciclo.nombre)}</b>`;
-    $("#titulo").textContent = `${ciclo.nombre} · Elige el módulo`;
-    $("#sub").textContent = ciclo.descripcion || "";
-    if (!ciclo.modulos.length) { v.innerHTML = `<div class="empty">Todavía no hay módulos ni exámenes en este ciclo.</div>`; return; }
+    $("#titulo").textContent = `${esProfe ? ciclo.nombre : yo.grupo || ciclo.nombre} · Elige el módulo`;
+    $("#sub").textContent = esProfe ? ciclo.descripcion || "" : `${ciclo.descripcion || ""} · Módulos de tu curso`;
+    if (!ciclo.modulos.length) { v.innerHTML = `<div class="empty">Todavía no hay módulos ni exámenes ${esProfe ? "en este ciclo" : "de tu curso"}.</div>`; return; }
     v.innerHTML = `<div class="grid">${ciclo.modulos.map((m) => `
-      <a class="tile" href="?ciclo=${encodeURIComponent(ciclo.id)}&modulo=${encodeURIComponent(m.id)}"><span class="mid">${esc(m.nombre)}</span>
+      <a class="tile" href="?ciclo=${encodeURIComponent(ciclo.id)}&modulo=${encodeURIComponent(m.id)}"><span class="mid">${esc(m.nombre)}</span>${esProfe ? `<span class="muted" style="font-size:13px">${m.grupos?.length ? esc(m.grupos.join(" · ")) : "Todos los cursos"}</span>` : ""}
         ${chipsEstado(enCiclo.filter((e) => e.moduloId === m.id))}</a>`).join("")}</div>`;
     return;
   }

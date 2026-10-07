@@ -21,6 +21,7 @@
     <div><h1 style="margin:0">Panel del profesor</h1><p class="muted" style="margin:2px 0 0" id="subPanel">Crea y publica exámenes, revisa entregas y gestiona tus grupos.</p></div>
     <div class="tabs inline" role="tablist">
       <button role="tab" aria-selected="true" data-tab="vExamenes">Exámenes</button>
+      <button role="tab" aria-selected="false" data-tab="vGrupos">Grupos</button>
       <button role="tab" aria-selected="false" data-tab="vAlumnos">Alumnos</button>
       <button role="tab" aria-selected="false" data-tab="vProfes" hidden>Profesores <span class="chip s" id="nPend" hidden style="padding:0 7px"></span></button>
     </div>
@@ -58,6 +59,21 @@
     <div class="toolbar"><h2>Profesores</h2></div>
     <p class="muted" style="margin-top:-6px">Los profesores se registran en la página principal eligiendo «Profesor/a» y los ciclos en los que dan clase. Aquí los apruebas y decides a qué ciclos tienen acceso: solo podrán crear exámenes y gestionar alumnos de esos ciclos.</p>
     <div id="tablaProfes"><p class="loading">Cargando…</p></div>
+  </section>
+
+  <!-- Grupos: calificaciones finales y gestión -->
+  <section id="vGrupos" hidden>
+    <div class="toolbar"><h2>Grupos y calificaciones</h2>
+      <div class="acts"><select id="selGrupo" style="width:auto" aria-label="Grupo"></select>
+        <button class="btn ghost" id="grupoExcel">⬇ Excel</button><button class="btn" id="grupoPDF">⬇ PDF</button></div></div>
+    <div class="grupoopts">
+      <div class="tabs" role="tablist" aria-label="Vista">
+        <button type="button" role="tab" aria-selected="true" data-vista-grupo="detalle">Detalle por examen</button>
+        <button type="button" role="tab" aria-selected="false" data-vista-grupo="medias">Solo notas finales</button>
+      </div>
+      <label class="check" style="font-size:14px"><input type="checkbox" id="noPresentado0" checked> «No presentado» cuenta como 0</label>
+    </div>
+    <div id="tablaGrupo"><p class="loading">Cargando…</p></div>
   </section>
 
   <!-- Alumnos -->
@@ -102,7 +118,7 @@
 <dialog id="dModulos">
   <div class="dhead"><h2>Módulos de tus ciclos</h2><button class="btn ghost sm" data-close>Cerrar</button></div>
   <div class="dbody">
-    <p class="muted" style="margin-top:0">Cada examen pertenece a un módulo. Crea aquí los módulos de tus ciclos; los alumnos los verán al entrar en su ciclo. Solo se pueden borrar los módulos sin exámenes.</p>
+    <p class="muted" style="margin-top:0">Cada examen pertenece a un módulo y cada módulo a un curso (1.º o 2.º). Los alumnos solo ven los módulos del curso en el que se han matriculado. Solo se pueden borrar los módulos sin exámenes.</p>
     <div class="msg bad" id="modErr" hidden></div>
     <div id="listaModulos"></div>
   </div>
@@ -186,8 +202,9 @@ $$("[data-tab]").forEach((b) => (b.onclick = () => {
   $$("[data-tab]").forEach((x) => x.setAttribute("aria-selected", x === b));
   $("#vExamenes").hidden = b.dataset.tab !== "vExamenes"; $("#vEntregas").hidden = true; $("#vRespuestas").hidden = true;
   $("#vAlumnos").hidden = b.dataset.tab !== "vAlumnos";
+  $("#vGrupos").hidden = b.dataset.tab !== "vGrupos";
   $("#vProfes").hidden = b.dataset.tab !== "vProfes";
-  if (b.dataset.tab === "vAlumnos") cargarAlumnos(); else if (b.dataset.tab === "vProfes") cargarProfes(); else cargarExamenes();
+  if (b.dataset.tab === "vGrupos") cargarGrupos(); else if (b.dataset.tab === "vAlumnos") cargarAlumnos(); else if (b.dataset.tab === "vProfes") cargarProfes(); else cargarExamenes();
 }));
 
 /* ── Profesores (solo administrador) ── */
@@ -234,7 +251,7 @@ function pintarExamenes() {
   const sw = (e, campo, txt, tip) => `<label title="${tip}">${txt}<span class="switch"><input type="checkbox" data-aj="${campo}" ${e[campo] ? "checked" : ""}><span></span></span></label>`;
   t.innerHTML = `<div class="exgrid">${lista.map((e) => `<article class="excard2" data-id="${esc(e.id)}">
       <div class="top">
-        <div class="where"><span class="tag">${esc(e.ciclo)}</span><span>${esc(e.modulo)}</span></div>
+        <div class="where"><span class="tag">${esc(e.ciclo)}</span><span>${esc(e.modulo)}</span><span class="curso" title="Cursos que ven este módulo">${esc(cursoTxt(CATALOGO.find((c) => c.id === e.cicloId)?.modulos.find((m) => m.id === e.moduloId)))}</span></div>
         <h3>${esc(e.titulo)}</h3>
         <div class="id">Orden ${e.orden} · <code>${esc(e.id)}</code>${e.autor ? ` · ${esc(e.autor)}` : ""}</div>
       </div>
@@ -680,19 +697,36 @@ function pintarPrevia() {
   }));
 }
 /* ── Módulos ── */
+const gruposCiclo = (c) => c.grupos || ["1.º", "2.º"].map((k) => `${k} ${c.nombre}`);
+const cursoTxt = (m) => (m?.grupos?.length ? m.grupos.join(" · ") : "Todos los cursos");
+const casillasCurso = (c, marcados) => gruposCiclo(c).map((g) =>
+  `<label class="check" style="font-size:13.5px"><input type="checkbox" value="${esc(g)}" ${!marcados?.length || marcados.includes(g) ? "checked" : ""}> ${esc(g)}</label>`).join("");
 function pintarModulos() {
-  $("#listaModulos").innerHTML = CATALOGO.map((c) => `<div class="card" style="padding:16px 18px;margin-bottom:12px" data-ciclo-mod="${esc(c.id)}">
+  $("#listaModulos").innerHTML = CATALOGO.map((c) => `<div class="card modcard" data-ciclo-mod="${esc(c.id)}">
     <b>${esc(c.nombre)}</b> <span class="muted">· ${esc(c.descripcion || "")} (${esc(c.grado || "")})</span>
-    <div style="margin:10px 0">${c.modulos.length ? c.modulos.map((m) => `<span class="chip v" style="margin:0 6px 6px 0;display:inline-flex;align-items:center;gap:6px">${esc(m.nombre)}
-      ${m.propio ? `<button type="button" class="link" style="color:inherit;text-decoration:none;font-weight:800" title="Borrar módulo" data-borrar-mod="${esc(m.id)}">×</button>` : ""}</span>`).join("") : `<span class="muted">Sin módulos todavía.</span>`}</div>
-    <form style="display:flex;gap:8px" data-nuevo-mod><input type="text" placeholder="Nuevo módulo (p. ej. Programación)" maxlength="120" style="flex:1"><button class="btn sm" type="submit">Añadir</button></form>
+    ${c.modulos.length ? `<table class="t modt"><thead><tr><th>Módulo</th><th>Curso</th><th></th></tr></thead><tbody>${c.modulos.map((m) => `<tr data-mod="${esc(m.id)}">
+      <td><b>${esc(m.nombre)}</b></td>
+      <td><div class="cursos">${casillasCurso(c, m.grupos)}</div></td>
+      <td>${m.propio ? `<button type="button" class="btn danger sm icono" title="Borrar módulo" aria-label="Borrar módulo" data-borrar-mod="${esc(m.id)}">${ICONO.borrar}</button>` : ""}</td></tr>`).join("")}</tbody></table>`
+      : `<p class="muted" style="margin:10px 0">Sin módulos todavía.</p>`}
+    <form class="nuevomod" data-nuevo-mod><input type="text" placeholder="Nuevo módulo (p. ej. Programación)" maxlength="120">
+      <div class="cursos">${casillasCurso(c, [gruposCiclo(c)[0]])}</div><button class="btn sm" type="submit">Añadir</button></form>
   </div>`).join("");
   const err = (m) => { $("#modErr").textContent = m; $("#modErr").hidden = !m; };
+  const marcados = (el) => $$("input[type=checkbox]:checked", el).map((i) => i.value);
   $$("[data-nuevo-mod]").forEach((f) => (f.onsubmit = async (ev) => {
     ev.preventDefault(); err("");
-    const nombre = $("input", f).value.trim(); if (!nombre) return;
-    try { await api("/api/profesor/modulo", { cicloId: f.closest("[data-ciclo-mod]").dataset.cicloMod, nombre }); await cargarExamenes(); pintarModulos(); }
+    const nombre = $("input[type=text]", f).value.trim(); if (!nombre) return;
+    if (!marcados(f).length) return err("Marca al menos un curso para el módulo.");
+    try { await api("/api/profesor/modulo", { cicloId: f.closest("[data-ciclo-mod]").dataset.cicloMod, nombre, grupos: marcados(f) }); await cargarExamenes(); pintarModulos(); }
     catch (e) { err(e.message); }
+  }));
+  $$("tr[data-mod] input[type=checkbox]").forEach((i) => (i.onchange = async () => {
+    err("");
+    const tr = i.closest("tr"), g = marcados(tr);
+    if (!g.length) { i.checked = true; return err("Un módulo debe ser al menos de un curso."); }
+    try { await api("/api/profesor/modulo/cursos", { cicloId: tr.closest("[data-ciclo-mod]").dataset.cicloMod, moduloId: tr.dataset.mod, grupos: g }); await cargarExamenes(); }
+    catch (e) { err(e.message); i.checked = !i.checked; }
   }));
   $$("[data-borrar-mod]").forEach((b) => (b.onclick = async () => {
     err("");
@@ -708,13 +742,15 @@ const sinModulos = (cicloId) => !CATALOGO.find((c) => c.id === cicloId)?.modulos
 
 /* ── Generar con IA ── */
 const CDN = {
+  xlsx: "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js",
+  jspdf: "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js",
   jszip: "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js",
   pdf: "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js",
   pdfWorker: "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js",
 };
 const cargarScript = (src) => new Promise((ok, ko) => {
   const s = document.createElement("script"); s.src = src; s.onload = ok;
-  s.onerror = () => ko(new Error("no se ha podido cargar el lector de archivos; comprueba la conexión")); document.head.appendChild(s);
+  s.onerror = () => ko(new Error("no se ha podido cargar una librería necesaria; comprueba la conexión")); document.head.appendChild(s);
 });
 const parrafos = (xml, p, t) => [...new DOMParser().parseFromString(xml, "application/xml").getElementsByTagName(p)]
   .map((n) => [...n.getElementsByTagName(t)].map((x) => x.textContent).join("").trim()).filter(Boolean);
@@ -988,6 +1024,205 @@ $("#fExamen").onsubmit = async (ev) => {
   } catch (e) { err.textContent = e.message; err.hidden = false; }
   finally { btn.disabled = false; }
 };
+
+/* ── Grupos: calificaciones finales ── */
+let GRUPO = null, VISTA_GRUPO = "detalle";
+const r2 = (x) => Math.round(x * 100) / 100;
+
+async function cargarGrupos() {
+  const { grupos, alumnos } = await api("/api/profesor/alumnos");
+  GRUPOS = grupos; ALUMNOS = alumnos;
+  const sel = $("#selGrupo"), antes = sel.value;
+  const n = (g) => alumnos.filter((a) => a.grupo === g).length;
+  sel.innerHTML = grupos.map((g) => `<option value="${esc(g.grupo)}">${esc(g.grupo)} (${n(g.grupo)})</option>`).join("");
+  // Por defecto, el primer grupo con alumnos.
+  sel.value = antes && grupos.some((g) => g.grupo === antes) ? antes : (grupos.find((g) => n(g.grupo)) || grupos[0])?.grupo || "";
+  await cargarGrupo();
+}
+$("#selGrupo").onchange = () => cargarGrupo();
+$("#noPresentado0").onchange = () => pintarGrupo();
+$$("[data-vista-grupo]").forEach((b) => (b.onclick = () => {
+  VISTA_GRUPO = b.dataset.vistaGrupo;
+  $$("[data-vista-grupo]").forEach((x) => x.setAttribute("aria-selected", x === b));
+  pintarGrupo();
+}));
+
+async function cargarGrupo() {
+  const g = $("#selGrupo").value;
+  if (!g) { $("#tablaGrupo").innerHTML = `<div class="empty">No tienes grupos.</div>`; return; }
+  $("#tablaGrupo").innerHTML = `<p class="loading">Cargando…</p>`;
+  GRUPO = await api(`/api/profesor/grupo?grupo=${encodeURIComponent(g)}`);
+  pintarGrupo();
+}
+
+/** Notas finales: media de los exámenes de cada módulo y media de los módulos. */
+function calcularGrupo() {
+  const cero = $("#noPresentado0").checked;
+  const mods = GRUPO.modulos.filter((m) => m.examenes.length);
+  const filas = GRUPO.alumnos.map((a) => {
+    const porModulo = mods.map((m) => {
+      const notas = m.examenes.map((ex) => a.notas[ex.id]?.nota ?? (cero ? 0 : null));
+      const validas = notas.filter((x) => x != null);
+      return { notas, media: validas.length ? r2(validas.reduce((s, x) => s + x, 0) / validas.length) : null };
+    });
+    const medias = porModulo.map((m) => m.media).filter((x) => x != null);
+    return { a, porModulo, final: medias.length ? r2(medias.reduce((s, x) => s + x, 0) / medias.length) : null };
+  });
+  return { mods, filas };
+}
+
+const claseNota = (n) => (n == null ? "nd" : n >= 5 ? "ap" : "su");
+const celdaNota = (n, extra = "") => `<td class="num nota-c ${claseNota(n)}">${n == null ? "—" : fmt(n)}${extra}</td>`;
+
+function pintarGrupo() {
+  if (!GRUPO) return;
+  const { mods, filas } = calcularGrupo(), detalle = VISTA_GRUPO === "detalle";
+  const t = $("#tablaGrupo");
+  if (!GRUPO.alumnos.length) { t.innerHTML = `<div class="empty">Todavía no hay alumnos matriculados en ${esc(GRUPO.grupo)}.</div>`; return; }
+  const finales = filas.map((f) => f.final).filter((x) => x != null);
+  const media = finales.length ? r2(finales.reduce((s, x) => s + x, 0) / finales.length) : null;
+  const aprobados = finales.filter((x) => x >= 5).length;
+  const cab1 = mods.map((m) => `<th colspan="${detalle ? m.examenes.length + 1 : 1}" class="modh">${esc(m.nombre)}</th>`).join("");
+  const cab2 = mods.map((m) => (detalle ? m.examenes.map((ex) => `<th class="num exh" title="${esc(ex.titulo)}">${esc(ex.titulo)}${ex.publicado ? "" : " <span class='muted'>(oculto)</span>"}</th>`).join("") : "") + `<th class="num">${detalle ? "Nota módulo" : "Nota"}</th>`).join("");
+  t.innerHTML = `<div class="meta" style="margin-bottom:12px">
+      <span class="chip v">${GRUPO.alumnos.length} alumnos</span>
+      <span class="chip gray">${mods.length} ${mods.length === 1 ? "módulo" : "módulos"} · ${((n) => `${n} ${n === 1 ? "examen" : "exámenes"}`)(mods.reduce((s, m) => s + m.examenes.length, 0))}</span>
+      ${media != null ? `<span class="chip">Media del grupo: ${fmt(media)}</span><span class="chip ok">${aprobados} con media aprobada</span>` : ""}
+    </div>
+    ${!mods.length ? `<div class="msg">Todavía no hay exámenes publicados en los módulos de ${esc(GRUPO.grupo)}. Revisa el curso de cada módulo en «Exámenes › Módulos».</div>` : ""}
+    <div class="tablewrap"><table class="t notas"><thead>
+      <tr><th rowspan="2">Alumno/a</th>${cab1}${mods.length > 1 ? `<th rowspan="2" class="num">Media</th>` : ""}<th rowspan="2">Grupo</th></tr>
+      <tr>${cab2}</tr></thead><tbody>
+    ${filas.map((f) => `<tr data-email="${esc(f.a.email)}">
+      <td><b>${esc(f.a.apellidos)}, ${esc(f.a.nombre)}</b><div class="muted" style="font-size:12.5px">${esc(f.a.email)}${f.a.verificado ? "" : ` · <span class="chip gray" style="font-size:11px">sin confirmar</span>`}</div></td>
+      ${mods.map((m, mi) => (detalle ? m.examenes.map((ex, j) => {
+        const c = f.a.notas[ex.id];
+        return c ? celdaNota(c.nota, c.porRevisar ? ` <span title="${c.porRevisar} respuestas sin revisar">✍</span>` : "") : `<td class="num nota-c nd" title="No presentado">NP</td>`;
+      }).join("") : "") + celdaNota(f.porModulo[mi].media).replace("nota-c", "nota-c fin")).join("")}
+      ${mods.length > 1 ? celdaNota(f.final).replace("nota-c", "nota-c fin") : ""}
+      <td><select data-mover style="width:auto;min-width:118px;padding:4px 28px 4px 8px;font-size:13px" aria-label="Cambiar de grupo">${GRUPOS.filter((g) => g.cicloId === GRUPO.ciclo.id).map((g) => `<option ${g.grupo === GRUPO.grupo ? "selected" : ""}>${esc(g.grupo)}</option>`).join("")}</select></td>
+    </tr>`).join("")}</tbody></table></div>
+    <p class="hintline">La nota de cada examen es la final (la revisada por el profesor si la hay; si hay varios intentos, la del que cuenta). Nota del módulo = media de sus exámenes; «NP» = no presentado. ✍ = respuestas escritas sin revisar.</p>`;
+  $$("#tablaGrupo [data-mover]").forEach((s) => (s.onchange = async () => {
+    const email = s.closest("tr").dataset.email;
+    if (!confirm(`¿Mover a ${email} al grupo ${s.value}?\n\nVerá los exámenes de los módulos de ese curso.`)) { s.value = GRUPO.grupo; return; }
+    try { await api("/api/profesor/alumno", { email, grupo: s.value }); await cargarGrupos(); } catch (e) { alert(e.message); s.value = GRUPO.grupo; }
+  }));
+}
+
+/** Filas para exportar (la misma vista que en pantalla). */
+function tablaExport() {
+  const { mods, filas } = calcularGrupo(), detalle = VISTA_GRUPO === "detalle";
+  const cab = ["Apellidos", "Nombre", "Correo"];
+  mods.forEach((m) => { if (detalle) m.examenes.forEach((ex) => cab.push(`${m.nombre} · ${ex.titulo}`)); cab.push(detalle ? `${m.nombre} · NOTA` : m.nombre); });
+  if (mods.length > 1) cab.push("Media");
+  const datos = filas.map((f) => {
+    const r = [f.a.apellidos, f.a.nombre, f.a.email];
+    mods.forEach((m, mi) => { if (detalle) m.examenes.forEach((ex) => r.push(f.a.notas[ex.id] ? f.a.notas[ex.id].nota : "NP")); r.push(f.porModulo[mi].media ?? "—"); });
+    if (mods.length > 1) r.push(f.final ?? "—");
+    return r;
+  });
+  return { cab, datos, mods, detalle };
+}
+const nombreArchivo = (ext) => `calificaciones_${GRUPO.grupo.replace(/[^\w]+/g, "_").replace(/^_|_$/g, "")}_${new Date().toISOString().slice(0, 10)}.${ext}`;
+const textoFecha = () => new Date().toLocaleDateString("es-ES", { day: "2-digit", month: "long", year: "numeric" });
+
+$("#grupoExcel").onclick = async () => {
+  if (!GRUPO?.alumnos.length) return alert("Este grupo no tiene alumnos.");
+  const b = $("#grupoExcel"); b.disabled = true;
+  try {
+    if (!window.XLSX) await cargarScript(CDN.xlsx);
+    const { cab, datos } = tablaExport();
+    const filas = [[`Calificaciones · ${GRUPO.grupo} · ${GRUPO.ciclo.descripcion || ""}`], [`FP José Ramón Otero · ${textoFecha()}`], [], cab, ...datos];
+    const ws = XLSX.utils.aoa_to_sheet(filas);
+    ws["!cols"] = cab.map((c, i) => ({ wch: i < 2 ? 22 : i === 2 ? 30 : Math.min(Math.max(10, c.length * 0.6), 28) }));
+    ws["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: Math.min(cab.length - 1, 8) } }];
+    // Notas con dos decimales
+    for (let r = 4; r < filas.length; r++) for (let c = 3; c < cab.length; c++) {
+      const cel = ws[XLSX.utils.encode_cell({ r, c })]; if (cel && cel.t === "n") cel.z = "0.00";
+    }
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, GRUPO.grupo.replace(/[\\/?*[\]:]/g, "").slice(0, 31));
+    XLSX.writeFile(wb, nombreArchivo("xlsx"));
+  } catch (e) { alert("No se ha podido generar el Excel: " + e.message); }
+  finally { b.disabled = false; }
+};
+
+$("#grupoPDF").onclick = async () => {
+  if (!GRUPO?.alumnos.length) return alert("Este grupo no tiene alumnos.");
+  const b = $("#grupoPDF"); b.disabled = true;
+  try {
+    if (!window.jspdf) await cargarScript(CDN.jspdf);
+    pdfGrupo();
+  } catch (e) { alert("No se ha podido generar el PDF: " + e.message); }
+  finally { b.disabled = false; }
+};
+
+/** Acta de calificaciones en PDF (A4 apaisado), dibujada a mano con jsPDF. */
+function pdfGrupo() {
+  const { cab, datos } = tablaExport();
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: "pt", format: "a4", orientation: "landscape" });
+  const W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight(), M = 36;
+  const GRAFITO = [31, 36, 48], GRIS = [107, 114, 128], VERDE = [35, 120, 74], ROJO = [184, 56, 43], AMARILLO = [239, 205, 47];
+  // Columnas: alumno (apellidos, nombre) + notas. El correo no cabe en el PDF.
+  const cols = ["Alumno/a", ...cab.slice(3)];
+  const filas = datos.map((r) => [`${r[0]}, ${r[1]}`, ...r.slice(3)]);
+  const anchoNombre = 170, anchoNota = Math.max(38, Math.min(90, (W - 2 * M - anchoNombre) / Math.max(1, cols.length - 1)));
+  const ancho = (i) => (i === 0 ? anchoNombre : anchoNota);
+  const fs = cols.length > 14 ? 6.5 : cols.length > 9 ? 7.5 : 8.5;
+  let y = 0, pagina = 0;
+  const cabecera = () => {
+    pagina++;
+    doc.setFillColor(...AMARILLO); doc.rect(0, 0, W, 5, "F");
+    doc.setFont("helvetica", "bold"); doc.setFontSize(15); doc.setTextColor(...GRAFITO);
+    doc.text(`Calificaciones · ${GRUPO.grupo}`, M, M + 8);
+    doc.setFont("helvetica", "normal"); doc.setFontSize(9.5); doc.setTextColor(...GRIS);
+    doc.text(`FP José Ramón Otero · ${GRUPO.ciclo.descripcion || GRUPO.ciclo.nombre} · ${textoFecha()}`, M, M + 24);
+    y = M + 40;
+    // Fila de cabecera de la tabla
+    const alto = 34;
+    doc.setFillColor(...GRAFITO); doc.rect(M, y, cols.reduce((s, _, i) => s + ancho(i), 0), alto, "F");
+    doc.setFont("helvetica", "bold"); doc.setFontSize(fs); doc.setTextColor(255, 255, 255);
+    let x = M;
+    cols.forEach((c, i) => {
+      const lineas = doc.splitTextToSize(String(c), ancho(i) - 6).slice(0, 3);
+      doc.text(lineas, i === 0 ? x + 4 : x + ancho(i) / 2, y + 11, { align: i === 0 ? "left" : "center" });
+      x += ancho(i);
+    });
+    y += alto;
+  };
+  const pie = () => {
+    doc.setFont("helvetica", "normal"); doc.setFontSize(8); doc.setTextColor(...GRIS);
+    doc.text(`Página ${pagina}`, W - M, H - 18, { align: "right" });
+    doc.text("NP = no presentado. Nota del módulo = media de sus exámenes.", M, H - 18);
+  };
+  cabecera();
+  const altoFila = 18;
+  filas.forEach((r, n) => {
+    if (y + altoFila > H - 36) { pie(); doc.addPage(); cabecera(); }
+    if (n % 2) { doc.setFillColor(244, 245, 247); doc.rect(M, y, cols.reduce((s, _, i) => s + ancho(i), 0), altoFila, "F"); }
+    let x = M;
+    r.forEach((v, i) => {
+      const esFinal = /NOTA$|^Media$/.test(cols[i]) || (VISTA_GRUPO === "medias" && i > 0);
+      doc.setFont("helvetica", esFinal || i === 0 ? "bold" : "normal"); doc.setFontSize(fs + 0.5);
+      const num = typeof v === "number";
+      doc.setTextColor(...(num ? (v >= 5 ? VERDE : ROJO) : i === 0 ? GRAFITO : GRIS));
+      const txt = num ? fmt(v) : String(v);
+      doc.text(i === 0 ? doc.splitTextToSize(txt, ancho(0) - 8)[0] : txt, i === 0 ? x + 4 : x + ancho(i) / 2, y + 12.5, { align: i === 0 ? "left" : "center" });
+      x += ancho(i);
+    });
+    doc.setDrawColor(226, 228, 233); doc.line(M, y + altoFila, x, y + altoFila);
+    y += altoFila;
+  });
+  // Resumen
+  const finales = datos.map((r) => r.at(-1)).filter((v) => typeof v === "number");
+  if (y + 40 > H - 36) { pie(); doc.addPage(); cabecera(); }
+  doc.setFont("helvetica", "normal"); doc.setFontSize(9.5); doc.setTextColor(...GRAFITO);
+  if (finales.length) doc.text(`${datos.length} alumnos · media ${fmt(r2(finales.reduce((s, x) => s + x, 0) / finales.length))} · ${finales.filter((x) => x >= 5).length} aprobados`, M, y + 20);
+  pie();
+  doc.save(nombreArchivo("pdf"));
+}
 
 /* ── Alumnos ── */
 async function cargarAlumnos() {

@@ -11,7 +11,7 @@ import {
   consolidar, conIntento, validarAjustes, resultadoCon, puntuarPregunta, porRevisar,
 } from "./entregas.mjs";
 import { proveedorConfigurado } from "./correo.mjs";
-import { CATALOGO, GRUPOS, cicloDe, buscarModulo, crearModulo, borrarModulo } from "./catalogo.mjs";
+import { CATALOGO, GRUPOS, cicloDe, buscarModulo, crearModulo, borrarModulo, cursosModulo } from "./catalogo.mjs";
 import { iaDisponible, generarLote, proveedorIA, tamLote, comprobarIA, adaptarParte, sugerirCorreccion } from "./ia.mjs";
 
 const examenes = () => almacen("examenes");
@@ -385,7 +385,54 @@ async function nuevoModulo(req) {
   if (!gestionaCiclo(u, b.cicloId)) fallo(403, "Solo puedes crear módulos en tus ciclos");
   const nombre = texto(b.nombre, 120);
   if (nombre.length < 3) fallo(400, "Escribe el nombre del módulo");
-  return json({ ok: true, modulo: await crearModulo(b.cicloId, nombre) });
+  return json({ ok: true, modulo: await crearModulo(b.cicloId, nombre, b.grupos) });
+}
+
+/** Cursos (grupos) de un módulo: el alumno solo ve los módulos de su curso. */
+async function cursosDeModulo(req) {
+  const u = await requiereProfesor(req);
+  const b = await leerCuerpo(req);
+  if (!gestionaCiclo(u, b.cicloId)) fallo(403, "Solo puedes cambiar módulos de tus ciclos");
+  const g = await cursosModulo(b.cicloId, b.moduloId, b.grupos);
+  if (!g) fallo(404, "Módulo no encontrado");
+  return json({ ok: true, grupos: g });
+}
+
+/**
+ * Calificaciones de un grupo: alumnos × exámenes de los módulos de ese curso.
+ * El profesor ve los exámenes que ha creado; el admin, todos.
+ */
+async function calificacionesGrupo(req, url) {
+  const yo = await requiereProfesor(req);
+  const g = gruposDe(yo).find((x) => x.grupo === url.searchParams.get("grupo"));
+  if (!g) fallo(404, "Grupo no encontrado");
+  const alumnos = (await leerTodas(usuarios(), await usuarios().list()))
+    .filter((u) => rolDe(u) === "alumno" && u.grupo === g.grupo)
+    .sort((a, b) => `${a.apellidos} ${a.nombre}`.localeCompare(`${b.apellidos} ${b.nombre}`, "es"));
+  const ciclo = CATALOGO.find((c) => c.id === g.cicloId);
+  const delCurso = (m) => !m.grupos?.length || m.grupos.includes(g.grupo);
+  const todos = (await todosLosExamenes()).filter((ex) => ex.cicloId === g.cicloId && gestionaExamen(yo, ex));
+  const emails = new Set(alumnos.map((a) => a.email));
+  const modulos = [];
+  const notas = {}; // email → { examenId: { nota, intentos, porRevisar } }
+  for (const m of ciclo.modulos.filter(delCurso)) {
+    const exs = todos.filter((ex) => ex.moduloId === m.id);
+    const columnas = [];
+    for (const ex of exs) {
+      const claves = (await entregas().list(ex.id + "/")).filter((k) => emails.has(k.slice(ex.id.length + 1)));
+      if (!ex.publicado && !claves.length) continue; // borradores sin entregas: fuera
+      for (const e of await leerTodas(entregas(), claves)) {
+        (notas[e.email] ||= {})[ex.id] = { nota: e.notaProfesor ?? e.resultado.nota, intentos: intentosHechos(e), porRevisar: porRevisar(e) };
+      }
+      columnas.push({ id: ex.id, titulo: ex.titulo, publicado: ex.publicado });
+    }
+    modulos.push({ id: m.id, nombre: m.nombre, examenes: columnas });
+  }
+  return json({
+    grupo: g.grupo, ciclo: { id: ciclo.id, nombre: ciclo.nombre, descripcion: ciclo.descripcion },
+    modulos,
+    alumnos: alumnos.map((a) => ({ email: a.email, nombre: a.nombre, apellidos: a.apellidos, verificado: !!a.verificado, notas: notas[a.email] || {} })),
+  });
 }
 
 async function quitarModulo(req) {
@@ -442,6 +489,8 @@ export default {
   "POST /api/profesor/ia/adaptar": iaAdaptar,
   "POST /api/profesor/modulo": nuevoModulo,
   "POST /api/profesor/modulo/borrar": quitarModulo,
+  "POST /api/profesor/modulo/cursos": cursosDeModulo,
+  "GET /api/profesor/grupo": calificacionesGrupo,
   "GET /api/profesor/ia": iaEstado,
   "POST /api/profesor/ia/preguntas": iaPreguntas,
   "GET /api/profesor/examenes": listar,

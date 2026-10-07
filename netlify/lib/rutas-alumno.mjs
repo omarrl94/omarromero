@@ -6,10 +6,13 @@ import { todosLosExamenes, obtenerExamen, enunciado, resumen } from "./examenes.
 import { corregir, limpiarRespuestas } from "./correccion.mjs";
 import { claveEntrega, vistaEntrega, historialDe, intentosHechos, intentosPermitidos, consolidar, conIntento } from "./entregas.mjs";
 import { enviarCorreo, proveedorConfigurado } from "./correo.mjs";
-import { CATALOGO, cicloDe } from "./catalogo.mjs";
+import { CATALOGO, cicloDe, moduloVisible } from "./catalogo.mjs";
 
-/** El alumno ve los exámenes de su ciclo; el profesor, los suyos (para probarlos); el admin, todos. */
-const puedeVer = (u, ex) => (esStaff(u) ? gestionaExamen(u, ex) : ex.cicloId === cicloDe(u));
+/**
+ * El alumno ve los exámenes de su ciclo y de los módulos de su curso (1.º o 2.º);
+ * el profesor, los suyos (para probarlos); el admin, todos.
+ */
+const puedeVer = (u, ex) => (esStaff(u) ? gestionaExamen(u, ex) : ex.cicloId === cicloDe(u) && moduloVisible(ex.cicloId, ex.moduloId, u));
 import { correoResultado } from "./plantillas.mjs";
 
 const entregas = () => almacen("entregas");
@@ -18,7 +21,7 @@ const progreso = () => almacen("progreso");
 async function examenPublicado(id, u) {
   const ex = await obtenerExamen(id);
   // El profesor puede abrir también los no publicados, para probarlos antes.
-  if (!ex || (!ex.publicado && !esStaff(u)) || !puedeVer(u, ex)) fallo(404, "Este examen no existe o no está disponible para tu ciclo");
+  if (!ex || (!ex.publicado && !esStaff(u)) || !puedeVer(u, ex)) fallo(404, "Este examen no existe o no está disponible para tu curso");
   return ex;
 }
 
@@ -47,7 +50,8 @@ async function listar(req) {
       fecha: e?.fechaTexto || null,
     };
   }));
-  const catalogo = CATALOGO.filter((c) => ciclosDe(u).includes(c.id));
+  const catalogo = CATALOGO.filter((c) => ciclosDe(u).includes(c.id))
+    .map((c) => (esStaff(u) ? c : { ...c, modulos: c.modulos.filter((m) => moduloVisible(c.id, m.id, u)) }));
   return json({ catalogo, examenes: filas });
 }
 
