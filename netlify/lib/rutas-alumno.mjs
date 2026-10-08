@@ -32,6 +32,9 @@ async function cuentaIntentos(ex, email) {
   const hechos = intentosHechos(e), permitidos = intentosPermitidos(ex, p);
   return { k, e, p, hechos, permitidos, quedan: Math.max(0, permitidos - hechos) };
 }
+/** Respuestas guardadas solas del intento en curso (si las hay). */
+const borradorVigente = (c) => (c.p?.borrador && c.p.borrador.intento === c.hechos + 1 ? c.p.borrador : null);
+
 const intentosJSON = (c) => ({ hechos: c.hechos, permitidos: Number.isFinite(c.permitidos) ? c.permitidos : null, quedan: Number.isFinite(c.quedan) ? c.quedan : null });
 const sinIntentos = (c) => fallo(409, c.hechos ? "Ya has entregado este examen y no te quedan más intentos" : "No te quedan intentos en este examen");
 
@@ -44,6 +47,7 @@ async function listar(req) {
     return {
       ...resumen(ex),
       intentosAlumno: intentosJSON(c), puedeRepetir: !!e && c.quedan > 0,
+      enCurso: !!borradorVigente(c),
       estado: e ? "entregado" : "pendiente",
       nota: e ? e.notaProfesor ?? e.resultado.nota : null,
       revisada: e ? e.notaProfesor != null : false,
@@ -60,7 +64,10 @@ async function ver(req, url) {
   const ex = await examenPublicado(url.searchParams.get("id"), u);
   const c = await cuentaIntentos(ex, u.email);
   if (c.quedan <= 0 && !esStaff(u)) sinIntentos(c);
-  return json({ ...enunciado(ex), intentosAlumno: intentosJSON(c) });
+  const b = borradorVigente(c);
+  // Modo seguro ya empezado y sin permiso del profesor para reanudarlo.
+  const bloqueado = ex.seguridad !== false && (c.p?.inicios?.length || 0) >= c.permitidos && !c.p?.reanudar && !esStaff(u);
+  return json({ ...enunciado(ex), intentosAlumno: intentosJSON(c), enCurso: b ? { t: b.t, n: b.n } : null, reanudar: !!c.p?.reanudar, bloqueado });
 }
 
 async function iniciar(req) {
@@ -70,12 +77,35 @@ async function iniciar(req) {
   const c = await cuentaIntentos(ex, u.email), k = c.k;
   if (c.quedan <= 0 && !esStaff(u)) sinIntentos(c);
   const p = c.p || { email: u.email, examen: ex.id, salidas: [] };
-  // En modo seguro cada intento solo se puede empezar una vez (salir de la página lo entrega o lo cierra).
-  if (ex.seguridad !== false && (p.inicios?.length || 0) >= c.permitidos && !esStaff(u))
-    fallo(409, "Ya empezaste este examen en modo seguro y no se puede repetir. Si ha sido un error, pide a tu profesor que te dé otro intento.");
-  p.inicios = [...(p.inicios || []), new Date().toISOString()].slice(-20);
+  // En modo seguro cada intento solo se puede empezar una vez (salir de la página lo entrega o lo cierra),
+  // salvo que el profesor le haya dejado reanudarlo.
+  const reanuda = !!p.reanudar;
+  if (ex.seguridad !== false && (p.inicios?.length || 0) >= c.permitidos && !esStaff(u) && !reanuda)
+    fallo(409, "Ya empezaste este examen en modo seguro y no se puede repetir. Si ha sido un error, pide a tu profesor que te deje reanudarlo.");
+  if (!reanuda) p.inicios = [...(p.inicios || []), new Date().toISOString()].slice(-20);
+  delete p.reanudar;
   await progreso().set(k, p);
-  return json({ ok: true });
+  // Si había respuestas guardadas de este intento, sigue donde lo dejó.
+  const b = borradorVigente({ ...c, p });
+  return json({ ok: true, respuestas: b ? b.respuestas : null, reanudado: reanuda });
+}
+
+/** Guardado automático de las respuestas mientras se hace el examen (para poder reanudarlo). */
+async function guardarBorrador(req) {
+  const u = await requiereUsuario(req);
+  const b = await leerCuerpo(req, 200_000);
+  const ex = await examenPublicado(b.id, u);
+  const c = await cuentaIntentos(ex, u.email);
+  if (c.quedan <= 0 && !esStaff(u)) return json({ ok: false });
+  // Un guardado que llega tarde (tras entregar) no debe pasar al intento siguiente.
+  if (b.intento != null && Number(b.intento) !== c.hechos + 1) return json({ ok: false });
+  const respuestas = limpiarRespuestas(ex, b);
+  const n = respuestas.mc.filter((v) => v >= 0).length + respuestas.open.filter((t) => t.trim()).length
+    + respuestas.num.filter((cs) => cs.some((v) => (typeof v === "number" ? v >= 0 : String(v).trim()))).length;
+  const p = c.p || { email: u.email, examen: ex.id, salidas: [] };
+  p.borrador = { respuestas, t: new Date().toISOString(), intento: c.hechos + 1, n };
+  await progreso().set(c.k, p);
+  return json({ ok: true, t: p.borrador.t });
 }
 
 /** El navegador avisa cuando el alumno sale de la ventana (el test se cierra). */
@@ -105,10 +135,11 @@ async function entregar(req) {
   const p = c.p || { email: u.email, examen: ex.id, salidas: [] };
   // Entrega automática al cambiar de pantalla (modo seguro): se registra la salida.
   const salida = ex.seguridad !== false && b.salida ? texto(b.salida, 120) : "";
-  if (salida) {
-    p.salidas = [...(p.salidas || []), { t: ahora.toISOString(), motivo: `${salida} (examen finalizado)` }].slice(-50);
-    await progreso().set(k, p);
-  }
+  if (salida) p.salidas = [...(p.salidas || []), { t: ahora.toISOString(), motivo: `${salida} (examen finalizado)` }].slice(-50);
+  // Entregado: ya no hay nada que reanudar.
+  const habiaBorrador = !!(p.borrador || p.reanudar);
+  delete p.borrador; delete p.reanudar;
+  if (salida || habiaBorrador) await progreso().set(k, p);
   const { publicado, mostrarSoluciones, creado, actualizado, ...copia } = ex;
   const intento = {
     examen: copia, respuestas, resultado,
@@ -160,6 +191,7 @@ export default {
   "GET /api/examen": ver,
   "POST /api/examen/iniciar": iniciar,
   "POST /api/examen/incidencia": incidencia,
+  "POST /api/examen/guardar": guardarBorrador,
   "POST /api/examen/entregar": entregar,
   "GET /api/entrega": miEntrega,
 };

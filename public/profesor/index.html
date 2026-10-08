@@ -196,6 +196,7 @@ const ICONO = {
 };
 const CATALOGO_NOMBRES = (ids) => ids.map((id) => id.toUpperCase()).join(", ");
 let CATALOGO = [], EXAMENES = [], ACTUAL = null, FILAS = [], ALUMNOS = [], GRUPOS = [], IMPORT = null;
+const horaCorta = (iso) => { const d = new Date(iso); return d.toDateString() === new Date().toDateString() ? d.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" }) : d.toLocaleString("es-ES", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }); };
 const fecha = (iso) => iso ? new Date(iso).toLocaleDateString("es-ES", { day: "2-digit", month: "short", year: "numeric" }) : "—";
 $$("dialog [data-close]").forEach((b) => (b.onclick = () => b.closest("dialog").close()));
 
@@ -363,7 +364,8 @@ function pintarEntregas() {
     ${filas.map((f) => `<tr data-email="${esc(f.email)}">
       <td><b>${esc(f.apellidos)}, ${esc(f.nombre)}</b><div class="muted" style="font-size:13px">${esc(f.email)}</div></td>
       <td>${esc(f.grupo)}</td>
-      <td>${f.estado === "entregado" ? `<span class="chip ok">Entregado</span>` : `<span class="chip gray">Sin entregar</span>`}
+      <td>${f.estado === "entregado" ? `<span class="chip ok">Entregado</span>` : f.enCurso ? `<span class="chip v">En curso</span><div class="muted" style="font-size:12px;margin-top:3px">guardado ${esc(horaCorta(f.enCurso.t))}${f.enCurso.n != null ? ` · ${f.enCurso.n} respondidas` : ""}</div>` : `<span class="chip gray">Sin entregar</span>`}
+        ${f.reanudar ? `<div><span class="chip ok" style="margin-top:4px" title="Al volver a entrar, seguirá donde lo dejó">↺ Puede reanudar</span></div>` : ""}
         ${f.porRevisar ? `<div><span class="chip" title="Respuestas escritas sin revisar en el intento que cuenta" style="margin-top:4px">✍ ${f.porRevisar} por revisar</span></div>` : ""}
         ${f.finalizadoPorSalida ? `<div><span class="chip bad" title="${esc(f.finalizadoPorSalida)}" style="margin-top:4px">🔒 Finalizado al salir</span></div>` : ""}</td>
       <td class="num">${f.nota != null ? fmt(f.nota) : "—"}</td>
@@ -372,12 +374,23 @@ function pintarEntregas() {
       <td class="num">${f.salidas ? `<span class="chip bad">${f.salidas}</span>` : "0"}</td>
       <td style="white-space:nowrap">${esc(f.fechaTexto || fecha(f.fecha))}</td>
       <td><div class="acts">${f.estado === "entregado" ? `<button class="btn sm" data-ver>Ver / revisar</button>` : ""}
+        <button class="btn ghost sm" data-reanudar title="${f.estado === "entregado" ? "Anula su última entrega y le deja seguir con esas respuestas (por si se entregó por error)" : "Le deja volver a entrar y seguir donde lo dejó, con las respuestas guardadas"}">↺ Reanudar</button>
         <button class="btn ghost sm" data-reabrir title="Borra todos sus intentos y sus intentos extra: empieza de cero">Reabrir</button></div></td>
     </tr>`).join("")}</tbody></table></div>`;
   $$("[data-ver]").forEach((b) => (b.onclick = () => verEntrega(b.closest("tr").dataset.email)));
   $$("[data-extra]").forEach((b) => (b.onclick = async () => {
     const f = FILAS.find((x) => x.email === b.closest("tr").dataset.email);
     try { await api("/api/profesor/entrega/intento-extra", { id: ACTUAL, email: f.email, cambio: Number(b.dataset.extra) }); await recargarFilas(); } catch (e) { alert(e.message); }
+  }));
+  $$("[data-reanudar]").forEach((b) => (b.onclick = async () => {
+    const f = FILAS.find((x) => x.email === b.closest("tr").dataset.email);
+    const entregado = f.estado === "entregado";
+    const txt = entregado
+      ? `¿Dejar a ${f.nombre} ${f.apellidos} reanudar el examen?\n\nSe ANULARÁ su última entrega (nota ${fmt(f.notaProfesor ?? f.nota)}) y, al volver a entrar, seguirá donde lo dejó con esas mismas respuestas. Úsalo si se le entregó por error (por ejemplo, al salir de la ventana en modo seguro).`
+      : `¿Dejar a ${f.nombre} ${f.apellidos} reanudar el examen?\n\nPodrá volver a entrar (aunque esté en modo seguro) y seguirá donde lo dejó, con las respuestas que tenía guardadas.`;
+    if (!confirm(txt)) return;
+    try { await api("/api/profesor/entrega/reanudar", { id: ACTUAL, email: f.email, anularEntrega: entregado }); await recargarFilas(); }
+    catch (e) { alert(e.message); }
   }));
   $$("[data-reabrir]").forEach((b) => (b.onclick = async () => {
     const f = FILAS.find((x) => x.email === b.closest("tr").dataset.email);

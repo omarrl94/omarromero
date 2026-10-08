@@ -105,8 +105,8 @@ function chipsEstado(lista) {
   v.innerHTML = `<div class="exlist">${temas.map((e) => e.estado === "pendiente" ? `
     <article class="excard"><div class="info">
       <h3>${esc(e.titulo)}</h3><div class="muted" style="font-size:14.5px">${esc(e.subtitulo)}</div>
-      <div class="meta">${e.nMc ? `<span class="chip v">${e.nMc} tipo test</span>` : ""}${e.nOpen ? `<span class="chip s">${e.nOpen} abiertas</span>` : ""}${e.nNum ? `<span class="chip">${e.nNum} apartados de ejercicios</span>` : ""}${e.intentos !== 1 ? `<span class="chip gray">${e.intentos ? plural(e.intentos, "intento", "intentos") : "Intentos sin límite"}</span>` : ""}<span class="chip">Pendiente</span></div></div>
-      <a class="btn" href="${enlace(e)}">Empezar</a></article>` : `
+      <div class="meta">${e.nMc ? `<span class="chip v">${e.nMc} tipo test</span>` : ""}${e.nOpen ? `<span class="chip s">${e.nOpen} abiertas</span>` : ""}${e.nNum ? `<span class="chip">${e.nNum} apartados de ejercicios</span>` : ""}${e.intentos !== 1 ? `<span class="chip gray">${e.intentos ? plural(e.intentos, "intento", "intentos") : "Intentos sin límite"}</span>` : ""}${e.enCurso ? `<span class="chip v">En curso</span>` : `<span class="chip">Pendiente</span>`}</div></div>
+      <a class="btn" href="${enlace(e)}">${e.enCurso ? "Continuar" : "Empezar"}</a></article>` : `
     <article class="excard"><div class="info">
       <h3>${esc(e.titulo)}</h3><div class="muted" style="font-size:14px">Entregado el ${esc(e.fecha)}</div>
       <div class="meta"><span class="chip ok">Entregado</span>${e.intentosAlumno.hechos > 1 || e.puedeRepetir ? `<span class="chip gray">${plural(e.intentosAlumno.hechos, "intento", "intentos")}${e.intentosAlumno.permitidos ? ` de ${e.intentosAlumno.permitidos}` : ""}</span>` : ""}${e.revisada ? `<span class="chip ok">Revisado por el profesor</span>` : e.nOpen ? `<span class="chip gray">Pendiente de revisión</span>` : ""}</div></div>

@@ -113,6 +113,13 @@ async function init() {
   $("#titulo").textContent = EX.titulo; $("#subtitulo").textContent = EX.subtitulo || EX.modulo || "";
   $("#miEmail").textContent = YO.email;
   $("#txtIntentos").innerHTML = textoIntentos(EX.intentosAlumno, EX.calificacion);
+  if (EX.bloqueado) {
+    $("#start").disabled = true; $("#start").textContent = "Esperando al profesor";
+    $("#avisoModo").insertAdjacentHTML("beforebegin", `<div class="msg bad">🔒 Ya empezaste este examen en modo seguro${EX.enCurso?.n ? ` (llevabas ${EX.enCurso.n} respondidas, están guardadas)` : ""}. Si se te cerró por error, <b>pide a tu profesor que te deje reanudarlo</b> y vuelve a cargar esta página.</div>`);
+  } else if (EX.enCurso || EX.reanudar) {
+    $("#start").textContent = EX.enCurso ? "Continuar el examen" : "Reanudar el examen";
+    $("#avisoModo").insertAdjacentHTML("beforebegin", `<div class="msg ok">↺ ${EX.reanudar ? "Tu profesor te ha permitido <b>reanudar</b> este examen. " : ""}${EX.enCurso ? `Tienes respuestas guardadas${EX.enCurso.n != null ? ` (${EX.enCurso.n} respondidas)` : ""}: al continuar, seguirás donde lo dejaste.` : ""}</div>`);
+  }
   const herr = [EX.herramientas?.calculadora !== false && "una calculadora científica", EX.herramientas?.notas !== false && "un bloc de notas"].filter(Boolean);
   $("#txtHerr").innerHTML = herr.length ? ` Durante el examen tendrás <b>a la derecha</b> ${herr.join(" y ")}; usarlos no cuenta como salir de la página.` : "";
   $("#avisoModo").innerHTML = EX.seguridad
@@ -168,7 +175,7 @@ async function verEntrega() {
 
 function buildQuiz() {
   const f = $("#quiz"); const T = titulosPartes(EX); const cab = cabeceraBloques(EX);
-  let h = `<div class="progress"><span id="progTxt"></span><div class="track"><div class="fill" id="progFill"></div></div></div>`;
+  let h = `<div class="progress"><span id="progTxt"></span><div class="track"><div class="fill" id="progFill"></div></div><span class="muted" id="guardadoTxt" style="font-size:12.5px;white-space:nowrap" title="Tus respuestas se guardan solas mientras haces el examen"></span></div>`;
   const sec = (letra, titulo, color) => `<div class="sec"><span class="n" style="background:var(--${color}-soft);color:var(--${color}-ink)">Parte ${letra}</span><h2>${esc(titulo)}</h2></div>`;
   let parte = 0, n = 0;
   if (EX.mc.length) {
@@ -208,15 +215,49 @@ function buildQuiz() {
   f.addEventListener("input", progreso);
   f.addEventListener("change", progreso);
   // Las opciones (y la confianza) se pueden desmarcar pulsando otra vez la marcada.
-  const marcadas = {};
   f.addEventListener("click", (e) => {
     const r = e.target;
     if (!(r instanceof HTMLInputElement) || r.type !== "radio") return;
-    if (marcadas[r.name] === r.value) { r.checked = false; delete marcadas[r.name]; progreso(); }
-    else marcadas[r.name] = r.value;
+    if (MARCADAS[r.name] === r.value) { r.checked = false; delete MARCADAS[r.name]; progreso(); cambiado(); }
+    else MARCADAS[r.name] = r.value;
   });
+  f.addEventListener("input", cambiado);
+  f.addEventListener("change", cambiado);
   progreso();
 }
+const MARCADAS = {};
+
+/** Rellena el examen con respuestas guardadas (al reanudarlo). */
+function ponerRespuestas(r) {
+  const radio = (name, v) => { const x = $(`input[name="${name}"][value="${v}"]`); if (x) { x.checked = true; MARCADAS[name] = String(v); } };
+  (r.mc || []).forEach((v, i) => v >= 0 && radio(`mc${i}`, v));
+  (r.conf || []).forEach((v, i) => v >= 0 && radio(`conf${i}`, v));
+  (r.open || []).forEach((t, i) => { const x = $(`#op${i}`); if (x && t) x.value = t; });
+  (r.num || []).forEach((cs, i) => (cs || []).forEach((v, j) => { const x = $(`#nm${i}_${j}`); if (x && v !== "" && v !== null) x.value = String(v); }));
+  progreso();
+}
+
+/* ── Guardado automático: si algo falla (se cierra el navegador, se va la luz…),
+ *    el profesor puede dejar al alumno reanudar el examen donde lo dejó. ── */
+let SUCIO = false, guardando = false, temporizador = null;
+function cambiado() {
+  if (!examOn) return;
+  SUCIO = true;
+  clearTimeout(temporizador); temporizador = setTimeout(guardarBorrador, 2000);
+}
+async function guardarBorrador() {
+  if (!examOn || !SUCIO || guardando) return;
+  guardando = true; SUCIO = false;
+  try {
+    const r = await fetch("/api/examen/guardar", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...respuestasActuales(), intento: (EX.intentosAlumno?.hechos || 0) + 1 }) });
+    const d = await r.json().catch(() => ({}));
+    const t = $("#guardadoTxt");
+    if (t) t.textContent = r.ok && d.ok ? `Guardado ${new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}` : "Sin guardar";
+    if (!r.ok) SUCIO = true;
+  } catch { SUCIO = true; }
+  finally { guardando = false; }
+}
+setInterval(() => { if (SUCIO) guardarBorrador(); }, 20000);
 
 /** Respondida = test con respuesta (y confianza si se pide), abierta con texto, ejercicio con todos sus resultados. */
 function respondidas() {
@@ -234,10 +275,15 @@ function progreso() {
 
 $("#start").onclick = async () => {
   const b = $("#start"); b.disabled = true; $("#introErr").hidden = true;
-  try { await api("/api/examen/iniciar", { id: examId }); }
+  let r;
+  try { r = await api("/api/examen/iniciar", { id: examId }); }
   catch (e) { $("#introErr").textContent = e.message; $("#introErr").hidden = false; b.disabled = false; return; }
   b.disabled = false;
   $("#intro").hidden = true; $("#quiz").hidden = false; startExam(); window.scrollTo({ top: 0 });
+  if (r.respuestas) {
+    ponerRespuestas(r.respuestas);
+    $("#quiz").insertAdjacentHTML("afterbegin", `<div class="msg ok" id="avisoReanudar">↺ ${r.reanudado ? "Tu profesor te ha dejado reanudar el examen. " : ""}Se han recuperado las respuestas que tenías guardadas: sigue donde lo dejaste.</div>`);
+  }
 };
 
 /* ── Entrega: corrige el servidor y envía el correo ── */

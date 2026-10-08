@@ -135,6 +135,7 @@ async function filasEntregas(ex) {
     salidas: prog[e.email]?.salidas?.length ?? e.salidas ?? 0,
     finalizadoPorSalida: e.finalizadoPorSalida || "",
     porRevisar: porRevisar(e),
+    reanudar: !!prog[e.email]?.reanudar,
     ...intentosFila(ex, e, prog[e.email]),
   }));
   const entregados = new Set(es.map((e) => e.email));
@@ -147,6 +148,9 @@ async function filasEntregas(ex) {
       email: p.email, nombre: u.nombre || "", apellidos: u.apellidos || "", grupo: u.grupo || "",
       estado: "sin entregar", nota: null, notaProfesor: null, fecha: p.inicios?.at(-1) || null, fechaTexto: "",
       salidas: p.salidas?.length || 0,
+      // En curso: última vez que se guardaron sus respuestas y cuántas lleva.
+      enCurso: p.borrador ? { t: p.borrador.t, n: p.borrador.n } : null,
+      reanudar: !!p.reanudar,
       ...intentosFila(ex, null, p),
     });
   }
@@ -302,6 +306,38 @@ async function iaCorregir(req) {
   if (!respuestas.length) return json({ sugerencias: [] });
   const sugerencias = await sugerirCorreccion({ pregunta: q.t, modelo: q.exp, conceptos: q.groups.map((g) => g.join(", ")), respuestas });
   return json({ sugerencias });
+}
+
+/**
+ * Reanudar un examen donde lo dejó el alumno (por si ha sido un error):
+ *  · Sin entregar (se le cerró, o el modo seguro no le deja volver a entrar):
+ *    puede volver a entrar y recupera las respuestas guardadas.
+ *  · Entregado (p. ej. se le entregó solo al salir de la ventana): se anula
+ *    ese último intento y sus respuestas vuelven a quedar abiertas para seguir.
+ */
+async function reanudar(req) {
+  const u = await requiereProfesor(req);
+  const b = await leerCuerpo(req);
+  const ex = await existente(b.id, u);
+  const email = String(b.email || "").toLowerCase();
+  const k = claveEntrega(ex.id, email);
+  const [e, p0] = await Promise.all([entregas().get(k), progreso().get(k)]);
+  if (!e && !p0) fallo(404, "Este alumno no ha empezado el examen");
+  const p = p0 || { email, examen: ex.id, salidas: [] };
+  const h = historialDe(e);
+  let anulado = null;
+  if (b.anularEntrega) {
+    const ultimo = h.at(-1);
+    if (!ultimo) fallo(400, "No hay ninguna entrega que reanudar");
+    // Sus respuestas vuelven a ser el borrador del intento (que vuelve a estar en curso).
+    p.borrador = { respuestas: ultimo.respuestas, t: new Date().toISOString(), intento: h.length, n: null, deEntrega: ultimo.fecha };
+    if (h.length === 1) await entregas().del(k);
+    else await entregas().set(k, consolidar(e, h.slice(0, -1), ex.calificacion));
+    anulado = { nota: ultimo.notaProfesor ?? ultimo.resultado.nota, fecha: ultimo.fechaTexto };
+  }
+  p.reanudar = true;
+  await progreso().set(k, p);
+  return json({ ok: true, anulado });
 }
 
 /** Da (o quita) intentos extra a un alumno en un examen. */
@@ -513,6 +549,7 @@ export default {
   "POST /api/profesor/entrega/revisar": revisar,
   "POST /api/profesor/entrega/reabrir": reabrir,
   "POST /api/profesor/entrega/intento-extra": intentoExtra,
+  "POST /api/profesor/entrega/reanudar": reanudar,
   "GET /api/profesor/respuestas": respuestas,
   "POST /api/profesor/entrega/puntuar": puntuar,
   "POST /api/profesor/ia/corregir": iaCorregir,
