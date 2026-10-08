@@ -401,17 +401,27 @@ body.exam img,body.exam svg{-webkit-user-drag:none;pointer-events:none}
 .excard2 .herrbar>span{width:100%;font-size:12px}
 .excard2 .herrbar label{display:inline-flex;align-items:center;gap:7px;cursor:pointer;color:var(--fg)}
 
-/* Herramientas del examen: bloc de notas y calculadora */
-.tool-dock{position:fixed;right:18px;bottom:18px;z-index:50;display:flex;gap:8px;background:var(--card);border:1px solid var(--border-strong);border-radius:14px;padding:6px;box-shadow:var(--shadow-lg)}
-.tool-btn{font:inherit;font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:7px;border:1px solid transparent;background:transparent;color:var(--fg);border-radius:10px;padding:8px 12px;cursor:pointer}
+/* Herramientas del examen: barra a la derecha + panel lateral */
+.tool-dock{position:fixed;right:12px;top:50%;transform:translateY(-50%);z-index:50;display:flex;flex-direction:column;gap:6px;background:var(--card);border:1px solid var(--border-strong);border-radius:16px;padding:6px;box-shadow:var(--shadow-lg)}
+.tool-btn{font:inherit;display:flex;flex-direction:column;align-items:center;gap:3px;width:80px;border:1px solid transparent;background:transparent;color:var(--fg);border-radius:11px;padding:9px 4px 8px;cursor:pointer}
+.tool-btn .ico{font-size:22px;line-height:1}
+.tool-btn .lbl{font-size:11px;font-weight:700;letter-spacing:.01em}
 .tool-btn:hover{background:var(--sunken)}
 .tool-btn[aria-pressed="true"]{background:var(--grafito);color:#fff}
-.tool-win{position:fixed;right:18px;bottom:82px;z-index:60;width:340px;max-width:calc(100vw - 24px);background:var(--card);border:1px solid var(--border-strong);border-radius:14px;box-shadow:0 18px 50px rgba(0,0,0,.22);display:flex;flex-direction:column;overflow:hidden}
-.tool-notas{width:380px;height:340px;resize:both;min-width:260px;min-height:200px}
-.tool-calculadora{right:410px}
-.tool-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 8px 8px 14px;background:var(--grafito);color:#fff;font-size:13.5px;font-weight:600;cursor:move;user-select:none;touch-action:none}
+.tool-side{position:fixed;top:80px;bottom:16px;right:110px;z-index:45;width:350px;display:flex;flex-direction:column;gap:12px;overflow:auto}
+.tool-side[hidden]{display:none}
+.tool-win{background:var(--card);border:1px solid var(--border-strong);border-radius:14px;box-shadow:0 14px 40px rgba(0,0,0,.16);display:flex;flex-direction:column;overflow:hidden;flex:none}
+.tool-win[hidden]{display:none}
+.tool-notas{flex:1 1 auto;min-height:150px}
+.tool-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 6px 6px 14px;background:var(--grafito);color:#fff;font-size:13.5px;font-weight:600}
 .tool-x{border:none;background:transparent;color:#fff;font-size:15px;width:30px;height:30px;border-radius:8px;cursor:pointer}
 .tool-x:hover{background:rgba(255,255,255,.15)}
+/* Con el panel abierto en pantalla grande, el examen se aparta para no quedar tapado */
+@media (min-width:1100px){
+  body.tools-open .wrap{margin-left:max(16px,calc((100vw - 480px - 900px) / 2));margin-right:480px}
+}
+@media (max-height:760px) and (min-width:641px){ .tool-side{top:72px;bottom:8px;gap:8px} .ck{height:32px} }
+@media (max-width:1099px) and (min-width:641px){ .tool-side{width:330px;top:auto;bottom:16px;max-height:calc(100vh - 96px)} }
 .notas-txt{flex:1;border:none;border-radius:0;resize:none;padding:12px 14px;font:inherit;font-size:14.5px;line-height:1.55;background:var(--card);color:var(--fg);min-height:0}
 .notas-txt:focus-visible{box-shadow:none;outline:none}
 .tool-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 10px;border-top:1px solid var(--border);font-size:12px}
@@ -432,16 +442,16 @@ body.exam img,body.exam svg{-webkit-user-drag:none;pointer-events:none}
 .ck.op{font-size:17px}
 .ck.del{color:var(--bad)}
 .ck.eq{background:var(--grafito);border-color:var(--grafito);color:#fff;font-size:18px}
-.calc-hist{display:flex;flex-direction:column;gap:3px;max-height:110px;overflow:auto}
+.calc-hist{display:flex;flex-direction:column;gap:2px;max-height:76px;overflow:auto}
 .calc-h{font:inherit;font-size:12.5px;display:flex;justify-content:space-between;gap:10px;border:none;background:transparent;color:var(--muted);padding:3px 6px;border-radius:6px;cursor:pointer;text-align:left}
 .calc-h:hover{background:var(--sunken)}
 .calc-h span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .calc-h b{color:var(--fg);white-space:nowrap}
 body.exam .wrap{padding-bottom:90px}
-@media (max-width:860px){ .tool-calculadora{right:18px} }
 @media (max-width:640px){
-  .tool-dock{right:12px;bottom:12px}
-  .tool-btn span{display:none}
-  .tool-win,.tool-notas{left:8px!important;right:8px!important;top:auto!important;bottom:72px!important;width:auto;resize:none}
-  .tool-notas{height:42vh}
+  .tool-dock{top:auto;bottom:12px;right:12px;transform:none;flex-direction:row}
+  .tool-btn{width:auto;flex-direction:row;padding:8px 12px;gap:6px}
+  .tool-btn .ico{font-size:18px}
+  .tool-side{left:8px;right:8px;top:auto;bottom:76px;width:auto;max-height:62vh}
+  .tool-notas{min-height:120px}
 }

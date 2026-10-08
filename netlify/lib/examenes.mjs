@@ -153,7 +153,8 @@ export function validarExamen(e) {
 }
 
 export const HERRAMIENTAS = ["notas", "calculadora"];
-export const herramientasValidas = (h) => Object.fromEntries(HERRAMIENTAS.map((k) => [k, h?.[k] === true]));
+/** Bloc de notas y calculadora: activados salvo que el profesor los apague. */
+export const herramientasValidas = (h) => Object.fromEntries(HERRAMIENTAS.map((k) => [k, h?.[k] !== false]));
 
 /** Número de intentos: entero de 0 (sin límite) a 50; por defecto, 1. */
 export function intentosValidos(v) {
@@ -213,6 +214,14 @@ async function sembrar() {
     cambios = true;
   }
   if (cambios) await sis.set("semillas", hechas);
+  // Una vez: las herramientas pasan a estar activadas en todos los exámenes que ya había.
+  if (!(await sis.get("herramientas-por-defecto"))) {
+    for (const k of await store.list()) {
+      const ex = await store.get(k);
+      if (ex) await store.set(k, { ...ex, herramientas: { notas: true, calculadora: true } });
+    }
+    await sis.set("herramientas-por-defecto", { fecha: new Date().toISOString() });
+  }
   sembrado = true;
 }
 

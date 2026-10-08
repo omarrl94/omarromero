@@ -8,7 +8,7 @@
 (() => {
   const ICONOS = { notas: "📝", calculadora: "🧮" };
   const TITULOS = { notas: "Bloc de notas", calculadora: "Calculadora científica" };
-  let dock = null, ventanas = {}, claveNotas = "", zTop = 60;
+  let dock = null, ventanas = {}, claveNotas = "";
 
   const guardar = (k, v) => { try { localStorage.setItem(k, v); } catch { /* sin almacenamiento */ } };
   const leer = (k) => { try { return localStorage.getItem(k) || ""; } catch { return ""; } };
@@ -98,37 +98,27 @@
     return String(Number(v.toPrecision(10))).replace(".", ",");
   }
 
-  /* ── Ventanas ─────────────────────────────────────────────────────── */
+  /* ── Panel lateral (a la derecha) ───────────────────────────────── */
+  let lateral = null;
   function ventana(tipo, contenido) {
     const w = document.createElement("section");
     w.className = `tool-win tool-${tipo}`; w.hidden = true;
-    w.setAttribute("role", "dialog"); w.setAttribute("aria-label", TITULOS[tipo]);
-    w.innerHTML = `<header class="tool-head"><span>${ICONOS[tipo]} ${TITULOS[tipo]}</span><button type="button" class="tool-x" aria-label="Cerrar ${TITULOS[tipo]}" title="Cerrar (no se pierde nada)">✕</button></header>${contenido}`;
-    document.body.appendChild(w);
+    w.setAttribute("role", "region"); w.setAttribute("aria-label", TITULOS[tipo]);
+    w.innerHTML = `<header class="tool-head"><span>${ICONOS[tipo]} ${TITULOS[tipo]}</span><button type="button" class="tool-x" aria-label="Ocultar ${TITULOS[tipo]}" title="Ocultar (no se pierde nada)">✕</button></header>${contenido}`;
+    // La calculadora va arriba y las notas debajo.
+    if (tipo === "calculadora") lateral.prepend(w); else lateral.appendChild(w);
     w.querySelector(".tool-x").onclick = () => mostrar(tipo, false);
-    w.addEventListener("pointerdown", () => (w.style.zIndex = ++zTop));
-    // Arrastrar por la cabecera (en pantallas grandes)
-    const cab = w.querySelector(".tool-head");
-    cab.addEventListener("pointerdown", (e) => {
-      if (e.target.closest("button") || window.innerWidth < 640) return;
-      const r = w.getBoundingClientRect(), dx = e.clientX - r.left, dy = e.clientY - r.top;
-      cab.setPointerCapture(e.pointerId);
-      const mover = (ev) => {
-        const x = Math.min(Math.max(0, ev.clientX - dx), window.innerWidth - r.width);
-        const y = Math.min(Math.max(0, ev.clientY - dy), window.innerHeight - 48);
-        Object.assign(w.style, { left: `${x}px`, top: `${y}px`, right: "auto", bottom: "auto" });
-      };
-      const soltar = () => { cab.removeEventListener("pointermove", mover); cab.removeEventListener("pointerup", soltar); };
-      cab.addEventListener("pointermove", mover); cab.addEventListener("pointerup", soltar);
-    });
     return w;
   }
 
-  function mostrar(tipo, si = ventanas[tipo].hidden) {
+  function mostrar(tipo, si = ventanas[tipo].hidden, foco = true) {
     const w = ventanas[tipo];
-    w.hidden = !si; w.style.zIndex = ++zTop;
+    w.hidden = !si;
     dock.querySelector(`[data-tool="${tipo}"]`).setAttribute("aria-pressed", si);
-    if (si) (w.querySelector("textarea, .calc-in") || w).focus();
+    const alguna = Object.values(ventanas).some((x) => !x.hidden);
+    lateral.hidden = !alguna;
+    document.body.classList.toggle("tools-open", alguna);
+    if (si && foco) (w.querySelector("textarea, .calc-in") || w).focus({ preventScroll: true });
   }
 
   function crearNotas() {
@@ -212,27 +202,33 @@
     return w;
   }
 
-  /** Muestra la barra de herramientas del examen. */
+  /**
+   * Muestra las herramientas del examen: una barra fija a la derecha y, al
+   * pulsarla, un panel lateral. En pantallas grandes se abren solas al empezar.
+   */
   window.iniciarHerramientas = (ex, email) => {
     const h = ex.herramientas || {};
-    const activas = ["notas", "calculadora"].filter((k) => h[k]);
+    const activas = ["calculadora", "notas"].filter((k) => h[k] !== false);
     if (!activas.length || dock) return;
     claveNotas = `notas:${ex.id}:${email || ""}`;
     dock = document.createElement("div");
     dock.className = "tool-dock"; dock.setAttribute("role", "toolbar"); dock.setAttribute("aria-label", "Herramientas del examen");
-    dock.innerHTML = activas.map((k) => `<button type="button" class="tool-btn" data-tool="${k}" aria-pressed="false" title="${TITULOS[k]}">${ICONOS[k]}<span>${k === "notas" ? "Notas" : "Calculadora"}</span></button>`).join("");
-    document.body.appendChild(dock);
-    if (h.notas) ventanas.notas = crearNotas();
-    if (h.calculadora) ventanas.calculadora = crearCalculadora();
+    dock.innerHTML = activas.map((k) => `<button type="button" class="tool-btn" data-tool="${k}" aria-pressed="false" title="${TITULOS[k]}"><span class="ico">${ICONOS[k]}</span><span class="lbl">${k === "notas" ? "Notas" : "Calculadora"}</span></button>`).join("");
+    lateral = document.createElement("aside");
+    lateral.className = "tool-side"; lateral.hidden = true; lateral.setAttribute("aria-label", "Herramientas");
+    document.body.append(lateral, dock);
+    if (activas.includes("calculadora")) ventanas.calculadora = crearCalculadora();
+    if (activas.includes("notas")) ventanas.notas = crearNotas();
     dock.addEventListener("click", (e) => { const b = e.target.closest("[data-tool]"); if (b) mostrar(b.dataset.tool); });
+    if (window.innerWidth >= 1100) activas.forEach((k) => mostrar(k, true, false));
   };
 
   /** Al entregar: se quitan las herramientas y se borran las notas. */
   window.cerrarHerramientas = () => {
     if (!dock) return;
-    dock.remove(); Object.values(ventanas).forEach((w) => w.remove());
+    dock.remove(); lateral?.remove(); document.body.classList.remove("tools-open");
     borrar(claveNotas);
-    dock = null; ventanas = {};
+    dock = null; lateral = null; ventanas = {};
   };
 
   // Para pruebas

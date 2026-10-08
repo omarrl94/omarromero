@@ -25,7 +25,7 @@
     <p class="sub" id="subtitulo"></p>
     <div class="card">
       <div class="meta" id="chips"></div>
-      <div class="note" style="margin-top:16px">Al entregar verás tu nota y <b>recibirás automáticamente un correo</b> en <b id="miEmail"></b> con tus respuestas y la corrección. <span id="txtIntentos">Solo se puede entregar <b>una vez</b>.</span> Las preguntas abiertas se corrigen de forma automática por conceptos clave: es una estimación que revisa el profesor.</div>
+      <div class="note" style="margin-top:16px">Al entregar verás tu nota y <b>recibirás automáticamente un correo</b> en <b id="miEmail"></b> con tus respuestas y la corrección. <span id="txtHerr"></span> <span id="txtIntentos">Solo se puede entregar <b>una vez</b>.</span> Las preguntas abiertas se corrigen de forma automática por conceptos clave: es una estimación que revisa el profesor.</div>
       <div class="examwarn" id="avisoModo"></div>
       <div class="msg bad" id="introErr" hidden></div>
       <div class="actions"><button class="btn" id="start">Comenzar el examen</button></div>
@@ -113,6 +113,8 @@ async function init() {
   $("#titulo").textContent = EX.titulo; $("#subtitulo").textContent = EX.subtitulo || EX.modulo || "";
   $("#miEmail").textContent = YO.email;
   $("#txtIntentos").innerHTML = textoIntentos(EX.intentosAlumno, EX.calificacion);
+  const herr = [EX.herramientas?.calculadora !== false && "una calculadora científica", EX.herramientas?.notas !== false && "un bloc de notas"].filter(Boolean);
+  $("#txtHerr").innerHTML = herr.length ? ` Durante el examen tendrás <b>a la derecha</b> ${herr.join(" y ")}; usarlos no cuenta como salir de la página.` : "";
   $("#avisoModo").innerHTML = EX.seguridad
     ? `<b>🔒 Modo seguro:</b> si cambias de pestaña, minimizas, abres otra aplicación o sales de la ventana, <b>el examen se entregará automáticamente</b> con lo que lleves respondido${EX.intentosAlumno?.quedan === 1 ? " y no podrás repetirlo" : " y contará como un intento"}. Ten preparado todo antes de empezar.`
     : `<b>Modo examen:</b> no salgas de esta página hasta entregar. Si cambias de pestaña o de ventana, quedará registrado para el profesor.`;
@@ -121,8 +123,8 @@ async function init() {
     EX.mc.length && `<span class="chip">${EX.mc.length} preguntas tipo test${EX.confianza ? " con confianza" : ""}</span>`,
     EX.open.length && `<span class="chip v">${EX.open.length} preguntas abiertas</span>`,
     EX.num.length && `<span class="chip s">${EX.num.length} apartados de ejercicios</span>`,
-    EX.herramientas?.calculadora && `<span class="chip gray">🧮 Calculadora científica</span>`,
-    EX.herramientas?.notas && `<span class="chip gray">📝 Bloc de notas</span>`,
+    EX.herramientas?.calculadora !== false && `<span class="chip gray">🧮 Calculadora científica</span>`,
+    EX.herramientas?.notas !== false && `<span class="chip gray">📝 Bloc de notas</span>`,
     `<span class="chip s">Nota automática /10</span>`].filter(Boolean).join("");
   buildQuiz();
   $("#loading").hidden = true; $("#intro").hidden = false;

@@ -105,8 +105,8 @@
         <label class="check"><input type="checkbox" id="ePub"> Publicar ya (visible para los alumnos)</label>
         <label class="check"><input type="checkbox" id="eSol" checked> Mostrar la corrección al alumno al entregar (en pantalla y en el correo)</label>
         <label class="check"><input type="checkbox" id="eSeg" checked> 🔒 Modo seguro: si el alumno cambia de pantalla, el examen termina y se entrega solo</label>
-        <label class="check"><input type="checkbox" id="eNotas"> 📝 Bloc de notas para el alumno durante el examen</label>
-        <label class="check"><input type="checkbox" id="eCalc"> 🧮 Calculadora científica para el alumno durante el examen</label>
+        <label class="check"><input type="checkbox" id="eNotas" checked> 📝 Bloc de notas para el alumno durante el examen</label>
+        <label class="check"><input type="checkbox" id="eCalc" checked> 🧮 Calculadora científica para el alumno durante el examen</label>
         <label class="check" id="eSobreWrap" hidden><input type="checkbox" id="eSobre"> Reemplazar el examen existente con este identificador</label>
       </div>
       <details id="previa" style="margin:6px 0 14px"><summary style="cursor:pointer;font-weight:700">Revisar las preguntas</summary><div id="previaLista"></div></details>
@@ -268,8 +268,8 @@ function pintarExamenes() {
       </div>
       <div class="herrbar" title="Herramientas que tiene el alumno durante el examen, sin salir de la página">
         <span>Herramientas</span>
-        <label><span class="switch"><input type="checkbox" data-herr="notas" ${e.herramientas?.notas ? "checked" : ""}><span></span></span>📝 Notas</label>
-        <label><span class="switch"><input type="checkbox" data-herr="calculadora" ${e.herramientas?.calculadora ? "checked" : ""}><span></span></span>🧮 Calculadora</label>
+        <label><span class="switch"><input type="checkbox" data-herr="notas" ${e.herramientas?.notas !== false ? "checked" : ""}><span></span></span>📝 Notas</label>
+        <label><span class="switch"><input type="checkbox" data-herr="calculadora" ${e.herramientas?.calculadora !== false ? "checked" : ""}><span></span></span>🧮 Calculadora</label>
       </div>
       <div class="intentosbar">
         <label title="Cuántas veces puede entregarlo cada alumno. A un alumno concreto le puedes dar más desde «Entregas».">Intentos
@@ -677,7 +677,7 @@ function mostrarFormulario(ex, resumen) {
     $("#eOrden").value = ex.orden ?? EXAMENES.filter((e) => e.cicloId === c.id && e.moduloId === m?.id).length + 1;
     $("#ePub").checked = !!ex.publicado; $("#eSol").checked = ex.mostrarSoluciones !== false; $("#eSeg").checked = ex.seguridad !== false; $("#eSobre").checked = false;
     // Calculadora: por defecto en los exámenes con ejercicios de cálculo.
-    $("#eNotas").checked = !!ex.herramientas?.notas; $("#eCalc").checked = ex.herramientas ? !!ex.herramientas.calculadora : (ex.num || []).length > 0;
+    $("#eNotas").checked = ex.herramientas?.notas !== false; $("#eCalc").checked = ex.herramientas?.calculadora !== false;
     $("#resumenImport").innerHTML = resumen;
     comprobarId();
     pintarPrevia();
