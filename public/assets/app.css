@@ -484,3 +484,12 @@ body.exam .wrap{padding-bottom:90px}
 .modnom{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
 .modnom .link{font-size:12.5px}
 @media (max-width:640px){ .grupo-mod .acc{margin-left:0} .filtros #cuentaEx{margin-left:0} }
+
+/* Menú «Cuenta» de cada alumno (administración) */
+.menu-cuenta{position:relative;display:inline-block}
+.menu-cuenta>summary{list-style:none}
+.menu-cuenta>summary::-webkit-details-marker{display:none}
+.menu-cuenta .menu{position:absolute;right:0;top:calc(100% + 4px);z-index:20;background:var(--card);border:1px solid var(--border-strong);border-radius:10px;box-shadow:var(--shadow-lg);padding:4px;min-width:260px;display:flex;flex-direction:column}
+.menu-cuenta .menu button{font:inherit;font-size:13.5px;text-align:left;border:none;background:transparent;color:var(--fg);padding:8px 10px;border-radius:7px;cursor:pointer}
+.menu-cuenta .menu button:hover{background:var(--sunken)}
+.dlg-pass{max-width:440px}

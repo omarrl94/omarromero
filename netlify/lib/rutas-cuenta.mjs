@@ -219,9 +219,25 @@ async function restablecer(req) {
   }
   u.pass = await hashPassword(b.password);
   u.ver = (u.ver || 0) + 1; // cierra las sesiones abiertas
+  delete u.passTemporal;
   delete u.codigo;
   delete u.fallos;
   await usuarios().set(email, u);
+  return iniciarSesion(req, u);
+}
+
+/** Cambiar la contraseña con la sesión iniciada (obligatorio si es una contraseña temporal). */
+async function cambiarPassword(req) {
+  const u = await usuarioSesion(req);
+  if (!u) fallo(401, "Inicia sesión para continuar");
+  const b = await leerCuerpo(req);
+  validarPassword(b.password);
+  if (!u.passTemporal && !(await comprobarPassword(String(b.actual || ""), u.pass))) fallo(400, "La contraseña actual no es correcta");
+  if (u.passTemporal && (await comprobarPassword(String(b.password), u.pass))) fallo(400, "Elige una contraseña distinta de la temporal");
+  u.pass = await hashPassword(b.password);
+  delete u.passTemporal;
+  u.ver = (u.ver || 0) + 1;
+  await usuarios().set(u.email, u);
   return iniciarSesion(req, u);
 }
 
@@ -277,5 +293,6 @@ export default {
   "GET /api/cuenta/yo": yo,
   "POST /api/cuenta/grupo": elegirGrupo,
   "POST /api/cuenta/mi-grupo": cambiarMiGrupo,
+  "POST /api/cuenta/password": cambiarPassword,
   "GET /api/cuenta/grupos": catalogoPublico,
 };

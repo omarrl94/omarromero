@@ -31,21 +31,25 @@ function marco(cabecera, cuerpo, pie) {
 }
 
 /* ── Código de verificación / recuperación ───────────────── */
-export function correoCodigo(tipo, nombre, codigo) {
+export function correoCodigo(tipo, nombre, codigo, { enlace = "", caduca = "15 minutos", porAdmin = false } = {}) {
   const registro = tipo === "registro";
   const asunto = registro ? `Tu código de acceso: ${codigo}` : `Código para cambiar tu contraseña: ${codigo}`;
   const intro = registro
     ? "Para activar tu cuenta de exámenes, escribe este código en la página de registro:"
-    : "Has pedido cambiar la contraseña de tu cuenta de exámenes. Escribe este código en la página:";
+    : porAdmin
+      ? "La administración del centro te ha enviado este código para que pongas una contraseña nueva en tu cuenta de exámenes:"
+      : "Has pedido cambiar la contraseña de tu cuenta de exámenes. Escribe este código en la página:";
+  const boton = enlace ? `<p style="text-align:center;margin:18px 0 6px"><a href="${esc(enlace)}" style="display:inline-block;background:#1F2430;color:#fff;text-decoration:none;font-weight:700;padding:12px 22px;border-radius:10px">Poner mi contraseña nueva</a></p>` : "";
   const cuerpo = `<tr><td style="padding:4px 28px 20px">
     <h1 style="font-size:22px;margin:6px 0 12px">Hola, ${esc(nombre)}</h1>
     <p style="font-size:15px;color:${GRIS}">${intro}</p>
     <div style="font-size:34px;font-weight:800;letter-spacing:.3em;background:#FBF1C2;color:#5E4D09;border-radius:12px;padding:16px 20px;text-align:center">${codigo}</div>
-    <p style="font-size:13px;color:${GRIS}">Caduca en 15 minutos. Si no has sido tú, ignora este correo.</p></td></tr>`;
+    ${boton}
+    <p style="font-size:13px;color:${GRIS}">Caduca en ${caduca}. Si no has sido tú, ignora este correo.</p></td></tr>`;
   return {
     asunto,
     html: marco(`${CENTRO()} · Exámenes`, cuerpo, "Correo automático, no respondas a este mensaje."),
-    text: `Hola, ${nombre}\n\n${intro}\n\n    ${codigo}\n\nCaduca en 15 minutos. Si no has sido tú, ignora este correo.`,
+    text: `Hola, ${nombre}\n\n${intro}\n\n    ${codigo}\n\n${enlace ? `Ponla aquí: ${enlace}\n\n` : ""}Caduca en ${caduca}. Si no has sido tú, ignora este correo.`,
   };
 }
 

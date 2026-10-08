@@ -60,10 +60,10 @@ export function validarPassword(pw) {
 }
 
 /* ── Códigos por correo ───────────────────────────────────── */
-export async function nuevoCodigo(tipo) {
+export async function nuevoCodigo(tipo, minutos = 15) {
   const codigo = String(randomInt(0, 1_000_000)).padStart(6, "0");
   const h = createHmac("sha256", await secreto()).update(codigo).digest("hex");
-  return { codigo, registro: { tipo, h, exp: Date.now() + 15 * 60_000, intentos: 0 } };
+  return { codigo, registro: { tipo, h, exp: Date.now() + minutos * 60_000, intentos: 0 } };
 }
 /** Devuelve true si el código es válido; actualiza intentos en `u.codigo`. */
 export async function comprobarCodigo(u, tipo, codigo) {
@@ -157,5 +157,7 @@ export const perfilPublico = (u) => {
     email: u.email, nombre: u.nombre, apellidos: u.apellidos, grupo: u.grupo, cicloId: cicloDe(u),
     // «profesor» para admin y profesores aprobados (lo usan las páginas para mostrar el panel).
     rol: esStaff(u) ? "profesor" : rol, admin: rol === "admin", ciclos: ciclosDe(u),
+    // Contraseña temporal puesta por la administración: hay que cambiarla al entrar.
+    ...(u.passTemporal ? { cambiarPassword: true } : {}),
   };
 };

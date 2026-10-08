@@ -39,7 +39,40 @@ async function cabecera({ ciclo = "Exámenes" } = {}) {
         ? `<a class="btn ghost sm" href="/panel/" title="Ver la plataforma como un alumno">Vista alumno</a>` : `<a class="btn ghost sm" href="/profesor/">Panel profesor</a>`}
       <button class="btn ghost sm" id="salir" title="Cerrar sesión">Salir</button></div>`;
   $("#salir").onclick = async () => { await api("/api/cuenta/logout", {}).catch(() => {}); location.href = "/"; };
+  if (usuario.cambiarPassword) await pedirPasswordNueva(usuario);
   return usuario;
+}
+
+/**
+ * Contraseña temporal puesta por la administración: antes de seguir, el
+ * alumno tiene que elegir una suya. La ventana no se puede cerrar.
+ */
+function pedirPasswordNueva(usuario) {
+  return new Promise(() => {
+    const d = document.createElement("dialog");
+    d.className = "dlg-pass";
+    d.innerHTML = `<form class="dbody" method="dialog" novalidate>
+      <h2 style="margin-top:0">Elige tu contraseña</h2>
+      <p class="muted">Hola, ${esc(usuario.nombre)}. Has entrado con una <b>contraseña temporal</b> que te ha dado el centro. Para continuar, elige una contraseña tuya (mínimo 8 caracteres).</p>
+      <div class="field"><label class="flab" for="npPass">Contraseña nueva</label><input type="password" id="npPass" autocomplete="new-password" minlength="8" required></div>
+      <div class="field"><label class="flab" for="npPass2">Repite la contraseña</label><input type="password" id="npPass2" autocomplete="new-password" minlength="8" required></div>
+      <div class="msg bad" data-err hidden></div>
+      <div class="actions"><button class="btn" type="submit">Guardar y continuar</button></div></form>`;
+    document.body.appendChild(d);
+    d.addEventListener("cancel", (e) => e.preventDefault()); // Esc no la cierra
+    d.showModal();
+    d.querySelector("form").onsubmit = async (ev) => {
+      ev.preventDefault();
+      const err = d.querySelector("[data-err]"), a = $("#npPass").value, b = $("#npPass2").value;
+      err.hidden = true;
+      try {
+        if (a.length < 8) throw new Error("La contraseña debe tener al menos 8 caracteres");
+        if (a !== b) throw new Error("Las dos contraseñas no coinciden");
+        await api("/api/cuenta/password", { password: a });
+        location.reload();
+      } catch (e) { err.textContent = e.message; err.hidden = false; }
+    };
+  });
 }
 
 /** Valores muy grandes o pequeños en notación científica (1,872·10²¹). */

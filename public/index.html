@@ -236,6 +236,14 @@ api("/api/cuenta/grupos", undefined, { redirigir401: false }).then(({ grupos, ci
 }).catch(() => {});
 
 if (location.hash === "#registro") mostrar("#fReg");
+// Enlace del correo «restablecer contraseña» que manda la administración: ya trae el correo y pide el código.
+const rec = new URLSearchParams(location.search).get("recuperar");
+if (rec) {
+  mostrar("#fRec"); $("#pEmail").value = rec;
+  pasoRec = 2; $("#fRec [data-paso1]").hidden = true; $("#fRec [data-paso2]").hidden = false;
+  $("#fRec [data-paso2] p").textContent = "Escribe el código que te ha llegado por correo y tu contraseña nueva.";
+  $("#fRec [data-enviar]").textContent = "Cambiar contraseña"; $("#pCod").focus();
+}
 </script>
 </body>
 </html>
