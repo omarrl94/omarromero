@@ -61,15 +61,15 @@ export default function FileCard({ resource, actions, footer }) {
           <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-brand-100 text-brand-800 dark:bg-brand-400/15 dark:text-brand-300">
             <Icon className="h-5 w-5" />
           </span>
-          <span className="min-w-0 flex-1">
-            <span className="block truncate text-sm font-semibold text-ink-900 dark:text-stone-100" title={resource.content}>
+          <span className="min-w-0 flex-1 basis-40">
+            <span className="block break-all text-sm font-semibold sm:truncate sm:break-normal text-ink-900 dark:text-stone-100" title={resource.content}>
               {resource.content}
             </span>
             <span className="block text-xs uppercase tracking-wide text-stone-500">
               {[ext, formatBytes(resource.file_size)].filter(Boolean).join(' · ')}
             </span>
           </span>
-          <div className="flex gap-2">
+          <div className="flex w-full justify-end gap-2 sm:w-auto">
             {canPreview && (
               <button type="button" onClick={togglePreview} className="btn-secondary btn-sm" disabled={!!busy}>
                 {busy === 'preview' ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : previewUrl ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
