@@ -12,7 +12,7 @@ import {
 } from "./entregas.mjs";
 import { proveedorConfigurado } from "./correo.mjs";
 import { nombreCompleto } from "./rutas-cuenta.mjs";
-import { CATALOGO, GRUPOS, cicloDe, buscarModulo, crearModulo, borrarModulo, cursosModulo } from "./catalogo.mjs";
+import { CATALOGO, GRUPOS, cicloDe, buscarModulo, crearModulo, borrarModulo, cursosModulo, renombrarModulo } from "./catalogo.mjs";
 import { iaDisponible, generarLote, proveedorIA, tamLote, comprobarIA, adaptarParte, sugerirCorreccion } from "./ia.mjs";
 
 const examenes = () => almacen("examenes");
@@ -433,6 +433,22 @@ async function nuevoModulo(req) {
   return json({ ok: true, modulo: await crearModulo(b.cicloId, nombre, b.grupos) });
 }
 
+/** Cambiar el nombre de un módulo; los exámenes del módulo se actualizan también. */
+async function renombrar(req) {
+  const u = await requiereProfesor(req);
+  const b = await leerCuerpo(req);
+  if (!gestionaCiclo(u, b.cicloId)) fallo(403, "Solo puedes cambiar módulos de tus ciclos");
+  const nombre = texto(b.nombre, 120);
+  if (nombre.length < 3) fallo(400, "Escribe el nombre del módulo");
+  const r = await renombrarModulo(b.cicloId, b.moduloId, nombre);
+  if (!r) fallo(404, "Módulo no encontrado");
+  if (r.repetido) fallo(409, "Ya hay otro módulo con ese nombre en este ciclo");
+  // El nombre del módulo también se guarda en cada examen (se ve en el examen, el correo y el PDF).
+  const exs = (await todosLosExamenes()).filter((e) => e.cicloId === b.cicloId && e.moduloId === b.moduloId && e.modulo !== nombre);
+  await Promise.all(exs.map((e) => examenes().set(e.id, { ...e, modulo: nombre })));
+  return json({ ok: true, nombre, examenes: exs.length });
+}
+
 /** Cursos (grupos) de un módulo: el alumno solo ve los módulos de su curso. */
 async function cursosDeModulo(req) {
   const u = await requiereProfesor(req);
@@ -537,6 +553,7 @@ export default {
   "POST /api/profesor/modulo": nuevoModulo,
   "POST /api/profesor/modulo/borrar": quitarModulo,
   "POST /api/profesor/modulo/cursos": cursosDeModulo,
+  "POST /api/profesor/modulo/nombre": renombrar,
   "GET /api/profesor/grupo": calificacionesGrupo,
   "GET /api/profesor/ia": iaEstado,
   "POST /api/profesor/ia/preguntas": iaPreguntas,

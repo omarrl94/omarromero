@@ -30,7 +30,14 @@
 
   <!-- Exámenes -->
   <section id="vExamenes">
-    <div class="toolbar"><h2>Exámenes</h2><div class="acts"><select id="filtroModulo" style="width:auto"></select><button class="btn ghost" id="verModulos">Módulos</button><button class="btn accent" id="nuevoIA">✨ Generar con IA</button><button class="btn" id="nuevo">＋ Subir examen</button></div></div>
+    <div class="toolbar"><h2>Exámenes</h2><div class="acts"><button class="btn ghost" id="verModulos">Módulos</button><button class="btn accent" id="nuevoIA">✨ Generar con IA</button><button class="btn" id="nuevo">＋ Subir examen</button></div></div>
+    <div class="filtros" role="search">
+      <select id="filtroCiclo" aria-label="Ciclo"></select>
+      <select id="filtroModulo" aria-label="Módulo"></select>
+      <input type="search" id="buscarEx" placeholder="Buscar examen…" aria-label="Buscar examen">
+      <label class="check"><input type="checkbox" id="agrupar" checked> Agrupar por módulo</label>
+      <span class="muted" id="cuentaEx"></span>
+    </div>
     <div id="tablaExamenes"><p class="loading">Cargando…</p></div>
   </section>
 
@@ -247,20 +254,48 @@ async function cargarProfes() {
 async function cargarExamenes() {
   const d = await api("/api/profesor/examenes");
   EXAMENES = d.examenes; CATALOGO = d.catalogo; $("#avisoCorreo").hidden = d.correo;
-  const f = $("#filtroModulo"), sel = f.value;
-  f.innerHTML = `<option value="">Todos los módulos</option>` + CATALOGO.map((c) => `<optgroup label="${esc(c.nombre)}">${c.modulos.map((m) =>
-    `<option value="${esc(c.id + "/" + m.id)}">${esc(m.nombre)}</option>`).join("")}</optgroup>`).join("");
-  f.value = sel;
+  rellenarFiltros();
   pintarExamenes();
 }
-$("#filtroModulo").onchange = () => pintarExamenes();
-function pintarExamenes() {
-  const t = $("#tablaExamenes"), filtro = $("#filtroModulo").value;
-  const pos = (e) => { const ci = CATALOGO.findIndex((c) => c.id === e.cicloId); const mi = ci < 0 ? 0 : CATALOGO[ci].modulos.findIndex((m) => m.id === e.moduloId); return ci * 1000 + mi; };
-  const lista = EXAMENES.filter((e) => !filtro || `${e.cicloId}/${e.moduloId}` === filtro).sort((a, b) => pos(a) - pos(b) || a.orden - b.orden);
-  if (!lista.length) { t.innerHTML = `<div class="empty">${EXAMENES.length ? "No hay exámenes en este módulo." : "Todavía no hay exámenes."} Pulsa «Subir examen» o «Generar con IA».</div>`; return; }
-  const sw = (e, campo, txt, tip) => `<label title="${tip}">${txt}<span class="switch"><input type="checkbox" data-aj="${campo}" ${e[campo] ? "checked" : ""}><span></span></span></label>`;
-  t.innerHTML = `<div class="exgrid">${lista.map((e) => `<article class="excard2" data-id="${esc(e.id)}">
+
+/* Filtros de la pestaña Exámenes: ciclo › módulo, texto y agrupación (se recuerdan en este navegador). */
+const FILTRO_KEY = "jro-filtro-examenes";
+const leerFiltroGuardado = () => { try { return JSON.parse(localStorage.getItem(FILTRO_KEY) || "{}"); } catch { return {}; } };
+const guardarFiltro = () => { try { localStorage.setItem(FILTRO_KEY, JSON.stringify({ c: $("#filtroCiclo").value, m: $("#filtroModulo").value, g: $("#agrupar").checked })); } catch { /* sin almacenamiento */ } };
+/** Ciclo y módulo elegidos en los filtros (para proponerlos al crear un examen). */
+function filtroSel() {
+  const c = $("#filtroCiclo").value, mv = $("#filtroModulo").value;
+  const [mc, mm] = mv ? mv.split("/") : ["", ""];
+  return { c: c || mc || "", m: mm || "" };
+}
+let filtrosListos = false;
+function rellenarFiltros() {
+  const g = filtrosListos ? { c: $("#filtroCiclo").value, m: $("#filtroModulo").value, g: $("#agrupar").checked } : leerFiltroGuardado();
+  const fc = $("#filtroCiclo");
+  fc.innerHTML = `<option value="">Todos los ciclos</option>` + CATALOGO.map((c) => `<option value="${esc(c.id)}">${esc(c.nombre)} · ${esc(c.descripcion || "")}</option>`).join("");
+  fc.value = CATALOGO.some((c) => c.id === g.c) ? g.c : "";
+  rellenarFiltroModulo(g.m);
+  if (typeof g.g === "boolean") $("#agrupar").checked = g.g;
+  filtrosListos = true;
+}
+function rellenarFiltroModulo(sel = $("#filtroModulo").value) {
+  const c = $("#filtroCiclo").value, f = $("#filtroModulo");
+  const ciclos = CATALOGO.filter((x) => !c || x.id === c);
+  f.innerHTML = `<option value="">${c ? "Todos los módulos del ciclo" : "Todos los módulos"}</option>` + ciclos.map((x) => {
+    const ops = x.modulos.map((m) => `<option value="${esc(x.id + "/" + m.id)}">${esc(m.nombre)}</option>`).join("");
+    return c ? ops : `<optgroup label="${esc(x.nombre)}">${ops}</optgroup>`;
+  }).join("");
+  f.value = [...f.options].some((o) => o.value === sel) ? sel : "";
+}
+$("#filtroCiclo").onchange = () => { rellenarFiltroModulo(""); guardarFiltro(); pintarExamenes(); };
+$("#filtroModulo").onchange = () => { guardarFiltro(); pintarExamenes(); };
+$("#agrupar").onchange = () => { guardarFiltro(); pintarExamenes(); };
+$("#buscarEx").oninput = () => pintarExamenes();
+
+/** Tarjeta de un examen. */
+function tarjetaExamen(e) {
+  const sw = (campo, txt, tip) => `<label title="${tip}">${txt}<span class="switch"><input type="checkbox" data-aj="${campo}" ${e[campo] ? "checked" : ""}><span></span></span></label>`;
+  return `<article class="excard2" data-id="${esc(e.id)}">
       <div class="top">
         <div class="where"><span class="tag">${esc(e.ciclo)}</span><span>${esc(e.modulo)}</span><span class="curso" title="Cursos que ven este módulo">${esc(cursoTxt(CATALOGO.find((c) => c.id === e.cicloId)?.modulos.find((m) => m.id === e.moduloId)))}</span></div>
         <h3>${esc(e.titulo)}</h3>
@@ -271,9 +306,9 @@ function pintarExamenes() {
         <span style="margin-left:auto;text-align:right"><b>${e.entregas}</b>entregas</span>
       </div>
       <div class="toggles">
-        ${sw(e, "publicado", "Publicado", "Visible para los alumnos")}
-        ${sw(e, "mostrarSoluciones", "Corrección", "El alumno ve la corrección al entregar")}
-        ${sw(e, "seguridad", "Modo seguro", "Si el alumno cambia de pestaña o de ventana, el examen termina y se entrega solo")}
+        ${sw("publicado", "Publicado", "Visible para los alumnos")}
+        ${sw("mostrarSoluciones", "Corrección", "El alumno ve la corrección al entregar")}
+        ${sw("seguridad", "Modo seguro", "Si el alumno cambia de pestaña o de ventana, el examen termina y se entrega solo")}
       </div>
       <div class="herrbar" title="Herramientas que tiene el alumno durante el examen, sin salir de la página">
         <span>Herramientas</span>
@@ -296,7 +331,53 @@ function pintarExamenes() {
           <button class="btn danger sm icono" data-borrar title="Borrar el examen y sus entregas" aria-label="Borrar">${ICONO.borrar}</button>
         </span>
       </div>
-    </article>`).join("")}</div>`;
+    </article>`;
+}
+
+function pintarExamenes() {
+  const t = $("#tablaExamenes");
+  const fc = $("#filtroCiclo").value, fm = $("#filtroModulo").value, q = normTxt($("#buscarEx").value);
+  const pos = (e) => { const ci = CATALOGO.findIndex((c) => c.id === e.cicloId); const mi = ci < 0 ? 0 : CATALOGO[ci].modulos.findIndex((m) => m.id === e.moduloId); return ci * 1000 + mi; };
+  const lista = EXAMENES
+    .filter((e) => (!fc || e.cicloId === fc) && (!fm || `${e.cicloId}/${e.moduloId}` === fm))
+    .filter((e) => !q || normTxt(`${e.titulo} ${e.subtitulo || ""} ${e.modulo} ${e.ciclo} ${e.id}`).includes(q))
+    .sort((a, b) => pos(a) - pos(b) || a.orden - b.orden);
+  $("#cuentaEx").textContent = `${lista.length} ${lista.length === 1 ? "examen" : "exámenes"}`;
+  if (!$("#agrupar").checked) {
+    t.innerHTML = lista.length ? `<div class="exgrid">${lista.map(tarjetaExamen).join("")}</div>`
+      : `<div class="empty">${EXAMENES.length ? "Ningún examen coincide con el filtro." : "Todavía no hay exámenes."} Pulsa «Subir examen» o «Generar con IA».</div>`;
+  } else {
+    // Agrupado: ciclo › módulo. Con un ciclo elegido se ven también sus módulos vacíos.
+    const ciclos = CATALOGO.filter((c) => (!fc || c.id === fc) && (!fm || fm.startsWith(c.id + "/")));
+    let h = "";
+    for (const c of ciclos) {
+      const mods = c.modulos.filter((m) => !fm || fm === `${c.id}/${m.id}`).map((m) => ({ m, exs: lista.filter((e) => e.cicloId === c.id && e.moduloId === m.id) }))
+        .filter((x) => x.exs.length || ((fc || fm) && !q));
+      const sueltos = lista.filter((e) => e.cicloId === c.id && !c.modulos.some((m) => m.id === e.moduloId));
+      if (!mods.length && !sueltos.length) continue;
+      h += `<section class="grupo-ciclo"><h3 class="ciclo-h"><span class="tag">${esc(c.nombre)}</span> ${esc(c.descripcion || "")}</h3>`;
+      for (const { m, exs } of mods) {
+        const entregas = exs.reduce((s2, e) => s2 + (e.entregas || 0), 0), publicados = exs.filter((e) => e.publicado).length;
+        h += `<details class="grupo-mod" open data-ciclo="${esc(c.id)}" data-mod="${esc(m.id)}">
+          <summary><span class="nom">${esc(m.nombre)}</span>
+            <span class="chip gray">${esc(cursoTxt(m))}</span>
+            <span class="muted">${exs.length} ${exs.length === 1 ? "examen" : "exámenes"}${exs.length ? ` · ${publicados} publicados · ${entregas} entregas` : ""}</span>
+            <span class="acc"><button type="button" class="btn ghost sm" data-renombrar title="Cambiar el nombre del módulo">✎ Renombrar</button>
+              <button type="button" class="btn ghost sm" data-ia-aqui title="Generar un examen con IA en este módulo">✨ Nuevo examen</button></span></summary>
+          ${exs.length ? `<div class="exgrid">${exs.map(tarjetaExamen).join("")}</div>` : `<p class="muted" style="margin:6px 4px 4px">Todavía no hay exámenes en este módulo.</p>`}
+        </details>`;
+      }
+      if (sueltos.length) h += `<details class="grupo-mod" open><summary><span class="nom">Sin módulo</span></summary><div class="exgrid">${sueltos.map(tarjetaExamen).join("")}</div></details>`;
+      h += `</section>`;
+    }
+    t.innerHTML = h || `<div class="empty">${EXAMENES.length ? "Ningún examen coincide con el filtro." : "Todavía no hay exámenes."} Pulsa «Subir examen» o «Generar con IA».</div>`;
+    $$("[data-renombrar]", t).forEach((b) => (b.onclick = (ev) => { ev.preventDefault(); const d = b.closest("[data-mod]"); renombrarModuloUI(d.dataset.ciclo, d.dataset.mod); }));
+    $$("[data-ia-aqui]", t).forEach((b) => (b.onclick = (ev) => {
+      ev.preventDefault(); const d = b.closest("[data-mod]");
+      $("#filtroCiclo").value = d.dataset.ciclo; rellenarFiltroModulo(`${d.dataset.ciclo}/${d.dataset.mod}`); guardarFiltro();
+      $("#nuevoIA").click();
+    }));
+  }
   const idDe = (el) => el.closest("[data-id]").dataset.id;
   $$("[data-aj]", t).forEach((c) => (c.onchange = async () => {
     try { await api("/api/profesor/examen/ajustes", { id: idDe(c), [c.dataset.aj]: c.checked }); } catch (e) { alert(e.message); c.checked = !c.checked; }
@@ -691,7 +772,7 @@ function mostrarFormulario(ex, resumen) {
     $("#eSub").value = ex.subtitulo || "";
     // Ciclo y módulo: por id (JSON) o por nombre (HTML); si no, el filtro actual o el primero.
     $("#eCiclo").innerHTML = CATALOGO.map((c) => `<option value="${esc(c.id)}">${esc(c.nombre)}</option>`).join("");
-    const [fc, fm] = ($("#filtroModulo").value || "/").split("/");
+    const { c: fc, m: fm } = filtroSel();
     const c = CATALOGO.find((x) => x.id === ex.cicloId || normTxt(x.nombre) === normTxt(ex.ciclo)) || CATALOGO.find((x) => x.id === fc) || CATALOGO[0];
     $("#eCiclo").value = c.id; rellenarModulos();
     const m = c.modulos.find((x) => x.id === ex.moduloId || normTxt(x.nombre) === normTxt(ex.modulo)) || c.modulos.find((x) => x.id === fm) || c.modulos[0];
@@ -741,7 +822,7 @@ function pintarModulos() {
   $("#listaModulos").innerHTML = CATALOGO.map((c) => `<div class="card modcard" data-ciclo-mod="${esc(c.id)}">
     <b>${esc(c.nombre)}</b> <span class="muted">· ${esc(c.descripcion || "")} (${esc(c.grado || "")})</span>
     ${c.modulos.length ? `<table class="t modt"><thead><tr><th>Módulo</th><th>Curso</th><th></th></tr></thead><tbody>${c.modulos.map((m) => `<tr data-mod="${esc(m.id)}">
-      <td><b>${esc(m.nombre)}</b></td>
+      <td><div class="modnom"><b>${esc(m.nombre)}</b><button type="button" class="link" data-renombrar-mod title="Cambiar el nombre del módulo">✎ renombrar</button></div></td>
       <td><div class="cursos">${casillasCurso(c, m.grupos)}</div></td>
       <td>${m.propio ? `<button type="button" class="btn danger sm icono" title="Borrar módulo" aria-label="Borrar módulo" data-borrar-mod="${esc(m.id)}">${ICONO.borrar}</button>` : ""}</td></tr>`).join("")}</tbody></table>`
       : `<p class="muted" style="margin:10px 0">Sin módulos todavía.</p>`}
@@ -764,12 +845,29 @@ function pintarModulos() {
     try { await api("/api/profesor/modulo/cursos", { cicloId: tr.closest("[data-ciclo-mod]").dataset.cicloMod, moduloId: tr.dataset.mod, grupos: g }); await cargarExamenes(); }
     catch (e) { err(e.message); i.checked = !i.checked; }
   }));
+  $$("[data-renombrar-mod]").forEach((b) => (b.onclick = async () => {
+    const tr = b.closest("tr");
+    if (await renombrarModuloUI(tr.closest("[data-ciclo-mod]").dataset.cicloMod, tr.dataset.mod, err)) pintarModulos();
+  }));
   $$("[data-borrar-mod]").forEach((b) => (b.onclick = async () => {
     err("");
     if (!confirm("¿Borrar este módulo?")) return;
     try { await api("/api/profesor/modulo/borrar", { cicloId: b.closest("[data-ciclo-mod]").dataset.cicloMod, moduloId: b.dataset.borrarMod }); await cargarExamenes(); pintarModulos(); }
     catch (e) { err(e.message); }
   }));
+}
+/** Pide el nombre nuevo de un módulo y lo guarda (sus exámenes se actualizan solos). */
+async function renombrarModuloUI(cicloId, moduloId, avisar = (m) => m && alert(m)) {
+  const m = CATALOGO.find((c) => c.id === cicloId)?.modulos.find((x) => x.id === moduloId);
+  if (!m) return false;
+  const nombre = prompt("Nuevo nombre del módulo:", m.nombre);
+  if (nombre === null || !nombre.trim() || nombre.trim() === m.nombre) return false;
+  try {
+    const r = await api("/api/profesor/modulo/nombre", { cicloId, moduloId, nombre: nombre.trim() });
+    await cargarExamenes();
+    if (r.examenes) avisar(""); // sin errores
+    return true;
+  } catch (e) { avisar(e.message); return false; }
 }
 $("#verModulos").onclick = () => { $("#modErr").hidden = true; pintarModulos(); $("#dModulos").showModal(); };
 
@@ -1014,7 +1112,7 @@ $("#nuevoIA").onclick = async () => {
   IA_ARCHIVO = null; $("#iaArchivo").value = ""; $("#iaProgreso").hidden = true; $("[data-err]", $("#fIA")).hidden = true;
   $("#iaDropTxt").textContent = "Arrastra aquí el PowerPoint (.pptx), PDF o Word (.docx), o haz clic para elegirlo";
   $("#iaCiclo").innerHTML = CATALOGO.map((c) => `<option value="${esc(c.id)}">${esc(c.nombre)}</option>`).join("");
-  const [fc, fm] = ($("#filtroModulo").value || "/").split("/");
+  const { c: fc, m: fm } = filtroSel();
   if (fc) $("#iaCiclo").value = fc;
   rellenarModulosIA();
   if (fm) $("#iaModulo").value = fm;

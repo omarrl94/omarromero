@@ -37,15 +37,32 @@ export const CATALOGO = CICLOS.map((c) => ({ ...c, modulos: [...c.modulos] }));
 
 const MODULOS = "modulos"; // clave en «sistema»: { [cicloId]: [{ id, nombre, grupos }] }
 const CURSOS_MODULOS = "modulos-cursos"; // cursos cambiados en los módulos de serie: { "ciclo/modulo": [grupos] }
+const NOMBRES_MODULOS = "modulos-nombres"; // nombres cambiados desde el panel: { "ciclo/modulo": nombre }
 
 export async function cargarModulos() {
   const sis = almacen("sistema");
-  const [extra, cursos] = await Promise.all([sis.get(MODULOS), sis.get(CURSOS_MODULOS)]);
+  const [extra, cursos, nombres] = await Promise.all([sis.get(MODULOS), sis.get(CURSOS_MODULOS), sis.get(NOMBRES_MODULOS)]);
   for (const c of CATALOGO) {
     const base = CICLOS.find((x) => x.id === c.id).modulos;
     c.modulos = [...base, ...((extra || {})[c.id] || []).filter((m) => !base.some((b) => b.id === m.id)).map((m) => ({ ...m, propio: true }))]
-      .map((m) => ({ ...m, grupos: (cursos || {})[`${c.id}/${m.id}`] ?? m.grupos ?? [] }));
+      .map((m) => ({ ...m, nombre: (nombres || {})[`${c.id}/${m.id}`] || m.nombre, grupos: (cursos || {})[`${c.id}/${m.id}`] ?? m.grupos ?? [] }));
   }
+}
+
+/**
+ * Cambia el nombre de un módulo (de serie o creado desde el panel).
+ * El identificador no cambia, así que exámenes y entregas siguen asociados.
+ */
+export async function renombrarModulo(cicloId, moduloId, nombre) {
+  const ubic = buscarModulo(cicloId, moduloId);
+  if (!ubic) return null;
+  if (ubic.ciclo.modulos.some((m) => m.id !== moduloId && norm(m.nombre) === norm(nombre))) return { repetido: true };
+  const sis = almacen("sistema");
+  const nombres = (await sis.get(NOMBRES_MODULOS)) || {};
+  nombres[`${cicloId}/${moduloId}`] = nombre;
+  await sis.set(NOMBRES_MODULOS, nombres);
+  await cargarModulos();
+  return { nombre };
 }
 
 /** Grupos (cursos) de un ciclo: «1.º ASIR», «2.º ASIR»… */
