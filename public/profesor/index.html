@@ -104,6 +104,7 @@
       <div style="display:grid;gap:10px;margin:4px 0 8px">
         <label class="check"><input type="checkbox" id="ePub"> Publicar ya (visible para los alumnos)</label>
         <label class="check"><input type="checkbox" id="eSol" checked> Mostrar la corrección al alumno al entregar (en pantalla y en el correo)</label>
+        <label class="check" id="eConfWrap"><input type="checkbox" id="eConf"> 🎯 Test con seguridad: el alumno marca lo seguro que está en cada pregunta del test (si acierta suma, si falla resta)</label>
         <label class="check"><input type="checkbox" id="eSeg" checked> 🔒 Modo seguro: si el alumno cambia de pantalla, el examen termina y se entrega solo</label>
         <label class="check"><input type="checkbox" id="eNotas" checked> 📝 Bloc de notas para el alumno durante el examen</label>
         <label class="check"><input type="checkbox" id="eCalc" checked> 🧮 Calculadora científica para el alumno durante el examen</label>
@@ -155,6 +156,12 @@
         <div class="field"><label class="flab" for="iaNmc">Preguntas tipo test</label><input type="number" id="iaNmc" min="0" max="40" value="20"></div>
         <div class="field"><label class="flab" for="iaNopen">Preguntas abiertas</label><input type="number" id="iaNopen" min="0" max="15" value="6"></div>
       </div>
+      <div class="field"><span class="flab">Tipo de test</span>
+        <div class="tipotest" role="radiogroup" aria-label="Tipo de test">
+          <label data-solo="word" hidden><input type="radio" name="iaTipoTest" value="auto"><span><b>Como en el Word</b><small>Normal o con seguridad, según el examen original.</small></span></label>
+          <label><input type="radio" name="iaTipoTest" value="normal" checked><span><b>Test normal</b><small>Cada acierto suma su puntuación; los fallos no restan.</small></span></label>
+          <label><input type="radio" name="iaTipoTest" value="seguridad"><span><b>Test con seguridad</b><small>El alumno marca lo seguro que está (Muy seguro · Seguro · Poco seguro): si acierta suma y si falla resta.</small></span></label>
+        </div></div>
       <div class="field"><label class="flab" for="iaInd">Indicaciones para la IA (opcional)</label><textarea id="iaInd" style="min-height:60px" placeholder="Ej.: nivel de 1.º, céntrate en los conceptos y no en las fechas…"></textarea></div>
       <div id="iaProgreso" hidden>
         <div class="progress" style="position:static"><span id="iaEstado"></span><div class="track"><div class="fill" id="iaFill"></div></div></div>
@@ -691,6 +698,7 @@ function mostrarFormulario(ex, resumen) {
     if (m) $("#eModulo").value = m.id; // un ciclo sin módulos deja el desplegable vacío (se avisa al guardar)
     $("#eOrden").value = ex.orden ?? EXAMENES.filter((e) => e.cicloId === c.id && e.moduloId === m?.id).length + 1;
     $("#ePub").checked = !!ex.publicado; $("#eSol").checked = ex.mostrarSoluciones !== false; $("#eSeg").checked = ex.seguridad !== false; $("#eSobre").checked = false;
+    $("#eConf").checked = !!ex.confianza; $("#eConfWrap").hidden = !(ex.mc || []).length;
     // Calculadora: por defecto en los exámenes con ejercicios de cálculo.
     $("#eNotas").checked = ex.herramientas?.notas !== false; $("#eCalc").checked = ex.herramientas?.calculadora !== false;
     $("#resumenImport").innerHTML = resumen;
@@ -828,6 +836,9 @@ function modoIA(m) {
   $$("#fIA [data-solo]").forEach((el) => (el.hidden = el.dataset.solo !== m));
   $("#iaGo").textContent = m === "word" ? "Adaptar examen" : "Generar preguntas";
   $("label[for=iaTitulo]").textContent = m === "word" ? "Título del examen" : "Título del tema";
+  // En Word, por defecto el test se queda como esté en el original.
+  const tipo = $(`input[name="iaTipoTest"][value="${m === "word" ? "auto" : tipoTestIA() === "auto" ? "normal" : tipoTestIA()}"]`);
+  if (tipo) tipo.checked = true;
 }
 $$("[data-modo-ia]").forEach((b) => (b.onclick = () => modoIA(b.dataset.modoIa)));
 $("#wExamen").onchange = (e) => {
@@ -984,12 +995,16 @@ async function adaptarWord(estado) {
   const apsEsperados = ind.ejercicios.reduce((s, e) => s + e.nApartados, 0);
   if (num.length < apsEsperados) avisos.push(`el índice decía ${apsEsperados} apartados de ejercicios y se han pasado ${num.length}`);
   return {
-    titulo: $("#iaTitulo").value.trim() || ind.titulo, subtitulo: ind.subtitulo, confianza: ind.confianza && mc.length > 0,
+    titulo: $("#iaTitulo").value.trim() || ind.titulo, subtitulo: ind.subtitulo,
+    confianza: mc.length > 0 && (tipoTestIA() === "auto" ? ind.confianza : tipoTestIA() === "seguridad"),
     partes: ind.partes, bloques, mc, open, num,
     cicloId: base.cicloId, moduloId: base.moduloId, publicado: false, mostrarSoluciones: true, seguridad: true,
     _figuras: ex1.figuras.length, _sinSol: !fs, _avisos: avisos,
   };
 }
+/** Tipo de test elegido al generar: normal, con seguridad (nivel de confianza) o como en el Word. */
+const tipoTestIA = () => $('input[name="iaTipoTest"]:checked')?.value || "normal";
+
 function rellenarModulosIA() {
   const c = CATALOGO.find((x) => x.id === $("#iaCiclo").value);
   $("#iaModulo").innerHTML = (c?.modulos || []).map((m) => `<option value="${esc(m.id)}">${esc(m.nombre)}</option>`).join("");
@@ -1070,7 +1085,8 @@ $("#fIA").onsubmit = async (ev) => {
     const L = IA_LOTE;
     for (let i = 0, lotes = Math.ceil(nMc / L.mc); i < lotes; i++) plan.push({ tipo: "mc", n: Math.min(L.mc, nMc - i * L.mc), lote: i + 1, lotes });
     for (let i = 0, lotes = Math.ceil(nOpen / L.open); i < lotes; i++) plan.push({ tipo: "open", n: Math.min(L.open, nOpen - i * L.open), lote: i + 1, lotes });
-    const ex = { titulo, subtitulo: "", cicloId: $("#iaCiclo").value, moduloId: $("#iaModulo").value, mc: [], open: [], publicado: false, mostrarSoluciones: true };
+    const ex = { titulo, subtitulo: "", cicloId: $("#iaCiclo").value, moduloId: $("#iaModulo").value, mc: [], open: [], publicado: false, mostrarSoluciones: true,
+      confianza: tipoTestIA() === "seguridad" };
     const total = nMc + nOpen;
     let avisos = "";
     for (const paso of plan) {
@@ -1107,6 +1123,7 @@ $("#fIA").onsubmit = async (ev) => {
 
 function comprobarId() { $("#eSobreWrap").hidden = !EXAMENES.some((e) => e.id === $("#eId").value.trim()); }
 $("#eId").oninput = comprobarId;
+$("#eConf").onchange = () => { if (IMPORT) { IMPORT.confianza = $("#eConf").checked; pintarPrevia(); } };
 $("#fExamen").onsubmit = async (ev) => {
   ev.preventDefault();
   const f = ev.target, err = $("[data-err]", f); err.hidden = true;
@@ -1120,6 +1137,7 @@ $("#fExamen").onsubmit = async (ev) => {
       cicloId: $("#eCiclo").value, moduloId: $("#eModulo").value, orden: Number($("#eOrden").value) || 0,
       publicado: $("#ePub").checked, mostrarSoluciones: $("#eSol").checked, seguridad: $("#eSeg").checked, sobrescribir: $("#eSobre").checked,
       herramientas: { notas: $("#eNotas").checked, calculadora: $("#eCalc").checked },
+      confianza: $("#eConf").checked && (IMPORT.mc || []).length > 0,
     });
     if (imprimir) imprimir.location.href = `/profesor/imprimir.html?id=${encodeURIComponent(id)}`;
     $("#dSubir").close(); cargarExamenes();
