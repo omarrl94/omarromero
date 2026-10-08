@@ -111,7 +111,7 @@
       </div>
       <details id="previa" style="margin:6px 0 14px"><summary style="cursor:pointer;font-weight:700">Revisar las preguntas</summary><div id="previaLista"></div></details>
       <div class="msg bad" data-err hidden></div>
-      <div class="actions"><button class="btn" type="submit">Guardar examen</button></div>
+      <div class="actions"><button class="btn" type="submit">Guardar examen</button><button class="btn ghost" type="submit" data-imprimir title="Lo guarda y abre la versión para imprimir (alumno y solucionario)">🖨 Guardar e imprimir</button></div>
     </form>
   </div>
 </dialog>
@@ -193,6 +193,7 @@ const ICONO = {
   descargar: svg('<path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/>'),
   borrar: svg('<path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/>'),
   ok: svg('<path d="m5 12 5 5 9-10"/>'),
+  imprimir: svg('<path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/>'),
 };
 const CATALOGO_NOMBRES = (ids) => ids.map((id) => id.toUpperCase()).join(", ");
 let CATALOGO = [], EXAMENES = [], ACTUAL = null, FILAS = [], ALUMNOS = [], GRUPOS = [], IMPORT = null;
@@ -282,6 +283,7 @@ function pintarExamenes() {
         <button class="btn sm" data-ent>Entregas</button>
         <a class="btn ghost sm" target="_blank" href="/examen/?id=${encodeURIComponent(e.id)}" title="Ábrelo como alumno (también sin publicar). Si lo entregas, usa «Reabrir» para borrar tu intento.">Probar</a>
         <span class="iconos">
+          <a class="btn ghost sm icono" target="_blank" href="/profesor/imprimir.html?id=${encodeURIComponent(e.id)}" title="Imprimir el examen en papel (versión alumno y solucionario), por si falla Internet" aria-label="Imprimir">${ICONO.imprimir}</a>
           <button class="btn ghost sm icono" data-copiar title="Copiar el enlace del examen" aria-label="Copiar enlace">${ICONO.enlace}</button>
           <button class="btn ghost sm icono" data-json title="Descargar el examen completo con soluciones (JSON)" aria-label="Descargar JSON">${ICONO.descargar}</button>
           <button class="btn danger sm icono" data-borrar title="Borrar el examen y sus entregas" aria-label="Borrar">${ICONO.borrar}</button>
@@ -1110,15 +1112,18 @@ $("#fExamen").onsubmit = async (ev) => {
   const f = ev.target, err = $("[data-err]", f); err.hidden = true;
   if (sinModulos($("#eCiclo").value)) { err.textContent = "Este ciclo todavía no tiene módulos. Créalo antes con el botón «Módulos»."; err.hidden = false; return; }
   const btn = $("button[type=submit]", f); btn.disabled = true;
+  // «Guardar e imprimir»: la ventana se abre ya (si no, el navegador la bloquea) y se rellena al guardar.
+  const imprimir = ev.submitter?.hasAttribute("data-imprimir") ? window.open("", "_blank") : null;
   try {
-    await api("/api/profesor/examen", {
+    const { id } = await api("/api/profesor/examen", {
       ...IMPORT, id: $("#eId").value.trim(), titulo: $("#eTitulo").value.trim(), subtitulo: $("#eSub").value.trim(),
       cicloId: $("#eCiclo").value, moduloId: $("#eModulo").value, orden: Number($("#eOrden").value) || 0,
       publicado: $("#ePub").checked, mostrarSoluciones: $("#eSol").checked, seguridad: $("#eSeg").checked, sobrescribir: $("#eSobre").checked,
       herramientas: { notas: $("#eNotas").checked, calculadora: $("#eCalc").checked },
     });
+    if (imprimir) imprimir.location.href = `/profesor/imprimir.html?id=${encodeURIComponent(id)}`;
     $("#dSubir").close(); cargarExamenes();
-  } catch (e) { err.textContent = e.message; err.hidden = false; }
+  } catch (e) { imprimir?.close(); err.textContent = e.message; err.hidden = false; }
   finally { btn.disabled = false; }
 };
 
