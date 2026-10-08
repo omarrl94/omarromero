@@ -25,7 +25,7 @@ let modeloGemini = null; // modelo elegido (GEMINI_MODEL, o uno disponible si es
 
 let cliente;
 const claude = () =>
-  (cliente ||= new Anthropic({ apiKey: env("ANTHROPIC_API_KEY"), timeout: 55_000, maxRetries: 1 }));
+  (cliente ||= new Anthropic({ apiKey: env("ANTHROPIC_API_KEY"), timeout: TIEMPO_IA(), maxRetries: 0 }));
 
 export const proveedorIA = () => (claveGemini() ? "gemini" : env("ANTHROPIC_API_KEY") ? "claude" : null);
 export const iaDisponible = () => !!proveedorIA();
@@ -133,7 +133,7 @@ function leerJSON(texto) {
   try { return JSON.parse(texto); } catch { fallo(502, "La IA ha devuelto una respuesta incompleta. Vuelve a intentarlo."); }
 }
 
-async function pedirClaude(tipo, material, instruccion, { sistema = SISTEMA, esquema = ESQUEMAS[tipo] } = {}) {
+async function pedirClaude(tipo, material, instruccion, { sistema = SISTEMA, esquema = ESQUEMAS[tipo], esfuerzo = "medium" } = {}) {
   let r;
   try {
     r = await claude().beta.messages.stream({
@@ -141,7 +141,7 @@ async function pedirClaude(tipo, material, instruccion, { sistema = SISTEMA, esq
       max_tokens: 16000,
       betas: ["server-side-fallback-2026-07-01"],
       fallbacks: "default",
-      output_config: { effort: "medium", format: { type: "json_schema", schema: esquema } },
+      output_config: { effort: esfuerzo, format: { type: "json_schema", schema: esquema } },
       system: sistema,
       messages: [{
         role: "user",
@@ -167,13 +167,20 @@ async function pedirClaude(tipo, material, instruccion, { sistema = SISTEMA, esq
 }
 
 /** Llamada a la API REST de Gemini (Google AI Studio). Devuelve { res, data }. */
-async function llamarGemini(ruta, cuerpo) {
+/**
+ * Tiempo máximo de cada llamada a la IA. Netlify corta las funciones que
+ * tardan demasiado (y entonces el panel solo ve «Error 504»), así que se
+ * corta antes para devolver un error claro y que el panel divida el trabajo.
+ */
+const TIEMPO_IA = () => Number(env("IA_TIEMPO_MS")) || 22_000;
+
+async function llamarGemini(ruta, cuerpo, tiempo = TIEMPO_IA()) {
   try {
     const res = await fetch(`${BASE_GEMINI()}/${ruta}`, {
       method: cuerpo ? "POST" : "GET",
       headers: { "Content-Type": "application/json", "x-goog-api-key": claveGemini() },
       body: cuerpo ? JSON.stringify(cuerpo) : undefined,
-      signal: AbortSignal.timeout(55_000),
+      signal: AbortSignal.timeout(tiempo),
     });
     return { res, data: await res.json().catch(() => ({})) };
   } catch (e) {
@@ -231,12 +238,19 @@ export async function comprobarIA() {
 }
 
 /** Gemini con salida JSON según esquema. */
-async function pedirGemini(tipo, material, instruccion, { sistema = SISTEMA, esquemaG = ESQUEMAS_GEMINI[tipo], temperatura = 0.7 } = {}) {
+/** «Pensar» hace a Gemini más lento: en tareas de transcribir se apaga (o se deja bajo). */
+function configPensar(modelo, pensar) {
+  if (/gemini-2\.5/.test(modelo)) return { thinkingConfig: { thinkingBudget: pensar ? 1024 : /pro/.test(modelo) ? 128 : 0 } };
+  if (/gemini-[3-9]/.test(modelo)) return { thinkingConfig: { thinkingLevel: "low" } };
+  return {};
+}
+
+async function pedirGemini(tipo, material, instruccion, { sistema = SISTEMA, esquemaG = ESQUEMAS_GEMINI[tipo], temperatura = 0.7, pensar = true } = {}) {
   const modelo = await modeloGeminiDisponible();
   const { res, data } = await llamarGemini(`models/${encodeURIComponent(modelo)}:generateContent`, {
     systemInstruction: { parts: [{ text: sistema }] },
     contents: [{ role: "user", parts: [{ text: `<material>\n${material}\n</material>` }, { text: instruccion }] }],
-    generationConfig: { responseMimeType: "application/json", responseSchema: esquemaG, temperature: temperatura },
+    generationConfig: { responseMimeType: "application/json", responseSchema: esquemaG, temperature: temperatura, ...configPensar(modelo, pensar) },
   });
   if (!res.ok) falloGemini(res, data);
   if (data.promptFeedback?.blockReason) fallo(422, "Gemini no ha querido generar preguntas con este material.");
@@ -265,11 +279,19 @@ Reglas:
 - Las marcas [FIGURA n] indican dónde hay una imagen en el documento.`;
 
 const PARTES_ADAPTAR = {
-  estructura: {
-    instruccion: `Devuelve los datos generales del examen: título corto (por ejemplo «Examen Temas 1 y 2»), subtítulo (temas o contenidos), si el test se puntúa con NIVEL DE CONFIANZA (el alumno marca lo seguro que está y se suma o resta según acierte) y el nombre de cada parte tal como aparece (test, preguntas abiertas/definiciones, ejercicios). Deja vacío el nombre de las partes que no existan.`,
+  // Índice: datos generales y cuántas preguntas hay de cada tipo (respuesta corta y rápida).
+  indice: {
+    instruccion: `Devuelve el ÍNDICE del examen (no transcribas las preguntas):
+- título corto (por ejemplo «Examen Temas 1 y 2») y subtítulo (temas o contenidos);
+- si el test se puntúa con NIVEL DE CONFIANZA (el alumno marca lo seguro que está y se suma o resta según acierte);
+- el nombre de cada parte tal como aparece (test, preguntas abiertas/definiciones, ejercicios); vacío si no existe;
+- cuántas preguntas tipo test hay (nTest) y cuántas preguntas abiertas cortas (nAbiertas; NO cuentes los ejercicios de cálculo);
+- la lista de ejercicios prácticos o de cálculo, en orden, con su título y cuántos apartados tiene cada uno (nApartados; 1 si no tiene apartados).`,
     esquema: objeto({ titulo: { type: "string" }, subtitulo: { type: "string" }, confianza: { type: "boolean" },
-      partes: objeto({ test: { type: "string" }, abiertas: { type: "string" }, ejercicios: { type: "string" } }) }),
-    esquemaG: gObj({ titulo: G.s, subtitulo: G.s, confianza: { type: "BOOLEAN" }, partes: gObj({ test: G.s, abiertas: G.s, ejercicios: G.s }) }),
+      partes: objeto({ test: { type: "string" }, abiertas: { type: "string" }, ejercicios: { type: "string" } }),
+      nTest: { type: "integer" }, nAbiertas: { type: "integer" }, ejercicios: lista(objeto({ titulo: { type: "string" }, nApartados: { type: "integer" } })) }),
+    esquemaG: gObj({ titulo: G.s, subtitulo: G.s, confianza: { type: "BOOLEAN" }, partes: gObj({ test: G.s, abiertas: G.s, ejercicios: G.s }),
+      nTest: G.i, nAbiertas: G.i, ejercicios: gArr(gObj({ titulo: G.s, nApartados: G.i })) }),
   },
   mc: {
     instruccion: `Devuelve TODAS las preguntas tipo test (opción múltiple con una sola respuesta correcta), en su orden, con sus opciones (sin la letra delante), el índice de la correcta (0 = primera), los puntos de cada pregunta y la justificación del solucionario (vacía si no hay). Si el examen no tiene test, devuelve una lista vacía.`,
@@ -301,9 +323,11 @@ Máximo 6 resultados por apartado: si un apartado pide más, divídelo en dos (a
 const puntosValidos = (p) => (Number.isFinite(Number(p)) && Number(p) > 0 ? Math.round(Number(p) * 1000) / 1000 : 1);
 
 const ADAPTADORES = {
-  estructura: (d) => ({
+  indice: (d) => ({
     titulo: String(d.titulo || "").trim(), subtitulo: String(d.subtitulo || "").trim(), confianza: d.confianza === true,
     partes: { mc: String(d.partes?.test || "").trim(), open: String(d.partes?.abiertas || "").trim(), num: String(d.partes?.ejercicios || "").trim() },
+    nTest: Math.max(0, Math.min(200, Number(d.nTest) || 0)), nAbiertas: Math.max(0, Math.min(100, Number(d.nAbiertas) || 0)),
+    ejercicios: (d.ejercicios || []).slice(0, 40).map((e) => ({ titulo: String(e.titulo || "").trim(), nApartados: Math.max(1, Math.min(40, Number(e.nApartados) || 1)) })),
   }),
   mc: (d) => ({
     preguntas: (d.preguntas || []).map((p) => {
@@ -344,18 +368,38 @@ const ADAPTADORES = {
   }),
 };
 
-/** Pide a la IA una parte del examen adaptado: estructura | mc | open | num. */
-export async function adaptarParte({ parte, examen, solucionario = "", indicaciones = "" }) {
+/**
+ * Qué trozo pedir. Para que cada petición sea corta (y no la corte Netlify),
+ * el panel pide el test y las abiertas de pocas en pocas, y los ejercicios
+ * de uno en uno (o por grupos de apartados si un ejercicio es largo).
+ */
+function trozo(parte, { desde, hasta, ejercicio, titulo, apDesde, apHasta }) {
+  const n = (x) => Math.max(1, Math.floor(Number(x) || 1));
+  if (parte === "mc" && desde) return `\n\nDevuelve SOLO las preguntas tipo test número ${n(desde)} a ${n(hasta)} (contando desde la primera pregunta del test). Nada más.`;
+  if (parte === "open" && desde) return `\n\nDevuelve SOLO las preguntas abiertas número ${n(desde)} a ${n(hasta)} (contando desde la primera pregunta abierta; los ejercicios de cálculo no cuentan). Nada más.`;
+  if (parte === "num" && ejercicio) {
+    const ap = apDesde ? ` y, de él, SOLO los apartados ${n(apDesde)}.º a ${n(apHasta)}.º (contando desde el primero)` : "";
+    return `\n\nDevuelve SOLO el ejercicio número ${n(ejercicio)}${titulo ? ` («${String(titulo).slice(0, 120)}»)` : ""}${ap}. La lista «ejercicios» debe tener exactamente un elemento.`;
+  }
+  return "";
+}
+
+/** Pide a la IA una parte del examen adaptado: indice | mc | open | num (o un trozo de ellas). */
+export async function adaptarParte({ parte, examen, solucionario = "", indicaciones = "", rango = {} }) {
   if (!iaDisponible()) fallo(503, "Falta configurar GEMINI_API_KEY en Netlify para usar la IA.");
+  if (parte === "estructura") parte = "indice";
   const P = PARTES_ADAPTAR[parte];
   if (!P) fallo(400, "Parte no válida");
   const material = `<examen>\n${examen}\n</examen>` + (solucionario ? `\n\n<solucionario>\n${solucionario}\n</solucionario>` : "\n\n(No hay solucionario: resuelve tú las respuestas.)");
-  const instruccion = P.instruccion + (indicaciones ? `\n\nIndicaciones del profesor: ${indicaciones}` : "");
+  const instruccion = P.instruccion + trozo(parte, rango) + (indicaciones ? `\n\nIndicaciones del profesor: ${indicaciones}` : "");
+  // Sin solucionario hay que resolver los cálculos: ahí sí conviene que «piense» un poco.
+  const pensar = parte === "num" && !solucionario;
+  const t0 = Date.now();
   const datos = proveedorIA() === "gemini"
-    ? await pedirGemini(parte, material, instruccion, { sistema: SISTEMA_ADAPTAR, esquemaG: P.esquemaG, temperatura: 0.2 })
-    : await pedirClaude(parte, material, instruccion, { sistema: SISTEMA_ADAPTAR, esquema: P.esquema });
+    ? await pedirGemini(parte, material, instruccion, { sistema: SISTEMA_ADAPTAR, esquemaG: P.esquemaG, temperatura: 0.1, pensar })
+    : await pedirClaude(parte, material, instruccion, { sistema: SISTEMA_ADAPTAR, esquema: P.esquema, esfuerzo: pensar ? "medium" : "low" });
   const r = ADAPTADORES[parte](datos);
-  console.log(JSON.stringify({ evento: "ia-adaptar", proveedor: proveedorIA(), parte, uso: datos._uso }));
+  console.log(JSON.stringify({ evento: "ia-adaptar", proveedor: proveedorIA(), parte, rango, ms: Date.now() - t0, uso: datos._uso }));
   return r;
 }
 

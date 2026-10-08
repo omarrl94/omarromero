@@ -5,7 +5,7 @@
 import { almacen, leerTodas } from "./almacen.mjs";
 import { json, fallo, leerCuerpo, texto } from "./http.mjs";
 import { requiereProfesor, esAdmin, rolDe, ciclosDe, gestionaCiclo, gestionaExamen } from "./auth.mjs";
-import { todosLosExamenes, obtenerExamen, validarExamen, resumen, intentosValidos } from "./examenes.mjs";
+import { todosLosExamenes, obtenerExamen, validarExamen, resumen, intentosValidos, herramientasValidas, HERRAMIENTAS } from "./examenes.mjs";
 import {
   claveEntrega, vistaEntrega, partesDe, historialDe, intentosHechos, intentosPermitidos,
   consolidar, conIntento, validarAjustes, resultadoCon, puntuarPregunta, porRevisar,
@@ -63,6 +63,7 @@ async function guardar(req) {
   // Al reemplazar un examen sin indicar intentos, se conservan los que tenía.
   if (previo && b.intentos === undefined) ex.intentos = previo.intentos ?? 1;
   if (previo && b.calificacion === undefined) ex.calificacion = previo.calificacion || "mejor";
+  if (previo && b.herramientas === undefined) ex.herramientas = herramientasValidas(previo.herramientas);
   const ahora = new Date().toISOString();
   await examenes().set(ex.id, {
     ...ex, creado: previo?.creado || ahora, actualizado: ahora,
@@ -82,6 +83,12 @@ async function ajustes(req) {
   if (b.intentos !== undefined) {
     if (intentosValidos(b.intentos) !== Number(b.intentos)) fallo(400, "Los intentos deben ser un número entre 0 (sin límite) y 50");
     ex.intentos = Number(b.intentos);
+  }
+  // Herramientas: se cambian de una en una ({ herramientas: { calculadora: true } }).
+  if (b.herramientas && typeof b.herramientas === "object") {
+    const h = herramientasValidas(ex.herramientas);
+    for (const k of HERRAMIENTAS) if (typeof b.herramientas[k] === "boolean") h[k] = b.herramientas[k];
+    ex.herramientas = h;
   }
   const cambiaCalif = (b.calificacion === "mejor" || b.calificacion === "ultima") && b.calificacion !== (ex.calificacion || "mejor");
   if (cambiaCalif) ex.calificacion = b.calificacion;
@@ -482,7 +489,9 @@ async function iaAdaptar(req) {
   const examen = String(b.examen || "").trim(), solucionario = String(b.solucionario || "").trim();
   if (examen.length < 100) fallo(400, "El examen apenas tiene texto.");
   if (examen.length + solucionario.length > 300_000) fallo(413, "El examen es demasiado largo.");
-  return json(await adaptarParte({ parte: String(b.parte || ""), examen, solucionario, indicaciones: texto(b.indicaciones, 1000) }));
+  const r = b.rango && typeof b.rango === "object" ? b.rango : {};
+  const rango = { desde: r.desde, hasta: r.hasta, ejercicio: r.ejercicio, titulo: texto(r.titulo, 120), apDesde: r.apDesde, apHasta: r.apHasta };
+  return json(await adaptarParte({ parte: String(b.parte || ""), examen, solucionario, indicaciones: texto(b.indicaciones, 1000), rango }));
 }
 
 export default {

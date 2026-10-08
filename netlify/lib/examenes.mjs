@@ -144,11 +144,16 @@ export function validarExamen(e) {
     // Intentos por alumno (0 = sin límite) y qué intento cuenta para la nota.
     intentos: intentosValidos(e.intentos),
     calificacion: e.calificacion === "ultima" ? "ultima" : "mejor",
+    // Herramientas que el alumno tiene durante el examen (sin salir de la página).
+    herramientas: herramientasValidas(e.herramientas),
     confianza: e.confianza === true,
     partes: { mc: opc(e.partes?.mc, 80), open: opc(e.partes?.open, 80), num: opc(e.partes?.num, 80) },
     bloques, mc, open, num,
   };
 }
+
+export const HERRAMIENTAS = ["notas", "calculadora"];
+export const herramientasValidas = (h) => Object.fromEntries(HERRAMIENTAS.map((k) => [k, h?.[k] === true]));
 
 /** Número de intentos: entero de 0 (sin límite) a 50; por defecto, 1. */
 export function intentosValidos(v) {
@@ -161,6 +166,7 @@ export const enunciado = (ex) => ({
   id: ex.id, titulo: ex.titulo, subtitulo: ex.subtitulo, modulo: ex.modulo, ciclo: ex.ciclo, cicloId: ex.cicloId, moduloId: ex.moduloId,
   seguridad: ex.seguridad !== false,
   intentos: ex.intentos ?? 1, calificacion: ex.calificacion || "mejor",
+  herramientas: herramientasValidas(ex.herramientas),
   confianza: !!ex.confianza, confianzaTabla: ex.confianza ? CONFIANZA : null,
   partes: ex.partes || {}, bloques: ex.bloques || [],
   mc: ex.mc.map(({ t, o, puntos, bloque }) => ({ t, o, puntos: puntos ?? 1, bloque: bloque || "" })),
@@ -177,6 +183,7 @@ export const resumen = (ex) => ({
   nMc: ex.mc.length, nOpen: ex.open.length, nNum: (ex.num || []).length, publicado: ex.publicado, mostrarSoluciones: ex.mostrarSoluciones,
   seguridad: ex.seguridad !== false,
   intentos: ex.intentos ?? 1, calificacion: ex.calificacion || "mejor",
+  herramientas: herramientasValidas(ex.herramientas),
   creado: ex.creado, actualizado: ex.actualizado, autor: ex.autor?.nombre || "",
 });
 

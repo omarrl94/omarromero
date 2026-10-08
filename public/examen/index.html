@@ -38,6 +38,7 @@
 </div>
 
 <script src="/assets/app.js"></script>
+<script src="/assets/herramientas.js"></script>
 <script>
 const params = new URLSearchParams(location.search);
 const examId = params.get("id") || "";
@@ -50,7 +51,7 @@ let EX = null, YO = null, PAYLOAD = null;
  * Sin modo seguro: el examen sigue abierto, pero la salida queda registrada.
  */
 let examOn = false;
-function startExam() { examOn = true; document.body.classList.add("exam"); }
+function startExam() { examOn = true; document.body.classList.add("exam"); iniciarHerramientas(EX, YO?.email); }
 function stopExam() { examOn = false; document.body.classList.remove("exam"); }
 const marcado = (name) => { const s = $(`input[name="${name}"]:checked`); return s ? +s.value : -1; };
 const respuestasActuales = () => ({
@@ -66,7 +67,7 @@ function avisarSalida(motivo) {
 function lockTest(motivo) {
   if (!examOn) return;
   if (!EX.seguridad) { avisarSalida(motivo); return; } // examen libre: solo se registra
-  stopExam();
+  stopExam(); cerrarHerramientas();
   PAYLOAD = { ...respuestasActuales(), salida: motivo };
   $("#intro").hidden = true; $("#quiz").hidden = true;
   const l = $("#locked"); l.hidden = false;
@@ -120,6 +121,8 @@ async function init() {
     EX.mc.length && `<span class="chip">${EX.mc.length} preguntas tipo test${EX.confianza ? " con confianza" : ""}</span>`,
     EX.open.length && `<span class="chip v">${EX.open.length} preguntas abiertas</span>`,
     EX.num.length && `<span class="chip s">${EX.num.length} apartados de ejercicios</span>`,
+    EX.herramientas?.calculadora && `<span class="chip gray">🧮 Calculadora científica</span>`,
+    EX.herramientas?.notas && `<span class="chip gray">📝 Bloc de notas</span>`,
     `<span class="chip s">Nota automática /10</span>`].filter(Boolean).join("");
   buildQuiz();
   $("#loading").hidden = true; $("#intro").hidden = false;
@@ -237,6 +240,7 @@ $("#start").onclick = async () => {
 
 /* ── Entrega: corrige el servidor y envía el correo ── */
 function mostrarResultado(d, extra = "") {
+  cerrarHerramientas(); // las notas se borran al entregar
   history.replaceState(null, "", `?id=${encodeURIComponent(examId)}&ver=1`);
   $("#quiz").hidden = true; $("#intro").hidden = true;
   const r = $("#result"); r.hidden = false;
