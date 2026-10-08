@@ -21,7 +21,16 @@
   <h1 id="titulo">Mis exámenes</h1>
   <p class="sub" id="sub"></p>
   <div id="vista"><p class="loading">Cargando…</p></div>
-  <p class="foot">Si tienes algún problema con tu cuenta o un examen, avisa a tu profesor.</p>
+  <p class="foot" id="pie">Si tienes algún problema con tu cuenta o un examen, avisa a tu profesor.</p>
+  <dialog id="dGrupo">
+    <div class="dhead"><h2>Cambiar de grupo</h2><button class="btn ghost sm" data-close>Cerrar</button></div>
+    <form class="dbody" id="fMiGrupo">
+      <p class="muted" style="margin-top:0">Si te equivocaste al registrarte, elige tu grupo correcto. Solo puedes cambiarlo tú mientras no hayas entregado ningún examen; después, pídeselo a tu profesor.</p>
+      <div class="field"><label class="flab" for="selMiGrupo">Grupo</label><select id="selMiGrupo"></select></div>
+      <div class="msg bad" data-err hidden></div>
+      <div class="actions"><button class="btn" type="submit">Cambiar</button></div>
+    </form>
+  </dialog>
 </div>
 
 <script src="/assets/app.js"></script>
@@ -66,6 +75,23 @@ function chipsEstado(lista) {
     return;
   }
 
+  if (!esProfe) {
+    // «¿No es tu grupo?» → el alumno puede corregirlo mientras no haya entregado nada.
+    $("#pie").innerHTML = `Estás en <b>${esc(yo.grupo || "")}</b>. ¿No es tu grupo? <button type="button" class="link" id="cambiarGrupo">Cambiar de grupo</button> · Si tienes algún problema con tu cuenta o un examen, avisa a tu profesor.`;
+    $("#cambiarGrupo").onclick = async () => {
+      const { grupos } = await api("/api/cuenta/grupos");
+      $("#selMiGrupo").innerHTML = grupos.map((g) => `<option ${g.grupo === yo.grupo ? "selected" : ""}>${esc(g.grupo)}</option>`).join("");
+      $("[data-err]", $("#fMiGrupo")).hidden = true;
+      $("#dGrupo").showModal();
+    };
+    $("#dGrupo [data-close]").onclick = () => $("#dGrupo").close();
+    $("#fMiGrupo").onsubmit = async (ev) => {
+      ev.preventDefault();
+      const err = $("[data-err]", ev.target);
+      try { await api("/api/cuenta/mi-grupo", { grupo: $("#selMiGrupo").value }); location.href = "/panel/"; }
+      catch (e) { err.textContent = e.message; err.hidden = false; }
+    };
+  }
   const { catalogo, examenes } = await api("/api/examenes");
   // El alumno entra directamente en su ciclo (el servidor solo le devuelve el suyo).
   const ciclo = catalogo.find((c) => c.id === (esProfe ? cicloId : yo.cicloId));

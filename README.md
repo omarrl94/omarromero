@@ -45,7 +45,7 @@ Funciona en **Netlify** (plan gratuito): páginas estáticas + una Netlify Funct
 ### Seguridad
 - Las **soluciones nunca llegan al navegador** antes de entregar; la corrección se hace en el servidor.
 - Contraseñas con **scrypt**; sesión en cookie **HttpOnly** firmada (12 h); bloqueo temporal tras 8 intentos fallidos.
-- Solo se aceptan correos de `DOMINIOS_PERMITIDOS`, y el correo se verifica con un código.
+- El alumnado puede registrarse con cualquier correo (del centro o personal) y su nombre completo; el profesorado, solo con correos de `DOMINIOS_PERMITIDOS`. El correo se verifica siempre con un código.
 - La API solo acepta JSON en las peticiones que modifican datos (protección CSRF).
 
 ## Puesta en marcha en Netlify

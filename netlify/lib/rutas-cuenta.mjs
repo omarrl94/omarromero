@@ -41,6 +41,28 @@ function esPasswordAdmin(email, pw) {
 }
 const capital = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
+/**
+ * Nombre y apellidos completos y bien escritos: solo letras (con tildes),
+ * espacios, guiones y apóstrofos. «MARÍA  josé» → «María José»,
+ * «garcía de la fuente» → «García de la Fuente».
+ */
+const MENORES = new Set(["de", "del", "la", "las", "los", "y", "e", "da", "do", "dos", "van", "von"]);
+const LETRAS = /^[\p{L}][\p{L}\p{M}' .-]*$/u;
+function arreglarNombre(v) {
+  return texto(v, 120).replace(/\s+/g, " ").trim().toLowerCase()
+    .split(" ").map((w, i) => (i > 0 && MENORES.has(w) ? w : w.replace(/(^|[-'])(\p{L})/gu, (m, a, c) => a + c.toUpperCase()))).join(" ");
+}
+export function nombreCompleto(n, a) {
+  const nombre = arreglarNombre(n), apellidos = arreglarNombre(a);
+  const letras = (s) => (s.match(/\p{L}/gu) || []).length;
+  if (!nombre || !apellidos) fallo(400, "Escribe tu nombre y tus apellidos completos");
+  if (!LETRAS.test(nombre) || !LETRAS.test(apellidos)) fallo(400, "El nombre y los apellidos solo pueden llevar letras (sin números ni símbolos)");
+  if (letras(nombre) < 2) fallo(400, "Escribe tu nombre completo, no solo la inicial");
+  if (letras(apellidos) < 2) fallo(400, "Escribe tus apellidos completos, no solo la inicial");
+  if (nombre.split(" ").every((w) => w.replace(/\./g, "").length < 2)) fallo(400, "Escribe tu nombre completo, no solo la inicial");
+  return { nombre, apellidos };
+}
+
 const usuarios = () => almacen("usuarios");
 const leerEmail = (v) => {
   const email = texto(v, 160).toLowerCase();
@@ -71,11 +93,11 @@ async function mandarCodigo(u, tipo) {
 async function registro(req) {
   const b = await leerCuerpo(req);
   const email = leerEmail(b.email);
-  if (!emailPermitido(email)) fallo(400, `Regístrate con tu correo del centro (@${dominiosPermitidos()[0]})`);
-  const nombre = texto(b.nombre, 80), apellidos = texto(b.apellidos, 120);
-  if (!nombre || !apellidos) fallo(400, "Escribe tu nombre y tus apellidos");
   // Profesor: elige los ciclos que imparte y espera a que el admin lo apruebe.
   const esProfesor = b.tipo === "profesor";
+  // Los alumnos pueden usar cualquier correo (del centro o personal); el profesorado, solo el del centro.
+  if (esProfesor && !emailPermitido(email)) fallo(400, `El profesorado se registra con el correo del centro (@${dominiosPermitidos()[0]})`);
+  const { nombre, apellidos } = nombreCompleto(b.nombre, b.apellidos);
   let grupo = "Profesorado", cicloId = null, ciclos;
   if (esProfesor) {
     ciclos = [...new Set((Array.isArray(b.ciclos) ? b.ciclos : []).filter((c) => CATALOGO.some((x) => x.id === c)))];
@@ -90,6 +112,7 @@ async function registro(req) {
 
   const u = {
     email, nombre, apellidos, grupo, cicloId,
+    ...(emailPermitido(email) ? {} : { externo: true }), // correo personal (no del centro)
     ...(esProfesor ? { rol: "profesor", aprobado: false, ciclos } : {}),
     pass: await hashPassword(b.password),
     verificado: false, ver: 0, creado: new Date().toISOString(),
@@ -214,9 +237,27 @@ async function elegirGrupo(req) {
   return json({ ok: true, usuario: perfilPublico(u) });
 }
 
+/**
+ * El alumno puede corregir su grupo si se equivocó al registrarse, mientras no
+ * haya entregado ningún examen. Después, solo lo cambia el profesor.
+ */
+async function cambiarMiGrupo(req) {
+  const u = await usuarioSesion(req);
+  if (!u) fallo(401, "Inicia sesión para continuar");
+  if (rolDe(u) !== "alumno") fallo(400, "Solo para alumnos");
+  const g = leerGrupo((await leerCuerpo(req)).grupo);
+  if (g.grupo === u.grupo) return json({ ok: true, usuario: perfilPublico(u) });
+  const sufijo = "/" + u.email;
+  const entregadas = (await almacen("entregas").list()).filter((k) => k.endsWith(sufijo)).length;
+  if (entregadas) fallo(409, "Ya has entregado algún examen en tu grupo actual, así que el cambio lo tiene que hacer tu profesor. Avísale.");
+  Object.assign(u, { grupo: g.grupo, cicloId: g.cicloId, grupoCambiado: new Date().toISOString() });
+  await usuarios().set(u.email, u);
+  return json({ ok: true, usuario: perfilPublico(u) });
+}
+
 /** Ciclos y grupos para el formulario de registro (público). */
 async function catalogoPublico() {
-  return json({ grupos: GRUPOS(), ciclos: CATALOGO.map(({ id, nombre, grado, descripcion }) => ({ id, nombre, grado, descripcion })) });
+  return json({ grupos: GRUPOS(), dominio: dominiosPermitidos()[0] || "", ciclos: CATALOGO.map(({ id, nombre, grado, descripcion }) => ({ id, nombre, grado, descripcion })) });
 }
 
 async function yo(req) {
@@ -235,5 +276,6 @@ export default {
   "POST /api/cuenta/restablecer": restablecer,
   "GET /api/cuenta/yo": yo,
   "POST /api/cuenta/grupo": elegirGrupo,
+  "POST /api/cuenta/mi-grupo": cambiarMiGrupo,
   "GET /api/cuenta/grupos": catalogoPublico,
 };

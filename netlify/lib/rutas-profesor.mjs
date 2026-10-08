@@ -11,6 +11,7 @@ import {
   consolidar, conIntento, validarAjustes, resultadoCon, puntuarPregunta, porRevisar,
 } from "./entregas.mjs";
 import { proveedorConfigurado } from "./correo.mjs";
+import { nombreCompleto } from "./rutas-cuenta.mjs";
 import { CATALOGO, GRUPOS, cicloDe, buscarModulo, crearModulo, borrarModulo, cursosModulo } from "./catalogo.mjs";
 import { iaDisponible, generarLote, proveedorIA, tamLote, comprobarIA, adaptarParte, sugerirCorreccion } from "./ia.mjs";
 
@@ -391,7 +392,7 @@ async function alumnos(req) {
   return json({
     grupos: gruposDe(yo),
     alumnos: lista
-      .map((u) => ({ email: u.email, nombre: u.nombre, apellidos: u.apellidos, grupo: u.grupo, cicloId: cicloDe(u), verificado: !!u.verificado, creado: u.creado, profesor: false }))
+      .map((u) => ({ email: u.email, nombre: u.nombre, apellidos: u.apellidos, grupo: u.grupo, cicloId: cicloDe(u), verificado: !!u.verificado, creado: u.creado, profesor: false, externo: !!u.externo }))
       .sort((a, b) => `${a.grupo} ${a.apellidos}`.localeCompare(`${b.grupo} ${b.apellidos}`, "es")),
   });
 }
@@ -407,6 +408,7 @@ async function editarAlumno(req) {
     u.cicloId = g.cicloId;
   }
   if (b.verificado === true) { u.verificado = true; delete u.codigo; }
+  if (b.nombre !== undefined || b.apellidos !== undefined) Object.assign(u, nombreCompleto(b.nombre ?? u.nombre, b.apellidos ?? u.apellidos));
   await usuarios().set(u.email, u);
   return json({ ok: true });
 }

@@ -1331,9 +1331,10 @@ function pintarAlumnos() {
   const q = $("#buscar").value.trim().toLowerCase();
   const lista = ALUMNOS.filter((a) => !q || `${a.nombre} ${a.apellidos} ${a.email} ${a.grupo}`.toLowerCase().includes(q));
   if (!lista.length) { $("#tablaAlumnos").innerHTML = `<div class="empty">${ALUMNOS.length ? "Ningún alumno coincide con la búsqueda." : "Todavía no se ha registrado nadie."}</div>`; return; }
-  $("#tablaAlumnos").innerHTML = `<p class="muted">${lista.length} cuentas</p><div class="tablewrap"><table class="t"><thead><tr><th>Alumno/a</th><th>Grupo (define su ciclo)</th><th>Estado</th><th>Alta</th><th></th></tr></thead><tbody>
+  $("#tablaAlumnos").innerHTML = `<p class="muted">${lista.length} cuentas</p><div class="tablewrap"><table class="t"><thead><tr><th>Alumno/a</th><th>Grupo (cámbialo si se equivocó)</th><th>Estado</th><th>Alta</th><th></th></tr></thead><tbody>
     ${lista.map((a) => `<tr data-email="${esc(a.email)}">
-      <td><b>${esc(a.apellidos)}, ${esc(a.nombre)}</b> ${a.profesor ? `<span class="chip">Profesor</span>` : ""}<div class="muted" style="font-size:13px">${esc(a.email)}</div></td>
+      <td><b>${esc(a.apellidos)}, ${esc(a.nombre)}</b> ${a.profesor ? `<span class="chip">Profesor</span>` : `<button type="button" class="link" data-editar-nombre title="Corregir nombre y apellidos" style="font-size:12.5px">editar</button>`}
+        <div class="muted" style="font-size:13px">${esc(a.email)}${a.externo ? ` <span class="chip gray" style="font-size:11px" title="Se registró con un correo que no es del centro">correo personal</span>` : ""}</div></td>
       <td>${a.profesor ? esc(a.grupo) : `<select data-grupo style="width:auto;padding:6px 10px;font-size:14px">
         ${GRUPOS.some((g) => g.grupo === a.grupo) ? "" : `<option value="" selected>${esc(a.grupo || "—")} (${a.cicloId ? "ciclo " + esc(a.cicloId.toUpperCase()) : "sin ciclo"})</option>`}
         ${GRUPOS.map((g) => `<option ${g.grupo === a.grupo ? "selected" : ""}>${esc(g.grupo)}</option>`).join("")}</select>`}</td>
@@ -1342,8 +1343,16 @@ function pintarAlumnos() {
       <td>${a.profesor ? "" : `<button class="btn danger sm" data-borrar>Borrar</button>`}</td></tr>`).join("")}</tbody></table></div>`;
   $$("[data-grupo]").forEach((i) => (i.onchange = async () => {
     if (!i.value) return;
-    try { await api("/api/profesor/alumno", { email: i.closest("tr").dataset.email, grupo: i.value }); i.style.borderColor = "var(--ok)"; }
-    catch (e) { alert(e.message); }
+    const a = ALUMNOS.find((x) => x.email === i.closest("tr").dataset.email);
+    if (!confirm(`¿Cambiar a ${a.nombre} ${a.apellidos} de «${a.grupo}» a «${i.value}»?\n\nA partir de ahora verá los exámenes de los módulos de ${i.value}. Sus entregas anteriores se conservan.`)) { i.value = GRUPOS.some((g) => g.grupo === a.grupo) ? a.grupo : ""; return; }
+    try { await api("/api/profesor/alumno", { email: a.email, grupo: i.value }); a.grupo = i.value; i.style.borderColor = "var(--ok)"; i.title = "Grupo cambiado"; }
+    catch (e) { alert(e.message); i.value = a.grupo; }
+  }));
+  $$("[data-editar-nombre]").forEach((b) => (b.onclick = async () => {
+    const a = ALUMNOS.find((x) => x.email === b.closest("tr").dataset.email);
+    const nombre = prompt("Nombre:", a.nombre); if (nombre === null) return;
+    const apellidos = prompt("Apellidos:", a.apellidos); if (apellidos === null) return;
+    try { await api("/api/profesor/alumno", { email: a.email, nombre, apellidos }); cargarAlumnos(); } catch (e) { alert(e.message); }
   }));
   $$("[data-activar]").forEach((b) => (b.onclick = async () => {
     try { await api("/api/profesor/alumno", { email: b.closest("tr").dataset.email, verificado: true }); cargarAlumnos(); } catch (e) { alert(e.message); }

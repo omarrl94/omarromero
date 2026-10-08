@@ -48,7 +48,7 @@
     <h1>Exámenes online del <em>centro</em></h1>
     <p class="lead">La plataforma de cuestionarios de FP José Ramón Otero: haz tus exámenes, recibe la corrección al momento y consulta tus notas cuando quieras.</p>
     <ul class="points">
-      <li><span class="dot" style="background:#EFCD2F">1</span><span><b>Crea tu cuenta</b> con tu correo del centro y confírmala con el código que te enviamos.</span></li>
+      <li><span class="dot" style="background:#EFCD2F">1</span><span><b>Crea tu cuenta</b> con tu nombre completo y tu correo (del centro o personal) y confírmala con el código que te enviamos.</span></li>
       <li><span class="dot" style="background:#A9CABB">2</span><span><b>Entra en tu ciclo y módulo</b> y haz los exámenes que publica tu profesor.</span></li>
       <li><span class="dot" style="background:#E39F7D">3</span><span><b>Recibe la corrección por correo</b> en cuanto entregues y repásala en tu panel.</span></li>
     </ul>
@@ -67,7 +67,7 @@
 
       <!-- Entrar -->
       <form id="fLogin" novalidate>
-        <div class="field"><label class="flab" for="lEmail">Correo del centro</label><input type="email" id="lEmail" autocomplete="username" required></div>
+        <div class="field"><label class="flab" for="lEmail">Correo electrónico</label><input type="email" id="lEmail" autocomplete="username" required></div>
         <div class="field"><label class="flab" for="lPass">Contraseña</label><input type="password" id="lPass" autocomplete="current-password" required></div>
         <div class="msg bad" data-err hidden></div>
         <button class="btn block" type="submit">Entrar</button>
@@ -82,10 +82,12 @@
             <button type="button" role="radio" aria-selected="false" data-tipo="profesor">Profesor/a</button>
           </div></div>
         <div class="row2">
-          <div class="field"><label class="flab" for="rNombre">Nombre</label><input type="text" id="rNombre" autocomplete="given-name" maxlength="80" required></div>
-          <div class="field"><label class="flab" for="rApellidos">Apellidos</label><input type="text" id="rApellidos" autocomplete="family-name" maxlength="120" required></div>
+          <div class="field"><label class="flab" for="rNombre">Nombre</label><input type="text" id="rNombre" autocomplete="given-name" maxlength="80" placeholder="p. ej. María José" required></div>
+          <div class="field"><label class="flab" for="rApellidos">Apellidos</label><input type="text" id="rApellidos" autocomplete="family-name" maxlength="120" placeholder="p. ej. García López" required></div>
         </div>
-        <div class="field"><label class="flab" for="rEmail">Correo del centro</label><input type="email" id="rEmail" autocomplete="email" placeholder="nombre.apellido@jrotero.es" required></div>
+        <span class="hintline" style="display:block;margin:-6px 0 12px">Escribe tu <b>nombre y apellidos completos</b>, como aparecen en la matrícula: así te identifica el profesor.</span>
+        <div class="field"><label class="flab" for="rEmail" id="rEmailLab">Correo electrónico</label><input type="email" id="rEmail" autocomplete="email" placeholder="tu correo del centro o personal" required>
+          <span class="hintline" style="margin-top:2px" id="rEmailHint">Puede ser el del centro o uno personal. Te enviaremos un código para confirmarlo y las correcciones de tus exámenes.</span></div>
         <div class="field" id="campoCiclos" hidden><span class="flab">Ciclos en los que das clase</span>
           <div id="rCiclos" style="display:grid;gap:8px;margin-top:4px"></div>
           <span class="hintline" style="margin-top:2px">El administrador revisará tu solicitud y te dará acceso de profesor a estos ciclos.</span></div>
@@ -115,7 +117,7 @@
       <form id="fRec" novalidate hidden>
         <h2>Cambiar la contraseña</h2>
         <p class="muted" data-paso1>Escribe tu correo y te enviaremos un código.</p>
-        <div class="field"><label class="flab" for="pEmail">Correo del centro</label><input type="email" id="pEmail" autocomplete="username" required></div>
+        <div class="field"><label class="flab" for="pEmail">Correo electrónico</label><input type="email" id="pEmail" autocomplete="username" required></div>
         <div data-paso2 hidden>
           <p class="muted">Si existe una cuenta con ese correo, te hemos enviado un código.</p>
           <div class="field"><label class="flab" for="pCod">Código</label><input class="code" type="text" id="pCod" inputmode="numeric" autocomplete="one-time-code" maxlength="6"></div>
@@ -145,7 +147,13 @@ $$("[data-tipo]").forEach((b) => (b.onclick = () => {
   TIPO = b.dataset.tipo;
   $$("[data-tipo]").forEach((x) => x.setAttribute("aria-selected", x === b));
   $("#campoGrupo").hidden = TIPO === "profesor"; $("#campoCiclos").hidden = TIPO !== "profesor";
+  // El profesorado se registra con el correo del centro; el alumnado, con cualquiera.
+  const prof = TIPO === "profesor";
+  $("#rEmailLab").textContent = prof ? "Correo del centro" : "Correo electrónico";
+  $("#rEmail").placeholder = prof ? `nombre.apellido@${DOMINIO}` : "tu correo del centro o personal";
+  $("#rEmailHint").textContent = prof ? `Solo se admite el correo del centro (@${DOMINIO}).` : "Puede ser el del centro o uno personal. Te enviaremos un código para confirmarlo y las correcciones de tus exámenes.";
 }));
+let DOMINIO = "jrotero.es";
 
 // Si ya hay sesión, directo al panel.
 api("/api/cuenta/yo", undefined, { redirigir401: false }).then(({ usuario }) => location.replace(destino(usuario))).catch(() => {});
@@ -219,7 +227,8 @@ $("#fRec").onsubmit = (ev) => { ev.preventDefault(); const f = ev.target; enviar
 }); };
 
 // Grupos disponibles (definidos por ciclo en el servidor).
-api("/api/cuenta/grupos", undefined, { redirigir401: false }).then(({ grupos, ciclos }) => {
+api("/api/cuenta/grupos", undefined, { redirigir401: false }).then(({ grupos, ciclos, dominio }) => {
+  if (dominio) DOMINIO = dominio;
   // Grupos agrupados por ciclo (GM / GS).
   $("#rGrupo").insertAdjacentHTML("beforeend", (ciclos || []).map((c) => `<optgroup label="${esc(c.grado)} · ${esc(c.descripcion)}">${
     grupos.filter((g) => g.cicloId === c.id).map((g) => `<option>${esc(g.grupo)}</option>`).join("")}</optgroup>`).join(""));
