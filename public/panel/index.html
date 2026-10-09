@@ -39,10 +39,27 @@ const qs = new URLSearchParams(location.search);
 const cicloId = qs.get("ciclo"), moduloId = qs.get("modulo");
 const plural = (n, s, p) => `${n} ${n === 1 ? s : p}`;
 
-function chipsEstado(lista) {
+function chipsEstado(lista, trabajos = []) {
   const pend = lista.filter((e) => e.estado === "pendiente").length;
+  const tPend = trabajos.filter((t) => ["pendiente", "devuelto", "defensa"].includes(t.estado)).length;
   return `<div class="meta">${pend ? `<span class="chip">${plural(pend, "pendiente", "pendientes")}</span>` : ""}
-    <span class="chip gray">${plural(lista.length, "tema", "temas")}</span></div>`;
+    <span class="chip gray">${plural(lista.length, "tema", "temas")}</span>${trabajos.length ? `<span class="chip ${tPend ? "s" : "gray"}">${plural(trabajos.length, "trabajo", "trabajos")}${tPend ? ` · ${tPend} por hacer` : ""}</span>` : ""}</div>`;
+}
+const ESTADO_T = {
+  pendiente: ["chip", "Por entregar"], devuelto: ["chip s", "Devuelto: corrígelo"], entregado: ["chip v", "Entregado"],
+  defensa: ["chip s", "Falta la defensa"], calificado: ["chip ok", "Calificado"],
+};
+const plazo = (t) => (t.fechaLimite ? `Entrega hasta el ${new Date(t.fechaLimite).toLocaleString("es-ES", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" })}` : "Sin fecha límite");
+function tarjetasTrabajos(lista) {
+  if (!lista.length) return "";
+  return `<h2 class="sec-h">📁 Trabajos</h2><div class="exlist">${lista.map((t) => {
+    const [c, txt] = ESTADO_T[t.estado] || ESTADO_T.pendiente;
+    const accion = t.estado === "defensa" ? "Hacer la defensa" : ["pendiente", "devuelto"].includes(t.estado) ? "Entregar" : "Ver";
+    return `<article class="excard"><div class="info"><h3>${esc(t.titulo)}</h3><div class="muted" style="font-size:14px">${esc(plazo(t))}</div>
+      <div class="meta"><span class="${c}">${txt}</span>${t.publicado ? "" : `<span class="chip gray">Oculto</span>`}</div></div>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">${t.notaFinal != null ? `<div class="nota">${fmt(t.notaFinal)}<small> /10</small></div>` : ""}
+      <a class="btn ${accion === "Ver" ? "ghost" : ""}" href="/trabajo/?id=${encodeURIComponent(t.id)}">${accion}</a></div></article>`;
+  }).join("")}</div>`;
 }
 
 (async () => {
@@ -92,7 +109,7 @@ function chipsEstado(lista) {
       catch (e) { err.textContent = e.message; err.hidden = false; }
     };
   }
-  const { catalogo, examenes } = await api("/api/examenes");
+  const [{ catalogo, examenes }, { trabajos }] = await Promise.all([api("/api/examenes"), api("/api/trabajos").catch(() => ({ trabajos: [] }))]);
   // El alumno entra directamente en su ciclo (el servidor solo le devuelve el suyo).
   const ciclo = catalogo.find((c) => c.id === (esProfe ? cicloId : yo.cicloId));
   const modulo = ciclo?.modulos.find((m) => m.id === moduloId);
@@ -117,7 +134,7 @@ function chipsEstado(lista) {
     if (!ciclo.modulos.length) { v.innerHTML = `<div class="empty">Todavía no hay módulos ni exámenes ${esProfe ? "en este ciclo" : "de tu curso"}.</div>`; return; }
     v.innerHTML = `<div class="grid">${ciclo.modulos.map((m) => `
       <a class="tile" href="?ciclo=${encodeURIComponent(ciclo.id)}&modulo=${encodeURIComponent(m.id)}"><span class="mid">${esc(m.nombre)}</span>${esProfe ? `<span class="muted" style="font-size:13px">${m.grupos?.length ? esc(m.grupos.join(" · ")) : "Todos los cursos"}</span>` : ""}
-        ${chipsEstado(enCiclo.filter((e) => e.moduloId === m.id))}</a>`).join("")}</div>`;
+        ${chipsEstado(enCiclo.filter((e) => e.moduloId === m.id), trabajos.filter((t) => t.cicloId === ciclo.id && t.moduloId === m.id))}</a>`).join("")}</div>`;
     return;
   }
 
@@ -126,7 +143,8 @@ function chipsEstado(lista) {
   $("#titulo").textContent = modulo.nombre;
   $("#sub").textContent = "Elige el tema. Salvo que el profesor permita más intentos, cada examen se entrega una sola vez.";
   const temas = enCiclo.filter((e) => e.moduloId === modulo.id);
-  if (!temas.length) { v.innerHTML = `<div class="empty">Todavía no hay temas publicados en este módulo.</div>`; return; }
+  const trabMod = trabajos.filter((t) => t.cicloId === ciclo.id && t.moduloId === modulo.id);
+  if (!temas.length) { v.innerHTML = `${trabMod.length ? "" : `<div class="empty">Todavía no hay temas publicados en este módulo.</div>`}${tarjetasTrabajos(trabMod)}`; return; }
   const enlace = (e) => `/examen/?id=${encodeURIComponent(e.id)}`;
   v.innerHTML = `<div class="exlist">${temas.map((e) => e.estado === "pendiente" ? `
     <article class="excard"><div class="info">
@@ -137,7 +155,7 @@ function chipsEstado(lista) {
       <h3>${esc(e.titulo)}</h3><div class="muted" style="font-size:14px">Entregado el ${esc(e.fecha)}</div>
       <div class="meta"><span class="chip ok">Entregado</span>${e.intentosAlumno.hechos > 1 || e.puedeRepetir ? `<span class="chip gray">${plural(e.intentosAlumno.hechos, "intento", "intentos")}${e.intentosAlumno.permitidos ? ` de ${e.intentosAlumno.permitidos}` : ""}</span>` : ""}${e.revisada ? `<span class="chip ok">Revisado por el profesor</span>` : e.nOpen ? `<span class="chip gray">Pendiente de revisión</span>` : ""}</div></div>
       <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><div class="nota">${fmt(e.nota)}<small> /10</small></div>
-      <a class="btn ghost" href="${enlace(e)}&ver=1">${e.mostrarSoluciones ? "Ver corrección" : "Ver entrega"}</a>${e.puedeRepetir ? `<a class="btn" href="${enlace(e)}" title="${e.intentosAlumno.quedan == null ? "Intentos sin límite" : plural(e.intentosAlumno.quedan, "intento restante", "intentos restantes")}">Repetir</a>` : ""}</div></article>`).join("")}</div>`;
+      <a class="btn ghost" href="${enlace(e)}&ver=1">${e.mostrarSoluciones ? "Ver corrección" : "Ver entrega"}</a>${e.puedeRepetir ? `<a class="btn" href="${enlace(e)}" title="${e.intentosAlumno.quedan == null ? "Intentos sin límite" : plural(e.intentosAlumno.quedan, "intento restante", "intentos restantes")}">Repetir</a>` : ""}</div></article>`).join("")}</div>${tarjetasTrabajos(trabMod)}`;
 })().catch((e) => { $("#vista").innerHTML = `<div class="msg bad">${esc(e.message)}</div>`; });
 </script>
 </body>

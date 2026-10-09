@@ -194,6 +194,7 @@ export const enunciado = (ex) => ({
   seguridad: ex.seguridad !== false,
   intentos: ex.intentos ?? 1, calificacion: ex.calificacion || "mejor",
   herramientas: herramientasValidas(ex.herramientas),
+  ...(ex.defensaDe ? { trabajo: ex.defensaDe.trabajo } : {}),
   confianza: !!ex.confianza, confianzaTabla: ex.confianza ? CONFIANZA : null,
   partes: ex.partes || {}, bloques: ex.bloques || [],
   mc: ex.mc.map(({ t, o, puntos, bloque }) => ({ t, o, puntos: puntos ?? 1, bloque: bloque || "" })),
@@ -252,10 +253,11 @@ async function sembrar() {
   sembrado = true;
 }
 
-export async function todosLosExamenes() {
+/** Todos los exámenes; sin las defensas de trabajos (exámenes privados de un alumno) salvo que se pidan. */
+export async function todosLosExamenes({ privados = false } = {}) {
   await sembrar();
   const store = almacen("examenes");
-  const lista = (await Promise.all((await store.list()).map((k) => store.get(k)))).filter(Boolean);
+  const lista = (await Promise.all((await store.list()).map((k) => store.get(k)))).filter((e) => e && (privados || !e.privado));
   // Orden: por `orden` y, a igualdad, por título (Tema 1, Tema 2…).
   return lista.sort((a, b) => (a.orden || 0) - (b.orden || 0) || a.titulo.localeCompare(b.titulo, "es", { numeric: true }));
 }

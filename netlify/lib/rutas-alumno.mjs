@@ -14,7 +14,9 @@ import { CATALOGO, cicloDe, moduloVisible } from "./catalogo.mjs";
  * El alumno ve los exámenes de su ciclo y de los módulos de su curso (1.º o 2.º);
  * el profesor, los suyos (para probarlos); el admin, todos.
  */
-const puedeVer = (u, ex) => (esStaff(u) ? gestionaExamen(u, ex) : ex.cicloId === cicloDe(u) && moduloVisible(ex.cicloId, ex.moduloId, u));
+const puedeVer = (u, ex) => (esStaff(u) ? gestionaExamen(u, ex)
+  // La defensa de un trabajo es un examen privado: solo la ve su alumno.
+  : ex.privado ? ex.privado === u.email : ex.cicloId === cicloDe(u) && moduloVisible(ex.cicloId, ex.moduloId, u));
 import { correoResultado } from "./plantillas.mjs";
 
 const entregas = () => almacen("entregas");

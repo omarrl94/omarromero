@@ -42,7 +42,7 @@
 <script>
 const params = new URLSearchParams(location.search);
 const examId = params.get("id") || "";
-const urlModulo = (ex) => ex.cicloId ? `/panel/?ciclo=${encodeURIComponent(ex.cicloId)}&modulo=${encodeURIComponent(ex.moduloId)}` : "/panel/";
+const urlModulo = (ex) => ex.trabajo ? `/trabajo/?id=${encodeURIComponent(ex.trabajo)}` : ex.cicloId ? `/panel/?ciclo=${encodeURIComponent(ex.cicloId)}&modulo=${encodeURIComponent(ex.moduloId)}` : "/panel/";
 let EX = null, YO = null, PAYLOAD = null;
 
 /* ── Modo examen ──

@@ -11,7 +11,17 @@ Funciona en **Netlify** (plan gratuito): páginas estáticas + una Netlify Funct
 | `/` | todos | Entrar · Crear cuenta (con código de verificación por correo) · Recuperar contraseña |
 | `/panel/` | alumno | Elige **ciclo → módulo → tema**; exámenes pendientes y entregados con su nota |
 | `/examen/?id=…` | alumno | El examen en modo examen; al entregar, nota + correo automático |
-| `/profesor/` | profesor | Subir y publicar exámenes, entregas y notas, revisión, CSV, alumnos |
+| `/trabajo/?id=…` | alumno | Entregar un trabajo (archivos de hasta 4 MB) y hacer su defensa |
+| `/profesor/` | profesor | Subir y publicar exámenes, entregas y notas, revisión, CSV, alumnos, trabajos |
+
+### Trabajos
+
+El profesor crea un trabajo en un módulo (pestaña **Trabajos**) y el alumnado entrega sus archivos desde
+`/trabajo/`. El navegador extrae el texto de los PDF, Word, PowerPoint, OpenDocument y código, y la IA lo
+usa para preparar una **defensa**: preguntas personalizadas sobre el trabajo de ese alumno (test y abiertas),
+que el profesor revisa y envía. La defensa es un examen privado (solo lo ve ese alumno, un intento y modo seguro).
+Nota final = trabajo × peso + defensa × (100 − peso), o la que ponga el profesor a mano. Aparece también
+en la pestaña Grupos y en sus exportaciones.
 
 ## Cómo funciona
 
@@ -135,10 +145,12 @@ public/index.html              Inicio: entrar / crear cuenta
 public/panel/                  Panel del alumno
 public/examen/                 Página del examen
 public/profesor/               Panel del profesor
+public/trabajo/                Entrega de un trabajo (alumno)
+public/assets/extraer.js       Texto de los archivos entregados (para la defensa)
 public/assets/app.css|app.js   Estilos y utilidades comunes (incluye el PDF)
 netlify/functions/api.mjs      API (/api/*)
 netlify/lib/catalogo.mjs       Ciclos y módulos
-netlify/lib/rutas-*.mjs        Rutas: cuenta, alumno, profesor
+netlify/lib/rutas-*.mjs        Rutas: cuenta, alumno, profesor, admin, trabajos
 netlify/lib/auth.mjs           Contraseñas, sesiones y códigos
 netlify/lib/almacen.mjs        Netlify Blobs (o carpeta local)
 netlify/lib/correccion.mjs     Corrección automática

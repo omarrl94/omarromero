@@ -21,6 +21,7 @@
     <div><h1 style="margin:0">Panel del profesor</h1><p class="muted" style="margin:2px 0 0" id="subPanel">Crea y publica exámenes, revisa entregas y gestiona tus grupos.</p></div>
     <div class="tabs inline" role="tablist">
       <button role="tab" aria-selected="true" data-tab="vExamenes">Exámenes</button>
+      <button role="tab" aria-selected="false" data-tab="vTrabajos">Trabajos <span class="chip s" id="nTrabPend" hidden style="padding:0 7px"></span></button>
       <button role="tab" aria-selected="false" data-tab="vGrupos">Grupos</button>
       <button role="tab" aria-selected="false" data-tab="vAlumnos">Alumnos</button>
       <button role="tab" aria-selected="false" data-tab="vProfes" hidden>Profesores <span class="chip s" id="nPend" hidden style="padding:0 7px"></span></button>
@@ -81,6 +82,22 @@
       <label class="check" style="font-size:14px"><input type="checkbox" id="noPresentado0" checked> «No presentado» cuenta como 0</label>
     </div>
     <div id="tablaGrupo"><p class="loading">Cargando…</p></div>
+  </section>
+
+  <!-- Trabajos -->
+  <section id="vTrabajos" hidden>
+    <div class="toolbar"><h2>Trabajos</h2><div class="acts"><button class="btn" id="nuevoTrabajo">＋ Nuevo trabajo</button></div></div>
+    <p class="muted" style="margin-top:-6px">El alumnado entrega sus archivos desde la plataforma. Cuando revises un trabajo, la IA prepara una <b>defensa</b>: preguntas personalizadas sobre lo que ha entregado ese alumno, para comprobar que lo ha hecho él. La nota final combina la del trabajo y la de la defensa.</p>
+    <div id="tablaTrabajos"><p class="loading">Cargando…</p></div>
+  </section>
+
+  <!-- Entregas de un trabajo -->
+  <section id="vTrabajo" hidden>
+    <div class="toolbar">
+      <div><button class="link" id="atrasTrab">← Volver a trabajos</button><h2 id="trabTitulo" style="margin-top:6px"></h2><div class="muted" id="trabInfo"></div></div>
+      <div class="acts"><select id="filtroGrupoT" style="width:auto" aria-label="Grupo"></select><button class="btn ghost" id="trabEditar">Editar</button><button class="btn ghost" id="trabExcel">⬇ Excel</button></div>
+    </div>
+    <div id="tablaEntregasT"></div>
   </section>
 
   <!-- Alumnos -->
@@ -217,6 +234,39 @@
   </div>
 </dialog>
 
+<!-- Crear / editar trabajo -->
+<dialog id="dTrabajo">
+  <div class="dhead"><h2 id="dTrabTitulo">Nuevo trabajo</h2><button class="btn ghost sm" data-close>Cerrar</button></div>
+  <form class="dbody" id="fTrabajo" novalidate>
+    <div class="field"><label class="flab" for="tTitulo">Título</label><input type="text" id="tTitulo" required placeholder="Ej.: Práctica 3 · Instalación de un servidor web"></div>
+    <div class="row2">
+      <div class="field"><label class="flab" for="tCiclo">Ciclo</label><select id="tCiclo"></select></div>
+      <div class="field"><label class="flab" for="tModulo">Módulo</label><select id="tModulo"></select></div>
+    </div>
+    <div class="field"><label class="flab" for="tDesc">Enunciado e instrucciones</label><textarea id="tDesc" style="min-height:120px" placeholder="Qué tiene que hacer el alumno, qué debe entregar y cómo se evalúa. La IA también lo usa para preparar la defensa."></textarea></div>
+    <div class="row2">
+      <div class="field"><label class="flab" for="tFecha">Fecha límite (opcional)</label><input type="datetime-local" id="tFecha"></div>
+      <div class="field"><label class="flab" for="tPeso">Peso del trabajo en la nota final (%)</label><input type="number" id="tPeso" min="0" max="100" step="5" value="60"><span class="hintline" id="tPesoInfo"></span></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label class="flab" for="tNTest">Preguntas tipo test de la defensa</label><input type="number" id="tNTest" min="0" max="15" value="5"></div>
+      <div class="field"><label class="flab" for="tNAb">Preguntas abiertas de la defensa</label><input type="number" id="tNAb" min="0" max="6" value="2"></div>
+    </div>
+    <div style="display:grid;gap:10px;margin:4px 0 14px">
+      <label class="check"><input type="checkbox" id="tTarde" checked> Admitir entregas fuera de plazo (quedan marcadas como «con retraso»)</label>
+      <label class="check"><input type="checkbox" id="tPub"> Publicar ya (visible para los alumnos del módulo)</label>
+    </div>
+    <div class="msg bad" data-err hidden></div>
+    <div class="actions"><button class="btn" type="submit">Guardar trabajo</button><button class="btn danger" type="button" id="tBorrar" hidden>Borrar trabajo</button></div>
+  </form>
+</dialog>
+
+<!-- Entrega de un trabajo: archivos, nota y defensa -->
+<dialog id="dEntT" class="wide">
+  <div class="dhead"><h2 id="dEntTTitulo">Entrega</h2><button class="btn ghost sm" data-close>Cerrar</button></div>
+  <div class="dbody" id="dEntTCont"></div>
+</dialog>
+
 <script src="/assets/app.js"></script>
 <script>
 const svg = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
@@ -241,7 +291,8 @@ $$("[data-tab]").forEach((b) => (b.onclick = () => {
   $("#vAlumnos").hidden = b.dataset.tab !== "vAlumnos";
   $("#vGrupos").hidden = b.dataset.tab !== "vGrupos";
   $("#vProfes").hidden = b.dataset.tab !== "vProfes";
-  if (b.dataset.tab === "vGrupos") cargarGrupos(); else if (b.dataset.tab === "vAlumnos") cargarAlumnos(); else if (b.dataset.tab === "vProfes") cargarProfes(); else cargarExamenes();
+  $("#vTrabajos").hidden = b.dataset.tab !== "vTrabajos"; $("#vTrabajo").hidden = true;
+  if (b.dataset.tab === "vTrabajos") cargarTrabajos(); else if (b.dataset.tab === "vGrupos") cargarGrupos(); else if (b.dataset.tab === "vAlumnos") cargarAlumnos(); else if (b.dataset.tab === "vProfes") cargarProfes(); else cargarExamenes();
 }));
 
 /* ── Profesores (solo administrador) ── */
@@ -465,7 +516,12 @@ async function abrirEntregas(id) {
   pintarEntregas();
 }
 $("#filtroGrupo").onchange = pintarEntregas;
-$("#atras").onclick = () => { $("#vEntregas").hidden = true; $("#vExamenes").hidden = false; cargarExamenes(); };
+$("#atras").onclick = () => {
+  $("#vEntregas").hidden = true;
+  // Desde la defensa de un trabajo se vuelve a ese trabajo.
+  if (VOLVER_TRABAJO) { const v = VOLVER_TRABAJO; VOLVER_TRABAJO = null; $("#atras").textContent = "← Volver a exámenes"; abrirTrabajo(v.id).then(() => verEntregaT(v.email)); return; }
+  $("#vExamenes").hidden = false; cargarExamenes();
+};
 
 /** Vuelve a pedir las filas sin salir de la vista (tras cambiar intentos o notas). */
 async function recargarFilas() {
@@ -1610,6 +1666,267 @@ function pintarAlumnos() {
   }));
 }
 
+/* ── Trabajos ── */
+let TRABAJOS = [], TRAB = null, FILAS_T = [], ENT_T = null, DEF_PROP = null, VOLVER_TRABAJO = null;
+const ESTADO_TRAB = {
+  entregado: ["chip v", "Entregado"], devuelto: ["chip s", "Devuelto"], defensa: ["chip s", "Defensa pendiente"], calificado: ["chip ok", "Calificado"], pendiente: ["chip gray", "Sin entregar"],
+};
+const chipEstadoT = (e) => { const [c, t] = ESTADO_TRAB[e] || ESTADO_TRAB.pendiente; return `<span class="${c}">${t}</span>`; };
+const notaT = (n) => (n == null ? "—" : fmt(n));
+const kbT = (n) => (n >= 1048576 ? `${(n / 1048576).toLocaleString("es-ES", { maximumFractionDigits: 1 })} MB` : `${Math.max(1, Math.round(n / 1024))} KB`);
+const aLocal = (iso) => { if (!iso) return ""; const d = new Date(iso); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16); };
+const urlArchivo = (t, email, a) => `/api/trabajo/descargar?t=${encodeURIComponent(t)}&e=${encodeURIComponent(email)}&f=${encodeURIComponent(a.id)}`;
+
+async function cargarTrabajos() {
+  if (!CATALOGO.length) { const d = await api("/api/profesor/examenes"); EXAMENES = d.examenes; CATALOGO = d.catalogo; }
+  const { trabajos } = await api("/api/profesor/trabajos");
+  TRABAJOS = trabajos;
+  const pend = trabajos.reduce((s, t) => s + t.sinCalificar, 0);
+  $("#nTrabPend").hidden = !pend; $("#nTrabPend").textContent = pend;
+  const c = $("#tablaTrabajos");
+  if (!trabajos.length) { c.innerHTML = `<div class="empty">Todavía no has creado ningún trabajo. Pulsa <b>＋ Nuevo trabajo</b>.</div>`; return; }
+  c.innerHTML = `<div class="tablewrap"><table class="t"><thead><tr><th>Trabajo</th><th>Módulo</th><th>Fecha límite</th><th class="num">Entregas</th><th>Estado</th><th></th></tr></thead><tbody>
+    ${trabajos.map((t) => `<tr data-id="${esc(t.id)}">
+      <td><b>${esc(t.titulo)}</b><div class="muted" style="font-size:13px">Trabajo ${t.pesoTrabajo}% · defensa ${100 - t.pesoTrabajo}% (${t.nTest} test, ${t.nAbiertas} abiertas)</div></td>
+      <td><span class="tag">${esc(t.ciclo)}</span> ${esc(t.modulo)}</td>
+      <td>${t.fechaLimite ? esc(new Date(t.fechaLimite).toLocaleString("es-ES", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })) : "—"}</td>
+      <td class="num"><b>${t.entregas}</b>${t.sinCalificar ? ` <span class="chip s" title="Sin nota del trabajo">${t.sinCalificar} por revisar</span>` : ""}</td>
+      <td>${t.publicado ? `<span class="chip ok">Publicado</span>` : `<span class="chip gray">Oculto</span>`}</td>
+      <td><div class="acts"><button class="btn sm" data-abrir-t>Entregas</button><button class="btn ghost sm" data-editar-t>Editar</button></div></td></tr>`).join("")}</tbody></table></div>`;
+  $$("#tablaTrabajos [data-abrir-t]").forEach((b) => (b.onclick = () => abrirTrabajo(b.closest("tr").dataset.id)));
+  $$("#tablaTrabajos [data-editar-t]").forEach((b) => (b.onclick = () => editarTrabajo(TRABAJOS.find((t) => t.id === b.closest("tr").dataset.id))));
+}
+
+function rellenarModulosT(sel) {
+  const c = CATALOGO.find((x) => x.id === $("#tCiclo").value);
+  $("#tModulo").innerHTML = (c?.modulos || []).map((m) => `<option value="${esc(m.id)}">${esc(m.nombre)}</option>`).join("");
+  if (sel) $("#tModulo").value = sel;
+}
+$("#tCiclo").onchange = () => rellenarModulosT();
+$("#tPeso").oninput = () => { const p = Math.max(0, Math.min(100, Number($("#tPeso").value) || 0)); $("#tPesoInfo").textContent = `Trabajo ${p}% · defensa ${100 - p}%`; };
+
+function editarTrabajo(t) {
+  const f = $("#fTrabajo"); f.reset(); $("[data-err]", f).hidden = true;
+  f.dataset.id = t?.id || "";
+  $("#dTrabTitulo").textContent = t ? "Editar trabajo" : "Nuevo trabajo";
+  $("#tCiclo").innerHTML = CATALOGO.map((c) => `<option value="${esc(c.id)}">${esc(c.nombre)} · ${esc(c.descripcion || "")}</option>`).join("");
+  const sel = filtroSel();
+  $("#tCiclo").value = t?.cicloId || sel.c || CATALOGO[0]?.id || "";
+  rellenarModulosT(t?.moduloId || sel.m);
+  $("#tTitulo").value = t?.titulo || ""; $("#tDesc").value = t?.descripcion || "";
+  $("#tFecha").value = aLocal(t?.fechaLimite); $("#tPeso").value = t?.pesoTrabajo ?? 60;
+  $("#tNTest").value = t?.nTest ?? 5; $("#tNAb").value = t?.nAbiertas ?? 2;
+  $("#tTarde").checked = t ? t.admiteTarde : true; $("#tPub").checked = !!t?.publicado;
+  $("#tBorrar").hidden = !t;
+  $("#tPeso").oninput();
+  $("#dTrabajo").showModal();
+}
+$("#nuevoTrabajo").onclick = () => editarTrabajo(null);
+$("#trabEditar").onclick = () => editarTrabajo(TRAB);
+$("#fTrabajo").onsubmit = async (ev) => {
+  ev.preventDefault();
+  const f = ev.target, err = $("[data-err]", f);
+  try {
+    const r = await api("/api/profesor/trabajo", {
+      id: f.dataset.id || undefined, titulo: $("#tTitulo").value, descripcion: $("#tDesc").value, cicloId: $("#tCiclo").value, moduloId: $("#tModulo").value,
+      fechaLimite: $("#tFecha").value ? new Date($("#tFecha").value).toISOString() : "", pesoTrabajo: Number($("#tPeso").value),
+      nTest: Number($("#tNTest").value), nAbiertas: Number($("#tNAb").value), admiteTarde: $("#tTarde").checked, publicado: $("#tPub").checked,
+    });
+    $("#dTrabajo").close();
+    if (!$("#vTrabajo").hidden) abrirTrabajo(r.id); else cargarTrabajos();
+  } catch (e) { err.textContent = e.message; err.hidden = false; }
+};
+$("#tBorrar").onclick = async () => {
+  const id = $("#fTrabajo").dataset.id, t = TRABAJOS.find((x) => x.id === id) || TRAB;
+  if (!confirm(`¿Borrar el trabajo «${t?.titulo}»?\n\nSe borrarán también los archivos entregados, las notas y las defensas. No se puede deshacer.`)) return;
+  try { await api("/api/profesor/trabajo/borrar", { id }); $("#dTrabajo").close(); $("#vTrabajo").hidden = true; $("#vTrabajos").hidden = false; cargarTrabajos(); }
+  catch (e) { alert(e.message); }
+};
+
+async function abrirTrabajo(id) {
+  $$("[data-tab]").forEach((x) => x.setAttribute("aria-selected", x.dataset.tab === "vTrabajos"));
+  ["vExamenes", "vEntregas", "vRespuestas", "vGrupos", "vAlumnos", "vProfes", "vTrabajos"].forEach((v) => ($("#" + v).hidden = true));
+  $("#vTrabajo").hidden = false;
+  $("#tablaEntregasT").innerHTML = `<p class="loading">Cargando…</p>`;
+  const d = await api(`/api/profesor/trabajo/entregas?id=${encodeURIComponent(id)}`);
+  TRAB = d.trabajo; FILAS_T = d.filas;
+  $("#trabTitulo").textContent = TRAB.titulo;
+  $("#trabInfo").innerHTML = `${esc(TRAB.ciclo)} · ${esc(TRAB.modulo)} · ${TRAB.fechaLimite ? `hasta el ${esc(new Date(TRAB.fechaLimite).toLocaleString("es-ES", { day: "2-digit", month: "long", hour: "2-digit", minute: "2-digit" }))}` : "sin fecha límite"} · trabajo ${TRAB.pesoTrabajo}% + defensa ${100 - TRAB.pesoTrabajo}%${TRAB.publicado ? "" : " · <span class='chip gray'>Oculto</span>"}`;
+  const grupos = [...new Set(FILAS_T.map((f) => f.grupo).filter(Boolean))].sort();
+  const g = $("#filtroGrupoT").value;
+  $("#filtroGrupoT").innerHTML = `<option value="">Todos los grupos</option>` + grupos.map((x) => `<option ${x === g ? "selected" : ""}>${esc(x)}</option>`).join("");
+  pintarEntregasT();
+}
+$("#filtroGrupoT").onchange = () => pintarEntregasT();
+$("#atrasTrab").onclick = () => { $("#vTrabajo").hidden = true; $("#vTrabajos").hidden = false; cargarTrabajos(); };
+
+function pintarEntregasT() {
+  const g = $("#filtroGrupoT").value;
+  const filas = FILAS_T.filter((f) => !g || f.grupo === g);
+  const c = $("#tablaEntregasT");
+  if (!filas.length) { c.innerHTML = `<div class="empty">Todavía no hay entregas${g ? " de este grupo" : ""}.</div>`; return; }
+  c.innerHTML = `<div class="tablewrap"><table class="t"><thead><tr><th>Alumno/a</th><th>Entregado</th><th>Archivos</th><th class="num">Trabajo</th><th class="num">Defensa</th><th class="num">Final</th><th>Estado</th><th></th></tr></thead><tbody>
+    ${filas.map((f) => `<tr data-email="${esc(f.email)}">
+      <td><b>${esc(f.apellidos)}, ${esc(f.nombre)}</b><div class="muted" style="font-size:13px">${esc(f.grupo || "")} · ${esc(f.email)}</div></td>
+      <td>${esc(f.fechaTexto || "—")}${f.tarde ? ` <span class="chip s">Con retraso</span>` : ""}</td>
+      <td>${f.archivos.map((a) => `<a href="${urlArchivo(TRAB.id, f.email, a)}" title="${esc(a.nombre)} · ${kbT(a.tamano)}">📎</a>`).join(" ")} <span class="muted">${f.archivos.length}</span></td>
+      <td class="num">${notaT(f.notaTrabajo)}</td>
+      <td class="num">${f.defensa ? (f.defensa.nota != null ? notaT(f.defensa.nota) : `<span class="muted" title="Enviada, aún sin hacer">⏳</span>`) : "—"}</td>
+      <td class="num"><b>${notaT(f.notaFinal)}</b>${f.notaFinalManual != null ? ` <span title="Nota final puesta a mano">✎</span>` : ""}</td>
+      <td>${chipEstadoT(f.estado)}</td>
+      <td><button class="btn sm" data-ver-t>Revisar</button></td></tr>`).join("")}</tbody></table></div>`;
+  $$("#tablaEntregasT [data-ver-t]").forEach((b) => (b.onclick = () => verEntregaT(b.closest("tr").dataset.email)));
+}
+
+$("#trabExcel").onclick = () => {
+  const cab = ["Apellidos", "Nombre", "Correo", "Grupo", "Entregado", "Con retraso", "Nota trabajo", "Nota defensa", "Nota final", "Estado"];
+  const filas = FILAS_T.filter((f) => !$("#filtroGrupoT").value || f.grupo === $("#filtroGrupoT").value).map((f) => [
+    f.apellidos, f.nombre, f.email, f.grupo, f.fechaTexto || "", f.tarde ? "Sí" : "No", f.notaTrabajo ?? "", f.defensa?.nota ?? "", f.notaFinal ?? "", (ESTADO_TRAB[f.estado] || [])[1] || f.estado,
+  ]);
+  const celda = (v) => (typeof v === "number" ? String(v).replace(".", ",") : `"${String(v ?? "").replace(/"/g, '""')}"`);
+  descargar(`notas-${TRAB.id}.csv`, "﻿" + [cab, ...filas].map((r) => r.map(celda).join(";")).join("\r\n"), "text/csv;charset=utf-8");
+};
+
+async function verEntregaT(email) {
+  ENT_T = (await api(`/api/profesor/trabajo/entrega?id=${encodeURIComponent(TRAB.id)}&email=${encodeURIComponent(email)}`)).entrega;
+  DEF_PROP = null;
+  pintarEntregaT();
+  if (!$("#dEntT").open) $("#dEntT").showModal();
+}
+
+function pintarEntregaT() {
+  const e = ENT_T, t = TRAB, def = e.defensa;
+  $("#dEntTTitulo").textContent = `${e.nombre} ${e.apellidos} · ${t.titulo}`;
+  const media = e.notaTrabajo != null && def?.nota != null ? Math.round(((e.notaTrabajo * t.pesoTrabajo + def.nota * (100 - t.pesoTrabajo)) / 100) * 100) / 100 : null;
+  $("#dEntTCont").innerHTML = `
+    <div class="meta" style="margin:0 0 12px">${chipEstadoT(e.estado)}<span class="chip gray">${esc(e.grupo || "")}</span><span class="chip gray">Entregado el ${esc(e.fechaTexto || "—")}</span>${e.tarde ? `<span class="chip s">Con retraso</span>` : ""}</div>
+    ${e.comentario ? `<div class="msg">Comentario del alumno: «${esc(e.comentario)}»</div>` : ""}
+    <h3 style="margin:6px 0 10px">Archivos</h3>
+    <ul class="trab-arch">${e.archivos.map((a) => `<li><a href="${urlArchivo(t.id, e.email, a)}">📎 ${esc(a.nombre)}</a><span class="muted">${kbT(a.tamano)}</span></li>`).join("")}</ul>
+    ${e.texto ? `<details><summary style="cursor:pointer;font-weight:600">Ver el texto del trabajo (${fmt(e.caracteres)} caracteres, lo que lee la IA)</summary><div class="trab-texto">${esc(e.texto)}</div></details>`
+      : `<div class="msg bad">No se ha podido leer texto de estos archivos (imágenes, ZIP…). La IA no podrá preparar la defensa: pide el trabajo en PDF o Word.</div>`}
+
+    <div class="trab-secc"><h3>1 · Nota del trabajo</h3>
+      <form id="fNotaT" novalidate>
+        <div class="notas3">
+          <div class="field"><label class="flab" for="ntTrab">Nota del trabajo (0–10)</label><input type="text" inputmode="decimal" id="ntTrab" value="${e.notaTrabajo ?? ""}"></div>
+          <div class="field"><label class="flab" for="ntFinal">Nota final a mano (opcional)</label><input type="text" inputmode="decimal" id="ntFinal" value="${e.notaFinalManual ?? ""}" placeholder="${media != null ? `Calculada: ${fmt(media)}` : "Se calcula sola"}"></div>
+          <div class="field"><span class="flab">Nota final</span><div style="font-size:24px;font-weight:800;padding-top:4px">${notaT(e.notaFinal)}</div></div>
+        </div>
+        <div class="field"><label class="flab" for="ntCom">Comentario para el alumno</label><textarea id="ntCom" style="min-height:70px">${esc(e.comentarioProfesor || "")}</textarea></div>
+        <label class="check" style="margin-bottom:12px"><input type="checkbox" id="ntAvisar" checked> Avisar al alumno por correo cuando tenga la nota final</label>
+        <div class="msg bad" data-err hidden></div><div class="msg ok" data-ok hidden></div>
+        <div class="actions"><button class="btn" type="submit">Guardar nota</button><button class="btn ghost" type="button" id="ntDevolver" title="El alumno podrá cambiar los archivos y volver a entregarlo">↩ Devolver para corregir</button></div>
+      </form>
+    </div>
+
+    <div class="trab-secc"><h3>2 · Defensa del trabajo</h3>
+      ${def ? `
+        <p style="margin-top:0">Defensa enviada el ${esc(new Date(def.fecha).toLocaleString("es-ES", { day: "2-digit", month: "long", hour: "2-digit", minute: "2-digit" }))} · ${def.nTest} de test y ${def.nAbiertas} ${def.nAbiertas === 1 ? "abierta" : "abiertas"}.
+          ${def.nota != null ? `<b>Hecha${def.fechaHecha ? ` el ${esc(def.fechaHecha)}` : ""}: ${fmt(def.nota)} / 10</b>` : `<span class="chip s">Pendiente de que la haga el alumno</span>`}</p>
+        <div class="actions">${def.nota != null ? `<button class="btn" type="button" id="defVer">Ver y revisar sus respuestas</button>` : ""}
+          <button class="btn danger" type="button" id="defBorrar">${def.nota != null ? "Borrar la defensa (para repetirla)" : "Anular la defensa"}</button></div>`
+      : `
+        <p class="muted" style="margin-top:0">La IA lee el trabajo de <b>${esc(e.nombre)}</b> y prepara preguntas sobre lo que ha hecho él/ella (decisiones, datos, resultados, código…). Cada alumno recibe preguntas distintas. Revisa las preguntas antes de enviarlas.</p>
+        <div class="row2">
+          <div class="field"><label class="flab" for="defNT">Preguntas tipo test</label><input type="number" id="defNT" min="0" max="15" value="${t.nTest}"></div>
+          <div class="field"><label class="flab" for="defNA">Preguntas abiertas</label><input type="number" id="defNA" min="0" max="6" value="${t.nAbiertas}"></div>
+        </div>
+        <div class="field"><label class="flab" for="defInd">Indicaciones para la IA (opcional)</label><input type="text" id="defInd" placeholder="Ej.: pregunta sobre todo por el código y la configuración de red"></div>
+        <div class="msg bad" id="defErr" hidden></div>
+        <div class="actions"><button class="btn accent" type="button" id="defGenerar" ${e.texto ? "" : "disabled"}>✨ ${DEF_PROP ? "Generar otras preguntas" : "Generar preguntas con IA"}</button></div>
+        <div id="defPropuesta"></div>`}
+    </div>`;
+
+  const f = $("#fNotaT");
+  f.onsubmit = async (ev) => {
+    ev.preventDefault();
+    const err = $("[data-err]", f), ok = $("[data-ok]", f); err.hidden = ok.hidden = true;
+    try {
+      const r = await api("/api/profesor/trabajo/calificar", { id: t.id, email: e.email, notaTrabajo: $("#ntTrab").value.trim(), notaFinalManual: $("#ntFinal").value.trim(), comentario: $("#ntCom").value, avisar: $("#ntAvisar").checked });
+      await verEntregaT(e.email);
+      const ok2 = $("[data-ok]", $("#fNotaT")); ok2.textContent = r.notaFinal != null ? `Guardado. Nota final: ${fmt(r.notaFinal)}` : "Guardado. La nota final se calculará cuando haga la defensa."; ok2.hidden = false;
+      abrirTrabajoSilencioso();
+    } catch (x) { err.textContent = x.message; err.hidden = false; }
+  };
+  $("#ntDevolver").onclick = async () => {
+    if (!confirm(`¿Devolver el trabajo a ${e.nombre}? Podrá cambiar los archivos y volver a entregarlo. Se le avisa por correo con tu comentario.`)) return;
+    try { await api("/api/profesor/trabajo/devolver", { id: t.id, email: e.email, comentario: $("#ntCom").value }); await verEntregaT(e.email); abrirTrabajoSilencioso(); }
+    catch (x) { alert(x.message); }
+  };
+  if (def) {
+    if ($("#defVer")) $("#defVer").onclick = () => {
+      $("#dEntT").close();
+      VOLVER_TRABAJO = { id: t.id, email: e.email };
+      $("#vTrabajo").hidden = true;
+      $("#atras").textContent = "← Volver al trabajo";
+      abrirEntregas(def.examen);
+    };
+    $("#defBorrar").onclick = async () => {
+      if (!confirm(def.nota != null ? "¿Borrar la defensa y sus respuestas? Podrás generar y enviar otra." : "¿Anular la defensa? El alumno ya no podrá hacerla.")) return;
+      try { await api("/api/profesor/trabajo/defensa/borrar", { id: t.id, email: e.email }); await verEntregaT(e.email); abrirTrabajoSilencioso(); } catch (x) { alert(x.message); }
+    };
+    return;
+  }
+  $("#defGenerar").onclick = generarDefensaUI;
+  if (DEF_PROP) pintarPropuestaDefensa();
+}
+
+/** Recarga la tabla de entregas sin cerrar el diálogo. */
+async function abrirTrabajoSilencioso() {
+  try { FILAS_T = (await api(`/api/profesor/trabajo/entregas?id=${encodeURIComponent(TRAB.id)}`)).filas; pintarEntregasT(); } catch { /* se verá al volver */ }
+}
+
+async function generarDefensaUI() {
+  const b = $("#defGenerar"), err = $("#defErr");
+  err.hidden = true; b.disabled = true; b.textContent = "Leyendo el trabajo y preparando preguntas…";
+  const pedir = () => api("/api/profesor/trabajo/defensa/generar", { id: TRAB.id, email: ENT_T.email, nTest: Number($("#defNT").value), nAbiertas: Number($("#defNA").value), indicaciones: $("#defInd").value });
+  try {
+    let r;
+    try { r = await pedir(); }
+    catch (x) {
+      // La IA a veces tarda o está saturada: un reintento (tras esperar si es por límite de peticiones).
+      if (![429, 502, 503, 504].includes(x.status)) throw x;
+      b.textContent = x.status === 429 ? "La IA está saturada; reintentando en 30 s…" : "Reintentando…";
+      await new Promise((ok) => setTimeout(ok, x.status === 429 ? 30000 : 1000));
+      r = await pedir();
+    }
+    DEF_PROP = { mc: r.mc.map((q) => ({ ...q, ok: true })), open: r.open.map((q) => ({ ...q, ok: true })), nTest: $("#defNT").value, nAbiertas: $("#defNA").value, ind: $("#defInd").value };
+    pintarEntregaT();
+    $("#defNT").value = DEF_PROP.nTest; $("#defNA").value = DEF_PROP.nAbiertas; $("#defInd").value = DEF_PROP.ind;
+  } catch (x) { err.textContent = x.message; err.hidden = false; b.disabled = false; b.textContent = "✨ Generar preguntas con IA"; }
+}
+
+function pintarPropuestaDefensa() {
+  const p = DEF_PROP, c = $("#defPropuesta");
+  const fila = (q, k, i) => `<div class="defq ${q.ok ? "" : "off"}"><input type="checkbox" data-defq="${k}:${i}" ${q.ok ? "checked" : ""} aria-label="Incluir esta pregunta">
+    <div class="dq"><p>${k === "mc" ? "Test" : "Abierta"} ${i + 1}. ${esc(q.t)}</p>
+      ${k === "mc" ? `<ol type="a">${q.o.map((o, j) => `<li class="${j === q.c ? "ok" : ""}">${esc(o)}${j === q.c ? " ✓" : ""}</li>`).join("")}</ol>`
+        : `<div class="exp"><b>Conceptos:</b> ${q.groups.map((g) => esc(g.join(" / "))).join(" · ")}</div>`}
+      ${q.exp ? `<div class="exp"><b>${k === "mc" ? "En el trabajo" : "Respuesta modelo"}:</b> ${esc(q.exp)}</div>` : ""}</div></div>`;
+  c.innerHTML = `<div style="margin-top:16px">${p.mc.map((q, i) => fila(q, "mc", i)).join("")}${p.open.map((q, i) => fila(q, "open", i)).join("")}</div>
+    <div style="display:grid;gap:8px;margin:12px 0">
+      <label class="check"><input type="checkbox" id="defSeg" checked> 🔒 Modo seguro: si sale de la pantalla, la defensa se entrega sola</label>
+      <label class="check"><input type="checkbox" id="defSol"> Mostrar la corrección al alumno al terminar</label>
+    </div>
+    <div class="msg bad" id="defErr2" hidden></div>
+    <div class="actions"><button class="btn" type="button" id="defEnviar">Enviar la defensa al alumno</button></div>`;
+  $$("[data-defq]", c).forEach((x) => (x.onchange = () => {
+    const [k, i] = x.dataset.defq.split(":"); p[k][i].ok = x.checked; x.closest(".defq").classList.toggle("off", !x.checked);
+  }));
+  $("#defEnviar").onclick = async () => {
+    const mc = p.mc.filter((q) => q.ok).map(({ t, o, c, exp }) => ({ t, o, c, exp }));
+    const open = p.open.filter((q) => q.ok).map(({ t, groups, full, partial, exp, act }) => ({ t, groups, full, partial, exp, act }));
+    const err = $("#defErr2"); err.hidden = true;
+    if (!mc.length && !open.length) { err.textContent = "Marca al menos una pregunta."; err.hidden = false; return; }
+    if (!confirm(`¿Enviar a ${ENT_T.nombre} la defensa (${mc.length} de test y ${open.length} ${open.length === 1 ? "abierta" : "abiertas"})? Le llegará un aviso y solo tendrá un intento.`)) return;
+    try {
+      await api("/api/profesor/trabajo/defensa/enviar", { id: TRAB.id, email: ENT_T.email, mc, open, seguridad: $("#defSeg").checked, mostrarSoluciones: $("#defSol").checked });
+      DEF_PROP = null; await verEntregaT(ENT_T.email); abrirTrabajoSilencioso();
+    } catch (x) { err.textContent = x.message; err.hidden = false; }
+  };
+}
+
 (async () => {
   const yo = await cabecera({ ciclo: "Profesor" });
   ES_ADMIN = !!yo.admin;
@@ -1622,6 +1939,7 @@ function pintarAlumnos() {
     $("#subPanel").innerHTML = `Tus ciclos: <b>${esc(CATALOGO_NOMBRES(yo.ciclos))}</b> · crea y publica exámenes, revisa entregas y gestiona tus grupos.`;
   }
   await cargarExamenes();
+  api("/api/profesor/trabajos").then(({ trabajos }) => { const n = trabajos.reduce((a, t) => a + t.sinCalificar, 0); $("#nTrabPend").hidden = !n; $("#nTrabPend").textContent = n; }).catch(() => {});
 })().catch((e) => { $("#tablaExamenes").innerHTML = `<div class="msg bad">${esc(e.message)}</div>`; });
 </script>
 </body>

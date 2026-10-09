@@ -5,6 +5,7 @@
 import { almacen, leerTodas } from "./almacen.mjs";
 import { json, fallo, leerCuerpo, texto } from "./http.mjs";
 import { requiereProfesor, esAdmin, rolDe, ciclosDe, gestionaCiclo, gestionaExamen } from "./auth.mjs";
+import { notasTrabajos } from "./rutas-trabajos.mjs";
 import { todosLosExamenes, obtenerExamen, validarExamen, resumen, intentosValidos, herramientasValidas, HERRAMIENTAS, aleatorioValido } from "./examenes.mjs";
 import { versionExamen, semillaDe, comprobarFormulas, esAleatorio, comprobarPropuesta, aplicarPropuestas } from "./variantes.mjs";
 import { secreto } from "./auth.mjs";
@@ -143,6 +144,7 @@ async function guardar(req) {
   if (!gestionaCiclo(u, ex.cicloId)) fallo(403, "Solo puedes crear exámenes de tus ciclos");
   const previo = await examenes().get(ex.id);
   if (previo && !gestionaExamen(u, previo)) fallo(409, `El identificador «${ex.id}» ya lo usa otro examen. Elige otro.`);
+  if (previo?.privado) fallo(409, "Este examen es la defensa de un trabajo: se gestiona desde la pestaña Trabajos.");
   if (previo && !b.sobrescribir) fallo(409, `Ya existe un examen con el identificador «${ex.id}». Marca «Reemplazar» o cambia el identificador.`);
   // Al reemplazar un examen sin indicar intentos, se conservan los que tenía.
   if (previo && b.intentos === undefined) ex.intentos = previo.intentos ?? 1;
@@ -535,7 +537,7 @@ async function renombrar(req) {
   if (!r) fallo(404, "Módulo no encontrado");
   if (r.repetido) fallo(409, "Ya hay otro módulo con ese nombre en este ciclo");
   // El nombre del módulo también se guarda en cada examen (se ve en el examen, el correo y el PDF).
-  const exs = (await todosLosExamenes()).filter((e) => e.cicloId === b.cicloId && e.moduloId === b.moduloId && e.modulo !== nombre);
+  const exs = (await todosLosExamenes({ privados: true })).filter((e) => e.cicloId === b.cicloId && e.moduloId === b.moduloId && e.modulo !== nombre);
   await Promise.all(exs.map((e) => examenes().set(e.id, { ...e, modulo: nombre })));
   return json({ ok: true, nombre, examenes: exs.length });
 }
@@ -565,6 +567,7 @@ async function calificacionesGrupo(req, url) {
   const delCurso = (m) => !m.grupos?.length || m.grupos.includes(g.grupo);
   const todos = (await todosLosExamenes()).filter((ex) => ex.cicloId === g.cicloId && gestionaExamen(yo, ex));
   const emails = new Set(alumnos.map((a) => a.email));
+  const trabajosCiclo = await notasTrabajos(yo, g.cicloId, emails);
   const modulos = [];
   const notas = {}; // email → { examenId: { nota, intentos, porRevisar } }
   for (const m of ciclo.modulos.filter(delCurso)) {
@@ -577,6 +580,13 @@ async function calificacionesGrupo(req, url) {
         (notas[e.email] ||= {})[ex.id] = { nota: e.notaProfesor ?? e.resultado.nota, intentos: intentosHechos(e), porRevisar: porRevisar(e) };
       }
       columnas.push({ id: ex.id, titulo: ex.titulo, publicado: ex.publicado });
+    }
+    // Trabajos del módulo: nota final (trabajo + defensa) como una columna más.
+    for (const t of trabajosCiclo.filter((t) => t.moduloId === m.id)) {
+      const col = `trabajo:${t.id}`;
+      if (!t.publicado && !Object.keys(t.notas).length) continue;
+      for (const [email, n] of Object.entries(t.notas)) if (n.nota != null) (notas[email] ||= {})[col] = { nota: n.nota, intentos: 1, porRevisar: 0 };
+      columnas.push({ id: col, titulo: `Trabajo: ${t.titulo}`, publicado: t.publicado, trabajo: true });
     }
     modulos.push({ id: m.id, nombre: m.nombre, examenes: columnas });
   }
@@ -594,7 +604,7 @@ async function quitarModulo(req) {
   const m = buscarModulo(b.cicloId, b.moduloId);
   if (!m) fallo(404, "Módulo no encontrado");
   if (!m.modulo.propio) fallo(400, "Este módulo viene de serie y no se puede borrar");
-  const usados = (await todosLosExamenes()).filter((e) => e.cicloId === b.cicloId && e.moduloId === b.moduloId).length;
+  const usados = (await todosLosExamenes({ privados: true })).filter((e) => e.cicloId === b.cicloId && e.moduloId === b.moduloId).length;
   if (usados) fallo(409, `El módulo tiene ${usados} examen(es). Bórralos o muévelos antes de borrar el módulo.`);
   await borrarModulo(b.cicloId, b.moduloId);
   return json({ ok: true });
