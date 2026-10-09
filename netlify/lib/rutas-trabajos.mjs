@@ -332,7 +332,7 @@ async function generarDefensaRuta(req) {
   const e = await entregasT().get(clave(t.id, String(b.email || "").toLowerCase()));
   if (!e || e.estado === "borrador") fallo(404, "Entrega no encontrada");
   const textoTrabajo = (e.archivos || []).map((a) => (e.textos?.[a.id] ? `### Archivo: ${a.nombre}\n${e.textos[a.id]}` : `### Archivo: ${a.nombre} (sin texto legible)`)).join("\n\n");
-  if (textoTrabajo.replace(/###.*\n?/g, "").trim().length < 200) fallo(400, "No hay texto suficiente en los archivos del trabajo (¿son imágenes o un ZIP?). Escribe tú las preguntas o pide el trabajo en PDF o Word.");
+  if (textoTrabajo.replace(/###.*\n?/g, "").trim().length < 200) fallo(400, "No hay texto suficiente en los archivos del trabajo (¿son imágenes o un ZIP?). Pide al alumno el trabajo en PDF o Word (devuélveselo para que lo cambie).");
   const nTest = Math.max(0, Math.min(15, Number(b.nTest ?? t.nTest) || 0)), nAbiertas = Math.max(0, Math.min(6, Number(b.nAbiertas ?? t.nAbiertas) || 0));
   const r = await generarDefensa({ titulo: t.titulo, enunciado: t.descripcion, trabajo: textoTrabajo.slice(0, 80_000), nTest, nAbiertas, indicaciones: texto(b.indicaciones, 800) });
   return json(r);
