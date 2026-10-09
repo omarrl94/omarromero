@@ -21,7 +21,9 @@ import { fallo, texto } from "./http.mjs";
 import semillaSad from "./semilla-sad-temas-1-2.mjs";
 import semillaIa from "./semilla-ia-tema-1.mjs";
 import semillaSea from "./semilla-sea-temas-1-2.mjs";
+import semillaSeaAleatorio from "./semilla-sea-temas-1-2-aleatorio.mjs";
 import { buscarModulo, moduloPorNombre } from "./catalogo.mjs";
+import { validarVariables, valoresVariables, evaluar } from "./variantes.mjs";
 
 const str = (v, max, campo) => {
   if (typeof v !== "string" || !v.trim()) fallo(400, `Falta «${campo}»`);
@@ -52,7 +54,12 @@ function validarBloques(lista) {
     if (!id) fallo(400, `Al bloque ${i + 1} le falta el id`);
     let imagen = "";
     if (b.imagen) {
-      if (typeof b.imagen !== "string" || !/^data:image\/(png|jpeg|gif|webp);base64,[A-Za-z0-9+/=]+$/.test(b.imagen)) fallo(400, `La imagen del bloque ${i + 1} no es válida`);
+      if (typeof b.imagen !== "string" || !/^data:image\/(png|jpeg|gif|webp|svg\+xml);base64,[A-Za-z0-9+/=]+$/.test(b.imagen)) fallo(400, `La imagen del bloque ${i + 1} no es válida`);
+      // SVG (figuras con valores que cambian en los exámenes aleatorios): sin scripts ni enlaces externos.
+      if (b.imagen.startsWith("data:image/svg")) {
+        const svg = Buffer.from(b.imagen.slice(b.imagen.indexOf(",") + 1), "base64").toString("utf8");
+        if (/<script|\son\w+\s*=|javascript:|<foreignObject|(?:xlink:)?href\s*=\s*["'](?!#)/i.test(svg)) fallo(400, `La figura SVG del bloque ${i + 1} contiene elementos no permitidos`);
+      }
       peso += b.imagen.length;
       imagen = b.imagen;
     }
@@ -79,12 +86,24 @@ function validarNum(lista, bloques) {
       if (!Number.isFinite(valor)) fallo(400, `La ${n}, «${et}», necesita un valor numérico`);
       const tol = c.tolerancia === undefined ? 2 : Number(c.tolerancia);
       if (!Number.isFinite(tol) || tol < 0 || tol > 50) fallo(400, `La ${n}, «${et}», tiene una tolerancia no válida`);
-      return { etiqueta: et, tipo: "numero", valor, unidad: opc(c.unidad, 20), tolerancia: tol };
+      // Exámenes aleatorios: el resultado se recalcula con esta fórmula en cada versión.
+      const formula = typeof c.formula === "string" && c.formula.trim() ? c.formula.trim().slice(0, 300) : "";
+      return { etiqueta: et, tipo: "numero", valor, unidad: opc(c.unidad, 20), tolerancia: tol, ...(formula ? { formula } : {}) };
     });
     return { t: str(q.t, 2000, n), campos, puntos: puntosDe(q.puntos, n), exp: opc(q.exp, 3000), bloque: bloqueValido(q.bloque, bloques) };
   });
 }
 const bloqueValido = (id, bloques) => (id && bloques.some((b) => b.id === id) ? String(id) : "");
+
+/** Las fórmulas de los resultados solo pueden usar variables del examen. */
+function comprobarVariablesUsadas(ex) {
+  if (!ex.variables.length) { ex.num.forEach((q) => q.campos.forEach((c) => delete c.formula)); return; }
+  const vars = valoresVariables(ex.variables);
+  ex.num.forEach((q, i) => q.campos.forEach((c) => {
+    if (!c.formula) return;
+    try { evaluar(c.formula, vars); } catch (err) { fallo(400, `Apartado ${i + 1}, «${c.etiqueta}»: la fórmula «${c.formula}» no es válida (${err.message})`); }
+  }));
+}
 
 export function validarExamen(e) {
   if (!e || typeof e !== "object") fallo(400, "Examen no válido");
@@ -128,7 +147,7 @@ export function validarExamen(e) {
   });
   const ubic = buscarModulo(e.cicloId, e.moduloId) || moduloPorNombre(e.ciclo, e.modulo);
   if (!ubic) fallo(400, "Elige el ciclo y el módulo del examen");
-  return {
+  const examen = {
     id,
     titulo: str(e.titulo, 200, "título"),
     subtitulo: texto(e.subtitulo, 300),
@@ -147,10 +166,17 @@ export function validarExamen(e) {
     // Herramientas que el alumno tiene durante el examen (sin salir de la página).
     herramientas: herramientasValidas(e.herramientas),
     confianza: e.confianza === true,
+    // Examen aleatorio: orden de preguntas y opciones, y valores de los ejercicios (con variables).
+    aleatorio: aleatorioValido(e.aleatorio),
+    variables: validarVariables(e.variables),
     partes: { mc: opc(e.partes?.mc, 80), open: opc(e.partes?.open, 80), num: opc(e.partes?.num, 80) },
     bloques, mc, open, num,
   };
+  comprobarVariablesUsadas(examen);
+  return examen;
 }
+
+export const aleatorioValido = (a) => ({ preguntas: a?.preguntas === true, opciones: a?.opciones === true, valores: a?.valores === true });
 
 export const HERRAMIENTAS = ["notas", "calculadora"];
 /** Bloc de notas y calculadora: activados salvo que el profesor los apague. */
@@ -185,6 +211,7 @@ export const resumen = (ex) => ({
   seguridad: ex.seguridad !== false,
   intentos: ex.intentos ?? 1, calificacion: ex.calificacion || "mejor",
   herramientas: herramientasValidas(ex.herramientas),
+  aleatorio: aleatorioValido(ex.aleatorio), nVariables: (ex.variables || []).length,
   creado: ex.creado, actualizado: ex.actualizado, autor: ex.autor?.nombre || "",
 });
 
@@ -193,7 +220,7 @@ export const resumen = (ex) => ({
  * si el profesor lo borra o lo edita después, no se vuelve a crear.
  * Para añadir otro: crea su archivo semilla-*.mjs y añádelo aquí.
  */
-const SEMILLAS = [semillaSad, semillaIa, semillaSea];
+const SEMILLAS = [semillaSad, semillaIa, semillaSea, semillaSeaAleatorio];
 let sembrado = false;
 
 async function sembrar() {
@@ -208,7 +235,7 @@ async function sembrar() {
     if (hechas[s.id]) continue;
     if (!(await store.get(s.id))) {
       const ahora = new Date().toISOString();
-      await store.set(s.id, { ...validarExamen({ ...s, publicado: true }), creado: ahora, actualizado: ahora });
+      await store.set(s.id, { ...validarExamen({ ...s, publicado: s.publicado !== false }), creado: ahora, actualizado: ahora });
     }
     hechas[s.id] = new Date().toISOString();
     cambios = true;

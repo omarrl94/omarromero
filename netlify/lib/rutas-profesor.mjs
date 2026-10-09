@@ -5,7 +5,9 @@
 import { almacen, leerTodas } from "./almacen.mjs";
 import { json, fallo, leerCuerpo, texto } from "./http.mjs";
 import { requiereProfesor, esAdmin, rolDe, ciclosDe, gestionaCiclo, gestionaExamen } from "./auth.mjs";
-import { todosLosExamenes, obtenerExamen, validarExamen, resumen, intentosValidos, herramientasValidas, HERRAMIENTAS } from "./examenes.mjs";
+import { todosLosExamenes, obtenerExamen, validarExamen, resumen, intentosValidos, herramientasValidas, HERRAMIENTAS, aleatorioValido } from "./examenes.mjs";
+import { versionExamen, semillaDe, comprobarFormulas, esAleatorio, comprobarPropuesta, aplicarPropuestas } from "./variantes.mjs";
+import { secreto } from "./auth.mjs";
 import {
   claveEntrega, vistaEntrega, partesDe, historialDe, intentosHechos, intentosPermitidos,
   consolidar, conIntento, validarAjustes, resultadoCon, puntuarPregunta, porRevisar,
@@ -13,7 +15,7 @@ import {
 import { proveedorConfigurado } from "./correo.mjs";
 import { nombreCompleto } from "./rutas-cuenta.mjs";
 import { CATALOGO, GRUPOS, cicloDe, buscarModulo, crearModulo, borrarModulo, cursosModulo, renombrarModulo } from "./catalogo.mjs";
-import { iaDisponible, generarLote, proveedorIA, tamLote, comprobarIA, adaptarParte, sugerirCorreccion } from "./ia.mjs";
+import { iaDisponible, generarLote, proveedorIA, tamLote, comprobarIA, adaptarParte, sugerirCorreccion, proponerAleatorio } from "./ia.mjs";
 
 const examenes = () => almacen("examenes");
 const entregas = () => almacen("entregas");
@@ -53,6 +55,87 @@ async function verExamen(req, url) {
   return json({ ...ex, publicado, mostrarSoluciones });
 }
 
+/**
+ * Una versión del examen tal como la vería un alumno (con soluciones), para
+ * imprimir varias versiones (A, B, C…) o ver un ejemplo. n = 0 → el original.
+ */
+async function version(req, url) {
+  const u = await requiereProfesor(req);
+  const ex = await existente(url.searchParams.get("id"), u);
+  const n = Math.max(0, Math.min(26, Number(url.searchParams.get("n")) || 0));
+  const v = versionExamen(ex, n ? semillaDe(await secreto(), "version", ex.id, n) : null);
+  const { publicado, mostrarSoluciones, ...m } = v.mostrado;
+  return json({ ...m, variables: undefined, version: n, aleatorio: ex.aleatorio, avisos: comprobarFormulas(ex) });
+}
+
+/* ── Valores aleatorios con IA: una parte cada vez (un ejercicio o un grupo de preguntas de test) ── */
+
+/** Qué partes del examen pueden tener valores aleatorios (el panel las pide de una en una). */
+export function partesAleatorizables(ex) {
+  const partes = [];
+  const conNumeros = (q) => /\d/.test(q.t + q.o.join(" "));
+  const mcNum = ex.mc.map((q, i) => (conNumeros(q) ? i : -1)).filter((i) => i >= 0);
+  for (let k = 0; k < mcNum.length; k += 8) partes.push({ tipo: "test", preguntas: mcNum.slice(k, k + 8), titulo: `Test (preguntas ${mcNum.slice(k, k + 8).map((i) => i + 1).join(", ")})` });
+  const vistos = new Set();
+  (ex.num || []).forEach((q, i) => {
+    if (q.bloque) {
+      if (vistos.has(q.bloque)) return;
+      vistos.add(q.bloque);
+      const b = ex.bloques.find((x) => x.id === q.bloque);
+      partes.push({ tipo: "ejercicio", bloque: q.bloque, apartados: ex.num.map((x, k) => (x.bloque === q.bloque ? k : -1)).filter((k) => k >= 0), titulo: b?.titulo || q.bloque });
+    } else partes.push({ tipo: "ejercicio", bloque: "", apartados: [i], titulo: q.t.slice(0, 60) });
+  });
+  return partes;
+}
+
+function materialParte(ex, parte) {
+  if (parte.tipo === "test") {
+    return "PREGUNTAS DE TEST (numeradas desde 1):\n" + parte.preguntas.map((i, n) => {
+      const q = ex.mc[i];
+      return `${n + 1}. ${q.t}\n${q.o.map((o, j) => `   ${"abcdef"[j]}) ${o}${j === q.c ? "   ← CORRECTA" : ""}`).join("\n")}${q.exp ? `\n   Explicación: ${q.exp}` : ""}`;
+    }).join("\n\n");
+  }
+  const b = parte.bloque ? ex.bloques.find((x) => x.id === parte.bloque) : null;
+  let t = "";
+  if (b) t += `EJERCICIO: ${b.titulo || ""}\nEnunciado común: ${b.texto || "(sin texto)"}\nFigura: ${b.imagen ? "SÍ (tiene una figura que puede mostrar valores)" : "no"}\n\n`;
+  t += "APARTADOS (numerados desde 1; sus resultados también desde 1):\n" + parte.apartados.map((i, n) => {
+    const q = ex.num[i];
+    return `${n + 1}. ${q.t}\n${q.campos.map((c, j) => `   resultado ${j + 1}: «${c.etiqueta}» = ${c.tipo === "opcion" ? `opción «${c.opciones[c.correcta]}» de [${c.opciones.join(" / ")}] (cualitativo)` : `${c.valor} ${c.unidad || ""}`}`).join("\n")}${q.exp ? `\n   Resolución: ${q.exp}` : ""}`;
+  }).join("\n\n");
+  return t;
+}
+
+async function iaAleatorio(req) {
+  const u = await requiereProfesor(req);
+  const b = await leerCuerpo(req);
+  const ex = await existente(b.id, u);
+  if ((ex.variables || []).length) fallo(409, "Este examen ya tiene valores aleatorios.");
+  const partes = partesAleatorizables(ex);
+  if (b.listar) return json({ partes: partes.map(({ titulo, tipo }) => ({ titulo, tipo })) });
+  const k = Number(b.parte), parte = partes[k];
+  if (!parte) fallo(400, "Parte no válida");
+  const instruccion = parte.tipo === "test"
+    ? "Haz aleatorias las preguntas de test que tengan datos numéricos: escribe enunciado y opciones con marcadores (las opciones como cálculos {{=…}}), manteniendo la opción correcta en la misma posición y con distractores que sigan siendo incorrectos para cualquier valor. En «test» pon solo las preguntas que cambies (con su número). Deja «texto» y «apartados» vacíos."
+    : "Haz aleatorio este ejercicio: define las variables, reescribe con marcadores el enunciado común («texto»; vacío si no cambia) y los apartados que cambien (con su número «i»), y da la fórmula de TODOS los resultados numéricos (con su número «j»; si no dependen de los datos, el propio número). Reescribe también la resolución («exp») con cálculos {{=…}}. Deja «test» vacío.";
+  const prop = await proponerAleatorio({ material: materialParte(ex, parte), instruccion });
+  const r = comprobarPropuesta(ex, parte, prop, k + 1);
+  return json({ titulo: parte.titulo, ...r });
+}
+
+/** Guarda en el examen las partes aleatorias aceptadas y activa «Valores». */
+async function aplicarAleatorio(req) {
+  const u = await requiereProfesor(req);
+  const b = await leerCuerpo(req, 1_000_000);
+  const ex = await existente(b.id, u);
+  const fragmentos = (Array.isArray(b.fragmentos) ? b.fragmentos : []).filter((f) => f && Array.isArray(f.variables) && f.cambios);
+  if (!fragmentos.length) fallo(400, "No hay ninguna parte aleatoria que guardar");
+  const nuevo = validarExamen({ ...aplicarPropuestas(ex, fragmentos), aleatorio: { ...ex.aleatorio, valores: true } });
+  const avisos = comprobarFormulas(nuevo);
+  if (avisos.length) fallo(400, `No se ha guardado: ${avisos[0]}`);
+  await examenes().set(ex.id, { ...nuevo, publicado: ex.publicado, creado: ex.creado, actualizado: new Date().toISOString(), autor: ex.autor });
+  return json({ ok: true, variables: nuevo.variables.length });
+}
+
 async function guardar(req) {
   const u = await requiereProfesor(req);
   const b = await leerCuerpo(req, 2_000_000);
@@ -65,6 +148,7 @@ async function guardar(req) {
   if (previo && b.intentos === undefined) ex.intentos = previo.intentos ?? 1;
   if (previo && b.calificacion === undefined) ex.calificacion = previo.calificacion || "mejor";
   if (previo && b.herramientas === undefined) ex.herramientas = herramientasValidas(previo.herramientas);
+  if (previo && b.aleatorio === undefined) ex.aleatorio = aleatorioValido(previo.aleatorio);
   const ahora = new Date().toISOString();
   await examenes().set(ex.id, {
     ...ex, creado: previo?.creado || ahora, actualizado: ahora,
@@ -84,6 +168,13 @@ async function ajustes(req) {
   if (b.intentos !== undefined) {
     if (intentosValidos(b.intentos) !== Number(b.intentos)) fallo(400, "Los intentos deben ser un número entre 0 (sin límite) y 50");
     ex.intentos = Number(b.intentos);
+  }
+  // Aleatorio: orden de preguntas, de opciones y valores ({ aleatorio: { opciones: true } }).
+  if (b.aleatorio && typeof b.aleatorio === "object") {
+    const a = aleatorioValido(ex.aleatorio);
+    for (const k of ["preguntas", "opciones", "valores"]) if (typeof b.aleatorio[k] === "boolean") a[k] = b.aleatorio[k];
+    if (a.valores && !(ex.variables || []).length) fallo(400, "Este examen no tiene valores variables. Prepáralos antes con «✨ Valores aleatorios con IA».");
+    ex.aleatorio = a;
   }
   // Herramientas: se cambian de una en una ({ herramientas: { calculadora: true } }).
   if (b.herramientas && typeof b.herramientas === "object") {
@@ -302,7 +393,7 @@ async function iaCorregir(req) {
   for (const r of pedidas) {
     const e = await entregas().get(claveEntrega(ex.id, String(r.email || "").toLowerCase()));
     const x = historialDe(e)[Number(r.intento) - 1];
-    if (x && x.examen.open[i]?.t === q.t) respuestas.push({ ref: `${e.email}#${r.intento}`, texto: String(x.respuestas.open[i] || "").slice(0, 3000) });
+    if (x && x.examen.open.length === ex.open.length) respuestas.push({ ref: `${e.email}#${r.intento}`, texto: String(x.respuestas.open[i] || "").slice(0, 3000) });
   }
   if (!respuestas.length) return json({ sugerencias: [] });
   const sugerencias = await sugerirCorreccion({ pregunta: q.t, modelo: q.exp, conceptos: q.groups.map((g) => g.join(", ")), respuestas });
@@ -559,6 +650,9 @@ export default {
   "POST /api/profesor/ia/preguntas": iaPreguntas,
   "GET /api/profesor/examenes": listar,
   "GET /api/profesor/examen": verExamen,
+  "GET /api/profesor/examen/version": version,
+  "POST /api/profesor/ia/aleatorio": iaAleatorio,
+  "POST /api/profesor/examen/aleatorio": aplicarAleatorio,
   "POST /api/profesor/examen": guardar,
   "POST /api/profesor/examen/ajustes": ajustes,
   "POST /api/profesor/examen/borrar": borrar,

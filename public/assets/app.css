@@ -493,3 +493,11 @@ body.exam .wrap{padding-bottom:90px}
 .menu-cuenta .menu button{font:inherit;font-size:13.5px;text-align:left;border:none;background:transparent;color:var(--fg);padding:8px 10px;border-radius:7px;cursor:pointer}
 .menu-cuenta .menu button:hover{background:var(--sunken)}
 .dlg-pass{max-width:440px}
+
+/* Examen aleatorio */
+.excard2 .azarbar{padding-top:2px}
+.excard2 .azarbar .link{font-size:12px}
+.azarform{display:grid;gap:6px;border:1px dashed var(--border-strong);border-radius:10px;padding:10px 12px;margin-top:4px}
+.azar-lista{list-style:none;padding:0;margin:12px 0;display:grid;gap:6px}
+.azar-lista li{border:1px solid var(--border);border-left:4px solid var(--ok);border-radius:8px;padding:8px 10px;font-size:13.5px}
+.azar-lista li.no{border-left-color:var(--amarillo);color:var(--muted)}

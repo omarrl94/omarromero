@@ -115,6 +115,11 @@
         <label class="check"><input type="checkbox" id="eSeg" checked> 🔒 Modo seguro: si el alumno cambia de pantalla, el examen termina y se entrega solo</label>
         <label class="check"><input type="checkbox" id="eNotas" checked> 📝 Bloc de notas para el alumno durante el examen</label>
         <label class="check"><input type="checkbox" id="eCalc" checked> 🧮 Calculadora científica para el alumno durante el examen</label>
+        <div class="azarform"><b>🎲 Examen aleatorio</b> <span class="muted">(cada alumno, y cada intento, recibe su propia versión)</span>
+          <label class="check"><input type="checkbox" id="eAzPreg"> Barajar el orden de las preguntas</label>
+          <label class="check"><input type="checkbox" id="eAzOpc"> Barajar el orden de las opciones del test</label>
+          <label class="check" id="eAzValWrap"><input type="checkbox" id="eAzVal"> Valores distintos en los ejercicios <span class="muted" id="eAzValInfo"></span></label>
+          <p class="hintline" id="eAzIA" hidden>Para que cambien los valores, guarda el examen y pulsa <b>«✨ Valores aleatorios con IA»</b> en su tarjeta.</p></div>
         <label class="check" id="eSobreWrap" hidden><input type="checkbox" id="eSobre"> Reemplazar el examen existente con este identificador</label>
       </div>
       <details id="previa" style="margin:6px 0 14px"><summary style="cursor:pointer;font-weight:700">Revisar las preguntas</summary><div id="previaLista"></div></details>
@@ -169,6 +174,7 @@
           <label><input type="radio" name="iaTipoTest" value="normal" checked><span><b>Test normal</b><small>Cada acierto suma su puntuación; los fallos no restan.</small></span></label>
           <label><input type="radio" name="iaTipoTest" value="seguridad"><span><b>Test con seguridad</b><small>El alumno marca lo seguro que está (Muy seguro · Seguro · Poco seguro): si acierta suma y si falla resta.</small></span></label>
         </div></div>
+      <label class="check" style="margin:-4px 0 12px"><input type="checkbox" id="iaAzar"> 🎲 <b>Examen aleatorio:</b> cada alumno con las preguntas y las opciones en otro orden. (Después podrás hacer que cambien también los valores de los ejercicios.)</label>
       <div class="field"><label class="flab" for="iaInd">Indicaciones para la IA (opcional)</label><textarea id="iaInd" style="min-height:60px" placeholder="Ej.: nivel de 1.º, céntrate en los conceptos y no en las fechas…"></textarea></div>
       <div id="iaProgreso" hidden>
         <div class="progress" style="position:static"><span id="iaEstado"></span><div class="track"><div class="fill" id="iaFill"></div></div></div>
@@ -177,6 +183,18 @@
       <div class="msg bad" data-err hidden></div>
       <div class="actions"><button class="btn" type="submit" id="iaGo">Generar preguntas</button></div>
     </form>
+  </div>
+</dialog>
+
+<!-- Valores aleatorios con IA -->
+<dialog id="dAzar">
+  <div class="dhead"><h2>🎲 Valores aleatorios con IA</h2><button class="btn ghost sm" data-close>Cerrar</button></div>
+  <div class="dbody">
+    <p class="muted" style="margin-top:0">La IA propone qué datos de cada ejercicio pueden cambiar (resistencias, tensiones, tiempos…) y las fórmulas de los resultados. La plataforma <b>comprueba cada propuesta</b>: con los datos originales las fórmulas tienen que dar exactamente los resultados del examen, y en 40 versiones de prueba no puede haber resultados imposibles ni opciones repetidas. Lo que no pasa la comprobación se queda fijo.</p>
+    <div class="progress" style="position:static" id="azarProg"><span id="azarEstado"></span><div class="track"><div class="fill" id="azarFill"></div></div></div>
+    <ul class="azar-lista" id="azarLista"></ul>
+    <div class="msg bad" data-err hidden></div>
+    <div class="actions" id="azarAcc" hidden><button class="btn" id="azarGuardar">Guardar y activar «Valores»</button><button class="btn ghost" data-close>Cancelar</button></div>
   </div>
 </dialog>
 
@@ -316,6 +334,13 @@ function tarjetaExamen(e) {
         <label><span class="switch"><input type="checkbox" data-herr="notas" ${e.herramientas?.notas !== false ? "checked" : ""}><span></span></span>📝 Notas</label>
         <label><span class="switch"><input type="checkbox" data-herr="calculadora" ${e.herramientas?.calculadora !== false ? "checked" : ""}><span></span></span>🧮 Calculadora</label>
       </div>
+      <div class="herrbar azarbar" title="Examen aleatorio: cada alumno recibe su propia versión">
+        <span>🎲 Aleatorio${e.aleatorio?.preguntas || e.aleatorio?.opciones || e.aleatorio?.valores ? ` <a href="/profesor/imprimir.html?id=${encodeURIComponent(e.id)}&v=1" target="_blank" class="link" style="font-weight:600">ver una versión</a>` : ""}</span>
+        <label title="Las preguntas salen en otro orden a cada alumno"><span class="switch"><input type="checkbox" data-azar="preguntas" ${e.aleatorio?.preguntas ? "checked" : ""}><span></span></span>Preguntas</label>
+        <label title="Las opciones del test salen en otro orden"><span class="switch"><input type="checkbox" data-azar="opciones" ${e.aleatorio?.opciones ? "checked" : ""}><span></span></span>Opciones</label>
+        ${e.nVariables ? `<label title="Cada alumno tiene otros valores (${e.nVariables} variables) y sus propios resultados"><span class="switch"><input type="checkbox" data-azar="valores" ${e.aleatorio?.valores ? "checked" : ""}><span></span></span>Valores</label>`
+          : (e.nNum || e.nMc) ? `<button type="button" class="link" data-ia-valores title="La IA propone qué datos pueden cambiar y las fórmulas de los resultados; la plataforma comprueba que dan los mismos resultados que el original">✨ Valores aleatorios con IA</button>` : ""}
+      </div>
       <div class="intentosbar">
         <label title="Cuántas veces puede entregarlo cada alumno. A un alumno concreto le puedes dar más desde «Entregas».">Intentos
           <select data-intentos>${[...new Set([1, 2, 3, 4, 5, 10, e.intentos || 1])].sort((a, b) => a - b).map((n) => `<option value="${n}" ${e.intentos === n ? "selected" : ""}>${n}</option>`).join("")}<option value="0" ${e.intentos === 0 ? "selected" : ""}>Sin límite</option></select></label>
@@ -383,6 +408,11 @@ function pintarExamenes() {
   $$("[data-aj]", t).forEach((c) => (c.onchange = async () => {
     try { await api("/api/profesor/examen/ajustes", { id: idDe(c), [c.dataset.aj]: c.checked }); } catch (e) { alert(e.message); c.checked = !c.checked; }
   }));
+  $$("[data-azar]", t).forEach((c) => (c.onchange = async () => {
+    try { await api("/api/profesor/examen/ajustes", { id: idDe(c), aleatorio: { [c.dataset.azar]: c.checked } }); const e = EXAMENES.find((x) => x.id === idDe(c)); e.aleatorio = { ...e.aleatorio, [c.dataset.azar]: c.checked }; pintarExamenes(); }
+    catch (e) { alert(e.message); c.checked = !c.checked; }
+  }));
+  $$("[data-ia-valores]", t).forEach((b) => (b.onclick = () => valoresAleatoriosIA(idDe(b))));
   $$("[data-herr]", t).forEach((c) => (c.onchange = async () => {
     try { await api("/api/profesor/examen/ajustes", { id: idDe(c), herramientas: { [c.dataset.herr]: c.checked } }); }
     catch (e) { alert(e.message); c.checked = !c.checked; }
@@ -781,6 +811,10 @@ function mostrarFormulario(ex, resumen) {
     $("#eOrden").value = ex.orden ?? EXAMENES.filter((e) => e.cicloId === c.id && e.moduloId === m?.id).length + 1;
     $("#ePub").checked = !!ex.publicado; $("#eSol").checked = ex.mostrarSoluciones !== false; $("#eSeg").checked = ex.seguridad !== false; $("#eSobre").checked = false;
     $("#eConf").checked = !!ex.confianza; $("#eConfWrap").hidden = !(ex.mc || []).length;
+    $("#eAzPreg").checked = !!ex.aleatorio?.preguntas; $("#eAzOpc").checked = !!ex.aleatorio?.opciones;
+    const nv = (ex.variables || []).length;
+    $("#eAzVal").checked = !!ex.aleatorio?.valores && nv > 0; $("#eAzValWrap").hidden = !nv; $("#eAzValInfo").textContent = nv ? `(${nv} variables)` : "";
+    $("#eAzIA").hidden = !!nv || !((ex.num || []).length || (ex.mc || []).length);
     // Calculadora: por defecto en los exámenes con ejercicios de cálculo.
     $("#eNotas").checked = ex.herramientas?.notas !== false; $("#eCalc").checked = ex.herramientas?.calculadora !== false;
     $("#resumenImport").innerHTML = resumen;
@@ -1096,6 +1130,7 @@ async function adaptarWord(estado) {
   return {
     titulo: $("#iaTitulo").value.trim() || ind.titulo, subtitulo: ind.subtitulo,
     confianza: mc.length > 0 && (tipoTestIA() === "auto" ? ind.confianza : tipoTestIA() === "seguridad"),
+    aleatorio: { preguntas: $("#iaAzar").checked, opciones: $("#iaAzar").checked },
     partes: ind.partes, bloques, mc, open, num,
     cicloId: base.cicloId, moduloId: base.moduloId, publicado: false, mostrarSoluciones: true, seguridad: true,
     _figuras: ex1.figuras.length, _sinSol: !fs, _avisos: avisos,
@@ -1185,7 +1220,7 @@ $("#fIA").onsubmit = async (ev) => {
     for (let i = 0, lotes = Math.ceil(nMc / L.mc); i < lotes; i++) plan.push({ tipo: "mc", n: Math.min(L.mc, nMc - i * L.mc), lote: i + 1, lotes });
     for (let i = 0, lotes = Math.ceil(nOpen / L.open); i < lotes; i++) plan.push({ tipo: "open", n: Math.min(L.open, nOpen - i * L.open), lote: i + 1, lotes });
     const ex = { titulo, subtitulo: "", cicloId: $("#iaCiclo").value, moduloId: $("#iaModulo").value, mc: [], open: [], publicado: false, mostrarSoluciones: true,
-      confianza: tipoTestIA() === "seguridad" };
+      confianza: tipoTestIA() === "seguridad", aleatorio: { preguntas: $("#iaAzar").checked, opciones: $("#iaAzar").checked } };
     const total = nMc + nOpen;
     let avisos = "";
     for (const paso of plan) {
@@ -1237,12 +1272,57 @@ $("#fExamen").onsubmit = async (ev) => {
       publicado: $("#ePub").checked, mostrarSoluciones: $("#eSol").checked, seguridad: $("#eSeg").checked, sobrescribir: $("#eSobre").checked,
       herramientas: { notas: $("#eNotas").checked, calculadora: $("#eCalc").checked },
       confianza: $("#eConf").checked && (IMPORT.mc || []).length > 0,
+      aleatorio: { preguntas: $("#eAzPreg").checked, opciones: $("#eAzOpc").checked, valores: $("#eAzVal").checked && (IMPORT.variables || []).length > 0 },
     });
     if (imprimir) imprimir.location.href = `/profesor/imprimir.html?id=${encodeURIComponent(id)}`;
     $("#dSubir").close(); cargarExamenes();
   } catch (e) { imprimir?.close(); err.textContent = e.message; err.hidden = false; }
   finally { btn.disabled = false; }
 };
+
+/* ── Valores aleatorios con IA ── */
+async function valoresAleatoriosIA(id) {
+  const d = $("#dAzar"), lista = $("#azarLista"), err = $("[data-err]", d);
+  lista.innerHTML = ""; err.hidden = true; $("#azarAcc").hidden = true;
+  const estado = (txt, h, t) => { $("#azarEstado").textContent = txt; $("#azarFill").style.width = `${t ? (100 * h) / t : 5}%`; };
+  d.showModal();
+  let cancelado = false; d.addEventListener("close", () => (cancelado = true), { once: true });
+  try {
+    estado("Buscando las partes con datos numéricos…", 0, 0);
+    const { partes } = await api("/api/profesor/ia/aleatorio", { id, listar: true });
+    if (!partes.length) throw new Error("este examen no tiene ejercicios ni preguntas con datos numéricos");
+    const buenos = [];
+    for (let k = 0; k < partes.length && !cancelado; k++) {
+      estado(`Preparando ${partes[k].titulo}… (${k + 1} de ${partes.length})`, k, partes.length);
+      let r;
+      for (let intento = 0; ; intento++) {
+        try { r = await api("/api/profesor/ia/aleatorio", { id, parte: k }); break; }
+        catch (e) {
+          if (e.status === 429 && intento < 4) { for (let s2 = 30; s2 > 0 && !cancelado; s2--) { estado(`Límite por minuto de la IA gratuita: sigo en ${s2} s…`, k, partes.length); await esperar(1000); } continue; }
+          if ((!e.status || e.status >= 500) && intento < 1) continue;
+          r = { titulo: partes[k].titulo, ok: false, motivo: e.message }; break;
+        }
+      }
+      if (r.ok) buenos.push(r);
+      lista.insertAdjacentHTML("beforeend", `<li class="${r.ok ? "ok" : "no"}"><b>${r.ok ? "✓" : "✗"} ${esc(r.titulo)}</b> — ${r.ok
+        ? `${r.resumen.variables} ${r.resumen.variables === 1 ? "dato cambia" : "datos cambian"}${r.resumen.formulas ? `, ${r.resumen.formulas} ${partes[k].tipo === "test" ? (r.resumen.formulas === 1 ? "pregunta aleatoria" : "preguntas aleatorias") : r.resumen.formulas === 1 ? "resultado con fórmula" : "resultados con fórmula"}` : ""}`
+        : `se queda como está: ${esc(r.motivo)}`}</li>`);
+    }
+    if (cancelado) return;
+    estado(buenos.length ? "Listo. Revisa el resumen y guarda." : "Ninguna parte se ha podido hacer aleatoria.", 1, 1);
+    if (!buenos.length) return;
+    $("#azarAcc").hidden = false;
+    $("#azarGuardar").onclick = async () => {
+      $("#azarGuardar").disabled = true;
+      try {
+        await api("/api/profesor/examen/aleatorio", { id, fragmentos: buenos.map(({ variables, cambios }) => ({ variables, cambios })) });
+        d.close(); await cargarExamenes();
+        if (confirm("Valores aleatorios guardados y activados.\n\n¿Quieres ver ahora una versión de ejemplo (con su solucionario) para comprobarla?")) window.open(`/profesor/imprimir.html?id=${encodeURIComponent(id)}&v=1&ver=sol`, "_blank");
+      } catch (e) { err.textContent = e.message; err.hidden = false; }
+      finally { $("#azarGuardar").disabled = false; }
+    };
+  } catch (e) { err.textContent = `No se ha podido preparar: ${e.message}`; err.hidden = false; }
+}
 
 /* ── Grupos: calificaciones finales ── */
 let GRUPO = null, VISTA_GRUPO = "detalle";

@@ -4,6 +4,8 @@ import { json, fallo, leerCuerpo, texto, env } from "./http.mjs";
 import { requiereUsuario, esStaff, ciclosDe, gestionaExamen } from "./auth.mjs";
 import { todosLosExamenes, obtenerExamen, enunciado, resumen } from "./examenes.mjs";
 import { corregir, limpiarRespuestas } from "./correccion.mjs";
+import { versionExamen, semillaDe, aOriginal, aMostrado, esAleatorio } from "./variantes.mjs";
+import { secreto } from "./auth.mjs";
 import { claveEntrega, vistaEntrega, historialDe, intentosHechos, intentosPermitidos, consolidar, conIntento } from "./entregas.mjs";
 import { enviarCorreo, proveedorConfigurado } from "./correo.mjs";
 import { CATALOGO, cicloDe, moduloVisible } from "./catalogo.mjs";
@@ -32,6 +34,15 @@ async function cuentaIntentos(ex, email) {
   const hechos = intentosHechos(e), permitidos = intentosPermitidos(ex, p);
   return { k, e, p, hechos, permitidos, quedan: Math.max(0, permitidos - hechos) };
 }
+/**
+ * Versión del examen para este alumno y este intento (exámenes aleatorios):
+ * siempre la misma para el mismo intento, distinta en cada intento y entre alumnos.
+ */
+async function versionDe(ex, email, intento) {
+  if (!esAleatorio(ex)) return versionExamen(ex, null);
+  return versionExamen(ex, semillaDe(await secreto(), "examen", ex.id, email, intento));
+}
+
 /** Respuestas guardadas solas del intento en curso (si las hay). */
 const borradorVigente = (c) => (c.p?.borrador && c.p.borrador.intento === c.hechos + 1 ? c.p.borrador : null);
 
@@ -67,7 +78,8 @@ async function ver(req, url) {
   const b = borradorVigente(c);
   // Modo seguro ya empezado y sin permiso del profesor para reanudarlo.
   const bloqueado = ex.seguridad !== false && (c.p?.inicios?.length || 0) >= c.permitidos && !c.p?.reanudar && !esStaff(u);
-  return json({ ...enunciado(ex), intentosAlumno: intentosJSON(c), enCurso: b ? { t: b.t, n: b.n } : null, reanudar: !!c.p?.reanudar, bloqueado });
+  const v = await versionDe(ex, u.email, c.hechos + 1);
+  return json({ ...enunciado(v.mostrado), variante: v.variante, intentosAlumno: intentosJSON(c), enCurso: b ? { t: b.t, n: b.n } : null, reanudar: !!c.p?.reanudar, bloqueado });
 }
 
 async function iniciar(req) {
@@ -87,7 +99,8 @@ async function iniciar(req) {
   await progreso().set(k, p);
   // Si había respuestas guardadas de este intento, sigue donde lo dejó.
   const b = borradorVigente({ ...c, p });
-  return json({ ok: true, respuestas: b ? b.respuestas : null, reanudado: reanuda });
+  const v = b ? await versionDe(ex, u.email, c.hechos + 1) : null;
+  return json({ ok: true, respuestas: b ? aMostrado(b.respuestas, v.orden) : null, reanudado: reanuda });
 }
 
 /** Guardado automático de las respuestas mientras se hace el examen (para poder reanudarlo). */
@@ -99,7 +112,8 @@ async function guardarBorrador(req) {
   if (c.quedan <= 0 && !esStaff(u)) return json({ ok: false });
   // Un guardado que llega tarde (tras entregar) no debe pasar al intento siguiente.
   if (b.intento != null && Number(b.intento) !== c.hechos + 1) return json({ ok: false });
-  const respuestas = limpiarRespuestas(ex, b);
+  const v = await versionDe(ex, u.email, c.hechos + 1);
+  const respuestas = limpiarRespuestas(v.canon, aOriginal(b, v.orden));
   const n = respuestas.mc.filter((v) => v >= 0).length + respuestas.open.filter((t) => t.trim()).length
     + respuestas.num.filter((cs) => cs.some((v) => (typeof v === "number" ? v >= 0 : String(v).trim()))).length;
   const p = c.p || { email: u.email, examen: ex.id, salidas: [] };
@@ -129,8 +143,10 @@ async function entregar(req) {
   // El profesor que prueba su examen puede entregarlo las veces que quiera.
   if (c.quedan <= 0 && !esStaff(u)) sinIntentos(c);
 
-  const respuestas = limpiarRespuestas(ex, b);
-  const resultado = corregir(ex, respuestas);
+  // Examen aleatorio: se corrige con la versión de este alumno y en el orden original.
+  const v = await versionDe(ex, u.email, c.hechos + 1);
+  const respuestas = limpiarRespuestas(v.canon, aOriginal(b, v.orden));
+  const resultado = corregir(v.canon, respuestas);
   const ahora = new Date();
   const p = c.p || { email: u.email, examen: ex.id, salidas: [] };
   // Entrega automática al cambiar de pantalla (modo seguro): se registra la salida.
@@ -140,7 +156,8 @@ async function entregar(req) {
   const habiaBorrador = !!(p.borrador || p.reanudar);
   delete p.borrador; delete p.reanudar;
   if (salida || habiaBorrador) await progreso().set(k, p);
-  const { publicado, mostrarSoluciones, creado, actualizado, ...copia } = ex;
+  const { publicado, mostrarSoluciones, creado, actualizado, ...copia } = v.canon;
+  if (v.variante) { copia.version = true; delete copia.variables; }
   const intento = {
     examen: copia, respuestas, resultado,
     fecha: ahora.toISOString(),
@@ -161,7 +178,7 @@ async function entregar(req) {
     correo.error = "El envío de correo no está configurado.";
   } else {
     try {
-      const c = correoResultado(ex, hecho);
+      const c = correoResultado({ ...v.canon, mostrarSoluciones: ex.mostrarSoluciones }, hecho);
       const profesor = env("PROFESOR_EMAIL");
       await enviarCorreo({ to: u.email, bcc: profesor || undefined, replyTo: profesor || undefined, subject: c.asunto, html: c.html, text: c.text });
       correo.enviado = true;

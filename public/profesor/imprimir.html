@@ -44,6 +44,7 @@ body{margin:0;background:#E9EBEF;color:var(--grafito);font:14px/1.45 "Geist",sys
 .cab .que{margin-left:auto;text-align:right;line-height:1.3}
 .cab .que .tag{display:inline-block;background:var(--amarillo);color:#2B2305;font-size:10.5px;font-weight:800;letter-spacing:.05em;padding:2px 8px;border-radius:5px;text-transform:uppercase}
 .cab .que div{font-size:11px;color:var(--muted)}
+.vtag{display:inline-block;vertical-align:middle;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:var(--grafito);color:#fff;border-radius:6px;padding:3px 9px;margin-left:6px}
 h1{font-size:21px;margin:2px 0 2px;line-height:1.2}
 .sub{color:var(--muted);margin:0 0 10px;font-size:13px}
 .datos{display:grid;grid-template-columns:2.2fr 1fr 1fr 0.9fr;gap:8px;margin:10px 0 10px}
@@ -109,6 +110,8 @@ h1{font-size:21px;margin:2px 0 2px;line-height:1.2}
     <button type="button" data-ver="alumno" aria-pressed="true">Versión alumno</button>
     <button type="button" data-ver="sol" aria-pressed="false">Solucionario</button>
   </div>
+  <label id="versionWrap" hidden title="Examen aleatorio: cada versión tiene otro orden y otros valores, con su propio solucionario">Versión
+    <select id="versionSel"><option value="0">Original</option></select></label>
   <label>Líneas por pregunta abierta <input type="number" id="nLineas" min="0" max="20" value="5" style="width:60px"></label>
   <label><input type="checkbox" id="hueco" checked> Espacio para operaciones</label>
   <button class="btn" type="button" id="imprimir">🖨 Imprimir / guardar PDF</button>
@@ -136,7 +139,8 @@ function pintar() {
     const b = (ex.bloques || []).find((x) => x.id === q.bloque); if (!b) return "";
     return `<div class="bloque">${b.titulo ? `<h3>${esc(b.titulo)}</h3>` : ""}${b.texto ? `<p>${esc(b.texto)}</p>` : ""}${b.imagen ? `<img src="${esc(b.imagen)}" alt="">` : ""}</div>`;
   }; })();
-  let h = `<h1>${esc(ex.titulo)}</h1>${ex.subtitulo ? `<p class="sub">${esc(ex.subtitulo)}</p>` : ""}
+  const letraV = ex.version ? `Versión ${"ABCDEFGH"[ex.version - 1]}` : "";
+  let h = `<h1>${esc(ex.titulo)}${letraV ? ` <span class="vtag">${letraV}</span>` : ""}</h1>${ex.subtitulo ? `<p class="sub">${esc(ex.subtitulo)}</p>` : ""}
     ${sol ? `<div class="sol-banda">SOLUCIONARIO · SOLO PARA EL PROFESORADO</div>` : `
     <div class="datos"><div>Nombre y apellidos</div><div>Grupo</div><div>Fecha</div><div class="nota">Nota</div></div>
     <div class="instr"><b>Instrucciones</b><ul>
@@ -180,7 +184,7 @@ function pintar() {
   // así el logo del centro sale en la esquina superior izquierda de todas las hojas.
   $("#hoja").innerHTML = `<table class="marco"><thead><tr><td>
       <header class="cab">${LOGO}<div class="centro"><small>Formación Profesional</small><b>José Ramón Otero</b></div>
-        <div class="que"><span class="tag">${esc(ex.ciclo || "")}</span><div>${esc(ex.modulo || "")} · ${esc(ex.titulo)}${sol ? " · Solucionario" : ""}</div></div></header>
+        <div class="que"><span class="tag">${esc(ex.ciclo || "")}</span><div>${esc(ex.modulo || "")} · ${esc(ex.titulo)}${ex.version ? ` · Versión ${"ABCDEFGH"[ex.version - 1]}` : ""}${sol ? " · Solucionario" : ""}</div></div></header>
       <div class="franja"></div></td></tr></thead>
     <tbody><tr><td>${h}</td></tr></tbody></table>`;
   document.title = `${ex.titulo}${sol ? " · Solucionario" : ""} · FP José Ramón Otero`;
@@ -199,7 +203,20 @@ $("#imprimir").onclick = () => window.print();
     document.body.innerHTML = `<p style="text-align:center;margin:60px 16px;font:16px system-ui">El examen imprimible solo está disponible para el profesorado. <a href="/panel/">Volver</a></p>`;
     return;
   }
-  EX = await api(`/api/profesor/examen?id=${encodeURIComponent(id)}`);
+  // Siempre se pide la versión (la 0 es el original con sus valores puestos).
+  const N = Number(new URLSearchParams(location.search).get("v")) || 0;
+  EX = await api(`/api/profesor/examen/version?id=${encodeURIComponent(id)}&n=${N}`);
+  const a = EX.aleatorio || {};
+  if (a.preguntas || a.opciones || a.valores) {
+    $("#versionWrap").hidden = false;
+    $("#versionSel").innerHTML = `<option value="0">Original</option>` + "ABCDEFGH".split("").map((l, i) => `<option value="${i + 1}">Versión ${l}</option>`).join("");
+    $("#versionSel").value = String(N);
+    $("#versionSel").onchange = async () => {
+      const n = Number($("#versionSel").value);
+      history.replaceState(null, "", `?id=${encodeURIComponent(id)}${n ? `&v=${n}` : ""}${VER === "sol" ? "&ver=sol" : ""}`);
+      EX = await api(`/api/profesor/examen/version?id=${encodeURIComponent(id)}&n=${n}`); pintar();
+    };
+  }
   $$("[data-ver]").forEach((x) => x.setAttribute("aria-pressed", x.dataset.ver === VER));
   pintar();
 })().catch((e) => { $("#hoja").innerHTML = `<p style="color:#B8382B">${esc(e.message)}</p>`; });

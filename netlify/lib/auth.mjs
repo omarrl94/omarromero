@@ -33,7 +33,7 @@ export const EMAIL_RE = /^[^@\s<>"',;]+@[^@\s<>"',;]+\.[a-z]{2,}$/i;
 
 /* ── Secreto ──────────────────────────────────────────────── */
 let secretoCache;
-async function secreto() {
+export async function secreto() {
   if (secretoCache) return secretoCache;
   if (env("SESSION_SECRET")) return (secretoCache = env("SESSION_SECRET"));
   const sis = almacen("sistema");

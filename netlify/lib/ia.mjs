@@ -438,3 +438,46 @@ export async function sugerirCorreccion({ pregunta, modelo = "", conceptos = [],
     .filter((c) => refs.has(c.ref) && ["full", "partial", "none"].includes(c.veredicto))
     .map((c) => ({ ref: c.ref, v: c.veredicto, motivo: String(c.motivo || "").trim().slice(0, 300) }));
 }
+
+/* ════════════════════════════════════════════════════════════════
+ * Exámenes aleatorios: la IA propone qué datos pueden cambiar en un
+ * ejercicio (o en preguntas de test con números) y las fórmulas de los
+ * resultados. El servidor lo comprueba todo antes de aceptarlo.
+ * ════════════════════════════════════════════════════════════════ */
+const SISTEMA_ALEATORIO = `Eres profesor de Formación Profesional y preparas versiones ALEATORIAS de un examen: cada alumno tendrá otros datos numéricos, y la plataforma recalcula los resultados con fórmulas.
+
+Reglas:
+- Escribe los datos que cambian como marcadores {{nombre}} en el texto (p. ej. «R₁ = {{R1}} Ω»). Para mostrar un cálculo usa {{=expresión}} (p. ej. «{{=V/2}} V»); con decimales fijos: {{=expresión|2}}.
+- Cada variable aleatoria tiene su valor ORIGINAL (el del examen), un mínimo, un máximo y un paso, elegidos para que el ejercicio tenga sentido físico y resultados razonables (sin divisiones entre 0, sin valores negativos si no tienen sentido). Deja el original dentro del rango.
+- Puedes definir variables calculadas (formula) para resultados intermedios; las demás llevan formula "".
+- Da la fórmula de TODOS los resultados numéricos del ejercicio, usando SOLO las variables definidas, números y + - * / ^ ( ) sqrt abs ln log pi. Si un resultado no depende de los datos que cambian, su fórmula es el propio número (p. ej. "4"). Con los valores originales, cada fórmula debe dar EXACTAMENTE el resultado original.
+- Las constantes físicas (k, carga del electrón…) y los datos que no deban cambiar se quedan como número fijo, sin marcador.
+- No cambies las respuestas cualitativas (atracción/repulsión, aumenta/disminuye…) salvo que sigan siendo correctas para todos los valores del rango.
+- Si el ejercicio tiene FIGURA, no conviertas en variable ningún dato que pueda estar dibujado en ella (valores de resistencias, etc.): solo datos que aparecen únicamente en el texto. Si no hay ninguno seguro, no crees variables.
+- Usa nombres de variable cortos con letras y números (R1, V, t, q1…), sin espacios ni tildes.
+- Mantén el resto del texto exactamente igual. Si algo no puede variar, déjalo como está (cadena vacía en los campos que no cambian).`;
+
+const ESQ_VAR = { nombre: { type: "string" }, valor: { type: "number" }, min: { type: "number" }, max: { type: "number" }, paso: { type: "number" }, formula: { type: "string" } };
+const ESQUEMA_ALEATORIO = objeto({
+  variables: lista(objeto(ESQ_VAR)),
+  texto: { type: "string" },
+  apartados: lista(objeto({ i: { type: "integer" }, t: { type: "string" }, exp: { type: "string" },
+    campos: lista(objeto({ j: { type: "integer" }, etiqueta: { type: "string" }, formula: { type: "string" } })) })),
+  test: lista(objeto({ i: { type: "integer" }, t: { type: "string" }, opciones: lista({ type: "string" }), exp: { type: "string" } })),
+});
+const gVar = gObj({ nombre: G.s, valor: { type: "NUMBER" }, min: { type: "NUMBER" }, max: { type: "NUMBER" }, paso: { type: "NUMBER" }, formula: G.s });
+const ESQUEMA_ALEATORIO_G = gObj({
+  variables: gArr(gVar), texto: G.s,
+  apartados: gArr(gObj({ i: G.i, t: G.s, exp: G.s, campos: gArr(gObj({ j: G.i, etiqueta: G.s, formula: G.s })) })),
+  test: gArr(gObj({ i: G.i, t: G.s, opciones: gArr(G.s), exp: G.s })),
+});
+
+/** Propuesta de la IA para una parte (un ejercicio con sus apartados, o preguntas de test). */
+export async function proponerAleatorio({ material, instruccion }) {
+  if (!iaDisponible()) fallo(503, "Falta configurar GEMINI_API_KEY en Netlify para usar la IA.");
+  const datos = proveedorIA() === "gemini"
+    ? await pedirGemini("aleatorio", material, instruccion, { sistema: SISTEMA_ALEATORIO, esquemaG: ESQUEMA_ALEATORIO_G, temperatura: 0.1, pensar: true })
+    : await pedirClaude("aleatorio", material, instruccion, { sistema: SISTEMA_ALEATORIO, esquema: ESQUEMA_ALEATORIO, esfuerzo: "medium" });
+  console.log(JSON.stringify({ evento: "ia-aleatorio", proveedor: proveedorIA(), uso: datos._uso }));
+  return datos;
+}
