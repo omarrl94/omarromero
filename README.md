@@ -14,7 +14,7 @@ cp .env.example .env.local   # y pega tu clave de Google Maps
 npm run dev                  # → http://localhost:3000
 ```
 
-Sin clave la app **no se rompe**: en el hueco del mapa sale qué hay que configurar, y el ranking, la ficha y el formulario siguen funcionando con los datos de ejemplo.
+Sin clave la app **no se rompe**: en el hueco del mapa sale un esquema del centro con las mismas chapas de colores —etiquetado como simulación, que aquí no se cuela a nadie— y el ranking, la ficha y el formulario siguen funcionando con los datos de ejemplo.
 
 ### La clave de Google
 
@@ -122,7 +122,7 @@ src/
 ├─ components/
 │  ├─ RolloApp.tsx            ★ La app: titular, mapa, rankings y ficha
 │  ├─ MapaRollos.tsx          Google Maps en modo oscuro + cámara
-│  ├─ ChapaBar.tsx            La chapa pegada sobre cada bar (AdvancedMarker)
+│  ├─ ChapaBar.tsx            La chapa de cada bar (sobre Google o simulada)
 │  ├─ Buscador.tsx            Google Places Autocomplete con UI propia
 │  ├─ Ranking.tsx             El podio y la lista negra
 │  ├─ FichaBar.tsx            BottomSheet en móvil, cartel en escritorio
@@ -132,7 +132,7 @@ src/
 │  ├─ ModalAcceso.tsx        Registro e inicio de sesión
 │  ├─ BotonSesion.tsx        Alias, salir o invitación a entrar
 │  ├─ Ticker.tsx              Los avisos de la casa, en bucle
-│  ├─ AvisoSinClave.tsx       Qué hacer si falta la API key
+│  ├─ MapaSimulado.tsx       Mapa esquemático si falta la API key
 │  └─ Logo.tsx                Logo SVG: el papel cae y dibuja una "M"
 ├─ hooks/
 │  └─ usePlacesBuscador.ts    Autocompletado + detalle del sitio
@@ -195,16 +195,16 @@ Mobile-first: la ficha sube como BottomSheet, la escala de rollos se pulsa con e
 ```bash
 npm run dev                                   # en una terminal
 npm i -D playwright && npx playwright install chromium
-npm run demo                                  # en otra → 16:9, 1:10
-npm run demo:reel                             #        → 9:16, 0:29
+npm run demo                                  # en otra → 16:9, 1:11
+npm run demo:reel                             #        → 9:16, 0:32
 ```
 
 Dos formatos, un solo guion por cada uno:
 
 - **`demo`** (1280×720): el recorrido completo — modo urgencia, buscador y adopción de bares, registro y sesión, el formulario de rollos con el veredicto en vivo, el parte publicado, podio, lista negra y mapa.
-- **`demo:reel`** (1080×1920): versión corta para redes — gancho, el mejor baño, la lista negra, cuatro toques para puntuar y el parte firmado, con rótulos a pantalla completa y destellos entre cortes.
+- **`demo:reel`** (1080×1920): versión corta para redes — gancho, el mapa por colores, el mejor baño, la lista negra, cuatro toques para puntuar y el parte firmado, con rótulos a pantalla completa y destellos entre cortes.
 
-Si grabas con la clave de Google en `.env.local`, el tramo del mapa sale con Google Maps de verdad en vez del aviso de configuración.
+Si grabas con la clave de Google en `.env.local`, el tramo del mapa sale con Google Maps de verdad; sin clave sale el mapa simulado, con las mismas chapas.
 
 Los rótulos y sus tiempos están en `grabar()` y `guionReel()`, en el mismo orden en que se ven.
 

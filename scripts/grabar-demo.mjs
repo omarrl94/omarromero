@@ -275,7 +275,16 @@ async function guionReel(pagina) {
   // 2 · De qué va
   await corte(pagina, "El mapa de los<br><em>baños de Madrid</em>", { ms: 1250 });
 
-  // 3 · Modo urgencia
+  // 3 · El mapa, que es la cara de la app
+  await irA(pagina, "#mapa");
+  await corte(pagina, "Todo el centro,<br><u>por colores</u>", {
+    tono: "magenta",
+    ms: 1300,
+  });
+  await pagina.evaluate(() => window.scrollTo({ top: 0, behavior: "smooth" }));
+  await esperar(pagina, 700);
+
+  // 4 · Modo urgencia
   await clicar(pagina, pagina.getByRole("button", { name: /Modo urgencia/ }), {
     pausa: 420,
   });
@@ -286,14 +295,14 @@ async function guionReel(pagina) {
 
   // 4 · Lo que se puntúa
   await corte(pagina, "Limpieza · espacio<br>intimidad · papel", {
-    ms: 1150,
+    ms: 950,
     abajo: true,
   });
   await cerrarFicha(pagina);
 
   // 5 · La lista negra
   await irA(pagina, "#ranking");
-  await corte(pagina, "Podio y<br><u>lista negra</u>", { tono: "magenta", ms: 1150 });
+  await corte(pagina, "Podio y<br><u>lista negra</u>", { tono: "acido", ms: 1000 });
   await clicar(pagina, pagina.getByRole("button", { name: /El Tigre/ }).first(), {
     pausa: 420,
   });
@@ -514,9 +523,9 @@ async function grabar(chromium) {
   await rotulo(
     pagina,
     "El mapa",
-    "Google Maps en modo oscuro con una chapa por bar: nota, veredicto y color. Esta grabación va sin clave de API, por eso pide configurarla.",
+    "Una chapa por bar: nota, veredicto y color. Esta grabación va sin clave de API, así que el mapa es el esquema de reserva; con clave, lo mismo sobre Google Maps en oscuro.",
   );
-  await esperar(pagina, 4200);
+  await esperar(pagina, 4400);
   await quitarRotulo(pagina);
 
   // 9 · Cartel de salida

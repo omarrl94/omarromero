@@ -7,7 +7,7 @@ import { GOOGLE_MAPS_API_KEY, HAY_API_KEY } from "@/lib/config";
 import { formatearNota } from "@/lib/scores";
 import { useRollo } from "@/lib/store";
 import type { Bar } from "@/lib/types";
-import { AvisoSinClave } from "./AvisoSinClave";
+import { MapaSimulado } from "./MapaSimulado";
 import { Cabecera } from "./Cabecera";
 import { FichaBar } from "./FichaBar";
 import { MapaRollos, type Objetivo } from "./MapaRollos";
@@ -196,7 +196,12 @@ export function RolloApp() {
                   onFondo={() => setSeleccion(null)}
                 />
               ) : (
-                <AvisoSinClave error={errorApi} />
+                <MapaSimulado
+                  bares={baresValorados}
+                  seleccion={seleccion}
+                  error={errorApi}
+                  onElegir={(bar) => abrirBar(bar)}
+                />
               )}
             </div>
           </section>
