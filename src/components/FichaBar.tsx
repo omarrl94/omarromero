@@ -1,35 +1,37 @@
 "use client";
 
-import { Crown, ExternalLink, MessageSquarePlus, X } from "lucide-react";
+import { ExternalLink, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   CRITERIOS,
+  GRADOS,
   fechaRelativa,
   formatearNota,
   notaGlobal,
-  tierDeNota,
+  veredictoDeNota,
 } from "@/lib/scores";
 import type { BarConNota } from "@/lib/types";
 import { FormularioValoracion } from "./FormularioValoracion";
-import { RollitosEstaticos } from "./Rollitos";
 
 /**
- * Ficha del bar: BottomSheet en móvil, panel lateral en escritorio.
- * Muestra las notas del baño y desde aquí se abre el formulario.
+ * Ficha del baño: BottomSheet en móvil, cartel centrado en escritorio.
+ * La nota va a tamaño titular porque es lo único que se mira con prisa.
  */
 export function FichaBar({
   barConNota,
+  abrirValorando,
   onCerrar,
 }: {
   barConNota: BarConNota;
+  /** Al adoptar un bar nuevo se entra directo al formulario. */
+  abrirValorando: boolean;
   onCerrar: () => void;
 }) {
   const { bar, media, medias, reviews, esRolloDeOro } = barConNota;
-  const [valorando, setValorando] = useState(false);
-  const tier = tierDeNota(media);
+  const [valorando, setValorando] = useState(abrirValorando);
+  const veredicto = veredictoDeNota(media);
 
-  // Al cambiar de bar se vuelve a la vista de lectura.
-  useEffect(() => setValorando(false), [bar.place_id]);
+  useEffect(() => setValorando(abrirValorando), [bar.place_id, abrirValorando]);
 
   useEffect(() => {
     const alPulsar = (e: KeyboardEvent) => {
@@ -41,173 +43,202 @@ export function FichaBar({
 
   return (
     <>
-      {/* Velo oscuro solo en móvil */}
       <button
         type="button"
         aria-label="Cerrar ficha"
         onClick={onCerrar}
-        className="fixed inset-0 z-40 bg-tinta/35 md:hidden"
+        className="fixed inset-0 z-40 bg-asfalto-950/80"
       />
 
-      <aside
+      <section
         role="dialog"
+        aria-modal="true"
         aria-label={`Baño de ${bar.nombre}`}
-        className="fixed inset-x-0 bottom-0 z-50 flex max-h-[86vh] animate-sube-sheet flex-col rounded-t-3xl border border-papel-300 bg-papel-50 shadow-sheet md:inset-y-0 md:left-auto md:right-0 md:max-h-none md:w-[420px] md:animate-entra-panel md:rounded-l-3xl md:rounded-tr-none md:shadow-ficha"
+        className="fixed inset-x-0 bottom-0 z-50 flex max-h-[92%] animate-sube flex-col border-t-4 border-black bg-asfalto-800 md:inset-auto md:left-1/2 md:top-1/2 md:max-h-[86vh] md:w-[min(760px,calc(100%-48px))] md:-translate-x-1/2 md:-translate-y-1/2 md:animate-entra md:border-4 md:shadow-dura-l"
       >
-        {/* Asa para arrastrar (decorativa en móvil) */}
-        <div className="mx-auto mt-2.5 h-1.5 w-12 shrink-0 rounded-full bg-papel-300 md:hidden" />
-
-        <header className="flex items-start gap-3 px-5 pb-4 pt-3 md:pt-5">
-          <div
-            className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl font-display text-xl font-bold text-white"
-            style={{ backgroundColor: tier.color }}
-          >
-            {formatearNota(media)}
-          </div>
-          <div className="min-w-0 flex-1">
-            <h2 className="truncate font-display text-xl font-bold leading-tight">
-              {bar.nombre}
-            </h2>
-            <p className="mt-0.5 line-clamp-2 text-xs text-carton-600">
-              {bar.direccion}
-            </p>
-            <div className="mt-2 flex flex-wrap items-center gap-1.5">
-              <span
-                className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold ${tier.badge}`}
-              >
-                {tier.etiqueta}
-              </span>
-              <span className="rounded-full bg-papel-200 px-2.5 py-0.5 text-[11px] font-semibold text-carton-700">
-                {reviews.length}{" "}
-                {reviews.length === 1 ? "valoración" : "valoraciones"}
-              </span>
-              {esRolloDeOro && (
-                <span className="flex items-center gap-1 rounded-full bg-oro-200 px-2.5 py-0.5 text-[11px] font-bold text-oro-600 ring-1 ring-oro-400">
-                  <Crown className="h-3 w-3" /> Rollo de Oro
-                </span>
-              )}
-            </div>
-          </div>
+        <header className="relative border-b-[3px] border-black p-5">
           <button
             type="button"
             onClick={onCerrar}
-            aria-label="Cerrar"
-            className="rounded-full p-1.5 text-carton-500 hover:bg-papel-200 hover:text-tinta"
+            aria-label="Cerrar ficha"
+            className="absolute right-3 top-3 grid h-9 w-9 place-items-center border-2 border-black bg-papel text-asfalto-900 shadow-dura-s hover:bg-marca hover:text-white"
           >
-            <X className="h-5 w-5" />
+            <X className="h-[18px] w-[18px]" />
           </button>
+
+          <div className="flex flex-wrap items-center gap-3.5">
+            <span
+              className="grito border-4 border-black px-3.5 py-1.5 text-[clamp(54px,13vw,86px)] leading-[0.86] text-asfalto-900 shadow-dura tabular-nums"
+              style={{ backgroundColor: veredicto.color }}
+            >
+              {formatearNota(media)}
+            </span>
+            <span className="min-w-0">
+              <h2 className="grito text-[clamp(26px,6vw,40px)] leading-[0.98]">
+                {bar.nombre}
+              </h2>
+              <p className="mt-1 font-mono text-[11.5px] text-papel-apagado">
+                {bar.direccion}
+              </p>
+              <span className="mt-2.5 flex flex-wrap gap-1.5">
+                <span
+                  className="grito border-2 border-black px-2 py-0.5 text-xs text-asfalto-900"
+                  style={{ backgroundColor: veredicto.color }}
+                >
+                  {veredicto.texto}
+                </span>
+                <span className="grito border-2 border-borde bg-asfalto-700 px-2 py-0.5 text-xs text-papel-apagado">
+                  {reviews.length} {reviews.length === 1 ? "voto" : "votos"}
+                </span>
+                {esRolloDeOro && (
+                  <span className="grito -rotate-2 border-2 border-black bg-ambar px-2 py-0.5 text-xs text-[#140F00]">
+                    👑 Rollo de Oro
+                  </span>
+                )}
+              </span>
+            </span>
+          </div>
+          {/* Cinta de advertencia bajo la cabecera */}
+          <span
+            aria-hidden="true"
+            className="absolute inset-x-0 bottom-0 h-1"
+            style={{
+              backgroundImage:
+                "repeating-linear-gradient(90deg, #000 0 10px, #FF2E88 10px 20px)",
+            }}
+          />
         </header>
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-6">
+        <div className="min-h-0 flex-1 overflow-y-auto p-5">
           {valorando ? (
             <FormularioValoracion
               placeId={bar.place_id}
               onGuardado={() => setValorando(false)}
+              onCancelar={() => setValorando(false)}
             />
           ) : (
-            <div className="space-y-5">
-              {/* Medias por categoría */}
-              <section>
-                <h3 className="mb-2 text-xs font-bold uppercase tracking-[0.14em] text-carton-500">
-                  El desglose
-                </h3>
-                {medias ? (
-                  <ul className="space-y-2">
-                    {CRITERIOS.map(({ key, label, emoji }) => {
+            <>
+              <p className="mb-3 font-mono text-[10.5px] uppercase tracking-[0.22em] text-acido">
+                El parte técnico
+              </p>
+
+              {medias ? (
+                <>
+                  <ul className="grid gap-3.5">
+                    {CRITERIOS.map(({ key, label }) => {
                       const valor = medias[key];
+                      const v = veredictoDeNota(valor);
+                      const suspensos = reviews.filter((r) => r[key] <= 2).length;
                       return (
-                        <li key={key} className="flex items-center gap-3">
-                          <span className="w-28 shrink-0 text-sm font-medium">
-                            {emoji} {label}
+                        <li key={key} className="grid grid-cols-[1fr_auto] gap-x-3 gap-y-1">
+                          <span className="grito text-base">{label}</span>
+                          <span
+                            className="grito text-lg tabular-nums"
+                            style={{ color: v.color }}
+                          >
+                            {formatearNota(valor)}
                           </span>
-                          <span className="h-2 flex-1 overflow-hidden rounded-full bg-papel-200">
+                          <span className="col-span-2 h-3.5 border-2 border-black bg-asfalto-700">
                             <span
-                              className="block h-full rounded-full"
+                              className="block h-full"
                               style={{
                                 width: `${(valor / 5) * 100}%`,
-                                backgroundColor: tierDeNota(valor).color,
+                                backgroundColor: v.color,
                               }}
                             />
                           </span>
-                          <span className="w-7 shrink-0 text-right text-sm font-bold tabular-nums">
-                            {formatearNota(valor)}
+                          <span className="col-span-2 font-mono text-[10.5px] uppercase text-papel-apagado">
+                            {GRADOS[Math.max(0, Math.round(valor) - 1)]}
+                            {suspensos > 0 &&
+                              ` · ${suspensos} de ${reviews.length} lo suspende`}
                           </span>
                         </li>
                       );
                     })}
                   </ul>
-                ) : (
-                  <p className="rounded-2xl border border-dashed border-carton-300 bg-papel-100 p-4 text-center text-sm text-carton-600">
-                    Nadie ha valorado este baño todavía. Puedes ser el
-                    explorador que abra el camino.
+                  <p
+                    className="mt-4 border-l-4 py-0.5 pl-3.5 text-[16.5px]"
+                    style={{ borderColor: veredicto.color }}
+                  >
+                    {veredicto.frase}
                   </p>
-                )}
-              </section>
+                </>
+              ) : (
+                <p className="border-2 border-dashed border-borde p-5 text-center text-papel-apagado">
+                  Nadie ha entrado todavía. El primer voto define la leyenda de
+                  este baño.
+                </p>
+              )}
 
               <button
                 type="button"
                 onClick={() => setValorando(true)}
-                className="btn-agua flex h-12 w-full items-center justify-center gap-2 text-[15px]"
+                className="btn btn-acido mt-6 w-full"
               >
-                <MessageSquarePlus className="h-5 w-5" />
-                Valorar este baño
+                Yo he estado ahí dentro
               </button>
 
-              {/* Comentarios */}
               {reviews.length > 0 && (
-                <section>
-                  <h3 className="mb-2 text-xs font-bold uppercase tracking-[0.14em] text-carton-500">
+                <div className="mt-7">
+                  <p className="mb-3 font-mono text-[10.5px] uppercase tracking-[0.22em] text-acido">
                     Partes de guerra
-                  </h3>
-                  <ul className="space-y-2.5">
-                    {reviews.map((review) => {
-                      const nota = notaGlobal(review);
-                      return (
-                        <li
-                          key={review.id}
-                          className="rounded-2xl border border-papel-300 bg-papel-100 p-3"
-                        >
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="truncate text-sm font-semibold">
-                              {review.autor}
-                            </span>
-                            <span className="flex shrink-0 items-center gap-1.5">
-                              <RollitosEstaticos valor={nota} />
-                              <span className="text-sm font-bold tabular-nums">
-                                {formatearNota(nota)}
-                              </span>
-                            </span>
-                          </div>
-                          {review.comentario && (
-                            <p className="mt-1.5 text-sm leading-relaxed text-tinta/85">
-                              “{review.comentario}”
-                            </p>
-                          )}
-                          <p className="mt-1.5 text-[11px] text-carton-500">
-                            {fechaRelativa(review.fecha)}
+                  </p>
+                  {reviews.map((review) => {
+                    const nota = notaGlobal(review);
+                    const v = veredictoDeNota(nota);
+                    return (
+                      <article
+                        key={review.id}
+                        className="border-t-2 border-dashed border-borde py-4 first:border-t-0 first:pt-0"
+                      >
+                        <div className="flex items-baseline justify-between gap-3">
+                          <span className="grito text-[17px]">{review.autor}</span>
+                          <span
+                            className="grito border-[3px] border-black px-1.5 py-0.5 text-lg leading-none text-asfalto-900 shadow-dura-s tabular-nums"
+                            style={{ backgroundColor: v.color }}
+                          >
+                            {formatearNota(nota)}
+                          </span>
+                        </div>
+                        <p className="mt-1 font-mono text-[10.5px] text-papel-apagado">
+                          {fechaRelativa(review.fecha)}
+                        </p>
+                        {review.comentario && (
+                          <p className="mt-2.5 border-l-4 border-marca py-0.5 pl-3.5 text-[16.5px] leading-relaxed">
+                            {review.comentario}
                           </p>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </section>
+                        )}
+                        <div className="mt-2.5 flex flex-wrap gap-1.5">
+                          {CRITERIOS.map(({ key, corto }) => (
+                            <span
+                              key={key}
+                              className="border border-borde px-1.5 py-0.5 font-mono text-[10.5px] text-papel-apagado"
+                            >
+                              {corto} {review[key]}/5
+                            </span>
+                          ))}
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
               )}
 
               <a
                 href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
                   bar.nombre,
-                )}&query_place_id=${bar.place_id}`}
+                )}&query_place_id=${encodeURIComponent(bar.place_id)}`}
                 target="_blank"
                 rel="noreferrer"
-                className="btn-papel flex h-11 w-full items-center justify-center gap-2 text-sm"
+                className="btn btn-fantasma mt-6 w-full no-underline"
               >
                 <ExternalLink className="h-4 w-4" />
-                Ver en Google Maps
+                Cómo llegar
               </a>
-            </div>
+            </>
           )}
         </div>
-      </aside>
+      </section>
     </>
   );
 }

@@ -1,30 +1,35 @@
 "use client";
 
-import { Check, Loader2 } from "lucide-react";
 import { useState } from "react";
-import { CRITERIOS, formatearNota, tierDeNota } from "@/lib/scores";
+import {
+  CRITERIOS,
+  GRADOS,
+  formatearNota,
+  veredictoDeNota,
+} from "@/lib/scores";
 import { useRollo } from "@/lib/store";
 import type { CriterioKey, Puntuacion } from "@/lib/types";
-import { RollitosInput } from "./Rollitos";
+import { EscalaRollos } from "./Rollitos";
 
 type Valores = Partial<Record<CriterioKey, Puntuacion>>;
 
 /**
- * Formulario de valoración: cuatro categorías de 1 a 5 rollitos,
- * comentario libre y nota global calculada en vivo.
+ * El parte: cuatro categorías de 1 a 5 rollos, veredicto calculado en
+ * vivo y el aviso para quien entre después.
  */
 export function FormularioValoracion({
   placeId,
   onGuardado,
+  onCancelar,
 }: {
   placeId: string;
   onGuardado: () => void;
+  onCancelar: () => void;
 }) {
   const { añadirReview } = useRollo();
   const [valores, setValores] = useState<Valores>({});
   const [comentario, setComentario] = useState("");
   const [autor, setAutor] = useState("");
-  const [guardando, setGuardando] = useState(false);
 
   const puestas = CRITERIOS.map(({ key }) => valores[key]).filter(
     (v): v is Puntuacion => v !== undefined,
@@ -34,15 +39,13 @@ export function FormularioValoracion({
     puestas.length > 0
       ? puestas.reduce((a, b) => a + b, 0) / puestas.length
       : null;
-  const tier = tierDeNota(completo ? notaViva : null);
+  const veredicto = veredictoDeNota(completo ? notaViva : null);
 
   const enviar = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!completo || guardando) return;
     const { limpieza, espacio, intimidad, suministros } = valores;
     if (!limpieza || !espacio || !intimidad || !suministros) return;
 
-    setGuardando(true);
     añadirReview(placeId, {
       limpieza,
       espacio,
@@ -51,103 +54,110 @@ export function FormularioValoracion({
       comentario,
       autor,
     });
-    setGuardando(false);
     onGuardado();
   };
 
   return (
-    <form onSubmit={enviar} className="space-y-4">
-      <div className="space-y-3.5">
-        {CRITERIOS.map(({ key, label, pregunta, emoji }) => (
+    <form onSubmit={enviar}>
+      <p className="mb-3 font-mono text-[10.5px] uppercase tracking-[0.22em] text-acido">
+        Canta lo que viste
+      </p>
+
+      {CRITERIOS.map(({ key, label, pregunta }) => {
+        const puesta = valores[key];
+        return (
           <div
             key={key}
-            className="rounded-2xl border border-papel-300 bg-papel-50 p-3"
+            className="border-t-2 border-dashed border-borde py-4 first:border-t-0 first:pt-1"
           >
-            <div className="mb-2 flex items-baseline justify-between gap-2">
-              <span className="font-display text-[15px] font-semibold">
-                {emoji} {label}
-              </span>
-              <span className="text-xs font-semibold text-carton-500">
-                {valores[key] ? `${valores[key]}/5` : "sin nota"}
+            <div className="flex items-baseline justify-between gap-3">
+              <b className="grito text-lg">{label}</b>
+              <span className="font-mono text-[10.5px] uppercase tracking-wider text-acido">
+                {puesta ? `${GRADOS[puesta - 1]} · ${puesta}/5` : "sin nota"}
               </span>
             </div>
-            <p className="mb-2 text-xs italic text-carton-600">{pregunta}</p>
-            <RollitosInput
+            <p className="mb-3 mt-1 text-sm text-papel-apagado">{pregunta}</p>
+            <EscalaRollos
               etiqueta={label}
-              valor={valores[key] ?? null}
+              valor={puesta ?? null}
               onChange={(v) => setValores((prev) => ({ ...prev, [key]: v }))}
+              colorDe={(p) => veredictoDeNota(p).color}
             />
           </div>
-        ))}
-      </div>
+        );
+      })}
 
-      {/* Nota global calculada */}
+      {/* Veredicto en vivo */}
       <div
-        className="flex items-center justify-between rounded-2xl px-4 py-3 text-white"
-        style={{ backgroundColor: tier.color }}
+        className="my-6 flex flex-wrap items-center justify-between gap-3 border-[3px] border-black bg-asfalto-700 px-4 py-3 shadow-dura"
+        style={completo ? { backgroundColor: `${veredicto.color}22` } : undefined}
       >
-        <span className="font-display text-sm font-semibold uppercase tracking-wide">
-          Nota global
-        </span>
-        <span className="flex items-baseline gap-2">
-          <span className="font-display text-2xl font-bold">
-            {formatearNota(notaViva)}
+        <span>
+          <b className="block font-mono text-[10px] uppercase tracking-[0.22em] text-papel-apagado">
+            Veredicto
+          </b>
+          <span
+            className="grito mt-1 block text-2xl"
+            style={{ color: completo ? veredicto.color : "#B9B2A4" }}
+          >
+            {completo
+              ? veredicto.texto
+              : `Faltan ${CRITERIOS.length - puestas.length}`}
           </span>
-          <span className="text-xs opacity-90">
-            {completo ? tier.etiqueta : `faltan ${4 - puestas.length}`}
-          </span>
+        </span>
+        <span
+          className="grito text-5xl leading-none tabular-nums"
+          style={{ color: completo ? veredicto.color : "#B9B2A4" }}
+        >
+          {formatearNota(notaViva)}
         </span>
       </div>
 
-      <div className="space-y-2">
-        <label
-          htmlFor="comentario"
-          className="block text-xs font-bold uppercase tracking-[0.14em] text-carton-500"
-        >
-          Advertencias o halagos
-        </label>
-        <textarea
-          id="comentario"
-          value={comentario}
-          onChange={(e) => setComentario(e.target.value)}
-          rows={3}
-          maxLength={400}
-          placeholder="Lleva papel de casa, el pestillo es decorativo…"
-          className="campo w-full resize-none p-3 text-sm"
-        />
-      </div>
-
-      <div className="space-y-2">
-        <label
-          htmlFor="autor"
-          className="block text-xs font-bold uppercase tracking-[0.14em] text-carton-500"
-        >
-          Tu alias (opcional)
-        </label>
-        <input
-          id="autor"
-          value={autor}
-          onChange={(e) => setAutor(e.target.value)}
-          maxLength={24}
-          placeholder="Rollo Anónimo"
-          className="campo h-11 w-full px-3 text-sm"
-        />
-      </div>
-
-      <button
-        type="submit"
-        disabled={!completo || guardando}
-        className="btn-agua flex h-12 w-full items-center justify-center gap-2 text-[15px]"
+      <label
+        htmlFor="comentario"
+        className="mb-2 block font-mono text-[10px] uppercase tracking-[0.22em] text-papel-apagado"
       >
-        {guardando ? (
-          <Loader2 className="h-5 w-5 animate-spin" />
-        ) : (
-          <Check className="h-5 w-5" />
-        )}
-        Publicar valoración
-      </button>
+        El aviso para el siguiente
+      </label>
+      <textarea
+        id="comentario"
+        value={comentario}
+        onChange={(e) => setComentario(e.target.value)}
+        rows={3}
+        maxLength={400}
+        placeholder="Lleva papel, el pestillo es decorativo, no mires al techo…"
+        className="campo"
+      />
+
+      <label
+        htmlFor="autor"
+        className="mb-2 mt-4 block font-mono text-[10px] uppercase tracking-[0.22em] text-papel-apagado"
+      >
+        Tu firma
+      </label>
+      <input
+        id="autor"
+        value={autor}
+        onChange={(e) => setAutor(e.target.value)}
+        maxLength={24}
+        placeholder="Anónimo con prisa"
+        className="campo"
+      />
+
+      <div className="mt-6 grid gap-2.5">
+        <button type="submit" disabled={!completo} className="btn btn-acido w-full">
+          Publicar el parte
+        </button>
+        <button
+          type="button"
+          onClick={onCancelar}
+          className="btn btn-fantasma w-full"
+        >
+          Dejarlo estar
+        </button>
+      </div>
       {!completo && (
-        <p className="text-center text-xs text-carton-600">
+        <p className="mt-2 text-center font-mono text-[11px] text-papel-apagado">
           Puntúa las cuatro categorías para poder publicar.
         </p>
       )}

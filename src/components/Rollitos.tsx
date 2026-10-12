@@ -1,49 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { GRADOS } from "@/lib/scores";
 import type { Puntuacion } from "@/lib/types";
 
-/** Rollito de papel: el icono con el que se puntúa (1 a 5). */
-export function RolloIcono({
-  relleno,
-  className = "h-6 w-6",
-}: {
-  relleno: boolean;
-  className?: string;
-}) {
+/** Rollo de papel en monolínea: el icono de la escala de puntuación. */
+export function RolloIcono({ className = "h-5 w-5" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
-      {/* Cuerpo del rollo */}
+    <svg viewBox="0 0 24 24" className={className} aria-hidden="true" fill="none" stroke="currentColor">
       <path
-        d="M3.5 8 h13 v7.5 a6.5 3 0 0 1 -13 0 z"
-        fill={relleno ? "#FFFDF8" : "#F1EADA"}
-        stroke={relleno ? "#C9962F" : "#D6C3A3"}
-        strokeWidth="1.5"
+        d="M4.2 8.2 h12 v7.4 a6 2.8 0 0 1 -12 0 z"
+        strokeWidth="1.8"
         strokeLinejoin="round"
       />
-      <ellipse
-        cx="10"
-        cy="8"
-        rx="6.5"
-        ry="3"
-        fill={relleno ? "#FFFDF8" : "#F1EADA"}
-        stroke={relleno ? "#C9962F" : "#D6C3A3"}
-        strokeWidth="1.5"
-      />
-      {/* Canuto de cartón */}
-      <ellipse
-        cx="10"
-        cy="8"
-        rx="2.2"
-        ry="1"
-        fill={relleno ? "#E0B252" : "#E3D9C3"}
-      />
+      <ellipse cx="10.2" cy="8.2" rx="6" ry="2.8" strokeWidth="1.8" />
       {/* Hoja que cuelga */}
       <path
-        d="M16.5 9.5 h4 v8.4 l-2 -1.4 -2 1.4 z"
-        fill={relleno ? "#FFFDF8" : "#F1EADA"}
-        stroke={relleno ? "#C9962F" : "#D6C3A3"}
-        strokeWidth="1.5"
+        d="M16.2 9.8 h3.6 v7.8 l-1.8 -1.3 -1.8 1.3 z"
+        strokeWidth="1.8"
         strokeLinejoin="round"
       />
     </svg>
@@ -52,59 +25,68 @@ export function RolloIcono({
 
 const PUNTUACIONES: readonly Puntuacion[] = [1, 2, 3, 4, 5];
 
-/** Fila de rollitos de solo lectura. */
-export function RollitosEstaticos({
-  valor,
-  className = "h-4 w-4",
-}: {
-  valor: number;
-  className?: string;
-}) {
-  return (
-    <span className="inline-flex items-center gap-0.5">
-      {PUNTUACIONES.map((n) => (
-        <RolloIcono key={n} relleno={n <= Math.round(valor)} className={className} />
-      ))}
-    </span>
-  );
-}
-
-/** Fila de rollitos pulsables, para el formulario de valoración. */
-export function RollitosInput({
+/**
+ * Escala de 1 a 5 rollos. Cada grado tiene nombre propio ("Infierno",
+ * "Gloria"), que es lo que se lee al puntuar.
+ */
+export function EscalaRollos({
   valor,
   onChange,
   etiqueta,
+  colorDe,
 }: {
   valor: Puntuacion | null;
   onChange: (valor: Puntuacion) => void;
   etiqueta: string;
+  /** Color del grado elegido; lo decide el veredicto de esa nota. */
+  colorDe: (puntuacion: Puntuacion) => string;
 }) {
-  const [hover, setHover] = useState<Puntuacion | null>(null);
-  const activo = hover ?? valor ?? 0;
-
   return (
-    <div
-      className="flex items-center gap-1"
-      role="radiogroup"
-      aria-label={etiqueta}
-      onMouseLeave={() => setHover(null)}
-    >
-      {PUNTUACIONES.map((n) => (
-        <button
-          key={n}
-          type="button"
-          role="radio"
-          aria-checked={valor === n}
-          aria-label={`${n} de 5 en ${etiqueta}`}
-          onClick={() => onChange(n)}
-          onMouseEnter={() => setHover(n)}
-          onFocus={() => setHover(n)}
-          onBlur={() => setHover(null)}
-          className="rounded-lg p-0.5 transition-transform hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-agua-400 active:scale-95"
-        >
-          <RolloIcono relleno={n <= activo} className="h-8 w-8 sm:h-7 sm:w-7" />
-        </button>
-      ))}
+    <div className="flex gap-1.5" role="radiogroup" aria-label={etiqueta}>
+      {PUNTUACIONES.map((n) => {
+        const activo = valor === n;
+        return (
+          <button
+            key={n}
+            type="button"
+            role="radio"
+            aria-checked={activo}
+            aria-label={`${n} de 5 en ${etiqueta} (${GRADOS[n - 1]})`}
+            onClick={() => onChange(n)}
+            style={activo ? { backgroundColor: colorDe(n) } : undefined}
+            className={`grid aspect-square max-h-[60px] flex-1 place-items-center gap-0.5 border-2 transition-colors ${
+              activo
+                ? "border-black text-asfalto-900 shadow-dura-s"
+                : "border-borde bg-asfalto-700 text-papel-apagado hover:border-papel hover:text-papel"
+            }`}
+          >
+            <RolloIcono className="h-5 w-5" />
+            <span className="font-mono text-[10px]">{n}</span>
+          </button>
+        );
+      })}
     </div>
+  );
+}
+
+/** Fila de rollos de solo lectura, para listados compactos. */
+export function RollosEstaticos({
+  valor,
+  color,
+}: {
+  valor: number;
+  color: string;
+}) {
+  return (
+    <span className="inline-flex items-center gap-0.5">
+      {PUNTUACIONES.map((n) => (
+        <RolloIcono
+          key={n}
+          className={`h-3.5 w-3.5 ${n <= Math.round(valor) ? "" : "opacity-25"}`}
+        />
+      ))}
+      <span className="sr-only">{valor} sobre 5</span>
+      <span aria-hidden="true" className="sr-only" style={{ color }} />
+    </span>
   );
 }

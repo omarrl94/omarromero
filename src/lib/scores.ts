@@ -1,42 +1,41 @@
-import type {
-  Bar,
-  BarConNota,
-  CriterioKey,
-  Review,
-} from "./types";
+import type { Bar, BarConNota, CriterioKey, Review } from "./types";
 
-/** Definición de las cuatro categorías, en el orden en que se muestran. */
+/** Las cuatro categorías, con la pregunta tal y como se hace en la barra. */
 export const CRITERIOS: ReadonlyArray<{
   key: CriterioKey;
   label: string;
+  /** Abreviatura para las etiquetas de las reseñas. */
+  corto: string;
   pregunta: string;
-  emoji: string;
 }> = [
   {
     key: "limpieza",
     label: "Limpieza",
+    corto: "LIMP",
     pregunta: "¿Se puede comer en el suelo o huele a muerte?",
-    emoji: "🧼",
   },
   {
     key: "espacio",
     label: "Espacio",
+    corto: "ESPC",
     pregunta: "¿Caben las rodillas al cerrar la puerta?",
-    emoji: "📏",
   },
   {
     key: "intimidad",
     label: "Intimidad",
-    pregunta: "¿La puerta cierra bien y tiene pestillo de verdad?",
-    emoji: "🔒",
+    corto: "INTM",
+    pregunta: "¿El pestillo es de verdad o es decorativo?",
   },
   {
     key: "suministros",
     label: "Suministros",
+    corto: "SUMN",
     pregunta: "¿Hay papel y jabón o toca improvisar?",
-    emoji: "🧻",
   },
 ];
+
+/** Cómo se llama cada puntuación suelta, de 1 a 5. */
+export const GRADOS = ["Infierno", "Malo", "Justito", "Bien", "Gloria"] as const;
 
 /** Nota global de una reseña: media de las cuatro categorías. */
 export function notaGlobal(review: Review): number {
@@ -48,11 +47,10 @@ export function notaGlobal(review: Review): number {
 /** Media de las notas globales de un conjunto de reseñas. */
 export function mediaDeReviews(reviews: readonly Review[]): number | null {
   if (reviews.length === 0) return null;
-  const suma = reviews.reduce((acc, r) => acc + notaGlobal(r), 0);
-  return suma / reviews.length;
+  return reviews.reduce((acc, r) => acc + notaGlobal(r), 0) / reviews.length;
 }
 
-/** Media por categoría (para las barras de la ficha del bar). */
+/** Media por categoría, para el parte técnico de la ficha. */
 export function mediasPorCategoria(
   reviews: readonly Review[],
 ): Record<CriterioKey, number> | null {
@@ -83,68 +81,88 @@ export function componerBar(bar: Bar, reviews: readonly Review[]): BarConNota {
   };
 }
 
-/** Los tres niveles de baño, del cielo al infierno. */
-export type Tier = "excelente" | "pasable" | "catastrofica" | "sin-datos";
+export type VeredictoClave =
+  | "sin-catar"
+  | "via-libre"
+  | "se-puede"
+  | "aprieta"
+  | "mal-asunto"
+  | "ni-de-cona";
 
-export interface TierInfo {
-  tier: Tier;
-  etiqueta: string;
-  /** Color del pin del mapa (hex, se usa en SVG y en estilos inline). */
+export interface Veredicto {
+  clave: VeredictoClave;
+  /** Lo que se lee en el pin y en la ficha. */
+  texto: string;
+  /** La recomendación, en una línea. */
+  frase: string;
+  /** Hex: se usa en estilos en línea, también sobre el mapa de Google. */
   color: string;
-  /** Clases Tailwind para insignias dentro de la UI. */
-  badge: string;
 }
 
-const TIERS: Record<Tier, TierInfo> = {
-  excelente: {
-    tier: "excelente",
-    etiqueta: "Zona de confort",
-    color: "#2E9E5B",
-    badge: "bg-nota-verde/15 text-nota-verde ring-1 ring-nota-verde/30",
+const VEREDICTOS: Record<VeredictoClave, Veredicto> = {
+  "via-libre": {
+    clave: "via-libre",
+    texto: "Vía libre",
+    frase: "Entra tranquilo, incluso con tiempo.",
+    color: "#C6FF3D",
   },
-  pasable: {
-    tier: "pasable",
-    etiqueta: "Pasable con prisa",
-    color: "#E0A526",
-    badge: "bg-nota-amarillo/20 text-[#8a6410] ring-1 ring-nota-amarillo/40",
+  "se-puede": {
+    clave: "se-puede",
+    texto: "Se puede",
+    frase: "Nada que objetar si no te paras a mirar.",
+    color: "#9BE03A",
   },
-  catastrofica: {
-    tier: "catastrofica",
-    etiqueta: "Zona catastrófica",
-    color: "#D64541",
-    badge: "bg-nota-rojo/15 text-nota-rojo ring-1 ring-nota-rojo/30",
+  aprieta: {
+    clave: "aprieta",
+    texto: "Aprieta y reza",
+    frase: "Entra con prisa y no toques nada.",
+    color: "#FFB800",
   },
-  "sin-datos": {
-    tier: "sin-datos",
-    etiqueta: "Sin valorar",
-    color: "#9B8B76",
-    badge: "bg-carton-200 text-carton-700 ring-1 ring-carton-300",
+  "mal-asunto": {
+    clave: "mal-asunto",
+    texto: "Mal asunto",
+    frase: "Solo si no queda otra en 500 metros.",
+    color: "#FF7A2F",
+  },
+  "ni-de-cona": {
+    clave: "ni-de-cona",
+    texto: "Ni de coña",
+    frase: "Aguanta hasta casa. Hazme caso.",
+    color: "#FF3B30",
+  },
+  "sin-catar": {
+    clave: "sin-catar",
+    texto: "Sin catar",
+    frase: "Nadie se ha atrevido todavía.",
+    color: "#4A4A52",
   },
 };
 
-/**
- * Traduce una nota media al nivel correspondiente:
- * verde >= 3.5, amarillo >= 2.5, rojo por debajo.
- */
-export function tierDeNota(media: number | null): TierInfo {
-  if (media === null) return TIERS["sin-datos"];
-  if (media >= 3.5) return TIERS.excelente;
-  if (media >= 2.5) return TIERS.pasable;
-  return TIERS.catastrofica;
+/** Traduce una nota media (1-5) al veredicto que se pinta por toda la app. */
+export function veredictoDeNota(media: number | null): Veredicto {
+  if (media === null) return VEREDICTOS["sin-catar"];
+  if (media >= 4.2) return VEREDICTOS["via-libre"];
+  if (media >= 3.5) return VEREDICTOS["se-puede"];
+  if (media >= 2.5) return VEREDICTOS.aprieta;
+  if (media >= 1.6) return VEREDICTOS["mal-asunto"];
+  return VEREDICTOS["ni-de-cona"];
 }
 
-/** Nota con un decimal, en formato español (4,3). */
+/** Por debajo de esto el pin del mapa late para que se vea desde lejos. */
+export const UMBRAL_PELIGRO = 1.6;
+
+/** Nota con un decimal y coma: 4,3. */
 export function formatearNota(media: number | null): string {
   if (media === null) return "—";
   return media.toFixed(1).replace(".", ",");
 }
 
-/** "hace 3 días", "hoy"… para los comentarios. */
+/** "hace 3 días", "ayer", "hoy mismo"… */
 export function fechaRelativa(iso: string): string {
   const dias = Math.floor(
     (Date.now() - new Date(iso).getTime()) / (1000 * 60 * 60 * 24),
   );
-  if (dias <= 0) return "hoy";
+  if (dias <= 0) return "hoy mismo";
   if (dias === 1) return "ayer";
   if (dias < 30) return `hace ${dias} días`;
   const meses = Math.floor(dias / 30);

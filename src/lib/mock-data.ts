@@ -56,8 +56,8 @@ export const REVIEWS_MOCK: readonly Review[] = [
     intimidad: 5,
     suministros: 5,
     comentario:
-      "Baño de manzanilla y madera noble. Papel de sobra, pestillo firme y cero olor. Se puede ir con confianza.",
-    autor: "Rollo Anónimo",
+      "Baño de manzanilla y madera noble. Papel de sobra, pestillo firme y cero olor. Aquí se entra sin miedo y se sale mejor persona.",
+    autor: "Marta R.",
     fecha: "2026-08-12T19:40:00.000Z",
   },
   {
@@ -67,7 +67,7 @@ export const REVIEWS_MOCK: readonly Review[] = [
     espacio: 4,
     intimidad: 5,
     suministros: 5,
-    comentario: "Impecable a las ocho, ya veremos a las doce.",
+    comentario: "Impecable a las ocho. A las doce ya hablamos.",
     autor: "Chule",
     fecha: "2026-09-02T17:10:00.000Z",
   },
@@ -79,7 +79,7 @@ export const REVIEWS_MOCK: readonly Review[] = [
     intimidad: 2,
     suministros: 1,
     comentario:
-      "Cabina del tamaño de un ascensor de finca antigua. Si cierras la puerta saludas a tus rodillas. Lleva papel de casa.",
+      "Cabina tamaño ascensor de finca vieja: cierras la puerta y saludas a tus rodillas. Papel, de casa.",
     autor: "Vermutero",
     fecha: "2026-09-05T20:05:00.000Z",
   },
@@ -91,7 +91,7 @@ export const REVIEWS_MOCK: readonly Review[] = [
     intimidad: 2,
     suministros: 4,
     comentario:
-      "El pestillo va y viene: canta algo mientras estás dentro. Jabón sí, secamanos no.",
+      "El pestillo va a su bola: canta algo mientras estás dentro. Jabón sí, secamanos ni de broma.",
     autor: "Kike",
     fecha: "2026-08-28T21:30:00.000Z",
   },
@@ -103,7 +103,7 @@ export const REVIEWS_MOCK: readonly Review[] = [
     intimidad: 1,
     suministros: 1,
     comentario:
-      "Zona catastrófica confirmada. Entra solo en caso de emergencia nivel 5 y sin respirar.",
+      "Zona catastrófica confirmada. Entra solo en emergencia nivel cinco, sin respirar y con el móvil guardado.",
     autor: "Superviviente",
     fecha: "2026-09-09T22:15:00.000Z",
   },

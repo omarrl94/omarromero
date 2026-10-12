@@ -3,109 +3,154 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: light;
+  color-scheme: dark;
 }
 
 html,
 body {
-  height: 100%;
+  min-height: 100%;
 }
 
 body {
-  background-color: #faf6ec;
-  /* Textura sutil de papel: dos manchas de color y un punteado fino */
-  background-image:
-    radial-gradient(ellipse 70% 45% at 8% -6%, rgba(30, 159, 198, 0.12), transparent 62%),
-    radial-gradient(ellipse 60% 40% at 96% 104%, rgba(208, 32, 46, 0.08), transparent 60%),
-    radial-gradient(rgba(139, 106, 69, 0.07) 1px, transparent 1.2px);
-  background-size: 100% 100%, 100% 100%, 22px 22px;
-  background-attachment: fixed;
-  color: #2b2a26;
-  overscroll-behavior-y: none;
+  background-color: #0c0c0d;
+  color: #f2ecdf;
+  overflow-x: hidden;
 }
 
-/* ── Tarjeta de papel ── */
-.tarjeta {
-  background-color: rgba(255, 253, 248, 0.92);
-  border: 1px solid #e7dbc6;
-  border-radius: 18px;
-  box-shadow: 0 10px 30px rgba(43, 42, 38, 0.1);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+/* Grano de fotocopia sobre todo el asfalto */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.085;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/></filter><rect width='180' height='180' filter='url(%23n)'/></svg>");
 }
 
-/* ── Botón principal (azul agua) ── */
-.btn-agua {
-  border-radius: 14px;
-  background: linear-gradient(135deg, #1e9fc6 0%, #1580a5 100%);
-  color: #ffffff;
-  font-weight: 600;
-  box-shadow: 0 6px 16px rgba(21, 128, 165, 0.28);
-  transition: transform 140ms ease, filter 140ms ease, box-shadow 140ms ease;
+@layer components {
+  /* ── Titulares que gritan ── */
+  .grito {
+    font-family: var(--fuente-grito), "Arial Narrow", sans-serif;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+  }
+
+  /* ── Botón con sombra dura de fanzine ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 2px solid #000;
+    box-shadow: 4px 4px 0 #000;
+    padding: 13px 20px;
+    font-family: var(--fuente-grito), "Arial Narrow", sans-serif;
+    font-size: 16px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    transition: transform 110ms ease, box-shadow 110ms ease;
+  }
+
+  .btn:not(:disabled):hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 7px 7px 0 #000;
+  }
+
+  .btn:not(:disabled):active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 #000;
+  }
+
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .btn-acido {
+    background-color: #c6ff3d;
+    color: #0a0e02;
+  }
+
+  .btn-alarma {
+    background-color: #ff3b30;
+    color: #ffffff;
+  }
+
+  .btn-papel {
+    background-color: #f2ecdf;
+    color: #111111;
+  }
+
+  /* Fantasma: sin sombra, solo contorno */
+  .btn-fantasma {
+    background-color: transparent;
+    color: #f2ecdf;
+    border-color: #2a2a31;
+    box-shadow: none;
+  }
+
+  .btn-fantasma:not(:disabled):hover {
+    border-color: #c6ff3d;
+    box-shadow: none;
+    transform: none;
+  }
+
+  /* ── Panel con marco negro ── */
+  .panel {
+    border: 3px solid #000;
+    background-color: #141417;
+    box-shadow: 6px 6px 0 #000;
+  }
+
+  /* ── Campos ── */
+  .campo {
+    width: 100%;
+    background-color: #1c1c21;
+    color: #f2ecdf;
+    border: 2px solid #2a2a31;
+    padding: 11px 13px;
+    font-size: 15px;
+    resize: none;
+  }
+
+  .campo::placeholder {
+    color: #b9b2a4;
+  }
+
+  .campo:focus {
+    outline: none;
+    border-color: #c6ff3d;
+  }
 }
 
-.btn-agua:not(:disabled):hover {
-  transform: translateY(-1px);
-  filter: brightness(1.06);
-}
-
-.btn-agua:not(:disabled):active {
-  transform: translateY(0);
-  filter: brightness(0.95);
-}
-
-.btn-agua:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-/* ── Botón secundario sobre papel ── */
-.btn-papel {
-  border-radius: 12px;
-  background-color: #fffdf8;
-  border: 1px solid #e3d9c3;
-  color: #6b5134;
-  font-weight: 600;
-  transition: background-color 140ms ease, border-color 140ms ease;
-}
-
-.btn-papel:not(:disabled):hover {
-  background-color: #f1eada;
-  border-color: #d6c3a3;
-}
-
-/* ── Campo de texto ── */
-.campo {
-  border-radius: 14px;
-  background-color: #fffdf8;
-  border: 1px solid #e3d9c3;
-  color: #2b2a26;
-  transition: border-color 140ms ease, box-shadow 140ms ease;
-}
-
-.campo::placeholder {
-  color: #a8865c;
-}
-
-.campo:focus {
-  outline: none;
-  border-color: #4fbbd6;
-  box-shadow: 0 0 0 3px rgba(79, 187, 214, 0.25);
-}
-
-/* Google pinta su propio contenedor de sugerencias; lo ocultamos porque
-   la lista la dibujamos nosotros. */
+/* Google pinta su propio desplegable de Places; el nuestro es a medida */
 .pac-container {
   display: none !important;
 }
 
+:focus-visible {
+  outline: 4px solid #c6ff3d;
+  outline-offset: 2px;
+}
+
 ::selection {
-  background-color: rgba(79, 187, 214, 0.35);
-  color: #2b2a26;
+  background-color: #ff2e88;
+  color: #ffffff;
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(139, 106, 69, 0.28) transparent;
+  scrollbar-color: #2a2a31 transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

@@ -3,42 +3,41 @@
 import { KeyRound, TriangleAlert } from "lucide-react";
 
 /**
- * Aviso que sustituye al mapa cuando falta la clave de Google Maps (o
- * cuando Google devuelve error). La app no se rompe: se puede seguir
- * consultando y valorando los bares desde el listado.
+ * Lo que se pinta en el hueco del mapa cuando falta la clave de Google
+ * (o cuando Google devuelve error). La app no se rompe: el ranking y el
+ * formulario siguen funcionando.
  */
 export function AvisoSinClave({ error }: { error: boolean }) {
   return (
-    <div className="tarjeta space-y-3 p-4">
-      <p className="flex items-center gap-2 font-display text-base font-bold">
+    <div className="flex h-full flex-col justify-center gap-4 p-6">
+      <p className="grito flex items-center gap-2.5 text-2xl">
         {error ? (
           <>
-            <TriangleAlert className="h-5 w-5 text-madrid-500" />
-            Google Maps no ha podido cargar
+            <TriangleAlert className="h-7 w-7 shrink-0 text-alarma" />
+            Google Maps se ha caído del mapa
           </>
         ) : (
           <>
-            <KeyRound className="h-5 w-5 text-agua-500" />
-            Falta la clave de Google Maps
+            <KeyRound className="h-7 w-7 shrink-0 text-acido" />
+            Aquí falta la clave
           </>
         )}
       </p>
-      <p className="text-sm leading-relaxed text-carton-700">
+
+      <p className="max-w-[60ch] text-papel-apagado">
         {error
-          ? "Revisa que la clave tenga habilitadas «Maps JavaScript API» y «Places API» y que el dominio esté permitido."
-          : "Crea un archivo .env.local en la raíz del proyecto con tu clave y reinicia el servidor:"}
+          ? "Revisa que la clave tenga habilitadas «Maps JavaScript API» y «Places API (New)», que el dominio esté en las restricciones y que el proyecto de Google Cloud tenga facturación activa."
+          : "Crea un archivo .env.local en la raíz del proyecto y reinicia el servidor. Mientras tanto, el ranking de abajo funciona igual."}
       </p>
+
       {!error && (
-        <pre className="overflow-x-auto rounded-xl bg-tinta px-3 py-2 text-[12px] leading-relaxed text-papel-100">
+        <pre className="overflow-x-auto border-2 border-borde bg-asfalto-950 p-3 font-mono text-[12px] leading-relaxed text-acido">
           <code>
-            NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=tu-clave{"\n"}
+            NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=AIza...tu-clave{"\n"}
             NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID=tu-map-id
           </code>
         </pre>
       )}
-      <p className="text-xs text-carton-600">
-        Mientras tanto puedes cotillear y valorar los baños de ejemplo.
-      </p>
     </div>
   );
 }
