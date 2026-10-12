@@ -1,6 +1,6 @@
 "use client";
 
-import { ExternalLink, UserRound, X } from "lucide-react";
+import { ExternalLink, Pencil, Trash2, UserRound, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   CRITERIOS,
@@ -11,6 +11,7 @@ import {
   veredictoDeNota,
 } from "@/lib/scores";
 import { useAuth } from "@/lib/auth";
+import { useRollo } from "@/lib/store";
 import type { BarConNota } from "@/lib/types";
 import { FormularioValoracion } from "./FormularioValoracion";
 
@@ -23,6 +24,7 @@ export function FichaBar({
   abrirValorando,
   onCerrar,
   onPedirAcceso,
+  onAvisar,
 }: {
   barConNota: BarConNota;
   /** Al adoptar un bar nuevo se entra directo al formulario. */
@@ -30,9 +32,13 @@ export function FichaBar({
   onCerrar: () => void;
   /** Sin cuenta no se publica: esto abre el registro. */
   onPedirAcceso: () => void;
+  /** Para los avisos de la esquina. */
+  onAvisar: (mensaje: string) => void;
 }) {
   const { bar, media, medias, reviews, esRolloDeOro } = barConNota;
   const { usuario } = useAuth();
+  const { miReview, retirarReview } = useRollo();
+  const propia = miReview(bar.place_id, usuario?.id ?? null);
   const [valorando, setValorando] = useState(abrirValorando && Boolean(usuario));
   const veredicto = veredictoDeNota(media);
 
@@ -120,8 +126,12 @@ export function FichaBar({
         <div className="min-h-0 flex-1 overflow-y-auto p-5">
           {valorando ? (
             <FormularioValoracion
-              placeId={bar.place_id}
-              onGuardado={() => setValorando(false)}
+              bar={bar}
+              anterior={propia}
+              onGuardado={(mensaje) => {
+                setValorando(false);
+                onAvisar(mensaje);
+              }}
               onCancelar={() => setValorando(false)}
             />
           ) : (
@@ -179,13 +189,33 @@ export function FichaBar({
               )}
 
               {usuario ? (
-                <button
-                  type="button"
-                  onClick={() => setValorando(true)}
-                  className="btn btn-acido mt-6 w-full"
-                >
-                  Yo he estado ahí dentro
-                </button>
+                <div className="mt-6 grid gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setValorando(true)}
+                    className="btn btn-acido w-full"
+                  >
+                    {propia && <Pencil className="h-4 w-4" />}
+                    {propia ? "Corregir mi parte" : "Yo he estado ahí dentro"}
+                  </button>
+                  {propia && (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const resultado = await retirarReview(propia);
+                        onAvisar(
+                          resultado.ok
+                            ? "Parte retirado."
+                            : (resultado.mensaje ?? "No se ha podido retirar."),
+                        );
+                      }}
+                      className="btn btn-fantasma w-full"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Retirar mi parte
+                    </button>
+                  )}
+                </div>
               ) : (
                 <div className="mt-6">
                   <button

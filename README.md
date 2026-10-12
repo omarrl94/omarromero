@@ -79,19 +79,35 @@ Montarlo, si quieres cuentas reales:
 1. Crea un proyecto en [supabase.com](https://supabase.com) (plan Free vale).
 2. **Project Settings → API**: copia *Project URL* y *anon public*.
 3. **Authentication → Providers**: deja activado *Email*.
-4. Pega las dos variables en `.env.local` y reinicia el servidor.
+4. **SQL Editor → New query**: pega entero `supabase/schema.sql` y dale a *Run*. Crea las tablas, las políticas y cinco bares de ejemplo.
+5. Pega las dos variables en `.env.local` y reinicia el servidor.
 
-> Ojo al alcance: las cuentas son reales, pero **las valoraciones siguen viviendo en `localStorage`**. Es decir: ya sabemos quién firma, pero lo firmado todavía no se comparte entre dispositivos. El siguiente paso es llevar `bares` y `reviews` a tablas de Supabase con RLS (escribir solo con sesión, editar solo lo tuyo).
+### Dónde viven los datos
 
-### Estructura de datos
+Dos orígenes, elegidos por las variables de entorno:
+
+| | Con Supabase | Sin Supabase (modo local) |
+|---|---|---|
+| Bares y reseñas | tablas `bares` y `reviews` | mocks + `localStorage` |
+| Alcance | compartido entre todo el mundo | solo ese navegador |
+| Quién escribe | hace falta sesión (lo exige RLS) | cualquiera con alias |
 
 ```ts
-Bar    { place_id (PK), nombre, direccion, lat, lng }
-Review { id, place_id (FK), limpieza, espacio, intimidad, suministros,
-         comentario, autor, fecha }
+Bar    { place_id (PK), nombre, direccion, lat, lng, creado_por }
+Review { id, place_id (FK), user_id (FK), autor,
+         limpieza, espacio, intimidad, suministros, comentario, fecha }
 ```
 
-Las notas no se guardan calculadas: se derivan en `src/lib/scores.ts`. Cuando haya backend, el esquema se traduce a dos tablas tal cual.
+Las notas no se guardan calculadas: se derivan en `src/lib/scores.ts`.
+
+**Las reglas están en la base de datos, no en el navegador** (`supabase/schema.sql`):
+
+- Leer bares y reseñas: cualquiera, con o sin cuenta.
+- Fichar un bar: solo con sesión, y queda apuntado quién lo trajo.
+- Publicar una reseña: solo con sesión y solo a tu nombre (`user_id = auth.uid()`); firmar en nombre de otro lo rechaza Postgres.
+- Corregir o retirar: solo lo tuyo.
+- Cambiar o borrar un bar desde el cliente: nadie. No hay política de update ni de delete.
+- **Un voto por persona y bar**: hay un índice único sobre `(place_id, user_id)`, así que el segundo parte actualiza el primero en vez de duplicarlo. En la app esto se ve como "Corregir mi parte".
 
 ---
 
@@ -122,12 +138,16 @@ src/
 │  └─ usePlacesBuscador.ts    Autocompletado + detalle del sitio
 └─ lib/
    ├─ auth.tsx                Cuentas: Supabase o modo local
+   ├─ datos.ts                Lectura y escritura contra Supabase
    ├─ supabase.ts             Cliente del navegador (null si no hay proyecto)
    ├─ types.ts                Bar, Review, BarConNota
    ├─ scores.ts               Medias, veredictos, grados y fechas
    ├─ mock-data.ts            5 bares clásicos con place_id inventados
    ├─ store.tsx               Estado global + persistencia
    └─ config.ts               Centro de Madrid, zooms y variables de entorno
+
+supabase/
+└─ schema.sql                Tablas, políticas RLS y datos de ejemplo
 ```
 
 ### El logo
@@ -168,8 +188,8 @@ Mobile-first: la ficha sube como BottomSheet, la escala de rollos se pulsa con e
 
 ## Siguiente parada
 
-- Llevar `bares` y `reviews` a tablas de Supabase con RLS (las cuentas ya están).
-- Un voto por persona y bar, y poder editar el tuyo.
+- Moderación: denunciar un parte y esconder lo denunciado hasta revisarlo.
+- Realtime de Supabase para que el mapa se actualice sin recargar.
 - Fotos del baño (con moderación, que nos conocemos).
 - Filtros: solo verdes, abiertos ahora, accesibles, con cambiador.
 - Geolocalización para que el modo urgencia use la distancia real.

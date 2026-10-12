@@ -20,7 +20,8 @@ import { Ticker } from "./Ticker";
  * lista negra y la ficha del baño como cartel.
  */
 export function RolloApp() {
-  const { bares, baresValorados, getBar, adoptarBar, listo } = useRollo();
+  const { bares, baresValorados, getBar, adoptarBar, listo, modoDatos, errorDatos, recargar } =
+    useRollo();
   const { usuario } = useAuth();
   const [seleccion, setSeleccion] = useState<string | null>(null);
   const [valorandoAlAbrir, setValorandoAlAbrir] = useState(false);
@@ -90,6 +91,25 @@ export function RolloApp() {
         onPedirAcceso={() => setMotivoAcceso("")}
       />
       <Ticker />
+
+      {errorDatos && (
+        <div
+          role="alert"
+          className="relative z-10 border-b-2 border-black bg-alarma px-4 py-2.5 text-white"
+        >
+          <div className="mx-auto flex w-full max-w-[1240px] flex-wrap items-center gap-3 text-sm">
+            <b className="grito text-base">La base de datos no contesta</b>
+            <span className="font-mono text-[11.5px]">{errorDatos}</span>
+            <button
+              type="button"
+              onClick={() => void recargar()}
+              className="btn btn-papel ml-auto px-3 py-1.5 text-sm"
+            >
+              Reintentar
+            </button>
+          </div>
+        </div>
+      )}
 
       <main className="relative z-10">
         <section className="mx-auto w-full max-w-[1240px] px-4 pb-5 pt-7">
@@ -215,6 +235,11 @@ export function RolloApp() {
             Busca el bar, mira la nota y, si te toca sufrir, cuéntalo para el
             siguiente.
           </p>
+          <p className="mt-1.5">
+            {modoDatos === "supabase"
+              ? "Datos compartidos: lo que publicas lo ve todo el mundo."
+              : "Modo local: sin base de datos configurada, lo que publicas se queda en este navegador."}
+          </p>
         </div>
       </footer>
 
@@ -231,6 +256,7 @@ export function RolloApp() {
               "Para publicar un parte hace falta cuenta: así cada nota lleva firma.",
             )
           }
+          onAvisar={avisar}
         />
       )}
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import {
   CRITERIOS,
@@ -9,7 +10,7 @@ import {
 } from "@/lib/scores";
 import { useAuth } from "@/lib/auth";
 import { useRollo } from "@/lib/store";
-import type { CriterioKey, Puntuacion } from "@/lib/types";
+import type { Bar, CriterioKey, Puntuacion, Review } from "@/lib/types";
 import { EscalaRollos } from "./Rollitos";
 
 type Valores = Partial<Record<CriterioKey, Puntuacion>>;
@@ -19,18 +20,32 @@ type Valores = Partial<Record<CriterioKey, Puntuacion>>;
  * vivo y el aviso para quien entre después.
  */
 export function FormularioValoracion({
-  placeId,
+  bar,
+  anterior,
   onGuardado,
   onCancelar,
 }: {
-  placeId: string;
-  onGuardado: () => void;
+  bar: Bar;
+  /** Si ya habías valorado este baño, el formulario llega relleno. */
+  anterior: Review | null;
+  onGuardado: (mensaje: string) => void;
   onCancelar: () => void;
 }) {
-  const { añadirReview } = useRollo();
+  const { publicarReview } = useRollo();
   const { usuario } = useAuth();
-  const [valores, setValores] = useState<Valores>({});
-  const [comentario, setComentario] = useState("");
+  const [valores, setValores] = useState<Valores>(
+    anterior
+      ? {
+          limpieza: anterior.limpieza,
+          espacio: anterior.espacio,
+          intimidad: anterior.intimidad,
+          suministros: anterior.suministros,
+        }
+      : {},
+  );
+  const [comentario, setComentario] = useState(anterior?.comentario ?? "");
+  const [enviando, setEnviando] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const puestas = CRITERIOS.map(({ key }) => valores[key]).filter(
     (v): v is Puntuacion => v !== undefined,
@@ -42,23 +57,34 @@ export function FormularioValoracion({
       : null;
   const veredicto = veredictoDeNota(completo ? notaViva : null);
 
-  const enviar = (e: React.FormEvent) => {
+  const enviar = async (e: React.FormEvent) => {
     e.preventDefault();
     const { limpieza, espacio, intimidad, suministros } = valores;
     if (!limpieza || !espacio || !intimidad || !suministros || !usuario) return;
+    if (enviando) return;
 
-    añadirReview(
-      placeId,
+    setEnviando(true);
+    setError(null);
+    const resultado = await publicarReview(
+      bar,
       { limpieza, espacio, intimidad, suministros, comentario },
-      { autor: usuario.alias, userId: usuario.origen === "supabase" ? usuario.id : null },
+      { autor: usuario.alias, userId: usuario.id },
     );
-    onGuardado();
+    setEnviando(false);
+
+    if (!resultado.ok) {
+      setError(resultado.mensaje ?? "No se ha podido publicar.");
+      return;
+    }
+    onGuardado(
+      anterior ? "Parte actualizado." : "Parte publicado. El mapa ya lo sabe.",
+    );
   };
 
   return (
     <form onSubmit={enviar}>
       <p className="mb-3 font-mono text-[10.5px] uppercase tracking-[0.22em] text-acido">
-        Canta lo que viste
+        {anterior ? "Corrige tu parte" : "Canta lo que viste"}
       </p>
 
       {CRITERIOS.map(({ key, label, pregunta }) => {
@@ -136,9 +162,23 @@ export function FormularioValoracion({
         </span>
       </p>
 
+      {error && (
+        <p
+          role="alert"
+          className="mt-4 border-2 border-alarma bg-alarma/10 px-3 py-2 text-sm text-alarma"
+        >
+          {error}
+        </p>
+      )}
+
       <div className="mt-6 grid gap-2.5">
-        <button type="submit" disabled={!completo} className="btn btn-acido w-full">
-          Publicar el parte
+        <button
+          type="submit"
+          disabled={!completo || enviando}
+          className="btn btn-acido w-full"
+        >
+          {enviando && <Loader2 className="h-4 w-4 animate-spin" />}
+          {anterior ? "Actualizar mi parte" : "Publicar el parte"}
         </button>
         <button
           type="button"
