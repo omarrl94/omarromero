@@ -4,9 +4,10 @@
  * verdad: nada de maquetas, lo que sale es la aplicación funcionando.
  *
  *   1. En una terminal:  npm run dev
- *   2. En otra:          npm run demo
+ *   2. En otra:          npm run demo          → 16:9, recorrido completo
+ *                        npm run demo:reel     → 9:16, 30 segundos a golpes
  *
- * Deja el vídeo en demo/rollo-madrid-demo.webm (y .mp4 si hay ffmpeg).
+ * Deja el vídeo en demo/ (webm, y mp4 si hay ffmpeg).
  *
  * Necesita Playwright. Si no lo tienes:
  *   npm i -D playwright && npx playwright install chromium
@@ -23,8 +24,14 @@ const RAIZ = join(dirname(fileURLToPath(import.meta.url)), "..");
 const URL_APP = process.env["DEMO_URL"] ?? "http://localhost:3000/";
 const SALIDA = join(RAIZ, "demo");
 const TEMPORAL = join(SALIDA, ".crudo");
-const ANCHO = 1280;
-const ALTO = 720;
+
+/** Dos formatos: el recorrido largo y el reel vertical. */
+const REEL = process.argv.includes("--reel");
+const NOMBRE = REEL ? "rollo-madrid-reel" : "rollo-madrid-demo";
+const ANCHO = REEL ? 540 : 1280;
+const ALTO = REEL ? 960 : 720;
+/** El reel se graba al doble para que salga a 1080x1920. */
+const ESCALA = REEL ? 2 : 1;
 
 // ── Carga de Playwright, esté donde esté ──────────────────────
 async function cargarChromium() {
@@ -53,14 +60,14 @@ async function cargarChromium() {
 const esperar = (pagina, ms) => pagina.waitForTimeout(ms);
 
 /** Mueve el cursor hasta el elemento y pulsa, para que se vea el gesto. */
-async function clicar(pagina, localizador, { pausa = 420 } = {}) {
+async function clicar(pagina, localizador, { pausa = REEL ? 260 : 420 } = {}) {
   await localizador.scrollIntoViewIfNeeded();
   const caja = await localizador.boundingBox();
   if (!caja) throw new Error("No encuentro el elemento que iba a pulsar.");
   await pagina.mouse.move(caja.x + caja.width / 2, caja.y + caja.height / 2, {
-    steps: 28,
+    steps: REEL ? 16 : 28,
   });
-  await esperar(pagina, 220);
+  await esperar(pagina, REEL ? 130 : 220);
   await pagina.mouse.down();
   await esperar(pagina, 90);
   await pagina.mouse.up();
@@ -76,6 +83,29 @@ const tarjeta = (pagina, titulo, texto) =>
   pagina.evaluate(([t, x]) => window.__demo.tarjeta(t, x), [titulo, texto]);
 
 const quitarTarjeta = (pagina) => pagina.evaluate(() => window.__demo.quitarTarjeta());
+
+const golpe = (pagina, texto, tono = "", abajo = false) =>
+  pagina.evaluate(([t, x, a]) => window.__demo.golpe(t, x, a), [texto, tono, abajo]);
+
+const quitarGolpe = (pagina) => pagina.evaluate(() => window.__demo.quitarGolpe());
+
+const flash = (pagina) => pagina.evaluate(() => window.__demo.flash());
+
+/** Corte seco: destello, cambia el rótulo y sigue. */
+async function corte(pagina, texto, { tono = "", abajo = false, ms = 1300 } = {}) {
+  await flash(pagina);
+  await golpe(pagina, texto, tono, abajo);
+  await esperar(pagina, ms);
+  await quitarGolpe(pagina);
+  await esperar(pagina, 160);
+}
+
+const cerrarFicha = (pagina) =>
+  clicar(
+    pagina,
+    pagina.getByRole("dialog").getByRole("button", { name: /Cerrar/ }).first(),
+    { pausa: REEL ? 260 : 600 },
+  );
 
 const irA = async (pagina, selector) => {
   await pagina.evaluate((s) => {
@@ -132,6 +162,34 @@ async function montarEscenografia(pagina) {
         box-shadow: 0 0 0 2px #000; transition: transform 90ms linear;
       }
       #demo-cursor.pulsa { transform: scale(0.72); background: #FF2E88; border-color: #FF2E88; }
+
+      /* Destello entre cortes */
+      #demo-flash {
+        position: fixed; inset: 0; z-index: 2147483646; pointer-events: none;
+        background: #C6FF3D; opacity: 0; transition: opacity 90ms linear;
+      }
+      #demo-flash.visible { opacity: 0.92; transition: none; }
+
+      /* Rótulo a lo bestia para el reel */
+      #demo-golpe {
+        position: fixed; inset: 0; z-index: 2147483647; pointer-events: none;
+        display: grid; place-content: center; padding: 0 28px; text-align: center;
+        opacity: 0; transform: scale(1.14);
+        transition: opacity 160ms ease, transform 220ms cubic-bezier(0.18, 1.3, 0.4, 1);
+      }
+      #demo-golpe.visible { opacity: 1; transform: scale(1); }
+      #demo-golpe.abajo { place-content: end center; padding-bottom: 92px; }
+      #demo-golpe b {
+        display: inline-block;
+        font-family: var(--fuente-grito), sans-serif; text-transform: uppercase;
+        font-size: 58px; line-height: 0.92; letter-spacing: 0.005em;
+        color: #F2ECDF; background: #0C0C0D; border: 4px solid #000;
+        box-shadow: 10px 10px 0 #000; padding: 10px 16px;
+      }
+      #demo-golpe b em { font-style: normal; color: #C6FF3D; }
+      #demo-golpe b u { text-decoration: none; color: #FF2E88; }
+      #demo-golpe.magenta b { background: #FF2E88; color: #0C0C0D; }
+      #demo-golpe.acido b { background: #C6FF3D; color: #0A0E02; }
     `,
   });
 
@@ -155,6 +213,15 @@ async function montarEscenografia(pagina) {
     addEventListener("mousedown", () => cursor.classList.add("pulsa"));
     addEventListener("mouseup", () => cursor.classList.remove("pulsa"));
 
+    const flash = document.createElement("div");
+    flash.id = "demo-flash";
+    document.body.appendChild(flash);
+
+    const golpe = document.createElement("div");
+    golpe.id = "demo-golpe";
+    golpe.innerHTML = "<b></b>";
+    document.body.appendChild(golpe);
+
     const elRotulo = capa.querySelector("#demo-rotulo");
     const elTarjeta = capa.querySelector("#demo-tarjeta");
 
@@ -177,8 +244,107 @@ async function montarEscenografia(pagina) {
       quitarTarjeta() {
         elTarjeta.classList.remove("visible");
       },
+      /** Destello de corte, como un corte de montaje. */
+      flash() {
+        flash.classList.add("visible");
+        setTimeout(() => flash.classList.remove("visible"), 70);
+      },
+      /** Rótulo de reel: entra de golpe y se va igual de rápido. */
+      golpe(texto, tono = "", abajo = false) {
+        golpe.querySelector("b").innerHTML = texto;
+        golpe.className = `${tono} ${abajo ? "abajo" : ""} visible`;
+      },
+      quitarGolpe() {
+        golpe.classList.remove("visible");
+      },
     };
   });
+}
+
+// ── Guion del reel: 9:16, treinta segundos a golpes ───────────
+async function guionReel(pagina) {
+  // 1 · Gancho
+  await pagina.evaluate(() =>
+    window.__demo.tarjeta("¿Entras<br>o <em>aguantas</em>?", "Rollo Madrid"),
+  );
+  await esperar(pagina, 1500);
+  await pagina.evaluate(() => window.__demo.quitarTarjeta());
+  await flash(pagina);
+  await esperar(pagina, 380);
+
+  // 2 · De qué va
+  await corte(pagina, "El mapa de los<br><em>baños de Madrid</em>", { ms: 1250 });
+
+  // 3 · Modo urgencia
+  await clicar(pagina, pagina.getByRole("button", { name: /Modo urgencia/ }), {
+    pausa: 420,
+  });
+  await flash(pagina);
+  await golpe(pagina, "El más decente,<br><em>ahora</em>", "acido", true);
+  await esperar(pagina, 1250);
+  await quitarGolpe(pagina);
+
+  // 4 · Lo que se puntúa
+  await corte(pagina, "Limpieza · espacio<br>intimidad · papel", {
+    ms: 1150,
+    abajo: true,
+  });
+  await cerrarFicha(pagina);
+
+  // 5 · La lista negra
+  await irA(pagina, "#ranking");
+  await corte(pagina, "Podio y<br><u>lista negra</u>", { tono: "magenta", ms: 1150 });
+  await clicar(pagina, pagina.getByRole("button", { name: /El Tigre/ }).first(), {
+    pausa: 420,
+  });
+  await corte(pagina, "«Ni de coña»", { tono: "magenta", abajo: true, ms: 1200 });
+
+  // 6 · Entrar y puntuar
+  await clicar(
+    pagina,
+    pagina.getByRole("button", { name: /Entra para contar lo tuyo/ }),
+    { pausa: 420 },
+  );
+  await golpe(pagina, "Entra y <em>canta</em>", "", true);
+  const alias = pagina.getByLabel("Tu alias");
+  await clicar(pagina, alias, { pausa: 100 });
+  await alias.pressSequentially("Vermutero", { delay: 70 });
+  await clicar(pagina, pagina.getByRole("dialog").locator('button[type="submit"]'), {
+    pausa: 560,
+  });
+  await quitarGolpe(pagina);
+
+  await clicar(pagina, pagina.getByRole("button", { name: /Yo he estado ahí dentro/ }), {
+    pausa: 260,
+  });
+  await golpe(pagina, "Cuatro toques", "acido", true);
+  for (const [criterio, nota] of [
+    ["Limpieza", 1],
+    ["Espacio", 2],
+    ["Intimidad", 1],
+    ["Suministros", 1],
+  ]) {
+    await clicar(
+      pagina,
+      pagina.getByRole("radio", { name: new RegExp(`${nota} de 5 en ${criterio}`) }),
+      { pausa: 190 },
+    );
+  }
+  await quitarGolpe(pagina);
+  await esperar(pagina, 420);
+
+  // 7 · Publicado
+  await clicar(pagina, pagina.getByRole("button", { name: /Publicar el parte/ }), {
+    pausa: 700,
+  });
+  await corte(pagina, "Tu parte,<br><em>firmado</em>", { ms: 1350, abajo: true });
+
+  // 8 · Cierre
+  await flash(pagina);
+  await pagina.evaluate(() =>
+    window.__demo.tarjeta("Rollo <em>Madrid</em>", "Mira la nota antes de entrar"),
+  );
+  await esperar(pagina, 2000);
 }
 
 // ── Guion ─────────────────────────────────────────────────────
@@ -189,7 +355,11 @@ async function grabar(chromium) {
   const navegador = await chromium.launch();
   const contexto = await navegador.newContext({
     viewport: { width: ANCHO, height: ALTO },
-    recordVideo: { dir: TEMPORAL, size: { width: ANCHO, height: ALTO } },
+    deviceScaleFactor: ESCALA,
+    recordVideo: {
+      dir: TEMPORAL,
+      size: { width: ANCHO * ESCALA, height: ALTO * ESCALA },
+    },
     reducedMotion: "no-preference",
   });
   const pagina = await contexto.newPage();
@@ -198,6 +368,13 @@ async function grabar(chromium) {
   await pagina.goto(URL_APP, { waitUntil: "networkidle" });
   await montarEscenografia(pagina);
   await pagina.mouse.move(ANCHO / 2, ALTO / 2);
+
+  if (REEL) {
+    await guionReel(pagina);
+    await contexto.close();
+    await navegador.close();
+    return;
+  }
 
   // 1 · Cartel de entrada
   await tarjeta(
@@ -235,7 +412,7 @@ async function grabar(chromium) {
   );
   await esperar(pagina, 3000);
   await quitarRotulo(pagina);
-  await clicar(pagina, pagina.getByRole("button", { name: /^Cerrar ficha$/ }).first());
+  await cerrarFicha(pagina);
 
   // 4 · Buscador
   await rotulo(
@@ -320,9 +497,7 @@ async function grabar(chromium) {
   );
   await esperar(pagina, 3400);
   await quitarRotulo(pagina);
-  await clicar(pagina, pagina.getByRole("button", { name: /^Cerrar ficha$/ }).first(), {
-    pausa: 700,
-  });
+  await cerrarFicha(pagina);
 
   // 7 · Rankings
   await irA(pagina, "#ranking");
@@ -376,7 +551,7 @@ function buscarFfmpeg() {
 function recogerVideo() {
   const crudos = readdirSync(TEMPORAL).filter((n) => n.endsWith(".webm"));
   if (crudos.length === 0) throw new Error("Playwright no ha dejado ningún vídeo.");
-  const webm = join(SALIDA, "rollo-madrid-demo.webm");
+  const webm = join(SALIDA, `${NOMBRE}.webm`);
   renameSync(join(TEMPORAL, crudos[0]), webm);
   rmSync(TEMPORAL, { recursive: true, force: true });
   return webm;

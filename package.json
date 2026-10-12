@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit",
     "deploy": "node scripts/deploy-netlify.mjs",
     "deploy:preview": "node scripts/deploy-netlify.mjs --preview",
-    "demo": "node scripts/grabar-demo.mjs"
+    "demo": "node scripts/grabar-demo.mjs",
+    "demo:reel": "node scripts/grabar-demo.mjs --reel"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.3",

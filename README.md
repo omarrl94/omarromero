@@ -183,7 +183,8 @@ Mobile-first: la ficha sube como BottomSheet, la escala de rollos se pulsa con e
 | `npm run build` | Compilación de producción |
 | `npm run typecheck` | TypeScript en modo estricto |
 | `npm run deploy` | Publicar en Netlify ([guía](DESPLIEGUE-NETLIFY.md)) |
-| `npm run demo` | Grabar el vídeo de presentación (con `npm run dev` abierto) |
+| `npm run demo` | Grabar el vídeo de presentación 16:9 (con `npm run dev` abierto) |
+| `npm run demo:reel` | Grabar el reel vertical 9:16 de 30 segundos |
 
 ---
 
@@ -194,12 +195,18 @@ Mobile-first: la ficha sube como BottomSheet, la escala de rollos se pulsa con e
 ```bash
 npm run dev                                   # en una terminal
 npm i -D playwright && npx playwright install chromium
-npm run demo                                  # en otra
+npm run demo                                  # en otra → 16:9, 1:10
+npm run demo:reel                             #        → 9:16, 0:29
 ```
 
-Recorre modo urgencia, buscador y adopción de bares, registro y sesión, el formulario de rollos con el veredicto en vivo, el parte publicado, el podio, la lista negra y el mapa. Si grabas con la clave de Google en `.env.local`, el tramo del mapa sale con Google Maps de verdad en vez del aviso de configuración.
+Dos formatos, un solo guion por cada uno:
 
-Para cambiar el guion, los rótulos están en la propia función `grabar()`, en orden.
+- **`demo`** (1280×720): el recorrido completo — modo urgencia, buscador y adopción de bares, registro y sesión, el formulario de rollos con el veredicto en vivo, el parte publicado, podio, lista negra y mapa.
+- **`demo:reel`** (1080×1920): versión corta para redes — gancho, el mejor baño, la lista negra, cuatro toques para puntuar y el parte firmado, con rótulos a pantalla completa y destellos entre cortes.
+
+Si grabas con la clave de Google en `.env.local`, el tramo del mapa sale con Google Maps de verdad en vez del aviso de configuración.
+
+Los rótulos y sus tiempos están en `grabar()` y `guionReel()`, en el mismo orden en que se ven.
 
 ---
 
