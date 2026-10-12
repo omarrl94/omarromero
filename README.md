@@ -202,7 +202,7 @@ npm run demo:reel                             #        → 9:16, 0:32
 Dos formatos, un solo guion por cada uno:
 
 - **`demo`** (1280×720): el recorrido completo — modo urgencia, buscador y adopción de bares, registro y sesión, el formulario de rollos con el veredicto en vivo, el parte publicado, podio, lista negra y mapa.
-- **`demo:reel`** (1080×1920): versión corta para redes — gancho, el mapa por colores, el mejor baño, la lista negra, cuatro toques para puntuar y el parte firmado, con rótulos a pantalla completa y destellos entre cortes.
+- **`demo:reel`** (grabado a 720×1280 y escalado a 1080×1920 al codificar): versión corta para redes — gancho, el mapa por colores, el mejor baño, la lista negra, cuatro toques para puntuar y el parte firmado, con rótulos a pantalla completa y destellos entre cortes.
 
 Si grabas con la clave de Google en `.env.local`, el tramo del mapa sale con Google Maps de verdad; sin clave sale el mapa simulado, con las mismas chapas.
 

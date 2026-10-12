@@ -28,10 +28,14 @@ const TEMPORAL = join(SALIDA, ".crudo");
 /** Dos formatos: el recorrido largo y el reel vertical. */
 const REEL = process.argv.includes("--reel");
 const NOMBRE = REEL ? "rollo-madrid-reel" : "rollo-madrid-demo";
-const ANCHO = REEL ? 540 : 1280;
-const ALTO = REEL ? 960 : 720;
-/** El reel se graba al doble para que salga a 1080x1920. */
-const ESCALA = REEL ? 2 : 1;
+
+// Playwright graba en píxeles CSS, así que el viewport manda: el reel se
+// graba a 720x1280 (ancho de móvil, por debajo del primer corte de
+// maquetación) y se amplía a 1080x1920 al codificar. Con deviceScaleFactor
+// no vale: el vídeo sale del tamaño del viewport y el resto queda vacío.
+const ANCHO = REEL ? 720 : 1280;
+const ALTO = REEL ? 1280 : 720;
+const SALIDA_FINAL = REEL ? { ancho: 1080, alto: 1920 } : null;
 
 // ── Carga de Playwright, esté donde esté ──────────────────────
 async function cargarChromium() {
@@ -146,14 +150,14 @@ async function montarEscenografia(pagina) {
         text-align: center; padding: 0 40px;
       }
       #demo-tarjeta.visible { opacity: 1; }
-      #demo-tarjeta svg { height: 120px; width: auto; }
+      #demo-tarjeta svg { height: clamp(110px, 21vw, 210px); width: auto; }
       #demo-tarjeta b {
         font-family: var(--fuente-grito), sans-serif; text-transform: uppercase;
-        font-size: 64px; line-height: 0.95; color: #F2ECDF; letter-spacing: 0.01em;
+        font-size: clamp(54px, 13vw, 124px); line-height: 0.95; color: #F2ECDF; letter-spacing: 0.01em;
       }
       #demo-tarjeta b em { font-style: normal; color: #FF2E88; }
       #demo-tarjeta span {
-        font-family: var(--fuente-mono), monospace; font-size: 15px; letter-spacing: 0.22em;
+        font-family: var(--fuente-mono), monospace; font-size: clamp(15px, 2.4vw, 26px); letter-spacing: 0.22em;
         text-transform: uppercase; color: #C6FF3D;
       }
       #demo-cursor {
@@ -182,7 +186,7 @@ async function montarEscenografia(pagina) {
       #demo-golpe b {
         display: inline-block;
         font-family: var(--fuente-grito), sans-serif; text-transform: uppercase;
-        font-size: 58px; line-height: 0.92; letter-spacing: 0.005em;
+        font-size: clamp(42px, 10vw, 104px); line-height: 0.92; letter-spacing: 0.005em;
         color: #F2ECDF; background: #0C0C0D; border: 4px solid #000;
         box-shadow: 10px 10px 0 #000; padding: 10px 16px;
       }
@@ -364,11 +368,7 @@ async function grabar(chromium) {
   const navegador = await chromium.launch();
   const contexto = await navegador.newContext({
     viewport: { width: ANCHO, height: ALTO },
-    deviceScaleFactor: ESCALA,
-    recordVideo: {
-      dir: TEMPORAL,
-      size: { width: ANCHO * ESCALA, height: ALTO * ESCALA },
-    },
+    recordVideo: { dir: TEMPORAL, size: { width: ANCHO, height: ALTO } },
     reducedMotion: "no-preference",
   });
   const pagina = await contexto.newPage();
@@ -573,10 +573,16 @@ function aMp4(webm) {
     return null;
   }
   const mp4 = webm.replace(/\.webm$/, ".mp4");
+  const filtros = SALIDA_FINAL
+    ? [
+        "-vf",
+        `scale=${SALIDA_FINAL.ancho}:${SALIDA_FINAL.alto}:flags=lanczos,unsharp=5:5:0.5:5:5:0`,
+      ]
+    : [];
   const resultado = spawnSync(
     ffmpeg,
-    ["-y", "-i", webm, "-c:v", "libx264", "-preset", "slow", "-crf", "23",
-     "-pix_fmt", "yuv420p", "-r", "30", "-movflags", "+faststart", mp4],
+    ["-y", "-i", webm, ...filtros, "-c:v", "libx264", "-preset", "slow",
+     "-crf", "21", "-pix_fmt", "yuv420p", "-r", "30", "-movflags", "+faststart", mp4],
     { stdio: "ignore" },
   );
   return resultado.status === 0 ? mp4 : null;
