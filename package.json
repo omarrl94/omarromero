@@ -10,7 +10,8 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "deploy": "node scripts/deploy-netlify.mjs",
-    "deploy:preview": "node scripts/deploy-netlify.mjs --preview"
+    "deploy:preview": "node scripts/deploy-netlify.mjs --preview",
+    "demo": "node scripts/grabar-demo.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.3",

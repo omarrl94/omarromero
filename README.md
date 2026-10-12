@@ -183,6 +183,23 @@ Mobile-first: la ficha sube como BottomSheet, la escala de rollos se pulsa con e
 | `npm run build` | Compilación de producción |
 | `npm run typecheck` | TypeScript en modo estricto |
 | `npm run deploy` | Publicar en Netlify ([guía](DESPLIEGUE-NETLIFY.md)) |
+| `npm run demo` | Grabar el vídeo de presentación (con `npm run dev` abierto) |
+
+---
+
+## El vídeo de presentación
+
+`scripts/grabar-demo.mjs` recorre la app de verdad con Playwright —cursor visible, rótulos encima y cartel de entrada y salida— y deja el vídeo en `demo/` (webm, y mp4 si tienes ffmpeg). No es una maqueta: es la aplicación funcionando.
+
+```bash
+npm run dev                                   # en una terminal
+npm i -D playwright && npx playwright install chromium
+npm run demo                                  # en otra
+```
+
+Recorre modo urgencia, buscador y adopción de bares, registro y sesión, el formulario de rollos con el veredicto en vivo, el parte publicado, el podio, la lista negra y el mapa. Si grabas con la clave de Google en `.env.local`, el tramo del mapa sale con Google Maps de verdad en vez del aviso de configuración.
+
+Para cambiar el guion, los rótulos están en la propia función `grabar()`, en orden.
 
 ---
 
