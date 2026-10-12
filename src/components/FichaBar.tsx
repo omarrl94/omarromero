@@ -1,6 +1,6 @@
 "use client";
 
-import { ExternalLink, X } from "lucide-react";
+import { ExternalLink, UserRound, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   CRITERIOS,
@@ -10,6 +10,7 @@ import {
   notaGlobal,
   veredictoDeNota,
 } from "@/lib/scores";
+import { useAuth } from "@/lib/auth";
 import type { BarConNota } from "@/lib/types";
 import { FormularioValoracion } from "./FormularioValoracion";
 
@@ -21,17 +22,24 @@ export function FichaBar({
   barConNota,
   abrirValorando,
   onCerrar,
+  onPedirAcceso,
 }: {
   barConNota: BarConNota;
   /** Al adoptar un bar nuevo se entra directo al formulario. */
   abrirValorando: boolean;
   onCerrar: () => void;
+  /** Sin cuenta no se publica: esto abre el registro. */
+  onPedirAcceso: () => void;
 }) {
   const { bar, media, medias, reviews, esRolloDeOro } = barConNota;
-  const [valorando, setValorando] = useState(abrirValorando);
+  const { usuario } = useAuth();
+  const [valorando, setValorando] = useState(abrirValorando && Boolean(usuario));
   const veredicto = veredictoDeNota(media);
 
-  useEffect(() => setValorando(abrirValorando), [bar.place_id, abrirValorando]);
+  useEffect(
+    () => setValorando(abrirValorando && Boolean(usuario)),
+    [bar.place_id, abrirValorando, usuario],
+  );
 
   useEffect(() => {
     const alPulsar = (e: KeyboardEvent) => {
@@ -170,13 +178,29 @@ export function FichaBar({
                 </p>
               )}
 
-              <button
-                type="button"
-                onClick={() => setValorando(true)}
-                className="btn btn-acido mt-6 w-full"
-              >
-                Yo he estado ahí dentro
-              </button>
+              {usuario ? (
+                <button
+                  type="button"
+                  onClick={() => setValorando(true)}
+                  className="btn btn-acido mt-6 w-full"
+                >
+                  Yo he estado ahí dentro
+                </button>
+              ) : (
+                <div className="mt-6">
+                  <button
+                    type="button"
+                    onClick={onPedirAcceso}
+                    className="btn btn-acido w-full"
+                  >
+                    <UserRound className="h-4 w-4" />
+                    Entra para contar lo tuyo
+                  </button>
+                  <p className="mt-2 text-center font-mono text-[11px] text-papel-apagado">
+                    Leer es libre. Para firmar un parte hace falta cuenta.
+                  </p>
+                </div>
+              )}
 
               {reviews.length > 0 && (
                 <div className="mt-7">

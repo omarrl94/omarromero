@@ -13,6 +13,7 @@
     "deploy:preview": "node scripts/deploy-netlify.mjs --preview"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.117.3",
     "@vis.gl/react-google-maps": "^1.4.0",
     "lucide-react": "^0.454.0",
     "next": "^14.2.15",

@@ -58,6 +58,7 @@ export const REVIEWS_MOCK: readonly Review[] = [
     comentario:
       "Baño de manzanilla y madera noble. Papel de sobra, pestillo firme y cero olor. Aquí se entra sin miedo y se sale mejor persona.",
     autor: "Marta R.",
+    user_id: null,
     fecha: "2026-08-12T19:40:00.000Z",
   },
   {
@@ -69,6 +70,7 @@ export const REVIEWS_MOCK: readonly Review[] = [
     suministros: 5,
     comentario: "Impecable a las ocho. A las doce ya hablamos.",
     autor: "Chule",
+    user_id: null,
     fecha: "2026-09-02T17:10:00.000Z",
   },
   {
@@ -81,6 +83,7 @@ export const REVIEWS_MOCK: readonly Review[] = [
     comentario:
       "Cabina tamaño ascensor de finca vieja: cierras la puerta y saludas a tus rodillas. Papel, de casa.",
     autor: "Vermutero",
+    user_id: null,
     fecha: "2026-09-05T20:05:00.000Z",
   },
   {
@@ -93,6 +96,7 @@ export const REVIEWS_MOCK: readonly Review[] = [
     comentario:
       "El pestillo va a su bola: canta algo mientras estás dentro. Jabón sí, secamanos ni de broma.",
     autor: "Kike",
+    user_id: null,
     fecha: "2026-08-28T21:30:00.000Z",
   },
   {
@@ -105,6 +109,7 @@ export const REVIEWS_MOCK: readonly Review[] = [
     comentario:
       "Zona catastrófica confirmada. Entra solo en emergencia nivel cinco, sin respirar y con el móvil guardado.",
     autor: "Superviviente",
+    user_id: null,
     fecha: "2026-09-09T22:15:00.000Z",
   },
 ];

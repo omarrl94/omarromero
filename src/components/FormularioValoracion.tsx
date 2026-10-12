@@ -7,6 +7,7 @@ import {
   formatearNota,
   veredictoDeNota,
 } from "@/lib/scores";
+import { useAuth } from "@/lib/auth";
 import { useRollo } from "@/lib/store";
 import type { CriterioKey, Puntuacion } from "@/lib/types";
 import { EscalaRollos } from "./Rollitos";
@@ -27,9 +28,9 @@ export function FormularioValoracion({
   onCancelar: () => void;
 }) {
   const { añadirReview } = useRollo();
+  const { usuario } = useAuth();
   const [valores, setValores] = useState<Valores>({});
   const [comentario, setComentario] = useState("");
-  const [autor, setAutor] = useState("");
 
   const puestas = CRITERIOS.map(({ key }) => valores[key]).filter(
     (v): v is Puntuacion => v !== undefined,
@@ -44,16 +45,13 @@ export function FormularioValoracion({
   const enviar = (e: React.FormEvent) => {
     e.preventDefault();
     const { limpieza, espacio, intimidad, suministros } = valores;
-    if (!limpieza || !espacio || !intimidad || !suministros) return;
+    if (!limpieza || !espacio || !intimidad || !suministros || !usuario) return;
 
-    añadirReview(placeId, {
-      limpieza,
-      espacio,
-      intimidad,
-      suministros,
-      comentario,
-      autor,
-    });
+    añadirReview(
+      placeId,
+      { limpieza, espacio, intimidad, suministros, comentario },
+      { autor: usuario.alias, userId: usuario.origen === "supabase" ? usuario.id : null },
+    );
     onGuardado();
   };
 
@@ -129,20 +127,14 @@ export function FormularioValoracion({
         className="campo"
       />
 
-      <label
-        htmlFor="autor"
-        className="mb-2 mt-4 block font-mono text-[10px] uppercase tracking-[0.22em] text-papel-apagado"
-      >
-        Tu firma
-      </label>
-      <input
-        id="autor"
-        value={autor}
-        onChange={(e) => setAutor(e.target.value)}
-        maxLength={24}
-        placeholder="Anónimo con prisa"
-        className="campo"
-      />
+      <p className="mt-4 flex items-center gap-2 border-2 border-borde bg-asfalto-700 px-3 py-2.5">
+        <span className="grid h-7 w-7 shrink-0 place-items-center bg-acido text-sm font-extrabold text-[#0A0E02]">
+          {usuario?.alias.slice(0, 1).toUpperCase() ?? "?"}
+        </span>
+        <span className="font-mono text-[11px] text-papel-apagado">
+          Firmas como <b className="text-papel">{usuario?.alias}</b>
+        </span>
+      </p>
 
       <div className="mt-6 grid gap-2.5">
         <button type="submit" disabled={!completo} className="btn btn-acido w-full">

@@ -36,8 +36,12 @@ interface RolloContexto {
   getBar: (placeId: string) => BarConNota | null;
   /** Adopta un bar de Google Places si aún no lo teníamos. */
   adoptarBar: (bar: Bar) => void;
-  /** Guarda una valoración nueva. */
-  añadirReview: (placeId: string, draft: ReviewDraft) => void;
+  /** Guarda una valoración nueva, firmada por quien la publica. */
+  añadirReview: (
+    placeId: string,
+    draft: ReviewDraft,
+    firma: { autor: string; userId: string | null },
+  ) => void;
   /** false hasta que se lee localStorage (evita parpadeos de hidratación). */
   listo: boolean;
 }
@@ -110,20 +114,28 @@ export function RolloProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  const añadirReview = useCallback((placeId: string, draft: ReviewDraft) => {
-    const review: Review = {
-      id: crearId(),
-      place_id: placeId,
-      limpieza: draft.limpieza,
-      espacio: draft.espacio,
-      intimidad: draft.intimidad,
-      suministros: draft.suministros,
-      comentario: draft.comentario.trim(),
-      autor: draft.autor.trim() || "Rollo Anónimo",
-      fecha: new Date().toISOString(),
-    };
-    setAlmacen((prev) => ({ ...prev, reviews: [...prev.reviews, review] }));
-  }, []);
+  const añadirReview = useCallback(
+    (
+      placeId: string,
+      draft: ReviewDraft,
+      firma: { autor: string; userId: string | null },
+    ) => {
+      const review: Review = {
+        id: crearId(),
+        place_id: placeId,
+        limpieza: draft.limpieza,
+        espacio: draft.espacio,
+        intimidad: draft.intimidad,
+        suministros: draft.suministros,
+        comentario: draft.comentario.trim(),
+        autor: firma.autor.trim() || "Anónimo con prisa",
+        user_id: firma.userId,
+        fecha: new Date().toISOString(),
+      };
+      setAlmacen((prev) => ({ ...prev, reviews: [...prev.reviews, review] }));
+    },
+    [],
+  );
 
   const bares = useMemo(
     () => almacen.bares.map((bar) => componerBar(bar, almacen.reviews)),

@@ -26,6 +26,10 @@ Sin clave la app **no se rompe**: en el hueco del mapa sale qué hay que configu
 ```
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=AIza...tu-clave
 NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID=DEMO_MAP_ID
+
+# Opcionales: sin ellas las cuentas funcionan en modo local
+NEXT_PUBLIC_SUPABASE_URL=https://TU-PROYECTO.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOi...tu-anon-key
 ```
 
 El mapa se pide en modo oscuro con `colorScheme={ColorScheme.DARK}`, así que no hace falta estilarlo a mano en Cloud Console para que pegue con la app.
@@ -61,6 +65,24 @@ Cada puntuación suelta tiene nombre: **Infierno · Malo · Justito · Bien · G
 
 Los que superan **4,5 con dos votos o más** se llevan el **Rollo de Oro** 👑.
 
+### Las cuentas
+
+Leer el mapa no pide nada. **Para firmar un parte hace falta cuenta**: así cada nota lleva autor y, el día que haga falta, se puede moderar.
+
+- **Con Supabase configurado** (`NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY`): registro e inicio de sesión de verdad con correo y contraseña (`supabase.auth`), sesión persistente y alias guardado en `user_metadata`. Si tienes activada la confirmación por correo, el registro avisa de que hay que confirmarlo antes de entrar.
+- **Sin Supabase**: la app entra en **modo local**. Basta un alias, que se guarda en este navegador. Sirve para probar el flujo entero sin montar nada; no es seguridad de verdad y la propia pantalla lo dice.
+
+La clave que se usa es la **anon public**, que está pensada para ir en el navegador. La `service_role` es secreta y no debe aparecer en el cliente ni en el repositorio.
+
+Montarlo, si quieres cuentas reales:
+
+1. Crea un proyecto en [supabase.com](https://supabase.com) (plan Free vale).
+2. **Project Settings → API**: copia *Project URL* y *anon public*.
+3. **Authentication → Providers**: deja activado *Email*.
+4. Pega las dos variables en `.env.local` y reinicia el servidor.
+
+> Ojo al alcance: las cuentas son reales, pero **las valoraciones siguen viviendo en `localStorage`**. Es decir: ya sabemos quién firma, pero lo firmado todavía no se comparte entre dispositivos. El siguiente paso es llevar `bares` y `reviews` a tablas de Supabase con RLS (escribir solo con sesión, editar solo lo tuyo).
+
 ### Estructura de datos
 
 ```ts
@@ -90,13 +112,17 @@ src/
 │  ├─ FichaBar.tsx            BottomSheet en móvil, cartel en escritorio
 │  ├─ FormularioValoracion.tsx  Las 4 categorías + veredicto en vivo
 │  ├─ Rollitos.tsx            Escala de 1 a 5 rollos (monolínea)
-│  ├─ Cabecera.tsx            Barra superior con buscador
+│  ├─ Cabecera.tsx            Barra superior con buscador y sesión
+│  ├─ ModalAcceso.tsx        Registro e inicio de sesión
+│  ├─ BotonSesion.tsx        Alias, salir o invitación a entrar
 │  ├─ Ticker.tsx              Los avisos de la casa, en bucle
 │  ├─ AvisoSinClave.tsx       Qué hacer si falta la API key
 │  └─ Logo.tsx                Logo SVG: el papel cae y dibuja una "M"
 ├─ hooks/
 │  └─ usePlacesBuscador.ts    Autocompletado + detalle del sitio
 └─ lib/
+   ├─ auth.tsx                Cuentas: Supabase o modo local
+   ├─ supabase.ts             Cliente del navegador (null si no hay proyecto)
    ├─ types.ts                Bar, Review, BarConNota
    ├─ scores.ts               Medias, veredictos, grados y fechas
    ├─ mock-data.ts            5 bares clásicos con place_id inventados
@@ -142,8 +168,8 @@ Mobile-first: la ficha sube como BottomSheet, la escala de rollos se pulsa con e
 
 ## Siguiente parada
 
-- Backend real (Postgres/Supabase) con las tablas `bares` y `reviews`.
-- Cuentas de usuario: un voto por persona y bar.
+- Llevar `bares` y `reviews` a tablas de Supabase con RLS (las cuentas ya están).
+- Un voto por persona y bar, y poder editar el tuyo.
 - Fotos del baño (con moderación, que nos conocemos).
 - Filtros: solo verdes, abiertos ahora, accesibles, con cambiador.
 - Geolocalización para que el modo urgencia use la distancia real.

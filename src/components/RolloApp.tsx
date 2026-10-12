@@ -2,6 +2,7 @@
 
 import { APIProvider } from "@vis.gl/react-google-maps";
 import { useCallback, useMemo, useState } from "react";
+import { useAuth } from "@/lib/auth";
 import { GOOGLE_MAPS_API_KEY, HAY_API_KEY } from "@/lib/config";
 import { formatearNota } from "@/lib/scores";
 import { useRollo } from "@/lib/store";
@@ -10,6 +11,7 @@ import { AvisoSinClave } from "./AvisoSinClave";
 import { Cabecera } from "./Cabecera";
 import { FichaBar } from "./FichaBar";
 import { MapaRollos, type Objetivo } from "./MapaRollos";
+import { ModalAcceso } from "./ModalAcceso";
 import { Ranking } from "./Ranking";
 import { Ticker } from "./Ticker";
 
@@ -19,11 +21,13 @@ import { Ticker } from "./Ticker";
  */
 export function RolloApp() {
   const { bares, baresValorados, getBar, adoptarBar, listo } = useRollo();
+  const { usuario } = useAuth();
   const [seleccion, setSeleccion] = useState<string | null>(null);
   const [valorandoAlAbrir, setValorandoAlAbrir] = useState(false);
   const [objetivo, setObjetivo] = useState<Objetivo | null>(null);
   const [errorApi, setErrorApi] = useState(false);
   const [brindis, setBrindis] = useState<string | null>(null);
+  const [motivoAcceso, setMotivoAcceso] = useState<string | null>(null);
 
   const avisar = useCallback((texto: string) => {
     setBrindis(texto);
@@ -81,7 +85,10 @@ export function RolloApp() {
         Saltar al mapa
       </a>
 
-      <Cabecera onElegirBar={(bar) => abrirBar(bar)} />
+      <Cabecera
+        onElegirBar={(bar) => abrirBar(bar)}
+        onPedirAcceso={() => setMotivoAcceso("")}
+      />
       <Ticker />
 
       <main className="relative z-10">
@@ -114,7 +121,27 @@ export function RolloApp() {
             <a href="#ranking" className="btn btn-acido no-underline">
               Ver el ranking
             </a>
+            {!usuario && (
+              <button
+                type="button"
+                onClick={() =>
+                  setMotivoAcceso(
+                    "Regístrate para firmar partes. Leer el mapa no exige nada.",
+                  )
+                }
+                className="btn btn-papel"
+              >
+                Regístrate y colabora
+              </button>
+            )}
           </div>
+
+          {usuario && (
+            <p className="mt-3 font-mono text-[11px] text-papel-apagado">
+              Firmas como <b className="text-acido">{usuario.alias}</b>. Cuenta
+              lo que te encuentres.
+            </p>
+          )}
 
           <div className="mt-6 grid grid-cols-[repeat(auto-fit,minmax(108px,1fr))] gap-2.5">
             <Cifra valor={String(ordenados.length)} etiqueta="Baños fichados" color="text-marca" />
@@ -198,6 +225,22 @@ export function RolloApp() {
           onCerrar={() => {
             setSeleccion(null);
             setValorandoAlAbrir(false);
+          }}
+          onPedirAcceso={() =>
+            setMotivoAcceso(
+              "Para publicar un parte hace falta cuenta: así cada nota lleva firma.",
+            )
+          }
+        />
+      )}
+
+      {motivoAcceso !== null && (
+        <ModalAcceso
+          motivo={motivoAcceso || undefined}
+          onCerrar={() => setMotivoAcceso(null)}
+          onEntrado={(mensaje) => {
+            setMotivoAcceso(null);
+            avisar(mensaje);
           }}
         />
       )}

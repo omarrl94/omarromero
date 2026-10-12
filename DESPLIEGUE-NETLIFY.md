@@ -68,6 +68,10 @@ npx netlify-cli init
 npx netlify-cli env:set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY "AIza...tu-clave"
 npx netlify-cli env:set NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID "tu-map-id"
 
+# 4b. Cuentas (opcional): si quieres registro e inicio de sesión reales
+npx netlify-cli env:set NEXT_PUBLIC_SUPABASE_URL "https://TU-PROYECTO.supabase.co"
+npx netlify-cli env:set NEXT_PUBLIC_SUPABASE_ANON_KEY "eyJ...tu-anon-key"
+
 # 5. Compilar y publicar en producción
 npx netlify-cli deploy --build --prod
 ```
@@ -139,6 +143,9 @@ Tras editar `.env.local` hay que **reiniciar `npm run dev`**; Next.js no recarga
 
 **"Google Maps no ha podido cargar" o el mapa sale en gris**
 Casi siempre es una de estas tres: la clave no tiene habilitada *Maps JavaScript API*, el dominio no está en las restricciones de referrer, o el proyecto de Google Cloud no tiene facturación activada (Google la exige aunque haya capa gratuita). La consola del navegador dice cuál de las tres es.
+
+**El registro dice que no puede hablar con el servidor de cuentas**
+Faltan las variables de Supabase en Netlify, o están mal copiadas. Son `NEXT_PUBLIC_*`, así que se incrustan al compilar: después de ponerlas hay que volver a desplegar. Sin ellas la app no se rompe, pero las cuentas van en modo local (alias guardado en cada navegador).
 
 **El buscador no sugiere nada**
 Falta habilitar *Places API (New)* en el mismo proyecto que la clave. Escribe al menos 3 letras: el buscador no dispara antes.

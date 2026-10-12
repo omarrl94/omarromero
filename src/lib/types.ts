@@ -32,17 +32,16 @@ export interface Review {
   intimidad: Puntuacion;
   suministros: Puntuacion;
   comentario: string;
-  /** Alias de quien valora; vacío = anónimo. */
+  /** Alias visible de quien valora. */
   autor: string;
+  /** Cuenta que la publicó; null en las reseñas de ejemplo. */
+  user_id: string | null;
   /** Fecha ISO 8601. */
   fecha: string;
 }
 
 /** Valores del formulario antes de convertirse en Review. */
-export type ReviewDraft = Pick<
-  Review,
-  CriterioKey | "comentario" | "autor"
->;
+export type ReviewDraft = Pick<Review, CriterioKey | "comentario">;
 
 /** Un bar junto a las notas derivadas de sus reseñas. */
 export interface BarConNota {

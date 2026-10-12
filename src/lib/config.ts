@@ -21,3 +21,15 @@ export const GOOGLE_MAPS_MAP_ID =
   process.env["NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID"] ?? "DEMO_MAP_ID";
 
 export const HAY_API_KEY = GOOGLE_MAPS_API_KEY.length > 0;
+
+/**
+ * Supabase: solo se usa para las cuentas (registro, inicio de sesión).
+ * Si falta cualquiera de las dos variables, la app arranca en modo
+ * local: las cuentas se quedan en este navegador y sirven para probar.
+ */
+export const SUPABASE_URL = process.env["NEXT_PUBLIC_SUPABASE_URL"] ?? "";
+export const SUPABASE_ANON_KEY =
+  process.env["NEXT_PUBLIC_SUPABASE_ANON_KEY"] ?? "";
+
+export const HAY_SUPABASE =
+  SUPABASE_URL.length > 0 && SUPABASE_ANON_KEY.length > 0;
