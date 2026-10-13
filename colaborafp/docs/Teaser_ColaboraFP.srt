@@ -1,0 +1,39 @@
+1
+00:00:00,350 --> 00:00:05,150
+¿Y si todo lo que compartes en clase llegara, al instante, a la pantalla de cada alumno?
+
+2
+00:00:06,147 --> 00:00:12,142
+Te presentamos ColaboraFP, la plataforma del Centro de Formación Profesional José Ramón Otero.
+
+3
+00:00:13,310 --> 00:00:16,083
+Creas una sala en segundos, con su propio código.
+
+4
+00:00:17,077 --> 00:00:23,029
+Proyectas el código QR en la pizarra, y tu alumnado entra desde el móvil. Sin cuentas. Sin instalar nada.
+
+5
+00:00:24,848 --> 00:00:30,565
+Publicas código, enunciados, enlaces o archivos... y aparecen al momento en todas las pantallas.
+
+6
+00:00:34,764 --> 00:00:37,047
+Con un solo toque, lo copian sin errores.
+
+7
+00:00:38,038 --> 00:00:42,305
+¿Un alumno quiere compartir su solución? Te llega a la bandeja de aprobación.
+
+8
+00:00:44,853 --> 00:00:48,672
+Tú decides qué ve la clase. La apruebas, y ya está en el muro de todos.
+
+9
+00:00:50,064 --> 00:00:53,157
+Para cualquier ciclo formativo. Gratis. Y en tiempo real.
+
+10
+00:00:54,521 --> 00:00:58,788
+ColaboraFP. Tu clase, sincronizada. Pruébala en tu próxima sesión.
