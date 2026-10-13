@@ -2228,8 +2228,11 @@ function pintarEntregaT() {
       ${def ? `
         <p style="margin-top:0">Defensa enviada el ${esc(new Date(def.fecha).toLocaleString("es-ES", { day: "2-digit", month: "long", hour: "2-digit", minute: "2-digit" }))} · ${def.nTest} de test y ${def.nAbiertas} ${def.nAbiertas === 1 ? "abierta" : "abiertas"}.
           ${def.nota != null ? `<b>Hecha${def.fechaHecha ? ` el ${esc(def.fechaHecha)}` : ""}: ${fmt(def.nota)} / 10</b>` : `<span class="chip s">Pendiente de que la haga el alumno</span>`}</p>
+        ${def.reanudar ? `<p><span class="chip ok">↺ Puede seguir donde lo dejó</span> <span class="muted">Al volver a entrar, continuará la defensa con las respuestas que tenía.</span></p>` : ""}
         <div class="actions">${def.nota != null ? `<button class="btn" type="button" id="defVer">Ver y revisar sus respuestas</button>` : ""}
-          <button class="btn danger" type="button" id="defBorrar">${def.nota != null ? "Borrar la defensa (para repetirla)" : "Anular la defensa"}</button></div>`
+          ${(def.nota != null || def.empezada) && !def.reanudar ? `<button class="btn ghost" type="button" id="defReanudar" title="Por si se le cerró o se entregó por error: sigue con las mismas preguntas y las respuestas que tenía">↺ Otra oportunidad: seguir con sus respuestas</button>` : ""}
+          <button class="btn danger" type="button" id="defBorrar" title="Se borra esta defensa (y sus respuestas) y podrás generar otra con preguntas nuevas">${def.nota != null || def.empezada ? "🗑 Anular y generar otra defensa" : "Anular la defensa"}</button></div>
+        ${def.nota != null || def.empezada ? `<p class="hintline">«Otra oportunidad» conserva sus respuestas y las mismas preguntas${def.nota != null ? " (se anula la nota de esta defensa hasta que la vuelva a entregar)" : ""}. «Anular y generar otra» lo borra todo y te deja preparar preguntas nuevas.</p>` : ""}`
       : `
         <p class="muted" style="margin-top:0">La IA lee el trabajo de <b>${esc(e.nombre)}</b> y prepara preguntas sobre lo que ha hecho él/ella (decisiones, datos, resultados, código…). Cada alumno recibe preguntas distintas. Revisa las preguntas antes de enviarlas.</p>
         <div class="row2">
@@ -2281,8 +2284,15 @@ function pintarEntregaT() {
       $("#atras").textContent = "← Volver al trabajo";
       abrirEntregas(def.examen);
     };
+    if ($("#defReanudar")) $("#defReanudar").onclick = async () => {
+      const msg = def.nota != null
+        ? `¿Dar otra oportunidad a ${e.nombre} en la defensa?\n\nSe anula la entrega actual (nota ${fmt(def.nota)}) y, al volver a entrar, seguirá con las mismas preguntas y las respuestas que tenía.`
+        : `¿Dejar que ${e.nombre} siga la defensa donde la dejó?\n\nPodrá volver a entrar y continuará con las respuestas que tenía guardadas.`;
+      if (!confirm(msg)) return;
+      try { await api("/api/profesor/entrega/reanudar", { id: def.examen, email: e.email, anularEntrega: def.nota != null }); await verEntregaT(e.email); abrirTrabajoSilencioso(); } catch (x) { alert(x.message); }
+    };
     $("#defBorrar").onclick = async () => {
-      if (!confirm(def.nota != null ? "¿Borrar la defensa y sus respuestas? Podrás generar y enviar otra." : "¿Anular la defensa? El alumno ya no podrá hacerla.")) return;
+      if (!confirm(def.nota != null || def.empezada ? "¿Anular esta defensa y borrar sus respuestas? Después podrás generar y enviar otra con preguntas nuevas." : "¿Anular la defensa? El alumno ya no podrá hacerla.")) return;
       try { await api("/api/profesor/trabajo/defensa/borrar", { id: t.id, email: e.email }); await verEntregaT(e.email); abrirTrabajoSilencioso(); } catch (x) { alert(x.message); }
     };
     return;

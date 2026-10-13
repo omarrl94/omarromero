@@ -72,6 +72,13 @@ async function notaDefensa(e) {
   return ent ? { nota: ent.notaProfesor ?? ent.resultado.nota, fecha: ent.fechaTexto, revisada: ent.notaProfesor != null } : null;
 }
 
+/** Estado de la defensa en curso: si la ha empezado y si el profesor le deja seguir donde lo dejó. */
+async function progresoDefensa(e) {
+  if (!e?.defensa?.examen) return {};
+  const p = await almacen("progreso").get(`${e.defensa.examen}/${e.email}`);
+  return { empezada: !!(p?.inicios?.length || p?.borrador), reanudar: !!p?.reanudar };
+}
+
 /** Nota final: la que ponga el profesor o la media ponderada de trabajo y defensa. */
 function notaFinal(t, e, def) {
   if (e?.notaFinalManual != null) return e.notaFinalManual;
@@ -130,7 +137,7 @@ async function verAlumno(req, url) {
     entrega: e ? {
       estado: s.estado, archivos: archivosPublicos(e), comentario: e.comentario || "", fecha: e.fecha || null, tarde: !!e.tarde,
       notaTrabajo: s.final != null || e.publicarNota ? e.notaTrabajo ?? null : null, comentarioProfesor: e.comentarioProfesor || "",
-      defensa: e.defensa ? { examen: e.defensa.examen, hecha: !!s.def, nota: s.def?.nota ?? null } : null, notaFinal: s.final,
+      defensa: e.defensa ? { examen: e.defensa.examen, hecha: !!s.def, nota: s.def?.nota ?? null, ...(await progresoDefensa(e)) } : null, notaFinal: s.final,
       suspensoPorDefensa: e.notaFinalManual == null && defensaSuspende(t, s.def),
     } : { estado: "pendiente", archivos: [] },
   });
@@ -348,7 +355,7 @@ async function entregaProfesor(req, url) {
       email: e.email, nombre: e.nombre, apellidos: e.apellidos, grupo: e.grupo, estado: s.estado, fechaTexto: e.fechaTexto, tarde: !!e.tarde,
       comentario: e.comentario || "", archivos: archivosPublicos(e), texto: textoTotal.slice(0, 200_000), caracteres: textoTotal.length,
       notaTrabajo: e.notaTrabajo ?? null, comentarioProfesor: e.comentarioProfesor || "", notaFinalManual: e.notaFinalManual ?? null,
-      defensa: e.defensa ? { ...e.defensa, nota: s.def?.nota ?? null, fechaHecha: s.def?.fecha || null } : null, notaFinal: s.final,
+      defensa: e.defensa ? { ...e.defensa, nota: s.def?.nota ?? null, fechaHecha: s.def?.fecha || null, ...(await progresoDefensa(e)) } : null, notaFinal: s.final,
       suspensoPorDefensa: e.notaFinalManual == null && defensaSuspende(t, s.def),
     },
   });
