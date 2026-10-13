@@ -24,6 +24,7 @@
       <button role="tab" aria-selected="false" data-tab="vTrabajos">Trabajos <span class="chip s" id="nTrabPend" hidden style="padding:0 7px"></span></button>
       <button role="tab" aria-selected="false" data-tab="vGrupos">Grupos</button>
       <button role="tab" aria-selected="false" data-tab="vAlumnos">Alumnos</button>
+      <button role="tab" aria-selected="false" data-tab="vCurso" hidden>Curso</button>
       <button role="tab" aria-selected="false" data-tab="vProfes" hidden>Profesores <span class="chip s" id="nPend" hidden style="padding:0 7px"></span></button>
     </div>
   </div>
@@ -63,6 +64,12 @@
   </section>
 
   <!-- Profesores (solo administrador) -->
+  <!-- Curso académico (solo administrador) -->
+  <section id="vCurso" hidden>
+    <div class="toolbar"><h2>Curso académico</h2></div>
+    <div id="cursoCont"><p class="loading">Cargando…</p></div>
+  </section>
+
   <section id="vProfes" hidden>
     <div class="toolbar"><h2>Profesores</h2></div>
     <p class="muted" style="margin-top:-6px">Los profesores se registran en la página principal eligiendo «Profesor/a» y los ciclos en los que dan clase. Aquí los apruebas y decides a qué ciclos tienen acceso: solo podrán crear exámenes y gestionar alumnos de esos ciclos.</p>
@@ -325,8 +332,9 @@ $$("[data-tab]").forEach((b) => (b.onclick = () => {
   $("#vAlumnos").hidden = b.dataset.tab !== "vAlumnos";
   $("#vGrupos").hidden = b.dataset.tab !== "vGrupos";
   $("#vProfes").hidden = b.dataset.tab !== "vProfes";
+  $("#vCurso").hidden = b.dataset.tab !== "vCurso";
   $("#vTrabajos").hidden = b.dataset.tab !== "vTrabajos"; $("#vTrabajo").hidden = true;
-  if (b.dataset.tab === "vTrabajos") cargarTrabajos(); else if (b.dataset.tab === "vGrupos") cargarGrupos(); else if (b.dataset.tab === "vAlumnos") cargarAlumnos(); else if (b.dataset.tab === "vProfes") cargarProfes(); else cargarExamenes();
+  if (b.dataset.tab === "vCurso") cargarCurso(); else if (b.dataset.tab === "vTrabajos") cargarTrabajos(); else if (b.dataset.tab === "vGrupos") cargarGrupos(); else if (b.dataset.tab === "vAlumnos") cargarAlumnos(); else if (b.dataset.tab === "vProfes") cargarProfes(); else cargarExamenes();
 }));
 
 /* ── Profesores (solo administrador) ── */
@@ -2052,6 +2060,72 @@ async function importarCx() {
   finally { b.disabled = false; }
 }
 
+
+/* ── Curso académico (solo administrador): cierre de curso y borrado en bloque ── */
+let CURSO = null;
+async function cargarCurso() {
+  CURSO = await api("/api/admin/curso");
+  pintarCurso();
+}
+function pintarCurso() {
+  const c = CURSO, el = $("#cursoCont");
+  const ult = c.historial[0];
+  const lista = (titulo, arr, id, nota) => `
+    <div class="card curso-lista" style="margin-top:16px">
+      <div class="toolbar" style="margin:0 0 10px"><h3 style="margin:0">${titulo} <span class="chip gray">${arr.length}</span></h3>
+        ${arr.length ? `<div class="acts"><select data-filtro="${id}" style="width:auto"><option value="">Todos los grupos</option>${[...new Set(arr.map((a) => a.grupo))].sort().map((g) => `<option>${esc(g)}</option>`).join("")}</select>
+          <label class="check" style="font-size:14px"><input type="checkbox" data-todos="${id}"> Marcar todos</label></div>` : ""}</div>
+      ${nota ? `<p class="muted" style="margin-top:0">${nota}</p>` : ""}
+      ${arr.length ? `<div class="tablewrap"><table class="t"><thead><tr><th></th><th>Alumno/a</th><th>Grupo</th><th>Alta</th></tr></thead><tbody>
+        ${arr.map((a) => `<tr data-grupo="${esc(a.grupo)}"><td><input type="checkbox" data-sel="${id}" value="${esc(a.email)}"></td><td><b>${esc(a.apellidos)}, ${esc(a.nombre)}</b><div class="muted" style="font-size:12.5px">${esc(a.email)}</div></td><td>${esc(a.grupo)}${a.egresado ? ` <span class="chip gray">terminó ${esc(a.egresado)}</span>` : ""}</td><td>${fecha(a.creado)}</td></tr>`).join("")}
+      </tbody></table></div>
+      <div class="actions" style="margin-top:12px"><label class="check" style="font-size:14px"><input type="checkbox" data-datos="${id}"> Borrar también sus entregas, trabajos y notas</label>
+        <button class="btn danger" data-borrar-sel="${id}">🗑 Borrar las cuentas marcadas</button></div>` : `<div class="empty" style="padding:18px">No hay cuentas.</div>`}
+    </div>`;
+  el.innerHTML = `
+    <div class="card curso-cab">
+      <div><div class="muted">Curso actual</div><div class="curso-num">${esc(c.actual)}</div></div>
+      <div class="curso-info">
+        <p style="margin:0 0 6px">📅 <b>Cierre automático: ${esc(c.cierre)}</b> (hora de Madrid)${c.cerradoActual ? ` · <span class="chip ok">ya cerrado</span>` : ""}</p>
+        <p class="muted" style="margin:0">Ese día, sin que tengas que hacer nada: el alumnado de <b>1.º pasa a 2.º</b> de su ciclo y el de <b>2.º queda como «terminó»</b> (sale de los grupos y ya no puede hacer exámenes nuevos). No se borra nada: después borras sus cuentas en bloque aquí abajo. Los exámenes y trabajos se conservan.</p>
+      </div>
+    </div>
+    <div class="curso-grupos">${c.porGrupo.map((g) => `<div class="curso-g"><b>${esc(g.grupo)}</b><span>${g.n} ${g.n === 1 ? "alumno" : "alumnos"}</span><small>${g.pasaA ? `→ pasa a ${esc(g.pasaA)}` : /^2\.º/.test(g.grupo) ? "→ termina el ciclo" : "—"}</small></div>`).join("") || `<div class="muted">Todavía no hay alumnos.</div>`}</div>
+    ${ult ? `<div class="msg ${ult.automatico ? "info" : ""}" style="margin-top:14px">Último cierre: <b>${esc(ult.curso)}</b> (${ult.automatico ? "automático" : "manual"}, ${new Date(ult.fecha).toLocaleString("es-ES", { day: "2-digit", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}): ${ult.promocionados} pasaron de 1.º a 2.º, ${ult.terminan} terminaron 2.º${ult.notasBorradas ? ", notas del curso borradas" : ""}${ult.sinGrupoSiguiente?.length ? ` · ${ult.sinGrupoSiguiente.length} sin grupo de 2.º: ${esc(ult.sinGrupoSiguiente.join("; "))}` : ""}.</div>` : ""}
+    <div class="card" style="margin-top:16px">
+      <h3 style="margin-top:0">🔄 Cerrar el curso ahora / reiniciar el sistema</h3>
+      <p class="muted" style="margin-top:0">Hace lo mismo que el cierre automático, pero ya. Úsalo, por ejemplo, si el curso acaba antes o quieres empezar de cero.</p>
+      <label class="check"><input type="checkbox" id="cBorrarNotas"> <span>Borrar también <b>todas las notas del curso</b>: entregas de exámenes, trabajos entregados, defensas y notas importadas (los exámenes y trabajos se conservan). Exporta antes las notas desde Grupos si las necesitas.</span></label>
+      <div class="field" style="max-width:360px;margin-top:12px"><label class="flab" for="cConfirmar">Para confirmar, escribe CERRAR</label><input type="text" id="cConfirmar" autocomplete="off"></div>
+      <div class="msg bad" id="cErr" hidden></div>
+      <div class="actions"><button class="btn danger" id="cCerrar">Cerrar el curso ${esc(c.actual)}</button></div>
+    </div>
+    ${lista("🎓 Alumnos que terminaron 2.º", c.terminados, "term", "Ya no están en ningún grupo. Puedes borrar sus cuentas cuando quieras (por ejemplo, tras las reclamaciones de notas).")}
+    ${lista("2.º curso (este curso)", c.segundo, "seg", "Si quieres, también puedes borrar en bloque cuentas de 2.º antes del cierre.")}`;
+  // Selección por grupo y marcar todos
+  $$("[data-filtro]", el).forEach((s) => (s.onchange = () => { $$(`[data-sel="${s.dataset.filtro}"]`, el).forEach((c) => { const tr = c.closest("tr"); tr.hidden = !!s.value && tr.dataset.grupo !== s.value; if (tr.hidden) c.checked = false; }); }));
+  $$("[data-todos]", el).forEach((t) => (t.onchange = () => $$(`[data-sel="${t.dataset.todos}"]`, el).forEach((c) => { if (!c.closest("tr").hidden) c.checked = t.checked; })));
+  $$("[data-borrar-sel]", el).forEach((b) => (b.onclick = async () => {
+    const id = b.dataset.borrarSel, emails = $$(`[data-sel="${id}"]:checked`, el).map((c) => c.value);
+    if (!emails.length) return alert("Marca las cuentas que quieres borrar.");
+    const datos = $(`[data-datos="${id}"]`, el).checked;
+    if (!confirm(`¿Borrar ${emails.length} ${emails.length === 1 ? "cuenta" : "cuentas"} de alumno?${datos ? "\n\nSe borrarán también sus entregas, trabajos y notas." : "\n\nSus entregas se conservan en las listas de los exámenes."}\n\nNo se puede deshacer.`)) return;
+    b.disabled = true;
+    try { const r = await api("/api/admin/alumnos/borrar", { emails, borrarDatos: datos }); alert(`Borradas ${r.borradas} cuentas${datos ? ` y ${r.datos} registros de entregas y notas` : ""}.`); await cargarCurso(); }
+    catch (e) { alert(e.message); b.disabled = false; }
+  }));
+  $("#cCerrar").onclick = async () => {
+    const err = $("#cErr"); err.hidden = true;
+    const borrar = $("#cBorrarNotas").checked;
+    if (!confirm(`¿Cerrar el curso ${c.actual} ahora?\n\n· 1.º pasa a 2.º\n· 2.º queda como «terminó»${borrar ? "\n· SE BORRAN TODAS LAS NOTAS DEL CURSO" : ""}\n\nNo se puede deshacer.`)) return;
+    try {
+      const { resumen: r } = await api("/api/admin/curso/cerrar", { confirmar: $("#cConfirmar").value.trim(), borrarNotas: borrar });
+      alert(`Curso cerrado: ${r.promocionados} alumnos pasan a 2.º y ${r.terminan} terminan.${r.sinGrupoSiguiente.length ? `\n\n${r.sinGrupoSiguiente.length} no tienen grupo de 2.º y se quedan como estaban.` : ""}`);
+      await cargarCurso();
+    } catch (e) { err.textContent = e.message; err.hidden = false; }
+  };
+}
+
 /* ── Trabajos ── */
 let TRABAJOS = [], TRAB = null, FILAS_T = [], ENT_T = null, DEF_PROP = null, VOLVER_TRABAJO = null;
 const ESTADO_TRAB = {
@@ -2171,7 +2245,7 @@ $("#tBorrar").onclick = async () => {
 
 async function abrirTrabajo(id) {
   $$("[data-tab]").forEach((x) => x.setAttribute("aria-selected", x.dataset.tab === "vTrabajos"));
-  ["vExamenes", "vEntregas", "vRespuestas", "vGrupos", "vAlumnos", "vProfes", "vTrabajos"].forEach((v) => ($("#" + v).hidden = true));
+  ["vExamenes", "vEntregas", "vRespuestas", "vGrupos", "vAlumnos", "vProfes", "vCurso", "vTrabajos"].forEach((v) => ($("#" + v).hidden = true));
   $("#vTrabajo").hidden = false;
   $("#tablaEntregasT").innerHTML = `<p class="loading">Cargando…</p>`;
   const d = await api(`/api/profesor/trabajo/entregas?id=${encodeURIComponent(id)}`);
@@ -2371,7 +2445,7 @@ function pintarPropuestaDefensa() {
   if (yo.rol !== "profesor") { location.replace("/panel/"); return; }
   $(".tag").textContent = yo.admin ? "Admin" : "Profesor";
   if (yo.admin) {
-    $("[data-tab=vProfes]").hidden = false;
+    $("[data-tab=vProfes]").hidden = false; $("[data-tab=vCurso]").hidden = false;
     api("/api/admin/profesores").then(({ profesores }) => { const n = profesores.filter((p) => !p.aprobado).length; $("#nPend").hidden = !n; $("#nPend").textContent = n; }).catch(() => {});
   } else {
     $("#subPanel").innerHTML = `Tus ciclos: <b>${esc(CATALOGO_NOMBRES(yo.ciclos))}</b> · crea y publica exámenes, revisa entregas y gestiona tus grupos.`;

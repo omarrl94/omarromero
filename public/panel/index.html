@@ -92,7 +92,8 @@ function tarjetasTrabajos(lista) {
     return;
   }
 
-  if (!esProfe) {
+  if (yo.egresado) $("#sub").insertAdjacentHTML("afterend", `<div class="msg info">Terminaste el ciclo en el curso <b>${esc(yo.egresado)}</b>. Puedes consultar tus notas y entregas hasta que el centro borre tu cuenta.</div>`);
+  if (!esProfe && !yo.egresado) {
     // «¿No es tu grupo?» → el alumno puede corregirlo mientras no haya entregado nada.
     $("#pie").innerHTML = `Estás en <b>${esc(yo.grupo || "")}</b>. ¿No es tu grupo? <button type="button" class="link" id="cambiarGrupo">Cambiar de grupo</button> · Si tienes algún problema con tu cuenta o un examen, avisa a tu profesor.`;
     $("#cambiarGrupo").onclick = async () => {

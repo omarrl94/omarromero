@@ -14,6 +14,15 @@ Funciona en **Netlify** (plan gratuito): páginas estáticas + una Netlify Funct
 | `/trabajo/?id=…` | alumno | Entregar un trabajo (archivos de hasta 4 MB) y hacer su defensa |
 | `/profesor/` | profesor | Subir y publicar exámenes, entregas y notas, revisión, CSV, alumnos, trabajos |
 
+### Curso académico y cierre de curso
+
+El curso va del 1 de julio al 30 de junio. El **30 de junio a las 23:00** (hora de Madrid) se cierra solo
+(función programada `netlify/functions/fin-de-curso.mjs` y, por si acaso, al llegar la primera petición después):
+el alumnado de **1.º pasa a 2.º** de su ciclo y el de **2.º queda como «terminó»** (sale de los grupos y no puede
+hacer exámenes nuevos). No se borra nada. En la pestaña **Curso** (solo administración) se ven los grupos, se
+borran en bloque las cuentas de quienes terminaron (o de 2.º) y se puede cerrar el curso a mano, con la opción de
+borrar todas las notas del curso para empezar de cero (los exámenes y trabajos se conservan).
+
 ### Notas con Alexia y Additio
 
 Ninguno de los dos tiene una API abierta, así que se trabaja con sus archivos Excel (pestaña **Grupos › 🔄 Alexia / Additio**):

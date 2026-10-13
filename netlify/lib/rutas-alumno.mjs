@@ -69,12 +69,14 @@ async function listar(req) {
   }));
   const catalogo = CATALOGO.filter((c) => ciclosDe(u).includes(c.id))
     .map((c) => (esStaff(u) ? c : { ...c, modulos: c.modulos.filter((m) => moduloVisible(c.id, m.id, u)) }));
-  return json({ catalogo, examenes: filas });
+  // Quien ya terminó el ciclo solo ve lo que entregó (no puede empezar exámenes nuevos).
+  return json({ catalogo, examenes: u.egresado ? filas.filter((f) => f.estado === "entregado").map((f) => ({ ...f, puedeRepetir: false })) : filas });
 }
 
 async function ver(req, url) {
   const u = await requiereUsuario(req);
   const ex = await examenPublicado(url.searchParams.get("id"), u);
+  if (u.egresado && !esStaff(u)) fallo(403, `Terminaste el ciclo en el curso ${u.egresado}: ya no puedes hacer exámenes nuevos.`);
   const c = await cuentaIntentos(ex, u.email);
   if (c.quedan <= 0 && !esStaff(u)) sinIntentos(c);
   const b = borradorVigente(c);

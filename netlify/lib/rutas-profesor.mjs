@@ -483,7 +483,7 @@ async function alumnos(req) {
   // El profesor ve los alumnos de sus ciclos; el admin, todas las cuentas de alumno
   // (los profesores se gestionan en la pestaña «Profesores»).
   const lista = (await leerTodas(usuarios(), await usuarios().list()))
-    .filter((u) => rolDe(u) === "alumno" && (admin || gestionaCiclo(yo, cicloDe(u))));
+    .filter((u) => rolDe(u) === "alumno" && !u.egresado && (admin || gestionaCiclo(yo, cicloDe(u))));
   return json({
     grupos: gruposDe(yo),
     alumnos: lista
@@ -563,7 +563,7 @@ async function calificacionesGrupo(req, url) {
   const g = gruposDe(yo).find((x) => x.grupo === url.searchParams.get("grupo"));
   if (!g) fallo(404, "Grupo no encontrado");
   const alumnos = (await leerTodas(usuarios(), await usuarios().list()))
-    .filter((u) => rolDe(u) === "alumno" && u.grupo === g.grupo)
+    .filter((u) => rolDe(u) === "alumno" && !u.egresado && u.grupo === g.grupo)
     .sort((a, b) => `${a.apellidos} ${a.nombre}`.localeCompare(`${b.apellidos} ${b.nombre}`, "es"));
   const ciclo = CATALOGO.find((c) => c.id === g.cicloId);
   const delCurso = (m) => !m.grupos?.length || m.grupos.includes(g.grupo);

@@ -13,6 +13,7 @@ import profesor from "../lib/rutas-profesor.mjs";
 import admin from "../lib/rutas-admin.mjs";
 import trabajos from "../lib/rutas-trabajos.mjs";
 import { cargarModulos } from "../lib/catalogo.mjs";
+import { comprobarCierre } from "../lib/curso.mjs";
 
 const RUTAS = { ...cuenta, ...alumno, ...profesor, ...admin, ...trabajos };
 
@@ -25,6 +26,8 @@ export default async (req) => {
     return json({ error: "Tipo de contenido no admitido" }, 415);
   try {
     await cargarModulos(); // módulos creados desde el panel
+    // Cierre de curso del 30 de junio, por si la función programada no se hubiera ejecutado.
+    await comprobarCierre().catch((e) => console.error("Cierre de curso:", e));
     return await ruta(req, url);
   } catch (e) {
     if (e instanceof HttpError) return json({ error: e.message }, e.status);

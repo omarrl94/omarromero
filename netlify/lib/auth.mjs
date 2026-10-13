@@ -159,5 +159,7 @@ export const perfilPublico = (u) => {
     rol: esStaff(u) ? "profesor" : rol, admin: rol === "admin", ciclos: ciclosDe(u),
     // Contraseña temporal puesta por la administración: hay que cambiarla al entrar.
     ...(u.passTemporal ? { cambiarPassword: true } : {}),
+    // Alumno que terminó 2.º en un cierre de curso (su cuenta se borrará).
+    ...(u.egresado ? { egresado: u.egresado } : {}),
   };
 };

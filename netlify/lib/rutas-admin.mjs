@@ -6,8 +6,54 @@ import { randomInt } from "node:crypto";
 import { CATALOGO } from "./catalogo.mjs";
 import { enviarCorreo, proveedorConfigurado } from "./correo.mjs";
 import { correoAviso, correoCodigo } from "./plantillas.mjs";
+import { cursoAcademico, estadoCurso, cerrarCurso, fechaCierre, grupoSiguiente, borrarDatosAlumnos } from "./curso.mjs";
 
 const usuarios = () => almacen("usuarios");
+
+/* ── Curso académico: cierre, paso de 1.º a 2.º y borrado en bloque ── */
+const fichaAlumno = (u) => ({ email: u.email, nombre: u.nombre, apellidos: u.apellidos, grupo: u.egresadoGrupo || u.grupo, egresado: u.egresado || null, creado: u.creado });
+
+async function curso(req) {
+  await requiereAdmin(req);
+  const actual = cursoAcademico();
+  const est = await estadoCurso();
+  const alumnos = (await leerTodas(usuarios(), await usuarios().list())).filter((u) => rolDe(u) === "alumno" && !esAdmin(u.email));
+  const activos = alumnos.filter((u) => !u.egresado);
+  const porGrupo = {};
+  for (const u of activos) porGrupo[u.grupo || "(sin grupo)"] = (porGrupo[u.grupo || "(sin grupo)"] || 0) + 1;
+  return json({
+    actual, cierre: fechaCierre(actual), cerradoActual: (est.cerrados || []).some((c) => c.curso === actual),
+    historial: (est.cerrados || []).slice(-10).reverse(),
+    porGrupo: Object.entries(porGrupo).map(([grupo, n]) => ({ grupo, n, pasaA: grupoSiguiente(grupo) })).sort((a, b) => a.grupo.localeCompare(b.grupo, "es")),
+    primero: activos.filter((u) => /^1\.º\s/.test(u.grupo || "")).length,
+    segundo: activos.filter((u) => /^2\.º\s/.test(u.grupo || "")).map(fichaAlumno),
+    terminados: alumnos.filter((u) => u.egresado).map(fichaAlumno),
+  });
+}
+
+async function cerrarCursoAhora(req) {
+  const yo = await requiereAdmin(req);
+  const b = await leerCuerpo(req);
+  if (b.confirmar !== "CERRAR") fallo(400, "Escribe CERRAR para confirmar");
+  const r = await cerrarCurso({ curso: cursoAcademico(), automatico: false, borrarNotas: b.borrarNotas === true, por: yo.email });
+  return json({ ok: true, resumen: r });
+}
+
+/** Borra en bloque cuentas de alumnos (y, si se pide, todo lo que han entregado). */
+async function borrarAlumnos(req) {
+  await requiereAdmin(req);
+  const b = await leerCuerpo(req, 500_000);
+  const emails = [...new Set((b.emails || []).map((e) => String(e).toLowerCase()))];
+  if (!emails.length) fallo(400, "No has elegido ninguna cuenta");
+  const borrar = [];
+  for (const e of emails) {
+    const u = await usuarios().get(e);
+    if (u && rolDe(u) === "alumno" && !esAdmin(u.email)) borrar.push(u.email);
+  }
+  for (const e of borrar) await usuarios().del(e);
+  const datos = b.borrarDatos === true ? await borrarDatosAlumnos(borrar) : 0;
+  return json({ ok: true, borradas: borrar.length, datos });
+}
 
 async function profesores(req) {
   await requiereAdmin(req);
@@ -140,6 +186,9 @@ export default {
   "POST /api/admin/alumno/password": passwordTemporal,
   "POST /api/admin/alumno/restablecer": enviarRestablecer,
   "GET /api/admin/profesores": profesores,
+  "GET /api/admin/curso": curso,
+  "POST /api/admin/curso/cerrar": cerrarCursoAhora,
+  "POST /api/admin/alumnos/borrar": borrarAlumnos,
   "POST /api/admin/profesor": editarProfesor,
   "POST /api/admin/profesor/borrar": borrarProfesor,
 };

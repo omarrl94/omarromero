@@ -125,7 +125,7 @@ async function listarAlumno(req) {
     return { ...resumenTrabajo(t), estado: s.estado, notaFinal: s.final, notaTrabajo: e?.notaTrabajo ?? null, defensa: e?.defensa ? { examen: e.defensa.examen, hecha: !!s.def } : null };
   }));
   filas.sort((a, b) => (a.fechaLimite || "9").localeCompare(b.fechaLimite || "9") || a.titulo.localeCompare(b.titulo, "es"));
-  return json({ trabajos: filas });
+  return json({ trabajos: u.egresado ? filas.filter((f) => f.estado !== "pendiente") : filas });
 }
 
 async function verAlumno(req, url) {
