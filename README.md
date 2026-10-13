@@ -30,7 +30,9 @@ El profesor crea un trabajo en un módulo (pestaña **Trabajos**) y el alumnado 
 `/trabajo/`. El navegador extrae el texto de los PDF, Word, PowerPoint, OpenDocument y código, y la IA lo
 usa para preparar una **defensa**: preguntas personalizadas sobre el trabajo de ese alumno (test y abiertas),
 que el profesor revisa y envía. La defensa es un examen privado (solo lo ve ese alumno, un intento y modo seguro).
-Nota final = trabajo × peso + defensa × (100 − peso), o la que ponga el profesor a mano. Aparece también
+Nota final = trabajo × peso + defensa × (100 − peso), o la que ponga el profesor a mano. El profesor puede adjuntar
+archivos al enunciado (plantillas, datos, rúbrica…), que el alumno descarga y la IA también lee, y exigir aprobar la
+defensa: con la defensa por debajo de 5, la nota final es como máximo un 4. Aparece también
 en la pestaña Grupos y en sus exportaciones.
 
 ## Cómo funciona

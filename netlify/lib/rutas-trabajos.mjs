@@ -51,6 +51,8 @@ function validarTrabajo(b, previo) {
     cicloId: ubic.ciclo.id, moduloId: ubic.modulo.id, ciclo: ubic.ciclo.nombre, modulo: ubic.modulo.nombre,
     fechaLimite: fecha ? new Date(fecha).toISOString() : "", admiteTarde: b.admiteTarde !== false,
     pesoTrabajo: peso, nTest, nAbiertas, publicado: b.publicado === true,
+    // Si está activado, con la defensa suspensa (< 5) el trabajo queda suspenso.
+    defensaObligatoria: b.defensaObligatoria === true,
   };
 }
 
@@ -76,8 +78,12 @@ function notaFinal(t, e, def) {
   if (e?.notaTrabajo == null) return null;
   if (!e.defensa) return null; // sin defensa todavía
   if (!def) return null;
-  return r2((e.notaTrabajo * t.pesoTrabajo + def.nota * (100 - t.pesoTrabajo)) / 100);
+  const media = r2((e.notaTrabajo * t.pesoTrabajo + def.nota * (100 - t.pesoTrabajo)) / 100);
+  return defensaSuspende(t, def) ? Math.min(media, NOTA_MAX_SUSPENSO) : media;
 }
+/** Con «hay que aprobar la defensa», una defensa por debajo de 5 deja el trabajo suspenso (como máximo un 4). */
+const NOTA_MAX_SUSPENSO = 4;
+const defensaSuspende = (t, def) => !!t.defensaObligatoria && def?.nota != null && def.nota < 5;
 
 async function estadoAlumno(t, e) {
   const def = await notaDefensa(e);
@@ -90,7 +96,8 @@ async function estadoAlumno(t, e) {
 
 function resumenTrabajo(t) {
   const { id, titulo, descripcion, cicloId, moduloId, ciclo, modulo, fechaLimite, admiteTarde, pesoTrabajo, nTest, nAbiertas, publicado, creado } = t;
-  return { id, titulo, descripcion, cicloId, moduloId, ciclo, modulo, fechaLimite, admiteTarde, pesoTrabajo, nTest, nAbiertas, publicado, creado, autor: t.autor?.nombre || "" };
+  return { id, titulo, descripcion, cicloId, moduloId, ciclo, modulo, fechaLimite, admiteTarde, pesoTrabajo, nTest, nAbiertas, publicado, creado,
+    defensaObligatoria: !!t.defensaObligatoria, adjuntos: t.adjuntos || [], autor: t.autor?.nombre || "" };
 }
 const archivosPublicos = (e) => (e?.archivos || []).map(({ id, nombre, tipo, tamano, fecha }) => ({ id, nombre, tipo, tamano, fecha }));
 
@@ -124,6 +131,7 @@ async function verAlumno(req, url) {
       estado: s.estado, archivos: archivosPublicos(e), comentario: e.comentario || "", fecha: e.fecha || null, tarde: !!e.tarde,
       notaTrabajo: s.final != null || e.publicarNota ? e.notaTrabajo ?? null : null, comentarioProfesor: e.comentarioProfesor || "",
       defensa: e.defensa ? { examen: e.defensa.examen, hecha: !!s.def, nota: s.def?.nota ?? null } : null, notaFinal: s.final,
+      suspensoPorDefensa: e.notaFinalManual == null && defensaSuspende(t, s.def),
     } : { estado: "pendiente", archivos: [] },
   });
 }
@@ -208,6 +216,65 @@ async function descargar(req, url) {
   });
 }
 
+/* ── Archivos del enunciado (los pone el profesor) ─────────────── */
+const claveAdjunto = (id, f) => `${id}/_enunciado/${f}`;
+const MAX_ADJUNTOS = 8;
+
+async function subirAdjunto(req) {
+  const u = await requiereProfesor(req);
+  const b = await leerCuerpo(req, Math.ceil(MAX_ARCHIVO * 1.4) + 250_000);
+  const t = await trabajoProfesor(b.id, u);
+  const nombre = texto(b.nombre, 160).replace(/[\\/]/g, "_");
+  if (!nombre || !TIPOS.test(nombre)) fallo(400, "Tipo de archivo no admitido (PDF, Word, PowerPoint, Excel, imágenes, código, ZIP…)");
+  const datos = String(b.datos || "");
+  if (!/^[A-Za-z0-9+/=]+$/.test(datos)) fallo(400, "Archivo no válido");
+  const tamano = Math.floor((datos.length * 3) / 4);
+  if (tamano > MAX_ARCHIVO) fallo(413, "El archivo ocupa más de 4 MB. Comprímelo o divídelo en varios.");
+  const adjuntos = t.adjuntos || [];
+  if (adjuntos.length >= MAX_ADJUNTOS) fallo(400, `Como máximo ${MAX_ADJUNTOS} archivos en el enunciado`);
+  const f = randomBytes(6).toString("hex");
+  await archivos().set(claveAdjunto(t.id, f), { nombre, tipo: texto(b.tipo, 100) || "application/octet-stream", datos, texto: String(b.texto || "").slice(0, 60_000) });
+  adjuntos.push({ id: f, nombre, tipo: texto(b.tipo, 100), tamano, fecha: new Date().toISOString() });
+  await trabajos().set(t.id, { ...t, adjuntos, actualizado: new Date().toISOString() });
+  return json({ ok: true, adjuntos });
+}
+
+async function borrarAdjunto(req) {
+  const u = await requiereProfesor(req);
+  const b = await leerCuerpo(req);
+  const t = await trabajoProfesor(b.id, u);
+  await archivos().del(claveAdjunto(t.id, String(b.adjunto || "")));
+  const adjuntos = (t.adjuntos || []).filter((a) => a.id !== b.adjunto);
+  await trabajos().set(t.id, { ...t, adjuntos, actualizado: new Date().toISOString() });
+  return json({ ok: true, adjuntos });
+}
+
+/** Descarga de un archivo del enunciado: alumnado que ve el trabajo y profesorado que lo gestiona. */
+async function descargarAdjunto(req, url) {
+  const u = await requiereUsuario(req);
+  const t = await trabajoDe(url.searchParams.get("t"), u);
+  const a = await archivos().get(claveAdjunto(t.id, url.searchParams.get("f") || ""));
+  if (!a) fallo(404, "Archivo no encontrado");
+  return new Response(Buffer.from(a.datos, "base64"), {
+    headers: {
+      "Content-Type": a.tipo || "application/octet-stream",
+      "Content-Disposition": `attachment; filename*=UTF-8''${encodeURIComponent(a.nombre)}`,
+      "Cache-Control": "private, no-store",
+      "X-Content-Type-Options": "nosniff",
+    },
+  });
+}
+
+/** Texto de los archivos del enunciado, para que la IA sepa qué se pedía. */
+async function textoAdjuntos(t) {
+  const partes = [];
+  for (const a of t.adjuntos || []) {
+    const x = await archivos().get(claveAdjunto(t.id, a.id));
+    if (x?.texto) partes.push(`### ${a.nombre}\n${x.texto}`);
+  }
+  return partes.join("\n\n").slice(0, 30_000);
+}
+
 /* ── Profesorado ────────────────────────────────────────────── */
 async function listarProfesor(req) {
   const u = await requiereProfesor(req);
@@ -229,7 +296,7 @@ async function guardarTrabajo(req) {
   const t = validarTrabajo(b, previo);
   if (!gestionaCiclo(u, t.cicloId)) fallo(403, "Solo puedes crear trabajos de tus ciclos");
   const ahora = new Date().toISOString();
-  await trabajos().set(t.id, { ...t, creado: previo?.creado || ahora, actualizado: ahora, autor: previo?.autor || { email: u.email, nombre: `${u.nombre} ${u.apellidos}`.trim() } });
+  await trabajos().set(t.id, { ...t, adjuntos: previo?.adjuntos || [], creado: previo?.creado || ahora, actualizado: ahora, autor: previo?.autor || { email: u.email, nombre: `${u.nombre} ${u.apellidos}`.trim() } });
   return json({ ok: true, id: t.id });
 }
 
@@ -261,7 +328,7 @@ async function entregasProfesor(req, url) {
     return {
       email: e.email, nombre: e.nombre, apellidos: e.apellidos, grupo: e.grupo, estado: s.estado, fecha: e.fecha, fechaTexto: e.fechaTexto, tarde: !!e.tarde,
       archivos: archivosPublicos(e), notaTrabajo: e.notaTrabajo ?? null, defensa: e.defensa ? { examen: e.defensa.examen, enviada: e.defensa.fecha, nota: s.def?.nota ?? null } : null,
-      notaFinal: s.final, notaFinalManual: e.notaFinalManual ?? null,
+      notaFinal: s.final, notaFinalManual: e.notaFinalManual ?? null, suspensoPorDefensa: e.notaFinalManual == null && defensaSuspende(t, s.def),
     };
   }));
   filas.sort((a, b) => `${a.grupo} ${a.apellidos} ${a.nombre}`.localeCompare(`${b.grupo} ${b.apellidos} ${b.nombre}`, "es"));
@@ -282,6 +349,7 @@ async function entregaProfesor(req, url) {
       comentario: e.comentario || "", archivos: archivosPublicos(e), texto: textoTotal.slice(0, 200_000), caracteres: textoTotal.length,
       notaTrabajo: e.notaTrabajo ?? null, comentarioProfesor: e.comentarioProfesor || "", notaFinalManual: e.notaFinalManual ?? null,
       defensa: e.defensa ? { ...e.defensa, nota: s.def?.nota ?? null, fechaHecha: s.def?.fecha || null } : null, notaFinal: s.final,
+      suspensoPorDefensa: e.notaFinalManual == null && defensaSuspende(t, s.def),
     },
   });
 }
@@ -334,7 +402,8 @@ async function generarDefensaRuta(req) {
   const textoTrabajo = (e.archivos || []).map((a) => (e.textos?.[a.id] ? `### Archivo: ${a.nombre}\n${e.textos[a.id]}` : `### Archivo: ${a.nombre} (sin texto legible)`)).join("\n\n");
   if (textoTrabajo.replace(/###.*\n?/g, "").trim().length < 200) fallo(400, "No hay texto suficiente en los archivos del trabajo (¿son imágenes o un ZIP?). Pide al alumno el trabajo en PDF o Word (devuélveselo para que lo cambie).");
   const nTest = Math.max(0, Math.min(15, Number(b.nTest ?? t.nTest) || 0)), nAbiertas = Math.max(0, Math.min(6, Number(b.nAbiertas ?? t.nAbiertas) || 0));
-  const r = await generarDefensa({ titulo: t.titulo, enunciado: t.descripcion, trabajo: textoTrabajo.slice(0, 80_000), nTest, nAbiertas, indicaciones: texto(b.indicaciones, 800) });
+  const adj = await textoAdjuntos(t);
+  const r = await generarDefensa({ titulo: t.titulo, enunciado: [t.descripcion, adj && `Archivos del enunciado:\n${adj}`].filter(Boolean).join("\n\n"), trabajo: textoTrabajo.slice(0, 80_000), nTest, nAbiertas, indicaciones: texto(b.indicaciones, 800) });
   return json(r);
 }
 
@@ -401,6 +470,9 @@ export default {
   "POST /api/trabajo/archivo/borrar": borrarArchivo,
   "POST /api/trabajo/entregar": entregar,
   "GET /api/trabajo/descargar": descargar,
+  "GET /api/trabajo/adjunto": descargarAdjunto,
+  "POST /api/profesor/trabajo/adjunto": subirAdjunto,
+  "POST /api/profesor/trabajo/adjunto/borrar": borrarAdjunto,
   "GET /api/profesor/trabajos": listarProfesor,
   "POST /api/profesor/trabajo": guardarTrabajo,
   "POST /api/profesor/trabajo/borrar": borrarTrabajo,

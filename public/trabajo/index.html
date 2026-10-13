@@ -61,11 +61,12 @@ function pintar() {
   $("#vista").innerHTML = `
     <div class="card trab-enun">
       <div class="meta" style="margin:0 0 10px"><span class="${cls}">${txt}</span>${e.tarde ? `<span class="chip s">Entregado con retraso</span>` : ""}</div>
-      ${t.descripcion ? `<div class="trab-desc">${esc(t.descripcion)}</div>` : `<p class="muted" style="margin:0">El profesor no ha añadido instrucciones.</p>`}
-      <p class="hintline" style="margin-bottom:0">La nota final combina la del <b>trabajo (${t.pesoTrabajo}%)</b> y la de una <b>defensa (${100 - t.pesoTrabajo}%)</b>: unas preguntas personalizadas sobre lo que has entregado, para comprobar que lo has hecho tú.</p>
+      ${t.descripcion ? `<div class="trab-desc">${esc(t.descripcion)}</div>` : t.adjuntos?.length ? "" : `<p class="muted" style="margin:0">El profesor no ha añadido instrucciones.</p>`}
+      ${t.adjuntos?.length ? `<div class="trab-adj"><b>📂 Archivos del profesor</b><ul class="trab-arch">${t.adjuntos.map((a) => `<li><a href="/api/trabajo/adjunto?t=${encodeURIComponent(t.id)}&f=${encodeURIComponent(a.id)}">📎 ${esc(a.nombre)}</a><span class="muted">${kb(a.tamano)}</span></li>`).join("")}</ul></div>` : ""}
+      <p class="hintline" style="margin-bottom:0">La nota final combina la del <b>trabajo (${t.pesoTrabajo}%)</b> y la de una <b>defensa (${100 - t.pesoTrabajo}%)</b>: unas preguntas personalizadas sobre lo que has entregado, para comprobar que lo has hecho tú.${t.defensaObligatoria ? " <b>Hay que aprobar la defensa</b> (5 o más) para aprobar el trabajo." : ""}</p>
     </div>
     ${e.notaFinal != null ? `<div class="card trab-nota"><div><div class="muted">Nota final</div><div class="nota">${nota(e.notaFinal)}<small> /10</small></div></div>
-      <div class="trab-desg">${e.notaTrabajo != null ? `<span>Trabajo: <b>${nota(e.notaTrabajo)}</b></span>` : ""}${def?.nota != null ? `<span>Defensa: <b>${nota(def.nota)}</b></span>` : ""}</div></div>` : ""}
+      <div class="trab-desg">${e.notaTrabajo != null ? `<span>Trabajo: <b>${nota(e.notaTrabajo)}</b></span>` : ""}${def?.nota != null ? `<span>Defensa: <b>${nota(def.nota)}</b></span>` : ""}${e.suspensoPorDefensa ? `<span class="chip bad">Suspenso: la defensa no está aprobada</span>` : ""}</div></div>` : ""}
     ${e.comentarioProfesor ? `<div class="msg info"><b>Comentario del profesor:</b> ${esc(e.comentarioProfesor)}</div>` : ""}
     ${def ? `<div class="card trab-def"><div><h3 style="margin:0 0 4px">🎤 Defensa del trabajo</h3>
         <p class="muted" style="margin:0">${def.hecha ? "Ya has hecho la defensa." : "Tu profesor ha preparado unas preguntas sobre tu trabajo. Tienes un solo intento y no puedes salir de la pantalla mientras la haces."}</p></div>

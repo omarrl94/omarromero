@@ -272,6 +272,10 @@
       <div class="field"><label class="flab" for="tModulo">Módulo</label><select id="tModulo"></select></div>
     </div>
     <div class="field"><label class="flab" for="tDesc">Enunciado e instrucciones</label><textarea id="tDesc" style="min-height:120px" placeholder="Qué tiene que hacer el alumno, qué debe entregar y cómo se evalúa. La IA también lo usa para preparar la defensa."></textarea></div>
+    <div class="field"><span class="flab">Archivos del enunciado (opcional)</span>
+      <ul class="trab-arch" id="tAdjuntos"></ul>
+      <label class="drop" id="tAdjDrop"><input type="file" id="tAdjArchivo" multiple hidden><span id="tAdjTxt">Adjunta el enunciado, plantillas, datos, rúbrica… (PDF, Word, Excel, ZIP… · máx. 4 MB cada uno)</span></label>
+      <span class="hintline">El alumno los descarga desde el trabajo. La IA también los lee para preparar la defensa.</span></div>
     <div class="row2">
       <div class="field"><label class="flab" for="tFecha">Fecha límite (opcional)</label><input type="datetime-local" id="tFecha"></div>
       <div class="field"><label class="flab" for="tPeso">Peso del trabajo en la nota final (%)</label><input type="number" id="tPeso" min="0" max="100" step="5" value="60"><span class="hintline" id="tPesoInfo"></span></div>
@@ -282,6 +286,7 @@
     </div>
     <div style="display:grid;gap:10px;margin:4px 0 14px">
       <label class="check"><input type="checkbox" id="tTarde" checked> Admitir entregas fuera de plazo (quedan marcadas como «con retraso»)</label>
+      <label class="check"><input type="checkbox" id="tDefOblig"> <span>🎤 Hay que <b>aprobar la defensa</b> para aprobar el trabajo (si la defensa sale por debajo de 5, la nota final es como máximo un 4)</span></label>
       <label class="check"><input type="checkbox" id="tPub"> Publicar ya (visible para los alumnos del módulo)</label>
     </div>
     <div class="msg bad" data-err hidden></div>
@@ -296,6 +301,7 @@
 </dialog>
 
 <script src="/assets/app.js"></script>
+<script src="/assets/extraer.js"></script>
 <script>
 const svg = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const ICONO = {
@@ -2059,7 +2065,7 @@ async function cargarTrabajos() {
   if (!trabajos.length) { c.innerHTML = `<div class="empty">Todavía no has creado ningún trabajo. Pulsa <b>＋ Nuevo trabajo</b>.</div>`; return; }
   c.innerHTML = `<div class="tablewrap"><table class="t"><thead><tr><th>Trabajo</th><th>Módulo</th><th>Fecha límite</th><th class="num">Entregas</th><th>Estado</th><th></th></tr></thead><tbody>
     ${trabajos.map((t) => `<tr data-id="${esc(t.id)}">
-      <td><b>${esc(t.titulo)}</b><div class="muted" style="font-size:13px">Trabajo ${t.pesoTrabajo}% · defensa ${100 - t.pesoTrabajo}% (${t.nTest} test, ${t.nAbiertas} abiertas)</div></td>
+      <td><b>${esc(t.titulo)}</b><div class="muted" style="font-size:13px">Trabajo ${t.pesoTrabajo}% · defensa ${100 - t.pesoTrabajo}% (${t.nTest} test, ${t.nAbiertas} abiertas)${t.defensaObligatoria ? " · 🎤 defensa obligatoria" : ""}${t.adjuntos?.length ? ` · 📎 ${t.adjuntos.length}` : ""}</div></td>
       <td><span class="tag">${esc(t.ciclo)}</span> ${esc(t.modulo)}</td>
       <td>${t.fechaLimite ? esc(new Date(t.fechaLimite).toLocaleString("es-ES", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })) : "—"}</td>
       <td class="num"><b>${t.entregas}</b>${t.sinCalificar ? ` <span class="chip s" title="Sin nota del trabajo">${t.sinCalificar} por revisar</span>` : ""}</td>
@@ -2088,11 +2094,48 @@ function editarTrabajo(t) {
   $("#tTitulo").value = t?.titulo || ""; $("#tDesc").value = t?.descripcion || "";
   $("#tFecha").value = aLocal(t?.fechaLimite); $("#tPeso").value = t?.pesoTrabajo ?? 60;
   $("#tNTest").value = t?.nTest ?? 5; $("#tNAb").value = t?.nAbiertas ?? 2;
-  $("#tTarde").checked = t ? t.admiteTarde : true; $("#tPub").checked = !!t?.publicado;
+  $("#tTarde").checked = t ? t.admiteTarde : true; $("#tPub").checked = !!t?.publicado; $("#tDefOblig").checked = !!t?.defensaObligatoria;
+  ADJ_PEND = []; ADJ_T = t?.adjuntos ? [...t.adjuntos] : []; pintarAdjuntosT();
   $("#tBorrar").hidden = !t;
   $("#tPeso").oninput();
   $("#dTrabajo").showModal();
 }
+/* Archivos del enunciado */
+let ADJ_PEND = [], ADJ_T = [];
+const b64Archivo = (file) => new Promise((ok, ko) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(",")[1] || ""); r.onerror = () => ko(new Error("No se ha podido leer el archivo")); r.readAsDataURL(file); });
+function pintarAdjuntosT() {
+  const id = $("#fTrabajo").dataset.id;
+  $("#tAdjuntos").innerHTML = [...ADJ_T.map((a) => `<li><a href="/api/trabajo/adjunto?t=${encodeURIComponent(id)}&f=${encodeURIComponent(a.id)}">📎 ${esc(a.nombre)}</a><span class="muted">${kbT(a.tamano)}</span><button type="button" class="btn ghost sm" data-adj-borrar="${esc(a.id)}">Quitar</button></li>`),
+    ...ADJ_PEND.map((f, i) => `<li>📎 ${esc(f.name)} <span class="muted">${kbT(f.size)} · se sube al guardar</span><button type="button" class="btn ghost sm" data-adj-pend="${i}">Quitar</button></li>`)].join("");
+  $$("[data-adj-pend]").forEach((b) => (b.onclick = () => { ADJ_PEND.splice(Number(b.dataset.adjPend), 1); pintarAdjuntosT(); }));
+  $$("[data-adj-borrar]").forEach((b) => (b.onclick = async () => {
+    try { ADJ_T = (await api("/api/profesor/trabajo/adjunto/borrar", { id, adjunto: b.dataset.adjBorrar })).adjuntos; pintarAdjuntosT(); } catch (e) { alert(e.message); }
+  }));
+}
+async function subirAdjuntosT(id, files) {
+  const fallos = [];
+  for (const f of files) {
+    if (f.size > 4 * 1024 * 1024) { fallos.push(`«${f.name}» ocupa más de 4 MB`); continue; }
+    $("#tAdjTxt").textContent = `Subiendo «${f.name}»…`;
+    try {
+      const [datos, texto] = await Promise.all([b64Archivo(f), window.extraerTexto ? window.extraerTexto(f) : ""]);
+      ADJ_T = (await api("/api/profesor/trabajo/adjunto", { id, nombre: f.name, tipo: f.type, datos, texto })).adjuntos;
+    } catch (e) { fallos.push(`«${f.name}»: ${e.message}`); }
+  }
+  $("#tAdjTxt").textContent = "Adjunta el enunciado, plantillas, datos, rúbrica… (PDF, Word, Excel, ZIP… · máx. 4 MB cada uno)";
+  pintarAdjuntosT();
+  return fallos;
+}
+async function anadirAdjuntosT(files) {
+  const id = $("#fTrabajo").dataset.id;
+  if (!id) { ADJ_PEND.push(...files); pintarAdjuntosT(); return; }
+  const fallos = await subirAdjuntosT(id, files);
+  if (fallos.length) alert(fallos.join("\n"));
+}
+$("#tAdjArchivo").onchange = (e) => { anadirAdjuntosT([...e.target.files]); e.target.value = ""; };
+$("#tAdjDrop").ondragover = (e) => { e.preventDefault(); $("#tAdjDrop").classList.add("over"); };
+$("#tAdjDrop").ondragleave = () => $("#tAdjDrop").classList.remove("over");
+$("#tAdjDrop").ondrop = (e) => { e.preventDefault(); $("#tAdjDrop").classList.remove("over"); anadirAdjuntosT([...e.dataTransfer.files]); };
 $("#nuevoTrabajo").onclick = () => editarTrabajo(null);
 $("#trabEditar").onclick = () => editarTrabajo(TRAB);
 $("#fTrabajo").onsubmit = async (ev) => {
@@ -2103,7 +2146,10 @@ $("#fTrabajo").onsubmit = async (ev) => {
       id: f.dataset.id || undefined, titulo: $("#tTitulo").value, descripcion: $("#tDesc").value, cicloId: $("#tCiclo").value, moduloId: $("#tModulo").value,
       fechaLimite: $("#tFecha").value ? new Date($("#tFecha").value).toISOString() : "", pesoTrabajo: Number($("#tPeso").value),
       nTest: Number($("#tNTest").value), nAbiertas: Number($("#tNAb").value), admiteTarde: $("#tTarde").checked, publicado: $("#tPub").checked,
+      defensaObligatoria: $("#tDefOblig").checked,
     });
+    // Archivos elegidos antes de guardar un trabajo nuevo: se suben ahora que ya tiene identificador.
+    if (ADJ_PEND.length) { f.dataset.id = r.id; const pend = ADJ_PEND; ADJ_PEND = []; const fallos = await subirAdjuntosT(r.id, pend); if (fallos.length) alert("Trabajo guardado, pero algún archivo no se ha subido:\n" + fallos.join("\n")); }
     $("#dTrabajo").close();
     if (!$("#vTrabajo").hidden) abrirTrabajo(r.id); else cargarTrabajos();
   } catch (e) { err.textContent = e.message; err.hidden = false; }
@@ -2123,7 +2169,7 @@ async function abrirTrabajo(id) {
   const d = await api(`/api/profesor/trabajo/entregas?id=${encodeURIComponent(id)}`);
   TRAB = d.trabajo; FILAS_T = d.filas;
   $("#trabTitulo").textContent = TRAB.titulo;
-  $("#trabInfo").innerHTML = `${esc(TRAB.ciclo)} · ${esc(TRAB.modulo)} · ${TRAB.fechaLimite ? `hasta el ${esc(new Date(TRAB.fechaLimite).toLocaleString("es-ES", { day: "2-digit", month: "long", hour: "2-digit", minute: "2-digit" }))}` : "sin fecha límite"} · trabajo ${TRAB.pesoTrabajo}% + defensa ${100 - TRAB.pesoTrabajo}%${TRAB.publicado ? "" : " · <span class='chip gray'>Oculto</span>"}`;
+  $("#trabInfo").innerHTML = `${esc(TRAB.ciclo)} · ${esc(TRAB.modulo)} · ${TRAB.fechaLimite ? `hasta el ${esc(new Date(TRAB.fechaLimite).toLocaleString("es-ES", { day: "2-digit", month: "long", hour: "2-digit", minute: "2-digit" }))}` : "sin fecha límite"} · trabajo ${TRAB.pesoTrabajo}% + defensa ${100 - TRAB.pesoTrabajo}%${TRAB.defensaObligatoria ? " · 🎤 hay que aprobar la defensa" : ""}${TRAB.publicado ? "" : " · <span class='chip gray'>Oculto</span>"}`;
   const grupos = [...new Set(FILAS_T.map((f) => f.grupo).filter(Boolean))].sort();
   const g = $("#filtroGrupoT").value;
   $("#filtroGrupoT").innerHTML = `<option value="">Todos los grupos</option>` + grupos.map((x) => `<option ${x === g ? "selected" : ""}>${esc(x)}</option>`).join("");
@@ -2144,7 +2190,7 @@ function pintarEntregasT() {
       <td>${f.archivos.map((a) => `<a href="${urlArchivo(TRAB.id, f.email, a)}" title="${esc(a.nombre)} · ${kbT(a.tamano)}">📎</a>`).join(" ")} <span class="muted">${f.archivos.length}</span></td>
       <td class="num">${notaT(f.notaTrabajo)}</td>
       <td class="num">${f.defensa ? (f.defensa.nota != null ? notaT(f.defensa.nota) : `<span class="muted" title="Enviada, aún sin hacer">⏳</span>`) : "—"}</td>
-      <td class="num"><b>${notaT(f.notaFinal)}</b>${f.notaFinalManual != null ? ` <span title="Nota final puesta a mano">✎</span>` : ""}</td>
+      <td class="num"><b>${notaT(f.notaFinal)}</b>${f.notaFinalManual != null ? ` <span title="Nota final puesta a mano">✎</span>` : ""}${f.suspensoPorDefensa ? ` <span title="Suspenso por no aprobar la defensa">🎤✗</span>` : ""}</td>
       <td>${chipEstadoT(f.estado)}</td>
       <td><button class="btn sm" data-ver-t>Revisar</button></td></tr>`).join("")}</tbody></table></div>`;
   $$("#tablaEntregasT [data-ver-t]").forEach((b) => (b.onclick = () => verEntregaT(b.closest("tr").dataset.email)));
@@ -2183,7 +2229,7 @@ function pintarEntregaT() {
         <div class="notas3">
           <div class="field"><label class="flab" for="ntTrab">Nota del trabajo (0–10)</label><input type="text" inputmode="decimal" id="ntTrab" value="${e.notaTrabajo ?? ""}"></div>
           <div class="field"><label class="flab" for="ntFinal">Nota final a mano (opcional)</label><input type="text" inputmode="decimal" id="ntFinal" value="${e.notaFinalManual ?? ""}" placeholder="${media != null ? `Calculada: ${fmt(media)}` : "Se calcula sola"}"></div>
-          <div class="field"><span class="flab">Nota final</span><div style="font-size:24px;font-weight:800;padding-top:4px">${notaT(e.notaFinal)}</div></div>
+          <div class="field"><span class="flab">Nota final</span><div style="font-size:24px;font-weight:800;padding-top:4px">${notaT(e.notaFinal)}</div>${e.suspensoPorDefensa ? `<span class="chip bad" style="align-self:flex-start">Suspenso: no ha aprobado la defensa</span>` : ""}</div>
         </div>
         <div class="field"><label class="flab" for="ntCom">Comentario para el alumno</label><textarea id="ntCom" style="min-height:70px">${esc(e.comentarioProfesor || "")}</textarea></div>
         <label class="check" style="margin-bottom:12px"><input type="checkbox" id="ntAvisar" checked> Avisar al alumno por correo cuando tenga la nota final</label>
