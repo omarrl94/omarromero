@@ -73,7 +73,7 @@
   <section id="vGrupos" hidden>
     <div class="toolbar"><h2>Grupos y calificaciones</h2>
       <div class="acts"><select id="selGrupo" style="width:auto" aria-label="Grupo"></select>
-        <button class="btn ghost" id="grupoExcel">⬇ Excel</button><button class="btn" id="grupoPDF">⬇ PDF</button></div></div>
+        <button class="btn ghost" id="grupoConectar" title="Exportar o importar notas con los archivos Excel de Alexia o Additio">🔄 Alexia / Additio</button><button class="btn ghost" id="grupoExcel">⬇ Excel</button><button class="btn" id="grupoPDF">⬇ PDF</button></div></div>
     <div class="grupoopts">
       <div class="tabs" role="tablist" aria-label="Vista">
         <button type="button" role="tab" aria-selected="true" data-vista-grupo="detalle">Detalle por examen</button>
@@ -231,6 +231,34 @@
       <button class="btn" type="submit">Guardar revisión y puntos</button>
     </form>
     <div id="dEntCont"></div>
+  </div>
+</dialog>
+
+<!-- Alexia / Additio -->
+<dialog id="dConectar" class="wide">
+  <div class="dhead"><h2>🔄 Alexia / Additio · <span id="cxGrupo"></span></h2><button class="btn ghost sm" data-close>Cerrar</button></div>
+  <div class="dbody">
+    <div class="tabs" role="tablist">
+      <button type="button" role="tab" aria-selected="true" data-cx="exportar">⬇ Pasar notas de la web a Alexia / Additio</button>
+      <button type="button" role="tab" aria-selected="false" data-cx="importar">⬆ Traer notas de Alexia / Additio</button>
+    </div>
+    <div data-solo-cx="exportar">
+      <ol class="cx-pasos">
+        <li>En <b>Alexia</b> (cuaderno del profesor › exportar a Excel) o en <b>Additio</b> (exportar a Excel), descarga la hoja de notas de este grupo.</li>
+        <li>Súbela aquí y elige qué nota de la web va en cada columna.</li>
+        <li>Descarga el archivo: es <b>el mismo</b>, con las notas escritas y sin tocar su formato. Vuelve a importarlo en Alexia o Additio.</li>
+      </ol>
+    </div>
+    <div data-solo-cx="importar" hidden>
+      <ol class="cx-pasos">
+        <li>Exporta a Excel el cuaderno de <b>Additio</b> o <b>Alexia</b> (o usa cualquier Excel con los nombres de los alumnos y sus notas).</li>
+        <li>Súbelo aquí y marca las columnas de notas que quieres traer.</li>
+        <li>Se añaden en <b>Grupos</b> como notas del módulo que elijas y cuentan en su media.</li>
+      </ol>
+    </div>
+    <label class="drop" style="margin-top:6px"><input type="file" id="cxArchivo" accept=".xlsx,.xlsm,.xls,.ods,.csv" hidden><span>Elige el archivo de Alexia o Additio (.xlsx, .xls, .ods o .csv)</span></label>
+    <div class="msg bad" id="cxErr" hidden></div><div class="msg ok" id="cxOk" hidden></div>
+    <div id="cxPaso2"></div>
   </div>
 </dialog>
 
@@ -1438,7 +1466,7 @@ function pintarGrupo() {
   const media = finales.length ? r2(finales.reduce((s, x) => s + x, 0) / finales.length) : null;
   const aprobados = finales.filter((x) => x >= 5).length;
   const cab1 = mods.map((m) => `<th colspan="${detalle ? m.examenes.length + 1 : 1}" class="modh">${esc(m.nombre)}</th>`).join("");
-  const cab2 = mods.map((m) => (detalle ? m.examenes.map((ex) => `<th class="num exh" title="${esc(ex.titulo)}">${esc(ex.titulo)}${ex.publicado ? "" : " <span class='muted'>(oculto)</span>"}</th>`).join("") : "") + `<th class="num">${detalle ? "Nota módulo" : "Nota"}</th>`).join("");
+  const cab2 = mods.map((m) => (detalle ? m.examenes.map((ex) => `<th class="num exh" title="${esc(ex.titulo)}${ex.externa ? ` · importada${ex.origen ? ` de ${ex.origen}` : ""}` : ""}">${ex.externa ? "⬆ " : ""}${esc(ex.titulo)}${ex.publicado ? "" : " <span class='muted'>(oculto)</span>"}${ex.externa ? ` <button type="button" class="link" data-borrar-ext="${esc(ex.id.slice(8))}" title="Quitar esta columna importada">✕</button>` : ""}</th>`).join("") : "") + `<th class="num">${detalle ? "Nota módulo" : "Nota"}</th>`).join("");
   t.innerHTML = `<div class="meta" style="margin-bottom:12px">
       <span class="chip v">${GRUPO.alumnos.length} alumnos</span>
       <span class="chip gray">${mods.length} ${mods.length === 1 ? "módulo" : "módulos"} · ${((n) => `${n} ${n === 1 ? "examen" : "exámenes"}`)(mods.reduce((s, m) => s + m.examenes.length, 0))}</span>
@@ -1457,7 +1485,11 @@ function pintarGrupo() {
       ${mods.length > 1 ? celdaNota(f.final).replace("nota-c", "nota-c fin") : ""}
       <td><select data-mover style="width:auto;min-width:118px;padding:4px 28px 4px 8px;font-size:13px" aria-label="Cambiar de grupo">${GRUPOS.filter((g) => g.cicloId === GRUPO.ciclo.id).map((g) => `<option ${g.grupo === GRUPO.grupo ? "selected" : ""}>${esc(g.grupo)}</option>`).join("")}</select></td>
     </tr>`).join("")}</tbody></table></div>
-    <p class="hintline">La nota de cada examen es la final (la revisada por el profesor si la hay; si hay varios intentos, la del que cuenta). Nota del módulo = media de sus exámenes; «NP» = no presentado. ✍ = respuestas escritas sin revisar.</p>`;
+    <p class="hintline">La nota de cada examen es la final (la revisada por el profesor si la hay; si hay varios intentos, la del que cuenta). Nota del módulo = media de sus exámenes, trabajos y notas importadas (⬆); «NP» = no presentado. ✍ = respuestas escritas sin revisar.</p>`;
+  $$("#tablaGrupo [data-borrar-ext]").forEach((b) => (b.onclick = async () => {
+    if (!confirm("¿Quitar esta columna de notas importadas? Las notas de la web no se tocan.")) return;
+    try { await api("/api/profesor/grupo/externa/borrar", { grupo: GRUPO.grupo, id: b.dataset.borrarExt }); await cargarGrupo(); } catch (e) { alert(e.message); }
+  }));
   $$("#tablaGrupo [data-mover]").forEach((s) => (s.onchange = async () => {
     const email = s.closest("tr").dataset.email;
     if (!confirm(`¿Mover a ${email} al grupo ${s.value}?\n\nVerá los exámenes de los módulos de ese curso.`)) { s.value = GRUPO.grupo; return; }
@@ -1664,6 +1696,346 @@ function pintarAlumnos() {
     if (!confirm(`¿Borrar la cuenta ${email}?\n\nSus entregas se conservan. Podrá registrarse de nuevo.`)) return;
     try { await api("/api/profesor/alumno/borrar", { email }); cargarAlumnos(); } catch (e) { alert(e.message); }
   }));
+}
+
+/* ── Alexia / Additio: exportar e importar notas con sus archivos Excel ──
+ * Ninguno de los dos tiene una API abierta: se trabaja con la hoja de cálculo
+ * que exportan (plantilla del cuaderno) y que vuelven a importar.
+ *  · Exportar: se sube la plantilla, se elige qué nota va en cada columna y se
+ *    descarga el MISMO archivo con las notas escritas (sin tocar su formato).
+ *  · Importar: se sube su Excel y las columnas elegidas pasan a ser columnas
+ *    de notas del grupo (cuentan en la media del módulo).
+ */
+let CX = null; // { file, buf, wb, hoja, rows, off:{r,c}, cab, modo }
+const normNom = (s) => String(s ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-zñ@.\d ]+/g, " ").replace(/\s+/g, " ").trim();
+const tokens = (s) => new Set(normNom(s).split(" ").filter((t) => t.length > 1 && !/^(de|del|la|las|los|y)$/.test(t)));
+
+/** Empareja un nombre (y correo, si lo hay) del archivo con un alumno del grupo. */
+function emparejar(nombre, correo, alumnos) {
+  const em = String(correo || "").trim().toLowerCase();
+  if (em) { const a = alumnos.find((x) => x.email === em); if (a) return a; }
+  const A = tokens(nombre);
+  if (A.size < 2) return null;
+  let mejor = null, p1 = 0, p2 = 0;
+  for (const a of alumnos) {
+    const B = tokens(`${a.nombre} ${a.apellidos}`);
+    const comunes = [...A].filter((t) => B.has(t)).length;
+    const p = comunes / Math.max(A.size, B.size);
+    if (p > p1) { p2 = p1; p1 = p; mejor = a; } else if (p > p2) p2 = p;
+  }
+  return p1 >= 0.66 && p1 > p2 ? mejor : null;
+}
+
+/** Columnas que nunca son notas (identificadores, número de lista…). */
+const NO_NOTA = /^(n[º°o]?\.?|num(ero)?|id|orden|codigo|cod\.?|nia|expediente|dni|nif)$/;
+const numero = (v) => {
+  if (v == null || v === "") return null;
+  if (typeof v === "number") return v;
+  const n = Number(String(v).trim().replace(/\s/g, "").replace(",", "."));
+  return Number.isFinite(n) ? n : null;
+};
+
+async function leerLibro(file) {
+  if (!window.XLSX) await cargarScript(CDN.xlsx);
+  const buf = await file.arrayBuffer();
+  const wb = XLSX.read(buf, { type: "array", cellDates: false });
+  return { buf, wb };
+}
+
+/** Filas de una hoja con su desplazamiento (para saber la celda real de cada valor). */
+function filasHoja(wb, nombre) {
+  const ws = wb.Sheets[nombre];
+  if (!ws || !ws["!ref"]) return { rows: [], off: { r: 0, c: 0 } };
+  const rg = XLSX.utils.decode_range(ws["!ref"]);
+  const rows = XLSX.utils.sheet_to_json(ws, { header: 1, blankrows: true, defval: null, raw: true });
+  return { rows, off: { r: rg.s.r, c: rg.s.c } };
+}
+
+/** Busca la fila de cabecera y las columnas de alumno, nombre y correo. */
+function detectar(rows, hFija) {
+  const es = (v, re) => re.test(normNom(v));
+  let h = hFija ?? rows.findIndex((r, i) => i < 40 && (r || []).some((v) => es(v, /(alumn|apellid|estudiant|^nombre)/)));
+  if (h < 0) h = 0;
+  const cab = (rows[h] || []).map((v, j) => (v == null || v === "" ? `Columna ${XLSX.utils.encode_col(j)}` : String(v).trim()));
+  const idx = (re, no) => cab.findIndex((v) => es(v, re) && !(no && es(v, no)));
+  let ape = idx(/apellid/), nom = idx(/^nombre$|^nom$|^nombre del alumn/, /apellid/), alu = idx(/alumn|estudiant|nombre completo|nombre y apellidos|apellidos y nombre/);
+  let mail = idx(/correo|e ?mail|^email/);
+  if (mail < 0) mail = cab.findIndex((_, j) => rows.slice(h + 1, h + 15).some((r) => /@/.test(String(r?.[j] ?? ""))));
+  if (ape < 0 && alu >= 0) ape = alu, alu = -1;
+  if (ape < 0) ape = cab.findIndex((_, j) => rows.slice(h + 1, h + 10).filter((r) => /[a-záéíóúñ]{3,}.*[ ,][a-záéíóúñ]{3,}/i.test(String(r?.[j] ?? ""))).length >= 2);
+  return { h, cab, ape, nom: nom === ape ? -1 : nom, mail };
+}
+
+const nombreDeFila = (r, d) => [d.ape >= 0 ? r?.[d.ape] : "", d.nom >= 0 ? r?.[d.nom] : ""].filter(Boolean).join(" ").trim();
+const correoDeFila = (r, d) => (d.mail >= 0 ? String(r?.[d.mail] ?? "") : "");
+/** Filas de alumnos del archivo (debajo de la cabecera, con nombre o correo). */
+const filasAlumnos = (d) => CX.rows.map((r, i) => ({ r, i })).filter(({ r, i }) => i > d.h && (nombreDeFila(r, d) || correoDeFila(r, d)));
+
+/** Notas que se pueden exportar: cada columna de Grupos, la nota de cada módulo y la media. */
+function fuentesNotas() {
+  const { mods, filas } = calcularGrupo();
+  const out = [];
+  mods.forEach((m, mi) => {
+    m.examenes.forEach((ex) => out.push({ k: `${m.id}|${ex.id}`, et: `${m.nombre} · ${ex.titulo}`, v: (f) => f.a.notas[ex.id]?.nota ?? null }));
+    out.push({ k: `${m.id}|media`, et: `${m.nombre} · NOTA DEL MÓDULO`, v: (f) => f.porModulo[mi].media });
+  });
+  if (mods.length > 1) out.push({ k: "media", et: "Media de todos los módulos", v: (f) => f.final });
+  return { fuentes: out, filas };
+}
+
+function selCol(id, d, val, vacio = "— ninguna —") {
+  return `<select id="${id}" style="width:auto;max-width:260px">${[`<option value="-1">${vacio}</option>`, ...d.cab.map((c, j) => `<option value="${j}" ${j === val ? "selected" : ""}>${esc(XLSX.utils.encode_col(j + CX.off.c))} · ${esc(c.slice(0, 40))}</option>`)].join("")}</select>`;
+}
+
+function abrirConectar() {
+  if (!GRUPO?.alumnos.length) return alert("Este grupo no tiene alumnos.");
+  CX = null;
+  $("#cxArchivo").value = ""; $("#cxPaso2").innerHTML = ""; $("#cxErr").hidden = true; $("#cxOk").hidden = true;
+  $("#cxGrupo").textContent = GRUPO.grupo;
+  modoCx(CX_MODO);
+  $("#dConectar").showModal();
+}
+let CX_MODO = "exportar";
+function modoCx(m) {
+  CX_MODO = m;
+  $$("[data-cx]").forEach((b) => b.setAttribute("aria-selected", b.dataset.cx === m));
+  $$("#dConectar [data-solo-cx]").forEach((el) => (el.hidden = el.dataset.soloCx !== m));
+  if (CX) pintarCx(); else $("#cxPaso2").innerHTML = "";
+}
+$$("[data-cx]").forEach((b) => (b.onclick = () => modoCx(b.dataset.cx)));
+$("#grupoConectar").onclick = abrirConectar;
+$("#cxArchivo").onchange = async (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  const err = $("#cxErr"); err.hidden = true;
+  try {
+    const { buf, wb } = await leerLibro(f);
+    // La hoja con más filas suele ser la de notas.
+    const hoja = wb.SheetNames.slice().sort((a, b) => (filasHoja(wb, b).rows.length - filasHoja(wb, a).rows.length))[0];
+    CX = { file: f, buf, wb, hoja };
+    cargarHojaCx(hoja);
+  } catch (x) { err.textContent = "No se ha podido leer el archivo: " + x.message; err.hidden = false; }
+};
+function cargarHojaCx(hoja) {
+  CX.hoja = hoja;
+  Object.assign(CX, filasHoja(CX.wb, hoja));
+  CX.d = detectar(CX.rows);
+  pintarCx();
+}
+
+/** Pinta el paso 2 (columnas, emparejamiento y qué hacer) según el modo. */
+function pintarCx() {
+  const d = CX.d, c = $("#cxPaso2");
+  const filas = filasAlumnos(d);
+  const pares = filas.map((x) => ({ ...x, a: emparejar(nombreDeFila(x.r, d), correoDeFila(x.r, d), GRUPO.alumnos) }));
+  const ok = pares.filter((p) => p.a), sin = pares.filter((p) => !p.a);
+  const usados = new Set(ok.map((p) => p.a.email));
+  const faltan = GRUPO.alumnos.filter((a) => !usados.has(a.email));
+  CX.pares = pares;
+  const comun = `
+    <div class="cx-cols">
+      ${CX.wb.SheetNames.length > 1 ? `<label>Hoja <select id="cxHoja" style="width:auto">${CX.wb.SheetNames.map((n) => `<option ${n === CX.hoja ? "selected" : ""}>${esc(n)}</option>`).join("")}</select></label>` : ""}
+      <label>Fila de títulos <input type="number" id="cxH" min="1" value="${d.h + 1 + CX.off.r}" style="width:80px"></label>
+      <label>Apellidos / alumno ${selCol("cxApe", d, d.ape)}</label>
+      <label>Nombre ${selCol("cxNom", d, d.nom)}</label>
+      <label>Correo ${selCol("cxMail", d, d.mail)}</label>
+    </div>
+    <div class="meta" style="margin:10px 0 4px">
+      <span class="chip ${ok.length ? "ok" : "bad"}">${ok.length} de ${pares.length} filas emparejadas con alumnos de ${esc(GRUPO.grupo)}</span>
+      ${faltan.length ? `<span class="chip s" title="${esc(faltan.map((a) => `${a.apellidos}, ${a.nombre}`).join("\n"))}">${faltan.length} alumnos de la web no están en el archivo</span>` : ""}
+    </div>
+    ${sin.length ? `<details class="cx-sin"><summary>${sin.length} filas del archivo sin emparejar</summary><ul>${sin.slice(0, 60).map((p) => `<li>Fila ${p.i + 1 + CX.off.r}: ${esc(nombreDeFila(p.r, d) || correoDeFila(p.r, d))}</li>`).join("")}</ul>
+      <p class="hintline">Se emparejan por correo o por nombre y apellidos (sin importar el orden ni las tildes). Si no se reconoce a un alumno, revisa cómo está escrito su nombre en la web (pestaña Alumnos).</p></details>` : ""}`;
+  if (CX_MODO === "exportar") {
+    const { fuentes } = fuentesNotas();
+    const ignorar = new Set([d.ape, d.nom, d.mail]);
+    const sugerir = (cab) => {
+      const A = tokens(cab);
+      let mejor = "", p = 0;
+      for (const f of fuentes) { const B = tokens(f.et); const q = [...A].filter((t) => B.has(t)).length / Math.max(1, A.size); if (q > p) { p = q; mejor = f.k; } }
+      return p >= 0.6 ? mejor : "";
+    };
+    const opciones = (sel) => [`<option value="">— no tocar —</option>`, ...fuentes.map((f) => `<option value="${esc(f.k)}" ${f.k === sel ? "selected" : ""}>${esc(f.et)}</option>`)].join("");
+    c.innerHTML = comun + `
+      <h3 style="margin:16px 0 8px">¿Qué nota va en cada columna?</h3>
+      <div class="tablewrap"><table class="t"><thead><tr><th>Columna del archivo</th><th>Nota de la web</th></tr></thead><tbody>
+        ${d.cab.map((cab, j) => (ignorar.has(j) || NO_NOTA.test(normNom(cab)) ? "" : `<tr><td><b>${esc(XLSX.utils.encode_col(j + CX.off.c))}</b> · ${esc(cab)}</td><td><select data-dest="${j}">${opciones(sugerir(cab))}</select></td></tr>`)).join("")}
+      </tbody></table></div>
+      <div class="cx-cols" style="margin-top:12px">
+        <label>Decimales <select id="cxDec" style="width:auto"><option value="2">2 (7,25)</option><option value="1">1 (7,3)</option><option value="0">Sin decimales (7)</option></select></label>
+        <label>No presentado <select id="cxNP" style="width:auto"><option value="vacio">No tocar la celda</option><option value="0">Poner 0</option></select></label>
+      </div>
+      <div class="actions"><button class="btn" id="cxDescargar">⬇ Descargar el archivo con las notas</button></div>`;
+    $("#cxDescargar").onclick = exportarCx;
+  } else {
+    const mods = GRUPO.modulos;
+    const numericas = d.cab.map((cab, j) => {
+      const vals = filas.map(({ r }) => numero(r?.[j])).filter((x) => x != null);
+      return { j, cab, n: vals.length, max: vals.length ? Math.max(...vals) : 0 };
+    }).filter((x) => x.n && ![d.ape, d.nom, d.mail].includes(x.j) && x.max <= 100 && !NO_NOTA.test(normNom(x.cab)));
+    const modSel = (j) => `<select data-mod="${j}" style="width:auto">${mods.map((m) => `<option value="${esc(m.id)}">${esc(m.nombre)}</option>`).join("")}</select>`;
+    c.innerHTML = comun + `
+      <h3 style="margin:16px 0 8px">Columnas de notas que quieres traer</h3>
+      ${numericas.length ? `<div class="tablewrap"><table class="t"><thead><tr><th></th><th>Columna del archivo</th><th>Nombre en la web</th><th>Módulo</th><th>Escala</th></tr></thead><tbody>
+        ${numericas.map((x) => `<tr><td><input type="checkbox" data-imp="${x.j}"></td><td><b>${esc(XLSX.utils.encode_col(x.j + CX.off.c))}</b> · ${esc(x.cab)} <span class="muted">(${x.n} notas)</span></td>
+          <td><input type="text" data-tit="${x.j}" value="${esc(x.cab.slice(0, 120))}"></td><td>${modSel(x.j)}</td>
+          <td><select data-esc="${x.j}" style="width:auto"><option value="10" ${x.max <= 10 ? "selected" : ""}>0–10</option><option value="100" ${x.max > 10 ? "selected" : ""}>0–100 (÷10)</option></select></td></tr>`).join("")}
+      </tbody></table></div>` : `<div class="msg">No se han encontrado columnas con notas numéricas debajo de la fila de títulos.</div>`}
+      <div class="cx-cols" style="margin-top:12px"><label>Origen <select id="cxOrigen" style="width:auto"><option>Additio</option><option>Alexia</option><option>Excel</option></select></label></div>
+      <p class="hintline">Cada columna se añade en Grupos como una nota más del módulo y cuenta en su media. Puedes borrarla después desde la cabecera de la tabla (✕).</p>
+      <div class="actions"><button class="btn" id="cxImportar" ${numericas.length ? "" : "disabled"}>⬆ Importar las columnas marcadas</button></div>`;
+    if (/additio/i.test(CX.file.name)) $("#cxOrigen").value = "Additio"; else if (/alexia/i.test(CX.file.name)) $("#cxOrigen").value = "Alexia";
+    $("#cxImportar").onclick = importarCx;
+  }
+  const cambio = () => { Object.assign(d, { ape: Number($("#cxApe").value), nom: Number($("#cxNom").value), mail: Number($("#cxMail").value) }); pintarCx(); };
+  $("#cxH").onchange = () => { CX.d = detectar(CX.rows, Math.max(0, Number($("#cxH").value) - 1 - CX.off.r)); pintarCx(); };
+  ["#cxApe", "#cxNom", "#cxMail"].forEach((s) => ($(s).onchange = cambio));
+  if ($("#cxHoja")) $("#cxHoja").onchange = () => cargarHojaCx($("#cxHoja").value);
+}
+
+const errCx = (m) => { const e = $("#cxErr"); e.textContent = m; e.hidden = !m; if (m) e.scrollIntoView({ block: "nearest" }); };
+
+/** Escribe las notas en el archivo original y lo descarga. */
+async function exportarCx() {
+  errCx("");
+  const { fuentes, filas } = fuentesNotas();
+  const destinos = $$("[data-dest]").filter((s) => s.value).map((s) => ({ c: Number(s.dataset.dest), f: fuentes.find((x) => x.k === s.value) }));
+  if (!destinos.length) return errCx("Elige al menos una columna en la que escribir notas.");
+  const dec = Number($("#cxDec").value), np0 = $("#cxNP").value === "0";
+  const porEmail = new Map(filas.map((f) => [f.a.email, f]));
+  const celdas = [];
+  for (const p of CX.pares.filter((p) => p.a)) {
+    const f = porEmail.get(p.a.email);
+    for (const d of destinos) {
+      let v = d.f.v(f);
+      if (v == null) { if (!np0) continue; v = 0; } // sin nota: se deja lo que hubiera en la plantilla
+      else v = Math.round(v * 10 ** dec) / 10 ** dec;
+      celdas.push({ r: p.i + CX.off.r, c: d.c + CX.off.c, v });
+    }
+  }
+  const b = $("#cxDescargar"); b.disabled = true;
+  try {
+    const ext = CX.file.name.split(".").pop().toLowerCase();
+    const nombre = CX.file.name.replace(/(\.[^.]+)?$/, `_notas_${new Date().toISOString().slice(0, 10)}$1`);
+    if (ext === "xlsx" || ext === "xlsm") {
+      if (!window.JSZip) await cargarScript(CDN.jszip);
+      const blob = await rellenarXlsx(CX.buf, CX.wb.SheetNames.indexOf(CX.hoja), celdas, ext);
+      descargarBlob(blob, nombre);
+    } else {
+      // .xls, .ods, .csv: se reescribe con la librería (el formato visual puede simplificarse).
+      const ws = CX.wb.Sheets[CX.hoja];
+      for (const { r, c, v } of celdas) { const ref = XLSX.utils.encode_cell({ r, c }); if (v == null) delete ws[ref]; else ws[ref] = { t: "n", v }; }
+      const rg = XLSX.utils.decode_range(ws["!ref"]); celdas.forEach(({ r, c }) => { rg.e.r = Math.max(rg.e.r, r); rg.e.c = Math.max(rg.e.c, c); }); ws["!ref"] = XLSX.utils.encode_range(rg);
+      XLSX.writeFile(CX.wb, nombre, { bookType: ext === "csv" ? "csv" : ext === "ods" ? "ods" : "xls", FS: ";" });
+    }
+    const n = CX.pares.filter((p) => p.a).length;
+    $("#cxOk").textContent = `Archivo descargado: ${n} alumnos × ${destinos.length} ${destinos.length === 1 ? "columna" : "columnas"}. Ahora impórtalo en ${/additio/i.test(CX.file.name) ? "Additio" : "Alexia o Additio"}.`;
+    $("#cxOk").hidden = false;
+  } catch (x) { errCx("No se ha podido generar el archivo: " + x.message); }
+  finally { b.disabled = false; }
+}
+
+function descargarBlob(blob, nombre) {
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = nombre; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+}
+
+/**
+ * Escribe valores en las celdas de un .xlsx tocando solo esas celdas del XML:
+ * se conservan estilos, columnas ocultas, validaciones y protección de la plantilla.
+ */
+async function rellenarXlsx(buf, hojaIdx, celdas, ext) {
+  const zip = await JSZip.loadAsync(buf);
+  const P = new DOMParser(), S = new XMLSerializer();
+  const leer = async (r) => P.parseFromString(await zip.file(r).async("string"), "application/xml");
+  const wbDoc = await leer("xl/workbook.xml");
+  const hoja = wbDoc.getElementsByTagName("sheet")[hojaIdx];
+  const rid = hoja.getAttribute("r:id") || hoja.getAttributeNS("http://schemas.openxmlformats.org/officeDocument/2006/relationships", "id");
+  const relsDoc = await leer("xl/_rels/workbook.xml.rels");
+  const target = [...relsDoc.getElementsByTagName("Relationship")].find((r) => r.getAttribute("Id") === rid).getAttribute("Target");
+  const ruta = target.startsWith("/") ? target.slice(1) : "xl/" + target.replace(/^\.\//, "");
+  const doc = await leer(ruta);
+  const ns = doc.documentElement.namespaceURI;
+  const el = (n) => doc.createElementNS(ns, n);
+  const sheetData = doc.getElementsByTagNameNS(ns, "sheetData")[0];
+  const filas = new Map();
+  let ultimo = 0;
+  for (const row of sheetData.getElementsByTagNameNS(ns, "row")) {
+    const n = Number(row.getAttribute("r")) || ultimo + 1; row.setAttribute("r", n); ultimo = n; filas.set(n, row);
+    // Celdas sin referencia (permitido en OOXML): se numeran para poder localizarlas.
+    let col = -1;
+    for (const c of row.getElementsByTagNameNS(ns, "c")) {
+      if (c.getAttribute("r")) col = XLSX.utils.decode_cell(c.getAttribute("r")).c; else { col++; c.setAttribute("r", XLSX.utils.encode_cell({ r: n - 1, c: col })); }
+    }
+  }
+  let formulas = false;
+  for (const { r, c, v } of celdas) {
+    const n = r + 1, ref = XLSX.utils.encode_cell({ r, c });
+    let row = filas.get(n);
+    if (!row) {
+      row = el("row"); row.setAttribute("r", n);
+      const sig = [...filas.keys()].filter((k) => k > n).sort((a, b) => a - b)[0];
+      sheetData.insertBefore(row, sig ? filas.get(sig) : null); filas.set(n, row);
+    }
+    row.removeAttribute("spans");
+    const cs = [...row.getElementsByTagNameNS(ns, "c")];
+    let cel = cs.find((x) => x.getAttribute("r") === ref);
+    if (!cel) {
+      cel = el("c"); cel.setAttribute("r", ref);
+      row.insertBefore(cel, cs.find((x) => XLSX.utils.decode_cell(x.getAttribute("r")).c > c) || null);
+    }
+    if (cel.getElementsByTagNameNS(ns, "f").length) formulas = true;
+    while (cel.firstChild) cel.removeChild(cel.firstChild);
+    cel.removeAttribute("t");
+    if (v != null) { const ve = el("v"); ve.textContent = String(v); cel.appendChild(ve); }
+  }
+  // Rango de la hoja (por si se escribe fuera del que tenía).
+  const dim = doc.getElementsByTagNameNS(ns, "dimension")[0];
+  if (dim) {
+    const rg = XLSX.utils.decode_range(dim.getAttribute("ref").includes(":") ? dim.getAttribute("ref") : `${dim.getAttribute("ref")}:${dim.getAttribute("ref")}`);
+    celdas.forEach(({ r, c }) => { rg.e.r = Math.max(rg.e.r, r); rg.e.c = Math.max(rg.e.c, c); });
+    dim.setAttribute("ref", XLSX.utils.encode_range(rg));
+  }
+  zip.file(ruta, S.serializeToString(doc));
+  // Que Excel recalcule las fórmulas de la plantilla (medias, etc.) al abrirla.
+  const calc = wbDoc.getElementsByTagName("calcPr")[0];
+  if (calc) calc.setAttribute("fullCalcOnLoad", "1");
+  else { const cp = wbDoc.createElementNS(wbDoc.documentElement.namespaceURI, "calcPr"); cp.setAttribute("fullCalcOnLoad", "1"); wbDoc.documentElement.appendChild(cp); }
+  zip.file("xl/workbook.xml", S.serializeToString(wbDoc));
+  if (formulas && zip.file("xl/calcChain.xml")) {
+    zip.remove("xl/calcChain.xml");
+    [...relsDoc.getElementsByTagName("Relationship")].filter((r) => /calcChain/.test(r.getAttribute("Target"))).forEach((r) => r.parentNode.removeChild(r));
+    zip.file("xl/_rels/workbook.xml.rels", S.serializeToString(relsDoc));
+    const ct = await leer("[Content_Types].xml");
+    [...ct.getElementsByTagName("Override")].filter((o) => /calcChain/.test(o.getAttribute("PartName"))).forEach((o) => o.parentNode.removeChild(o));
+    zip.file("[Content_Types].xml", S.serializeToString(ct));
+  }
+  return zip.generateAsync({ type: "blob", compression: "DEFLATE",
+    mimeType: ext === "xlsm" ? "application/vnd.ms-excel.sheet.macroEnabled.12" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+}
+
+/** Trae las columnas marcadas como notas del grupo. */
+async function importarCx() {
+  errCx("");
+  const marcadas = $$("[data-imp]:checked").map((x) => Number(x.dataset.imp));
+  if (!marcadas.length) return errCx("Marca al menos una columna.");
+  const b = $("#cxImportar"); b.disabled = true;
+  try {
+    let total = 0;
+    for (const j of marcadas) {
+      const escala = Number($(`[data-esc="${j}"]`).value);
+      const notas = {};
+      for (const p of CX.pares.filter((p) => p.a)) {
+        const n = numero(p.r?.[j]);
+        if (n != null) notas[p.a.email] = Math.round((escala === 100 ? n / 10 : n) * 100) / 100;
+      }
+      const r = await api("/api/profesor/grupo/externa", { grupo: GRUPO.grupo, moduloId: $(`[data-mod="${j}"]`).value, titulo: $(`[data-tit="${j}"]`).value, notas, origen: $("#cxOrigen").value });
+      total += r.guardadas;
+    }
+    $("#dConectar").close();
+    await cargarGrupo();
+    alert(`Importadas ${marcadas.length} ${marcadas.length === 1 ? "columna" : "columnas"} (${total} notas). Ya cuentan en la media de su módulo.`);
+  } catch (x) { errCx(x.message); }
+  finally { b.disabled = false; }
 }
 
 /* ── Trabajos ── */

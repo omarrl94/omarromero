@@ -22,6 +22,8 @@ const examenes = () => almacen("examenes");
 const entregas = () => almacen("entregas");
 const progreso = () => almacen("progreso");
 const usuarios = () => almacen("usuarios");
+/** Notas importadas de otro cuaderno (Additio, Alexia, Excel): «grupo/módulo/id» → columna. */
+const externas = () => almacen("notasExternas");
 
 /** Examen que este profesor puede gestionar (el admin, cualquiera; el profesor, los suyos). */
 async function existente(id, u) {
@@ -568,6 +570,7 @@ async function calificacionesGrupo(req, url) {
   const todos = (await todosLosExamenes()).filter((ex) => ex.cicloId === g.cicloId && gestionaExamen(yo, ex));
   const emails = new Set(alumnos.map((a) => a.email));
   const trabajosCiclo = await notasTrabajos(yo, g.cicloId, emails);
+  const cols = await leerTodas(externas(), await externas().list(`${g.grupo}/`));
   const modulos = [];
   const notas = {}; // email → { examenId: { nota, intentos, porRevisar } }
   for (const m of ciclo.modulos.filter(delCurso)) {
@@ -588,6 +591,12 @@ async function calificacionesGrupo(req, url) {
       for (const [email, n] of Object.entries(t.notas)) if (n.nota != null) (notas[email] ||= {})[col] = { nota: n.nota, intentos: 1, porRevisar: 0 };
       columnas.push({ id: col, titulo: `Trabajo: ${t.titulo}`, publicado: t.publicado, trabajo: true });
     }
+    // Notas importadas (Additio, Alexia, Excel…): también cuentan en la media del módulo.
+    for (const x of cols.filter((x) => x.moduloId === m.id).sort((a, b) => (a.creado || "").localeCompare(b.creado || ""))) {
+      const col = `externa:${x.id}`;
+      for (const [email, n] of Object.entries(x.notas || {})) if (emails.has(email) && n != null) (notas[email] ||= {})[col] = { nota: n, intentos: 1, porRevisar: 0 };
+      columnas.push({ id: col, titulo: x.titulo, publicado: true, externa: true, origen: x.origen || "" });
+    }
     modulos.push({ id: m.id, nombre: m.nombre, examenes: columnas });
   }
   return json({
@@ -595,6 +604,45 @@ async function calificacionesGrupo(req, url) {
     modulos,
     alumnos: alumnos.map((a) => ({ email: a.email, nombre: a.nombre, apellidos: a.apellidos, verificado: !!a.verificado, notas: notas[a.email] || {} })),
   });
+}
+
+/** Guarda (o sustituye) una columna de notas importadas en un grupo y módulo. */
+async function guardarExterna(req) {
+  const yo = await requiereProfesor(req);
+  const b = await leerCuerpo(req, 400_000);
+  const g = gruposDe(yo).find((x) => x.grupo === b.grupo);
+  if (!g) fallo(404, "Grupo no encontrado");
+  if (!buscarModulo(g.cicloId, b.moduloId)) fallo(400, "Elige el módulo");
+  const titulo = texto(b.titulo, 120);
+  if (!titulo) fallo(400, "Ponle un nombre a la columna");
+  const alumnos = new Set((await leerTodas(usuarios(), await usuarios().list())).filter((u) => rolDe(u) === "alumno" && u.grupo === g.grupo).map((u) => u.email));
+  const notas = {};
+  for (const [email, v] of Object.entries(b.notas || {})) {
+    if (!alumnos.has(email) || v === null || v === "") continue;
+    const n = Number(String(v).replace(",", "."));
+    if (!Number.isFinite(n) || n < 0 || n > 10) fallo(400, `Nota no válida para ${email}: ${v} (debe estar entre 0 y 10)`);
+    notas[email] = Math.round(n * 100) / 100;
+  }
+  if (!Object.keys(notas).length) fallo(400, "Ninguna nota corresponde a alumnos de este grupo");
+  const id = /^[a-z0-9]{6,20}$/.test(b.id || "") ? b.id : Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  const clave = `${g.grupo}/${b.moduloId}/${id}`;
+  const previo = await externas().get(clave);
+  await externas().set(clave, {
+    id, grupo: g.grupo, cicloId: g.cicloId, moduloId: b.moduloId, titulo, origen: texto(b.origen, 60), notas,
+    creado: previo?.creado || new Date().toISOString(), autor: yo.email,
+  });
+  return json({ ok: true, id, guardadas: Object.keys(notas).length });
+}
+
+async function borrarExterna(req) {
+  const yo = await requiereProfesor(req);
+  const b = await leerCuerpo(req);
+  const g = gruposDe(yo).find((x) => x.grupo === b.grupo);
+  if (!g) fallo(404, "Grupo no encontrado");
+  const k = (await externas().list(`${g.grupo}/`)).find((k) => k.endsWith(`/${b.id}`));
+  if (!k) fallo(404, "Columna no encontrada");
+  await externas().del(k);
+  return json({ ok: true });
 }
 
 async function quitarModulo(req) {
@@ -656,6 +704,8 @@ export default {
   "POST /api/profesor/modulo/cursos": cursosDeModulo,
   "POST /api/profesor/modulo/nombre": renombrar,
   "GET /api/profesor/grupo": calificacionesGrupo,
+  "POST /api/profesor/grupo/externa": guardarExterna,
+  "POST /api/profesor/grupo/externa/borrar": borrarExterna,
   "GET /api/profesor/ia": iaEstado,
   "POST /api/profesor/ia/preguntas": iaPreguntas,
   "GET /api/profesor/examenes": listar,

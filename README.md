@@ -14,6 +14,16 @@ Funciona en **Netlify** (plan gratuito): páginas estáticas + una Netlify Funct
 | `/trabajo/?id=…` | alumno | Entregar un trabajo (archivos de hasta 4 MB) y hacer su defensa |
 | `/profesor/` | profesor | Subir y publicar exámenes, entregas y notas, revisión, CSV, alumnos, trabajos |
 
+### Notas con Alexia y Additio
+
+Ninguno de los dos tiene una API abierta, así que se trabaja con sus archivos Excel (pestaña **Grupos › 🔄 Alexia / Additio**):
+
+- **Pasar notas a Alexia/Additio:** se sube la hoja que exportan (plantilla del cuaderno), se elige qué nota de la web va en
+  cada columna y se descarga **el mismo archivo** con las notas escritas (solo se tocan esas celdas: se conservan estilos,
+  columnas ocultas, validaciones y fórmulas). Los alumnos se emparejan por correo o por nombre y apellidos.
+- **Traer notas de Alexia/Additio:** se sube su Excel y las columnas marcadas se guardan como notas del módulo
+  (almacén `notasExternas`), que aparecen en Grupos y cuentan en la media.
+
 ### Trabajos
 
 El profesor crea un trabajo en un módulo (pestaña **Trabajos**) y el alumnado entrega sus archivos desde
