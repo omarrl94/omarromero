@@ -163,7 +163,10 @@ function htmlRevision(d) {
       const s = d.soluciones ? d.open[i] : null;
       const cls = s ? (s.v === "full" ? "ok" : s.v === "partial" ? "warn" : "bad") : "";
       const prof = s?.profesor ? ` <span class="chip ok" style="font-size:11px">Revisada por el profesor</span>` : "";
-      h += cab(q) + `<div class="rev ${cls}"><p class="rq">${++n}. ${esc(q.t)} ${s ? vchip(s.v) : ""}${prof} ${pp(pts.open[i])}</p>
+      // Estado de revisión (solo lo ve el profesor): pendiente si hay respuesta y aún no la ha revisado.
+      const estRev = s?.profesor ? "r-hecha" : ans ? "r-pend" : "";
+      const marcaRev = estRev ? `<span class="chip-rev ${estRev}">${estRev === "r-hecha" ? "✓ Revisada" : "⏳ Pendiente de revisar"}</span>` : "";
+      h += cab(q) + `<div class="rev ${cls} ${estRev}">${marcaRev}<p class="rq">${++n}. ${esc(q.t)} ${s ? vchip(s.v) : ""}${prof} ${pp(pts.open[i])}</p>
         <p class="rd">Respuesta: <b>${ans ? esc(ans) : "—"}</b></p>
         ${s ? `<p class="rd">${s.v === "full" ? "Se mencionan los conceptos esperados." : s.exp ? "Qué se esperaba: " + esc(s.exp) : ""}</p>` : ""}</div>`;
     });

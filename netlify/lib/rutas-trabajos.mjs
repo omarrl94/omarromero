@@ -19,6 +19,7 @@ import { validarExamen } from "./examenes.mjs";
 import { generarDefensa } from "./ia.mjs";
 import { enviarCorreo, proveedorConfigurado } from "./correo.mjs";
 import { correoAviso } from "./plantillas.mjs";
+import { porRevisar } from "./entregas.mjs";
 
 const trabajos = () => almacen("trabajos");
 const entregasT = () => almacen("entregasTrabajo");
@@ -69,7 +70,7 @@ async function trabajoDe(id, u) {
 async function notaDefensa(e) {
   if (!e?.defensa?.examen) return null;
   const ent = await entregasEx().get(`${e.defensa.examen}/${e.email}`);
-  return ent ? { nota: ent.notaProfesor ?? ent.resultado.nota, fecha: ent.fechaTexto, revisada: ent.notaProfesor != null } : null;
+  return ent ? { nota: ent.notaProfesor ?? ent.resultado.nota, fecha: ent.fechaTexto, revisada: ent.notaProfesor != null, porRevisar: porRevisar(ent), abiertas: ent.examen?.open?.length || 0 } : null;
 }
 
 /** Estado de la defensa en curso: si la ha empezado y si el profesor le deja seguir donde lo dejó. */
@@ -334,7 +335,7 @@ async function entregasProfesor(req, url) {
     const s = await estadoAlumno(t, e);
     return {
       email: e.email, nombre: e.nombre, apellidos: e.apellidos, grupo: e.grupo, estado: s.estado, fecha: e.fecha, fechaTexto: e.fechaTexto, tarde: !!e.tarde,
-      archivos: archivosPublicos(e), notaTrabajo: e.notaTrabajo ?? null, defensa: e.defensa ? { examen: e.defensa.examen, enviada: e.defensa.fecha, nota: s.def?.nota ?? null } : null,
+      archivos: archivosPublicos(e), notaTrabajo: e.notaTrabajo ?? null, defensa: e.defensa ? { examen: e.defensa.examen, enviada: e.defensa.fecha, nota: s.def?.nota ?? null, porRevisar: s.def?.porRevisar || 0, abiertas: s.def?.abiertas || 0 } : null,
       notaFinal: s.final, notaFinalManual: e.notaFinalManual ?? null, suspensoPorDefensa: e.notaFinalManual == null && defensaSuspende(t, s.def),
     };
   }));
@@ -355,7 +356,7 @@ async function entregaProfesor(req, url) {
       email: e.email, nombre: e.nombre, apellidos: e.apellidos, grupo: e.grupo, estado: s.estado, fechaTexto: e.fechaTexto, tarde: !!e.tarde,
       comentario: e.comentario || "", archivos: archivosPublicos(e), texto: textoTotal.slice(0, 200_000), caracteres: textoTotal.length,
       notaTrabajo: e.notaTrabajo ?? null, comentarioProfesor: e.comentarioProfesor || "", notaFinalManual: e.notaFinalManual ?? null,
-      defensa: e.defensa ? { ...e.defensa, nota: s.def?.nota ?? null, fechaHecha: s.def?.fecha || null, ...(await progresoDefensa(e)) } : null, notaFinal: s.final,
+      defensa: e.defensa ? { ...e.defensa, nota: s.def?.nota ?? null, fechaHecha: s.def?.fecha || null, porRevisar: s.def?.porRevisar || 0, abiertas: s.def?.abiertas || 0, ...(await progresoDefensa(e)) } : null, notaFinal: s.final,
       suspensoPorDefensa: e.notaFinalManual == null && defensaSuspende(t, s.def),
     },
   });

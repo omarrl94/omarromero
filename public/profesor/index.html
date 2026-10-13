@@ -536,12 +536,13 @@ function descargar(nombre, contenido, tipo) {
 }
 
 /* ── Entregas ── */
+let EX_ENT = null; // resumen del examen abierto en Entregas
 async function abrirEntregas(id) {
   ACTUAL = id;
   $("#vExamenes").hidden = true; $("#vEntregas").hidden = false;
   $("#tablaEntregas").innerHTML = `<p class="loading">Cargando…</p>`;
   const d = await api(`/api/profesor/entregas?id=${encodeURIComponent(id)}`);
-  FILAS = d.filas;
+  FILAS = d.filas; EX_ENT = d.examen;
   $("#entTitulo").textContent = d.examen.titulo;
   $("#revisarResp").hidden = !(d.examen.nOpen || d.examen.nNum) || !FILAS.some((f) => f.estado === "entregado");
   $("#csv").href = `/api/profesor/entregas.csv?id=${encodeURIComponent(id)}`;
@@ -570,14 +571,15 @@ function pintarEntregas() {
   const media = ent.length ? ent.reduce((s, f) => s + (f.notaProfesor ?? f.nota), 0) / ent.length : null;
   if (!filas.length) { $("#tablaEntregas").innerHTML = `<div class="empty">Nadie ha empezado este examen todavía.</div>`; return; }
   $("#tablaEntregas").innerHTML = `<div class="meta" style="margin-bottom:12px"><span class="chip v">${ent.length} entregas</span>
-    <span class="chip gray">${filas.length - ent.length} sin entregar</span>${media != null ? `<span class="chip">Media: ${fmt(Math.round(media * 100) / 100)}</span>` : ""}</div>
+    <span class="chip gray">${filas.length - ent.length} sin entregar</span>${media != null ? `<span class="chip">Media: ${fmt(Math.round(media * 100) / 100)}</span>` : ""}
+    ${EX_ENT?.nOpen ? `<span class="chip" title="Entregas con respuestas escritas sin revisar">⏳ ${ent.filter((f) => f.porRevisar).length} por revisar</span><span class="chip ok" title="Entregas con todas las respuestas escritas revisadas">✓ ${ent.filter((f) => !f.porRevisar).length} revisadas</span>` : ""}</div>
     <div class="tablewrap"><table class="t"><thead><tr><th>Alumno/a</th><th>Grupo</th><th>Estado</th><th>Nota auto.</th><th>Nota final</th><th>Intentos</th><th>Salidas</th><th>Fecha</th><th></th></tr></thead><tbody>
-    ${filas.map((f) => `<tr data-email="${esc(f.email)}">
+    ${filas.map((f) => `<tr data-email="${esc(f.email)}" class="${f.estado !== "entregado" || !EX_ENT?.nOpen ? "" : f.porRevisar ? "fila-pend" : "fila-hecha"}">
       <td><b>${esc(f.apellidos)}, ${esc(f.nombre)}</b><div class="muted" style="font-size:13px">${esc(f.email)}</div></td>
       <td>${esc(f.grupo)}</td>
       <td>${f.estado === "entregado" ? `<span class="chip ok">Entregado</span>` : f.enCurso ? `<span class="chip v">En curso</span><div class="muted" style="font-size:12px;margin-top:3px">guardado ${esc(horaCorta(f.enCurso.t))}${f.enCurso.n != null ? ` · ${f.enCurso.n} respondidas` : ""}</div>` : `<span class="chip gray">Sin entregar</span>`}
         ${f.reanudar ? `<div><span class="chip ok" style="margin-top:4px" title="Al volver a entrar, seguirá donde lo dejó">↺ Puede reanudar</span></div>` : ""}
-        ${f.porRevisar ? `<div><span class="chip" title="Respuestas escritas sin revisar en el intento que cuenta" style="margin-top:4px">✍ ${f.porRevisar} por revisar</span></div>` : ""}
+        ${f.porRevisar ? `<div><span class="chip" title="Respuestas escritas sin revisar en el intento que cuenta" style="margin-top:4px">⏳ ${f.porRevisar} por revisar</span></div>` : f.estado === "entregado" && EX_ENT?.nOpen ? `<div><span class="chip ok" style="margin-top:4px" title="Todas sus respuestas escritas están revisadas">✓ Escritas revisadas</span></div>` : ""}
         ${f.finalizadoPorSalida ? `<div><span class="chip bad" title="${esc(f.finalizadoPorSalida)}" style="margin-top:4px">🔒 Finalizado al salir</span></div>` : ""}</td>
       <td class="num">${f.nota != null ? fmt(f.nota) : "—"}</td>
       <td class="num">${f.estado === "entregado" ? fmt(f.notaProfesor ?? f.nota) + (f.notaProfesor != null ? ` <span class="chip ok" style="font-size:11px">revisada</span>` : "") : "—"}</td>
@@ -666,9 +668,9 @@ function pintarRespuestas() {
       ? `<div class="resp">${r.texto.trim() ? esc(r.texto) : `<span class="muted">(en blanco)</span>`}</div>
          ${r.hechos ? `<div class="meta" style="margin-top:8px">${q.conceptos.map((c, j) => `<span class="chip ${r.hechos[j] ? "ok" : "gray"}" title="${r.hechos[j] ? "Encontrado" : "No encontrado"}">${r.hechos[j] ? "✓" : "✗"} ${esc(c)}</span>`).join("")}</div>` : ""}`
       : `<div class="resp">${r.campos.map((c, j) => `${esc(q.campos[j]?.etiqueta || "")}: <b>${esc(c.resp || "—")}</b> ${c.ok ? `<span class="verdict v-ok">✓</span>` : `<span class="verdict v-bad">✗</span>`}`).join("<br>")}</div>`;
-    return `<article class="rcard ${r.revisada ? "hecha" : ""}" data-email="${esc(f.email)}" data-intento="${f.intento}">
+    return `<article class="rcard ${r.revisada ? "hecha" : "pend"}" data-email="${esc(f.email)}" data-intento="${f.intento}">
       <div class="rtop"><b>${esc(f.apellidos)}, ${esc(f.nombre)}</b><span class="muted">${esc(f.grupo)}${f.intentos > 1 ? ` · intento ${f.intento}${f.vigente ? " (cuenta)" : ""}` : ""}</span>
-        <span class="rpts" data-pts>${fmt(r.pts)} / ${fmt(r.max)} p ${r.revisada ? `<span class="chip ok" style="font-size:11px">revisada</span>` : `<span class="chip gray" style="font-size:11px">automática</span>`}</span></div>
+        <span class="rpts" data-pts>${fmt(r.pts)} / ${fmt(r.max)} p ${r.revisada ? `<span class="chip ok" style="font-size:11px">✓ revisada</span>` : `<span class="chip" style="font-size:11px">⏳ pendiente</span>`}</span></div>
       ${cuerpo}
       ${sug ? `<div class="sug ${sug.v}">✨ IA: <b>${VALOR_TXT[sug.v]}</b> — ${esc(sug.motivo)}</div>` : ""}
       ${botonesValor(r.revisada ? valorDe(r.pts, r.max) : null)}
@@ -757,6 +759,12 @@ function ponerEditoresPuntos(c, d) {
     const max = q.puntos ?? 1, min = k === "mc" && ex.confianza ? -max : 0;
     const v = d.pts?.[k]?.[i] ?? 0, aj = d.ajustados?.[k]?.[i];
     const sp = $(".pts", rev); if (sp) sp.remove();
+    // Respuestas escritas: revisada (verde) o pendiente (amarillo), según la haya corregido ya el profesor.
+    if (k === "open" && (rev.classList.contains("r-pend") || rev.classList.contains("r-hecha") || aj)) {
+      rev.classList.toggle("r-hecha", !!aj); rev.classList.toggle("r-pend", !aj);
+      const ch = $(".chip-rev", rev) || rev.insertAdjacentElement("afterbegin", Object.assign(document.createElement("span"), { className: "chip-rev" }));
+      ch.className = `chip-rev ${aj ? "r-hecha" : "r-pend"}`; ch.textContent = aj ? "✓ Revisada" : "⏳ Pendiente de revisar";
+    }
     $(".rq", rev).insertAdjacentHTML("beforeend", `<span class="ajpts${aj ? " on" : ""}" title="Puntos de esta pregunta (entre ${fmt(min)} y ${fmt(max)}). Cámbialos si la corrección automática no es justa.">
       <input type="text" inputmode="decimal" data-k="${k}" data-i="${i}" data-orig="${v}" value="${String(v).replace(".", ",")}" aria-label="Puntos"> / ${fmt(max)} p${aj ? " · cambiado" : ""}</span>`);
     // Respuestas escritas y ejercicios: corrección con un clic.
@@ -2188,7 +2196,7 @@ function pintarEntregasT() {
       <td><b>${esc(f.apellidos)}, ${esc(f.nombre)}</b><div class="muted" style="font-size:13px">${esc(f.grupo || "")} · ${esc(f.email)}</div></td>
       <td>${esc(f.fechaTexto || "—")}${f.tarde ? ` <span class="chip s">Con retraso</span>` : ""}</td>
       <td>${f.archivos.map((a) => `<a href="${urlArchivo(TRAB.id, f.email, a)}" title="${esc(a.nombre)} · ${kbT(a.tamano)}">📎</a>`).join(" ")} <span class="muted">${f.archivos.length}</span></td>
-      <td class="num">${f.defensa ? (f.defensa.nota != null ? notaT(f.defensa.nota) : `<span class="muted" title="Enviada, aún sin hacer">⏳</span>`) : "—"}</td>
+      <td class="num">${f.defensa ? (f.defensa.nota != null ? `${notaT(f.defensa.nota)}${f.defensa.porRevisar ? ` <span class="chip" title="Respuestas escritas de la defensa sin revisar">⏳ ${f.defensa.porRevisar}</span>` : f.defensa.abiertas ? ` <span class="chip ok" title="Respuestas escritas revisadas">✓</span>` : ""}` : `<span class="muted" title="Enviada, aún sin hacer">⏳</span>`) : "—"}</td>
       <td class="num">${notaT(f.notaTrabajo)}</td>
       <td class="num"><b>${notaT(f.notaFinal)}</b>${f.notaFinalManual != null ? ` <span title="Nota final puesta a mano">✎</span>` : ""}${f.suspensoPorDefensa ? ` <span title="Suspenso por no aprobar la defensa">🎤✗</span>` : ""}</td>
       <td>${chipEstadoT(f.estado)}</td>
@@ -2228,6 +2236,7 @@ function pintarEntregaT() {
       ${def ? `
         <p style="margin-top:0">Defensa enviada el ${esc(new Date(def.fecha).toLocaleString("es-ES", { day: "2-digit", month: "long", hour: "2-digit", minute: "2-digit" }))} · ${def.nTest} de test y ${def.nAbiertas} ${def.nAbiertas === 1 ? "abierta" : "abiertas"}.
           ${def.nota != null ? `<b>Hecha${def.fechaHecha ? ` el ${esc(def.fechaHecha)}` : ""}: ${fmt(def.nota)} / 10</b>` : `<span class="chip s">Pendiente de que la haga el alumno</span>`}</p>
+        ${def.nota != null && def.abiertas ? (def.porRevisar ? `<div class="aviso-rev pend">⏳ Tienes <b>${def.porRevisar} ${def.porRevisar === 1 ? "respuesta escrita" : "respuestas escritas"}</b> de la defensa sin revisar. La nota de la defensa es automática hasta que las revises.</div>` : `<div class="aviso-rev hecha">✓ Respuestas escritas de la defensa revisadas.</div>`) : ""}
         ${def.reanudar ? `<p><span class="chip ok">↺ Puede seguir donde lo dejó</span> <span class="muted">Al volver a entrar, continuará la defensa con las respuestas que tenía.</span></p>` : ""}
         <div class="actions">${def.nota != null ? `<button class="btn" type="button" id="defVer">Ver y revisar sus respuestas</button>` : ""}
           ${(def.nota != null || def.empezada) && !def.reanudar ? `<button class="btn ghost" type="button" id="defReanudar" title="Por si se le cerró o se entregó por error: sigue con las mismas preguntas y las respuestas que tenía">↺ Otra oportunidad: seguir con sus respuestas</button>` : ""}
