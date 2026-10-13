@@ -2183,13 +2183,13 @@ function pintarEntregasT() {
   const filas = FILAS_T.filter((f) => !g || f.grupo === g);
   const c = $("#tablaEntregasT");
   if (!filas.length) { c.innerHTML = `<div class="empty">Todavía no hay entregas${g ? " de este grupo" : ""}.</div>`; return; }
-  c.innerHTML = `<div class="tablewrap"><table class="t"><thead><tr><th>Alumno/a</th><th>Entregado</th><th>Archivos</th><th class="num">Trabajo</th><th class="num">Defensa</th><th class="num">Final</th><th>Estado</th><th></th></tr></thead><tbody>
+  c.innerHTML = `<div class="tablewrap"><table class="t"><thead><tr><th>Alumno/a</th><th>Entregado</th><th>Archivos</th><th class="num">Defensa</th><th class="num">Trabajo</th><th class="num">Final</th><th>Estado</th><th></th></tr></thead><tbody>
     ${filas.map((f) => `<tr data-email="${esc(f.email)}">
       <td><b>${esc(f.apellidos)}, ${esc(f.nombre)}</b><div class="muted" style="font-size:13px">${esc(f.grupo || "")} · ${esc(f.email)}</div></td>
       <td>${esc(f.fechaTexto || "—")}${f.tarde ? ` <span class="chip s">Con retraso</span>` : ""}</td>
       <td>${f.archivos.map((a) => `<a href="${urlArchivo(TRAB.id, f.email, a)}" title="${esc(a.nombre)} · ${kbT(a.tamano)}">📎</a>`).join(" ")} <span class="muted">${f.archivos.length}</span></td>
-      <td class="num">${notaT(f.notaTrabajo)}</td>
       <td class="num">${f.defensa ? (f.defensa.nota != null ? notaT(f.defensa.nota) : `<span class="muted" title="Enviada, aún sin hacer">⏳</span>`) : "—"}</td>
+      <td class="num">${notaT(f.notaTrabajo)}</td>
       <td class="num"><b>${notaT(f.notaFinal)}</b>${f.notaFinalManual != null ? ` <span title="Nota final puesta a mano">✎</span>` : ""}${f.suspensoPorDefensa ? ` <span title="Suspenso por no aprobar la defensa">🎤✗</span>` : ""}</td>
       <td>${chipEstadoT(f.estado)}</td>
       <td><button class="btn sm" data-ver-t>Revisar</button></td></tr>`).join("")}</tbody></table></div>`;
@@ -2197,9 +2197,9 @@ function pintarEntregasT() {
 }
 
 $("#trabExcel").onclick = () => {
-  const cab = ["Apellidos", "Nombre", "Correo", "Grupo", "Entregado", "Con retraso", "Nota trabajo", "Nota defensa", "Nota final", "Estado"];
+  const cab = ["Apellidos", "Nombre", "Correo", "Grupo", "Entregado", "Con retraso", "Nota defensa", "Nota trabajo", "Nota final", "Estado"];
   const filas = FILAS_T.filter((f) => !$("#filtroGrupoT").value || f.grupo === $("#filtroGrupoT").value).map((f) => [
-    f.apellidos, f.nombre, f.email, f.grupo, f.fechaTexto || "", f.tarde ? "Sí" : "No", f.notaTrabajo ?? "", f.defensa?.nota ?? "", f.notaFinal ?? "", (ESTADO_TRAB[f.estado] || [])[1] || f.estado,
+    f.apellidos, f.nombre, f.email, f.grupo, f.fechaTexto || "", f.tarde ? "Sí" : "No", f.defensa?.nota ?? "", f.notaTrabajo ?? "", f.notaFinal ?? "", (ESTADO_TRAB[f.estado] || [])[1] || f.estado,
   ]);
   const celda = (v) => (typeof v === "number" ? String(v).replace(".", ",") : `"${String(v ?? "").replace(/"/g, '""')}"`);
   descargar(`notas-${TRAB.id}.csv`, "﻿" + [cab, ...filas].map((r) => r.map(celda).join(";")).join("\r\n"), "text/csv;charset=utf-8");
@@ -2224,21 +2224,7 @@ function pintarEntregaT() {
     ${e.texto ? `<details><summary style="cursor:pointer;font-weight:600">Ver el texto del trabajo (${fmt(e.caracteres)} caracteres, lo que lee la IA)</summary><div class="trab-texto">${esc(e.texto)}</div></details>`
       : `<div class="msg bad">No se ha podido leer texto de estos archivos (imágenes, ZIP…). La IA no podrá preparar la defensa: pide el trabajo en PDF o Word.</div>`}
 
-    <div class="trab-secc"><h3>1 · Nota del trabajo</h3>
-      <form id="fNotaT" novalidate>
-        <div class="notas3">
-          <div class="field"><label class="flab" for="ntTrab">Nota del trabajo (0–10)</label><input type="text" inputmode="decimal" id="ntTrab" value="${e.notaTrabajo ?? ""}"></div>
-          <div class="field"><label class="flab" for="ntFinal">Nota final a mano (opcional)</label><input type="text" inputmode="decimal" id="ntFinal" value="${e.notaFinalManual ?? ""}" placeholder="${media != null ? `Calculada: ${fmt(media)}` : "Se calcula sola"}"></div>
-          <div class="field"><span class="flab">Nota final</span><div style="font-size:24px;font-weight:800;padding-top:4px">${notaT(e.notaFinal)}</div>${e.suspensoPorDefensa ? `<span class="chip bad" style="align-self:flex-start">Suspenso: no ha aprobado la defensa</span>` : ""}</div>
-        </div>
-        <div class="field"><label class="flab" for="ntCom">Comentario para el alumno</label><textarea id="ntCom" style="min-height:70px">${esc(e.comentarioProfesor || "")}</textarea></div>
-        <label class="check" style="margin-bottom:12px"><input type="checkbox" id="ntAvisar" checked> Avisar al alumno por correo cuando tenga la nota final</label>
-        <div class="msg bad" data-err hidden></div><div class="msg ok" data-ok hidden></div>
-        <div class="actions"><button class="btn" type="submit">Guardar nota</button><button class="btn ghost" type="button" id="ntDevolver" title="El alumno podrá cambiar los archivos y volver a entregarlo">↩ Devolver para corregir</button></div>
-      </form>
-    </div>
-
-    <div class="trab-secc"><h3>2 · Defensa del trabajo</h3>
+    <div class="trab-secc"><h3>1 · Defensa del trabajo</h3>
       ${def ? `
         <p style="margin-top:0">Defensa enviada el ${esc(new Date(def.fecha).toLocaleString("es-ES", { day: "2-digit", month: "long", hour: "2-digit", minute: "2-digit" }))} · ${def.nTest} de test y ${def.nAbiertas} ${def.nAbiertas === 1 ? "abierta" : "abiertas"}.
           ${def.nota != null ? `<b>Hecha${def.fechaHecha ? ` el ${esc(def.fechaHecha)}` : ""}: ${fmt(def.nota)} / 10</b>` : `<span class="chip s">Pendiente de que la haga el alumno</span>`}</p>
@@ -2254,6 +2240,21 @@ function pintarEntregaT() {
         <div class="msg bad" id="defErr" hidden></div>
         <div class="actions"><button class="btn accent" type="button" id="defGenerar" ${e.texto ? "" : "disabled"}>✨ ${DEF_PROP ? "Generar otras preguntas" : "Generar preguntas con IA"}</button></div>
         <div id="defPropuesta"></div>`}
+    </div>
+
+    <div class="trab-secc"><h3>2 · Nota del trabajo</h3>
+      ${!def || def.nota == null ? `<p class="hintline" style="margin-top:-4px">Primero la defensa: cuando el alumno la haya hecho, pon aquí la nota del trabajo teniendo en cuenta cómo la ha defendido.</p>` : `<p class="hintline" style="margin-top:-4px">Defensa: <b>${fmt(def.nota)} / 10</b>${t.defensaObligatoria && def.nota < 5 ? " · no aprobada: el trabajo queda suspenso" : ""}. Ahora pon la nota del trabajo.</p>`}
+      <form id="fNotaT" novalidate>
+        <div class="notas3">
+          <div class="field"><label class="flab" for="ntTrab">Nota del trabajo (0–10)</label><input type="text" inputmode="decimal" id="ntTrab" value="${e.notaTrabajo ?? ""}"></div>
+          <div class="field"><label class="flab" for="ntFinal">Nota final a mano (opcional)</label><input type="text" inputmode="decimal" id="ntFinal" value="${e.notaFinalManual ?? ""}" placeholder="${media != null ? `Calculada: ${fmt(media)}` : "Se calcula sola"}"></div>
+          <div class="field"><span class="flab">Nota final</span><div style="font-size:24px;font-weight:800;padding-top:4px">${notaT(e.notaFinal)}</div>${e.suspensoPorDefensa ? `<span class="chip bad" style="align-self:flex-start">Suspenso: no ha aprobado la defensa</span>` : ""}</div>
+        </div>
+        <div class="field"><label class="flab" for="ntCom">Comentario para el alumno</label><textarea id="ntCom" style="min-height:70px">${esc(e.comentarioProfesor || "")}</textarea></div>
+        <label class="check" style="margin-bottom:12px"><input type="checkbox" id="ntAvisar" checked> Avisar al alumno por correo cuando tenga la nota final</label>
+        <div class="msg bad" data-err hidden></div><div class="msg ok" data-ok hidden></div>
+        <div class="actions"><button class="btn" type="submit">Guardar nota</button><button class="btn ghost" type="button" id="ntDevolver" title="El alumno podrá cambiar los archivos y volver a entregarlo">↩ Devolver para corregir</button></div>
+      </form>
     </div>`;
 
   const f = $("#fNotaT");
