@@ -2,6 +2,7 @@
 
 import { KeyRound, TriangleAlert } from "lucide-react";
 import { MADRID_CENTRO } from "@/lib/config";
+import type { Punto } from "@/lib/distancia";
 import type { Bar, BarConNota } from "@/lib/types";
 import { ChapaContenido } from "./ChapaBar";
 
@@ -33,11 +34,14 @@ function proyectar(lat: number, lng: number) {
 
 export function MapaSimulado({
   bares,
+  posicion,
   seleccion,
   error,
   onElegir,
 }: {
   bares: readonly BarConNota[];
+  /** Dónde está quien mira, si lo ha compartido y cae en el recuadro. */
+  posicion: Punto | null;
   seleccion: string | null;
   /** true si Google llegó a cargar y falló; false si falta la clave. */
   error: boolean;
@@ -101,6 +105,27 @@ export function MapaSimulado({
         <span className="h-2 w-2 rotate-45 bg-papel-apagado" />
         Sol · km 0
       </span>
+
+      {posicion &&
+        posicion.lat <= LIMITES.norte &&
+        posicion.lat >= LIMITES.sur &&
+        posicion.lng >= LIMITES.oeste &&
+        posicion.lng <= LIMITES.este && (
+          <span
+            className="pointer-events-none absolute grid h-5 w-5 -translate-x-1/2 -translate-y-1/2 place-items-center"
+            style={{
+              left: `${proyectar(posicion.lat, posicion.lng).x}%`,
+              top: `${proyectar(posicion.lat, posicion.lng).y}%`,
+              zIndex: 20,
+            }}
+          >
+            <span className="absolute h-5 w-5 animate-late rounded-full bg-acido/30" />
+            <span className="h-2.5 w-2.5 rounded-full border-2 border-black bg-acido" />
+            <span className="absolute top-full mt-1 whitespace-nowrap font-mono text-[9.5px] uppercase tracking-[0.18em] text-acido">
+              Estás aquí
+            </span>
+          </span>
+        )}
 
       {bares.map((barConNota, i) => {
         const { x, y } = proyectar(barConNota.bar.lat, barConNota.bar.lng);

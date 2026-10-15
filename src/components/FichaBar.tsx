@@ -11,6 +11,7 @@ import {
   veredictoDeNota,
 } from "@/lib/scores";
 import { useAuth } from "@/lib/auth";
+import { formatearDistancia, minutosAndando } from "@/lib/distancia";
 import { useRollo } from "@/lib/store";
 import type { BarConNota } from "@/lib/types";
 import { FormularioValoracion } from "./FormularioValoracion";
@@ -25,6 +26,7 @@ export function FichaBar({
   onCerrar,
   onPedirAcceso,
   onAvisar,
+  metros,
 }: {
   barConNota: BarConNota;
   /** Al adoptar un bar nuevo se entra directo al formulario. */
@@ -34,6 +36,8 @@ export function FichaBar({
   onPedirAcceso: () => void;
   /** Para los avisos de la esquina. */
   onAvisar: (mensaje: string) => void;
+  /** Metros hasta aquí, si hay ubicación. */
+  metros: number | null;
 }) {
   const { bar, media, medias, reviews, esRolloDeOro } = barConNota;
   const { usuario } = useAuth();
@@ -104,6 +108,11 @@ export function FichaBar({
                 <span className="grito border-2 border-borde bg-asfalto-700 px-2 py-0.5 text-xs text-papel-apagado">
                   {reviews.length} {reviews.length === 1 ? "voto" : "votos"}
                 </span>
+                {metros !== null && (
+                  <span className="grito border-2 border-acido bg-acido/10 px-2 py-0.5 text-xs text-acido">
+                    a {formatearDistancia(metros)} · {minutosAndando(metros)} min
+                  </span>
+                )}
                 {esRolloDeOro && (
                   <span className="grito -rotate-2 border-2 border-black bg-ambar px-2 py-0.5 text-xs text-[#140F00]">
                     👑 Rollo de Oro

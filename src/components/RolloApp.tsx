@@ -2,7 +2,9 @@
 
 import { APIProvider } from "@vis.gl/react-google-maps";
 import { useCallback, useMemo, useState } from "react";
+import { useUbicacion } from "@/hooks/useUbicacion";
 import { useAuth } from "@/lib/auth";
+import { formatearDistancia, metrosEntre } from "@/lib/distancia";
 import { GOOGLE_MAPS_API_KEY, HAY_API_KEY } from "@/lib/config";
 import { formatearNota } from "@/lib/scores";
 import { useRollo } from "@/lib/store";
@@ -14,6 +16,7 @@ import { MapaRollos, type Objetivo } from "./MapaRollos";
 import { ModalAcceso } from "./ModalAcceso";
 import { Ranking } from "./Ranking";
 import { Ticker } from "./Ticker";
+import { MapPin, Loader2 } from "lucide-react";
 
 /**
  * La app entera: cabecera con buscador, titular, mapa de Google, podio,
@@ -29,6 +32,11 @@ export function RolloApp() {
   const [errorApi, setErrorApi] = useState(false);
   const [brindis, setBrindis] = useState<string | null>(null);
   const [motivoAcceso, setMotivoAcceso] = useState<string | null>(null);
+  const {
+    estado: estadoUbicacion,
+    posicion,
+    pedir: pedirUbicacion,
+  } = useUbicacion();
 
   const avisar = useCallback((texto: string) => {
     setBrindis(texto);
@@ -52,6 +60,28 @@ export function RolloApp() {
     () => [...baresValorados].sort((a, b) => (b.media ?? 0) - (a.media ?? 0)),
     [baresValorados],
   );
+  /** Metros desde donde estás hasta cada bar fichado. */
+  const distancias = useMemo(() => {
+    const mapa = new Map<string, number>();
+    if (!posicion) return mapa;
+    for (const b of ordenados) {
+      mapa.set(b.bar.place_id, metrosEntre(posicion, b.bar));
+    }
+    return mapa;
+  }, [ordenados, posicion]);
+
+  /** Los tres más cercanos, estén como estén. */
+  const cercanos = useMemo(() => {
+    if (!posicion) return [];
+    return [...ordenados]
+      .sort(
+        (a, b) =>
+          (distancias.get(a.bar.place_id) ?? Infinity) -
+          (distancias.get(b.bar.place_id) ?? Infinity),
+      )
+      .slice(0, 3);
+  }, [ordenados, posicion, distancias]);
+
   const podio = ordenados.slice(0, 3);
   const listaNegra = [...ordenados]
     .reverse()
@@ -64,14 +94,42 @@ export function RolloApp() {
       : null;
   const oros = ordenados.filter((b) => b.esRolloDeOro).length;
 
+  /**
+   * Con ubicación, el baño decente (3,5 o más) que menos te cuesta
+   * llegar; si ninguno aprueba, el más cercano a secas. Sin ubicación,
+   * el mejor valorado.
+   */
   const modoUrgencia = () => {
-    const mejor = podio[0];
-    if (!mejor) {
+    if (ordenados.length === 0) {
       avisar("No hay ningún baño fichado todavía.");
       return;
     }
-    abrirBar(mejor.bar);
-    avisar(`El más decente ahora mismo: ${mejor.bar.nombre}`);
+
+    if (!posicion) {
+      const mejor = podio[0];
+      if (!mejor) return;
+      abrirBar(mejor.bar);
+      avisar(`El más decente ahora mismo: ${mejor.bar.nombre}`);
+      if (estadoUbicacion === "inactiva") pedirUbicacion();
+      return;
+    }
+
+    const porCercania = [...ordenados].sort(
+      (a, b) =>
+        (distancias.get(a.bar.place_id) ?? Infinity) -
+        (distancias.get(b.bar.place_id) ?? Infinity),
+    );
+    const elegido =
+      porCercania.find((b) => (b.media ?? 0) >= 3.5) ?? porCercania[0];
+    if (!elegido) return;
+
+    const metros = distancias.get(elegido.bar.place_id);
+    abrirBar(elegido.bar);
+    avisar(
+      metros !== undefined
+        ? `A ${formatearDistancia(metros)}: ${elegido.bar.nombre}`
+        : elegido.bar.nombre,
+    );
   };
 
   const barSeleccionado = seleccion ? getBar(seleccion) : null;
@@ -141,6 +199,23 @@ export function RolloApp() {
             <a href="#ranking" className="btn btn-acido no-underline">
               Ver el ranking
             </a>
+            {estadoUbicacion !== "lista" && (
+              <button
+                type="button"
+                onClick={pedirUbicacion}
+                disabled={estadoUbicacion === "pidiendo"}
+                className="btn btn-papel"
+              >
+                {estadoUbicacion === "pidiendo" ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <MapPin className="h-4 w-4" />
+                )}
+                {estadoUbicacion === "pidiendo"
+                  ? "Buscándote…"
+                  : "Los más cercanos"}
+              </button>
+            )}
             {!usuario && (
               <button
                 type="button"
@@ -155,6 +230,20 @@ export function RolloApp() {
               </button>
             )}
           </div>
+
+          {estadoUbicacion === "lista" && (
+            <p className="mt-3 flex items-center gap-1.5 font-mono text-[11px] text-acido">
+              <MapPin className="h-3.5 w-3.5" />
+              Ubicación activa: el ranking y el modo urgencia van por cercanía.
+            </p>
+          )}
+          {(estadoUbicacion === "denegada" || estadoUbicacion === "no-disponible") && (
+            <p className="mt-3 font-mono text-[11px] text-papel-apagado">
+              {estadoUbicacion === "denegada"
+                ? "Sin ubicación: la has denegado, y se respeta. Puedes darla desde el candado de la barra de direcciones."
+                : "Tu navegador no da ubicación. Todo lo demás funciona igual."}
+            </p>
+          )}
 
           {usuario && (
             <p className="mt-3 font-mono text-[11px] text-papel-apagado">
@@ -190,6 +279,7 @@ export function RolloApp() {
               {mapaUtilizable ? (
                 <MapaRollos
                   bares={baresValorados}
+                  posicion={posicion}
                   seleccion={seleccion}
                   objetivo={objetivo}
                   onElegir={(bar) => abrirBar(bar)}
@@ -198,6 +288,7 @@ export function RolloApp() {
               ) : (
                 <MapaSimulado
                   bares={baresValorados}
+                  posicion={posicion}
                   seleccion={seleccion}
                   error={errorApi}
                   onElegir={(bar) => abrirBar(bar)}
@@ -207,6 +298,18 @@ export function RolloApp() {
           </section>
 
           <div className="grid min-w-0 content-start gap-4" id="ranking">
+            {posicion && (
+              <Ranking
+                titulo="Cerca de ti"
+                subtitulo="A un paseo de donde estás"
+                bares={cercanos}
+                seleccion={seleccion}
+                vacio="No hay nada fichado a tu alrededor todavía."
+                tono="cerca"
+                distancias={distancias}
+                onElegir={(bar) => abrirBar(bar)}
+              />
+            )}
             <Ranking
               titulo="El podio"
               subtitulo="Los que salvan la noche"
@@ -214,6 +317,7 @@ export function RolloApp() {
               medallas={["🥇", "🥈", "🥉"]}
               seleccion={seleccion}
               vacio="Todavía no hay nada que premiar."
+              distancias={distancias}
               onElegir={(bar) => abrirBar(bar)}
             />
             <Ranking
@@ -224,6 +328,7 @@ export function RolloApp() {
               seleccion={seleccion}
               vacio="Milagro: ningún desastre fichado."
               tono="negra"
+              distancias={distancias}
               onElegir={(bar) => abrirBar(bar)}
             />
           </div>
@@ -262,6 +367,7 @@ export function RolloApp() {
             )
           }
           onAvisar={avisar}
+          metros={distancias.get(barSeleccionado.bar.place_id) ?? null}
         />
       )}
 

@@ -65,6 +65,16 @@ Cada puntuación suelta tiene nombre: **Infierno · Malo · Justito · Bien · G
 
 Los que superan **4,5 con dos votos o más** se llevan el **Rollo de Oro** 👑.
 
+### La ubicación
+
+El **modo urgencia** y el panel **Cerca de ti** funcionan con la ubicación del navegador, y se pide con estas reglas:
+
+- **Nunca al cargar.** El permiso se solicita solo cuando alguien pulsa "Los más cercanos" o el modo urgencia.
+- **Si la deniegas, no pasa nada**: la app sigue entera, ordenando por nota en vez de por distancia, y lo dice sin insistir.
+- No se guarda ni se envía a ningún sitio: se usa en memoria para calcular distancias (fórmula del haversine, en `src/lib/distancia.ts`) y se pierde al recargar.
+
+Con ubicación activa, el modo urgencia deja de abrir el mejor valorado y abre **el baño decente (3,5 o más) que más cerca te pilla**; si ninguno aprueba, el más cercano a secas. Las fichas y los rankings muestran la distancia y los minutos andando, y en el mapa —real o simulado— aparece un punto verde donde estás.
+
 ### Las cuentas
 
 Leer el mapa no pide nada. **Para firmar un parte hace falta cuenta**: así cada nota lleva autor y, el día que haga falta, se puede moderar.
@@ -135,10 +145,12 @@ src/
 │  ├─ MapaSimulado.tsx       Mapa esquemático si falta la API key
 │  └─ Logo.tsx                Logo SVG: el papel cae y dibuja una "M"
 ├─ hooks/
-│  └─ usePlacesBuscador.ts    Autocompletado + detalle del sitio
+│  ├─ usePlacesBuscador.ts    Autocompletado + detalle del sitio
+│  └─ useUbicacion.ts         Ubicación del navegador, a petición
 └─ lib/
    ├─ auth.tsx                Cuentas: Supabase o modo local
    ├─ datos.ts                Lectura y escritura contra Supabase
+   ├─ distancia.ts            Distancias, formato y minutos andando
    ├─ supabase.ts             Cliente del navegador (null si no hay proyecto)
    ├─ types.ts                Bar, Review, BarConNota
    ├─ scores.ts               Medias, veredictos, grados y fechas
@@ -213,7 +225,7 @@ Los rótulos y sus tiempos están en `grabar()` y `guionReel()`, en el mismo ord
 ## Siguiente parada
 
 - Moderación: denunciar un parte y esconder lo denunciado hasta revisarlo.
+- Filtros: abiertos ahora, accesibles, con cambiador.
 - Realtime de Supabase para que el mapa se actualice sin recargar.
 - Fotos del baño (con moderación, que nos conocemos).
 - Filtros: solo verdes, abiertos ahora, accesibles, con cambiador.
-- Geolocalización para que el modo urgencia use la distancia real.

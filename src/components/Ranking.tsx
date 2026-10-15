@@ -1,5 +1,6 @@
 "use client";
 
+import { formatearDistancia } from "@/lib/distancia";
 import { formatearNota, veredictoDeNota } from "@/lib/scores";
 import type { Bar, BarConNota } from "@/lib/types";
 
@@ -15,6 +16,7 @@ export function Ranking({
   seleccion,
   vacio,
   tono = "podio",
+  distancias,
   onElegir,
 }: {
   titulo: string;
@@ -24,14 +26,20 @@ export function Ranking({
   medallas?: readonly string[];
   seleccion: string | null;
   vacio: string;
-  tono?: "podio" | "negra";
+  tono?: "podio" | "negra" | "cerca";
+  /** Metros hasta cada bar, si hay ubicación. */
+  distancias?: ReadonlyMap<string, number>;
   onElegir: (bar: Bar) => void;
 }) {
   return (
     <section className="panel" aria-label={titulo}>
       <header
         className={`flex items-center justify-between gap-3 border-b-[3px] border-black px-3.5 py-2.5 ${
-          tono === "negra" ? "bg-alarma text-white" : "bg-papel text-asfalto-900"
+          tono === "negra"
+            ? "bg-alarma text-white"
+            : tono === "cerca"
+              ? "bg-acido text-asfalto-900"
+              : "bg-papel text-asfalto-900"
         }`}
       >
         <h2 className="grito text-lg">{titulo}</h2>
@@ -88,6 +96,11 @@ export function Ranking({
                       <span className="truncate">
                         {reviews.length} {reviews.length === 1 ? "voto" : "votos"}
                       </span>
+                      {distancias?.has(bar.place_id) && (
+                        <span className="shrink-0 text-acido">
+                          · a {formatearDistancia(distancias.get(bar.place_id) ?? 0)}
+                        </span>
+                      )}
                     </span>
                   </span>
 
