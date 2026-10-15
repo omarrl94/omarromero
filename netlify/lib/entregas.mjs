@@ -11,7 +11,7 @@ export const claveEntrega = (id, email) => `${id}/${email}`;
  * una copia del intento que cuenta (`vigente`): el mejor o el último,
  * según el examen. Las entregas antiguas tienen un único intento.
  */
-const CAMPOS = ["examen", "respuestas", "resultado", "fecha", "fechaTexto", "salidas", "finalizadoPorSalida", "notaProfesor", "comentario", "ajustes"];
+const CAMPOS = ["examen", "respuestas", "resultado", "fecha", "fechaTexto", "salidas", "finalizadoPorSalida", "notaProfesor", "comentario", "ajustes", "tiempoUsado", "finalizadoPorTiempo", "fueraDeTiempo"];
 
 export const historialDe = (e) => (!e ? [] : e.historial?.length ? e.historial : [Object.fromEntries(CAMPOS.filter((c) => e[c] !== undefined).map((c) => [c, e[c]]))]);
 export const intentosHechos = (e) => historialDe(e).length;
@@ -113,6 +113,7 @@ export function vistaEntrega(e, { soluciones }) {
       num: (e.resultado.numRev || []).map((r) => !!r.ajustado),
     },
     finalizadoPorSalida: e.finalizadoPorSalida || "",
+    tiempoUsado: e.tiempoUsado ?? null, finalizadoPorTiempo: !!e.finalizadoPorTiempo, fueraDeTiempo: e.fueraDeTiempo || 0,
     respuestas: e.respuestas,
     soluciones,
     // Puntos por pregunta: siempre (el alumno ve su nota desglosada); soluciones solo si procede.

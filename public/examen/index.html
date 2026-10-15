@@ -27,6 +27,8 @@
       <div class="meta" id="chips"></div>
       <div class="note" style="margin-top:16px">Al entregar verás tu nota y <b>recibirás automáticamente un correo</b> en <b id="miEmail"></b> con tus respuestas y la corrección. <span id="txtHerr"></span> <span id="txtIntentos">Solo se puede entregar <b>una vez</b>.</span> Las preguntas abiertas se corrigen de forma automática por conceptos clave: es una estimación que revisa el profesor.</div>
       <div class="examwarn" id="avisoModo"></div>
+      <div class="field" id="codigoWrap" hidden style="max-width:280px;margin-top:16px"><label class="flab" for="codigoAcceso">🔑 Código de acceso</label>
+        <input type="text" id="codigoAcceso" autocomplete="off" autocapitalize="characters" maxlength="12" placeholder="Te lo da tu profesor" style="font-family:var(--mono);letter-spacing:.15em;text-transform:uppercase"></div>
       <div class="msg bad" id="introErr" hidden></div>
       <div class="actions"><button class="btn" id="start">Comenzar el examen</button></div>
     </div>
@@ -125,6 +127,7 @@ async function init() {
   $("#avisoModo").innerHTML = EX.seguridad
     ? `<b>🔒 Modo seguro:</b> si cambias de pestaña, minimizas, abres otra aplicación o sales de la ventana, <b>el examen se entregará automáticamente</b> con lo que lleves respondido${EX.intentosAlumno?.quedan === 1 ? " y no podrás repetirlo" : " y contará como un intento"}. Ten preparado todo antes de empezar.`
     : `<b>Modo examen:</b> no salgas de esta página hasta entregar. Si cambias de pestaña o de ventana, quedará registrado para el profesor.`;
+  pintarHorario();
   $$("[data-volver]").forEach((a) => (a.href = urlModulo(EX)));
   $("#chips").innerHTML = [EX.modulo && `<span class="chip gray">${esc(EX.modulo)}</span>`,
     EX.mc.length && `<span class="chip">${EX.mc.length} preguntas tipo test${EX.confianza ? " con confianza" : ""}</span>`,
@@ -135,6 +138,60 @@ async function init() {
     `<span class="chip s">Nota automática /10</span>`].filter(Boolean).join("");
   buildQuiz();
   $("#loading").hidden = true; $("#intro").hidden = false;
+}
+
+/* ── Horario: ventana para empezar, duración con temporizador y código de acceso ── */
+const horaCorta = (iso) => new Date(iso).toLocaleString("es-ES", { weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" });
+function pintarHorario() {
+  const h = EX.horario || {};
+  const info = [];
+  if (h.duracion) info.push(`<span class="chip s">⏱ ${h.duracion} ${h.duracion === 1 ? "minuto" : "minutos"}${h.tiempoExtra ? ` (incluye tu tiempo extra, +${h.tiempoExtra} %)` : ""}</span>`);
+  if (h.cierra) info.push(`<span class="chip gray">Se puede empezar hasta el ${esc(horaCorta(h.cierra))}</span>`);
+  if (info.length) $("#chips").insertAdjacentHTML("afterend", `<div class="horario-info">${info.join("")}</div>`);
+  if (h.duracion) $("#txtIntentos").insertAdjacentHTML("afterend", ` <b>Tienes ${h.duracion} ${h.duracion === 1 ? "minuto" : "minutos"}</b> desde que pulses «Comenzar»: el tiempo sigue contando aunque cierres la página y, al acabarse, el examen se entrega solo.`);
+  if (h.sinModoSeguro) $("#avisoModo").insertAdjacentHTML("afterend", `<div class="msg info">Tienes una adaptación: aunque salgas de la ventana, el examen no se entregará solo (quedará registrado).</div>`);
+  if (h.agotado) {
+    $("#start").textContent = "Entregar mis respuestas";
+    $("#avisoModo").insertAdjacentHTML("beforebegin", `<div class="msg bad">⏱ <b>Se ha acabado el tiempo</b> de este examen. Pulsa el botón para entregar las respuestas que tenías guardadas.</div>`);
+    return;
+  }
+  if (!h.puedeEmpezar && !EX.bloqueado) {
+    $("#start").disabled = true;
+    $("#avisoModo").insertAdjacentHTML("beforebegin", `<div class="msg bad">⏱ Este examen ${h.abre && Date.now() < Date.parse(h.abre) ? `se abre el <b>${esc(horaCorta(h.abre))}</b>. Vuelve a cargar la página a esa hora.` : `ya no se puede empezar: el plazo terminó el <b>${esc(horaCorta(h.cierra))}</b>.`}</div>`);
+    return;
+  }
+  if (h.requiereCodigo && !EX.bloqueado) $("#codigoWrap").hidden = false;
+}
+
+let RELOJ = null, DESFASE = 0, LIMITE = null;
+function iniciarReloj(limite, ahoraServidor) {
+  if (!limite) return;
+  LIMITE = Date.parse(limite); DESFASE = ahoraServidor ? Date.parse(ahoraServidor) - Date.now() : 0;
+  const p = $("#quiz .progress");
+  if (p && !$("#reloj")) p.insertAdjacentHTML("afterbegin", `<span class="reloj" id="reloj" title="Tiempo que te queda"></span>`);
+  const tic = () => {
+    const quedan = Math.max(0, Math.round((LIMITE - (Date.now() + DESFASE)) / 1000));
+    const r = $("#reloj"); if (!r) return;
+    r.textContent = `⏱ ${Math.floor(quedan / 60)}:${String(quedan % 60).padStart(2, "0")}`;
+    r.classList.toggle("poco", quedan <= 300 && quedan > 60); r.classList.toggle("fin", quedan <= 60);
+    if (quedan === 300 && !r.dataset.aviso) { r.dataset.aviso = "1"; r.title = "Quedan 5 minutos"; }
+    if (quedan <= 0) { clearInterval(RELOJ); entregarPorTiempo(); }
+  };
+  clearInterval(RELOJ); tic(); RELOJ = setInterval(tic, 1000);
+}
+
+/** Se acabó el tiempo: se entrega con lo que haya respondido. */
+async function entregarPorTiempo() {
+  if (!examOn && $("#quiz").hidden) return;
+  stopExam();
+  PAYLOAD = { ...respuestasActuales(), tiempoAgotado: true };
+  const btn = $("#submit"); if (btn) { btn.disabled = true; btn.textContent = "Entregando…"; }
+  try { mostrarResultado(await api("/api/examen/entregar", PAYLOAD), `<div class="msg bad"><b>⏱ Se acabó el tiempo:</b> el examen se ha entregado con las respuestas que tenías.</div>`); }
+  catch (e) {
+    if (e.status === 409) { location.replace(`?id=${encodeURIComponent(examId)}&ver=1`); return; }
+    const err = $("#sendErr"); if (err) { err.hidden = false; err.textContent = `Se acabó el tiempo, pero no se ha podido entregar: ${e.message}. Pulsa «Entregar» para intentarlo otra vez.`; }
+    if (btn) { btn.disabled = false; btn.textContent = "Entregar examen"; }
+  }
 }
 
 /** «Tienes 3 intentos (te quedan 2); cuenta la mejor nota.» */
@@ -276,7 +333,7 @@ function progreso() {
 $("#start").onclick = async () => {
   const b = $("#start"); b.disabled = true; $("#introErr").hidden = true;
   let r;
-  try { r = await api("/api/examen/iniciar", { id: examId }); }
+  try { r = await api("/api/examen/iniciar", { id: examId, codigo: $("#codigoAcceso").value.trim() }); }
   catch (e) { $("#introErr").textContent = e.message; $("#introErr").hidden = false; b.disabled = false; return; }
   b.disabled = false;
   $("#intro").hidden = true; $("#quiz").hidden = false; startExam(); window.scrollTo({ top: 0 });
@@ -284,11 +341,14 @@ $("#start").onclick = async () => {
     ponerRespuestas(r.respuestas);
     $("#quiz").insertAdjacentHTML("afterbegin", `<div class="msg ok" id="avisoReanudar">↺ ${r.reanudado ? "Tu profesor te ha dejado reanudar el examen. " : ""}Se han recuperado las respuestas que tenías guardadas: sigue donde lo dejaste.</div>`);
   }
+  // Tiempo agotado (volvió a entrar tarde): se entrega lo guardado. Si no, arranca el reloj.
+  if (r.agotado) { entregarPorTiempo(); return; }
+  iniciarReloj(r.limite, r.ahora);
 };
 
 /* ── Entrega: corrige el servidor y envía el correo ── */
 function mostrarResultado(d, extra = "") {
-  cerrarHerramientas(); // las notas se borran al entregar
+  cerrarHerramientas(); clearInterval(RELOJ); // las notas se borran al entregar
   history.replaceState(null, "", `?id=${encodeURIComponent(examId)}&ver=1`);
   $("#quiz").hidden = true; $("#intro").hidden = true;
   const r = $("#result"); r.hidden = false;
@@ -309,7 +369,7 @@ async function entregar() {
   }
   PAYLOAD = respuestasActuales();
   btn.disabled = true; btn.textContent = "Entregando…"; err.hidden = true;
-  stopExam(); // mientras se entrega, salir de la ventana ya no cuenta
+  stopExam(); clearInterval(RELOJ); // mientras se entrega, salir de la ventana ya no cuenta
   try {
     mostrarResultado(await api("/api/examen/entregar", PAYLOAD));
   } catch (e) {

@@ -6,6 +6,7 @@ import { todosLosExamenes, obtenerExamen, enunciado, resumen } from "./examenes.
 import { corregir, limpiarRespuestas } from "./correccion.mjs";
 import { versionExamen, semillaDe, aOriginal, aMostrado, esAleatorio } from "./variantes.mjs";
 import { secreto } from "./auth.mjs";
+import { plazo, seguridadPara, horaTexto, MARGEN_ENTREGA_MS } from "./plazos.mjs";
 import { claveEntrega, vistaEntrega, historialDe, intentosHechos, intentosPermitidos, consolidar, conIntento } from "./entregas.mjs";
 import { enviarCorreo, proveedorConfigurado } from "./correo.mjs";
 import { CATALOGO, cicloDe, moduloVisible } from "./catalogo.mjs";
@@ -81,30 +82,47 @@ async function ver(req, url) {
   if (c.quedan <= 0 && !esStaff(u)) sinIntentos(c);
   const b = borradorVigente(c);
   // Modo seguro ya empezado y sin permiso del profesor para reanudarlo.
-  const bloqueado = ex.seguridad !== false && (c.p?.inicios?.length || 0) >= c.permitidos && !c.p?.reanudar && !esStaff(u);
+  const seg = seguridadPara(ex, u);
+  const pl = plazo(ex, u, c.p, c.hechos + 1);
+  const agotado = pl.agotado && !c.p?.reanudar;
+  const bloqueado = seg && (c.p?.inicios?.length || 0) >= c.permitidos && !c.p?.reanudar && !esStaff(u) && !agotado;
   const v = await versionDe(ex, u.email, c.hechos + 1);
-  return json({ ...enunciado(v.mostrado), variante: v.variante, intentosAlumno: intentosJSON(c), enCurso: b ? { t: b.t, n: b.n } : null, reanudar: !!c.p?.reanudar, bloqueado });
+  return json({
+    ...enunciado(v.mostrado), seguridad: seg, variante: v.variante, intentosAlumno: intentosJSON(c), enCurso: b ? { t: b.t, n: b.n } : null, reanudar: !!c.p?.reanudar, bloqueado,
+    horario: { ...pl, agotado, puedeEmpezar: pl.puedeEmpezar || esStaff(u), requiereCodigo: !!ex.codigo && !esStaff(u) && !pl.inicio, sinModoSeguro: !!u.adaptacion?.sinModoSeguro && ex.seguridad !== false },
+  });
 }
 
 async function iniciar(req) {
   const u = await requiereUsuario(req);
-  const { id } = await leerCuerpo(req);
+  const { id, codigo } = await leerCuerpo(req);
   const ex = await examenPublicado(id, u);
   const c = await cuentaIntentos(ex, u.email), k = c.k;
   if (c.quedan <= 0 && !esStaff(u)) sinIntentos(c);
   const p = c.p || { email: u.email, examen: ex.id, salidas: [] };
+  const intento = c.hechos + 1;
+  const staff = esStaff(u);
   // En modo seguro cada intento solo se puede empezar una vez (salir de la página lo entrega o lo cierra),
   // salvo que el profesor le haya dejado reanudarlo.
   const reanuda = !!p.reanudar;
-  if (ex.seguridad !== false && (p.inicios?.length || 0) >= c.permitidos && !esStaff(u) && !reanuda)
+  let pl = plazo(ex, u, p, intento);
+  if (!staff && !pl.inicio) {
+    // Horario: solo se empieza dentro de la ventana y con el código que da el profesor en clase.
+    if (!pl.puedeEmpezar) fallo(409, pl.abre && Date.now() < Date.parse(pl.abre)
+      ? `Este examen se abre el ${horaTexto(pl.abre)}.` : `El plazo para empezar este examen terminó el ${horaTexto(pl.cierra)}.`);
+    if (ex.codigo && String(codigo || "").trim().toUpperCase() !== ex.codigo) fallo(403, codigo ? "El código no es correcto. Pídeselo a tu profesor." : "Escribe el código que te ha dado tu profesor.");
+  }
+  if (!staff && !pl.agotado && seguridadPara(ex, u) && (p.inicios?.length || 0) >= c.permitidos && !reanuda)
     fallo(409, "Ya empezaste este examen en modo seguro y no se puede repetir. Si ha sido un error, pide a tu profesor que te deje reanudarlo.");
-  if (!reanuda) p.inicios = [...(p.inicios || []), new Date().toISOString()].slice(-20);
+  if (!reanuda && !pl.inicio) p.inicios = [...(p.inicios || []), new Date().toISOString()].slice(-20);
+  // El reloj empieza la primera vez; al continuar o reanudar, sigue contando desde entonces.
+  if (!pl.inicio) { p.inicioIntento = { intento, t: new Date().toISOString() }; pl = plazo(ex, u, p, intento); }
   delete p.reanudar;
   await progreso().set(k, p);
   // Si había respuestas guardadas de este intento, sigue donde lo dejó.
   const b = borradorVigente({ ...c, p });
-  const v = b ? await versionDe(ex, u.email, c.hechos + 1) : null;
-  return json({ ok: true, respuestas: b ? aMostrado(b.respuestas, v.orden) : null, reanudado: reanuda });
+  const v = b ? await versionDe(ex, u.email, intento) : null;
+  return json({ ok: true, respuestas: b ? aMostrado(b.respuestas, v.orden) : null, reanudado: reanuda, limite: staff ? null : pl.limite, agotado: !staff && pl.agotado, ahora: new Date().toISOString() });
 }
 
 /** Guardado automático de las respuestas mientras se hace el examen (para poder reanudarlo). */
@@ -116,6 +134,9 @@ async function guardarBorrador(req) {
   if (c.quedan <= 0 && !esStaff(u)) return json({ ok: false });
   // Un guardado que llega tarde (tras entregar) no debe pasar al intento siguiente.
   if (b.intento != null && Number(b.intento) !== c.hechos + 1) return json({ ok: false });
+  // Tiempo agotado: ya no se guardan cambios (el examen se entrega con lo que había).
+  const pl = plazo(ex, u, c.p, c.hechos + 1);
+  if (!esStaff(u) && pl.limite && Date.now() > Date.parse(pl.limite) + MARGEN_ENTREGA_MS) return json({ ok: false, agotado: true });
   const v = await versionDe(ex, u.email, c.hechos + 1);
   const respuestas = limpiarRespuestas(v.canon, aOriginal(b, v.orden));
   const n = respuestas.mc.filter((v) => v >= 0).length + respuestas.open.filter((t) => t.trim()).length
@@ -154,11 +175,17 @@ async function entregar(req) {
   const ahora = new Date();
   const p = c.p || { email: u.email, examen: ex.id, salidas: [] };
   // Entrega automática al cambiar de pantalla (modo seguro): se registra la salida.
-  const salida = ex.seguridad !== false && b.salida ? texto(b.salida, 120) : "";
+  const salida = seguridadPara(ex, u) && b.salida ? texto(b.salida, 120) : "";
+  // Horario: tiempo usado y entrega fuera de tiempo (se acepta, pero queda marcada para el profesor).
+  const pl = plazo(ex, u, p, c.hechos + 1, ahora.getTime());
+  const tiempoUsado = pl.inicio ? Math.round((ahora - Date.parse(pl.inicio)) / 1000) : null;
+  const tarde = !esStaff(u) && pl.limite ? Math.round((ahora - Date.parse(pl.limite)) / 60_000) : 0;
+  const fueraDeTiempo = !esStaff(u) && pl.limite && ahora - Date.parse(pl.limite) > MARGEN_ENTREGA_MS ? tarde : 0;
+  const porTiempo = !!b.tiempoAgotado;
   if (salida) p.salidas = [...(p.salidas || []), { t: ahora.toISOString(), motivo: `${salida} (examen finalizado)` }].slice(-50);
   // Entregado: ya no hay nada que reanudar.
-  const habiaBorrador = !!(p.borrador || p.reanudar);
-  delete p.borrador; delete p.reanudar;
+  const habiaBorrador = !!(p.borrador || p.reanudar || p.inicioIntento);
+  delete p.borrador; delete p.reanudar; delete p.inicioIntento;
   if (salida || habiaBorrador) await progreso().set(k, p);
   const { publicado, mostrarSoluciones, creado, actualizado, ...copia } = v.canon;
   if (v.variante) { copia.version = true; delete copia.variables; }
@@ -169,6 +196,9 @@ async function entregar(req) {
     // Salidas de la ventana durante este intento.
     salidas: Math.max(0, (p?.salidas?.length || 0) - historialDe(c.e).reduce((s, x) => s + (x.salidas || 0), 0)),
     ...(salida ? { finalizadoPorSalida: salida } : {}),
+    ...(tiempoUsado != null ? { tiempoUsado } : {}),
+    ...(porTiempo ? { finalizadoPorTiempo: true } : {}),
+    ...(fueraDeTiempo ? { fueraDeTiempo } : {}),
   };
   const e = consolidar(
     { ...(c.e || {}), email: u.email, nombre: u.nombre, apellidos: u.apellidos, grupo: u.grupo },

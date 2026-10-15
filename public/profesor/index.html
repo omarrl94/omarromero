@@ -241,6 +241,39 @@
   </div>
 </dialog>
 
+<!-- Horario del examen -->
+<dialog id="dHorario">
+  <div class="dhead"><h2>⏱ Horario · <span id="dHorTitulo"></span></h2><button class="btn ghost sm" data-close>Cerrar</button></div>
+  <form class="dbody" id="fHorario" novalidate>
+    <p class="muted" style="margin-top:0">Para que el examen solo se haga en clase y a su hora. Todo es opcional: deja un campo vacío si no quieres ese límite.</p>
+    <div class="row2">
+      <div class="field"><label class="flab" for="hDesde">Se puede empezar desde</label><input type="datetime-local" id="hDesde"></div>
+      <div class="field"><label class="flab" for="hHasta">Hasta (última hora para empezar)</label><input type="datetime-local" id="hHasta"><span class="hintline">Sin duración, también es la hora límite para entregar.</span></div>
+    </div>
+    <div class="field" style="max-width:300px"><label class="flab" for="hDur">Duración (minutos)</label><input type="number" id="hDur" min="0" max="600" placeholder="Sin límite">
+      <span class="hintline">Cuenta desde que cada alumno pulsa «Comenzar». Al acabarse, el examen se entrega solo. El alumnado con tiempo extra (pestaña Alumnos) tiene su parte proporcional.</span></div>
+    <label class="check"><input type="checkbox" id="hCodigo"> <span>🔑 Pedir un <b>código de acceso</b> para empezar (lo dices o lo escribes en la pizarra al empezar la clase)</span></label>
+    <div class="codbox" id="hCodBox" hidden><span>Código:</span><b id="hCodVal">—</b><button type="button" class="btn ghost sm" id="hCodNuevo">Generar otro</button></div>
+    <div class="msg bad" data-err hidden></div>
+    <div class="actions"><button class="btn" type="submit">Guardar horario</button><button class="btn ghost" type="button" id="hQuitar">Quitar todos los límites</button></div>
+  </form>
+</dialog>
+
+<!-- Adaptaciones de un alumno -->
+<dialog id="dAdapt">
+  <div class="dhead"><h2>♿ Adaptaciones · <span id="dAdTitulo"></span></h2><button class="btn ghost sm" data-close>Cerrar</button></div>
+  <form class="dbody" id="fAdapt" novalidate>
+    <p class="muted" style="margin-top:0">Para alumnado con necesidades específicas de apoyo educativo. Se aplican en todos sus exámenes.</p>
+    <div class="field" style="max-width:320px"><label class="flab" for="adExtra">Tiempo extra</label>
+      <select id="adExtra"><option value="0">Sin tiempo extra</option><option value="25">+25 %</option><option value="33">+33 % (un tercio)</option><option value="50">+50 %</option><option value="100">+100 % (el doble)</option></select>
+      <span class="hintline">Se suma a la duración de cada examen y al cierre del horario.</span></div>
+    <label class="check"><input type="checkbox" id="adSinSeg"> <span>Sin <b>modo seguro</b>: si sale de la ventana no se le entrega el examen (queda registrado)</span></label>
+    <div class="field" style="margin-top:12px"><label class="flab" for="adNota">Nota interna (solo la ve el profesorado)</label><input type="text" id="adNota" maxlength="200" placeholder="Ej.: dislexia; lector de pantalla…"></div>
+    <div class="msg bad" data-err hidden></div>
+    <div class="actions"><button class="btn" type="submit">Guardar</button></div>
+  </form>
+</dialog>
+
 <!-- Alexia / Additio -->
 <dialog id="dConectar" class="wide">
   <div class="dhead"><h2>🔄 Alexia / Additio · <span id="cxGrupo"></span></h2><button class="btn ghost sm" data-close>Cerrar</button></div>
@@ -405,6 +438,41 @@ $("#agrupar").onchange = () => { guardarFiltro(); pintarExamenes(); };
 $("#buscarEx").oninput = () => pintarExamenes();
 
 /** Tarjeta de un examen. */
+/* ── Horario del examen: ventana para empezar, duración y código de acceso ── */
+const fechaCorta = (iso) => new Date(iso).toLocaleString("es-ES", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+function horarioTxt(e) {
+  const p = [];
+  if (e.ventana?.desde || e.ventana?.hasta) p.push(`${e.ventana.desde ? fechaCorta(e.ventana.desde) : "ya"} → ${e.ventana.hasta ? fechaCorta(e.ventana.hasta) : "sin cierre"}`);
+  if (e.duracion) p.push(`${e.duracion} min`);
+  if (e.codigo) p.push(`código <b class="codigo">${esc(e.codigo)}</b>`);
+  return p.length ? p.join(" · ") : `<span class="muted">Sin límite de horario</span>`;
+}
+let HOR_ID = null;
+function abrirHorario(id) {
+  const e = EXAMENES.find((x) => x.id === id); HOR_ID = id;
+  $("#dHorTitulo").textContent = e.titulo;
+  $("#hDesde").value = aLocal(e.ventana?.desde); $("#hHasta").value = aLocal(e.ventana?.hasta);
+  $("#hDur").value = e.duracion || "";
+  $("#hCodigo").checked = !!e.codigo; $("#hCodVal").textContent = e.codigo || "—"; $("#hCodBox").hidden = !e.codigo;
+  $("[data-err]", $("#dHorario")).hidden = true;
+  $("#dHorario").showModal();
+}
+async function guardarHorario(extra = {}) {
+  const err = $("[data-err]", $("#dHorario")); err.hidden = true;
+  const e = EXAMENES.find((x) => x.id === HOR_ID);
+  const cuerpo = {
+    id: HOR_ID, ventana: { desde: $("#hDesde").value ? new Date($("#hDesde").value).toISOString() : "", hasta: $("#hHasta").value ? new Date($("#hHasta").value).toISOString() : "" },
+    duracion: Number($("#hDur").value || 0), codigo: $("#hCodigo").checked ? (e.codigo || "nuevo") : "", ...extra,
+  };
+  try {
+    const r = await api("/api/profesor/examen/ajustes", cuerpo);
+    Object.assign(e, { ventana: r.ventana, duracion: r.duracion, codigo: r.codigo });
+    $("#hCodVal").textContent = r.codigo || "—"; $("#hCodBox").hidden = !r.codigo;
+    pintarExamenes();
+    return true;
+  } catch (x) { err.textContent = x.message; err.hidden = false; return false; }
+}
+
 function tarjetaExamen(e) {
   const sw = (campo, txt, tip) => `<label title="${tip}">${txt}<span class="switch"><input type="checkbox" data-aj="${campo}" ${e[campo] ? "checked" : ""}><span></span></span></label>`;
   return `<article class="excard2" data-id="${esc(e.id)}">
@@ -433,6 +501,11 @@ function tarjetaExamen(e) {
         <label title="Las opciones del test salen en otro orden"><span class="switch"><input type="checkbox" data-azar="opciones" ${e.aleatorio?.opciones ? "checked" : ""}><span></span></span>Opciones</label>
         ${e.nVariables ? `<label title="Cada alumno tiene otros valores (${e.nVariables} variables) y sus propios resultados"><span class="switch"><input type="checkbox" data-azar="valores" ${e.aleatorio?.valores ? "checked" : ""}><span></span></span>Valores</label>`
           : (e.nNum || e.nMc) ? `<button type="button" class="link" data-ia-valores title="La IA propone qué datos pueden cambiar y las fórmulas de los resultados; la plataforma comprueba que dan los mismos resultados que el original">✨ Valores aleatorios con IA</button>` : ""}
+      </div>
+      <div class="herrbar horariobar" title="Cuándo se puede hacer, cuánto dura y código de acceso">
+        <span>⏱ Horario</span>
+        <span class="hsum">${horarioTxt(e)}</span>
+        <button type="button" class="link" data-horario>Configurar</button>
       </div>
       <div class="intentosbar">
         <label title="Cuántas veces puede entregarlo cada alumno. A un alumno concreto le puedes dar más desde «Entregas».">Intentos
@@ -506,6 +579,7 @@ function pintarExamenes() {
     catch (e) { alert(e.message); c.checked = !c.checked; }
   }));
   $$("[data-ia-valores]", t).forEach((b) => (b.onclick = () => valoresAleatoriosIA(idDe(b))));
+  $$("[data-horario]", t).forEach((b) => (b.onclick = () => abrirHorario(idDe(b))));
   $$("[data-herr]", t).forEach((c) => (c.onchange = async () => {
     try { await api("/api/profesor/examen/ajustes", { id: idDe(c), herramientas: { [c.dataset.herr]: c.checked } }); }
     catch (e) { alert(e.message); c.checked = !c.checked; }
@@ -588,7 +662,11 @@ function pintarEntregas() {
       <td>${f.estado === "entregado" ? `<span class="chip ok">Entregado</span>` : f.enCurso ? `<span class="chip v">En curso</span><div class="muted" style="font-size:12px;margin-top:3px">guardado ${esc(horaCorta(f.enCurso.t))}${f.enCurso.n != null ? ` · ${f.enCurso.n} respondidas` : ""}</div>` : `<span class="chip gray">Sin entregar</span>`}
         ${f.reanudar ? `<div><span class="chip ok" style="margin-top:4px" title="Al volver a entrar, seguirá donde lo dejó">↺ Puede reanudar</span></div>` : ""}
         ${f.porRevisar ? `<div><span class="chip" title="Respuestas escritas sin revisar en el intento que cuenta" style="margin-top:4px">⏳ ${f.porRevisar} por revisar</span></div>` : f.estado === "entregado" && EX_ENT?.nOpen ? `<div><span class="chip ok" style="margin-top:4px" title="Todas sus respuestas escritas están revisadas">✓ Escritas revisadas</span></div>` : ""}
-        ${f.finalizadoPorSalida ? `<div><span class="chip bad" title="${esc(f.finalizadoPorSalida)}" style="margin-top:4px">🔒 Finalizado al salir</span></div>` : ""}</td>
+        ${f.finalizadoPorSalida ? `<div><span class="chip bad" title="${esc(f.finalizadoPorSalida)}" style="margin-top:4px">🔒 Finalizado al salir</span></div>` : ""}
+        ${f.finalizadoPorTiempo ? `<div><span class="chip s" style="margin-top:4px" title="Se entregó solo al acabarse el tiempo">⏱ Se acabó el tiempo</span></div>` : ""}
+        ${f.fueraDeTiempo ? `<div><span class="chip bad" style="margin-top:4px" title="Entregado después de su hora límite">⏱ ${f.fueraDeTiempo} min tarde</span></div>` : ""}
+        ${f.limite && f.estado !== "entregado" ? `<div class="muted" style="font-size:12px;margin-top:3px">⏱ tiempo hasta las ${new Date(f.limite).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}</div>` : ""}
+        ${f.adaptacion ? `<div style="margin-top:4px">${adaptTxt(f.adaptacion)}</div>` : ""}</td>
       <td class="num">${f.nota != null ? fmt(f.nota) : "—"}</td>
       <td class="num">${f.estado === "entregado" ? fmt(f.notaProfesor ?? f.nota) + (f.notaProfesor != null ? ` <span class="chip ok" style="font-size:11px">revisada</span>` : "") : "—"}</td>
       <td class="num"><div class="intcel"><span title="${f.extra ? `Incluye ${f.extra} extra` : ""}">${f.intentos} / ${f.permitidos ?? "∞"}</span>${f.permitidos != null ? `<button class="btn ghost sm" data-extra="1" title="Dar un intento más a este alumno">+1</button>${f.extra ? `<button class="btn ghost sm" data-extra="-1" title="Quitar un intento extra">−1</button>` : ""}` : ""}</div></td>
@@ -1641,17 +1719,35 @@ async function cargarAlumnos() {
   pintarAlumnos();
 }
 $("#buscar").oninput = pintarAlumnos;
+/* ── Adaptaciones del alumnado (tiempo extra, sin modo seguro) ── */
+const adaptTxt = (a) => [a.tiempoExtra ? `<span class="chip v">⏱ +${a.tiempoExtra} %</span>` : "", a.sinModoSeguro ? `<span class="chip v">🔓 sin modo seguro</span>` : "", !a.tiempoExtra && !a.sinModoSeguro && a.nota ? `<span class="chip gray">nota</span>` : ""].join(" ");
+let AD_EMAIL = null;
+function abrirAdapt(email) {
+  const a = ALUMNOS.find((x) => x.email === email); AD_EMAIL = email;
+  $("#dAdTitulo").textContent = `${a.nombre} ${a.apellidos}`;
+  $("#adExtra").value = String(a.adaptacion?.tiempoExtra || 0); $("#adSinSeg").checked = !!a.adaptacion?.sinModoSeguro; $("#adNota").value = a.adaptacion?.nota || "";
+  $("[data-err]", $("#dAdapt")).hidden = true;
+  $("#dAdapt").showModal();
+}
+$("#fAdapt").onsubmit = async (ev) => {
+  ev.preventDefault();
+  const adaptacion = { tiempoExtra: Number($("#adExtra").value), sinModoSeguro: $("#adSinSeg").checked, nota: $("#adNota").value };
+  try { await api("/api/profesor/alumno", { email: AD_EMAIL, adaptacion }); $("#dAdapt").close(); cargarAlumnos(); }
+  catch (e) { const er = $("[data-err]", ev.target); er.textContent = e.message; er.hidden = false; }
+};
+
 function pintarAlumnos() {
   const q = $("#buscar").value.trim().toLowerCase();
   const lista = ALUMNOS.filter((a) => !q || `${a.nombre} ${a.apellidos} ${a.email} ${a.grupo}`.toLowerCase().includes(q));
   if (!lista.length) { $("#tablaAlumnos").innerHTML = `<div class="empty">${ALUMNOS.length ? "Ningún alumno coincide con la búsqueda." : "Todavía no se ha registrado nadie."}</div>`; return; }
-  $("#tablaAlumnos").innerHTML = `<p class="muted">${lista.length} cuentas</p><div class="tablewrap"><table class="t"><thead><tr><th>Alumno/a</th><th>Grupo (cámbialo si se equivocó)</th><th>Estado</th><th>Alta</th><th></th></tr></thead><tbody>
+  $("#tablaAlumnos").innerHTML = `<p class="muted">${lista.length} cuentas</p><div class="tablewrap"><table class="t"><thead><tr><th>Alumno/a</th><th>Grupo (cámbialo si se equivocó)</th><th>Adaptaciones</th><th>Estado</th><th>Alta</th><th></th></tr></thead><tbody>
     ${lista.map((a) => `<tr data-email="${esc(a.email)}">
       <td><b>${esc(a.apellidos)}, ${esc(a.nombre)}</b> ${a.profesor ? `<span class="chip">Profesor</span>` : `<button type="button" class="link" data-editar-nombre title="Corregir nombre y apellidos" style="font-size:12.5px">editar</button>`}
         <div class="muted" style="font-size:13px">${esc(a.email)}${a.externo ? ` <span class="chip gray" style="font-size:11px" title="Se registró con un correo que no es del centro">correo personal</span>` : ""}</div></td>
       <td>${a.profesor ? esc(a.grupo) : `<select data-grupo style="width:auto;padding:6px 10px;font-size:14px">
         ${GRUPOS.some((g) => g.grupo === a.grupo) ? "" : `<option value="" selected>${esc(a.grupo || "—")} (${a.cicloId ? "ciclo " + esc(a.cicloId.toUpperCase()) : "sin ciclo"})</option>`}
         ${GRUPOS.map((g) => `<option ${g.grupo === a.grupo ? "selected" : ""}>${esc(g.grupo)}</option>`).join("")}</select>`}</td>
+      <td>${a.profesor ? "" : `<button type="button" class="link" data-adapt title="${esc(a.adaptacion?.nota || "Tiempo extra o sin modo seguro")}">${a.adaptacion ? adaptTxt(a.adaptacion) : "Añadir"}</button>`}</td>
       <td>${a.verificado ? `<span class="chip ok">Activa</span>` : `<span class="chip gray">Sin confirmar</span> <button class="btn ghost sm" data-activar>Activar</button>`}</td>
       <td style="white-space:nowrap">${fecha(a.creado)}</td>
       <td><div class="acts">${a.profesor ? "" : `${ES_ADMIN ? `<details class="menu-cuenta"><summary class="btn ghost sm">Cuenta ▾</summary><div class="menu">
@@ -1672,6 +1768,7 @@ function pintarAlumnos() {
     const apellidos = prompt("Apellidos:", a.apellidos); if (apellidos === null) return;
     try { await api("/api/profesor/alumno", { email: a.email, nombre, apellidos }); cargarAlumnos(); } catch (e) { alert(e.message); }
   }));
+  $$("[data-adapt]").forEach((b) => (b.onclick = () => abrirAdapt(b.closest("tr").dataset.email)));
   $$("[data-activar]").forEach((b) => (b.onclick = async () => {
     try { await api("/api/profesor/alumno", { email: b.closest("tr").dataset.email, verificado: true }); cargarAlumnos(); } catch (e) { alert(e.message); }
   }));
@@ -2438,6 +2535,11 @@ function pintarPropuestaDefensa() {
     } catch (x) { err.textContent = x.message; err.hidden = false; }
   };
 }
+
+$("#fHorario").onsubmit = async (ev) => { ev.preventDefault(); if (await guardarHorario()) $("#dHorario").close(); };
+$("#hCodigo").onchange = () => guardarHorario();
+$("#hCodNuevo").onclick = () => guardarHorario({ codigo: "nuevo" });
+$("#hQuitar").onclick = async () => { $("#hDesde").value = ""; $("#hHasta").value = ""; $("#hDur").value = ""; $("#hCodigo").checked = false; if (await guardarHorario()) $("#dHorario").close(); };
 
 (async () => {
   const yo = await cabecera({ ciclo: "Profesor" });

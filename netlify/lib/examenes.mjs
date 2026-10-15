@@ -16,6 +16,7 @@
  *  confianza: true → el test se puntúa con nivel de confianza (CONFIANZA).
  *  partes: { mc?, open?, num? } → títulos de cada parte.
  */
+import { ventanaValida, duracionValida, codigoValido } from "./plazos.mjs";
 import { almacen } from "./almacen.mjs";
 import { fallo, texto } from "./http.mjs";
 import semillaSad from "./semilla-sad-temas-1-2.mjs";
@@ -169,6 +170,10 @@ export function validarExamen(e) {
     // Examen aleatorio: orden de preguntas y opciones, y valores de los ejercicios (con variables).
     aleatorio: aleatorioValido(e.aleatorio),
     variables: validarVariables(e.variables),
+    // Horario: cuándo se puede empezar, cuánto dura y código de acceso que se da en clase.
+    ventana: ventanaValida(e.ventana),
+    duracion: duracionValida(e.duracion),
+    codigo: codigoValido(e.codigo),
     partes: { mc: opc(e.partes?.mc, 80), open: opc(e.partes?.open, 80), num: opc(e.partes?.num, 80) },
     bloques, mc, open, num,
   };
@@ -195,6 +200,7 @@ export const enunciado = (ex) => ({
   intentos: ex.intentos ?? 1, calificacion: ex.calificacion || "mejor",
   herramientas: herramientasValidas(ex.herramientas),
   ...(ex.defensaDe ? { trabajo: ex.defensaDe.trabajo } : {}),
+  ventana: ex.ventana || { desde: "", hasta: "" }, duracion: ex.duracion || 0, requiereCodigo: !!ex.codigo,
   confianza: !!ex.confianza, confianzaTabla: ex.confianza ? CONFIANZA : null,
   partes: ex.partes || {}, bloques: ex.bloques || [],
   mc: ex.mc.map(({ t, o, puntos, bloque }) => ({ t, o, puntos: puntos ?? 1, bloque: bloque || "" })),
@@ -213,6 +219,7 @@ export const resumen = (ex) => ({
   intentos: ex.intentos ?? 1, calificacion: ex.calificacion || "mejor",
   herramientas: herramientasValidas(ex.herramientas),
   aleatorio: aleatorioValido(ex.aleatorio), nVariables: (ex.variables || []).length,
+  ventana: ex.ventana || { desde: "", hasta: "" }, duracion: ex.duracion || 0, codigo: ex.codigo || "",
   creado: ex.creado, actualizado: ex.actualizado, autor: ex.autor?.nombre || "",
 });
 

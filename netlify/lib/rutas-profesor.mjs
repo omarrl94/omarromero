@@ -9,6 +9,7 @@ import { notasTrabajos } from "./rutas-trabajos.mjs";
 import { todosLosExamenes, obtenerExamen, validarExamen, resumen, intentosValidos, herramientasValidas, HERRAMIENTAS, aleatorioValido } from "./examenes.mjs";
 import { versionExamen, semillaDe, comprobarFormulas, esAleatorio, comprobarPropuesta, aplicarPropuestas } from "./variantes.mjs";
 import { secreto } from "./auth.mjs";
+import { ventanaValida, duracionValida, codigoValido, adaptacionValida, plazo } from "./plazos.mjs";
 import {
   claveEntrega, vistaEntrega, partesDe, historialDe, intentosHechos, intentosPermitidos,
   consolidar, conIntento, validarAjustes, resultadoCon, puntuarPregunta, porRevisar,
@@ -153,6 +154,10 @@ async function guardar(req) {
   if (previo && b.calificacion === undefined) ex.calificacion = previo.calificacion || "mejor";
   if (previo && b.herramientas === undefined) ex.herramientas = herramientasValidas(previo.herramientas);
   if (previo && b.aleatorio === undefined) ex.aleatorio = aleatorioValido(previo.aleatorio);
+  // El horario y el código se conservan al reemplazar el examen.
+  if (previo && b.ventana === undefined) ex.ventana = previo.ventana || ex.ventana;
+  if (previo && b.duracion === undefined) ex.duracion = previo.duracion || 0;
+  if (previo && b.codigo === undefined) ex.codigo = previo.codigo || "";
   const ahora = new Date().toISOString();
   await examenes().set(ex.id, {
     ...ex, creado: previo?.creado || ahora, actualizado: ahora,
@@ -186,6 +191,10 @@ async function ajustes(req) {
     for (const k of HERRAMIENTAS) if (typeof b.herramientas[k] === "boolean") h[k] = b.herramientas[k];
     ex.herramientas = h;
   }
+  // Horario: ventana para empezar, duración y código de acceso («nuevo» genera uno).
+  if (b.ventana !== undefined) ex.ventana = ventanaValida(b.ventana);
+  if (b.duracion !== undefined) ex.duracion = duracionValida(b.duracion);
+  if (b.codigo !== undefined) ex.codigo = codigoValido(b.codigo);
   const cambiaCalif = (b.calificacion === "mejor" || b.calificacion === "ultima") && b.calificacion !== (ex.calificacion || "mejor");
   if (cambiaCalif) ex.calificacion = b.calificacion;
   ex.actualizado = new Date().toISOString();
@@ -198,7 +207,7 @@ async function ajustes(req) {
       if (e) await entregas().set(k, consolidar(e, historialDe(e), ex.calificacion));
     }));
   }
-  return json({ ok: true });
+  return json({ ok: true, codigo: ex.codigo || "", ventana: ex.ventana, duracion: ex.duracion || 0 });
 }
 
 async function borrar(req) {
@@ -230,6 +239,7 @@ async function filasEntregas(ex) {
     partes: partesDe(e), fecha: e.fecha, fechaTexto: e.fechaTexto,
     salidas: prog[e.email]?.salidas?.length ?? e.salidas ?? 0,
     finalizadoPorSalida: e.finalizadoPorSalida || "",
+    finalizadoPorTiempo: !!e.finalizadoPorTiempo, fueraDeTiempo: e.fueraDeTiempo || 0, tiempoUsado: e.tiempoUsado ?? null,
     porRevisar: porRevisar(e),
     reanudar: !!prog[e.email]?.reanudar,
     ...intentosFila(ex, e, prog[e.email]),
@@ -247,9 +257,14 @@ async function filasEntregas(ex) {
       // En curso: última vez que se guardaron sus respuestas y cuántas lleva.
       enCurso: p.borrador ? { t: p.borrador.t, n: p.borrador.n } : null,
       reanudar: !!p.reanudar,
+      // Examen con duración: hora a la que se le acaba el tiempo.
+      limite: p.inicioIntento ? plazo(ex, u, p, p.inicioIntento.intento).limite : null,
       ...intentosFila(ex, null, p),
     });
   }
+  // Adaptaciones del alumnado (tiempo extra, sin modo seguro): se muestran en la tabla.
+  const adapt = Object.fromEntries((await leerTodas(usuarios(), filas.map((f) => f.email))).map((u) => [u.email, u.adaptacion || null]));
+  filas.forEach((f) => (f.adaptacion = adapt[f.email] || null));
   return filas.sort((a, b) => `${a.grupo} ${a.apellidos} ${a.nombre}`.localeCompare(`${b.grupo} ${b.apellidos} ${b.nombre}`, "es"));
 }
 
@@ -430,6 +445,12 @@ async function reanudar(req) {
     if (h.length === 1) await entregas().del(k);
     else await entregas().set(k, consolidar(e, h.slice(0, -1), ex.calificacion));
     anulado = { nota: ultimo.notaProfesor ?? ultimo.resultado.nota, fecha: ultimo.fechaTexto };
+    // Examen con duración: recupera el tiempo que le quedaba al entregarse.
+    if (ultimo.tiempoUsado != null) p.inicioIntento = { intento: h.length, t: new Date(Date.now() - ultimo.tiempoUsado * 1000).toISOString() };
+  } else if (p.inicioIntento) {
+    // Se le cerró a mitad: el tiempo se para en su último guardado y sigue contando al reanudar.
+    const usado = Math.max(0, Date.parse(p.borrador?.t || new Date().toISOString()) - Date.parse(p.inicioIntento.t));
+    p.inicioIntento = { ...p.inicioIntento, t: new Date(Date.now() - usado).toISOString() };
   }
   p.reanudar = true;
   await progreso().set(k, p);
@@ -487,7 +508,7 @@ async function alumnos(req) {
   return json({
     grupos: gruposDe(yo),
     alumnos: lista
-      .map((u) => ({ email: u.email, nombre: u.nombre, apellidos: u.apellidos, grupo: u.grupo, cicloId: cicloDe(u), verificado: !!u.verificado, creado: u.creado, profesor: false, externo: !!u.externo }))
+      .map((u) => ({ email: u.email, nombre: u.nombre, apellidos: u.apellidos, grupo: u.grupo, cicloId: cicloDe(u), verificado: !!u.verificado, creado: u.creado, profesor: false, externo: !!u.externo, adaptacion: u.adaptacion || null }))
       .sort((a, b) => `${a.grupo} ${a.apellidos}`.localeCompare(`${b.grupo} ${b.apellidos}`, "es")),
   });
 }
@@ -503,6 +524,8 @@ async function editarAlumno(req) {
     u.cicloId = g.cicloId;
   }
   if (b.verificado === true) { u.verificado = true; delete u.codigo; }
+  // Adaptaciones (alumnado con necesidades específicas): tiempo extra y sin modo seguro.
+  if (b.adaptacion !== undefined) { const a = adaptacionValida(b.adaptacion); if (a) u.adaptacion = a; else delete u.adaptacion; }
   if (b.nombre !== undefined || b.apellidos !== undefined) Object.assign(u, nombreCompleto(b.nombre ?? u.nombre, b.apellidos ?? u.apellidos));
   await usuarios().set(u.email, u);
   return json({ ok: true });
