@@ -37,8 +37,10 @@ export default function Login() {
   };
 
   const resend = async () => {
+    setResent(false);
     try {
       await resendVerification(form);
+      setError(null);
       setResent(true);
     } catch (err) {
       setError(err.message);
@@ -80,8 +82,9 @@ export default function Login() {
           </div>
         )}
         {resent && (
-          <p role="status" className="flex items-center gap-2 rounded-lg bg-accent-100 px-3 py-2 text-sm text-accent-800 dark:bg-accent-300/15 dark:text-accent-300">
-            <MailCheck className="h-4 w-4" aria-hidden="true" /> Te hemos reenviado el enlace de verificación.
+          <p role="status" className="flex items-start gap-2 rounded-lg bg-accent-100 px-3 py-2 text-sm text-accent-800 dark:bg-accent-300/15 dark:text-accent-300">
+            <MailCheck className="h-4 w-4 shrink-0" aria-hidden="true" /> Te hemos reenviado el enlace de verificación. Puede tardar unos
+            minutos; no lo pidas otra vez enseguida o Firebase bloqueará los intentos durante un rato.
           </p>
         )}
         <button type="submit" className="btn-primary w-full" disabled={submitting}>

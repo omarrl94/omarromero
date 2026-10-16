@@ -66,7 +66,7 @@ const ERRORS = {
   'auth/invalid-email': 'El correo electrónico no es válido.',
   'auth/email-already-in-use': 'Ya existe una cuenta con ese correo.',
   'auth/weak-password': 'La contraseña es demasiado débil.',
-  'auth/too-many-requests': 'Demasiados intentos. Espera un momento y vuelve a probar.',
+  'auth/too-many-requests': 'Firebase ha bloqueado temporalmente esta cuenta por demasiados intentos. Espera al menos 15 minutos antes de volver a probar.',
   'auth/requires-recent-login': 'Por seguridad, vuelve a escribir tu contraseña.',
   'auth/operation-not-allowed': 'Activa el acceso con correo/contraseña en Firebase (Authentication → Sign-in method).',
   'permission-denied': 'Permiso denegado. Comprueba que tu cuenta está verificada y que las reglas de Firestore están publicadas.',
