@@ -10,6 +10,8 @@ import StudentLiveFeed from './pages/StudentLiveFeed';
 // El alumnado solo descarga lo que usa; las pantallas del profesorado se cargan bajo demanda
 const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
+const AuthAction = lazy(() => import('./pages/AuthAction'));
 const TeacherDashboard = lazy(() => import('./pages/TeacherDashboard'));
 const RoomControlPanel = lazy(() => import('./pages/RoomControlPanel'));
 const AvisoLegal = lazy(() => import('./pages/legal/AvisoLegal'));
@@ -27,6 +29,8 @@ export default function App() {
           <Route path="sala/:pin" element={<StudentLiveFeed />} />
           <Route path="login" element={<Login />} />
           <Route path="registro" element={<Register />} />
+          <Route path="recuperar-contrasena" element={<ForgotPassword />} />
+          <Route path="accion" element={<AuthAction />} />
 
           {/* Información legal */}
           <Route path="aviso-legal" element={<AvisoLegal />} />

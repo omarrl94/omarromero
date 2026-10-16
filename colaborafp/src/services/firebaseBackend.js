@@ -26,6 +26,9 @@ import {
   reauthenticateWithCredential,
   sendEmailVerification,
   sendPasswordResetEmail,
+  verifyPasswordResetCode,
+  confirmPasswordReset,
+  applyActionCode,
   signInWithEmailAndPassword,
   signOut,
   updateProfile,
@@ -69,6 +72,8 @@ const ERRORS = {
   'auth/email-already-in-use': 'Ya existe una cuenta con ese correo.',
   'auth/weak-password': 'La contraseña es demasiado débil.',
   'auth/too-many-requests': 'Firebase ha bloqueado temporalmente esta cuenta por demasiados intentos. Espera al menos 15 minutos antes de volver a probar.',
+  'auth/expired-action-code': 'El enlace ha caducado. Pide uno nuevo.',
+  'auth/invalid-action-code': 'El enlace no es válido o ya se ha usado. Pide uno nuevo.',
   'auth/requires-recent-login': 'Por seguridad, vuelve a escribir tu contraseña.',
   'auth/operation-not-allowed': 'Activa el acceso con correo/contraseña en Firebase (Authentication → Sign-in method).',
   'permission-denied': 'Permiso denegado. Comprueba que tu cuenta está verificada y que las reglas de Firestore están publicadas.',
@@ -294,6 +299,11 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
           await signOut(auth);
         }
       }),
+    /** Página /accion: comprueba el código del enlace de «nueva contraseña» y devuelve el correo. */
+    checkResetCode: (code) => wrap(() => verifyPasswordResetCode(auth, code)),
+    confirmReset: (code, password) => wrap(() => confirmPasswordReset(auth, code, password)),
+    /** Página /accion: confirma el correo con el código del enlace de verificación. */
+    applyVerifyCode: (code) => wrap(() => applyActionCode(auth, code)),
     /** Enlace para elegir una contraseña nueva (no revela si la cuenta existe). */
     resetPassword: (email) =>
       wrap(async () => {

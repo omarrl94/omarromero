@@ -98,6 +98,13 @@ const auth = {
   },
   async resendVerification() {},
   async resetPassword() {},
+  async checkResetCode() {
+    throw new Error('En el modo demo no hay enlaces de correo.');
+  },
+  async confirmReset() {},
+  async applyVerifyCode() {
+    throw new Error('En el modo demo no hay enlaces de correo.');
+  },
   async deleteAccount(password) {
     const db = readDb();
     const session = getStoredSession();

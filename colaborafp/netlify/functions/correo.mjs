@@ -15,7 +15,7 @@
  *     (o FIREBASE_SERVICE_ACCOUNT con el JSON completo)
  *   MS_TENANT_ID, MS_CLIENT_ID, MS_CLIENT_SECRET   registro de aplicación en Microsoft Entra
  *   MAIL_FROM                 buzón remitente del centro
- *   APP_URL                   https://colaborafp.netlify.app (opcional: vuelve a la web tras el enlace)
+ *   APP_URL                   https://colaborafp.netlify.app (opcional: por defecto, la dirección de la petición)
  *
  * GET  → { configured, from }
  * POST { action: 'verify' }  + Authorization: Bearer <ID token>  → reenvía la verificación
@@ -208,17 +208,18 @@ const template = ({ name, title, text, button, link, note }) => `<!doctype html>
 <p style="font-size:11px;color:#78716c;margin:16px 0 0">Centro de Formación Profesional José Ramón Otero · Mensaje automático, no respondas a este correo.</p>
 </td></tr></table></body></html>`;
 
-/** Genera el enlace volviendo a la web si su dominio está autorizado en Firebase. */
+/**
+ * Genera el enlace y lo dirige a la página /accion de la propia web (confirmar el correo o elegir
+ * contraseña, en español y con el diseño de ColaboraFP) en vez de a la página genérica de Firebase.
+ */
 async function link(fn, email, origin) {
-  const base = env.APP_URL || origin;
-  if (base) {
-    try {
-      return await fn(email, { url: `${base.replace(/\/$/, '')}/login` });
-    } catch (e) {
-      if (!/continue|domain|allowlist|authorized/i.test(String(e?.code) + e?.message)) throw e;
-    }
-  }
-  return fn(email);
+  const raw = await fn(email);
+  const base = (env.APP_URL || origin || '').replace(/\/$/, '');
+  if (!base) return raw;
+  const src = new URL(raw).searchParams;
+  const out = new URL(`${base}/accion`);
+  for (const k of ['mode', 'oobCode']) out.searchParams.set(k, src.get(k));
+  return out.toString();
 }
 
 export default async (req) => {
@@ -244,7 +245,7 @@ export default async (req) => {
     return json(400, { error: 'Petición no válida.' });
   }
   const { auth, db } = firebase();
-  const origin = /^https:\/\//.test(req.url) ? new URL(req.url).origin : null;
+  const origin = /^https?:\/\//.test(req.url) ? new URL(req.url).origin : null;
 
   try {
     if (body.action === 'verify') {

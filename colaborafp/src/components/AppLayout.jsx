@@ -57,8 +57,8 @@ export default function AppLayout() {
               </>
             ) : (
               !isStudentRoom && (
-                <Link to="/login" className="btn-secondary btn-sm">
-                  <LogIn className="h-4 w-4" />
+                <Link to="/login" className="btn-secondary btn-sm" aria-label="Acceso profesorado">
+                  <LogIn className="h-4 w-4" aria-hidden="true" />
                   <span className="hidden sm:inline">Acceso profesorado</span>
                 </Link>
               )
