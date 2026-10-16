@@ -83,7 +83,7 @@ export default function ResourceForm({ onSubmit, submitLabel = 'Publicar', submi
               className={`flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-sm font-semibold transition ${
                 active
                   ? 'bg-white text-ink-950 shadow-sm ring-1 ring-stone-200 dark:bg-ink-700 dark:text-white dark:ring-0'
-                  : 'text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200'
+                  : 'text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-200'
               }`}
             >
               <Icon className="h-4 w-4" />
@@ -96,7 +96,7 @@ export default function ResourceForm({ onSubmit, submitLabel = 'Publicar', submi
       <div className={draft.type === 'code' ? 'grid gap-3 sm:grid-cols-[1fr_11rem]' : ''}>
         <div>
           <label className="label" htmlFor={`${idPrefix}-title`}>
-            Título <span className="font-normal text-stone-400">(opcional)</span>
+            Título <span className="font-normal text-stone-600 dark:text-stone-400">(opcional)</span>
           </label>
           <input
             id={`${idPrefix}-title`}
@@ -167,7 +167,7 @@ export default function ResourceForm({ onSubmit, submitLabel = 'Publicar', submi
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-sm font-semibold">{draft.file.name}</span>
-                  <span className="block text-xs text-stone-500">{formatBytes(draft.file.size)}</span>
+                  <span className="block text-xs text-stone-600 dark:text-stone-400">{formatBytes(draft.file.size)}</span>
                 </span>
                 <button
                   type="button"
@@ -187,7 +187,7 @@ export default function ResourceForm({ onSubmit, submitLabel = 'Publicar', submi
                 <span className="text-sm font-semibold">
                   Arrastra un archivo o <span className="text-brand-700 underline underline-offset-2 dark:text-brand-400">selecciónalo</span>
                 </span>
-                <span className="text-xs text-stone-500">PDF, imágenes, documentos, .zip… · máx. {formatBytes(MAX_FILE_SIZE)}</span>
+                <span className="text-xs text-stone-600 dark:text-stone-400">PDF, imágenes, documentos, .zip… · máx. {formatBytes(MAX_FILE_SIZE)}</span>
               </label>
             )}
           </div>

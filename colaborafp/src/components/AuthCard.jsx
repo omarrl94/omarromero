@@ -17,7 +17,7 @@ export default function AuthCard({ title, subtitle, children, footer }) {
             Crea una sala, proyecta el QR y modera las aportaciones del alumnado desde un único panel.
           </p>
         </div>
-        <div className="relative rounded-2xl bg-[#faf8f6]/90 p-3 backdrop-blur">
+        <div className="relative rounded-2xl bg-[#faf8f6]/90 p-3 backdrop-blur dark:bg-ink-900/90">
           <CenterLockup />
         </div>
       </aside>
@@ -27,7 +27,7 @@ export default function AuthCard({ title, subtitle, children, footer }) {
           <CenterLockup />
         </div>
         <h1 className="text-2xl font-extrabold tracking-tight text-ink-950 dark:text-white sm:text-3xl">{title}</h1>
-        {subtitle && <p className="mt-2 text-sm text-stone-500 dark:text-stone-400">{subtitle}</p>}
+        {subtitle && <p className="mt-2 text-sm text-stone-600 dark:text-stone-400">{subtitle}</p>}
         <div className="mt-8">{children}</div>
         {footer && <div className="mt-8 border-t border-stone-100 pt-5 text-sm text-stone-600 dark:border-ink-800 dark:text-stone-400">{footer}</div>}
       </div>

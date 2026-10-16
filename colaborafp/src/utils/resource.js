@@ -19,7 +19,7 @@ import { uuid } from './ids';
  */
 
 /** Valida y normaliza el borrador de un formulario. Devuelve { resource } o { error }. */
-export const buildResource = ({ roomId, author, draft, status }) => {
+export const buildResource = ({ roomId, author, draft, status, expireAt }) => {
   const type = draft.type;
   if (!RESOURCE_TYPES[type]) return { error: 'Tipo de recurso no válido.' };
 
@@ -61,6 +61,7 @@ export const buildResource = ({ roomId, author, draft, status }) => {
       title: title || null,
       status,
       timestamp: Date.now(),
+      expire_at: expireAt, // mismo plazo de borrado que su sala
       ...(type === 'file' ? { file_size: draft.file.size, file_type: (draft.file.type || 'application/octet-stream').slice(0, 120) } : {}),
     },
   };

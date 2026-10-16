@@ -3,6 +3,7 @@ import { backend } from '../services/backend';
 import { TEACHER_AUTHOR } from '../utils/constants';
 import { fileToBase64 } from '../utils/files';
 import { buildResource } from '../utils/resource';
+import { isRoomOpen } from '../utils/format';
 
 const readFile = async (draft) => (draft.type === 'file' ? { data: await fileToBase64(draft.file) } : undefined);
 
@@ -60,7 +61,8 @@ export function RoomProvider({ room, role, children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [connection, setConnection] = useState('connecting');
   const [error, setError] = useState(null);
-  const [roomClosed, setRoomClosed] = useState(room.is_active === false);
+  const [roomClosed, setRoomClosed] = useState(() => !isRoomOpen(room));
+  const [reports, setReports] = useState([]);
   const [mine, setMine] = useState(() => (isTeacher ? {} : readMine(roomId)));
   const [notice, setNotice] = useState(null);
   const deletedRef = useRef(new Set());
@@ -160,6 +162,7 @@ export function RoomProvider({ room, role, children }) {
           if (event.eventType === 'DELETE' || event.new?.is_active === false) setRoomClosed(true);
           else if (event.new?.is_active) setRoomClosed(false);
         },
+        onReports: (list) => alive && setReports(list.sort((a, b) => b.created_at - a.created_at)),
         onStatus: (status) => {
           if (!alive) return;
           if (status === 'SUBSCRIBED') setConnection('live');
@@ -202,8 +205,8 @@ export function RoomProvider({ room, role, children }) {
   );
   useEffect(() => {
     if (!pendingMineKey || !backend.realtime.watchResources) return undefined;
-    return backend.realtime.watchResources(pendingMineKey.split(','), handleEvent);
-  }, [pendingMineKey, handleEvent]);
+    return backend.realtime.watchResources(roomId, pendingMineKey.split(','), handleEvent);
+  }, [roomId, pendingMineKey, handleEvent]);
 
   // ---------------- Acciones ----------------
   /**
@@ -212,7 +215,7 @@ export function RoomProvider({ room, role, children }) {
    */
   const publish = useCallback(
     async (draft) => {
-      const { resource, error: err } = buildResource({ roomId, author: TEACHER_AUTHOR, draft, status: 'approved' });
+      const { resource, error: err } = buildResource({ roomId, author: TEACHER_AUTHOR, draft, status: 'approved', expireAt: room.expire_at });
       if (err) throw new Error(err);
       const fileData = await readFile(draft);
       handleUpsert({ ...resource, pending: true });
@@ -225,12 +228,12 @@ export function RoomProvider({ room, role, children }) {
         });
       return resource;
     },
-    [roomId, handleUpsert, handleRemove, notify],
+    [roomId, room.expire_at, handleUpsert, handleRemove, notify],
   );
 
   const requestShare = useCallback(
     async (draft, alias) => {
-      const { resource, error: err } = buildResource({ roomId, author: alias, draft, status: 'pending' });
+      const { resource, error: err } = buildResource({ roomId, author: alias, draft, status: 'pending', expireAt: room.expire_at });
       if (err) throw new Error(err);
       await backend.resources.create(resource, await readFile(draft));
       updateMine((m) => ({
@@ -239,7 +242,7 @@ export function RoomProvider({ room, role, children }) {
       }));
       return resource;
     },
-    [roomId, updateMine],
+    [roomId, room.expire_at, updateMine],
   );
 
   /** Aprobación optimista: pasa al muro en el acto; si falla, vuelve a la bandeja. */
@@ -248,13 +251,13 @@ export function RoomProvider({ room, role, children }) {
       const current = stateRef.current.byId[id];
       if (current) handleUpsert({ ...current, status: 'approved', timestamp: Date.now() });
       try {
-        await backend.resources.setStatus(id, 'approved');
+        await backend.resources.setStatus(roomId, id, 'approved');
       } catch (e) {
         if (current) dispatch({ type: 'UPSERT', resource: current });
         notify(`No se pudo aprobar: ${e.message}`);
       }
     },
-    [handleUpsert, notify],
+    [roomId, handleUpsert, notify],
   );
 
   /** Borrado/rechazo optimista: desaparece en el acto; si falla, se restaura. */
@@ -263,7 +266,7 @@ export function RoomProvider({ room, role, children }) {
       const current = stateRef.current.byId[id];
       handleRemove(id);
       try {
-        await backend.resources.remove(id);
+        await backend.resources.remove(roomId, id);
       } catch (e) {
         if (current) {
           deletedRef.current.delete(id);
@@ -272,10 +275,35 @@ export function RoomProvider({ room, role, children }) {
         notify(`No se pudo eliminar: ${e.message}`);
       }
     },
-    [handleRemove, notify],
+    [roomId, handleRemove, notify],
   );
 
   const isFresh = useCallback((id) => freshRef.current.has(id), []);
+
+  // Cierre automático: la sala deja de admitir aportaciones al llegar a closes_at
+  useEffect(() => {
+    setRoomClosed(!isRoomOpen(room));
+    if (!isRoomOpen(room)) return undefined;
+    const id = setTimeout(() => setRoomClosed(true), Math.min(room.closes_at - Date.now() + 500, 2 ** 31 - 1));
+    return () => clearTimeout(id);
+  }, [room]);
+
+  // ---------------- Notificaciones de contenido (LSSI) ----------------
+  const reportContent = useCallback(
+    (resourceId, reason, details) => backend.reports.create({ room, resourceId, reason, details }),
+    [room],
+  );
+  const dismissReport = useCallback(
+    async (reportId) => {
+      setReports((list) => list.filter((r) => r.id !== reportId));
+      try {
+        await backend.reports.remove(roomId, reportId);
+      } catch (e) {
+        notify(`No se pudo descartar el aviso: ${e.message}`);
+      }
+    },
+    [roomId, notify],
+  );
 
   const dismissSubmission = useCallback(
     (id) =>
@@ -318,11 +346,14 @@ export function RoomProvider({ room, role, children }) {
       reject: remove,
       remove,
       dismissSubmission,
+      reports,
+      reportContent,
+      dismissReport,
       isFresh,
       notice,
       clearNotice,
     }),
-    [room, role, state.loaded, error, connection, roomClosed, publishedResources, pendingRequests, mySubmissions, publish, requestShare, approve, remove, dismissSubmission, isFresh, notice, clearNotice],
+    [room, role, state.loaded, error, connection, roomClosed, publishedResources, pendingRequests, mySubmissions, publish, requestShare, approve, remove, dismissSubmission, reports, reportContent, dismissReport, isFresh, notice, clearNotice],
   );
 
   return <RoomContext.Provider value={value}>{children}</RoomContext.Provider>;

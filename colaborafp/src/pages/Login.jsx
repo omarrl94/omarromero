@@ -1,17 +1,19 @@
-import { LogIn } from 'lucide-react';
+import { LogIn, MailCheck } from 'lucide-react';
 import { useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import AuthCard from '../components/AuthCard';
 import { useAuth } from '../hooks/useAuth';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
-import AuthCard from '../components/AuthCard';
 
 export default function Login() {
   useDocumentTitle('Acceso profesorado');
-  const { signIn, user } = useAuth();
+  const { signIn, resendVerification, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState(null);
+  const [unverified, setUnverified] = useState(false);
+  const [resent, setResent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const redirectTo = location.state?.from?.pathname || '/profesor';
 
@@ -21,13 +23,25 @@ export default function Login() {
     e.preventDefault();
     setSubmitting(true);
     setError(null);
+    setUnverified(false);
+    setResent(false);
     try {
       await signIn(form);
       navigate(redirectTo, { replace: true });
     } catch (err) {
       setError(err.message);
+      setUnverified(err.code === 'unverified');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const resend = async () => {
+    try {
+      await resendVerification(form);
+      setResent(true);
+    } catch (err) {
+      setError(err.message);
     }
   };
 
@@ -39,15 +53,15 @@ export default function Login() {
         <>
           ¿Aún no tienes cuenta?{' '}
           <Link to="/registro" className="font-semibold text-brand-700 hover:underline dark:text-brand-300">
-            Regístrate
+            Regístrate con tu correo del centro
           </Link>
         </>
       }
     >
       <form onSubmit={submit} className="space-y-4">
         <div>
-          <label className="label" htmlFor="email">Correo electrónico</label>
-          <input id="email" type="email" required autoComplete="email" className="input" placeholder="nombre@centro.es"
+          <label className="label" htmlFor="email">Correo del centro</label>
+          <input id="email" type="email" required autoComplete="email" className="input"
             value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
         </div>
         <div>
@@ -55,9 +69,23 @@ export default function Login() {
           <input id="password" type="password" required autoComplete="current-password" className="input"
             value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
         </div>
-        {error && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">{error}</p>}
+        {error && (
+          <div role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800 dark:bg-red-950/40 dark:text-red-300">
+            <p>{error}</p>
+            {unverified && !resent && (
+              <button type="button" onClick={resend} className="mt-2 font-semibold underline">
+                Reenviar el correo de verificación
+              </button>
+            )}
+          </div>
+        )}
+        {resent && (
+          <p role="status" className="flex items-center gap-2 rounded-lg bg-accent-100 px-3 py-2 text-sm text-accent-800 dark:bg-accent-300/15 dark:text-accent-300">
+            <MailCheck className="h-4 w-4" aria-hidden="true" /> Te hemos reenviado el enlace de verificación.
+          </p>
+        )}
         <button type="submit" className="btn-primary w-full" disabled={submitting}>
-          <LogIn className="h-4 w-4" />
+          <LogIn className="h-4 w-4" aria-hidden="true" />
           {submitting ? 'Entrando…' : 'Iniciar sesión'}
         </button>
       </form>

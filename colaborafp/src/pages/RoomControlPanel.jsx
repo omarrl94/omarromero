@@ -6,6 +6,7 @@ import ConnectionBadge from '../components/ConnectionBadge';
 import EmptyState from '../components/EmptyState';
 import Modal from '../components/Modal';
 import ResourceCard from '../components/ResourceCard';
+import ReportsPanel from '../components/ReportsPanel';
 import ResourceForm from '../components/ResourceForm';
 import RoomNotice from '../components/RoomNotice';
 import RoomQRCode from '../components/RoomQRCode';
@@ -16,6 +17,8 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useRoomFeed } from '../hooks/useRoomFeed';
 import { backend } from '../services/backend';
 import { formatPin } from '../utils/ids';
+import { formatDay, formatTime, isRoomOpen } from '../utils/format';
+import { useNow } from '../hooks/useNow';
 
 /** Ruta privada /profesor/sala/:roomId — carga la sala y verifica la propiedad. */
 export default function RoomControlPanel() {
@@ -39,7 +42,7 @@ export default function RoomControlPanel() {
     return (
       <div className="mx-auto max-w-md px-4 py-20 text-center">
         <h1 className="text-2xl font-bold">Sala no disponible</h1>
-        <p className="mt-2 text-stone-500">No existe o no pertenece a tu cuenta.</p>
+        <p className="mt-2 text-stone-600 dark:text-stone-400">No existe o no pertenece a tu cuenta.</p>
         <Link to="/profesor" className="btn-primary mt-8">Volver a mis salas</Link>
       </div>
     );
@@ -62,13 +65,15 @@ function ControlPanel({ onRoomChange }) {
   const [tab, setTab] = useState('emit');
   const [qrOpen, setQrOpen] = useState(false);
   const [actionError, setActionError] = useState(null);
+  useNow(30000); // re-render para reflejar el cierre automático
+  const open = isRoomOpen(room);
 
   // Aviso en la pestaña del navegador cuando hay peticiones pendientes
   useDocumentTitle(pendingRequests.length ? `(${pendingRequests.length}) ${room.name}` : room.name);
 
   const toggleActive = async () => {
     try {
-      onRoomChange(await backend.rooms.setActive(room.id, !room.is_active));
+      onRoomChange(await backend.rooms.setActive(room.id, !open));
     } catch (e) {
       setActionError(e.message);
     }
@@ -103,10 +108,10 @@ function ControlPanel({ onRoomChange }) {
         >
           <QrCode className="h-6 w-6 text-brand-600 dark:text-brand-400" />
           <span className="text-left">
-            <span className="block text-[10px] font-semibold uppercase tracking-wider text-stone-500">PIN</span>
+            <span className="block text-[10px] font-semibold uppercase tracking-wider text-stone-600 dark:text-stone-400">PIN</span>
             <span className="block font-mono text-xl font-extrabold tracking-widest">{formatPin(room.pin)}</span>
           </span>
-          <Maximize2 className="h-4 w-4 text-stone-400 group-hover:text-brand-500" />
+          <Maximize2 className="h-4 w-4 text-stone-600 group-hover:text-brand-500" />
         </button>
         <div className="flex flex-wrap items-center gap-2">
           <ConnectionBadge status={connection} />
@@ -114,18 +119,25 @@ function ControlPanel({ onRoomChange }) {
             <ExternalLink className="h-4 w-4" />
             Vista alumno
           </a>
-          <button onClick={toggleActive} className={room.is_active ? 'btn-danger btn-sm' : 'btn-secondary btn-sm'}>
-            {room.is_active ? <DoorClosed className="h-4 w-4" /> : <DoorOpen className="h-4 w-4" />}
-            {room.is_active ? 'Cerrar sala' : 'Reabrir'}
+          <button onClick={toggleActive} className={open ? 'btn-danger btn-sm' : 'btn-secondary btn-sm'}>
+            {open ? <DoorClosed className="h-4 w-4" aria-hidden="true" /> : <DoorOpen className="h-4 w-4" aria-hidden="true" />}
+            {open ? 'Cerrar sala' : 'Reabrir'}
           </button>
         </div>
       </div>
 
-      {!room.is_active && (
-        <p className="mb-4 rounded-xl bg-sun-100 px-4 py-3 text-sm font-medium text-sun-900 dark:bg-sun-500/15 dark:text-sun-200">
-          La sala está cerrada: el PIN no admite nuevos alumnos ni aportaciones.
+            {open ? (
+        <p className="mb-4 text-sm text-stone-600 dark:text-stone-400">
+          Abierta hasta las <strong>{formatTime(room.closes_at)}</strong> (cierre automático) · Todo su contenido se borrará el{' '}
+          <strong>{formatDay(room.expire_at)}</strong>.
+        </p>
+      ) : (
+        <p className="mb-4 rounded-xl bg-sun-100 px-4 py-3 text-sm font-medium text-sun-900 dark:bg-sun-400/15 dark:text-sun-200">
+          La sala está cerrada: el PIN no admite nuevos alumnos ni aportaciones. Puedes reabrirla durante 12 horas más. Su contenido se
+          borrará el {formatDay(room.expire_at)}.
         </p>
       )}
+      <ReportsPanel />
       {(error || actionError) && (
         <p className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">{error || actionError}</p>
       )}
@@ -139,7 +151,7 @@ function ControlPanel({ onRoomChange }) {
             aria-selected={tab === id}
             onClick={() => setTab(id)}
             className={`relative flex items-center justify-center gap-1.5 rounded-lg py-2 text-sm font-semibold ${
-              tab === id ? 'bg-white text-brand-700 shadow-sm dark:bg-ink-700 dark:text-white' : 'text-stone-500'
+              tab === id ? 'bg-white text-brand-700 shadow-sm dark:bg-ink-700 dark:text-white' : 'text-stone-600 dark:text-stone-400'
             }`}
           >
             <Icon className="h-4 w-4" />

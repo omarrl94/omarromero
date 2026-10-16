@@ -35,7 +35,7 @@ export default function CodeBlock({ code, language = 'text', maxHeight = '28rem'
         language={language === 'text' ? undefined : language}
         style={oneDark}
         customStyle={customStyle}
-        codeTagProps={{ style: { fontFamily: '"JetBrains Mono", ui-monospace, monospace' } }}
+        codeTagProps={{ style: { fontFamily: '"JetBrains Mono Variable", ui-monospace, monospace' } }}
         showLineNumbers={showLineNumbers && code.split('\n').length > 1}
         lineNumberStyle={{ color: '#4b5263', minWidth: '2.25em' }}
       >

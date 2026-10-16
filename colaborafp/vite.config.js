@@ -5,6 +5,8 @@ export default defineConfig({
   plugins: [react()],
   server: { host: true, port: 5173 },
   build: {
+    // Las fuentes nunca se incrustan como data: (la CSP solo permite font-src 'self')
+    assetsInlineLimit: (file) => (/\.(woff2?|ttf|otf)$/.test(file) ? false : undefined),
     rollupOptions: {
       output: {
         manualChunks: {

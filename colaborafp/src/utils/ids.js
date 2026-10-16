@@ -1,4 +1,4 @@
-import { PIN_LENGTH } from './constants';
+import { PIN_ALPHABET, PIN_LENGTH } from './constants';
 
 export const uuid = () =>
   globalThis.crypto?.randomUUID?.() ??
@@ -7,12 +7,26 @@ export const uuid = () =>
     return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
   });
 
-/** PIN numérico de 6 dígitos, sin ceros a la izquierda para leerlo fácil en la pizarra. */
+/** PIN alfanumérico de 6 caracteres con generador criptográfico (no enumerable en la práctica). */
 export const generatePin = () => {
-  const min = 10 ** (PIN_LENGTH - 1);
-  return String(Math.floor(min + Math.random() * 9 * min));
+  const bytes = new Uint8Array(PIN_LENGTH * 2);
+  globalThis.crypto.getRandomValues(bytes);
+  let pin = '';
+  for (const b of bytes) {
+    if (b >= 248) continue; // 248 = 8 × 31: evita sesgo de módulo
+    pin += PIN_ALPHABET[b % PIN_ALPHABET.length];
+    if (pin.length === PIN_LENGTH) return pin;
+  }
+  return generatePin();
 };
 
-export const normalizePin = (raw) => String(raw ?? '').replace(/\D/g, '').slice(0, PIN_LENGTH);
+/** Acepta minúsculas, espacios y guiones: solo conserva caracteres del alfabeto del PIN. */
+export const normalizePin = (raw) =>
+  String(raw ?? '')
+    .toUpperCase()
+    .split('')
+    .filter((c) => PIN_ALPHABET.includes(c))
+    .join('')
+    .slice(0, PIN_LENGTH);
 
 export const formatPin = (pin) => (pin ? `${pin.slice(0, 3)} ${pin.slice(3)}` : '');

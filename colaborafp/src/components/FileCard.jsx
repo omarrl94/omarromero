@@ -65,7 +65,7 @@ export default function FileCard({ resource, actions, footer }) {
             <span className="block break-all text-sm font-semibold sm:truncate sm:break-normal text-ink-900 dark:text-stone-100" title={resource.content}>
               {resource.content}
             </span>
-            <span className="block text-xs uppercase tracking-wide text-stone-500">
+            <span className="block text-xs uppercase tracking-wide text-stone-600 dark:text-stone-400">
               {[ext, formatBytes(resource.file_size)].filter(Boolean).join(' · ')}
             </span>
           </span>

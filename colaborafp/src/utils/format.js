@@ -25,3 +25,12 @@ export const safeUrl = (raw) => {
 };
 
 export const roomJoinUrl = (pin) => `${window.location.origin}/sala/${pin}`;
+
+/** Una sala está abierta si está activa y no ha llegado su hora de cierre automático. */
+export const isRoomOpen = (room) => !!room && room.is_active !== false && (!room.closes_at || room.closes_at > Date.now());
+
+export const formatTime = (timestamp) =>
+  new Intl.DateTimeFormat('es-ES', { hour: '2-digit', minute: '2-digit' }).format(timestamp);
+
+export const formatDay = (timestamp) =>
+  new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }).format(timestamp);

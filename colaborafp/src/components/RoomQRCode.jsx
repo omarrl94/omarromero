@@ -25,7 +25,7 @@ export default function RoomQRCode({ room, size = 'md' }) {
             <Logo />
           </div>
         )}
-        <p className={`font-display font-bold uppercase tracking-[0.2em] text-stone-500 dark:text-stone-400 ${giant ? 'text-lg' : 'text-xs'}`}>
+        <p className={`font-display font-bold uppercase tracking-[0.2em] text-stone-600 dark:text-stone-400 ${giant ? 'text-lg' : 'text-xs'}`}>
           PIN de la sala
         </p>
         <p className={`relative inline-block whitespace-nowrap font-mono font-extrabold tracking-[0.12em] text-ink-950 dark:text-white ${giant ? 'mt-2 text-7xl sm:text-8xl' : 'text-4xl'}`}>
@@ -39,7 +39,7 @@ export default function RoomQRCode({ room, size = 'md' }) {
         {giant && (
           <>
             <p className="mt-8 max-w-md font-display text-3xl font-extrabold tracking-tight text-ink-950 dark:text-white">{room.name}</p>
-            {room.module && <p className="mt-1 text-lg text-stone-500 dark:text-stone-400">{room.module}</p>}
+            {room.module && <p className="mt-1 text-lg text-stone-600 dark:text-stone-400">{room.module}</p>}
             <div className="mt-10 flex justify-center lg:justify-start">
               <CenterLockup />
             </div>

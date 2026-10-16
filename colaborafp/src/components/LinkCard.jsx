@@ -35,9 +35,9 @@ export default function LinkCard({ resource, actions, footer }) {
               <span className="block truncate text-sm font-semibold text-stone-900 group-hover:text-brand-800 dark:text-stone-100 dark:group-hover:text-brand-300">
                 {host}
               </span>
-              <span className="block truncate font-mono text-xs text-stone-500">{url}</span>
+              <span className="block truncate font-mono text-xs text-stone-600 dark:text-stone-400">{url}</span>
             </span>
-            <ExternalLink className="h-4 w-4 shrink-0 text-stone-400 group-hover:text-brand-500" />
+            <ExternalLink className="h-4 w-4 shrink-0 text-stone-600 dark:text-stone-400 group-hover:text-brand-500" />
           </a>
         ) : (
           <p className="text-sm text-red-500">Enlace no válido</p>

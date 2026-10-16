@@ -55,7 +55,7 @@ export default function Logo({ size = 'md' }) {
           Colabora<span className="text-brand-600 dark:text-brand-400">FP</span>
           <span className="sr-only"> — {APP_NAME}</span>
         </span>
-        {big && <span className="mt-1.5 block text-sm font-medium text-stone-500 dark:text-stone-400">FP José Ramón Otero</span>}
+        {big && <span className="mt-1.5 block text-sm font-medium text-stone-600 dark:text-stone-400">FP José Ramón Otero</span>}
       </span>
     </span>
   );

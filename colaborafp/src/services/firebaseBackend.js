@@ -1,25 +1,30 @@
 /**
- * Backend REAL de ColaboraFP sobre Firebase (Auth + Cloud Firestore en tiempo real).
- * Plan gratuito "Spark": no requiere tarjeta.
+ * Backend de ColaboraFP sobre Firebase (Auth + Cloud Firestore en tiempo real). Plan gratuito «Spark».
  *
  * Requiere publicar `firebase/firestore.rules` y definir VITE_FIREBASE_CONFIG.
  * Misma interfaz que `mockBackend.js`.
  *
- * Colecciones:
- *   rooms/{id}      { pin, name, module, teacher_id, is_active, created_at }   — solo su profesor
- *   pins/{pin}      { room_id, name, module, teacher_id, active }              — el alumnado resuelve el PIN
- *   resources/{id}  { room_id, author, type, content, language, title, status, timestamp,
- *                     file_size?, file_type?, chunks? }
- *   fileChunks/{id_n} { file_id, room_id, index, data }  — archivo en base64 troceado (≤ 5 MB)
+ * Modelo de datos (todo el contenido vive DENTRO de su sala, así nadie puede listar recursos de otras salas):
+ *   rooms/{roomId}                              { pin, name, module, teacher_id, is_active, created_at, closes_at, expire_at }
+ *   rooms/{roomId}/resources/{resId}            { room_id, author, type, content, language, title, status, timestamp,
+ *                                                 file_size?, file_type?, chunks?, expire_at }
+ *   rooms/{roomId}/resources/{resId}/chunks/{n} { index, data, expire_at }   — archivo en base64 troceado (≤ 5 MB)
+ *   rooms/{roomId}/reports/{reportId}           { resource_id, reason, details, created_at, expire_at }
+ *   pins/{pin}                                  { room_id, name, module, teacher_id, active, closes_at, expire_at }
  *
- * Cloud Storage ya no está incluido en el plan gratuito: los archivos se guardan en Firestore.
+ * Plazos (ver utils/constants): una sala se cierra sola a las ROOM_OPEN_HOURS horas y TODO su contenido
+ * se borra a los RETENTION_DAYS días de su creación (expire_at: apto para una política TTL de Firestore).
  */
 import { initializeApp } from 'firebase/app';
 import {
   connectAuthEmulator,
   createUserWithEmailAndPassword,
+  deleteUser,
+  EmailAuthProvider,
   getAuth,
   onAuthStateChanged,
+  reauthenticateWithCredential,
+  sendEmailVerification,
   signInWithEmailAndPassword,
   signOut,
   updateProfile,
@@ -27,42 +32,50 @@ import {
 import {
   collection,
   connectFirestoreEmulator,
-  deleteDoc,
-  enableNetwork,
   doc,
+  enableNetwork,
   getCountFromServer,
   getDoc,
   getDocs,
   initializeFirestore,
+  onSnapshot,
   persistentLocalCache,
   persistentMultipleTabManager,
-  onSnapshot,
   query,
   runTransaction,
   setDoc,
+  Timestamp,
   updateDoc,
   where,
   writeBatch,
 } from 'firebase/firestore';
-import { generatePin } from '../utils/ids';
+import { isTeacherEmail, ROOM_OPEN_HOURS, RETENTION_DAYS, TEACHER_EMAIL_DOMAINS } from '../utils/constants';
+import { generatePin, uuid } from '../utils/ids';
 
 const CHUNK_SIZE = 900_000; // caracteres base64 por documento (límite de Firestore: 1 MiB)
+const HOUR = 3600 * 1000;
+const DAY = 24 * HOUR;
 
-const PIN_TAKEN = 'El PIN de esta sala está en uso por otra sala abierta. Crea una sala nueva.';
+const PIN_TAKEN = 'El PIN de esta sala lo está usando otra sala abierta. Crea una sala nueva.';
 
-const AUTH_ERRORS = {
+const ERRORS = {
   'auth/invalid-credential': 'Correo o contraseña incorrectos.',
   'auth/wrong-password': 'Correo o contraseña incorrectos.',
   'auth/user-not-found': 'Correo o contraseña incorrectos.',
   'auth/invalid-email': 'El correo electrónico no es válido.',
   'auth/email-already-in-use': 'Ya existe una cuenta con ese correo.',
-  'auth/weak-password': 'La contraseña es demasiado débil (mínimo 6 caracteres).',
+  'auth/weak-password': 'La contraseña es demasiado débil.',
   'auth/too-many-requests': 'Demasiados intentos. Espera un momento y vuelve a probar.',
+  'auth/requires-recent-login': 'Por seguridad, vuelve a escribir tu contraseña.',
   'auth/operation-not-allowed': 'Activa el acceso con correo/contraseña en Firebase (Authentication → Sign-in method).',
-  'permission-denied': 'Permiso denegado. ¿Has publicado las reglas de Firestore (firebase/firestore.rules)?',
+  'permission-denied': 'Permiso denegado. Comprueba que tu cuenta está verificada y que las reglas de Firestore están publicadas.',
 };
 
-const friendlyError = (error) => new Error(AUTH_ERRORS[error?.code] ?? error?.message ?? String(error));
+const friendlyError = (error) => {
+  const e = new Error(ERRORS[error?.code] ?? error?.message ?? String(error));
+  e.code = error?.code;
+  return e;
+};
 
 const wrap = async (fn) => {
   try {
@@ -94,15 +107,21 @@ export const parseFirebaseConfig = (raw) => {
   }
 };
 
-const toUser = (u) => (u ? { id: u.uid, email: u.email, name: u.displayName || u.email.split('@')[0] } : null);
-const toResource = (snap) => ({ id: snap.id, ...snap.data(), pending: snap.metadata.hasPendingWrites });
+const toUser = (u) =>
+  u ? { id: u.uid, email: u.email, name: u.displayName || u.email.split('@')[0], emailVerified: u.emailVerified } : null;
+const ms = (v) => (v instanceof Timestamp ? v.toMillis() : v);
+const toResource = (snap) => {
+  const d = snap.data();
+  return { id: snap.id, ...d, expire_at: ms(d.expire_at), pending: snap.metadata.hasPendingWrites };
+};
+const toRoom = (id, d) => ({ id, ...d, expire_at: ms(d.expire_at) });
 
 export const createFirebaseBackend = (config, { emulator } = {}) => {
   const app = initializeApp(config);
   const auth = getAuth(app);
-  // Long polling automático: funciona también tras proxies/firewalls de centros educativos
-  // Caché persistente (IndexedDB, compartida entre pestañas): el muro aparece al instante al entrar o recargar,
-  // y las escrituras se muestran antes de que el servidor confirme (compensación de latencia).
+  auth.languageCode = 'es'; // correos de verificación en español
+  // Caché persistente (IndexedDB, compartida entre pestañas): el muro aparece al instante al entrar o recargar.
+  // Long polling automático: funciona también tras proxies/firewalls de centros educativos.
   const db = initializeFirestore(app, {
     experimentalAutoDetectLongPolling: true,
     localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
@@ -114,69 +133,144 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
   }
 
   const roomsCol = collection(db, 'rooms');
-  const resourcesCol = collection(db, 'resources');
-  const chunksCol = collection(db, 'fileChunks');
-  const chunkRef = (fileId, i) => doc(chunksCol, `${fileId}_${i}`);
+  const roomRef = (roomId) => doc(roomsCol, roomId);
+  const resCol = (roomId) => collection(db, 'rooms', roomId, 'resources');
+  const resRef = (roomId, id) => doc(resCol(roomId), id);
+  const chunkRef = (roomId, id, i) => doc(db, 'rooms', roomId, 'resources', id, 'chunks', String(i));
+  const reportsCol = (roomId) => collection(db, 'rooms', roomId, 'reports');
   const pinRef = (pin) => doc(db, 'pins', pin);
 
   // ---------- Auth ----------
+  const domainError = () =>
+    new Error(`Solo el profesorado con correo del centro (${TEACHER_EMAIL_DOMAINS.map((d) => '@' + d).join(', ')}) puede crear una cuenta.`);
+
   const authApi = {
     async getUser() {
       await auth.authStateReady();
-      return toUser(auth.currentUser);
+      const u = auth.currentUser;
+      return u?.emailVerified ? toUser(u) : null;
     },
     onAuthChange(callback) {
-      return onAuthStateChanged(auth, (u) => callback(toUser(u)));
+      return onAuthStateChanged(auth, (u) => callback(u?.emailVerified ? toUser(u) : null));
     },
+    /** Crea la cuenta y envía el correo de verificación. No inicia sesión hasta verificar. */
     signUp: ({ name, email, password }) =>
       wrap(async () => {
+        if (!isTeacherEmail(email)) throw domainError();
         const { user } = await createUserWithEmailAndPassword(auth, email.trim(), password);
         await updateProfile(user, { displayName: name.trim() });
-        return toUser(user);
+        await sendEmailVerification(user);
+        await signOut(auth);
+        return { verificationSent: true };
       }),
     signIn: ({ email, password }) =>
-      wrap(async () => toUser((await signInWithEmailAndPassword(auth, email.trim(), password)).user)),
+      wrap(async () => {
+        const { user } = await signInWithEmailAndPassword(auth, email.trim(), password);
+        if (!user.emailVerified) {
+          await signOut(auth);
+          const e = new Error('Tu correo aún no está verificado. Revisa tu bandeja de entrada (y el correo no deseado).');
+          e.code = 'unverified';
+          throw e;
+        }
+        await user.getIdToken(true); // token con email_verified actualizado para las reglas
+        return toUser(user);
+      }),
+    resendVerification: ({ email, password }) =>
+      wrap(async () => {
+        const { user } = await signInWithEmailAndPassword(auth, email.trim(), password);
+        if (!user.emailVerified) await sendEmailVerification(user);
+        await signOut(auth);
+      }),
     async signOut() {
       await signOut(auth);
     },
+    /** Derecho de supresión: borra todas las salas del profesor y su cuenta. */
+    deleteAccount: (password) =>
+      wrap(async () => {
+        const user = auth.currentUser;
+        await reauthenticateWithCredential(user, EmailAuthProvider.credential(user.email, password));
+        const snap = await getDocs(query(roomsCol, where('teacher_id', '==', user.uid)));
+        for (const d of snap.docs) await removeRoom(d.id, d.data());
+        await deleteUser(user);
+      }),
   };
 
+  // ---------- Borrado en cascada ----------
+  async function commitDeletes(refs) {
+    for (let i = 0; i < refs.length; i += 400) {
+      const batch = writeBatch(db);
+      refs.slice(i, i + 400).forEach((ref) => batch.delete(ref));
+      await batch.commit();
+    }
+  }
+  async function removeRoom(roomId, data) {
+    const [res, reps] = await Promise.all([getDocs(resCol(roomId)), getDocs(reportsCol(roomId))]);
+    await commitDeletes([
+      ...res.docs.flatMap((d) => Array.from({ length: d.data().chunks || 0 }, (_, i) => chunkRef(roomId, d.id, i))),
+      ...res.docs.map((d) => d.ref),
+      ...reps.docs.map((d) => d.ref),
+    ]);
+    const room = data ?? (await getDoc(roomRef(roomId))).data();
+    if (room?.pin) {
+      const p = await getDoc(pinRef(room.pin)).catch(() => null);
+      if (p?.exists() && p.data().room_id === roomId) await commitDeletes([p.ref]);
+    }
+    await commitDeletes([roomRef(roomId)]);
+  }
+
   // ---------- Salas ----------
+  const pinDoc = (roomId, room) => ({
+    room_id: roomId,
+    name: room.name,
+    module: room.module ?? null,
+    teacher_id: room.teacher_id,
+    active: room.is_active,
+    closes_at: room.closes_at,
+    expire_at: Timestamp.fromMillis(room.expire_at),
+  });
+
   const rooms = {
     create: ({ name, module, teacherId }) =>
       wrap(async () => {
         for (let attempt = 0; attempt < 5; attempt++) {
           const pin = generatePin();
-          const roomRef = doc(roomsCol);
+          const ref = doc(roomsCol);
+          const now = Date.now();
           const room = {
             pin,
             name: name.trim(),
             module: module || null,
             teacher_id: teacherId,
             is_active: true,
-            created_at: Date.now(),
+            created_at: now,
+            closes_at: now + ROOM_OPEN_HOURS * HOUR,
+            expire_at: now + RETENTION_DAYS * DAY,
           };
           const created = await runTransaction(db, async (tx) => {
             const p = await tx.get(pinRef(pin));
-            if (p.exists() && p.data().active) return false; // colisión: probar otro PIN
-            tx.set(roomRef, room);
-            tx.set(pinRef(pin), { room_id: roomRef.id, name: room.name, module: room.module, teacher_id: teacherId, active: true });
+            if (p.exists() && p.data().active && p.data().closes_at > Date.now()) return false; // colisión
+            tx.set(ref, { ...room, expire_at: Timestamp.fromMillis(room.expire_at) });
+            tx.set(pinRef(pin), pinDoc(ref.id, room));
             return true;
           });
-          if (created) return { id: roomRef.id, ...room };
+          if (created) return { id: ref.id, ...room };
         }
         throw new Error('No se pudo generar un PIN único. Inténtalo de nuevo.');
       }),
 
+    /** Lista las salas del profesor y borra las que han superado el plazo de conservación. */
     listByTeacher: (teacherId) =>
       wrap(async () => {
         const snap = await getDocs(query(roomsCol, where('teacher_id', '==', teacherId)));
+        const now = Date.now();
+        const docs = snap.docs; // ojo: cada acceso a snap.docs crea objetos nuevos
+        const expiredIds = new Set(docs.filter((d) => !d.data().expire_at || ms(d.data().expire_at) <= now).map((d) => d.id));
+        await Promise.all(docs.filter((d) => expiredIds.has(d.id)).map((d) => removeRoom(d.id, d.data()).catch(() => {})));
+        const alive = docs.filter((d) => !expiredIds.has(d.id));
         const list = await Promise.all(
-          snap.docs.map(async (d) => {
-            const count = await getCountFromServer(
-              query(resourcesCol, where('room_id', '==', d.id), where('status', '==', 'approved')),
-            ).catch(() => null);
-            return { id: d.id, ...d.data(), resource_count: count?.data().count ?? 0 };
+          alive.map(async (d) => {
+            const count = await getCountFromServer(query(resCol(d.id), where('status', '==', 'approved'))).catch(() => null);
+            return { ...toRoom(d.id, d.data()), resource_count: count?.data().count ?? 0 };
           }),
         );
         return list.sort((a, b) => b.created_at - a.created_at);
@@ -184,109 +278,111 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
 
     async getById(id) {
       try {
-        const snap = await getDoc(doc(roomsCol, id));
-        return snap.exists() ? { id: snap.id, ...snap.data() } : null;
+        const snap = await getDoc(roomRef(id));
+        return snap.exists() ? toRoom(snap.id, snap.data()) : null;
       } catch {
         return null; // sin permiso = no es su sala
       }
     },
 
-    getByPin: (pin) =>
-      wrap(async () => {
+    async getByPin(pin) {
+      try {
         const snap = await getDoc(pinRef(pin));
-        if (!snap.exists() || !snap.data().active) return null;
+        if (!snap.exists()) return null;
         const p = snap.data();
-        return { id: p.room_id, pin, name: p.name, module: p.module };
-      }),
+        if (!p.active || p.closes_at <= Date.now()) return null;
+        return { id: p.room_id, pin, name: p.name, module: p.module, is_active: true, closes_at: p.closes_at, expire_at: ms(p.expire_at) };
+      } catch {
+        return null; // las reglas solo dejan leer PIN de salas abiertas
+      }
+    },
 
+    /** Abrir (otras ROOM_OPEN_HOURS horas) o cerrar una sala. */
     setActive: (id, isActive) =>
-      wrap(async () => {
-        const roomRef = doc(roomsCol, id);
-        return runTransaction(db, async (tx) => {
-          const roomSnap = await tx.get(roomRef);
-          if (!roomSnap.exists()) throw new Error('Sala no encontrada.');
-          const room = roomSnap.data();
+      wrap(async () =>
+        runTransaction(db, async (tx) => {
+          const snap = await tx.get(roomRef(id));
+          if (!snap.exists()) throw new Error('Sala no encontrada.');
+          const room = toRoom(id, snap.data());
+          if (room.expire_at <= Date.now()) throw new Error('Esta sala ha superado el plazo de conservación y se va a eliminar.');
           const p = await tx.get(pinRef(room.pin));
           const pinIsMine = p.exists() && p.data().room_id === id;
-          if (isActive && !pinIsMine && p.exists() && p.data().active) throw new Error(PIN_TAKEN);
+          const pinBusy = p.exists() && !pinIsMine && p.data().active && p.data().closes_at > Date.now();
+          if (isActive && pinBusy) throw new Error(PIN_TAKEN);
+          const closes_at = isActive ? Date.now() + ROOM_OPEN_HOURS * HOUR : Math.min(room.closes_at, Date.now());
+          tx.update(roomRef(id), { is_active: isActive, closes_at });
+          const next = { ...room, is_active: isActive, closes_at };
+          if (isActive || pinIsMine) tx.set(pinRef(room.pin), pinDoc(id, next));
+          return next;
+        }),
+      ),
 
-          tx.update(roomRef, { is_active: isActive });
-          if (isActive)
-            tx.set(pinRef(room.pin), { room_id: id, name: room.name, module: room.module, teacher_id: room.teacher_id, active: true });
-          else if (pinIsMine) tx.update(pinRef(room.pin), { active: false });
-          return { id, ...room, is_active: isActive };
-        });
-      }),
-
-    remove: (id) =>
-      wrap(async () => {
-        const roomRef = doc(roomsCol, id);
-        const roomSnap = await getDoc(roomRef);
-        if (!roomSnap.exists()) return;
-        // Primero los recursos (las reglas comprueban la propiedad a través de la sala)
-        const res = await getDocs(query(resourcesCol, where('room_id', '==', id)));
-        const refs = res.docs.flatMap((d) => [
-          ...Array.from({ length: d.data().chunks || 0 }, (_, i) => chunkRef(d.id, i)),
-          d.ref,
-        ]);
-        for (let i = 0; i < refs.length; i += 400) {
-          const batch = writeBatch(db);
-          refs.slice(i, i + 400).forEach((ref) => batch.delete(ref));
-          await batch.commit();
-        }
-        const p = await getDoc(pinRef(roomSnap.data().pin));
-        if (p.exists() && p.data().room_id === id) await deleteDoc(p.ref);
-        await deleteDoc(roomRef);
-      }),
+    remove: (id) => wrap(() => removeRoom(id)),
   };
 
   // ---------- Recursos ----------
   const roomQuery = (roomId, role) =>
-    role === 'teacher'
-      ? query(resourcesCol, where('room_id', '==', roomId))
-      : query(resourcesCol, where('room_id', '==', roomId), where('status', '==', 'approved'));
+    role === 'teacher' ? resCol(roomId) : query(resCol(roomId), where('status', '==', 'approved'));
+
+  const toWrite = ({ id: _id, pending: _p, expire_at, ...data }) => ({ ...data, expire_at: Timestamp.fromMillis(expire_at) });
 
   const resources = {
     list: (roomId, { role }) =>
+      wrap(async () => (await getDocs(roomQuery(roomId, role))).docs.map(toResource).sort((a, b) => a.timestamp - b.timestamp)),
+
+    /** `file` = { data: base64 } para archivos. Recurso y trozos se escriben en un único lote atómico. */
+    create: (resource, file) =>
       wrap(async () => {
-        const snap = await getDocs(roomQuery(roomId, role));
-        return snap.docs.map(toResource).sort((a, b) => a.timestamp - b.timestamp);
-      }),
-    /** `file` = { data: base64 } para recursos de tipo archivo. Se escribe todo en un único lote atómico. */
-    create: ({ id, ...data }, file) =>
-      wrap(async () => {
-        if (!file) return setDoc(doc(resourcesCol, id), data);
+        const data = toWrite(resource);
+        const ref = resRef(resource.room_id, resource.id);
+        if (!file) return setDoc(ref, data);
         const parts = [];
         for (let i = 0; i < file.data.length; i += CHUNK_SIZE) parts.push(file.data.slice(i, i + CHUNK_SIZE));
         const batch = writeBatch(db);
-        batch.set(doc(resourcesCol, id), { ...data, chunks: parts.length });
+        batch.set(ref, { ...data, chunks: parts.length });
         parts.forEach((part, index) =>
-          batch.set(chunkRef(id, index), { file_id: id, room_id: data.room_id, index, data: part }),
+          batch.set(chunkRef(resource.room_id, resource.id, index), { index, data: part, expire_at: data.expire_at }),
         );
         await batch.commit();
       }),
+
     getFile: (resource) =>
       wrap(async () => {
-        const chunks = resource.chunks ?? (await getDoc(doc(resourcesCol, resource.id))).data()?.chunks;
+        const chunks = resource.chunks ?? (await getDoc(resRef(resource.room_id, resource.id))).data()?.chunks;
         if (!chunks) throw new Error('El archivo ya no está disponible.');
-        const snaps = await Promise.all(Array.from({ length: chunks }, (_, i) => getDoc(chunkRef(resource.id, i))));
+        const snaps = await Promise.all(Array.from({ length: chunks }, (_, i) => getDoc(chunkRef(resource.room_id, resource.id, i))));
         if (snaps.some((s) => !s.exists())) throw new Error('El archivo ya no está disponible.');
         return { data: snaps.map((s) => s.data().data).join(''), type: resource.file_type, name: resource.content };
       }),
-    setStatus: (id, status) =>
-      wrap(() =>
-        updateDoc(doc(resourcesCol, id), status === 'approved' ? { status, timestamp: Date.now() } : { status }),
-      ),
-    remove: (id) =>
+
+    setStatus: (roomId, id, status) =>
+      wrap(() => updateDoc(resRef(roomId, id), status === 'approved' ? { status, timestamp: Date.now() } : { status })),
+
+    remove: (roomId, id) =>
       wrap(async () => {
-        const ref = doc(resourcesCol, id);
+        const ref = resRef(roomId, id);
         const snap = await getDoc(ref);
         if (!snap.exists()) return;
         const batch = writeBatch(db);
-        Array.from({ length: snap.data().chunks || 0 }, (_, i) => batch.delete(chunkRef(id, i)));
+        Array.from({ length: snap.data().chunks || 0 }, (_, i) => batch.delete(chunkRef(roomId, id, i)));
         batch.delete(ref);
         await batch.commit();
       }),
+  };
+
+  // ---------- Notificaciones de contenido (LSSI) ----------
+  const reports = {
+    create: ({ room, resourceId, reason, details }) =>
+      wrap(() =>
+        setDoc(doc(reportsCol(room.id), uuid()), {
+          resource_id: resourceId,
+          reason,
+          details: String(details || '').slice(0, 500),
+          created_at: Date.now(),
+          expire_at: Timestamp.fromMillis(room.expire_at),
+        }),
+      ),
+    remove: (roomId, reportId) => wrap(() => commitDeletes([doc(reportsCol(roomId), reportId)])),
   };
 
   // ---------- Realtime ----------
@@ -299,7 +395,7 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
     /** Reactiva la red tras volver a la pestaña o recuperar la conexión (no-op si ya está activa). */
     reconnect: () => enableNetwork(db).catch(() => {}),
 
-    subscribeRoom(roomId, { onResource, onRoom, onStatus, onInitial }, { role, pin } = {}) {
+    subscribeRoom(roomId, { onResource, onRoom, onStatus, onInitial, onReports }, { role, pin } = {}) {
       const unsubs = [];
       let first = true;
       unsubs.push(
@@ -307,7 +403,6 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
           roomQuery(roomId, role),
           { includeMetadataChanges: true },
           (snap) => {
-            // fromCache = datos locales mientras (re)conecta con el servidor
             onStatus?.(snap.metadata.fromCache ? 'CONNECTING' : 'SUBSCRIBED');
             if (first) {
               // Caché vacía (primer acceso en este dispositivo): esperar al servidor para no mostrar "vacío"
@@ -327,26 +422,35 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
           },
         ),
       );
+      if (role === 'teacher' && onReports)
+        unsubs.push(
+          onSnapshot(
+            reportsCol(roomId),
+            (snap) => onReports(snap.docs.map((d) => ({ id: d.id, ...d.data(), expire_at: ms(d.data().expire_at) }))),
+            () => {},
+          ),
+        );
       // Estado abierta/cerrada de la sala, visible también para el alumnado vía pins/{pin}
       if (pin)
         unsubs.push(
           onSnapshot(
             pinRef(pin),
             (snap) => {
-              const open = snap.exists() && snap.data().room_id === roomId && snap.data().active;
-              onRoom?.({ eventType: 'UPDATE', new: { is_active: open } });
+              const d = snap.exists() ? snap.data() : null;
+              const open = !!d && d.room_id === roomId && d.active && d.closes_at > Date.now();
+              onRoom?.({ eventType: 'UPDATE', new: { is_active: open, closes_at: d?.closes_at } });
             },
-            () => {},
+            () => onRoom?.({ eventType: 'UPDATE', new: { is_active: false } }), // sin permiso = sala cerrada
           ),
         );
       return () => unsubs.forEach((u) => u());
     },
 
     /** Vigila peticiones concretas (las del propio alumno) para saber si se aprueban o rechazan. */
-    watchResources(ids, onResource) {
+    watchResources(roomId, ids, onResource) {
       const unsubs = ids.map((id) =>
         onSnapshot(
-          doc(resourcesCol, id),
+          resRef(roomId, id),
           (snap) => {
             if (!snap.exists()) onResource({ eventType: 'DELETE', old: { id } });
             else onResource({ eventType: 'UPDATE', new: toResource(snap) });
@@ -358,5 +462,5 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
     },
   };
 
-  return { mode: 'firebase', auth: authApi, rooms, resources, realtime };
+  return { mode: 'firebase', auth: authApi, rooms, resources, reports, realtime };
 };

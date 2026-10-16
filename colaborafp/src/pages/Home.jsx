@@ -53,21 +53,23 @@ export default function Home() {
                 id="pin"
                 value={pin}
                 onChange={(e) => setPin(normalizePin(e.target.value))}
-                inputMode="numeric"
+                inputMode="text"
+                autoCapitalize="characters"
+                autoCorrect="off"
+                spellCheck={false}
                 autoComplete="one-time-code"
-                autoFocus
-                placeholder="000000"
+                placeholder="K7M4QX"
                 aria-describedby="pin-help"
-                className="min-w-0 flex-1 rounded-xl border-2 border-stone-200 bg-stone-50 px-4 py-3 text-center font-mono text-3xl font-bold tracking-[0.35em] text-ink-950 placeholder-stone-300 transition focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-brand-400/20 dark:border-ink-700 dark:bg-ink-850 dark:text-white dark:placeholder-ink-700"
+                className="min-w-0 flex-1 rounded-xl border-2 border-stone-200 bg-stone-50 px-4 py-3 text-center font-mono text-3xl font-bold uppercase tracking-[0.3em] text-ink-950 placeholder-stone-300 transition focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-brand-400/20 dark:border-ink-700 dark:bg-ink-850 dark:text-white dark:placeholder-ink-700"
               />
               <button type="submit" disabled={!complete} className="btn-primary px-6 py-3.5 text-base">
                 Entrar
                 <ArrowRight className="h-5 w-5" />
               </button>
             </div>
-            <p id="pin-help" className="mt-3 flex items-center gap-1.5 text-xs text-stone-500">
+            <p id="pin-help" className="mt-3 flex items-center gap-1.5 text-xs text-stone-600 dark:text-stone-400">
               <Check className="h-3.5 w-3.5 text-accent-600" />
-              {PIN_LENGTH} dígitos · No necesitas registrarte
+              {PIN_LENGTH} caracteres (letras y números) · No necesitas registrarte
             </p>
           </form>
 
@@ -102,7 +104,7 @@ export default function Home() {
             <span className="flex h-9 w-9 items-center justify-center rounded-full bg-accent-300 font-display text-sm font-bold text-ink-950">L</span>
             <span className="min-w-0">
               <span className="block text-sm font-semibold text-ink-900 dark:text-white">Lucía ha compartido</span>
-              <span className="block text-xs text-stone-500">Aprobado por el profesor ✓</span>
+              <span className="block text-xs text-stone-600 dark:text-stone-400">Aprobado por el profesor ✓</span>
             </span>
           </div>
         </div>
@@ -116,7 +118,7 @@ export default function Home() {
                 <Icon className="h-5 w-5" />
               </span>
               <span>
-                <span className="font-mono text-xs text-stone-400">0{i + 1}</span>
+                <span className="font-mono text-xs text-stone-600 dark:text-stone-400">0{i + 1}</span>
                 <span className="block font-display text-base font-bold text-ink-900 dark:text-white">{title}</span>
                 <span className="mt-1 block text-sm leading-relaxed text-stone-600 dark:text-stone-400">{text}</span>
               </span>

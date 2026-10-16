@@ -9,7 +9,11 @@
  * Expone EXACTAMENTE la misma interfaz que `supabaseBackend.js`, de modo que la UI
  * no sabe qué implementación está usando.
  */
+import { isTeacherEmail, ROOM_OPEN_HOURS, RETENTION_DAYS, TEACHER_EMAIL_DOMAINS } from '../utils/constants';
 import { generatePin, uuid } from '../utils/ids';
+
+const HOUR = 3600 * 1000;
+const isOpen = (r) => !!r && r.is_active && r.closes_at > Date.now();
 
 const DB_KEY = 'colaborafp:mockdb:v1';
 const SESSION_KEY = 'colaborafp:mocksession:v1';
@@ -20,7 +24,7 @@ const LATENCY_MS = 120;
 const delay = (ms = LATENCY_MS) => new Promise((r) => setTimeout(r, ms));
 const clone = (v) => (v == null ? v : JSON.parse(JSON.stringify(v)));
 
-const emptyDb = () => ({ users: [], rooms: [], resources: [] });
+const emptyDb = () => ({ users: [], rooms: [], resources: [], reports: [] });
 
 const readDb = () => {
   try {
@@ -50,7 +54,7 @@ channel?.addEventListener('message', (e) => dispatchLocal(e.data));
 
 // ---------- Auth ----------
 const authListeners = new Set();
-const publicUser = (u) => (u ? { id: u.id, email: u.email, name: u.name } : null);
+const publicUser = (u) => (u ? { id: u.id, email: u.email, name: u.name, emailVerified: true } : null);
 
 const getStoredSession = () => {
   try {
@@ -81,13 +85,27 @@ const auth = {
     await delay();
     const db = readDb();
     const normalized = email.trim().toLowerCase();
+    if (!isTeacherEmail(normalized))
+      throw new Error(`Solo el profesorado con correo del centro (${TEACHER_EMAIL_DOMAINS.map((d) => '@' + d).join(', ')}) puede crear una cuenta.`);
     if (db.users.some((u) => u.email === normalized))
       throw new Error('Ya existe una cuenta con ese correo.');
     const user = { id: uuid(), name: name.trim(), email: normalized, password: await hash(password) };
     db.users.push(user);
     writeDb(db);
     setSession(user);
-    return publicUser(user);
+    return { verificationSent: false, user: publicUser(user) };
+  },
+  async resendVerification() {},
+  async deleteAccount(password) {
+    const db = readDb();
+    const session = getStoredSession();
+    const user = db.users.find((u) => u.id === session?.id);
+    if (!user || user.password !== (await hash(password))) throw new Error('Contraseña incorrecta.');
+    for (const r of db.rooms.filter((x) => x.teacher_id === user.id)) await rooms.remove(r.id);
+    const fresh = readDb();
+    fresh.users = fresh.users.filter((u) => u.id !== user.id);
+    writeDb(fresh);
+    setSession(null);
   },
   async signIn({ email, password }) {
     await delay();
@@ -110,7 +128,7 @@ const rooms = {
     const db = readDb();
     let pin;
     do pin = generatePin();
-    while (db.rooms.some((r) => r.pin === pin && r.is_active));
+    while (db.rooms.some((r) => r.pin === pin && isOpen(r)));
     const room = {
       id: uuid(),
       pin,
@@ -119,6 +137,8 @@ const rooms = {
       teacher_id: teacherId,
       is_active: true,
       created_at: Date.now(),
+      closes_at: Date.now() + ROOM_OPEN_HOURS * HOUR,
+      expire_at: Date.now() + RETENTION_DAYS * 24 * HOUR,
     };
     db.rooms.push(room);
     writeDb(db);
@@ -126,6 +146,7 @@ const rooms = {
   },
   async listByTeacher(teacherId) {
     await delay(60);
+    for (const r of readDb().rooms.filter((x) => x.teacher_id === teacherId && x.expire_at <= Date.now())) await rooms.remove(r.id);
     const db = readDb();
     return db.rooms
       .filter((r) => r.teacher_id === teacherId)
@@ -141,17 +162,18 @@ const rooms = {
   },
   async getByPin(pin) {
     await delay();
-    const room = readDb().rooms.find((r) => r.pin === pin && r.is_active);
-    return room ? { id: room.id, pin: room.pin, name: room.name, module: room.module } : null;
+    const room = readDb().rooms.find((r) => r.pin === pin && isOpen(r));
+    return room ? { id: room.id, pin: room.pin, name: room.name, module: room.module, is_active: true, closes_at: room.closes_at, expire_at: room.expire_at } : null;
   },
   async setActive(id, isActive) {
     await delay(60);
     const db = readDb();
     const room = db.rooms.find((r) => r.id === id);
     if (!room) throw new Error('Sala no encontrada.');
-    if (isActive && db.rooms.some((r) => r.id !== id && r.pin === room.pin && r.is_active))
-      throw new Error('El PIN de esta sala está en uso por otra sala abierta. Crea una sala nueva.');
+    if (isActive && db.rooms.some((r) => r.id !== id && r.pin === room.pin && isOpen(r)))
+      throw new Error('El PIN de esta sala lo está usando otra sala abierta. Crea una sala nueva.');
     room.is_active = isActive;
+    room.closes_at = isActive ? Date.now() + ROOM_OPEN_HOURS * HOUR : Math.min(room.closes_at, Date.now());
     writeDb(db);
     emit({ table: 'rooms', eventType: 'UPDATE', roomId: id, new: clone(room) });
     return clone(room);
@@ -164,6 +186,7 @@ const rooms = {
       .filter((r) => r.room_id === id && r.type === 'file')
       .forEach((r) => localStorage.removeItem(FILE_KEY(r.id)));
     db.resources = db.resources.filter((r) => r.room_id !== id);
+    db.reports = (db.reports || []).filter((r) => r.room_id !== id);
     writeDb(db);
     emit({ table: 'rooms', eventType: 'DELETE', roomId: id, old: { id } });
   },
@@ -182,7 +205,7 @@ const resources = {
     await delay();
     const db = readDb();
     const room = db.rooms.find((r) => r.id === resource.room_id);
-    if (!room || !room.is_active) throw new Error('La sala no existe o está cerrada.');
+    if (!room || (resource.author !== 'teacher' && !isOpen(room))) throw new Error('La sala no existe o está cerrada.');
     if (file) {
       try {
         localStorage.setItem(FILE_KEY(resource.id), file.data);
@@ -194,7 +217,7 @@ const resources = {
     writeDb(db);
     emit({ table: 'resources', eventType: 'INSERT', roomId: resource.room_id, new: clone(resource) });
   },
-  async setStatus(id, status) {
+  async setStatus(_roomId, id, status) {
     await delay(60);
     const db = readDb();
     const res = db.resources.find((r) => r.id === id);
@@ -211,7 +234,7 @@ const resources = {
     if (!data) throw new Error('El archivo ya no está disponible.');
     return { data, type: resource.file_type, name: resource.content };
   },
-  async remove(id) {
+  async remove(_roomId, id) {
     await delay(60);
     localStorage.removeItem(FILE_KEY(id));
     const db = readDb();
@@ -222,22 +245,45 @@ const resources = {
   },
 };
 
+// ---------- Notificaciones de contenido (LSSI) ----------
+const reports = {
+  async create({ room, resourceId, reason, details }) {
+    await delay();
+    const db = readDb();
+    const report = { id: uuid(), room_id: room.id, resource_id: resourceId, reason, details: String(details || '').slice(0, 500), created_at: Date.now() };
+    db.reports = [...(db.reports || []), report];
+    writeDb(db);
+    emit({ table: 'reports', roomId: room.id });
+  },
+  async remove(roomId, reportId) {
+    const db = readDb();
+    db.reports = (db.reports || []).filter((r) => r.id !== reportId);
+    writeDb(db);
+    emit({ table: 'reports', roomId });
+  },
+};
+
 // ---------- Realtime ----------
 const realtime = {
   /**
    * Se suscribe a los cambios de una sala.
    * handlers: { onResource({eventType, new, old}), onRoom({eventType, new, old}), onStatus(status) }
    */
-  subscribeRoom(roomId, { onResource, onRoom, onStatus }) {
+  subscribeRoom(roomId, { onResource, onRoom, onStatus, onReports }, { role } = {}) {
+    const pushReports = () => role === 'teacher' && onReports?.((readDb().reports || []).filter((r) => r.room_id === roomId));
     const fn = (event) => {
       if (event.roomId && event.roomId !== roomId) return;
       if (event.table === 'resources') onResource?.(event);
       if (event.table === 'rooms') onRoom?.(event);
+      if (event.table === 'reports') pushReports();
     };
     listeners.add(fn);
-    setTimeout(() => onStatus?.('SUBSCRIBED'), 0);
+    setTimeout(() => {
+      onStatus?.('SUBSCRIBED');
+      pushReports();
+    }, 0);
     return () => listeners.delete(fn);
   },
 };
 
-export const mockBackend = { mode: 'mock', auth, rooms, resources, realtime };
+export const mockBackend = { mode: 'mock', auth, rooms, resources, reports, realtime };

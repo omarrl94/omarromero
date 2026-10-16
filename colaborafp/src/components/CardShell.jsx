@@ -11,13 +11,13 @@ export default function CardShell({ resource, icon: Icon, typeLabel, headerExtra
     <article className="card relative animate-fade-in-up overflow-hidden">
       <span className={`absolute inset-y-0 left-0 w-1.5 ${bar}`} aria-hidden="true" />
       <header className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-stone-100 px-4 py-3 pl-6 dark:border-ink-800">
-        <span className="inline-flex items-center gap-1.5 font-display text-xs font-bold uppercase tracking-[0.12em] text-stone-500 dark:text-stone-400">
+        <span className="inline-flex items-center gap-1.5 font-display text-xs font-bold uppercase tracking-[0.12em] text-stone-600 dark:text-stone-400">
           <Icon className="h-4 w-4" />
           {typeLabel}
         </span>
         <AuthorBadge author={resource.author} />
         {headerExtra}
-        <time className="text-xs text-stone-400" dateTime={new Date(resource.timestamp).toISOString()} title={formatDate(resource.timestamp)}>
+        <time className="text-xs text-stone-600 dark:text-stone-400" dateTime={new Date(resource.timestamp).toISOString()} title={formatDate(resource.timestamp)}>
           {timeAgo(resource.timestamp, now)}
         </time>
         {resource.pending && (

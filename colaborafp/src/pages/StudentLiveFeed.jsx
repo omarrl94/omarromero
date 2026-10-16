@@ -4,6 +4,7 @@ import { Link, useParams } from 'react-router-dom';
 import ConnectionBadge from '../components/ConnectionBadge';
 import EmptyState from '../components/EmptyState';
 import MySubmissions from '../components/MySubmissions';
+import ReportButton from '../components/ReportButton';
 import ResourceCard from '../components/ResourceCard';
 import RoomNotice from '../components/RoomNotice';
 import ShareResourceModal from '../components/ShareResourceModal';
@@ -39,9 +40,9 @@ export default function StudentLiveFeed() {
   if (!state.room)
     return (
       <div className="mx-auto max-w-md px-4 py-20 text-center">
-        <DoorClosed className="mx-auto h-14 w-14 text-stone-400" />
+        <DoorClosed className="mx-auto h-14 w-14 text-stone-600 dark:text-stone-400" />
         <h1 className="mt-4 text-2xl font-bold">Sala no encontrada</h1>
-        <p className="mt-2 text-stone-500 dark:text-stone-400">
+        <p className="mt-2 text-stone-600 dark:text-stone-400">
           {state.error ?? (
             <>
               No hay ninguna sala abierta con el PIN <span className="font-mono font-bold">{formatPin(pin)}</span>.
@@ -75,14 +76,14 @@ function LiveFeed() {
             {room.module || 'Muro de la clase'}
           </p>
           <h1 className="truncate text-2xl font-extrabold tracking-tight sm:text-3xl">{room.name}</h1>
-          <p className="mt-1 font-mono text-xs text-stone-500">PIN {formatPin(room.pin)}</p>
+          <p className="mt-1 font-mono text-xs text-stone-600 dark:text-stone-400">PIN {formatPin(room.pin)}</p>
         </div>
         <ConnectionBadge status={connection} />
       </div>
 
       {roomClosed && (
         <p className="mb-4 rounded-xl bg-sun-100 px-4 py-3 text-sm font-medium text-sun-900 dark:bg-sun-500/15 dark:text-sun-200">
-          El profesor ha cerrado esta sala. Puedes seguir consultando los recursos, pero ya no se admiten aportaciones.
+          Esta sala está cerrada. Puedes seguir consultando los recursos, pero ya no se admiten aportaciones.
         </p>
       )}
 
@@ -102,7 +103,7 @@ function LiveFeed() {
         <ol className="space-y-5" aria-live="polite" aria-label="Recursos publicados">
           {publishedResources.map((r) => (
             <li key={r.id} className={isFresh(r.id) ? 'animate-arrive rounded-2xl' : undefined}>
-              <ResourceCard resource={r} />
+              <ResourceCard resource={r} actions={<ReportButton resource={r} />} />
             </li>
           ))}
         </ol>

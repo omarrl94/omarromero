@@ -27,10 +27,18 @@ export function AuthProvider({ children }) {
     return u;
   }, []);
 
+  /** Devuelve { verificationSent } (Firebase envía un correo) o inicia sesión directamente (modo demo). */
   const signUp = useCallback(async (data) => {
-    const u = await backend.auth.signUp(data);
-    setUser(u);
-    return u;
+    const result = await backend.auth.signUp(data);
+    if (result?.user) setUser(result.user);
+    return result;
+  }, []);
+
+  const resendVerification = useCallback((credentials) => backend.auth.resendVerification(credentials), []);
+
+  const deleteAccount = useCallback(async (password) => {
+    await backend.auth.deleteAccount(password);
+    setUser(null);
   }, []);
 
   const signOut = useCallback(async () => {
@@ -39,8 +47,8 @@ export function AuthProvider({ children }) {
   }, []);
 
   const value = useMemo(
-    () => ({ user, loading, isAuthenticated: !!user, signIn, signUp, signOut }),
-    [user, loading, signIn, signUp, signOut],
+    () => ({ user, loading, isAuthenticated: !!user, signIn, signUp, signOut, resendVerification, deleteAccount }),
+    [user, loading, signIn, signUp, signOut, resendVerification, deleteAccount],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

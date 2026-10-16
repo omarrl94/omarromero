@@ -3,6 +3,7 @@ import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../hooks/useTheme';
 import { isDemoMode } from '../services/backend';
+import { CENTRO } from '../config/centro';
 import { CENTER_NAME } from '../utils/constants';
 import Logo, { BrandMark, CenterLockup } from './Logo';
 
@@ -14,6 +15,9 @@ export default function AppLayout() {
 
   return (
     <div className="flex min-h-screen flex-col">
+      <a href="#contenido" className="sr-only z-50 rounded-lg bg-ink-900 px-4 py-2 font-semibold text-white focus:not-sr-only focus:fixed focus:left-4 focus:top-4">
+        Saltar al contenido
+      </a>
       {/* Franja de marca con los tres colores institucionales */}
       <div className="flex h-1" aria-hidden="true">
         <span className="flex-[3] bg-brand-400" />
@@ -71,7 +75,7 @@ export default function AppLayout() {
         </div>
       </header>
 
-      <main className="flex-1">
+      <main id="contenido" tabIndex={-1} className="flex-1 focus:outline-none">
         <Outlet />
       </main>
 
@@ -80,14 +84,25 @@ export default function AppLayout() {
           <div className="flex items-center gap-4">
             <CenterLockup />
           </div>
-          <div className="flex items-center gap-2.5 text-sm text-stone-500 dark:text-stone-400">
+          <div className="flex items-center gap-2.5 text-sm text-stone-600 dark:text-stone-400">
             <BrandMark className="h-5 w-5" />
             <span>
               <span className="font-display font-bold text-ink-900 dark:text-stone-200">ColaboraFP</span> · Plataforma colaborativa para todos los ciclos
             </span>
           </div>
         </div>
-        <div className="border-t border-stone-200/70 py-3 text-center text-xs text-stone-400 dark:border-ink-800">
+        <div className="border-t border-stone-200/70 px-4 py-4 text-center text-xs text-stone-600 dark:border-ink-800 dark:text-stone-400">
+          <nav aria-label="Información legal" className="mb-2 flex flex-wrap justify-center gap-x-4 gap-y-1">
+            <Link to="/aviso-legal" className="hover:underline">Aviso legal</Link>
+            <Link to="/privacidad" className="hover:underline">Privacidad</Link>
+            <Link to="/condiciones" className="hover:underline">Condiciones de uso</Link>
+            <Link to="/accesibilidad" className="hover:underline">Accesibilidad</Link>
+            {CENTRO.email ? (
+              <a href={`mailto:${CENTRO.email}`} className="hover:underline">Contacto</a>
+            ) : (
+              <Link to="/aviso-legal#titular" className="hover:underline">Contacto</Link>
+            )}
+          </nav>
           © {new Date().getFullYear()} {CENTER_NAME}
         </div>
       </footer>

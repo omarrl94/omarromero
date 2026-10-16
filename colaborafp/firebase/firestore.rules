@@ -3,60 +3,93 @@ rules_version = '2';
 // =====================================================================
 // ColaboraFP — Reglas de seguridad de Cloud Firestore
 // Firebase Console → Firestore Database → Reglas → pegar → Publicar
+//
+// Garantías:
+//  · Solo el profesorado con correo VERIFICADO del centro crea y gestiona salas.
+//  · Todo el contenido vive dentro de su sala: no se pueden listar recursos de otras salas.
+//  · El alumnado solo resuelve el PIN de una sala abierta (no se pueden listar PIN) y solo
+//    envía peticiones pendientes mientras la sala está abierta.
+//  · Las salas se cierran solas a las 12 h y todo su contenido caduca a los 60 días (campo
+//    expire_at, preparado para una política TTL de Firestore).
 // =====================================================================
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    function signedIn() {
-      return request.auth != null;
+    // ⚠ Dominio del profesorado. Si lo cambias, cambia también VITE_TEACHER_EMAIL_DOMAINS.
+    function isTeacher() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email.matches('.*@jrotero[.]es$');
+    }
+    function nowMs() {
+      return request.time.toMillis();
+    }
+    function maxClose() {
+      return nowMs() + 12 * 3600 * 1000 + 300000; // 12 h (+5 min de margen de reloj)
     }
     function roomPath(roomId) {
       return /databases/$(database)/documents/rooms/$(roomId);
     }
+    function room(roomId) {
+      return get(roomPath(roomId)).data;
+    }
     function isOwner(roomId) {
-      return signedIn() && exists(roomPath(roomId))
-        && get(roomPath(roomId)).data.teacher_id == request.auth.uid;
+      return isTeacher() && exists(roomPath(roomId)) && room(roomId).teacher_id == request.auth.uid;
+    }
+    function roomOpen(roomId) {
+      return exists(roomPath(roomId)) && room(roomId).is_active == true && room(roomId).closes_at > nowMs();
     }
     function ownsRoomAfter(roomId, pin) {
-      let room = getAfter(roomPath(roomId));
-      return room != null && room.data.teacher_id == request.auth.uid && room.data.pin == pin;
+      let r = getAfter(roomPath(roomId));
+      return r != null && r.data.teacher_id == request.auth.uid && r.data.pin == pin;
     }
 
     // ----- Salas: solo su profesor/a -----
     match /rooms/{roomId} {
-      allow read, delete: if signedIn() && resource.data.teacher_id == request.auth.uid;
-      allow create: if signedIn()
+      allow read, delete: if isTeacher() && resource.data.teacher_id == request.auth.uid;
+      allow create: if isTeacher()
+        && request.resource.data.keys().hasOnly(['pin', 'name', 'module', 'teacher_id', 'is_active', 'created_at', 'closes_at', 'expire_at'])
         && request.resource.data.teacher_id == request.auth.uid
-        && request.resource.data.pin is string && request.resource.data.pin.matches('^[0-9]{6}$')
+        && request.resource.data.pin is string && request.resource.data.pin.matches('^[2-9A-HJKMNP-Z]{6}$')
         && request.resource.data.name is string
         && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 120
-        && request.resource.data.is_active is bool;
-      allow update: if signedIn()
+        && (request.resource.data.module == null || (request.resource.data.module is string && request.resource.data.module.size() <= 60))
+        && request.resource.data.is_active is bool
+        && request.resource.data.created_at is int
+        && request.resource.data.closes_at is int && request.resource.data.closes_at <= maxClose()
+        && request.resource.data.expire_at is timestamp
+        && request.resource.data.expire_at > request.time
+        && request.resource.data.expire_at <= request.time + duration.value(61, 'd');
+      // Solo abrir/cerrar; el plazo de borrado (expire_at) no se puede ampliar
+      allow update: if isTeacher()
         && resource.data.teacher_id == request.auth.uid
-        && request.resource.data.teacher_id == resource.data.teacher_id
-        && request.resource.data.pin == resource.data.pin;
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['is_active', 'closes_at'])
+        && request.resource.data.is_active is bool
+        && request.resource.data.closes_at is int && request.resource.data.closes_at <= maxClose();
     }
 
-    // ----- PINs: el alumnado puede resolver UN pin concreto, pero no listarlos -----
+    // ----- PIN: el alumnado resuelve UN pin de una sala abierta; no se pueden listar -----
     match /pins/{pin} {
-      allow get: if true;
-      allow create: if signedIn()
+      allow get: if (resource.data.active == true && resource.data.closes_at > nowMs()) || isTeacher();
+      allow create, update: if isTeacher()
+        && request.resource.data.keys().hasOnly(['room_id', 'name', 'module', 'teacher_id', 'active', 'closes_at', 'expire_at'])
         && request.resource.data.teacher_id == request.auth.uid
-        && ownsRoomAfter(request.resource.data.room_id, pin);
-      // Se puede reutilizar un PIN libre (sala cerrada) o actualizar el propio
-      allow update: if signedIn()
-        && request.resource.data.teacher_id == request.auth.uid
-        && (resource.data.teacher_id == request.auth.uid || resource.data.active == false)
-        && ownsRoomAfter(request.resource.data.room_id, pin);
-      allow delete: if signedIn() && resource.data.teacher_id == request.auth.uid;
+        && request.resource.data.closes_at is int && request.resource.data.closes_at <= maxClose()
+        && request.resource.data.expire_at is timestamp
+        && ownsRoomAfter(request.resource.data.room_id, pin)
+        && request.resource.data.expire_at == getAfter(roomPath(request.resource.data.room_id)).data.expire_at
+        // Un PIN ajeno solo se reutiliza si su sala ya está cerrada
+        && (resource == null || resource.data.teacher_id == request.auth.uid
+            || resource.data.active == false || resource.data.closes_at <= nowMs());
+      allow delete: if isTeacher() && resource.data.teacher_id == request.auth.uid;
     }
 
-    // ----- Recursos -----
-    match /resources/{resId} {
+    // ----- Contenido de cada sala -----
+    match /rooms/{roomId}/resources/{resId} {
       function valid(d) {
         return d.keys().hasOnly(['room_id', 'author', 'type', 'content', 'language', 'title', 'status', 'timestamp',
-                                 'file_size', 'file_type', 'chunks'])
-          && d.room_id is string
+                                 'file_size', 'file_type', 'chunks', 'expire_at'])
+          && d.room_id == roomId
           && d.author is string && d.author.size() > 0 && d.author.size() <= 30
           && d.type in ['code', 'task', 'link', 'file']
           && (d.type == 'file') == (d.get('chunks', null) != null)
@@ -67,48 +100,52 @@ service cloud.firestore {
           && (d.get('language', null) == null || (d.language is string && d.language.size() <= 20))
           && (d.get('title', null) == null || (d.title is string && d.title.size() <= 120))
           && d.status in ['pending', 'approved']
-          && d.timestamp is number;
+          && d.timestamp is number
+          && d.expire_at == room(roomId).expire_at;
       }
 
       // Lectura de un recurso concreto por su id (aleatorio): el alumno sigue el estado de su petición
       allow get: if true;
-      // Listados: lo aprobado es público; el profesor dueño ve también lo pendiente
-      allow list: if resource.data.status == 'approved' || isOwner(resource.data.room_id);
-
-      // Alumnado: solo peticiones pendientes, en salas abiertas, sin firmar como 'teacher'
-      // Profesor dueño: publica directamente
+      // Listados: lo aprobado de ESTA sala; el profesor dueño ve también lo pendiente
+      allow list: if resource.data.status == 'approved' || isOwner(roomId);
+      // Alumnado: solo peticiones pendientes, con la sala abierta, sin firmar como 'teacher'
       allow create: if valid(request.resource.data) && (
-        isOwner(request.resource.data.room_id)
-        || (request.resource.data.status == 'pending'
-            && request.resource.data.author != 'teacher'
-            && exists(roomPath(request.resource.data.room_id))
-            && get(roomPath(request.resource.data.room_id)).data.is_active == true)
+        isOwner(roomId)
+        || (request.resource.data.status == 'pending' && request.resource.data.author != 'teacher' && roomOpen(roomId))
       );
-      allow update: if isOwner(resource.data.room_id)
+      allow update: if isOwner(roomId)
         && valid(request.resource.data)
-        && request.resource.data.room_id == resource.data.room_id
-        && request.resource.data.get('chunks', null) == resource.data.get('chunks', null);
-      allow delete: if isOwner(resource.data.room_id);
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'timestamp']);
+      allow delete: if isOwner(roomId);
+
+      // Trozos de archivo (base64). Solo se crean en el MISMO lote que su recurso.
+      match /chunks/{chunkId} {
+        function resPath() {
+          return /databases/$(database)/documents/rooms/$(roomId)/resources/$(resId);
+        }
+        allow get: if true;
+        allow create: if request.resource.data.keys().hasOnly(['index', 'data', 'expire_at'])
+          && request.resource.data.index is int && request.resource.data.index >= 0
+          && chunkId == string(request.resource.data.index)
+          && request.resource.data.data is string && request.resource.data.data.size() <= 950000
+          && !exists(resPath())
+          && getAfter(resPath()).data.type == 'file'
+          && request.resource.data.index < getAfter(resPath()).data.chunks
+          && request.resource.data.expire_at == getAfter(resPath()).data.expire_at;
+        allow delete: if isOwner(roomId);
+      }
     }
 
-    // ----- Trozos de archivo (base64). Solo se crean en el MISMO lote que su recurso -----
-    match /fileChunks/{chunkId} {
-      function resPath(fileId) {
-        return /databases/$(database)/documents/resources/$(fileId);
-      }
-
-      // Lectura por id (el id del recurso es aleatorio), igual que el recurso
-      allow get: if true;
-      allow create: if request.resource.data.keys().hasOnly(['file_id', 'room_id', 'index', 'data'])
-        && request.resource.data.file_id is string
-        && request.resource.data.index is int && request.resource.data.index >= 0
-        && chunkId == request.resource.data.file_id + '_' + string(request.resource.data.index)
-        && request.resource.data.data is string && request.resource.data.data.size() <= 950000
-        && !exists(resPath(request.resource.data.file_id))
-        && getAfter(resPath(request.resource.data.file_id)).data.type == 'file'
-        && getAfter(resPath(request.resource.data.file_id)).data.room_id == request.resource.data.room_id
-        && request.resource.data.index < getAfter(resPath(request.resource.data.file_id)).data.chunks;
-      allow delete: if isOwner(get(resPath(resource.data.file_id)).data.room_id);
+    // ----- Notificaciones de contenido (LSSI): cualquiera notifica; solo el profesor de la sala las ve -----
+    match /rooms/{roomId}/reports/{reportId} {
+      allow create: if request.resource.data.keys().hasOnly(['resource_id', 'reason', 'details', 'created_at', 'expire_at'])
+        && request.resource.data.resource_id is string && request.resource.data.resource_id.size() <= 64
+        && request.resource.data.reason in ['datos-personales', 'inapropiado', 'derechos', 'otro']
+        && request.resource.data.details is string && request.resource.data.details.size() <= 500
+        && request.resource.data.created_at is int
+        && exists(roomPath(roomId))
+        && request.resource.data.expire_at == room(roomId).expire_at;
+      allow read, delete: if isOwner(roomId);
     }
   }
 }

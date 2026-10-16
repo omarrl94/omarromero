@@ -7,7 +7,25 @@ export default function Modal({ open, onClose, title, children, size = 'lg' }) {
 
   useEffect(() => {
     if (!open) return undefined;
-    const onKey = (e) => e.key === 'Escape' && onClose();
+    const previouslyFocused = document.activeElement;
+    const onKey = (e) => {
+      if (e.key === 'Escape') return onClose();
+      if (e.key !== 'Tab' || !panelRef.current) return undefined;
+      // Mantiene el foco dentro del diálogo (WCAG 2.4.3)
+      const focusables = [...panelRef.current.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])')]
+        .filter((el) => el.offsetParent !== null);
+      if (!focusables.length) return undefined;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && (document.activeElement === first || document.activeElement === panelRef.current)) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+      return undefined;
+    };
     document.addEventListener('keydown', onKey);
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -15,6 +33,7 @@ export default function Modal({ open, onClose, title, children, size = 'lg' }) {
     return () => {
       document.removeEventListener('keydown', onKey);
       document.body.style.overflow = prevOverflow;
+      previouslyFocused?.focus?.(); // devuelve el foco al botón que abrió el diálogo
     };
   }, [open, onClose]);
 

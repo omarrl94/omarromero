@@ -12,6 +12,10 @@ const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
 const TeacherDashboard = lazy(() => import('./pages/TeacherDashboard'));
 const RoomControlPanel = lazy(() => import('./pages/RoomControlPanel'));
+const AvisoLegal = lazy(() => import('./pages/legal/AvisoLegal'));
+const Privacidad = lazy(() => import('./pages/legal/Privacidad'));
+const Condiciones = lazy(() => import('./pages/legal/Condiciones'));
+const Accesibilidad = lazy(() => import('./pages/legal/Accesibilidad'));
 
 export default function App() {
   return (
@@ -23,6 +27,12 @@ export default function App() {
           <Route path="sala/:pin" element={<StudentLiveFeed />} />
           <Route path="login" element={<Login />} />
           <Route path="registro" element={<Register />} />
+
+          {/* Información legal */}
+          <Route path="aviso-legal" element={<AvisoLegal />} />
+          <Route path="privacidad" element={<Privacidad />} />
+          <Route path="condiciones" element={<Condiciones />} />
+          <Route path="accesibilidad" element={<Accesibilidad />} />
 
           {/* Rutas privadas (profesorado) */}
           <Route path="profesor" element={<ProtectedRoute />}>
