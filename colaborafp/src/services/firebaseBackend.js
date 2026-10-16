@@ -218,6 +218,57 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
     await commitDeletes([roomRef(roomId)]);
   }
 
+  // ---------- Migración desde la versión anterior ----------
+  // Antes: rooms/{id} sin plazos, resources/{id} y fileChunks/{id_n} en colecciones globales.
+  // Ahora: plazos (closes_at, expire_at) y todo el contenido dentro de rooms/{id}/resources.
+  const LEGACY_KEYS = ['room_id', 'author', 'type', 'content', 'language', 'title', 'status', 'timestamp', 'file_size', 'file_type', 'chunks'];
+
+  const migrations = new Map(); // evita dos migraciones simultáneas de la misma sala
+  const migrateLegacyRoom = (roomId, data) => {
+    if (!migrations.has(roomId)) migrations.set(roomId, doMigrate(roomId, data).finally(() => migrations.delete(roomId)));
+    return migrations.get(roomId);
+  };
+
+  async function doMigrate(roomId, data) {
+    const now = Date.now();
+    const fresh = (await getDoc(roomRef(roomId))).data() ?? data;
+    let patch = {};
+    if (!fresh.expire_at) {
+      // Se cierra (el profesor la reabre cuando quiera) y recibe un PIN alfanumérico: los antiguos eran solo números
+      for (let attempt = 0; attempt < 5 && !patch.pin; attempt++) {
+        const next = { pin: generatePin(), is_active: false, closes_at: Math.min(now, Number(fresh.closes_at) || now), expire_at: now + RETENTION_DAYS * DAY };
+        const done = await runTransaction(db, async (tx) => {
+          const p = await tx.get(pinRef(next.pin));
+          if (p.exists() && p.data().active && p.data().closes_at > Date.now()) return false;
+          const oldPin = fresh.pin ? await tx.get(pinRef(fresh.pin)) : null;
+          tx.update(roomRef(roomId), { ...next, expire_at: Timestamp.fromMillis(next.expire_at) });
+          tx.set(pinRef(next.pin), pinDoc(roomId, { ...fresh, ...next }));
+          if (oldPin?.exists() && oldPin.data().room_id === roomId) tx.delete(oldPin.ref);
+          return true;
+        });
+        if (done) patch = { ...next, expire_at: Timestamp.fromMillis(next.expire_at) };
+      }
+      if (!patch.pin) throw new Error('No se pudo asignar un PIN nuevo a la sala.');
+    }
+    const expire_at = patch.expire_at ?? fresh.expire_at;
+    const legacy = await getDocs(query(collection(db, 'resources'), where('room_id', '==', roomId)));
+    for (const r of legacy.docs) {
+      const old = r.data();
+      const res = Object.fromEntries(LEGACY_KEYS.filter((k) => old[k] !== undefined).map((k) => [k, old[k]]));
+      const parts = [];
+      for (let i = 0; i < (old.chunks || 0); i++) parts.push(await getDoc(doc(db, 'fileChunks', `${r.id}_${i}`)));
+      // Si ya se copió en un intento anterior, solo queda borrar el original
+      if (!(await getDoc(resRef(roomId, r.id))).exists()) {
+        const batch = writeBatch(db);
+        batch.set(resRef(roomId, r.id), { ...res, expire_at });
+        parts.forEach((p, i) => batch.set(chunkRef(roomId, r.id, i), { index: i, data: p.data()?.data ?? '', expire_at }));
+        await batch.commit();
+      }
+      await commitDeletes([...parts.filter((p) => p.exists()).map((p) => p.ref), r.ref]);
+    }
+    return { ...fresh, ...patch };
+  }
+
   // ---------- Salas ----------
   const pinDoc = (roomId, room) => ({
     room_id: roomId,
@@ -264,13 +315,19 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
         const snap = await getDocs(query(roomsCol, where('teacher_id', '==', teacherId)));
         const now = Date.now();
         const docs = snap.docs; // ojo: cada acceso a snap.docs crea objetos nuevos
-        const expiredIds = new Set(docs.filter((d) => !d.data().expire_at || ms(d.data().expire_at) <= now).map((d) => d.id));
+        // Salas de la versión anterior (sin expire_at): se migran, NUNCA se borran
+        const migrated = new Map();
+        for (const d of docs.filter((x) => !x.data().expire_at)) {
+          migrated.set(d.id, await migrateLegacyRoom(d.id, d.data()).catch((e) => (console.error('[ColaboraFP] migración', e), null)));
+        }
+        const dataOf = (d) => migrated.get(d.id) ?? d.data();
+        const expiredIds = new Set(docs.filter((d) => dataOf(d).expire_at && ms(dataOf(d).expire_at) <= now).map((d) => d.id));
         await Promise.all(docs.filter((d) => expiredIds.has(d.id)).map((d) => removeRoom(d.id, d.data()).catch(() => {})));
         const alive = docs.filter((d) => !expiredIds.has(d.id));
         const list = await Promise.all(
           alive.map(async (d) => {
             const count = await getCountFromServer(query(resCol(d.id), where('status', '==', 'approved'))).catch(() => null);
-            return { ...toRoom(d.id, d.data()), resource_count: count?.data().count ?? 0 };
+            return { ...toRoom(d.id, dataOf(d)), resource_count: count?.data().count ?? 0 };
           }),
         );
         return list.sort((a, b) => b.created_at - a.created_at);

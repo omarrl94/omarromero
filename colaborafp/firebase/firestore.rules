@@ -66,6 +66,17 @@ service cloud.firestore {
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['is_active', 'closes_at'])
         && request.resource.data.is_active is bool
         && request.resource.data.closes_at is int && request.resource.data.closes_at <= maxClose();
+      // Migración única de salas creadas con la versión anterior (sin expire_at): se les asigna el plazo de borrado
+      allow update: if isTeacher()
+        && resource.data.teacher_id == request.auth.uid
+        && !('expire_at' in resource.data)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['pin', 'is_active', 'closes_at', 'expire_at'])
+        && request.resource.data.pin is string && request.resource.data.pin.matches('^[2-9A-HJKMNP-Z]{6}$')
+        && request.resource.data.is_active is bool
+        && request.resource.data.closes_at is int && request.resource.data.closes_at <= maxClose()
+        && request.resource.data.expire_at is timestamp
+        && request.resource.data.expire_at > request.time
+        && request.resource.data.expire_at <= request.time + duration.value(61, 'd');
     }
 
     // ----- PIN: el alumnado resuelve UN pin de una sala abierta; no se pueden listar -----
@@ -134,6 +145,14 @@ service cloud.firestore {
           && request.resource.data.expire_at == getAfter(resPath()).data.expire_at;
         allow delete: if isOwner(roomId);
       }
+    }
+
+    // ----- Colecciones de la versión anterior: solo el profesor dueño las lee para migrarlas y las borra -----
+    match /resources/{resId} {
+      allow read, delete: if isOwner(resource.data.room_id);
+    }
+    match /fileChunks/{chunkId} {
+      allow read, delete: if isOwner(resource.data.room_id);
     }
 
     // ----- Notificaciones de contenido (LSSI): cualquiera notifica; solo el profesor de la sala las ve -----
