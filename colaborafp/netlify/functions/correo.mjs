@@ -5,6 +5,11 @@
  * enlaces los genera Firebase Admin y el mensaje sale desde un buzón del propio Microsoft 365
  * del centro mediante Microsoft Graph (OAuth de aplicación; no usa SMTP ni contraseñas).
  *
+ * Proveedor de envío (el primero configurado), igual que la web de exámenes del centro:
+ *   · SMTP: SMTP_HOST, SMTP_PORT (587), SMTP_USER, SMTP_PASS, MAIL_FROM   ← Microsoft 365 del centro
+ *   · Resend: RESEND_API_KEY, MAIL_FROM
+ *   · Microsoft Graph: MS_TENANT_ID, MS_CLIENT_ID, MS_CLIENT_SECRET, MAIL_FROM
+ *
  * Variables de entorno (Netlify → Project configuration → Environment variables):
  *   FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY   datos de la cuenta de servicio
  *     (o FIREBASE_SERVICE_ACCOUNT con el JSON completo)
@@ -20,8 +25,16 @@ import { cert, getApps, initializeApp } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 import { createHash } from 'node:crypto';
+import nodemailer from 'nodemailer';
 
-const env = process.env;
+// Lee una variable quitando comillas envolventes (como la web de exámenes: MAIL_FROM="Nombre <correo>")
+const env = new Proxy(process.env, {
+  get(target, k) {
+    let v = String(target[k] ?? '').trim();
+    if (v.length >= 2 && (v[0] === '"' || v[0] === "'") && v.at(-1) === v[0]) v = v.slice(1, -1).trim();
+    return v || undefined;
+  },
+});
 const DOMAINS = String(env.TEACHER_EMAIL_DOMAINS || 'jrotero.es').split(',').map((d) => d.trim().toLowerCase()).filter(Boolean);
 const EXTRA = ['omar.rl14@gmail.com']; // ⚠ igual que TEACHER_EXTRA_EMAILS y las reglas de Firestore
 const LOGIN = env.MS_LOGIN_BASE || 'https://login.microsoftonline.com';
@@ -33,13 +46,25 @@ const isTeacherEmail = (email) => {
   const e = String(email || '').trim().toLowerCase();
   return EXTRA.includes(e) || DOMAINS.some((d) => e.endsWith('@' + d));
 };
-const configured = () => !!(serviceAccount() || env.FIREBASE_AUTH_EMULATOR_HOST) && !!(env.MS_TENANT_ID && env.MS_CLIENT_ID && env.MS_CLIENT_SECRET && env.MAIL_FROM);
+const provider = () => {
+  if (env.MAIL_MODE === 'log') return 'log';
+  if (env.SMTP_HOST && env.SMTP_USER && env.SMTP_PASS) return 'smtp';
+  if (env.RESEND_API_KEY && env.MAIL_FROM) return 'resend';
+  if (env.MS_TENANT_ID && env.MS_CLIENT_ID && env.MS_CLIENT_SECRET && env.MAIL_FROM) return 'graph';
+  return null;
+};
+const fromHeader = () => env.MAIL_FROM || env.SMTP_USER;
+/** Solo la dirección (sin el nombre) para mostrarla en la web. */
+const fromAddress = () => (fromHeader()?.match(/<([^>]+)>/)?.[1] || fromHeader() || '').trim();
+const configured = () => !!(serviceAccount() || env.FIREBASE_AUTH_EMULATOR_HOST) && !!provider();
 const json = (status, body) => new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } });
 
 /** Credenciales de la cuenta de servicio: tres variables sueltas (recomendado) o el JSON completo. */
+const projectId = () => env.FIREBASE_PROJECT_ID || env.VITE_FIREBASE_CONFIG?.match(/projectId["']?\s*:\s*["']([^"']+)/)?.[1];
+
 function serviceAccount() {
-  if (env.FIREBASE_PRIVATE_KEY && env.FIREBASE_CLIENT_EMAIL && env.FIREBASE_PROJECT_ID)
-    return { projectId: env.FIREBASE_PROJECT_ID, clientEmail: env.FIREBASE_CLIENT_EMAIL, privateKey: env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n') };
+  if (env.FIREBASE_PRIVATE_KEY && env.FIREBASE_CLIENT_EMAIL && projectId())
+    return { projectId: projectId(), clientEmail: env.FIREBASE_CLIENT_EMAIL, privateKey: env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n') };
   if (env.FIREBASE_SERVICE_ACCOUNT) {
     const sa = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT);
     return { projectId: sa.project_id, clientEmail: sa.client_email, privateKey: sa.private_key };
@@ -50,7 +75,7 @@ function serviceAccount() {
 function firebase() {
   if (!getApps().length) {
     const sa = serviceAccount();
-    initializeApp(sa ? { credential: cert(sa), projectId: sa.projectId } : { projectId: env.FIREBASE_PROJECT_ID });
+    initializeApp(sa ? { credential: cert(sa), projectId: sa.projectId } : { projectId: projectId() });
   }
   return { auth: getAuth(), db: getFirestore() };
 }
@@ -86,9 +111,45 @@ async function graphToken() {
   return data.access_token;
 }
 
+let transport;
+function smtp() {
+  if (!transport) {
+    const port = Number(env.SMTP_PORT || 587);
+    transport = nodemailer.createTransport({
+      host: env.SMTP_HOST,
+      port,
+      secure: port === 465,
+      requireTLS: port !== 465,
+      auth: { user: env.SMTP_USER, pass: env.SMTP_PASS },
+    });
+  }
+  return transport;
+}
+
+const toText = (html) => html.replace(/<style[\s\S]*?<\/style>/g, '').replace(/<br\s*\/?>/g, '\n').replace(/<\/p>/g, '\n\n').replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/[ \t]+/g, ' ').replace(/\n\s*\n\s*\n+/g, '\n\n').trim();
+
 async function sendMail(to, subject, html) {
+  const p = provider();
+  if (p === 'log') return console.log(`[MAIL_MODE=log] Para: ${to} · ${subject}`);
+  if (p === 'smtp') {
+    try {
+      await smtp().sendMail({ from: fromHeader(), to, subject, html, text: toText(html) });
+    } catch (e) {
+      throw new Error(`El servidor de correo rechazó el envío (${e.responseCode || e.code || e.message}).`);
+    }
+    return;
+  }
+  if (p === 'resend') {
+    const r = await fetch(env.RESEND_API_BASE || 'https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from: fromHeader(), to: [to], subject, html, text: toText(html) }),
+    });
+    if (!r.ok) throw new Error(`Resend rechazó el envío (${r.status}).`);
+    return;
+  }
   const token = await graphToken();
-  const res = await fetch(`${GRAPH}/v1.0/users/${encodeURIComponent(env.MAIL_FROM)}/sendMail`, {
+  const res = await fetch(`${GRAPH}/v1.0/users/${encodeURIComponent(fromAddress())}/sendMail`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -122,10 +183,11 @@ const template = ({ name, title, text, button, link, note }) => `<!doctype html>
 </td></tr></table></body></html>`;
 
 /** Genera el enlace volviendo a la web si su dominio está autorizado en Firebase. */
-async function link(fn, email) {
-  if (env.APP_URL) {
+async function link(fn, email, origin) {
+  const base = env.APP_URL || origin;
+  if (base) {
     try {
-      return await fn(email, { url: `${env.APP_URL.replace(/\/$/, '')}/login` });
+      return await fn(email, { url: `${base.replace(/\/$/, '')}/login` });
     } catch (e) {
       if (!/continue|domain|allowlist|authorized/i.test(String(e?.code) + e?.message)) throw e;
     }
@@ -134,7 +196,7 @@ async function link(fn, email) {
 }
 
 export default async (req) => {
-  if (req.method === 'GET') return json(200, { configured: configured(), from: configured() ? env.MAIL_FROM : null });
+  if (req.method === 'GET') return json(200, { configured: configured(), from: configured() ? fromAddress() : null });
   if (req.method !== 'POST') return json(405, { error: 'Método no permitido.' });
   if (!configured()) return json(501, { error: 'El envío de correo del centro no está configurado.' });
 
@@ -145,6 +207,7 @@ export default async (req) => {
     return json(400, { error: 'Petición no válida.' });
   }
   const { auth, db } = firebase();
+  const origin = /^https:\/\//.test(req.url) ? new URL(req.url).origin : null;
 
   try {
     if (body.action === 'verify') {
@@ -154,10 +217,10 @@ export default async (req) => {
       if (!decoded?.email) return json(401, { error: 'Sesión no válida. Vuelve a iniciar sesión.' });
       if (!isTeacherEmail(decoded.email)) return json(403, { error: 'Este correo no pertenece al profesorado del centro.' });
       const user = await auth.getUser(decoded.uid);
-      if (user.emailVerified) return json(200, { sent: false, alreadyVerified: true, from: env.MAIL_FROM });
+      if (user.emailVerified) return json(200, { sent: false, alreadyVerified: true, from: fromAddress() });
       const wait = await throttle(db, 'verify', user.email.toLowerCase());
       if (wait) return json(429, { error: wait });
-      const url = await link((e, s) => auth.generateEmailVerificationLink(e, s), user.email);
+      const url = await link((e, s) => auth.generateEmailVerificationLink(e, s), user.email, origin);
       await sendMail(
         user.email,
         'Activa tu cuenta de ColaboraFP',
@@ -170,19 +233,19 @@ export default async (req) => {
           note: 'Si no has creado esta cuenta, ignora este mensaje.',
         }),
       );
-      return json(200, { sent: true, from: env.MAIL_FROM });
+      return json(200, { sent: true, from: fromAddress() });
     }
 
     if (body.action === 'reset') {
       const email = String(body.email || '').trim().toLowerCase();
       // Respuesta idéntica exista o no la cuenta (no revela qué correos están registrados)
-      const ok = json(200, { sent: true, from: env.MAIL_FROM });
+      const ok = json(200, { sent: true, from: fromAddress() });
       if (!isTeacherEmail(email)) return ok;
       const user = await auth.getUserByEmail(email).catch(() => null);
       if (!user) return ok;
       const wait = await throttle(db, 'reset', email);
       if (wait) return json(429, { error: wait });
-      const url = await link((e, s) => auth.generatePasswordResetLink(e, s), email);
+      const url = await link((e, s) => auth.generatePasswordResetLink(e, s), email, origin);
       await sendMail(
         email,
         'Restablece tu contraseña de ColaboraFP',
