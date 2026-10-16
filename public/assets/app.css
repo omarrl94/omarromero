@@ -592,3 +592,13 @@ dialog.wide{max-width:980px}
 .aviso-ia{margin:12px 0 0}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 @media print{.pie-legal,.saltar{display:none}}
+
+/* ── Defensa en bloque ── */
+.db-lista{display:grid;gap:8px;max-height:58vh;overflow:auto;padding-right:4px}
+.db-al{border:1px solid var(--border);border-radius:12px;padding:8px 12px;background:var(--card)}
+.db-al>summary{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;cursor:pointer}
+.db-al .db-incl{margin-left:auto;font-size:13px}
+.db-al.db-enviada{opacity:.75}
+.db-al.db-error{border-color:var(--bad)}
+.db-q{margin-top:8px}
+.db-al .db-err{flex-basis:100%;font-size:13px;color:var(--bad)}
