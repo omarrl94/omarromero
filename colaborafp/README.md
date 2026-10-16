@@ -31,7 +31,7 @@ npm run build
 
 | Medida | Dónde |
 | --- | --- |
-| Solo profesorado con correo `@jrotero.es` **verificado** gestiona salas | `firestore.rules` (`isTeacher`) + registro |
+| Solo profesorado con correo `@jrotero.es` **verificado** (y la cuenta del administrador como única excepción) gestiona salas | `firestore.rules` (`isTeacher`) + registro |
 | Todo el contenido vive **dentro de su sala** (`rooms/{id}/resources`, `/chunks`, `/reports`): no se puede listar entre salas | modelo de datos + reglas |
 | PIN alfanumérico de 6 caracteres (31⁶ ≈ 887 M), generado con `crypto.getRandomValues`; los PIN no se pueden listar | `utils/ids.js` + reglas |
 | La sala se **cierra sola a las 12 h**; el alumnado solo aporta con la sala abierta | `closes_at` + reglas |
