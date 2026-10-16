@@ -9,7 +9,8 @@
  * Expone EXACTAMENTE la misma interfaz que `supabaseBackend.js`, de modo que la UI
  * no sabe qué implementación está usando.
  */
-import { isTeacherEmail, ROOM_OPEN_HOURS, RETENTION_DAYS, TEACHER_EMAIL_DOMAINS } from '../utils/constants';
+import { isTeacherEmail, ROOM_OPEN_HOURS, TEACHER_EMAIL_DOMAINS } from '../utils/constants';
+import { clampExpiry, defaultExpiry } from '../utils/retention';
 import { generatePin, uuid } from '../utils/ids';
 
 const HOUR = 3600 * 1000;
@@ -123,7 +124,7 @@ const auth = {
 
 // ---------- Salas ----------
 const rooms = {
-  async create({ name, module, teacherId }) {
+  async create({ name, module, teacherId, expireAt }) {
     await delay();
     const db = readDb();
     let pin;
@@ -138,7 +139,7 @@ const rooms = {
       is_active: true,
       created_at: Date.now(),
       closes_at: Date.now() + ROOM_OPEN_HOURS * HOUR,
-      expire_at: Date.now() + RETENTION_DAYS * 24 * HOUR,
+      expire_at: clampExpiry(expireAt ?? defaultExpiry()),
     };
     db.rooms.push(room);
     writeDb(db);
@@ -174,6 +175,17 @@ const rooms = {
       throw new Error('El PIN de esta sala lo está usando otra sala abierta. Crea una sala nueva.');
     room.is_active = isActive;
     room.closes_at = isActive ? Date.now() + ROOM_OPEN_HOURS * HOUR : Math.min(room.closes_at, Date.now());
+    writeDb(db);
+    emit({ table: 'rooms', eventType: 'UPDATE', roomId: id, new: clone(room) });
+    return clone(room);
+  },
+  async setExpiry(id, expireAt) {
+    await delay(60);
+    const db = readDb();
+    const room = db.rooms.find((r) => r.id === id);
+    if (!room) throw new Error('Sala no encontrada.');
+    room.expire_at = clampExpiry(expireAt);
+    db.resources.filter((r) => r.room_id === id).forEach((r) => (r.expire_at = room.expire_at));
     writeDb(db);
     emit({ table: 'rooms', eventType: 'UPDATE', roomId: id, new: clone(room) });
     return clone(room);

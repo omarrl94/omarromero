@@ -54,7 +54,7 @@ export default function Condiciones() {
       </Section>
 
       <Section id="conservacion" title="6. Conservación">
-        <p>Las salas se cierran solas a las 12 horas y todo su contenido se borra automáticamente a los {RETENTION_DAYS} días de su creación. Guarda en tu equipo lo que quieras conservar.</p>
+        <p>Las salas se cierran solas a las 12 horas y todo su contenido se borra automáticamente en la fecha que fija el profesor (por defecto, {RETENTION_DAYS} días; como máximo, 1 año). Guarda en tu equipo lo que quieras conservar.</p>
       </Section>
 
       <Section id="cambios" title="7. Cambios">

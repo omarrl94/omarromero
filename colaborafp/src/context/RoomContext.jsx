@@ -62,6 +62,9 @@ export function RoomProvider({ room, role, children }) {
   const [connection, setConnection] = useState('connecting');
   const [error, setError] = useState(null);
   const [roomClosed, setRoomClosed] = useState(() => !isRoomOpen(room));
+  // Fecha de borrado vigente: el profesor puede cambiarla y los recursos nuevos deben llevar la misma
+  const [expireAt, setExpireAt] = useState(room.expire_at);
+  useEffect(() => setExpireAt(room.expire_at), [room.expire_at]);
   const [reports, setReports] = useState([]);
   const [mine, setMine] = useState(() => (isTeacher ? {} : readMine(roomId)));
   const [notice, setNotice] = useState(null);
@@ -159,6 +162,7 @@ export function RoomProvider({ room, role, children }) {
         onResource: handleEvent,
         onInitial: (resources) => alive && applyInitial(resources),
         onRoom: (event) => {
+          if (event.new?.expire_at) setExpireAt(event.new.expire_at);
           if (event.eventType === 'DELETE' || event.new?.is_active === false) setRoomClosed(true);
           else if (event.new?.is_active) setRoomClosed(false);
         },
@@ -215,7 +219,7 @@ export function RoomProvider({ room, role, children }) {
    */
   const publish = useCallback(
     async (draft) => {
-      const { resource, error: err } = buildResource({ roomId, author: TEACHER_AUTHOR, draft, status: 'approved', expireAt: room.expire_at });
+      const { resource, error: err } = buildResource({ roomId, author: TEACHER_AUTHOR, draft, status: 'approved', expireAt });
       if (err) throw new Error(err);
       const fileData = await readFile(draft);
       handleUpsert({ ...resource, pending: true });
@@ -228,12 +232,12 @@ export function RoomProvider({ room, role, children }) {
         });
       return resource;
     },
-    [roomId, room.expire_at, handleUpsert, handleRemove, notify],
+    [roomId, expireAt, handleUpsert, handleRemove, notify],
   );
 
   const requestShare = useCallback(
     async (draft, alias) => {
-      const { resource, error: err } = buildResource({ roomId, author: alias, draft, status: 'pending', expireAt: room.expire_at });
+      const { resource, error: err } = buildResource({ roomId, author: alias, draft, status: 'pending', expireAt });
       if (err) throw new Error(err);
       await backend.resources.create(resource, await readFile(draft));
       updateMine((m) => ({
@@ -242,7 +246,7 @@ export function RoomProvider({ room, role, children }) {
       }));
       return resource;
     },
-    [roomId, room.expire_at, updateMine],
+    [roomId, expireAt, updateMine],
   );
 
   /** Aprobación optimista: pasa al muro en el acto; si falla, vuelve a la bandeja. */

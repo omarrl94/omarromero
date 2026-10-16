@@ -9,8 +9,8 @@ rules_version = '2';
 //  · Todo el contenido vive dentro de su sala: no se pueden listar recursos de otras salas.
 //  · El alumnado solo resuelve el PIN de una sala abierta (no se pueden listar PIN) y solo
 //    envía peticiones pendientes mientras la sala está abierta.
-//  · Las salas se cierran solas a las 12 h y todo su contenido caduca a los 60 días (campo
-//    expire_at, preparado para una política TTL de Firestore).
+//  · Las salas se cierran solas a las 12 h y todo su contenido caduca en la fecha que elige el
+//    profesor, como máximo 1 año (campo expire_at, preparado para una política TTL de Firestore).
 // =====================================================================
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -59,13 +59,17 @@ service cloud.firestore {
         && request.resource.data.closes_at is int && request.resource.data.closes_at <= maxClose()
         && request.resource.data.expire_at is timestamp
         && request.resource.data.expire_at > request.time
-        && request.resource.data.expire_at <= request.time + duration.value(61, 'd');
-      // Solo abrir/cerrar; el plazo de borrado (expire_at) no se puede ampliar
+        && request.resource.data.expire_at <= request.time + duration.value(366, 'd');
+      // Abrir/cerrar y cambiar la fecha de borrado (como máximo 1 año desde hoy)
       allow update: if isTeacher()
         && resource.data.teacher_id == request.auth.uid
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['is_active', 'closes_at'])
+        && ('expire_at' in resource.data)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['is_active', 'closes_at', 'expire_at'])
         && request.resource.data.is_active is bool
-        && request.resource.data.closes_at is int && request.resource.data.closes_at <= maxClose();
+        && request.resource.data.closes_at is int && request.resource.data.closes_at <= maxClose()
+        && request.resource.data.expire_at is timestamp
+        && request.resource.data.expire_at > request.time
+        && request.resource.data.expire_at <= request.time + duration.value(366, 'd');
       // Migración única de salas creadas con la versión anterior (sin expire_at): se les asigna el plazo de borrado
       allow update: if isTeacher()
         && resource.data.teacher_id == request.auth.uid
@@ -76,7 +80,7 @@ service cloud.firestore {
         && request.resource.data.closes_at is int && request.resource.data.closes_at <= maxClose()
         && request.resource.data.expire_at is timestamp
         && request.resource.data.expire_at > request.time
-        && request.resource.data.expire_at <= request.time + duration.value(61, 'd');
+        && request.resource.data.expire_at <= request.time + duration.value(366, 'd');
     }
 
     // ----- PIN: el alumnado resuelve UN pin de una sala abierta; no se pueden listar -----
@@ -126,7 +130,7 @@ service cloud.firestore {
       );
       allow update: if isOwner(roomId)
         && valid(request.resource.data)
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'timestamp']);
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'timestamp', 'expire_at']);
       allow delete: if isOwner(roomId);
 
       // Trozos de archivo (base64). Solo se crean en el MISMO lote que su recurso.
@@ -143,6 +147,10 @@ service cloud.firestore {
           && getAfter(resPath()).data.type == 'file'
           && request.resource.data.index < getAfter(resPath()).data.chunks
           && request.resource.data.expire_at == getAfter(resPath()).data.expire_at;
+        // Solo para seguir la fecha de borrado de la sala
+        allow update: if isOwner(roomId)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['expire_at'])
+          && request.resource.data.expire_at == room(roomId).expire_at;
         allow delete: if isOwner(roomId);
       }
     }
@@ -165,6 +173,9 @@ service cloud.firestore {
         && exists(roomPath(roomId))
         && request.resource.data.expire_at == room(roomId).expire_at;
       allow read, delete: if isOwner(roomId);
+      allow update: if isOwner(roomId)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['expire_at'])
+        && request.resource.data.expire_at == room(roomId).expire_at;
     }
   }
 }

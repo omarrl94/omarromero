@@ -13,7 +13,7 @@
  *   pins/{pin}                                  { room_id, name, module, teacher_id, active, closes_at, expire_at }
  *
  * Plazos (ver utils/constants): una sala se cierra sola a las ROOM_OPEN_HOURS horas y TODO su contenido
- * se borra a los RETENTION_DAYS días de su creación (expire_at: apto para una política TTL de Firestore).
+ * se borra en la fecha que elige el profesor (por defecto RETENTION_DAYS días; máximo MAX_RETENTION_DAYS) (expire_at: apto para una política TTL de Firestore).
  */
 import { initializeApp } from 'firebase/app';
 import {
@@ -50,6 +50,7 @@ import {
   writeBatch,
 } from 'firebase/firestore';
 import { isTeacherEmail, ROOM_OPEN_HOURS, RETENTION_DAYS, TEACHER_EMAIL_DOMAINS } from '../utils/constants';
+import { clampExpiry, defaultExpiry } from '../utils/retention';
 import { generatePin, uuid } from '../utils/ids';
 
 const CHUNK_SIZE = 900_000; // caracteres base64 por documento (límite de Firestore: 1 MiB)
@@ -281,8 +282,9 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
   });
 
   const rooms = {
-    create: ({ name, module, teacherId }) =>
+    create: ({ name, module, teacherId, expireAt }) =>
       wrap(async () => {
+        const expire_at = clampExpiry(expireAt ?? defaultExpiry());
         for (let attempt = 0; attempt < 5; attempt++) {
           const pin = generatePin();
           const ref = doc(roomsCol);
@@ -295,7 +297,7 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
             is_active: true,
             created_at: now,
             closes_at: now + ROOM_OPEN_HOURS * HOUR,
-            expire_at: now + RETENTION_DAYS * DAY,
+            expire_at,
           };
           const created = await runTransaction(db, async (tx) => {
             const p = await tx.get(pinRef(pin));
@@ -373,6 +375,32 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
           return next;
         }),
       ),
+
+    /** Cambia la fecha de borrado de la sala y de todo su contenido (máximo MAX_RETENTION_DAYS). */
+    setExpiry: (id, expireAt) =>
+      wrap(async () => {
+        const expire_at = Timestamp.fromMillis(clampExpiry(expireAt));
+        const snap = await getDoc(roomRef(id));
+        if (!snap.exists()) throw new Error('Sala no encontrada.');
+        const room = toRoom(id, snap.data());
+        await updateDoc(roomRef(id), { expire_at });
+        const next = { ...room, expire_at: expire_at.toMillis() };
+        // El PIN, los recursos, sus trozos y las notificaciones llevan el mismo plazo (TTL de Firestore)
+        const p = await getDoc(pinRef(room.pin)).catch(() => null);
+        const refs = p?.exists() && p.data().room_id === id ? [p.ref] : [];
+        const [res, reps] = await Promise.all([getDocs(resCol(id)), getDocs(reportsCol(id))]);
+        res.docs.forEach((d) => {
+          refs.push(d.ref);
+          for (let i = 0; i < (d.data().chunks || 0); i++) refs.push(chunkRef(id, d.id, i));
+        });
+        reps.docs.forEach((d) => refs.push(d.ref));
+        for (let i = 0; i < refs.length; i += 400) {
+          const batch = writeBatch(db);
+          refs.slice(i, i + 400).forEach((ref) => batch.update(ref, { expire_at }));
+          await batch.commit();
+        }
+        return next;
+      }),
 
     remove: (id) => wrap(() => removeRoom(id)),
   };
@@ -495,7 +523,7 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
             (snap) => {
               const d = snap.exists() ? snap.data() : null;
               const open = !!d && d.room_id === roomId && d.active && d.closes_at > Date.now();
-              onRoom?.({ eventType: 'UPDATE', new: { is_active: open, closes_at: d?.closes_at } });
+              onRoom?.({ eventType: 'UPDATE', new: { is_active: open, closes_at: d?.closes_at, expire_at: d ? ms(d.expire_at) : undefined } });
             },
             () => onRoom?.({ eventType: 'UPDATE', new: { is_active: false } }), // sin permiso = sala cerrada
           ),

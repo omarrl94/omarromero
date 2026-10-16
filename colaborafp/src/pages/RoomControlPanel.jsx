@@ -9,6 +9,7 @@ import ResourceCard from '../components/ResourceCard';
 import ReportsPanel from '../components/ReportsPanel';
 import ResourceForm from '../components/ResourceForm';
 import RoomNotice from '../components/RoomNotice';
+import RetentionPicker from '../components/RetentionPicker';
 import RoomQRCode from '../components/RoomQRCode';
 import Spinner from '../components/Spinner';
 import { RoomProvider } from '../context/RoomContext';
@@ -65,6 +66,7 @@ function ControlPanel({ onRoomChange }) {
   const [tab, setTab] = useState('emit');
   const [qrOpen, setQrOpen] = useState(false);
   const [actionError, setActionError] = useState(null);
+  const [expiryOpen, setExpiryOpen] = useState(false);
   useNow(30000); // re-render para reflejar el cierre automático
   const open = isRoomOpen(room);
 
@@ -129,13 +131,29 @@ function ControlPanel({ onRoomChange }) {
             {open ? (
         <p className="mb-4 text-sm text-stone-600 dark:text-stone-400">
           Abierta hasta las <strong>{formatTime(room.closes_at)}</strong> (cierre automático) · Todo su contenido se borrará el{' '}
-          <strong>{formatDay(room.expire_at)}</strong>.
+          <strong>{formatDay(room.expire_at)}</strong>.{' '}
+          <button type="button" className="font-semibold text-brand-700 underline underline-offset-2 hover:text-brand-800 dark:text-brand-300" onClick={() => setExpiryOpen(true)}>
+            Cambiar fecha de borrado
+          </button>
         </p>
       ) : (
         <p className="mb-4 rounded-xl bg-sun-100 px-4 py-3 text-sm font-medium text-sun-900 dark:bg-sun-400/15 dark:text-sun-200">
           La sala está cerrada: el PIN no admite nuevos alumnos ni aportaciones. Puedes reabrirla durante 12 horas más. Su contenido se
-          borrará el {formatDay(room.expire_at)}.
+          borrará el {formatDay(room.expire_at)}.{' '}
+          <button type="button" className="font-semibold underline underline-offset-2" onClick={() => setExpiryOpen(true)}>
+            Cambiar fecha de borrado
+          </button>
         </p>
+      )}
+      {expiryOpen && (
+        <ExpiryModal
+          room={room}
+          onClose={() => setExpiryOpen(false)}
+          onSaved={(next) => {
+            onRoomChange(next);
+            setExpiryOpen(false);
+          }}
+        />
       )}
       <ReportsPanel />
       {(error || actionError) && (
@@ -215,5 +233,37 @@ function ControlPanel({ onRoomChange }) {
         </div>
       </Modal>
     </div>
+  );
+}
+
+function ExpiryModal({ room, onClose, onSaved }) {
+  const [value, setValue] = useState(room.expire_at);
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState(null);
+  const save = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    setErr(null);
+    try {
+      onSaved(await backend.rooms.setExpiry(room.id, value));
+    } catch (e2) {
+      setErr(e2.message);
+      setSaving(false);
+    }
+  };
+  return (
+    <Modal open onClose={onClose} title="Fecha de borrado de la sala" size="md">
+      <form onSubmit={save} className="space-y-4">
+        <RetentionPicker id="panel-expiry" value={value} onChange={setValue} />
+        <p className="text-xs text-stone-600 dark:text-stone-400">
+          Ese día se eliminarán la sala, sus recursos, archivos, aportaciones y notificaciones. Descarga antes lo que quieras conservar.
+        </p>
+        {err && <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">{err}</p>}
+        <div className="flex justify-end gap-2">
+          <button type="button" className="btn-secondary" onClick={onClose}>Cancelar</button>
+          <button type="submit" className="btn-primary" disabled={saving}>{saving ? 'Guardando…' : 'Guardar'}</button>
+        </div>
+      </form>
+    </Modal>
   );
 }

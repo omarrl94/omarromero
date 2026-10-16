@@ -1,6 +1,6 @@
 import LegalLayout, { Dato, List, Section } from '../../components/LegalLayout';
 import { CENTRO } from '../../config/centro';
-import { RETENTION_DAYS, ROOM_OPEN_HOURS } from '../../utils/constants';
+import { MAX_RETENTION_DAYS, RETENTION_DAYS, ROOM_OPEN_HOURS } from '../../utils/constants';
 
 export default function Privacidad() {
   return (
@@ -39,7 +39,7 @@ export default function Privacidad() {
         <List
           items={[
             <>Cada sala se <strong>cierra automáticamente a las {ROOM_OPEN_HOURS} horas</strong> de abrirse (el profesor puede reabrirla).</>,
-            <>La sala y <strong>todo su contenido</strong> (recursos, archivos, aportaciones y notificaciones) <strong>se eliminan automáticamente a los {RETENTION_DAYS} días</strong> de su creación. El profesorado puede borrarlos antes en cualquier momento.</>,
+            <>La sala y <strong>todo su contenido</strong> (recursos, archivos, aportaciones y notificaciones) <strong>se eliminan automáticamente en la fecha que elige el profesor</strong> al crear la sala (por defecto, {RETENTION_DAYS} días; como máximo, {MAX_RETENTION_DAYS} días desde que se fija). El profesorado puede cambiar esa fecha o borrarlo todo antes en cualquier momento.</>,
             <>La cuenta del profesorado se conserva mientras preste servicio en el centro. Puede eliminarla, con todas sus salas, desde «Mis salas → Mi cuenta».</>,
             <>Los datos guardados en tu propio dispositivo (ver apartado 7) permanecen hasta que los borras desde tu navegador.</>,
           ]}

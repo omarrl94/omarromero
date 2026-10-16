@@ -7,7 +7,8 @@ import { useAuth } from '../hooks/useAuth';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { backend } from '../services/backend';
 import { formatDate, formatDay, isRoomOpen } from '../utils/format';
-import { RETENTION_DAYS } from '../utils/constants';
+import RetentionPicker from '../components/RetentionPicker';
+import { defaultExpiry } from '../utils/retention';
 import AccountPanel from '../components/AccountPanel';
 import { formatPin } from '../utils/ids';
 
@@ -17,7 +18,7 @@ export default function TeacherDashboard() {
   const navigate = useNavigate();
   const [rooms, setRooms] = useState(null);
   const [error, setError] = useState(null);
-  const [form, setForm] = useState({ name: '' });
+  const [form, setForm] = useState(() => ({ name: '', expireAt: defaultExpiry() }));
   const [creating, setCreating] = useState(false);
 
   const load = useCallback(() => {
@@ -101,12 +102,13 @@ export default function TeacherDashboard() {
                 value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
               <p id="room-name-help" className="mt-1.5 text-xs text-stone-600 dark:text-stone-400">Indica el curso o grupo y el tema. Válido para cualquier ciclo.</p>
             </div>
+            <RetentionPicker id="room-expiry" value={form.expireAt} onChange={(expireAt) => setForm((f) => ({ ...f, expireAt }))} />
             <button type="submit" className="btn-primary w-full" disabled={creating || !form.name.trim()}>
               <Presentation className="h-4 w-4" />
               {creating ? 'Creando…' : 'Crear sala y generar QR'}
             </button>
             <p className="text-xs leading-relaxed text-stone-600 dark:text-stone-400">
-              La sala se cierra sola a las 12 horas (puedes reabrirla) y su contenido se borra automáticamente a los {RETENTION_DAYS} días.
+              La sala se cierra sola a las 12 horas (puedes reabrirla) y se borra con todo su contenido en la fecha elegida.
             </p>
           </form>
         </section>
