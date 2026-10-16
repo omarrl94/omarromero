@@ -230,10 +230,10 @@ function sharedStore(db){
   return {
     kind:"shared",
     onSettings(cb){db.doc("game/settings").onSnapshot(s=>cb(s.exists?s.data():null),e=>toast("No se pudieron leer los ajustes: "+e.message))},
-    onLog(cb){db.collection("log").orderBy("at","desc").limit(2000).onSnapshot(q=>cb(q.docs.map(d=>({id:d.id,...d.data()}))),e=>toast("No se pudo leer el marcador: "+e.message))},
+    onLog(cb){db.collection("log").onSnapshot(q=>cb(q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>b.at-a.at)),e=>toast("No se pudo leer el marcador: "+e.message))},
     saveSettings(s){return db.doc("game/settings").set(s)},
-    add(e){return db.collection("log").add(e)},
-    remove(id){return db.doc("log/"+id).delete()}
+    async add(e){const ref=await db.collection("log").add(e);return ref&&ref.id},
+    async remove(id){await db.doc("log/"+id).delete(); log=log.filter(x=>x.id!==id); render();}
   };
 }
 async function connect(){
@@ -267,7 +267,9 @@ async function addPoints(chore,pts){
   if(!store) return;
   if(winner(scores())) return toast("La ronda ya terminó. Empiecen una nueva.");
   try{
-    await store.add({who,chore,pts:Number(pts),at:Date.now(),round:settings.round});
+    const e={who,chore,pts:Number(pts),at:Date.now(),round:settings.round};
+    const id=await store.add(e);
+    if(id && !log.some(x=>x.id===id)){ log=[{id,...e},...log]; render(); }
     toast(`+${pts} para ${name(who)} · ${chore}`);
   }catch(e){ toast("No se guardó: "+(e.message||"inténtalo otra vez")); }
 }
