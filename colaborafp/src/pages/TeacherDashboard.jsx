@@ -1,4 +1,4 @@
-import { ArrowRight, DoorClosed, DoorOpen, Plus, Presentation, Trash2 } from 'lucide-react';
+import { ArrowRight, DoorClosed, DoorOpen, Download, Plus, Presentation, Trash2, Upload } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import EmptyState from '../components/EmptyState';
@@ -11,6 +11,8 @@ import RetentionPicker from '../components/RetentionPicker';
 import { defaultExpiry } from '../utils/retention';
 import AccountPanel from '../components/AccountPanel';
 import AdminApprovals from '../components/AdminApprovals';
+import BackupModal from '../components/BackupModal';
+import RestoreModal from '../components/RestoreModal';
 import { formatPin } from '../utils/ids';
 
 export default function TeacherDashboard() {
@@ -21,6 +23,8 @@ export default function TeacherDashboard() {
   const [error, setError] = useState(null);
   const [form, setForm] = useState(() => ({ name: '', expireAt: defaultExpiry() }));
   const [creating, setCreating] = useState(false);
+  const [backupRoom, setBackupRoom] = useState(null);
+  const [restoring, setRestoring] = useState(false);
 
   const load = useCallback(() => {
     backend.rooms.listByTeacher(user.id).then(setRooms).catch((e) => setError(e.message));
@@ -52,7 +56,7 @@ export default function TeacherDashboard() {
   };
 
   const remove = async (room) => {
-    if (!window.confirm(`¿Eliminar la sala «${room.name}» y todos sus recursos? Esta acción no se puede deshacer.`)) return;
+    if (!window.confirm(`¿Eliminar la sala «${room.name}» y todos sus recursos? Esta acción no se puede deshacer.\n\nSi quieres reutilizarla el curso que viene, descarga antes una copia de seguridad.`)) return;
     try {
       await backend.rooms.remove(room.id);
       load();
@@ -112,6 +116,10 @@ export default function TeacherDashboard() {
               La sala se cierra sola a las 12 horas (puedes reabrirla) y se borra con todo su contenido en la fecha elegida.
             </p>
           </form>
+          <button type="button" className="btn-secondary mt-3 w-full" onClick={() => setRestoring(true)}>
+            <Upload className="h-4 w-4" aria-hidden="true" />
+            Restaurar desde una copia
+          </button>
         </section>
         {user.isAdmin && <AdminApprovals />}
         <AccountPanel />
@@ -159,6 +167,9 @@ export default function TeacherDashboard() {
                     <button className="btn-secondary btn-sm" onClick={() => toggleActive(room)} title={isRoomOpen(room) ? 'Cerrar sala' : 'Reabrir sala'} aria-label={`${isRoomOpen(room) ? 'Cerrar' : 'Reabrir'} ${room.name}`}>
                       {isRoomOpen(room) ? <DoorClosed className="h-4 w-4" aria-hidden="true" /> : <DoorOpen className="h-4 w-4" aria-hidden="true" />}
                     </button>
+                    <button className="btn-secondary btn-sm" onClick={() => setBackupRoom(room)} title="Descargar copia de seguridad" aria-label={`Descargar copia de seguridad de ${room.name}`}>
+                      <Download className="h-4 w-4" aria-hidden="true" />
+                    </button>
                     <button className="btn-danger btn-sm" onClick={() => remove(room)} title="Eliminar sala" aria-label={`Eliminar ${room.name}`}>
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -169,6 +180,10 @@ export default function TeacherDashboard() {
           )}
         </section>
       </div>
+      {backupRoom && <BackupModal room={backupRoom} onClose={() => setBackupRoom(null)} />}
+      {restoring && (
+        <RestoreModal teacherId={user.id} onClose={() => setRestoring(false)} onRestored={(room) => navigate(`/profesor/sala/${room.id}`)} />
+      )}
     </div>
   );
 }

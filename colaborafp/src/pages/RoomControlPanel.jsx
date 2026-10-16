@@ -1,4 +1,4 @@
-import { ChevronLeft, DoorClosed, DoorOpen, ExternalLink, Inbox, Maximize2, Megaphone, QrCode, Send, Trash2 } from 'lucide-react';
+import { ChevronLeft, DoorClosed, DoorOpen, Download, ExternalLink, Inbox, Maximize2, Megaphone, QrCode, Send, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import ApprovalInbox from '../components/ApprovalInbox';
@@ -10,6 +10,7 @@ import ReportsPanel from '../components/ReportsPanel';
 import ResourceForm from '../components/ResourceForm';
 import RoomNotice from '../components/RoomNotice';
 import RetentionPicker from '../components/RetentionPicker';
+import BackupModal from '../components/BackupModal';
 import RoomQRCode from '../components/RoomQRCode';
 import Spinner from '../components/Spinner';
 import { RoomProvider } from '../context/RoomContext';
@@ -67,6 +68,7 @@ function ControlPanel({ onRoomChange }) {
   const [qrOpen, setQrOpen] = useState(false);
   const [actionError, setActionError] = useState(null);
   const [expiryOpen, setExpiryOpen] = useState(false);
+  const [backupOpen, setBackupOpen] = useState(false);
   useNow(30000); // re-render para reflejar el cierre automático
   const open = isRoomOpen(room);
 
@@ -121,6 +123,10 @@ function ControlPanel({ onRoomChange }) {
             <ExternalLink className="h-4 w-4" />
             Vista alumno
           </a>
+          <button onClick={() => setBackupOpen(true)} className="btn-secondary btn-sm" title="Descargar copia de seguridad de la sala">
+            <Download className="h-4 w-4" aria-hidden="true" />
+            Copia
+          </button>
           <button onClick={toggleActive} className={open ? 'btn-danger btn-sm' : 'btn-secondary btn-sm'}>
             {open ? <DoorClosed className="h-4 w-4" aria-hidden="true" /> : <DoorOpen className="h-4 w-4" aria-hidden="true" />}
             {open ? 'Cerrar sala' : 'Reabrir'}
@@ -155,6 +161,7 @@ function ControlPanel({ onRoomChange }) {
           }}
         />
       )}
+      {backupOpen && <BackupModal room={room} onClose={() => setBackupOpen(false)} />}
       <ReportsPanel />
       {(error || actionError) && (
         <p className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">{error || actionError}</p>

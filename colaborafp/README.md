@@ -40,6 +40,7 @@ npm run build
 | La sala se **cierra sola a las 12 h**; el alumnado solo aporta con la sala abierta | `closes_at` + reglas |
 | **Borrado automático** de toda sala y su contenido en la fecha que elige el profesor (60 días por defecto, máx. 1 año; `expire_at`, apto para TTL) | panel del profesor + reglas + TTL |
 | Supresión: «Eliminar mi cuenta y mis datos» | `AccountPanel` |
+| Copias de seguridad de una sala (archivo `.colaborafp` en el equipo del profesor) y restauración en una sala nueva | `utils/backup.js` |
 | Canal de **notificación de contenidos** (LSSI art. 16) | botón «Notificar contenido» → panel del profesor |
 | Aceptación de **condiciones de uso** al registrarse y al compartir | registro / «Compartir recurso» |
 | Aviso legal, privacidad, condiciones y declaración de accesibilidad | `/aviso-legal`, `/privacidad`, `/condiciones`, `/accesibilidad` |
