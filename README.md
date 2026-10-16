@@ -125,11 +125,12 @@ en la pestaña Grupos y en sus exportaciones.
 
 ## Ciclos y módulos
 
-Los **ciclos** del centro están en `netlify/lib/catalogo.mjs`:
+Los **ciclos** de serie están en `netlify/lib/catalogo.mjs` (cada uno con su familia profesional). El administrador puede **crear más** desde *Exámenes › Ciclos y módulos* (siglas, nombre, grado y familia); sus cursos son «1.º SIGLAS» y «2.º SIGLAS»:
 
 | Ciclo | Nombre | Grado |
 |---|---|---|
 | SEA | Sistemas Electrotécnicos y Automatizados | GS |
+| SMR | Sistemas Microinformáticos y Redes | GM |
 | DAM | Desarrollo de Aplicaciones Multiplataforma | GS |
 | ASIR | Administración de Sistemas Informáticos en Red | GS |
 | DAW | Desarrollo de Aplicaciones Web | GS |

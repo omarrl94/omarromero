@@ -162,8 +162,9 @@
 
 <!-- Módulos de los ciclos -->
 <dialog id="dModulos">
-  <div class="dhead"><h2>Módulos de tus ciclos</h2><button class="btn ghost sm" data-close>Cerrar</button></div>
+  <div class="dhead"><h2 id="dModTit">Módulos de tus ciclos</h2><button class="btn ghost sm" data-close>Cerrar</button></div>
   <div class="dbody">
+    <div id="ciclosAdmin" hidden></div>
     <p class="muted" style="margin-top:0">Cada examen pertenece a un módulo y cada módulo a un curso (1.º o 2.º). Los alumnos solo ven los módulos del curso en el que se han matriculado. Solo se pueden borrar los módulos sin exámenes.</p>
     <div class="msg bad" id="modErr" hidden></div>
     <div id="listaModulos"></div>
@@ -1156,9 +1157,50 @@ const gruposCiclo = (c) => c.grupos || ["1.º", "2.º"].map((k) => `${k} ${c.nom
 const cursoTxt = (m) => (m?.grupos?.length ? m.grupos.join(" · ") : "Todos los cursos");
 const casillasCurso = (c, marcados) => gruposCiclo(c).map((g) =>
   `<label class="check" style="font-size:13.5px"><input type="checkbox" value="${esc(g)}" ${!marcados?.length || marcados.includes(g) ? "checked" : ""}> ${esc(g)}</label>`).join("");
+/* ── Ciclos (solo administración): crear, cambiar y borrar los creados desde el panel ── */
+async function pintarCiclosAdmin() {
+  const box = $("#ciclosAdmin");
+  box.hidden = !ES_ADMIN; if (!ES_ADMIN) return;
+  $("#dModTit").textContent = "Ciclos y módulos";
+  const d = await api("/api/admin/ciclos");
+  const opsFam = (sel) => d.familias.map((f) => `<option ${f === sel ? "selected" : ""}>${esc(f)}</option>`).join("");
+  const opsGrado = (sel) => d.grados.map((g) => `<option value="${g}" ${g === sel ? "selected" : ""}>${{ GB: "Grado básico", GM: "Grado medio", GS: "Grado superior", CE: "Curso de especialización" }[g]}</option>`).join("");
+  const propios = d.ciclos.filter((c) => c.propio);
+  box.innerHTML = `<div class="card"><h3 style="margin-top:0">Ciclos del centro</h3>
+    <p class="muted" style="margin-top:0">Añade los ciclos que falten. Sus cursos serán «1.º SIGLAS» y «2.º SIGLAS» (el alumnado los elige al registrarse) y después das acceso al profesorado en «Profesores». Los ciclos de serie no se pueden borrar.</p>
+    <form id="fCiclo" class="nuevociclo" novalidate>
+      <div class="row2"><div class="field"><label class="flab" for="ciSiglas">Siglas</label><input type="text" id="ciSiglas" maxlength="20" placeholder="Ej.: SMR"></div>
+        <div class="field"><label class="flab" for="ciGrado">Grado</label><select id="ciGrado">${opsGrado("GM")}</select></div></div>
+      <div class="field"><label class="flab" for="ciDesc">Nombre del ciclo</label><input type="text" id="ciDesc" maxlength="120" placeholder="Ej.: Sistemas Microinformáticos y Redes"></div>
+      <div class="field"><label class="flab" for="ciFam">Familia profesional</label><select id="ciFam">${opsFam("Informática y Comunicaciones")}<option value="__otra">Otra…</option></select></div>
+      <button class="btn sm" type="submit">＋ Crear ciclo</button></form>
+    <table class="t" style="margin-top:12px"><thead><tr><th>Ciclo</th><th>Grado</th><th>Familia</th><th>Módulos</th><th></th></tr></thead><tbody>${d.ciclos.map((c) => `<tr data-ciclo="${esc(c.id)}">
+      <td><b>${esc(c.nombre)}</b> <span class="muted">· ${esc(c.descripcion)}</span></td><td>${esc(c.grado)}</td><td>${esc(c.familia)}</td><td class="num">${c.modulos}</td>
+      <td>${c.propio ? `<div class="acts"><button type="button" class="btn ghost sm" data-editar-ciclo>Cambiar</button><button type="button" class="btn danger sm" data-borrar-ciclo>Borrar</button></div>` : `<span class="muted" style="font-size:12.5px">de serie</span>`}</td></tr>`).join("")}</tbody></table></div>`;
+  const err = (m) => { $("#modErr").textContent = m; $("#modErr").hidden = !m; };
+  const familia = () => { const v = $("#ciFam").value; return v === "__otra" ? (prompt("Nombre de la familia profesional:") || "").trim() : v; };
+  $("#fCiclo").onsubmit = async (ev) => {
+    ev.preventDefault(); err("");
+    try { await api("/api/admin/ciclo", { nombre: $("#ciSiglas").value.trim(), grado: $("#ciGrado").value, descripcion: $("#ciDesc").value.trim(), familia: familia() }); await cargarExamenes(); pintarModulos(); }
+    catch (e) { err(e.message); }
+  };
+  $$("[data-editar-ciclo]", box).forEach((b) => (b.onclick = async () => {
+    const c = d.ciclos.find((x) => x.id === b.closest("tr").dataset.ciclo);
+    const descripcion = prompt("Nombre del ciclo:", c.descripcion); if (descripcion === null) return;
+    const familiaN = prompt("Familia profesional:", c.familia); if (familiaN === null) return;
+    const grado = prompt("Grado (GB, GM, GS o CE):", c.grado); if (grado === null) return;
+    try { await api("/api/admin/ciclo/cambiar", { id: c.id, descripcion, familia: familiaN, grado: grado.trim().toUpperCase() }); await cargarExamenes(); pintarModulos(); } catch (e) { err(e.message); }
+  }));
+  $$("[data-borrar-ciclo]", box).forEach((b) => (b.onclick = async () => {
+    if (!confirm("¿Borrar este ciclo? Solo se puede si no tiene módulos, exámenes ni cuentas.")) return;
+    try { await api("/api/admin/ciclo/borrar", { id: b.closest("tr").dataset.ciclo }); await cargarExamenes(); pintarModulos(); } catch (e) { err(e.message); }
+  }));
+}
+
 function pintarModulos() {
+  pintarCiclosAdmin().catch((e) => { $("#modErr").textContent = e.message; $("#modErr").hidden = false; });
   $("#listaModulos").innerHTML = CATALOGO.map((c) => `<div class="card modcard" data-ciclo-mod="${esc(c.id)}">
-    <b>${esc(c.nombre)}</b> <span class="muted">· ${esc(c.descripcion || "")} (${esc(c.grado || "")})</span>
+    <b>${esc(c.nombre)}</b> <span class="muted">· ${esc(c.descripcion || "")} (${esc(c.grado || "")})${c.familia ? ` · ${esc(c.familia)}` : ""}</span>
     ${c.modulos.length ? `<table class="t modt"><thead><tr><th>Módulo</th><th>Curso</th><th></th></tr></thead><tbody>${c.modulos.map((m) => `<tr data-mod="${esc(m.id)}">
       <td><div class="modnom"><b>${esc(m.nombre)}</b><button type="button" class="link" data-renombrar-mod title="Cambiar el nombre del módulo">✎ renombrar</button></div></td>
       <td><div class="cursos">${casillasCurso(c, m.grupos)}</div></td>
@@ -2696,7 +2738,7 @@ $("#hQuitar").onclick = async () => { $("#hDesde").value = ""; $("#hHasta").valu
   if (yo.rol !== "profesor") { location.replace("/panel/"); return; }
   $(".tag").textContent = yo.admin ? "Admin" : "Profesor";
   if (yo.admin) {
-    $("[data-tab=vProfes]").hidden = false; $("[data-tab=vCurso]").hidden = false; $("[data-tab=vCumple]").hidden = false;
+    $("[data-tab=vProfes]").hidden = false; $("[data-tab=vCurso]").hidden = false; $("[data-tab=vCumple]").hidden = false; $("#verModulos").textContent = "Ciclos y módulos";
     api("/api/admin/profesores").then(({ profesores }) => { const n = profesores.filter((p) => !p.aprobado).length; $("#nPend").hidden = !n; $("#nPend").textContent = n; }).catch(() => {});
   } else {
     $("#subPanel").innerHTML = `Tus ciclos: <b>${esc(CATALOGO_NOMBRES(yo.ciclos))}</b> · crea y publica exámenes, revisa entregas y gestiona tus grupos.`;

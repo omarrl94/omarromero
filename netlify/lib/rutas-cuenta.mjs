@@ -367,7 +367,7 @@ async function catalogoPublico() {
   return json({ grupos: GRUPOS(), dominio: dominiosPermitidos()[0] || "", centro: env("NOMBRE_CENTRO", "C.F.P. José Ramón Otero"), contacto: env("PRIVACIDAD_CONTACTO"), dobleFactor: dobleFactorActivo(),
     // Aviso legal (Ley 34/2002, art. 10): titular de la plataforma.
     legal: { titular: env("TITULAR_NOMBRE", env("NOMBRE_CENTRO", "C.F.P. José Ramón Otero")), nif: env("TITULAR_NIF"), domicilio: env("TITULAR_DOMICILIO"), email: env("TITULAR_EMAIL") },
-    ciclos: CATALOGO.map(({ id, nombre, grado, descripcion }) => ({ id, nombre, grado, descripcion })) });
+    ciclos: CATALOGO.map(({ id, nombre, grado, descripcion, familia }) => ({ id, nombre, grado, descripcion, familia: familia || "" })) });
 }
 
 /**

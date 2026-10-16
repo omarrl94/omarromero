@@ -3,7 +3,7 @@ import { almacen, leerTodas } from "./almacen.mjs";
 import { json, fallo, leerCuerpo, texto } from "./http.mjs";
 import { requiereAdmin, esAdmin, rolDe, EMAIL_RE, emailPermitido, hashPassword, validarPassword, nuevoCodigo } from "./auth.mjs";
 import { randomInt } from "node:crypto";
-import { CATALOGO } from "./catalogo.mjs";
+import { CATALOGO, FAMILIAS, GRADOS, crearCiclo, editarCiclo, borrarCiclo, cicloDe } from "./catalogo.mjs";
 import { enviarCorreo, proveedorConfigurado } from "./correo.mjs";
 import { correoAviso, correoCodigo } from "./plantillas.mjs";
 import { cursoAcademico, estadoCurso, cerrarCurso, fechaCierre, grupoSiguiente, borrarDatosAlumnos } from "./curso.mjs";
@@ -69,7 +69,7 @@ async function profesores(req) {
   await requiereAdmin(req);
   const lista = (await leerTodas(usuarios(), await usuarios().list())).filter((u) => u.rol === "profesor" && !esAdmin(u.email));
   return json({
-    ciclos: CATALOGO.map(({ id, nombre, grado, descripcion }) => ({ id, nombre, grado, descripcion })),
+    ciclos: CATALOGO.map(({ id, nombre, grado, descripcion, familia }) => ({ id, nombre, grado, descripcion, familia: familia || "" })),
     profesores: lista
       .map((u) => ({ email: u.email, nombre: u.nombre, apellidos: u.apellidos, ciclos: u.ciclos || [], aprobado: !!u.aprobado, verificado: !!u.verificado, creado: u.creado, formacionIA: u.formacionIA?.fecha || null }))
       .sort((a, b) => Number(a.aprobado) - Number(b.aprobado) || `${a.apellidos} ${a.nombre}`.localeCompare(`${b.apellidos} ${b.nombre}`, "es")),
@@ -258,7 +258,65 @@ async function registroIAAdmin(req) {
   return json({ entradas: await leerRegistroIA(300) });
 }
 
+/* ── Ciclos: el administrador crea los que falten (familia, grado, siglas y nombre) ── */
+function datosCiclo(b, previo = {}) {
+  const grado = b.grado === undefined ? previo.grado : String(b.grado);
+  if (!GRADOS.includes(grado)) fallo(400, "Elige el grado: GB (básico), GM (medio), GS (superior) o CE (curso de especialización)");
+  const familia = b.familia === undefined ? previo.familia : texto(b.familia, 80);
+  if (!familia || familia.length < 3) fallo(400, "Elige o escribe la familia profesional");
+  const descripcion = b.descripcion === undefined ? previo.descripcion : texto(b.descripcion, 120);
+  if (!descripcion || descripcion.length < 4) fallo(400, "Escribe el nombre completo del ciclo");
+  return { grado, familia, descripcion };
+}
+
+async function ciclos(req) {
+  await requiereAdmin(req);
+  return json({ familias: [...new Set([...FAMILIAS, ...CATALOGO.map((c) => c.familia).filter(Boolean)])], grados: GRADOS,
+    ciclos: CATALOGO.map(({ id, nombre, grado, descripcion, familia, propio, modulos }) => ({ id, nombre, grado, descripcion, familia: familia || "", propio: !!propio, modulos: modulos.length })) });
+}
+
+async function nuevoCiclo(req) {
+  const yo = await requiereAdmin(req);
+  const b = await leerCuerpo(req);
+  const nombre = texto(b.nombre, 20);
+  if (!/^[\p{L}0-9][\p{L}0-9 .()-]{1,19}$/u.test(nombre)) fallo(400, "Escribe las siglas del ciclo (p. ej. SMR), de 2 a 20 letras");
+  const c = await crearCiclo({ nombre, ...datosCiclo(b) });
+  if (c.repetido) fallo(409, `Ya existe un ciclo «${nombre}»`);
+  await registrar({ por: yo, accion: "ciclo creado", sobre: { tipo: "ciclo", id: c.id, titulo: `${c.nombre} · ${c.descripcion}`, cicloId: c.id }, despues: c });
+  return json({ ok: true, ciclo: c });
+}
+
+async function cambiarCiclo(req) {
+  const yo = await requiereAdmin(req);
+  const b = await leerCuerpo(req);
+  const c0 = CATALOGO.find((c) => c.id === b.id);
+  if (!c0?.propio) fallo(404, "Solo se pueden cambiar los ciclos creados desde el panel");
+  const c = await editarCiclo(c0.id, datosCiclo(b, c0));
+  await registrar({ por: yo, accion: "ciclo cambiado", sobre: { tipo: "ciclo", id: c.id, titulo: c.nombre, cicloId: c.id }, despues: c });
+  return json({ ok: true, ciclo: c });
+}
+
+async function quitarCiclo(req) {
+  const yo = await requiereAdmin(req);
+  const { id } = await leerCuerpo(req);
+  const c = CATALOGO.find((x) => x.id === id);
+  if (!c?.propio) fallo(404, "Solo se pueden borrar los ciclos creados desde el panel");
+  if (c.modulos.length) fallo(409, "Este ciclo tiene módulos: bórralos antes");
+  const alumnos = (await leerTodas(usuarios(), await usuarios().list())).filter((u) => cicloDe(u) === id || (u.ciclos || []).includes(id));
+  if (alumnos.length) fallo(409, `Hay ${alumnos.length} cuentas en este ciclo (alumnado o profesorado): cámbialas antes`);
+  const conExamenes = (await leerTodas(almacen("examenes"), await almacen("examenes").list())).some((e) => e.cicloId === id)
+    || (await leerTodas(almacen("trabajos"), await almacen("trabajos").list())).some((t) => t.cicloId === id);
+  if (conExamenes) fallo(409, "Este ciclo tiene exámenes o trabajos");
+  await borrarCiclo(id);
+  await registrar({ por: yo, accion: "ciclo borrado", sobre: { tipo: "ciclo", id, titulo: c.nombre } });
+  return json({ ok: true });
+}
+
 export default {
+  "GET /api/admin/ciclos": ciclos,
+  "POST /api/admin/ciclo": nuevoCiclo,
+  "POST /api/admin/ciclo/cambiar": cambiarCiclo,
+  "POST /api/admin/ciclo/borrar": quitarCiclo,
   "GET /api/admin/cumplimiento": cumplimiento,
   "POST /api/admin/copia": copiaAhora,
   "POST /api/admin/copia/restaurar": restaurarCopia,
