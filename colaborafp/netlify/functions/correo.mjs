@@ -6,7 +6,8 @@
  * del centro mediante Microsoft Graph (OAuth de aplicación; no usa SMTP ni contraseñas).
  *
  * Variables de entorno (Netlify → Project configuration → Environment variables):
- *   FIREBASE_SERVICE_ACCOUNT  JSON de la cuenta de servicio de Firebase (completo, en una línea)
+ *   FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY   datos de la cuenta de servicio
+ *     (o FIREBASE_SERVICE_ACCOUNT con el JSON completo)
  *   MS_TENANT_ID, MS_CLIENT_ID, MS_CLIENT_SECRET   registro de aplicación en Microsoft Entra
  *   MAIL_FROM                 buzón remitente del centro
  *   APP_URL                   https://colaborafp.netlify.app (opcional: vuelve a la web tras el enlace)
@@ -32,13 +33,24 @@ const isTeacherEmail = (email) => {
   const e = String(email || '').trim().toLowerCase();
   return EXTRA.includes(e) || DOMAINS.some((d) => e.endsWith('@' + d));
 };
-const configured = () => !!(env.FIREBASE_SERVICE_ACCOUNT || env.FIREBASE_AUTH_EMULATOR_HOST) && !!(env.MS_TENANT_ID && env.MS_CLIENT_ID && env.MS_CLIENT_SECRET && env.MAIL_FROM);
+const configured = () => !!(serviceAccount() || env.FIREBASE_AUTH_EMULATOR_HOST) && !!(env.MS_TENANT_ID && env.MS_CLIENT_ID && env.MS_CLIENT_SECRET && env.MAIL_FROM);
 const json = (status, body) => new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } });
+
+/** Credenciales de la cuenta de servicio: tres variables sueltas (recomendado) o el JSON completo. */
+function serviceAccount() {
+  if (env.FIREBASE_PRIVATE_KEY && env.FIREBASE_CLIENT_EMAIL && env.FIREBASE_PROJECT_ID)
+    return { projectId: env.FIREBASE_PROJECT_ID, clientEmail: env.FIREBASE_CLIENT_EMAIL, privateKey: env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n') };
+  if (env.FIREBASE_SERVICE_ACCOUNT) {
+    const sa = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT);
+    return { projectId: sa.project_id, clientEmail: sa.client_email, privateKey: sa.private_key };
+  }
+  return null;
+}
 
 function firebase() {
   if (!getApps().length) {
-    const sa = env.FIREBASE_SERVICE_ACCOUNT ? JSON.parse(env.FIREBASE_SERVICE_ACCOUNT) : null;
-    initializeApp(sa ? { credential: cert(sa), projectId: sa.project_id } : { projectId: env.FIREBASE_PROJECT_ID });
+    const sa = serviceAccount();
+    initializeApp(sa ? { credential: cert(sa), projectId: sa.projectId } : { projectId: env.FIREBASE_PROJECT_ID });
   }
   return { auth: getAuth(), db: getFirestore() };
 }
