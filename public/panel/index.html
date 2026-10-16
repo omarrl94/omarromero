@@ -22,6 +22,7 @@
   <p class="sub" id="sub"></p>
   <div id="vista"><p class="loading">Cargando…</p></div>
   <p class="foot" id="pie">Si tienes algún problema con tu cuenta o un examen, avisa a tu profesor.</p>
+  <p class="foot"><a href="/api/cuenta/mis-datos" download>⬇ Descargar mis datos</a> · <a href="/privacidad/#derechos">Mis derechos de protección de datos</a></p>
   <dialog id="dGrupo">
     <div class="dhead"><h2>Cambiar de grupo</h2><button class="btn ghost sm" data-close>Cerrar</button></div>
     <form class="dbody" id="fMiGrupo">
@@ -154,7 +155,7 @@ function tarjetasTrabajos(lista) {
       <a class="btn" href="${enlace(e)}">${e.enCurso ? "Continuar" : "Empezar"}</a></article>` : `
     <article class="excard"><div class="info">
       <h3>${esc(e.titulo)}</h3><div class="muted" style="font-size:14px">Entregado el ${esc(e.fecha)}</div>
-      <div class="meta"><span class="chip ok">Entregado</span>${e.intentosAlumno.hechos > 1 || e.puedeRepetir ? `<span class="chip gray">${plural(e.intentosAlumno.hechos, "intento", "intentos")}${e.intentosAlumno.permitidos ? ` de ${e.intentosAlumno.permitidos}` : ""}</span>` : ""}${e.revisada ? `<span class="chip ok">Revisado por el profesor</span>` : e.nOpen ? `<span class="chip gray">Pendiente de revisión</span>` : ""}</div></div>
+      <div class="meta"><span class="chip ok">Entregado</span>${e.intentosAlumno.hechos > 1 || e.puedeRepetir ? `<span class="chip gray">${plural(e.intentosAlumno.hechos, "intento", "intentos")}${e.intentosAlumno.permitidos ? ` de ${e.intentosAlumno.permitidos}` : ""}</span>` : ""}${e.validada ? `<span class="chip ok">Nota validada</span>` : `<span class="chip s" title="La nota es provisional hasta que la valide tu profesor">⏳ Nota provisional</span>`}</div></div>
       <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><div class="nota">${fmt(e.nota)}<small> /10</small></div>
       <a class="btn ghost" href="${enlace(e)}&ver=1">${e.mostrarSoluciones ? "Ver corrección" : "Ver entrega"}</a>${e.puedeRepetir ? `<a class="btn" href="${enlace(e)}" title="${e.intentosAlumno.quedan == null ? "Intentos sin límite" : plural(e.intentosAlumno.quedan, "intento restante", "intentos restantes")}">Repetir</a>` : ""}</div></article>`).join("")}</div>${tarjetasTrabajos(trabMod)}`;
 })().catch((e) => { $("#vista").innerHTML = `<div class="msg bad">${esc(e.message)}</div>`; });

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Códigos personales · FP José Ramón Otero</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/app.css">
+<style>
+  .cods{width:100%;border-collapse:collapse;margin-top:12px}
+  .cods th,.cods td{border-bottom:1px solid var(--line,#dde);padding:8px 10px;text-align:left}
+  .cods td.c{font:700 18px/1 ui-monospace,Menlo,monospace;letter-spacing:.12em}
+  @media print{.noprint{display:none!important}.wrap{max-width:none}}
+</style>
+</head>
+<body>
+<main class="wrap" id="principal">
+  <h1 id="titulo">Códigos personales</h1>
+  <p class="muted">Examen a distancia. <b>Protocolo:</b> pide a cada alumno que encienda la cámara y muestre su DNI (sin que nadie lo grabe ni le haga captura). Cuando hayas comprobado que es quien dice ser, dile <b>solo a él</b> su código, por el chat privado o de palabra. Cada código vale solo para este examen y este alumno.</p>
+  <p class="noprint"><button class="btn" onclick="print()">Imprimir</button> <label class="check" style="display:inline-flex;margin-left:12px"><input type="checkbox" id="ocultar"> Ocultar los códigos en pantalla (pasa el ratón para verlos)</label></p>
+  <div id="vista"><p class="loading">Cargando…</p></div>
+</main>
+<script src="/assets/app.js"></script>
+<script>
+(async () => {
+  const id = new URLSearchParams(location.search).get("id");
+  const d = await api(`/api/profesor/examen/codigos?id=${encodeURIComponent(id)}`);
+  $("#titulo").textContent = `Códigos personales · ${d.examen.titulo}`;
+  if (!d.examen.identidad) $("#vista").insertAdjacentHTML("beforebegin", `<div class="msg info">Este examen todavía no pide el código personal: actívalo en «Horario y evaluación».</div>`);
+  $("#vista").innerHTML = d.alumnos.length ? `<table class="cods"><thead><tr><th>Grupo</th><th>Alumno/a</th><th>Código</th><th>Identidad comprobada</th></tr></thead><tbody>${
+    d.alumnos.map((a) => `<tr><td>${esc(a.grupo)}</td><td><b>${esc(a.apellidos)}, ${esc(a.nombre)}</b><br><small class="muted">${esc(a.email)}</small></td><td class="c" tabindex="0">${esc(a.codigo)}</td><td>☐</td></tr>`).join("")}</tbody></table>`
+    : `<div class="empty">No hay alumnado que pueda hacer este examen.</div>`;
+  $("#ocultar").onchange = () => $$(".cods td.c").forEach((td) => (td.style.filter = $("#ocultar").checked ? "blur(6px)" : ""));
+  $$(".cods td.c").forEach((td) => { td.onmouseenter = td.onfocus = () => (td.style.filter = ""); td.onmouseleave = td.onblur = () => { if ($("#ocultar").checked) td.style.filter = "blur(6px)"; }; });
+})().catch((e) => { $("#vista").innerHTML = `<div class="msg bad">${esc(e.message)}</div>`; });
+</script>
+</body>
+</html>

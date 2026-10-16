@@ -174,11 +174,23 @@ export function validarExamen(e) {
     ventana: ventanaValida(e.ventana),
     duracion: duracionValida(e.duracion),
     codigo: codigoValido(e.codigo),
+    // Examen a distancia: cada alumno necesita su código personal (se lo da el profesor tras comprobar su identidad).
+    identidad: e.identidad === true,
+    // Resultados de aprendizaje que evalúa (RA1, RA2…) y si las preguntas se prepararon con ayuda de la IA.
+    ra: raValidos(e.ra),
+    conIA: e.conIA === true,
     partes: { mc: opc(e.partes?.mc, 80), open: opc(e.partes?.open, 80), num: opc(e.partes?.num, 80) },
     bloques, mc, open, num,
   };
   comprobarVariablesUsadas(examen);
   return examen;
+}
+
+/** Resultados de aprendizaje: «RA1», «RA2.b»… (máx. 12). Acepta lista o texto «RA1, RA3». */
+export function raValidos(v) {
+  const l = (Array.isArray(v) ? v : String(v ?? "").split(/[,;\s]+/)).map((x) => String(x).trim().toUpperCase().replace(/^(\d)/, "RA$1")).filter(Boolean);
+  for (const x of l) if (!/^RA\d{1,2}(\.[A-Z0-9]{1,3})?$/.test(x)) fallo(400, `«${x}» no es un resultado de aprendizaje válido (escribe RA1, RA2…)`);
+  return [...new Set(l)].slice(0, 12);
 }
 
 export const aleatorioValido = (a) => ({ preguntas: a?.preguntas === true, opciones: a?.opciones === true, valores: a?.valores === true });
@@ -200,7 +212,8 @@ export const enunciado = (ex) => ({
   intentos: ex.intentos ?? 1, calificacion: ex.calificacion || "mejor",
   herramientas: herramientasValidas(ex.herramientas),
   ...(ex.defensaDe ? { trabajo: ex.defensaDe.trabajo } : {}),
-  ventana: ex.ventana || { desde: "", hasta: "" }, duracion: ex.duracion || 0, requiereCodigo: !!ex.codigo,
+  ventana: ex.ventana || { desde: "", hasta: "" }, duracion: ex.duracion || 0, requiereCodigo: !!ex.codigo && !ex.identidad,
+  requiereIdentidad: !!ex.identidad, conIA: !!ex.conIA || !!ex.defensaDe,
   confianza: !!ex.confianza, confianzaTabla: ex.confianza ? CONFIANZA : null,
   partes: ex.partes || {}, bloques: ex.bloques || [],
   mc: ex.mc.map(({ t, o, puntos, bloque }) => ({ t, o, puntos: puntos ?? 1, bloque: bloque || "" })),
@@ -220,6 +233,7 @@ export const resumen = (ex) => ({
   herramientas: herramientasValidas(ex.herramientas),
   aleatorio: aleatorioValido(ex.aleatorio), nVariables: (ex.variables || []).length,
   ventana: ex.ventana || { desde: "", hasta: "" }, duracion: ex.duracion || 0, codigo: ex.codigo || "",
+  identidad: !!ex.identidad, ra: ex.ra || [], conIA: !!ex.conIA,
   creado: ex.creado, actualizado: ex.actualizado, autor: ex.autor?.nombre || "",
 });
 

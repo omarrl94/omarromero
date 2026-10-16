@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Privacidad y uso de la IA · FP José Ramón Otero</title>
+<meta name="description" content="Aviso de privacidad, uso de la inteligencia artificial, aviso legal y accesibilidad de la plataforma de exámenes.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/app.css">
+<style>
+  .legal{max-width:820px}
+  .legal h2{margin:30px 0 8px}
+  .legal h3{margin:18px 0 6px;font-size:16px}
+  .legal p,.legal li{line-height:1.6}
+  .legal table{width:100%;border-collapse:collapse;font-size:14px;margin:8px 0}
+  .legal th,.legal td{border-bottom:1px solid var(--line,#e2e5ea);padding:7px 8px;text-align:left;vertical-align:top}
+  .legal .indice{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:14px}
+  [data-dato]:empty::before{content:"(pendiente de completar por el centro)";color:var(--bad,#b8382b)}
+</style>
+</head>
+<body>
+<div class="topbar"></div>
+<main class="wrap legal" id="principal">
+  <p><a href="/" class="back">← Volver a la plataforma</a></p>
+  <h1>Privacidad y uso de la inteligencia artificial</h1>
+  <p class="muted">Versión 2026-10 · Plataforma de exámenes de <span data-dato="centro"></span>.</p>
+  <nav class="indice" aria-label="En esta página"><a href="#responsable">Responsable</a><a href="#datos">Qué datos</a><a href="#para-que">Para qué</a><a href="#ia">Inteligencia artificial</a><a href="#quien">Quién los trata</a><a href="#cuanto">Cuánto tiempo</a><a href="#seguridad">Seguridad</a><a href="#derechos">Tus derechos</a><a href="#cookies">Cookies</a><a href="#aviso-legal">Aviso legal</a><a href="#accesibilidad">Accesibilidad</a></nav>
+
+  <h2 id="responsable">1. Responsable del tratamiento</h2>
+  <p><b><span data-dato="centro"></span></b>. Contacto para cualquier cuestión de protección de datos (también con su delegado de protección de datos): <b><span data-dato="contacto"></span></b>.</p>
+
+  <h2 id="datos">2. Qué datos tratamos</h2>
+  <ul>
+    <li><b>Cuenta</b>: nombre y apellidos, correo electrónico, grupo (curso y ciclo) y contraseña (guardada cifrada; nadie puede leerla).</li>
+    <li><b>Evaluación</b>: tus respuestas, los archivos de tus trabajos, las notas, los comentarios del profesor, el tiempo que tardas y las incidencias del examen (por ejemplo, si sales de la ventana en modo seguro).</li>
+    <li><b>Adaptaciones</b> (solo si el centro te las ha reconocido): tiempo extra o examen sin modo seguro, y una nota interna para el profesorado.</li>
+    <li><b>No usamos</b> cámara, micrófono, ubicación, huella ni reconocimiento facial. La propia web los tiene bloqueados.</li>
+  </ul>
+
+  <h2 id="para-que">3. Para qué y con qué base legal</h2>
+  <p>Para <b>evaluar tu aprendizaje</b> en los módulos de Formación Profesional y comunicarte tus resultados. Es parte de la función educativa del centro: misión realizada en interés público (RGPD, art. 6.1.e) y Ley Orgánica 2/2006 de Educación, disposición adicional 23.ª. Por eso <b>no necesitamos tu consentimiento</b>; te pedimos que leas este aviso para que sepas cómo se tratan tus datos. No se toman decisiones solo automatizadas: la nota la decide siempre tu profesor.</p>
+
+  <h2 id="ia">4. Uso de la inteligencia artificial</h2>
+  <p>Algunas herramientas del profesorado usan IA (Google Gemini, mediante su <b>API de pago</b>, en la que Google no usa los datos para entrenar ni mejorar sus productos):</p>
+  <table>
+    <thead><tr><th>Para qué la usa el profesor</th><th>Qué recibe la IA</th><th>Quién decide</th></tr></thead>
+    <tbody>
+      <tr><td>Preparar preguntas de examen a partir del material del tema</td><td>El material del profesor (no hay datos del alumnado)</td><td>El profesor revisa y publica las preguntas. En el examen se indica «preparado con ayuda de la IA».</td></tr>
+      <tr><td>Proponer la corrección de respuestas escritas</td><td>La pregunta, la solución y tus respuestas, <b>con un número en lugar de tu nombre</b> y sin correos, DNI ni teléfonos</td><td>El profesor ve la propuesta y su motivo, y <b>pone él la nota</b>. Queda registrado si aceptó la propuesta.</td></tr>
+      <tr><td>Preparar las preguntas de la defensa de tu trabajo</td><td>El texto de tus archivos <b>sin tu nombre</b>, sin correos, DNI ni teléfonos, y con los archivos renombrados</td><td>El profesor revisa las preguntas antes de enviártelas y corrige tu defensa.</td></tr>
+    </tbody>
+  </table>
+  <p><b>Tú no hablas nunca con la IA</b> y la IA no ve tu cuenta: solo la usa el profesorado, que es mayor de edad y ha recibido pautas de uso responsable. La plataforma no usa IA para vigilarte, reconocer emociones ni identificarte. Cada uso de la IA queda anotado (quién, cuándo y para qué, sin el contenido).</p>
+
+  <h2 id="quien">5. Quién trata los datos (encargados) y dónde</h2>
+  <ul>
+    <li><b>Netlify, Inc.</b> — alojamiento de la web y de los datos. Tiene contrato de encargo del tratamiento con garantías del RGPD.</li>
+    <li><b>Google</b> (Gemini API de pago) — solo los textos seudonimizados del apartado 4.</li>
+    <li>El proveedor de <b>correo electrónico</b> del centro, para enviarte códigos y correcciones.</li>
+  </ul>
+  <p>Netlify y Google pueden tratar datos en Estados Unidos. Ambos están adheridos al <b>Marco de Privacidad de Datos UE-EE. UU.</b> (Decisión (UE) 2023/1795), que permite esas transferencias con garantías. No se ceden datos a terceros salvo obligación legal (por ejemplo, a la Administración educativa).</p>
+
+  <h2 id="cuanto">6. Cuánto tiempo se guardan</h2>
+  <p>Durante el curso y <b>hasta 6 meses después del 30 de junio</b> del curso en que se hizo cada prueba (plazo de custodia de los instrumentos de evaluación y de las reclamaciones). Si hay una reclamación o recurso abierto, hasta que se resuelva. Pasado el plazo, se borran solos. Las notas oficiales se pasan a la aplicación de la Administración educativa (Raíces), que tiene su propio régimen.</p>
+  <p>Si se anula o se borra una entrega (por ejemplo, al reabrir un examen), no desaparece del todo: se guarda una copia hasta el final de ese plazo, para poder atender revisiones. Las copias de seguridad se guardan 30 días.</p>
+
+  <h2 id="seguridad">7. Seguridad</h2>
+  <p>Conexión cifrada (HTTPS), contraseñas cifradas, sesión que caduca a las 12 horas, bloqueo tras varios intentos fallidos, verificación en dos pasos para el profesorado, registro de todos los cambios de notas y copias de seguridad automáticas cada hora.</p>
+
+  <h2 id="derechos">8. Tus derechos</h2>
+  <p>Puedes pedir <b>acceso</b> a tus datos, su <b>rectificación</b>, su <b>supresión</b> (cuando ya no haga falta guardarlos), la <b>limitación</b> del tratamiento, <b>oponerte</b> a él y la <b>portabilidad</b>. Desde tu panel, botón <b>«Descargar mis datos»</b>, tienes una copia de todo lo que la plataforma guarda sobre ti. Para lo demás, escribe a <b><span data-dato="contacto"></span></b>. Si no estás de acuerdo con la respuesta, puedes reclamar ante la <a href="https://www.aepd.es" rel="noopener">Agencia Española de Protección de Datos</a>.</p>
+  <p>Para pedir la <b>revisión de una nota</b>, usa el botón «Solicitar revisión» en la corrección del examen; queda registrado y tu profesor te responde por la plataforma. Esto no sustituye a la reclamación formal ante el centro.</p>
+
+  <h2 id="cookies">9. Cookies</h2>
+  <p>Solo usamos cookies <b>técnicas</b>, necesarias para que funcione (exentas de consentimiento, Ley 34/2002, art. 22.2): la de la sesión (12 horas) y, si el profesorado lo marca, la de «navegador de confianza» de la verificación en dos pasos (30 días). No hay cookies de publicidad ni de analítica.</p>
+
+  <h2 id="aviso-legal">10. Aviso legal</h2>
+  <p>Titular de la plataforma: <b><span data-dato="titular"></span></b>. NIF: <span data-dato="nif"></span>. Domicilio: <span data-dato="domicilio"></span>. Correo: <span data-dato="email"></span>.</p>
+  <p>La plataforma es una herramienta complementaria de evaluación continua. Los documentos oficiales de evaluación (actas, expedientes) son los de la Administración educativa.</p>
+
+  <h2 id="accesibilidad">11. Accesibilidad</h2>
+  <p>Queremos que la plataforma se pueda usar con teclado, lector de pantalla, ampliación y alto contraste, siguiendo las pautas <b>WCAG 2.1 nivel AA</b> (norma UNE-EN 301549). Las páginas tienen enlace para saltar al contenido, foco visible, etiquetas en los formularios y respetan la preferencia de «reducir movimiento». Se ha revisado con la herramienta automática axe-core. Limitaciones conocidas: las figuras de algunos ejercicios no tienen descripción textual completa; si la necesitas, pide al profesor una versión adaptada o la adaptación «sin modo seguro» para usar tus propias herramientas. Si encuentras una barrera, escribe a <b><span data-dato="contacto"></span></b> y te responderemos en un plazo máximo de 20 días hábiles.</p>
+</main>
+<script src="/assets/app.js"></script>
+<script>
+fetch("/api/cuenta/grupos").then((r) => r.json()).then((d) => {
+  const L = d.legal || {};
+  const datos = { centro: d.centro || "", contacto: d.contacto || "", titular: L.titular || "", nif: L.nif || "", domicilio: L.domicilio || "", email: L.email || d.contacto || "" };
+  document.querySelectorAll("[data-dato]").forEach((el) => (el.textContent = datos[el.dataset.dato] || ""));
+}).catch(() => {});
+</script>
+</body>
+</html>

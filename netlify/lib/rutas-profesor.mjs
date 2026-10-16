@@ -5,19 +5,21 @@
 import { almacen, leerTodas } from "./almacen.mjs";
 import { json, fallo, leerCuerpo, texto } from "./http.mjs";
 import { requiereProfesor, esAdmin, rolDe, ciclosDe, gestionaCiclo, gestionaExamen } from "./auth.mjs";
-import { notasTrabajos } from "./rutas-trabajos.mjs";
-import { todosLosExamenes, obtenerExamen, validarExamen, resumen, intentosValidos, herramientasValidas, HERRAMIENTAS, aleatorioValido } from "./examenes.mjs";
+import { notasTrabajos, trabajosDeAlumno } from "./rutas-trabajos.mjs";
+import { todosLosExamenes, obtenerExamen, validarExamen, resumen, intentosValidos, herramientasValidas, HERRAMIENTAS, aleatorioValido, raValidos } from "./examenes.mjs";
 import { versionExamen, semillaDe, comprobarFormulas, esAleatorio, comprobarPropuesta, aplicarPropuestas } from "./variantes.mjs";
 import { secreto } from "./auth.mjs";
-import { ventanaValida, duracionValida, codigoValido, adaptacionValida, plazo } from "./plazos.mjs";
+import { ventanaValida, duracionValida, codigoValido, adaptacionValida, plazo, codigoPersonal } from "./plazos.mjs";
+import { registrar, conservar, conservarYBorrar, registrarIA, seudonimizar, leerRegistro, conservadasDe } from "./registro.mjs";
 import {
   claveEntrega, vistaEntrega, partesDe, historialDe, intentosHechos, intentosPermitidos,
   consolidar, conIntento, validarAjustes, resultadoCon, puntuarPregunta, porRevisar,
 } from "./entregas.mjs";
-import { proveedorConfigurado } from "./correo.mjs";
+import { proveedorConfigurado, enviarCorreo } from "./correo.mjs";
+import { correoAviso } from "./plantillas.mjs";
 import { nombreCompleto } from "./rutas-cuenta.mjs";
-import { CATALOGO, GRUPOS, cicloDe, buscarModulo, crearModulo, borrarModulo, cursosModulo, renombrarModulo } from "./catalogo.mjs";
-import { iaDisponible, generarLote, proveedorIA, tamLote, comprobarIA, adaptarParte, sugerirCorreccion, proponerAleatorio } from "./ia.mjs";
+import { CATALOGO, GRUPOS, cicloDe, moduloVisible, buscarModulo, crearModulo, borrarModulo, cursosModulo, renombrarModulo } from "./catalogo.mjs";
+import { iaDisponible, motivoSinIA, generarLote, proveedorIA, tamLote, comprobarIA, adaptarParte, sugerirCorreccion, proponerAleatorio } from "./ia.mjs";
 
 const examenes = () => almacen("examenes");
 const entregas = () => almacen("entregas");
@@ -40,6 +42,10 @@ async function entregaPermitida(id, email, u) {
   if (!e || !gestionaExamen(u, (await obtenerExamen(e.examen.id)) || e.examen)) fallo(404, "Entrega no encontrada");
   return { k, e };
 }
+
+/** Para el registro de cambios. */
+const sobreEx = (ex) => ({ tipo: "examen", id: ex.id, titulo: ex.titulo, cicloId: ex.cicloId });
+const notaDe = (x) => (x ? { nota: x.resultado?.nota ?? null, ...(x.notaProfesor != null ? { notaProfesor: x.notaProfesor } : {}) } : null);
 
 const catalogoDe = (u) => CATALOGO.filter((c) => ciclosDe(u).includes(c.id));
 const gruposDe = (u) => GRUPOS().filter((g) => ciclosDe(u).includes(g.cicloId));
@@ -122,6 +128,7 @@ async function iaAleatorio(req) {
     ? "Haz aleatorias las preguntas de test que tengan datos numéricos: escribe enunciado y opciones con marcadores (las opciones como cálculos {{=…}}), manteniendo la opción correcta en la misma posición y con distractores que sigan siendo incorrectos para cualquier valor. En «test» pon solo las preguntas que cambies (con su número). Deja «texto» y «apartados» vacíos."
     : "Haz aleatorio este ejercicio: define las variables, reescribe con marcadores el enunciado común («texto»; vacío si no cambia) y los apartados que cambien (con su número «i»), y da la fórmula de TODOS los resultados numéricos (con su número «j»; si no dependen de los datos, el propio número). Reescribe también la resolución («exp») con cálculos {{=…}}. Deja «test» vacío.";
   const prop = await proponerAleatorio({ material: materialParte(ex, parte), instruccion });
+  await registrarIA(u, "valores aleatorios", { examen: ex.id });
   const r = comprobarPropuesta(ex, parte, prop, k + 1);
   return json({ titulo: parte.titulo, ...r });
 }
@@ -158,6 +165,9 @@ async function guardar(req) {
   if (previo && b.ventana === undefined) ex.ventana = previo.ventana || ex.ventana;
   if (previo && b.duracion === undefined) ex.duracion = previo.duracion || 0;
   if (previo && b.codigo === undefined) ex.codigo = previo.codigo || "";
+  if (previo && b.identidad === undefined) ex.identidad = !!previo.identidad;
+  if (previo && b.ra === undefined) ex.ra = previo.ra || [];
+  if (previo && b.conIA === undefined) ex.conIA = !!previo.conIA;
   const ahora = new Date().toISOString();
   await examenes().set(ex.id, {
     ...ex, creado: previo?.creado || ahora, actualizado: ahora,
@@ -195,6 +205,8 @@ async function ajustes(req) {
   if (b.ventana !== undefined) ex.ventana = ventanaValida(b.ventana);
   if (b.duracion !== undefined) ex.duracion = duracionValida(b.duracion);
   if (b.codigo !== undefined) ex.codigo = codigoValido(b.codigo);
+  if (typeof b.identidad === "boolean") ex.identidad = b.identidad;
+  if (b.ra !== undefined) ex.ra = raValidos(b.ra);
   const cambiaCalif = (b.calificacion === "mejor" || b.calificacion === "ultima") && b.calificacion !== (ex.calificacion || "mejor");
   if (cambiaCalif) ex.calificacion = b.calificacion;
   ex.actualizado = new Date().toISOString();
@@ -207,7 +219,8 @@ async function ajustes(req) {
       if (e) await entregas().set(k, consolidar(e, historialDe(e), ex.calificacion));
     }));
   }
-  return json({ ok: true, codigo: ex.codigo || "", ventana: ex.ventana, duracion: ex.duracion || 0 });
+  if (cambiaCalif) await registrar({ por: u, accion: "qué intento cuenta", sobre: sobreEx(ex), despues: ex.calificacion, detalle: "Se recalculan las notas de todas las entregas" });
+  return json({ ok: true, codigo: ex.codigo || "", ventana: ex.ventana, duracion: ex.duracion || 0, identidad: !!ex.identidad, ra: ex.ra || [] });
 }
 
 async function borrar(req) {
@@ -215,8 +228,13 @@ async function borrar(req) {
   const { id } = await leerCuerpo(req);
   const ex = await existente(id, u);
   const [ke, kp] = await Promise.all([entregas().list(ex.id + "/"), progreso().list(ex.id + "/")]);
-  await Promise.all([...ke.map((k) => entregas().del(k)), ...kp.map((k) => progreso().del(k))]);
+  // Las entregas se conservan el plazo legal (ver lib/registro.mjs) aunque se borre el examen.
+  const motivo = `Examen borrado: ${ex.titulo}`;
+  await conservarYBorrar("entregas", ke, { tipo: "entrega de examen", por: u, motivo });
+  await conservarYBorrar("progreso", kp, { tipo: "progreso de examen", por: u, motivo });
+  await conservar({ tipo: "examen", almacen: "examenes", clave: ex.id, datos: ex, por: u, motivo });
   await examenes().del(ex.id);
+  await registrar({ por: u, accion: "examen borrado", sobre: sobreEx(ex), detalle: `${ke.length} entregas conservadas` });
   return json({ ok: true });
 }
 
@@ -241,6 +259,7 @@ async function filasEntregas(ex) {
     finalizadoPorSalida: e.finalizadoPorSalida || "",
     finalizadoPorTiempo: !!e.finalizadoPorTiempo, fueraDeTiempo: e.fueraDeTiempo || 0, tiempoUsado: e.tiempoUsado ?? null,
     porRevisar: porRevisar(e),
+    validada: !!e.validada, revision: e.revision?.estado || null,
     reanudar: !!prog[e.email]?.reanudar,
     ...intentosFila(ex, e, prog[e.email]),
   }));
@@ -313,6 +332,7 @@ async function revisar(req) {
   const i = b.intento == null ? e.vigente ?? 0 : Number(b.intento) - 1;
   const x = h[i];
   if (!x) fallo(404, "Ese intento no existe");
+  const antes = { ...notaDe(x), ...(x.comentario ? { comentario: x.comentario } : {}) };
   if (b.notaProfesor === null || b.notaProfesor === "" || b.notaProfesor === undefined) delete x.notaProfesor;
   else {
     const n = Number(String(b.notaProfesor).replace(",", "."));
@@ -328,7 +348,14 @@ async function revisar(req) {
   }
   const ex = await obtenerExamen(e.examen.id);
   consolidar(e, h, ex?.calificacion);
+  // Guardar la revisión valida la nota (deja de ser provisional).
+  const yaValidada = !!e.validada;
+  e.validada = { por: u.email, fecha: new Date().toISOString() };
   await entregas().set(k, e);
+  if (!yaValidada) await registrar({ por: u, accion: "nota validada", alumno: e.email, sobre: sobreEx(ex || e.examen), despues: { notaFinal: e.notaProfesor ?? e.resultado.nota } });
+  const despues = { ...notaDe(x), ...(x.comentario ? { comentario: x.comentario } : {}) };
+  if (JSON.stringify(antes) !== JSON.stringify(despues))
+    await registrar({ por: u, accion: "revisión del intento", alumno: e.email, sobre: sobreEx(ex || e.examen), antes, despues, detalle: `Intento ${i + 1}${b.ajustes !== undefined ? " · puntos de las preguntas" : ""}` });
   return json({ ok: true, nota: x.resultado.nota, notaFinal: e.notaProfesor ?? e.resultado.nota, vigente: e.vigente + 1 });
 }
 
@@ -336,8 +363,11 @@ async function reabrir(req) {
   const u = await requiereProfesor(req);
   const b = await leerCuerpo(req);
   const ex = await existente(b.id, u);
-  const k = claveEntrega(ex.id, String(b.email || "").toLowerCase());
-  await Promise.all([entregas().del(k), progreso().del(k)]);
+  const email = String(b.email || "").toLowerCase(), k = claveEntrega(ex.id, email);
+  const e = await entregas().get(k);
+  await conservarYBorrar("entregas", [k], { tipo: "entrega de examen", por: u, motivo: "Examen reabierto (vuelve a empezar)" });
+  await conservarYBorrar("progreso", [k], { tipo: "progreso de examen", por: u, motivo: "Examen reabierto (vuelve a empezar)" });
+  await registrar({ por: u, accion: "examen reabierto", alumno: email, sobre: sobreEx(ex), antes: e ? { notaFinal: e.notaProfesor ?? e.resultado?.nota, intentos: intentosHechos(e) } : null, despues: null, detalle: "La entrega anterior se conserva" });
   return json({ ok: true });
 }
 
@@ -385,6 +415,42 @@ async function respuestas(req, url) {
   });
 }
 
+/** Valida de una vez las notas de un examen (dejan de ser provisionales). */
+async function validarNotas(req) {
+  const u = await requiereProfesor(req);
+  const b = await leerCuerpo(req);
+  const ex = await existente(b.id, u);
+  const solo = Array.isArray(b.emails) ? new Set(b.emails.map((x) => String(x).toLowerCase())) : null;
+  let n = 0;
+  for (const k of await entregas().list(ex.id + "/")) {
+    const e = await entregas().get(k);
+    if (!e || e.validada || (solo && !solo.has(e.email))) continue;
+    e.validada = { por: u.email, fecha: new Date().toISOString() };
+    await entregas().set(k, e);
+    await registrar({ por: u, accion: "nota validada", alumno: e.email, sobre: sobreEx(ex), despues: { notaFinal: e.notaProfesor ?? e.resultado.nota, pendientesDeRevisar: porRevisar(e) } });
+    n++;
+  }
+  return json({ ok: true, validadas: n });
+}
+
+/** El profesor responde a una solicitud de revisión de la nota. */
+async function responderRevision(req) {
+  const u = await requiereProfesor(req);
+  const b = await leerCuerpo(req);
+  const { k, e } = await entregaPermitida(b.id, b.email, u);
+  if (!e.revision) fallo(404, "No hay ninguna solicitud de revisión");
+  const respuesta = String(b.respuesta ?? "").trim().slice(0, 3000);
+  if (respuesta.length < 3) fallo(400, "Escribe la respuesta para el alumno");
+  e.revision = { ...e.revision, estado: "respondida", respuesta, respondida: new Date().toISOString(), por: `${u.nombre} ${u.apellidos}`.trim() };
+  await entregas().set(k, e);
+  await registrar({ por: u, accion: "revisión respondida", alumno: e.email, sobre: sobreEx(e.examen), despues: { notaFinal: e.notaProfesor ?? e.resultado.nota }, detalle: respuesta.slice(0, 300) });
+  if (proveedorConfigurado()) {
+    const c = correoAviso(e.nombre, `Respuesta a tu solicitud de revisión: ${e.examen.titulo}`, `Tu profesor ha respondido a tu solicitud de revisión del examen «${e.examen.titulo}»: ${respuesta}`);
+    enviarCorreo({ to: e.email, subject: c.asunto, html: c.html, text: c.text }).catch((x) => console.error("Aviso revisión:", x));
+  }
+  return json({ ok: true });
+}
+
 /** Válida / medio válida / no válida (o «auto») en una pregunta de un intento. Se guarda al momento. */
 async function puntuar(req) {
   const u = await requiereProfesor(req);
@@ -393,10 +459,16 @@ async function puntuar(req) {
   const ex = await obtenerExamen(e.examen.id);
   const i = Number(b.i);
   if (!Number.isInteger(i) || i < 0) fallo(400, "Pregunta no válida");
+  const ii = b.intento == null ? e.vigente ?? 0 : Number(b.intento) - 1;
+  const revDe = (x) => (b.k === "num" ? x?.resultado.numRev?.[i] : b.k === "mc" ? x?.resultado.mcRev?.[i] : x?.resultado.opRev?.[i]);
+  const x0 = historialDe(e)[ii], antes = { pts: revDe(x0)?.pts ?? null, nota: x0?.resultado.nota ?? null };
   puntuarPregunta(e, b.intento == null ? null : Number(b.intento) - 1, String(b.k), i, String(b.valor), ex?.calificacion);
   await entregas().set(k, e);
   const x = historialDe(e)[b.intento == null ? e.vigente : Number(b.intento) - 1];
-  const rev = b.k === "num" ? x.resultado.numRev[i] : b.k === "mc" ? x.resultado.mcRev[i] : x.resultado.opRev[i];
+  const rev = revDe(x);
+  const NOMBRE = { mc: "test", open: "pregunta", num: "ejercicio" };
+  await registrar({ por: u, accion: "puntos de una pregunta", alumno: e.email, sobre: sobreEx(ex || e.examen), antes, despues: { pts: rev.pts, nota: x.resultado.nota, valor: String(b.valor) },
+    ia: b.ia === true, detalle: `Intento ${ii + 1} · ${NOMBRE[b.k] || b.k} ${i + 1}${b.ia === true ? " · sugerencia de la IA aceptada" : ""}` });
   return json({ ok: true, pts: rev.pts, notaIntento: x.resultado.nota, notaFinal: e.notaProfesor ?? e.resultado.nota, porRevisar: porRevisar(e) });
 }
 
@@ -408,15 +480,22 @@ async function iaCorregir(req) {
   const i = Number(b.i), q = ex.open[i];
   if (!q) fallo(400, "Pregunta no válida");
   const pedidas = (Array.isArray(b.refs) ? b.refs : []).slice(0, 40);
-  const respuestas = [];
+  // A la IA no se le manda quién es cada alumno: cada respuesta va con un número (r1, r2…)
+  // y sin correos, DNI, teléfonos ni el nombre del alumno.
+  const respuestas = [], refs = {};
   for (const r of pedidas) {
     const e = await entregas().get(claveEntrega(ex.id, String(r.email || "").toLowerCase()));
     const x = historialDe(e)[Number(r.intento) - 1];
-    if (x && x.examen.open.length === ex.open.length) respuestas.push({ ref: `${e.email}#${r.intento}`, texto: String(x.respuestas.open[i] || "").slice(0, 3000) });
+    if (x && x.examen.open.length === ex.open.length) {
+      const ref = `r${respuestas.length + 1}`;
+      refs[ref] = `${e.email}#${r.intento}`;
+      respuestas.push({ ref, texto: seudonimizar(String(x.respuestas.open[i] || "").slice(0, 3000), [e]) });
+    }
   }
   if (!respuestas.length) return json({ sugerencias: [] });
   const sugerencias = await sugerirCorreccion({ pregunta: q.t, modelo: q.exp, conceptos: q.groups.map((g) => g.join(", ")), respuestas });
-  return json({ sugerencias });
+  await registrarIA(u, "sugerir corrección", { examen: ex.id, pregunta: i + 1, respuestas: respuestas.length, seudonimizado: true });
+  return json({ sugerencias: sugerencias.map((x) => ({ ...x, ref: refs[x.ref] })).filter((x) => x.ref) });
 }
 
 /**
@@ -440,6 +519,7 @@ async function reanudar(req) {
   if (b.anularEntrega) {
     const ultimo = h.at(-1);
     if (!ultimo) fallo(400, "No hay ninguna entrega que reanudar");
+    await conservar({ tipo: "entrega de examen", almacen: "entregas", clave: k, datos: e, alumno: email, por: u, motivo: "Entrega anulada para que el alumno siga con sus respuestas" });
     // Sus respuestas vuelven a ser el borrador del intento (que vuelve a estar en curso).
     p.borrador = { respuestas: ultimo.respuestas, t: new Date().toISOString(), intento: h.length, n: null, deEntrega: ultimo.fecha };
     if (h.length === 1) await entregas().del(k);
@@ -454,6 +534,7 @@ async function reanudar(req) {
   }
   p.reanudar = true;
   await progreso().set(k, p);
+  await registrar({ por: u, accion: anulado ? "entrega anulada para reanudar" : "reanudar el examen", alumno: email, sobre: sobreEx(ex), antes: anulado, despues: null, detalle: anulado ? "La entrega anulada se conserva" : "" });
   return json({ ok: true, anulado });
 }
 
@@ -468,8 +549,10 @@ async function intentoExtra(req) {
   if (!e && !p0) fallo(404, "Este alumno no ha empezado el examen");
   const p = p0 || { email, examen: ex.id, salidas: [] };
   const delta = b.cambio === -1 ? -1 : 1;
+  const antes = p.extra || 0;
   p.extra = Math.max(0, Math.min(50, (p.extra || 0) + delta));
   await progreso().set(k, p);
+  await registrar({ por: u, accion: "intentos extra", alumno: email, sobre: sobreEx(ex), antes, despues: p.extra });
   return json({ ok: true, extra: p.extra });
 }
 
@@ -481,6 +564,8 @@ async function borrarIntento(req) {
   const h = historialDe(e);
   const i = Number(b.intento) - 1;
   if (!h[i]) fallo(404, "Ese intento no existe");
+  await conservar({ tipo: "entrega de examen", almacen: "entregas", clave: k, datos: e, alumno: e.email, por: u, motivo: `Intento ${i + 1} borrado` });
+  await registrar({ por: u, accion: "intento borrado", alumno: e.email, sobre: sobreEx(e.examen), antes: { intento: i + 1, ...notaDe(h[i]) }, despues: null, detalle: "El intento se conserva" });
   // Se devuelve el intento: en modo seguro también cuenta como no empezado.
   const p = await progreso().get(k);
   if (p?.inicios?.length) { p.inicios = p.inicios.slice(0, -1); await progreso().set(k, p); }
@@ -517,6 +602,7 @@ async function editarAlumno(req) {
   const yo = await requiereProfesor(req);
   const b = await leerCuerpo(req);
   const u = await alumnoPermitido(b.email, yo);
+  const antes = { grupo: u.grupo, adaptacion: u.adaptacion || null };
   if (b.grupo !== undefined) {
     const g = gruposDe(yo).find((x) => x.grupo === texto(b.grupo, 60));
     if (!g) fallo(400, "Grupo no válido");
@@ -528,6 +614,9 @@ async function editarAlumno(req) {
   if (b.adaptacion !== undefined) { const a = adaptacionValida(b.adaptacion); if (a) u.adaptacion = a; else delete u.adaptacion; }
   if (b.nombre !== undefined || b.apellidos !== undefined) Object.assign(u, nombreCompleto(b.nombre ?? u.nombre, b.apellidos ?? u.apellidos));
   await usuarios().set(u.email, u);
+  const despues = { grupo: u.grupo, adaptacion: u.adaptacion || null };
+  if (JSON.stringify(antes) !== JSON.stringify(despues))
+    await registrar({ por: yo, accion: antes.grupo !== despues.grupo ? "cambio de grupo" : "adaptación", alumno: u.email, sobre: { tipo: "cuenta", cicloId: cicloDe(u) }, antes, despues });
   return json({ ok: true });
 }
 
@@ -537,7 +626,10 @@ async function borrarAlumno(req) {
   if (email === yo.email) fallo(400, "No puedes borrar tu propia cuenta");
   const u = await alumnoPermitido(email, yo);
   if (esAdmin(u.email)) fallo(400, "No se puede borrar la cuenta del administrador");
+  // Se borra la cuenta; sus entregas y notas se quedan (se borran al acabar el plazo de conservación).
+  await conservar({ tipo: "cuenta", almacen: "usuarios", clave: u.email, datos: { ...u, pass: undefined, codigo: undefined }, alumno: u.email, por: yo, motivo: "Cuenta borrada" });
   await usuarios().del(u.email);
+  await registrar({ por: yo, accion: "cuenta borrada", alumno: u.email, sobre: { tipo: "cuenta", cicloId: cicloDe(u) }, antes: { nombre: `${u.nombre} ${u.apellidos}`, grupo: u.grupo } });
   return json({ ok: true });
 }
 
@@ -605,20 +697,20 @@ async function calificacionesGrupo(req, url) {
       for (const e of await leerTodas(entregas(), claves)) {
         (notas[e.email] ||= {})[ex.id] = { nota: e.notaProfesor ?? e.resultado.nota, intentos: intentosHechos(e), porRevisar: porRevisar(e) };
       }
-      columnas.push({ id: ex.id, titulo: ex.titulo, publicado: ex.publicado });
+      columnas.push({ id: ex.id, titulo: ex.titulo, publicado: ex.publicado, ra: ex.ra || [] });
     }
     // Trabajos del módulo: nota final (trabajo + defensa) como una columna más.
     for (const t of trabajosCiclo.filter((t) => t.moduloId === m.id)) {
       const col = `trabajo:${t.id}`;
       if (!t.publicado && !Object.keys(t.notas).length) continue;
       for (const [email, n] of Object.entries(t.notas)) if (n.nota != null) (notas[email] ||= {})[col] = { nota: n.nota, intentos: 1, porRevisar: 0 };
-      columnas.push({ id: col, titulo: `Trabajo: ${t.titulo}`, publicado: t.publicado, trabajo: true });
+      columnas.push({ id: col, titulo: `Trabajo: ${t.titulo}`, publicado: t.publicado, trabajo: true, ra: t.ra || [] });
     }
     // Notas importadas (Additio, Alexia, Excel…): también cuentan en la media del módulo.
     for (const x of cols.filter((x) => x.moduloId === m.id).sort((a, b) => (a.creado || "").localeCompare(b.creado || ""))) {
       const col = `externa:${x.id}`;
       for (const [email, n] of Object.entries(x.notas || {})) if (emails.has(email) && n != null) (notas[email] ||= {})[col] = { nota: n, intentos: 1, porRevisar: 0 };
-      columnas.push({ id: col, titulo: x.titulo, publicado: true, externa: true, origen: x.origen || "" });
+      columnas.push({ id: col, titulo: x.titulo, publicado: true, externa: true, origen: x.origen || "", ra: x.ra || [] });
     }
     modulos.push({ id: m.id, nombre: m.nombre, examenes: columnas });
   }
@@ -651,9 +743,14 @@ async function guardarExterna(req) {
   const clave = `${g.grupo}/${b.moduloId}/${id}`;
   const previo = await externas().get(clave);
   await externas().set(clave, {
-    id, grupo: g.grupo, cicloId: g.cicloId, moduloId: b.moduloId, titulo, origen: texto(b.origen, 60), notas,
-    creado: previo?.creado || new Date().toISOString(), autor: yo.email,
+    id, grupo: g.grupo, cicloId: g.cicloId, moduloId: b.moduloId, titulo, origen: texto(b.origen, 60), notas, ra: raValidos(b.ra ?? previo?.ra),
+    creado: previo?.creado || new Date().toISOString(), actualizado: new Date().toISOString(), autor: yo.email,
   });
+  const sobre = { tipo: "externa", id, titulo, cicloId: g.cicloId };
+  for (const email of new Set([...Object.keys(notas), ...Object.keys(previo?.notas || {})])) {
+    const a = previo?.notas?.[email] ?? null, d = notas[email] ?? null;
+    if (a !== d) await registrar({ por: yo, accion: "nota importada", alumno: email, sobre, antes: a, despues: d, detalle: texto(b.origen, 60) || "Excel" });
+  }
   return json({ ok: true, id, guardadas: Object.keys(notas).length });
 }
 
@@ -664,7 +761,10 @@ async function borrarExterna(req) {
   if (!g) fallo(404, "Grupo no encontrado");
   const k = (await externas().list(`${g.grupo}/`)).find((k) => k.endsWith(`/${b.id}`));
   if (!k) fallo(404, "Columna no encontrada");
-  await externas().del(k);
+  const x = await externas().get(k);
+  await conservarYBorrar("notasExternas", [k], { tipo: "notas importadas", por: yo, motivo: `Columna borrada: ${x?.titulo || ""}`, alumnoDe: () => "" });
+  for (const [email, n] of Object.entries(x?.notas || {}))
+    await registrar({ por: yo, accion: "nota importada borrada", alumno: email, sobre: { tipo: "externa", id: b.id, titulo: x.titulo, cicloId: g.cicloId }, antes: n, despues: null });
   return json({ ok: true });
 }
 
@@ -684,7 +784,8 @@ async function quitarModulo(req) {
 /* ── IA: generar preguntas a partir del material de un tema ── */
 async function iaEstado(req) {
   await requiereProfesor(req);
-  return json({ disponible: iaDisponible(), proveedor: proveedorIA(), lote: tamLote(), ...(await comprobarIA()) });
+  if (!iaDisponible()) return json({ disponible: false, motivo: motivoSinIA() });
+  return json({ disponible: true, proveedor: proveedorIA(), lote: tamLote(), ...(await comprobarIA()) });
 }
 
 async function iaPreguntas(req) {
@@ -704,6 +805,7 @@ async function iaPreguntas(req) {
     titulo: texto(b.titulo, 200), modulo: ubic?.modulo.nombre || "",
     indicaciones: texto(b.indicaciones, 1000),
   });
+  await registrarIA(yo, "generar preguntas", { tipo, n: preguntas.length, material: material.length });
   return json({ preguntas });
 }
 
@@ -717,10 +819,83 @@ async function iaAdaptar(req) {
   if (examen.length + solucionario.length > 300_000) fallo(413, "El examen es demasiado largo.");
   const r = b.rango && typeof b.rango === "object" ? b.rango : {};
   const rango = { desde: r.desde, hasta: r.hasta, ejercicio: r.ejercicio, titulo: texto(r.titulo, 120), apDesde: r.apDesde, apHasta: r.apHasta };
-  return json(await adaptarParte({ parte: String(b.parte || ""), examen, solucionario, indicaciones: texto(b.indicaciones, 1000), rango }));
+  const r2 = await adaptarParte({ parte: String(b.parte || ""), examen, solucionario, indicaciones: texto(b.indicaciones, 1000), rango });
+  await registrarIA(yo, "adaptar examen de Word", { parte: String(b.parte || "").slice(0, 20), material: examen.length + solucionario.length });
+  return json(r2);
+}
+
+/* ── Registro de cambios, expediente del alumno y códigos personales ── */
+
+/** Entradas que puede ver este profesor: las de sus ciclos (el admin, todas). */
+const puedeVerEntrada = (yo) => (x) => esAdmin(yo.email) || (x.sobre?.cicloId && ciclosDe(yo).includes(x.sobre.cicloId));
+
+async function auditoriaRuta(req, url) {
+  const yo = await requiereProfesor(req);
+  const alumno = String(url.searchParams.get("alumno") || "").toLowerCase();
+  const sobre = url.searchParams.get("sobre") || "";
+  // Un alumno de sus ciclos (el admin, también cuentas ya borradas).
+  if (alumno) { if ((await usuarios().get(alumno)) || !esAdmin(yo.email)) await alumnoPermitido(alumno, yo); }
+  else if (!esAdmin(yo.email) && !sobre) fallo(400, "Elige un alumno, un examen o un trabajo");
+  const ver = puedeVerEntrada(yo);
+  const entradas = await leerRegistro({ alumno, filtro: (x) => ver(x) && (!sobre || x.sobre?.id === sobre), max: Number(url.searchParams.get("max")) || 500 });
+  return json({ entradas });
+}
+
+/**
+ * Expediente del alumno: todas sus pruebas de evaluación (exámenes con sus respuestas y
+ * correcciones, trabajos, notas importadas), lo conservado y el registro de cambios.
+ * La página /profesor/expediente.html lo imprime o guarda en PDF.
+ */
+async function expediente(req, url) {
+  const yo = await requiereProfesor(req);
+  const email = String(url.searchParams.get("email") || "").toLowerCase();
+  const u = await usuarios().get(email);
+  if (u) await alumnoPermitido(email, yo);
+  else if (!esAdmin(yo.email)) fallo(404, "Alumno no encontrado");
+  const examenesAl = [];
+  for (const k of (await entregas().list()).filter((k) => k.endsWith(`/${email}`))) {
+    const e = await entregas().get(k);
+    const ex = (await obtenerExamen(e?.examen?.id)) || e?.examen;
+    if (!e || !(esAdmin(yo.email) || gestionaExamen(yo, ex))) continue;
+    const p = await progreso().get(k);
+    examenesAl.push({
+      id: e.examen.id, titulo: e.examen.titulo, modulo: e.examen.modulo || ex?.modulo || "", ra: ex?.ra || [], defensa: !!ex?.defensaDe,
+      notaFinal: e.notaProfesor ?? e.resultado?.nota, calificacion: ex?.calificacion || "mejor", vigente: (e.vigente ?? 0) + 1,
+      intentos: historialDe(e).map((_, i) => vistaEntrega(conIntento(e, i), { soluciones: true })),
+      salidas: p?.salidas || [],
+    });
+  }
+  examenesAl.sort((a, b) => `${a.modulo} ${a.titulo}`.localeCompare(`${b.modulo} ${b.titulo}`, "es"));
+  const externasAl = (await leerTodas(externas(), await externas().list()))
+    .filter((x) => x.notas?.[email] != null && (esAdmin(yo.email) || gestionaCiclo(yo, x.cicloId)))
+    .map((x) => ({ titulo: x.titulo, origen: x.origen || "", moduloId: x.moduloId, nota: x.notas[email], ra: x.ra || [], creado: x.creado }));
+  const ver = puedeVerEntrada(yo);
+  return json({
+    alumno: u ? { email, nombre: u.nombre, apellidos: u.apellidos, grupo: u.grupo, adaptacion: u.adaptacion || null, egresado: u.egresado || null } : { email, borrada: true },
+    generado: new Date().toISOString(), por: `${yo.nombre} ${yo.apellidos}`.trim(),
+    examenes: examenesAl, trabajos: await trabajosDeAlumno(yo, email), externas: externasAl,
+    conservadas: esAdmin(yo.email) ? await conservadasDe(email) : (await conservadasDe(email)).filter((c) => !c.por || c.por === yo.email),
+    registro: await leerRegistro({ alumno: email, filtro: ver }),
+  });
+}
+
+/** Códigos personales de un examen a distancia (uno por alumno que puede hacerlo). */
+async function codigosPersonales(req, url) {
+  const yo = await requiereProfesor(req);
+  const ex = await existente(url.searchParams.get("id"), yo);
+  const s = await secreto();
+  const lista = (await leerTodas(usuarios(), await usuarios().list()))
+    .filter((u) => rolDe(u) === "alumno" && !u.egresado && cicloDe(u) === ex.cicloId && moduloVisible(ex.cicloId, ex.moduloId, u))
+    .sort((a, b) => `${a.grupo} ${a.apellidos} ${a.nombre}`.localeCompare(`${b.grupo} ${b.apellidos} ${b.nombre}`, "es"))
+    .map((u) => ({ email: u.email, nombre: u.nombre, apellidos: u.apellidos, grupo: u.grupo, codigo: codigoPersonal(s, ex.id, u.email) }));
+  await registrar({ por: yo, accion: "códigos personales consultados", sobre: sobreEx(ex) });
+  return json({ examen: { id: ex.id, titulo: ex.titulo, identidad: !!ex.identidad }, alumnos: lista });
 }
 
 export default {
+  "GET /api/profesor/auditoria": auditoriaRuta,
+  "GET /api/profesor/expediente": expediente,
+  "GET /api/profesor/examen/codigos": codigosPersonales,
   "POST /api/profesor/ia/adaptar": iaAdaptar,
   "POST /api/profesor/modulo": nuevoModulo,
   "POST /api/profesor/modulo/borrar": quitarModulo,
@@ -748,6 +923,8 @@ export default {
   "POST /api/profesor/entrega/reanudar": reanudar,
   "GET /api/profesor/respuestas": respuestas,
   "POST /api/profesor/entrega/puntuar": puntuar,
+  "POST /api/profesor/entregas/validar": validarNotas,
+  "POST /api/profesor/entrega/revision": responderRevision,
   "POST /api/profesor/ia/corregir": iaCorregir,
   "POST /api/profesor/entrega/borrar-intento": borrarIntento,
   "GET /api/profesor/alumnos": alumnos,

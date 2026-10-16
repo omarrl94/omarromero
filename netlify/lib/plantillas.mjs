@@ -32,9 +32,11 @@ function marco(cabecera, cuerpo, pie) {
 
 /* ── Código de verificación / recuperación ───────────────── */
 export function correoCodigo(tipo, nombre, codigo, { enlace = "", caduca = "15 minutos", porAdmin = false } = {}) {
-  const registro = tipo === "registro";
-  const asunto = registro ? `Tu código de acceso: ${codigo}` : `Código para cambiar tu contraseña: ${codigo}`;
-  const intro = registro
+  const registro = tipo === "registro", acceso = tipo === "acceso";
+  const asunto = acceso ? `Código para entrar: ${codigo}` : registro ? `Tu código de acceso: ${codigo}` : `Código para cambiar tu contraseña: ${codigo}`;
+  const intro = acceso
+    ? "Alguien (esperamos que tú) ha escrito tu contraseña para entrar en la plataforma de exámenes. Para terminar de entrar, escribe este código (verificación en dos pasos del profesorado):"
+    : registro
     ? "Para activar tu cuenta de exámenes, escribe este código en la página de registro:"
     : porAdmin
       ? "La administración del centro te ha enviado este código para que pongas una contraseña nueva en tu cuenta de exámenes:"
@@ -45,7 +47,7 @@ export function correoCodigo(tipo, nombre, codigo, { enlace = "", caduca = "15 m
     <p style="font-size:15px;color:${GRIS}">${intro}</p>
     <div style="font-size:34px;font-weight:800;letter-spacing:.3em;background:#FBF1C2;color:#5E4D09;border-radius:12px;padding:16px 20px;text-align:center">${codigo}</div>
     ${boton}
-    <p style="font-size:13px;color:${GRIS}">Caduca en ${caduca}. Si no has sido tú, ignora este correo.</p></td></tr>`;
+    <p style="font-size:13px;color:${GRIS}">Caduca en ${caduca}. ${acceso ? "Si no has sido tú, cambia tu contraseña cuanto antes: alguien la conoce." : "Si no has sido tú, ignora este correo."}</p></td></tr>`;
   return {
     asunto,
     html: marco(`${CENTRO()} · Exámenes`, cuerpo, "Correo automático, no respondas a este mensaje."),
@@ -72,7 +74,7 @@ export function correoResultado(ex, e) {
   const sol = ex.mostrarSoluciones;
   const partes = res.partes || { mc: { pts: res.mcOk, max: ex.mc.length }, open: { pts: res.openPts, max: ex.open.length }, num: { pts: 0, max: 0 } };
   const nombre = `${e.nombre} ${e.apellidos}`.trim();
-  const asunto = `${ex.titulo} — ${nombre} (${fmt(res.nota)}/10)`;
+  const asunto = `${ex.titulo} — ${nombre} (${fmt(res.nota)}/10, provisional)`;
   const tit = { mc: ex.partes?.mc || "Test", open: ex.partes?.open || "Preguntas abiertas", num: ex.partes?.num || "Ejercicios" };
   const bloque = (id) => (ex.bloques || []).find((b) => b.id === id);
   const p = (x) => `<span style="color:${GRIS};font-size:12px">(${fmt(x)} p)</span>`;
@@ -131,10 +133,11 @@ export function correoResultado(ex, e) {
   </td></tr>
   <tr><td style="padding:12px 28px">
     <table role="presentation" width="100%" style="background:#FBF1C2;border-radius:12px"><tr>
-      <td style="padding:16px 20px;font-size:40px;font-weight:800">${fmt(res.nota)}<span style="font-size:18px;color:${GRIS}"> /10</span></td>
+      <td style="padding:16px 20px;font-size:40px;font-weight:800">${fmt(res.nota)}<span style="font-size:18px;color:${GRIS}"> /10</span><div style="font-size:12px;font-weight:700;color:#5E4D09">NOTA PROVISIONAL</div></td>
       <td style="padding:16px 20px;font-size:14px;color:#5E4D09;text-align:right">${desglose}</td>
     </tr></table>
     ${e.finalizadoPorSalida ? `<p style="font-size:13px;color:${ROJO};background:#FBE7E4;border-radius:10px;padding:10px 14px"><b>Examen finalizado automáticamente</b> al salir de la ventana (${esc(e.finalizadoPorSalida)}). Se entregaron las respuestas que había en ese momento.</p>` : ""}
+    <p style="font-size:13px;color:${GRIS}">Es una <b>nota provisional</b> calculada automáticamente. Será definitiva cuando la revise y valide tu profesor; en la plataforma verás cuándo está validada.</p>
     ${ex.open.length || (ex.num || []).length ? `<p style="font-size:13px;color:#643925;background:#F8E2D6;border-radius:10px;padding:10px 14px">La corrección automática de las preguntas abiertas y los ejercicios es una <b>estimación</b> (conceptos clave y resultados finales); la revisa el profesor.</p>` : ""}
   </td></tr>
   ${ex.mc.length ? seccion(tit.mc, "#8E750D", ex.mc.map(filaMc).join("")) : ""}
@@ -145,7 +148,7 @@ export function correoResultado(ex, e) {
     `${ex.titulo}${ex.modulo ? ` — ${ex.modulo}` : ""}${ex.ciclo ? ` (${ex.ciclo})` : ""}`,
     `Alumno/a: ${nombre}   Grupo: ${e.grupo || "-"}   Entregado: ${e.fechaTexto}`,
     ...(e.finalizadoPorSalida ? [`EXAMEN FINALIZADO AUTOMÁTICAMENTE al salir de la ventana (${e.finalizadoPorSalida}).`] : []),
-    `NOTA: ${fmt(res.nota)}/10`,
+    `NOTA PROVISIONAL: ${fmt(res.nota)}/10 (la valida tu profesor)`,
     ...[["mc", tit.mc], ["open", tit.open], ["num", tit.num]].filter(([k]) => partes[k].max).map(([k, t]) => `  ${t}: ${fmt(partes[k].pts)} / ${fmt(partes[k].max)}`),
     "",
     ...ex.mc.map((q, i) => {

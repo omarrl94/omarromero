@@ -11,7 +11,7 @@
   --salmon:#E39F7D;   --salmon-soft:#FBEDE5;   --salmon-ink:#7A3F22;
   --grafito:#1F2430;
   /* Superficies y texto */
-  --bg:#F5F6F8; --card:#FFFFFF; --sunken:#F0F2F5; --fg:#1F2430; --muted:#5D6573; --faint:#8A919C;
+  --bg:#F5F6F8; --card:#FFFFFF; --sunken:#F0F2F5; --fg:#1F2430; --muted:#5D6573; --faint:#5F6672;
   --border:#E3E6EA; --border-strong:#CDD2D9;
   /* Acción principal */
   --primary:#1F2430; --primary-fg:#FFFFFF; --primary-hover:#323949;
@@ -479,11 +479,13 @@ body.exam .wrap{padding-bottom:90px}
 .grupo-mod[open]>summary::before{transform:rotate(90deg)}
 .grupo-mod .nom{font-weight:700;font-size:16px}
 .grupo-mod>summary .muted{font-size:13px}
-.grupo-mod .acc{margin-left:auto;display:flex;gap:6px}
+.grupo-mod{position:relative}
+.grupo-mod>summary{padding-right:290px}
+.grupo-mod>.acc{position:absolute;top:8px;right:14px;display:flex;gap:6px}
 .grupo-mod .exgrid{margin-top:2px}
 .modnom{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
 .modnom .link{font-size:12.5px}
-@media (max-width:640px){ .grupo-mod .acc{margin-left:0} .filtros #cuentaEx{margin-left:0} }
+@media (max-width:640px){ .grupo-mod>summary{padding-right:2px} .grupo-mod>.acc{position:static;margin:0 0 8px} .filtros #cuentaEx{margin-left:0} }
 
 /* Menú «Cuenta» de cada alumno (administración) */
 .menu-cuenta{position:relative;display:inline-block}
@@ -579,3 +581,14 @@ dialog.wide{max-width:980px}
 .reloj.poco{background:var(--warn-soft);color:var(--warn);border-color:color-mix(in srgb,var(--warn) 40%,transparent)}
 .reloj.fin{background:var(--bad-soft);color:var(--bad);border-color:color-mix(in srgb,var(--bad) 40%,transparent)}
 .horario-info{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+
+/* ── Pie legal, salto al contenido y foco visible (accesibilidad) ── */
+.pie-legal{max-width:1100px;margin:32px auto 22px;padding:0 16px;text-align:center;font-size:13px;color:var(--muted)}
+.pie-legal a{color:inherit}
+.saltar{position:absolute;left:8px;top:-60px;z-index:1000;background:var(--grafito,#1F2430);color:#fff;padding:10px 14px;border-radius:8px;font-weight:700;text-decoration:none}
+.saltar:focus{top:8px}
+:focus-visible{outline:3px solid #1A5FB4;outline-offset:2px}
+[tabindex="-1"]:focus{outline:none}
+.aviso-ia{margin:12px 0 0}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+@media print{.pie-legal,.saltar{display:none}}

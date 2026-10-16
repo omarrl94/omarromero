@@ -93,13 +93,33 @@ en la pestaña Grupos y en sus exportaciones.
    | `MAIL_FROM` | para correo | `"Exámenes FP José Ramón Otero <examenes@jrotero.es>"` |
    | `PROFESOR_EMAIL` | no | recibe copia oculta de cada entrega |
    | `DOMINIOS_PERMITIDOS` | no | `jrotero.es` (por defecto) |
-   | `GEMINI_API_KEY` | para la IA | clave gratuita de aistudio.google.com/apikey (márcala como *secret*) |
+   | `GEMINI_API_KEY` | para la IA | clave de aistudio.google.com/apikey de un proyecto **con facturación activada** (márcala como *secret*) |
+   | `GEMINI_NIVEL` | para la IA | `pago`. Google solo permite la **API de pago** en la UE: hasta que no la pongas, la IA queda desactivada |
    | `GEMINI_MODEL` | no | `gemini-2.5-flash` (por defecto; si no existe, se usa el Flash más reciente disponible) |
+   | `PRIVACIDAD_CONTACTO` | **sí** | correo de la dirección o del delegado de protección de datos (sale en el aviso de privacidad) |
+   | `TITULAR_NOMBRE` / `TITULAR_NIF` / `TITULAR_DOMICILIO` / `TITULAR_EMAIL` | si se ofrece como servicio | aviso legal (Ley 34/2002, art. 10) |
+   | `CONSERVAR_MESES` | no | `6` (por defecto): meses tras el 30 de junio que se guardan las pruebas |
+   | `DOBLE_FACTOR` | no | `no` apaga la verificación en dos pasos del profesorado (por defecto, activa si hay correo) |
+   | `ADMIN_PASSWORD_UNICA` | no | `no` deja usar siempre `ADMIN_PASSWORD` (por defecto, solo vale para el primer acceso) |
 
 3. **Redesplegar** (*Deploys → Trigger deploy*) para que coja las variables.
 4. Entra en la web con el correo de `ADMIN_EMAILS` y la contraseña de `ADMIN_PASSWORD` (pestaña «Entrar», sin registrarte) y llegarás al panel del profesor. El examen de **ASIR › Seguridad y Alta Disponibilidad › Temas 1 y 2** ya aparece cargado y publicado.
 
 **Microsoft 365:** la cuenta que envía debe tener activado *SMTP autenticado* (Centro de administración → Usuarios → la cuenta → Correo → Administrar aplicaciones de correo electrónico). Si el centro obliga a MFA, usa una cuenta de servicio sin MFA o **Resend** (`RESEND_API_KEY`).
+
+**Cumplimiento normativo** (evaluación de FP, RGPD y Reglamento europeo de IA), lo que hace la plataforma:
+
+- **Aviso de privacidad y de uso de la IA** (`/privacidad/`, enlazado en el pie de todas las páginas): se acepta al registrarse y cada vez que cambia. El profesorado acepta además las **pautas de uso responsable de la IA** (queda la fecha en «Profesores»).
+- **IA solo para el profesorado y con datos seudonimizados**: a la IA no llegan nombres, correos, DNI ni teléfonos (las respuestas van como r1, r2…). El alumnado ve en cada examen y defensa cuándo se ha usado la IA; la nota la decide siempre el profesor. Cada uso queda anotado (sin el contenido).
+- **Nota provisional**: la nota automática se muestra como provisional hasta que el profesor la valida («Validar notas» o al guardar la revisión). El alumno puede **solicitar la revisión** y el profesor responde en la plataforma.
+- **Registro de cambios de notas**: quién, cuándo, valor anterior y posterior, y si aplicó una sugerencia de la IA. No se puede modificar.
+- **Conservación de las pruebas**: lo que se borra (reabrir, intentos, exámenes, trabajos, cuentas, notas del curso) se guarda hasta 6 meses después del 30 de junio y luego se borra solo. Retención ampliable por reclamación (pestaña «Cumplimiento»).
+- **Expediente por alumno** en PDF (Alumnos › 📄 Expediente) y **«Descargar mis datos»** para el alumno.
+- **Copias de seguridad** cada hora (función `mantenimiento`), con lo borrado y las versiones anteriores durante 30 días, y restauración desde «Cumplimiento».
+- **Seguridad**: verificación en dos pasos del profesorado por correo, contraseña individual del administrador (`ADMIN_PASSWORD` solo para el primer acceso) y límite de intentos por conexión.
+- **Resultados de aprendizaje** por examen, trabajo y columna importada, con la vista «Por resultados de aprendizaje» en Grupos.
+- **Exámenes a distancia**: código personal por alumno que el profesor da tras comprobar su identidad en la videollamada.
+- La **región de las funciones** (UE: Fráncfort) se elige en Netlify: *Site configuration → Functions → Region* (plan Pro).
 
 **Sin correo configurado** todo funciona igual, salvo que las cuentas se activan sin código, no se puede recuperar la contraseña por correo y no se envía la corrección (el alumno la ve en pantalla y en su panel). El panel del profesor muestra un aviso.
 

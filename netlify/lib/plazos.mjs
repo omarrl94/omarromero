@@ -9,7 +9,7 @@
  * El tiempo cuenta desde que el alumno pulsa «Comenzar» y no se para aunque cierre la
  * página. Si el profesor le deja reanudar, recupera el tiempo que le quedaba.
  */
-import { randomInt } from "node:crypto";
+import { randomInt, createHmac } from "node:crypto";
 import { fallo, texto } from "./http.mjs";
 
 export const MARGEN_ENTREGA_MS = 2 * 60_000; // la red puede tardar: entregas hasta 2 min tarde no se marcan
@@ -41,6 +41,15 @@ export function codigoValido(v) {
   if (s === "NUEVO") return Array.from({ length: 6 }, () => "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[randomInt(32)]).join("");
   if (!/^[A-Z0-9]{4,12}$/.test(s)) fallo(400, "El código debe tener de 4 a 12 letras o números");
   return s;
+}
+
+/**
+ * Código personal de un alumno para un examen a distancia (identidad): el profesor lo
+ * dice a cada alumno tras verle con su DNI en la videollamada. Cambia de un examen a otro.
+ */
+export function codigoPersonal(secreto, exId, email) {
+  const h = createHmac("sha256", secreto).update(`identidad:${exId}:${email}`).digest();
+  return Array.from({ length: 6 }, (_, i) => "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[h[i] % 32]).join("");
 }
 
 export const TIEMPOS_EXTRA = [0, 25, 33, 50, 100];

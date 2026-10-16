@@ -15,6 +15,7 @@
 import { almacen, leerTodas } from "./almacen.mjs";
 import { rolDe, esAdmin } from "./auth.mjs";
 import { GRUPOS } from "./catalogo.mjs";
+import { conservarYBorrar, registrar } from "./registro.mjs";
 
 const sistema = () => almacen("sistema");
 const usuarios = () => almacen("usuarios");
@@ -55,20 +56,24 @@ export function grupoSiguiente(grupo) {
   return GRUPOS().some((g) => g.grupo === sig) ? sig : null;
 }
 
-/** Borra todo lo que un alumno ha hecho (entregas, progreso, trabajos, archivos, defensas). */
-export async function borrarDatosAlumnos(emails) {
+/**
+ * Quita de la plataforma todo lo que un alumno ha hecho (entregas, progreso, trabajos,
+ * archivos, defensas). No se pierde: pasa a «conservadas» hasta que acaba el plazo de
+ * conservación de las pruebas de evaluación y entonces se borra solo (lib/registro.mjs).
+ */
+export async function borrarDatosAlumnos(emails, por = "sistema") {
   const set = new Set(emails);
   const de = (k) => set.has(k.split("/")[1]);
+  const motivo = "Datos de una cuenta borrada";
   let n = 0;
   for (const nombre of ["entregas", "progreso", "entregasTrabajo", "archivos"]) {
-    const s = almacen(nombre);
-    for (const k of (await s.list()).filter(de)) { await s.del(k); n++; }
+    n += await conservarYBorrar(nombre, (await almacen(nombre).list()).filter(de), { tipo: nombre, por, motivo });
   }
   // Defensas de trabajos (exámenes privados de esos alumnos).
   const ex = almacen("examenes");
   for (const k of (await ex.list()).filter((k) => k.startsWith("defensa-"))) {
     const e = await ex.get(k);
-    if (e?.privado && set.has(e.privado)) { await ex.del(k); n++; }
+    if (e?.privado && set.has(e.privado)) n += await conservarYBorrar("examenes", [k], { tipo: "defensa (examen)", por, motivo, alumnoDe: () => e.privado });
   }
   // Notas importadas (Alexia/Additio).
   const ext = almacen("notasExternas");
@@ -82,17 +87,21 @@ export async function borrarDatosAlumnos(emails) {
   return n;
 }
 
-/** Borra las notas de TODO el alumnado (nuevo curso desde cero). Se conservan exámenes y trabajos. */
-async function borrarNotasCurso() {
+/**
+ * Quita las notas de TODO el alumnado (nuevo curso desde cero). Se quedan los exámenes y
+ * trabajos. Las entregas pasan a «conservadas» hasta el final del plazo de conservación.
+ */
+async function borrarNotasCurso(por = "sistema") {
+  const motivo = "Notas del curso borradas al cerrarlo";
   let n = 0;
-  for (const nombre of ["entregas", "progreso", "entregasTrabajo", "notasExternas"]) {
-    const s = almacen(nombre);
-    for (const k of await s.list()) { await s.del(k); n++; }
-  }
-  const arch = almacen("archivos");
-  for (const k of (await arch.list()).filter((k) => !k.includes("/_enunciado/"))) { await arch.del(k); n++; }
+  for (const nombre of ["entregas", "progreso", "entregasTrabajo"]) n += await conservarYBorrar(nombre, await almacen(nombre).list(), { tipo: nombre, por, motivo });
+  n += await conservarYBorrar("notasExternas", await almacen("notasExternas").list(), { tipo: "notas importadas", por, motivo, alumnoDe: () => "" });
+  n += await conservarYBorrar("archivos", (await almacen("archivos").list()).filter((k) => !k.includes("/_enunciado/")), { tipo: "archivo de un trabajo", por, motivo });
   const ex = almacen("examenes");
-  for (const k of (await ex.list()).filter((k) => k.startsWith("defensa-"))) { await ex.del(k); n++; }
+  for (const k of (await ex.list()).filter((k) => k.startsWith("defensa-"))) {
+    const e = await ex.get(k);
+    n += await conservarYBorrar("examenes", [k], { tipo: "defensa (examen)", por, motivo, alumnoDe: () => e?.privado || "" });
+  }
   return n;
 }
 
@@ -117,7 +126,8 @@ export async function cerrarCurso({ curso = cursoAcademico(), automatico = false
     await usuarios().set(u.email, { ...u, grupo: sig, grupoAnterior: u.grupo, promocionado: curso });
     resumen.promocionados++;
   }
-  if (borrarNotas) resumen.notasBorradas = await borrarNotasCurso();
+  if (borrarNotas) resumen.notasBorradas = await borrarNotasCurso(por || "sistema");
+  await registrar({ por: por || "sistema", accion: "cierre de curso", sobre: { tipo: "curso", id: curso }, despues: { promocionados: resumen.promocionados, terminan: resumen.terminan, notasBorradas: resumen.notasBorradas }, detalle: automatico ? "automático (30 de junio)" : "manual" });
   const est = await estadoCurso();
   est.cerrados = [...(est.cerrados || []), resumen].slice(-30);
   await sistema().set("curso", est);

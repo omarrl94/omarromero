@@ -113,6 +113,8 @@ export function vistaEntrega(e, { soluciones }) {
       num: (e.resultado.numRev || []).map((r) => !!r.ajustado),
     },
     finalizadoPorSalida: e.finalizadoPorSalida || "",
+    // La nota automática es provisional hasta que el profesor la valida (RGPD, art. 22).
+    validada: !!e.validada, revision: e.revision || null,
     tiempoUsado: e.tiempoUsado ?? null, finalizadoPorTiempo: !!e.finalizadoPorTiempo, fueraDeTiempo: e.fueraDeTiempo || 0,
     respuestas: e.respuestas,
     soluciones,

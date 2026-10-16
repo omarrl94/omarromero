@@ -3,10 +3,11 @@
  *  · En Netlify: Netlify Blobs (incluido en el plan gratuito, sin configurar nada).
  *  · En local:   carpeta indicada en ALMACEN_LOCAL (lo usa `npm test`).
  *
- * Almacenes: usuarios · examenes · entregas · progreso · sistema
+ * Almacenes: usuarios · examenes · entregas · progreso · sistema · trabajos · entregasTrabajo ·
+ *            archivos · notasExternas · auditoria · conservadas · registroIA · limites · copias
  */
 import { getStore } from "@netlify/blobs";
-import { mkdir, readFile, writeFile, rm, readdir } from "node:fs/promises";
+import { mkdir, readFile, writeFile, rm, readdir, stat } from "node:fs/promises";
 import { join } from "node:path";
 
 function local(dir, nombre) {
@@ -28,6 +29,14 @@ function local(dir, nombre) {
           .filter((k) => k.startsWith(prefijo));
       } catch { return []; }
     },
+    /** Claves con su «etag» (cambia cada vez que cambia el valor). */
+    async listar(prefijo = "") {
+      const ks = await this.list(prefijo);
+      return Promise.all(ks.map(async (key) => {
+        const st = await stat(archivo(key)).catch(() => null);
+        return { key, etag: st ? `${st.mtimeMs}-${st.size}` : "" };
+      }));
+    },
   };
 }
 
@@ -40,6 +49,10 @@ function blobs(nombre) {
     async list(prefijo = "") {
       const { blobs } = await s.list({ prefix: prefijo });
       return blobs.map((b) => b.key);
+    },
+    async listar(prefijo = "") {
+      const { blobs } = await s.list({ prefix: prefijo });
+      return blobs.map((b) => ({ key: b.key, etag: b.etag }));
     },
   };
 }

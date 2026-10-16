@@ -6,7 +6,8 @@ import { todosLosExamenes, obtenerExamen, enunciado, resumen } from "./examenes.
 import { corregir, limpiarRespuestas } from "./correccion.mjs";
 import { versionExamen, semillaDe, aOriginal, aMostrado, esAleatorio } from "./variantes.mjs";
 import { secreto } from "./auth.mjs";
-import { plazo, seguridadPara, horaTexto, MARGEN_ENTREGA_MS } from "./plazos.mjs";
+import { plazo, seguridadPara, horaTexto, MARGEN_ENTREGA_MS, codigoPersonal } from "./plazos.mjs";
+import { registrar } from "./registro.mjs";
 import { claveEntrega, vistaEntrega, historialDe, intentosHechos, intentosPermitidos, consolidar, conIntento } from "./entregas.mjs";
 import { enviarCorreo, proveedorConfigurado } from "./correo.mjs";
 import { CATALOGO, cicloDe, moduloVisible } from "./catalogo.mjs";
@@ -18,7 +19,7 @@ import { CATALOGO, cicloDe, moduloVisible } from "./catalogo.mjs";
 const puedeVer = (u, ex) => (esStaff(u) ? gestionaExamen(u, ex)
   // La defensa de un trabajo es un examen privado: solo la ve su alumno.
   : ex.privado ? ex.privado === u.email : ex.cicloId === cicloDe(u) && moduloVisible(ex.cicloId, ex.moduloId, u));
-import { correoResultado } from "./plantillas.mjs";
+import { correoResultado, correoAviso } from "./plantillas.mjs";
 
 const entregas = () => almacen("entregas");
 const progreso = () => almacen("progreso");
@@ -58,13 +59,15 @@ async function listar(req) {
   const lista = (await todosLosExamenes()).filter((e) => e.publicado && puedeVer(u, e));
   const filas = await Promise.all(lista.map(async (ex) => {
     const c = await cuentaIntentos(ex, u.email), e = c.e;
+    const { codigo, ...res } = resumen(ex); // el código de acceso no se manda nunca al alumno
     return {
-      ...resumen(ex),
+      ...res,
       intentosAlumno: intentosJSON(c), puedeRepetir: !!e && c.quedan > 0,
       enCurso: !!borradorVigente(c),
       estado: e ? "entregado" : "pendiente",
       nota: e ? e.notaProfesor ?? e.resultado.nota : null,
       revisada: e ? e.notaProfesor != null : false,
+      validada: !!e?.validada,
       fecha: e?.fechaTexto || null,
     };
   }));
@@ -89,7 +92,7 @@ async function ver(req, url) {
   const v = await versionDe(ex, u.email, c.hechos + 1);
   return json({
     ...enunciado(v.mostrado), seguridad: seg, variante: v.variante, intentosAlumno: intentosJSON(c), enCurso: b ? { t: b.t, n: b.n } : null, reanudar: !!c.p?.reanudar, bloqueado,
-    horario: { ...pl, agotado, puedeEmpezar: pl.puedeEmpezar || esStaff(u), requiereCodigo: !!ex.codigo && !esStaff(u) && !pl.inicio, sinModoSeguro: !!u.adaptacion?.sinModoSeguro && ex.seguridad !== false },
+    horario: { ...pl, agotado, puedeEmpezar: pl.puedeEmpezar || esStaff(u), requiereCodigo: !!ex.codigo && !ex.identidad && !esStaff(u) && !pl.inicio, requiereIdentidad: !!ex.identidad && !esStaff(u) && !pl.inicio, sinModoSeguro: !!u.adaptacion?.sinModoSeguro && ex.seguridad !== false },
   });
 }
 
@@ -110,7 +113,14 @@ async function iniciar(req) {
     // Horario: solo se empieza dentro de la ventana y con el código que da el profesor en clase.
     if (!pl.puedeEmpezar) fallo(409, pl.abre && Date.now() < Date.parse(pl.abre)
       ? `Este examen se abre el ${horaTexto(pl.abre)}.` : `El plazo para empezar este examen terminó el ${horaTexto(pl.cierra)}.`);
-    if (ex.codigo && String(codigo || "").trim().toUpperCase() !== ex.codigo) fallo(403, codigo ? "El código no es correcto. Pídeselo a tu profesor." : "Escribe el código que te ha dado tu profesor.");
+    const cod = String(codigo || "").trim().toUpperCase();
+    if (ex.identidad) {
+      // Examen a distancia: código personal, que el profesor da tras comprobar la identidad del alumno.
+      if (cod !== codigoPersonal(await secreto(), ex.id, u.email)) {
+        await registrar({ por: u, accion: "código personal incorrecto", alumno: u.email, sobre: { tipo: "examen", id: ex.id, titulo: ex.titulo, cicloId: ex.cicloId } });
+        fallo(403, cod ? "El código personal no es correcto. Tu profesor te lo da después de comprobar tu identidad." : "Escribe tu código personal: te lo da tu profesor después de comprobar tu identidad (con tu DNI, en la videollamada).");
+      }
+    } else if (ex.codigo && cod !== ex.codigo) fallo(403, codigo ? "El código no es correcto. Pídeselo a tu profesor." : "Escribe el código que te ha dado tu profesor.");
   }
   if (!staff && !pl.agotado && seguridadPara(ex, u) && (p.inicios?.length || 0) >= c.permitidos && !reanuda)
     fallo(409, "Ya empezaste este examen en modo seguro y no se puede repetir. Si ha sido un error, pide a tu profesor que te deje reanudarlo.");
@@ -204,8 +214,11 @@ async function entregar(req) {
     { ...(c.e || {}), email: u.email, nombre: u.nombre, apellidos: u.apellidos, grupo: u.grupo },
     [...historialDe(c.e), intento], ex.calificacion,
   );
+  delete e.validada; // nota nueva: provisional hasta que la valide el profesor
   await entregas().set(k, e);
   const hecho = conIntento(e, e.historial.length - 1); // el intento que acaba de entregar
+  if (!esStaff(u)) await registrar({ por: u, accion: "entrega", alumno: u.email, sobre: { tipo: "examen", id: ex.id, titulo: ex.titulo, cicloId: ex.cicloId },
+    despues: { intento: e.historial.length, nota: resultado.nota, notaFinal: e.notaProfesor ?? e.resultado.nota }, detalle: [salida && `entregado al salir: ${salida}`, porTiempo && "se acabó el tiempo", fueraDeTiempo && `fuera de tiempo (${fueraDeTiempo} min)`].filter(Boolean).join(" · ") });
 
   const correo = { enviado: false, destino: u.email };
   if (!proveedorConfigurado()) {
@@ -224,6 +237,28 @@ async function entregar(req) {
   console.log(JSON.stringify({ evento: "entrega", examen: ex.id, email: u.email, nota: resultado.nota, correo: correo.enviado }));
   const quedan = c.quedan - 1;
   return json({ ...vistaEntrega(hecho, { soluciones: ex.mostrarSoluciones }), calificacion: ex.calificacion || "mejor", quedan: Number.isFinite(quedan) ? quedan : null, correo });
+}
+
+/** El alumno pide al profesor que revise la nota de un examen (queda registrado). */
+async function pedirRevision(req) {
+  const u = await requiereUsuario(req);
+  const b = await leerCuerpo(req);
+  const ex = await obtenerExamen(String(b.id || ""));
+  const k = claveEntrega(String(b.id || ""), u.email);
+  const e = await entregas().get(k);
+  if (!e) fallo(404, "No has entregado este examen");
+  if (e.revision?.estado === "pendiente") fallo(409, "Ya has pedido la revisión: tu profesor te responderá por aquí.");
+  const motivo = String(b.motivo ?? "").trim().slice(0, 2000);
+  if (motivo.length < 10) fallo(400, "Explica qué quieres que revise el profesor (pregunta y motivo)");
+  e.revision = { estado: "pendiente", motivo, fecha: new Date().toISOString(), notaEntonces: e.notaProfesor ?? e.resultado.nota };
+  await entregas().set(k, e);
+  await registrar({ por: u, accion: "solicitud de revisión", alumno: u.email, sobre: { tipo: "examen", id: e.examen.id, titulo: e.examen.titulo, cicloId: e.examen.cicloId }, antes: e.revision.notaEntonces, detalle: motivo.slice(0, 300) });
+  const prof = ex?.autor?.email;
+  if (prof && proveedorConfigurado()) {
+    const c = correoAviso("profesor/a", `Solicitud de revisión: ${e.examen.titulo}`, `${u.nombre} ${u.apellidos} (${u.grupo}) pide que revises su nota del examen «${e.examen.titulo}»: «${motivo}». Respóndele desde Entregas en el panel del profesor.`);
+    enviarCorreo({ to: prof, subject: c.asunto, html: c.html, text: c.text }).catch((x) => console.error("Aviso revisión:", x));
+  }
+  return json({ ok: true, revision: e.revision });
 }
 
 async function miEntrega(req, url) {
@@ -245,4 +280,5 @@ export default {
   "POST /api/examen/guardar": guardarBorrador,
   "POST /api/examen/entregar": entregar,
   "GET /api/entrega": miEntrega,
+  "POST /api/entrega/revision": pedirRevision,
 };

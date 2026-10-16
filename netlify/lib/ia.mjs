@@ -6,7 +6,7 @@
  * de tiempo de las funciones de Netlify).
  *
  * Proveedor, según las variables de entorno:
- *  · GEMINI_API_KEY    → Google Gemini (tiene plan gratuito). Modelo: GEMINI_MODEL
+ *  · GEMINI_API_KEY    → Google Gemini, API de PAGO (GEMINI_NIVEL=pago). Modelo: GEMINI_MODEL
  *                        (por defecto gemini-2.5-flash).
  *  · ANTHROPIC_API_KEY → Claude (si no hay clave de Gemini).
  */
@@ -28,7 +28,17 @@ const claude = () =>
   (cliente ||= new Anthropic({ apiKey: env("ANTHROPIC_API_KEY"), timeout: TIEMPO_IA(), maxRetries: 0 }));
 
 export const proveedorIA = () => (claveGemini() ? "gemini" : env("ANTHROPIC_API_KEY") ? "claude" : null);
-export const iaDisponible = () => !!proveedorIA();
+/**
+ * Condiciones de la API de Gemini: en el Espacio Económico Europeo solo se pueden usar los
+ * servicios de PAGO (con facturación activada) en aplicaciones para usuarios. Hasta que la
+ * administración lo confirme con GEMINI_NIVEL=pago, la IA de Gemini queda desactivada.
+ * La IA solo la usa el profesorado (todas sus rutas exigen sesión de profesor) y recibe los
+ * datos del alumnado seudonimizados (lib/registro.mjs, seudonimizar).
+ */
+export const iaDePago = () => proveedorIA() !== "gemini" || ["pago", "paid", "1", "nivel1", "tier1", "vertex"].includes(env("GEMINI_NIVEL").toLowerCase());
+export const iaDisponible = () => !!proveedorIA() && iaDePago();
+export const motivoSinIA = () => !proveedorIA() ? "Falta configurar GEMINI_API_KEY en Netlify para usar la IA."
+  : "La IA está desactivada: Google solo permite la API de Gemini de PAGO en la Unión Europea. Activa la facturación del proyecto en Google AI Studio y añade en Netlify la variable GEMINI_NIVEL=pago.";
 
 /** Preguntas por petición: Gemini Flash es rápido y el plan gratuito limita peticiones/minuto. */
 export const tamLote = () => (proveedorIA() === "gemini" ? { mc: 10, open: 5 } : { mc: 5, open: 3 });
@@ -114,7 +124,7 @@ function normalizarAbierta(p) {
  * @param lote/lotes posición del lote, para repartir el temario
  */
 export async function generarLote({ tipo, material, n, ya = [], lote = 1, lotes = 1, titulo = "", modulo = "", indicaciones = "" }) {
-  if (!iaDisponible()) fallo(503, "Falta configurar GEMINI_API_KEY en Netlify para usar la IA.");
+  if (!iaDisponible()) fallo(503, motivoSinIA());
   const que = tipo === "mc" ? `${n} ${n === 1 ? "pregunta" : "preguntas"} tipo test` : `${n} ${n === 1 ? "pregunta abierta" : "preguntas abiertas"}`;
   const instruccion = [
     `Genera exactamente ${que} sobre el tema «${titulo}»${modulo ? ` del módulo «${modulo}»` : ""}.`,
@@ -386,7 +396,7 @@ function trozo(parte, { desde, hasta, ejercicio, titulo, apDesde, apHasta }) {
 
 /** Pide a la IA una parte del examen adaptado: indice | mc | open | num (o un trozo de ellas). */
 export async function adaptarParte({ parte, examen, solucionario = "", indicaciones = "", rango = {} }) {
-  if (!iaDisponible()) fallo(503, "Falta configurar GEMINI_API_KEY en Netlify para usar la IA.");
+  if (!iaDisponible()) fallo(503, motivoSinIA());
   if (parte === "estructura") parte = "indice";
   const P = PARTES_ADAPTAR[parte];
   if (!P) fallo(400, "Parte no válida");
@@ -425,7 +435,7 @@ const ESQUEMA_CORREGIR_G = gObj({
 
 /** respuestas: [{ ref, texto }] → [{ ref, v, motivo }] */
 export async function sugerirCorreccion({ pregunta, modelo = "", conceptos = [], respuestas }) {
-  if (!iaDisponible()) fallo(503, "Falta configurar GEMINI_API_KEY en Netlify para usar la IA.");
+  if (!iaDisponible()) fallo(503, motivoSinIA());
   const material = `<pregunta>\n${pregunta}\n</pregunta>\n<respuesta_modelo>\n${modelo || "(no hay; usa tu criterio)"}\n</respuesta_modelo>\n<conceptos_clave>\n${conceptos.join("\n") || "(no hay)"}\n</conceptos_clave>`;
   const instruccion = `Corrige estas ${respuestas.length} respuestas. Devuelve una corrección por cada una, con el mismo "ref".\n\n` +
     respuestas.map((r) => `<respuesta ref="${r.ref}">\n${r.texto || "(en blanco)"}\n</respuesta>`).join("\n");
@@ -474,7 +484,7 @@ const ESQUEMA_ALEATORIO_G = gObj({
 
 /** Propuesta de la IA para una parte (un ejercicio con sus apartados, o preguntas de test). */
 export async function proponerAleatorio({ material, instruccion }) {
-  if (!iaDisponible()) fallo(503, "Falta configurar GEMINI_API_KEY en Netlify para usar la IA.");
+  if (!iaDisponible()) fallo(503, motivoSinIA());
   const datos = proveedorIA() === "gemini"
     ? await pedirGemini("aleatorio", material, instruccion, { sistema: SISTEMA_ALEATORIO, esquemaG: ESQUEMA_ALEATORIO_G, temperatura: 0.1, pensar: true })
     : await pedirClaude("aleatorio", material, instruccion, { sistema: SISTEMA_ALEATORIO, esquema: ESQUEMA_ALEATORIO, esfuerzo: "medium" });
@@ -515,7 +525,7 @@ function alAzar(lista, n) {
 }
 
 export async function generarDefensa({ titulo, enunciado = "", trabajo, nTest = 5, nAbiertas = 2, indicaciones = "" }) {
-  if (!iaDisponible()) fallo(503, "Falta configurar GEMINI_API_KEY en Netlify para usar la IA.");
+  if (!iaDisponible()) fallo(503, motivoSinIA());
   const extra = (n) => (n ? n + Math.max(1, Math.ceil(n / 3)) : 0);
   const pideT = extra(nTest), pideA = extra(nAbiertas);
   const material = `<enunciado_del_trabajo titulo="${String(titulo).replace(/"/g, "'")}">\n${enunciado || "(sin enunciado)"}\n</enunciado_del_trabajo>\n<trabajo_del_alumno>\n${trabajo}\n</trabajo_del_alumno>`;

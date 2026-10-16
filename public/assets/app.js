@@ -40,8 +40,64 @@ async function cabecera({ ciclo = "Exámenes" } = {}) {
       <button class="btn ghost sm" id="salir" title="Cerrar sesión">Salir</button></div>`;
   $("#salir").onclick = async () => { await api("/api/cuenta/logout", {}).catch(() => {}); location.href = "/"; };
   if (usuario.cambiarPassword) await pedirPasswordNueva(usuario);
+  if (usuario.privacidadPendiente) await pedirPrivacidad(usuario);
   return usuario;
 }
+
+/** Aviso de privacidad y de uso de la IA: hay que aceptarlo (nuevo o actualizado) para seguir. */
+function pedirPrivacidad(usuario) {
+  return new Promise((ok) => {
+    const d = document.createElement("dialog");
+    d.className = "dlg-pass";
+    d.setAttribute("aria-labelledby", "privTit");
+    const staff = usuario.rol === "profesor";
+    d.innerHTML = `<form class="dbody" method="dialog" novalidate>
+      <h2 style="margin-top:0" id="privTit">Privacidad y uso de la IA</h2>
+      <p class="muted">Antes de seguir, lee cómo trata el centro tus datos en esta plataforma:</p>
+      <ul class="muted" style="padding-left:18px;margin:0 0 10px">
+        <li>Se usan para <b>evaluarte</b> (función educativa del centro). Se guardan durante el curso y hasta 6 meses después; luego se borran.</li>
+        <li>${staff ? "Puedes usar la <b>IA</b> (Google Gemini, API de pago) para preparar preguntas y proponer correcciones. A la IA no se le manda el nombre, el correo ni el DNI del alumnado. <b>La nota la decides tú</b>: revisa siempre lo que propone." : "Tu profesor puede usar la <b>IA</b> como ayuda (preparar preguntas y proponer correcciones), <b>sin tu nombre ni tus datos</b>. Tú no hablas con la IA y <b>la nota la pone siempre tu profesor</b>."}</li>
+        <li>Puedes pedir ver, corregir o borrar tus datos, y reclamar ante la Agencia Española de Protección de Datos.</li>
+      </ul>
+      <p><a href="/privacidad/" target="_blank">Leer el aviso completo</a></p>
+      ${staff ? `<details style="margin:0 0 10px"><summary><b>Pautas de uso responsable de la IA</b> (profesorado)</summary><ol class="muted" style="padding-left:18px;margin:6px 0">
+        <li>La IA <b>propone</b>; tú decides. Revisa cada pregunta generada y cada corrección sugerida antes de aceptarla.</li>
+        <li>No escribas nombres, correos ni datos personales del alumnado en las indicaciones a la IA.</li>
+        <li>La IA puede equivocarse o tener sesgos: desconfía de lo que no puedas comprobar con el material.</li>
+        <li>Informa al alumnado de que usas la IA como ayuda (la plataforma lo indica en cada examen).</li>
+        <li>No uses la IA para vigilar, identificar ni valorar emociones del alumnado.</li>
+        <li>Si algo falla o un alumno reclama, la plataforma guarda qué propuso la IA y qué decidiste tú.</li></ol></details>
+      <label class="check"><input type="checkbox" id="privPautas"> <span>He leído las pautas de uso responsable de la IA</span></label>` : ""}
+      <label class="check"><input type="checkbox" id="privAcepto"> <span>He leído el aviso de privacidad y de uso de la IA</span></label>
+      <div class="msg bad" data-err hidden></div>
+      <div class="actions"><button class="btn" type="submit">Continuar</button></div></form>`;
+    document.body.appendChild(d);
+    d.addEventListener("cancel", (e) => e.preventDefault());
+    d.showModal();
+    d.querySelector("form").onsubmit = async (ev) => {
+      ev.preventDefault();
+      const err = d.querySelector("[data-err]");
+      try {
+        if (!$("#privAcepto").checked || (staff && !$("#privPautas").checked)) throw new Error("Marca las casillas para continuar");
+        await api("/api/cuenta/privacidad", { acepto: true, pautasIA: staff });
+        d.close(); d.remove(); ok();
+      } catch (e) { err.textContent = e.message; err.hidden = false; }
+    };
+  });
+}
+
+/* Pie de página común (enlace al aviso de privacidad) y enlace para saltar al contenido. */
+document.addEventListener("DOMContentLoaded", () => {
+  if (document.body.dataset.sinPie == null && !document.querySelector(".pie-legal")) {
+    document.body.insertAdjacentHTML("beforeend", `<footer class="pie-legal" role="contentinfo"><a href="/privacidad/">Privacidad y uso de la IA</a> · <a href="/privacidad/#accesibilidad">Accesibilidad</a></footer>`);
+  }
+  const main = document.querySelector("main, .wrap");
+  if (main && !document.querySelector(".saltar")) {
+    if (!main.id) main.id = "principal";
+    main.setAttribute("tabindex", "-1");
+    document.body.insertAdjacentHTML("afterbegin", `<a class="saltar" href="#${main.id}">Saltar al contenido</a>`);
+  }
+});
 
 /**
  * Contraseña temporal puesta por la administración: antes de seguir, el

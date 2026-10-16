@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Expediente de evaluación · FP José Ramón Otero</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/app.css">
+<style>
+  .exp h2{margin:28px 0 8px;padding-bottom:6px;border-bottom:2px solid var(--line,#dde)}
+  .exp h3{margin:18px 0 6px}
+  .tb{width:100%;border-collapse:collapse;font-size:13.5px}
+  .tb th,.tb td{border-bottom:1px solid var(--line,#e2e5ea);padding:6px 8px;text-align:left;vertical-align:top}
+  .tb th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted,#5d6573)}
+  .intento{border:1px solid var(--line,#e2e5ea);border-radius:12px;padding:12px 14px;margin:10px 0;break-inside:avoid-page}
+  .intento .cab{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:baseline;margin-bottom:8px}
+  .firma{margin-top:40px;display:grid;grid-template-columns:1fr 1fr;gap:30px}
+  .firma div{border-top:1px solid #999;padding-top:6px;font-size:13px;color:var(--muted,#5d6573)}
+  @media print{.noprint{display:none!important}.wrap{max-width:none;padding:0}.intento{break-inside:avoid}body{background:#fff}}
+</style>
+</head>
+<body>
+<main class="wrap exp" id="principal">
+  <div class="noprint" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0">
+    <button class="btn" onclick="print()">🖨 Imprimir o guardar en PDF</button>
+    <label class="check"><input type="checkbox" id="conRespuestas" checked> Incluir respuestas y corrección de cada intento</label>
+  </div>
+  <div id="vista"><p class="loading">Cargando…</p></div>
+</main>
+<script src="/assets/app.js"></script>
+<script>
+const nota = (n) => (n == null ? "—" : Number(n).toLocaleString("es-ES", { maximumFractionDigits: 2 }));
+const fecha = (iso) => (iso ? new Date(iso).toLocaleString("es-ES", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "");
+const val = (v) => (v == null ? "—" : typeof v === "object" ? Object.entries(v).map(([k, x]) => `${k}: ${typeof x === "object" ? JSON.stringify(x) : x}`).join(" · ") : String(v));
+const min = (s) => (s == null ? "" : `${Math.floor(s / 60)} min ${s % 60} s`);
+
+function pintar(D) {
+  const a = D.alumno;
+  document.title = `Expediente · ${a.apellidos || a.email}, ${a.nombre || ""}`;
+  const fil = (x) => x.join("");
+  let h = `<header style="margin:6px 0 10px"><div class="muted" style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700">C.F.P. José Ramón Otero · Expediente de evaluación</div>
+    <h1 style="margin:4px 0">${a.borrada ? esc(a.email) + " <small class='muted'>(cuenta borrada)</small>" : `${esc(a.apellidos)}, ${esc(a.nombre)}`}</h1>
+    <p class="muted" style="margin:0">${a.grupo ? `${esc(a.grupo)} · ` : ""}${esc(a.email)}${a.egresado ? ` · terminó en ${esc(a.egresado)}` : ""}${a.adaptacion ? ` · adaptaciones: ${a.adaptacion.tiempoExtra ? `+${a.adaptacion.tiempoExtra}% de tiempo` : ""}${a.adaptacion.sinModoSeguro ? " sin modo seguro" : ""}` : ""}</p>
+    <p class="muted" style="margin:4px 0 0;font-size:12.5px">Generado el ${esc(fecha(D.generado))} por ${esc(D.por)}. Contiene las pruebas de evaluación guardadas en la plataforma, sus correcciones y el registro de cambios de notas.</p></header>`;
+
+  h += `<h2>Resumen</h2><table class="tb"><thead><tr><th>Módulo</th><th>Prueba</th><th>RA</th><th>Nota</th><th>Detalle</th></tr></thead><tbody>${fil([
+    ...D.examenes.map((e) => `<tr><td>${esc(e.modulo)}</td><td>${e.defensa ? "🎤 " : ""}${esc(e.titulo)}</td><td>${esc(e.ra.join(", "))}</td><td><b>${nota(e.notaFinal)}</b></td><td>${e.intentos.length} ${e.intentos.length === 1 ? "intento" : "intentos"}${e.intentos.length > 1 ? ` · cuenta ${e.calificacion === "ultima" ? "el último" : "el mejor"}` : ""}${e.salidas.length ? ` · ${e.salidas.length} salidas de la ventana` : ""}</td></tr>`),
+    ...D.trabajos.map((t) => `<tr><td>${esc(t.trabajo.modulo)}</td><td>📁 ${esc(t.trabajo.titulo)}</td><td>${esc((t.trabajo.ra || []).join(", "))}</td><td><b>${nota(t.notaFinal)}</b></td><td>Trabajo ${nota(t.notaTrabajo)} · defensa ${nota(t.defensa?.nota)}${t.suspensoPorDefensa ? " · suspenso por la defensa" : ""}${t.notaFinalManual != null ? " · nota final puesta a mano" : ""}</td></tr>`),
+    ...D.externas.map((x) => `<tr><td>${esc(x.moduloId)}</td><td>📥 ${esc(x.titulo)}</td><td>${esc(x.ra.join(", "))}</td><td><b>${nota(x.nota)}</b></td><td>Importada${x.origen ? ` de ${esc(x.origen)}` : ""}</td></tr>`),
+  ]) || `<tr><td colspan="5" class="muted">No hay pruebas.</td></tr>`}</tbody></table>`;
+
+  if (D.examenes.length) h += `<h2>Exámenes</h2>` + D.examenes.map((e) => `<h3>${e.defensa ? "🎤 " : ""}${esc(e.titulo)} <small class="muted">· ${esc(e.modulo)}</small></h3>
+    ${e.intentos.map((d, i) => `<div class="intento"><div class="cab"><b>Intento ${i + 1}${i + 1 === e.vigente ? " (cuenta)" : ""}</b><span>Entregado: ${esc(d.fechaTexto)}</span>
+      <span>Nota: <b>${nota(d.notaProfesor ?? d.nota)}</b>${d.notaProfesor != null ? ` <span class="muted">(automática ${nota(d.nota)})</span>` : ""}</span>
+      ${d.tiempoUsado != null ? `<span>Tiempo: ${min(d.tiempoUsado)}</span>` : ""}${d.finalizadoPorTiempo ? `<span class="chip s">se acabó el tiempo</span>` : ""}${d.fueraDeTiempo ? `<span class="chip bad">fuera de tiempo (${d.fueraDeTiempo} min)</span>` : ""}
+      ${d.finalizadoPorSalida ? `<span class="chip bad">entregado al salir: ${esc(d.finalizadoPorSalida)}</span>` : ""}${d.salidas ? `<span>${d.salidas} salidas de la ventana</span>` : ""}</div>
+      ${d.comentario ? `<div class="msg info"><b>Comentario del profesor:</b> ${esc(d.comentario)}</div>` : ""}
+      <div data-resp>${htmlRevision(d)}</div></div>`).join("")}
+    ${e.salidas.length ? `<details><summary class="muted">Registro de salidas de la ventana (${e.salidas.length})</summary><ul>${e.salidas.map((s) => `<li>${esc(fecha(s.t))} · ${esc(s.motivo)}</li>`).join("")}</ul></details>` : ""}`).join("");
+
+  if (D.trabajos.length) h += `<h2>Trabajos</h2>` + D.trabajos.map((t) => `<div class="intento"><div class="cab"><b>${esc(t.trabajo.titulo)}</b><span>Entregado: ${esc(t.fechaTexto || "—")}${t.tarde ? " (fuera de plazo)" : ""}</span><span>Nota final: <b>${nota(t.notaFinal)}</b></span></div>
+    <p style="margin:4px 0">Archivos: ${t.archivos.map((x) => esc(x.nombre)).join(", ") || "—"}</p>
+    <p style="margin:4px 0">Trabajo (${t.trabajo.pesoTrabajo} %): <b>${nota(t.notaTrabajo)}</b> · Defensa (${100 - t.trabajo.pesoTrabajo} %): <b>${nota(t.defensa?.nota)}</b>${t.trabajo.defensaObligatoria ? " · hay que aprobar la defensa" : ""}</p>
+    ${t.comentario ? `<p class="muted" style="margin:4px 0">Comentario del alumno: «${esc(t.comentario)}»</p>` : ""}${t.comentarioProfesor ? `<div class="msg info"><b>Comentario del profesor:</b> ${esc(t.comentarioProfesor)}</div>` : ""}</div>`).join("");
+
+  h += `<h2>Registro de cambios</h2>${D.registro.length ? `<table class="tb"><thead><tr><th>Cuándo</th><th>Quién</th><th>Qué</th><th>Sobre</th><th>Antes</th><th>Después</th></tr></thead><tbody>${D.registro.map((r) => `<tr>
+      <td>${esc(fecha(r.t))}</td><td>${esc(r.por?.nombre || r.por?.email || "")}</td><td>${esc(r.accion)}${r.ia ? ` <span class="chip v" title="Sugerencia de la IA aceptada por el profesor">IA</span>` : ""}${r.detalle ? `<br><small class="muted">${esc(r.detalle)}</small>` : ""}</td>
+      <td>${esc(r.sobre?.titulo || r.sobre?.tipo || "")}</td><td>${esc(val(r.antes))}</td><td>${esc(val(r.despues))}</td></tr>`).join("")}</tbody></table>` : `<p class="muted">Sin cambios registrados.</p>`}`;
+
+  if (D.conservadas.length) h += `<h2>Pruebas anuladas o retiradas que se conservan</h2><table class="tb"><thead><tr><th>Cuándo</th><th>Qué</th><th>Motivo</th><th>Se conserva hasta</th></tr></thead><tbody>${D.conservadas.map((c) => `<tr><td>${esc(fecha(c.fecha))}</td><td>${esc(c.tipo)}${c.titulo ? `: ${esc(c.titulo)}` : ""}</td><td>${esc(c.motivo)}</td><td>${esc(fecha(c.hasta))}</td></tr>`).join("")}</tbody></table>`;
+
+  h += `<div class="firma"><div>El/la profesor/a</div><div>Sello del centro</div></div>`;
+  $("#vista").innerHTML = h;
+}
+
+(async () => {
+  const email = new URLSearchParams(location.search).get("email");
+  const D = await api(`/api/profesor/expediente?email=${encodeURIComponent(email)}`);
+  pintar(D);
+  $("#conRespuestas").onchange = () => $$("[data-resp]").forEach((x) => (x.hidden = !$("#conRespuestas").checked));
+})().catch((e) => { $("#vista").innerHTML = `<div class="msg bad">${esc(e.message)}</div>`; });
+</script>
+</body>
+</html>

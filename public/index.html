@@ -25,7 +25,7 @@
   .points li{display:flex;gap:14px;align-items:flex-start;font-size:15px;color:#C4CAD3}
   .points li b{color:#fff;font-weight:650}
   .points .dot{flex:none;width:32px;height:32px;border-radius:9px;display:grid;place-items:center;font-weight:800;font-size:14px;color:#1F2430}
-  .panel-marca .pie{margin-top:40px;font-size:12.5px;color:#7D8590;position:relative;z-index:1}
+  .panel-marca .pie{margin-top:40px;font-size:12.5px;color:#A5ADB9;position:relative;z-index:1}
   .panel-acceso{display:flex;align-items:center;justify-content:center;padding:40px 24px;background:var(--bg)}
   .panel-acceso .card{width:100%;max-width:440px;padding:28px}
   .panel-acceso h2.saludo{font-size:22px;margin:0 0 4px}
@@ -98,15 +98,17 @@
           <div class="field"><label class="flab" for="rPass2">Repítela</label><input type="password" id="rPass2" autocomplete="new-password" minlength="8" required></div>
         </div>
         <p class="hintline" style="margin:-6px 0 14px">Mínimo 8 caracteres. Usa tu nombre real: así aparecerá en tus notas.</p>
+        <label class="check" style="margin:0 0 14px"><input type="checkbox" id="rAcepto"> <span>He leído el <a href="/privacidad/" target="_blank">aviso de privacidad y de uso de la IA</a>: el centro usa mis datos para evaluarme y el profesorado puede usar la IA como ayuda, sin mi nombre.</span></label>
         <div class="msg bad" data-err hidden></div>
         <button class="btn block" type="submit">Crear cuenta</button>
       </form>
 
       <!-- Verificar código -->
       <form id="fCod" novalidate hidden>
-        <h2>Revisa tu correo</h2>
-        <p class="muted">Hemos enviado un código de 6 cifras a <b id="codEmail"></b>. Puede tardar un minuto; mira también en «Correo no deseado».</p>
+        <h2 id="codTit">Revisa tu correo</h2>
+        <p class="muted"><span id="codIntro"></span>Hemos enviado un código de 6 cifras a <b id="codEmail"></b>. Puede tardar un minuto; mira también en «Correo no deseado».</p>
         <div class="field"><label class="flab" for="cCod">Código</label><input class="code" type="text" id="cCod" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required></div>
+        <label class="check" id="cConfiarWrap" hidden style="margin:0 0 12px"><input type="checkbox" id="cConfiar"> <span>Es mi ordenador: no pedir el código en este navegador durante 30 días</span></label>
         <div class="msg bad" data-err hidden></div>
         <div class="msg ok" data-ok hidden></div>
         <button class="btn block" type="submit">Confirmar y entrar</button>
@@ -179,8 +181,16 @@ async function enviar(form, fn) {
   try { await fn(); } catch (e) { error(form, e.message); }
   finally { btn.disabled = false; if (btn.textContent === "Un momento…") btn.textContent = txt; }
 }
+let DOS_PASOS = false;
 function trasAcceso(r, email) {
-  if (r.verificar) { $("#codEmail").textContent = email; mostrar("#fCod"); return; }
+  if (r.verificar) {
+    // Verificación en dos pasos del profesorado (o código para activar la cuenta).
+    DOS_PASOS = !!r.dosPasos;
+    $("#codTit").textContent = DOS_PASOS ? "Verificación en dos pasos" : "Revisa tu correo";
+    $("#codIntro").textContent = DOS_PASOS ? "Para proteger las notas, el profesorado confirma cada acceso con un código. " : "";
+    $("#cConfiarWrap").hidden = !DOS_PASOS;
+    $("#codEmail").textContent = email; mostrar("#fCod"); return;
+  }
   location.href = destino(r.usuario);
 }
 
@@ -198,11 +208,15 @@ $("#fReg").onsubmit = (ev) => { ev.preventDefault(); enviar(ev.target, async () 
   if (TIPO === "profesor" && !d.ciclos.length) throw new Error("Marca al menos un ciclo en el que des clase");
   if (d.password.length < 8) throw new Error("La contraseña debe tener al menos 8 caracteres");
   if (d.password !== $("#rPass2").value) throw new Error("Las contraseñas no coinciden");
+  if (!$("#rAcepto").checked) throw new Error("Marca la casilla del aviso de privacidad y de uso de la IA");
+  d.acepto = true;
   trasAcceso(await api("/api/cuenta/registro", d), d.email);
 }); };
 
 $("#fCod").onsubmit = (ev) => { ev.preventDefault(); enviar(ev.target, async () => {
-  const r = await api("/api/cuenta/verificar", { email: $("#codEmail").textContent, codigo: $("#cCod").value.trim() }, { redirigir401: false });
+  const r = DOS_PASOS
+    ? await api("/api/cuenta/acceso", { email: $("#codEmail").textContent, codigo: $("#cCod").value.trim(), confiar: $("#cConfiar").checked }, { redirigir401: false })
+    : await api("/api/cuenta/verificar", { email: $("#codEmail").textContent, codigo: $("#cCod").value.trim() }, { redirigir401: false });
   location.href = destino(r.usuario);
 }); };
 $("#reenviar").onclick = async () => {

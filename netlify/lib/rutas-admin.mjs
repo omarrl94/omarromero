@@ -7,6 +7,11 @@ import { CATALOGO } from "./catalogo.mjs";
 import { enviarCorreo, proveedorConfigurado } from "./correo.mjs";
 import { correoAviso, correoCodigo } from "./plantillas.mjs";
 import { cursoAcademico, estadoCurso, cerrarCurso, fechaCierre, grupoSiguiente, borrarDatosAlumnos } from "./curso.mjs";
+import { registrar, leerRegistro, leerRegistroIA, conservar, mesesConservacion, conservarHasta } from "./registro.mjs";
+import { hacerCopia, estadoCopias, restaurar } from "./copias.mjs";
+import { iaDisponible, proveedorIA, iaDePago } from "./ia.mjs";
+import { env } from "./http.mjs";
+import { dobleFactorActivo } from "./rutas-cuenta.mjs";
 
 const usuarios = () => almacen("usuarios");
 
@@ -41,7 +46,7 @@ async function cerrarCursoAhora(req) {
 
 /** Borra en bloque cuentas de alumnos (y, si se pide, todo lo que han entregado). */
 async function borrarAlumnos(req) {
-  await requiereAdmin(req);
+  const yo = await requiereAdmin(req);
   const b = await leerCuerpo(req, 500_000);
   const emails = [...new Set((b.emails || []).map((e) => String(e).toLowerCase()))];
   if (!emails.length) fallo(400, "No has elegido ninguna cuenta");
@@ -50,8 +55,13 @@ async function borrarAlumnos(req) {
     const u = await usuarios().get(e);
     if (u && rolDe(u) === "alumno" && !esAdmin(u.email)) borrar.push(u.email);
   }
-  for (const e of borrar) await usuarios().del(e);
-  const datos = b.borrarDatos === true ? await borrarDatosAlumnos(borrar) : 0;
+  for (const e of borrar) {
+    const u = await usuarios().get(e);
+    await conservar({ tipo: "cuenta", almacen: "usuarios", clave: e, datos: { ...u, pass: undefined, codigo: undefined }, alumno: e, por: yo, motivo: "Cuenta borrada en bloque" });
+    await usuarios().del(e);
+    await registrar({ por: yo, accion: "cuenta borrada", alumno: e, sobre: { tipo: "cuenta" }, antes: { nombre: `${u.nombre} ${u.apellidos}`, grupo: u.egresadoGrupo || u.grupo }, detalle: b.borrarDatos === true ? "con sus datos (se conservan hasta el final del plazo)" : "" });
+  }
+  const datos = b.borrarDatos === true ? await borrarDatosAlumnos(borrar, yo.email) : 0;
   return json({ ok: true, borradas: borrar.length, datos });
 }
 
@@ -61,7 +71,7 @@ async function profesores(req) {
   return json({
     ciclos: CATALOGO.map(({ id, nombre, grado, descripcion }) => ({ id, nombre, grado, descripcion })),
     profesores: lista
-      .map((u) => ({ email: u.email, nombre: u.nombre, apellidos: u.apellidos, ciclos: u.ciclos || [], aprobado: !!u.aprobado, verificado: !!u.verificado, creado: u.creado }))
+      .map((u) => ({ email: u.email, nombre: u.nombre, apellidos: u.apellidos, ciclos: u.ciclos || [], aprobado: !!u.aprobado, verificado: !!u.verificado, creado: u.creado, formacionIA: u.formacionIA?.fecha || null }))
       .sort((a, b) => Number(a.aprobado) - Number(b.aprobado) || `${a.apellidos} ${a.nombre}`.localeCompare(`${b.apellidos} ${b.nombre}`, "es")),
   });
 }
@@ -181,7 +191,80 @@ async function enviarRestablecer(req) {
   return json({ ok: true });
 }
 
+/* ── Cumplimiento: copias, registro de cambios, uso de la IA, conservación ── */
+async function cumplimiento(req) {
+  await requiereAdmin(req);
+  const ret = (await almacen("sistema").get("retenciones")) || {};
+  return json({
+    copias: await estadoCopias(),
+    conservacion: { meses: mesesConservacion(), cursoActualHasta: conservarHasta() },
+    retenciones: Object.entries(ret).map(([email, r]) => ({ email, ...r })),
+    comprobaciones: {
+      dobleFactor: dobleFactorActivo(),
+      correo: !!proveedorConfigurado(),
+      ia: proveedorIA(),
+      // Google exige la API de pago en el Espacio Económico Europeo: se confirma con GEMINI_NIVEL=pago.
+      iaDePago: iaDePago(),
+      contactoPrivacidad: !!env("PRIVACIDAD_CONTACTO"),
+    },
+  });
+}
+
+async function copiaAhora(req) {
+  const yo = await requiereAdmin(req);
+  const r = await hacerCopia({ segundos: 20 });
+  await registrar({ por: yo, accion: "copia de seguridad manual", sobre: { tipo: "sistema" }, despues: { copiados: r.copiados, completa: r.completa } });
+  return json({ ok: true, ...r });
+}
+
+async function restaurarCopia(req) {
+  const yo = await requiereAdmin(req);
+  const b = await leerCuerpo(req);
+  if (b.confirmar !== "RESTAURAR") fallo(400, "Escribe RESTAURAR para confirmar");
+  const alumno = String(b.alumno || "").toLowerCase().trim();
+  if (alumno && !EMAIL_RE.test(alumno)) fallo(400, "El correo no es válido");
+  const r = await restaurar({ alumno });
+  await registrar({ por: yo, accion: "restaurar desde la copia", alumno, sobre: { tipo: "sistema" }, despues: r });
+  return json({ ok: true, ...r });
+}
+
+/** Reclamación o recurso abierto: los datos del alumno no se borran hasta la fecha indicada. */
+async function retener(req) {
+  const yo = await requiereAdmin(req);
+  const b = await leerCuerpo(req);
+  const email = String(b.email || "").toLowerCase().trim();
+  if (!EMAIL_RE.test(email)) fallo(400, "El correo no es válido");
+  const sis = almacen("sistema"), ret = (await sis.get("retenciones")) || {};
+  if (b.hasta === null || b.hasta === "") delete ret[email];
+  else {
+    const t = Date.parse(b.hasta);
+    if (!Number.isFinite(t) || t < Date.now()) fallo(400, "La fecha debe ser futura");
+    ret[email] = { hasta: new Date(t).toISOString(), motivo: texto(b.motivo, 200), por: yo.email, desde: new Date().toISOString() };
+  }
+  await sis.set("retenciones", ret);
+  await registrar({ por: yo, accion: ret[email] ? "retención de datos (reclamación)" : "fin de la retención", alumno: email, sobre: { tipo: "cuenta" }, despues: ret[email] || null });
+  return json({ ok: true });
+}
+
+async function registroAdmin(req, url) {
+  await requiereAdmin(req);
+  const alumno = String(url.searchParams.get("alumno") || "").toLowerCase().trim();
+  const accion = url.searchParams.get("accion") || "";
+  return json({ entradas: await leerRegistro({ alumno, filtro: (x) => !accion || x.accion === accion, max: 400 }) });
+}
+
+async function registroIAAdmin(req) {
+  await requiereAdmin(req);
+  return json({ entradas: await leerRegistroIA(300) });
+}
+
 export default {
+  "GET /api/admin/cumplimiento": cumplimiento,
+  "POST /api/admin/copia": copiaAhora,
+  "POST /api/admin/copia/restaurar": restaurarCopia,
+  "POST /api/admin/retener": retener,
+  "GET /api/admin/registro": registroAdmin,
+  "GET /api/admin/registro-ia": registroIAAdmin,
   "POST /api/admin/alumno/email": cambiarEmail,
   "POST /api/admin/alumno/password": passwordTemporal,
   "POST /api/admin/alumno/restablecer": enviarRestablecer,

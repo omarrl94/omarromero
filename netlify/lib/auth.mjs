@@ -151,6 +151,9 @@ export async function requiereAdmin(req) {
   return u;
 }
 
+/** Versión del aviso de privacidad y de uso de la IA (/privacidad/). Al cambiarla, todos lo vuelven a aceptar. */
+export const PRIVACIDAD_VERSION = "2026-10";
+
 export const perfilPublico = (u) => {
   const rol = rolDe(u);
   return {
@@ -161,5 +164,7 @@ export const perfilPublico = (u) => {
     ...(u.passTemporal ? { cambiarPassword: true } : {}),
     // Alumno que terminó 2.º en un cierre de curso (su cuenta se borrará).
     ...(u.egresado ? { egresado: u.egresado } : {}),
+    // Tiene que leer y aceptar el aviso de privacidad (nuevo o actualizado).
+    ...(u.privacidad?.version !== PRIVACIDAD_VERSION ? { privacidadPendiente: true } : {}),
   };
 };

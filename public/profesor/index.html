@@ -25,6 +25,7 @@
       <button role="tab" aria-selected="false" data-tab="vGrupos">Grupos</button>
       <button role="tab" aria-selected="false" data-tab="vAlumnos">Alumnos</button>
       <button role="tab" aria-selected="false" data-tab="vCurso" hidden>Curso</button>
+      <button role="tab" aria-selected="false" data-tab="vCumple" hidden>Cumplimiento</button>
       <button role="tab" aria-selected="false" data-tab="vProfes" hidden>Profesores <span class="chip s" id="nPend" hidden style="padding:0 7px"></span></button>
     </div>
   </div>
@@ -70,6 +71,11 @@
     <div id="cursoCont"><p class="loading">Cargando…</p></div>
   </section>
 
+  <section id="vCumple" hidden>
+    <div class="toolbar"><h2>Cumplimiento: copias, conservación y registros</h2></div>
+    <div id="cumpleCont"><p class="loading">Cargando…</p></div>
+  </section>
+
   <section id="vProfes" hidden>
     <div class="toolbar"><h2>Profesores</h2></div>
     <p class="muted" style="margin-top:-6px">Los profesores se registran en la página principal eligiendo «Profesor/a» y los ciclos en los que dan clase. Aquí los apruebas y decides a qué ciclos tienen acceso: solo podrán crear exámenes y gestionar alumnos de esos ciclos.</p>
@@ -85,6 +91,7 @@
       <div class="tabs" role="tablist" aria-label="Vista">
         <button type="button" role="tab" aria-selected="true" data-vista-grupo="detalle">Detalle por examen</button>
         <button type="button" role="tab" aria-selected="false" data-vista-grupo="medias">Solo notas finales</button>
+        <button type="button" role="tab" aria-selected="false" data-vista-grupo="ra" title="Nota de cada resultado de aprendizaje: media de los exámenes, trabajos y notas importadas que lo evalúan">Por resultados de aprendizaje</button>
       </div>
       <label class="check" style="font-size:14px"><input type="checkbox" id="noPresentado0" checked> «No presentado» cuenta como 0</label>
     </div>
@@ -226,6 +233,7 @@
 <dialog id="dEntrega">
   <div class="dhead"><h2 id="dEntTitulo">Entrega</h2><button class="btn ghost sm" data-close>Cerrar</button></div>
   <div class="dbody">
+    <div id="rRevision"></div>
     <form id="fRevisar" class="card" style="margin-bottom:18px" novalidate>
       <div class="intsel" id="rIntentos"></div>
       <div class="row2">
@@ -235,7 +243,7 @@
       <div class="field"><label class="flab" for="rCom">Comentario para el alumno</label><textarea id="rCom" style="min-height:70px"></textarea></div>
       <p class="hintline" id="rAjustesInfo"></p>
       <div class="msg bad" data-err hidden></div><div class="msg ok" data-ok hidden></div>
-      <button class="btn" type="submit">Guardar revisión y puntos</button>
+      <button class="btn" type="submit">Guardar revisión y validar la nota</button>
     </form>
     <div id="dEntCont"></div>
   </div>
@@ -243,7 +251,7 @@
 
 <!-- Horario del examen -->
 <dialog id="dHorario">
-  <div class="dhead"><h2>⏱ Horario · <span id="dHorTitulo"></span></h2><button class="btn ghost sm" data-close>Cerrar</button></div>
+  <div class="dhead"><h2>⏱ Horario y evaluación · <span id="dHorTitulo"></span></h2><button class="btn ghost sm" data-close>Cerrar</button></div>
   <form class="dbody" id="fHorario" novalidate>
     <p class="muted" style="margin-top:0">Para que el examen solo se haga en clase y a su hora. Todo es opcional: deja un campo vacío si no quieres ese límite.</p>
     <div class="row2">
@@ -254,8 +262,12 @@
       <span class="hintline">Cuenta desde que cada alumno pulsa «Comenzar». Al acabarse, el examen se entrega solo. El alumnado con tiempo extra (pestaña Alumnos) tiene su parte proporcional.</span></div>
     <label class="check"><input type="checkbox" id="hCodigo"> <span>🔑 Pedir un <b>código de acceso</b> para empezar (lo dices o lo escribes en la pizarra al empezar la clase)</span></label>
     <div class="codbox" id="hCodBox" hidden><span>Código:</span><b id="hCodVal">—</b><button type="button" class="btn ghost sm" id="hCodNuevo">Generar otro</button></div>
+    <label class="check" style="margin-top:10px"><input type="checkbox" id="hIdent"> <span>🪪 <b>Examen a distancia</b>: cada alumno necesita su <b>código personal</b>, que le das por la videollamada después de ver su DNI (sustituye al código de clase)</span></label>
+    <p class="hintline" id="hIdentAyuda" hidden><button type="button" class="link" id="hVerCodigos">Ver e imprimir los códigos personales</button> · Protocolo: cámara encendida, DNI a cámara, das el código solo a quien has identificado. Queda registrado quién empieza y los códigos erróneos.</p>
+    <div class="field" style="margin-top:14px"><label class="flab" for="hRA">Resultados de aprendizaje que evalúa</label><input type="text" id="hRA" placeholder="Ej.: RA1, RA2" maxlength="120">
+      <span class="hintline">Para el informe por resultados de aprendizaje de la pestaña Grupos.</span></div>
     <div class="msg bad" data-err hidden></div>
-    <div class="actions"><button class="btn" type="submit">Guardar horario</button><button class="btn ghost" type="button" id="hQuitar">Quitar todos los límites</button></div>
+    <div class="actions"><button class="btn" type="submit">Guardar</button><button class="btn ghost" type="button" id="hQuitar">Quitar todos los límites</button></div>
   </form>
 </dialog>
 
@@ -326,6 +338,7 @@
     </div>
     <div style="display:grid;gap:10px;margin:4px 0 14px">
       <label class="check"><input type="checkbox" id="tTarde" checked> Admitir entregas fuera de plazo (quedan marcadas como «con retraso»)</label>
+      <div class="field" style="max-width:340px"><label class="flab" for="tRA">Resultados de aprendizaje que evalúa</label><input type="text" id="tRA" placeholder="Ej.: RA3, RA4" maxlength="120"></div>
       <label class="check"><input type="checkbox" id="tDefOblig"> <span>🎤 Hay que <b>aprobar la defensa</b> para aprobar el trabajo (si la defensa sale por debajo de 5, la nota final es como máximo un 4)</span></label>
       <label class="check"><input type="checkbox" id="tPub"> Publicar ya (visible para los alumnos del módulo)</label>
     </div>
@@ -366,9 +379,84 @@ $$("[data-tab]").forEach((b) => (b.onclick = () => {
   $("#vGrupos").hidden = b.dataset.tab !== "vGrupos";
   $("#vProfes").hidden = b.dataset.tab !== "vProfes";
   $("#vCurso").hidden = b.dataset.tab !== "vCurso";
+  $("#vCumple").hidden = b.dataset.tab !== "vCumple";
   $("#vTrabajos").hidden = b.dataset.tab !== "vTrabajos"; $("#vTrabajo").hidden = true;
-  if (b.dataset.tab === "vCurso") cargarCurso(); else if (b.dataset.tab === "vTrabajos") cargarTrabajos(); else if (b.dataset.tab === "vGrupos") cargarGrupos(); else if (b.dataset.tab === "vAlumnos") cargarAlumnos(); else if (b.dataset.tab === "vProfes") cargarProfes(); else cargarExamenes();
+  if (b.dataset.tab === "vCurso") cargarCurso(); else if (b.dataset.tab === "vCumple") cargarCumple(); else if (b.dataset.tab === "vTrabajos") cargarTrabajos(); else if (b.dataset.tab === "vGrupos") cargarGrupos(); else if (b.dataset.tab === "vAlumnos") cargarAlumnos(); else if (b.dataset.tab === "vProfes") cargarProfes(); else cargarExamenes();
 }));
+
+/* ── Cumplimiento (solo administrador) ── */
+const fechaHora = (iso) => (iso ? new Date(iso).toLocaleString("es-ES", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—");
+const valorTxt = (v) => (v == null ? "—" : typeof v === "object" ? Object.entries(v).map(([k, x]) => `${k}: ${typeof x === "object" ? JSON.stringify(x) : x}`).join(" · ") : String(v));
+function tablaRegistro(entradas) {
+  if (!entradas.length) return `<p class="muted">No hay entradas.</p>`;
+  return `<div class="tablewrap"><table class="t"><thead><tr><th>Cuándo</th><th>Quién</th><th>Qué</th><th>Alumno/a</th><th>Sobre</th><th>Antes</th><th>Después</th></tr></thead><tbody>${entradas.map((r) => `<tr>
+    <td style="white-space:nowrap">${esc(fechaHora(r.t))}</td><td>${esc(r.por?.nombre || r.por?.email || "")}</td>
+    <td>${esc(r.accion)}${r.ia ? ` <span class="chip v" title="Aplicó una sugerencia de la IA">IA</span>` : ""}${r.detalle ? `<div class="muted" style="font-size:12.5px">${esc(r.detalle)}</div>` : ""}</td>
+    <td>${esc(r.alumno || "")}</td><td>${esc(r.sobre?.titulo || r.sobre?.tipo || "")}</td><td>${esc(valorTxt(r.antes))}</td><td>${esc(valorTxt(r.despues))}</td></tr>`).join("")}</tbody></table></div>`;
+}
+async function cargarCumple() {
+  const c = $("#cumpleCont");
+  try {
+    const d = await api("/api/admin/cumplimiento"), k = d.comprobaciones, cp = d.copias || {};
+    const ok = (b, si, no) => `<li>${b ? "✅" : "⚠️"} ${b ? si : no}</li>`;
+    c.innerHTML = `
+      <div class="card"><h3 style="margin-top:0">Comprobaciones</h3><ul style="margin:0;padding-left:18px;line-height:1.8">
+        ${ok(k.dobleFactor, "Verificación en dos pasos del profesorado activa (código por correo).", "Verificación en dos pasos <b>apagada</b>: necesita el correo configurado (y no tener DOBLE_FACTOR=no).")}
+        ${ok(k.correo, "Envío de correo configurado.", "Envío de correo sin configurar.")}
+        ${ok(k.iaDePago, k.ia ? `IA (${esc(k.ia)}) con la API de pago confirmada.` : "IA sin configurar.", "Confirma que la clave de Gemini es de la <b>API de pago</b> (Google lo exige en la UE): añade en Netlify la variable <code>GEMINI_NIVEL=pago</code>.")}
+        ${ok(k.contactoPrivacidad, "Contacto de privacidad configurado en el aviso.", "Añade en Netlify <code>PRIVACIDAD_CONTACTO</code> (correo de la dirección o del delegado de protección de datos) para el aviso de privacidad.")}
+        <li>🔒 La IA solo la usa el profesorado; al alumnado no le llega nunca. A la IA se le mandan las respuestas y los trabajos <b>sin nombre, correo, DNI ni teléfono</b>.</li>
+      </ul></div>
+      <div class="card"><h3 style="margin-top:0">Copias de seguridad</h3>
+        <p class="muted" style="margin-top:0">Cada hora se copia lo que ha cambiado a un almacén aparte. Lo borrado sigue en la copia ${cp.dias || 30} días y se guardan las versiones anteriores de los últimos ${cp.dias || 30} días.</p>
+        <p>Última copia: <b>${esc(fechaHora(cp.ultima))}</b>${cp.ultima && !cp.completa ? " <span class='chip s'>en curso (sigue en la próxima)</span>" : ""} · Última copia completa: <b>${esc(fechaHora(cp.ultimaCompleta))}</b>${cp.versionesDesde ? ` · Versiones anteriores desde el ${esc(cp.versionesDesde)}` : ""}</p>
+        ${cp.almacenes ? `<p class="muted" style="font-size:13px">${Object.entries(cp.almacenes).map(([n, a]) => `${esc(n)}: ${a.total}${a.enCopiaBorrados ? ` (+${a.enCopiaBorrados} borrados en copia)` : ""}`).join(" · ")}</p>` : ""}
+        <div class="actions" style="justify-content:flex-start"><button class="btn" id="cpAhora">Hacer copia ahora</button>
+          <button class="btn ghost" id="cpRestAl">Restaurar lo borrado de un alumno…</button><button class="btn ghost" id="cpRestTodo">Restaurar todo lo borrado…</button></div>
+        <div class="msg" id="cpMsg" hidden></div></div>
+      <div class="card"><h3 style="margin-top:0">Conservación de las pruebas</h3>
+        <p class="muted" style="margin-top:0">Lo que se borra (intentos, entregas, trabajos, cuentas, notas de un curso) desaparece de la plataforma pero se guarda <b>hasta ${d.conservacion.meses} meses después del 30 de junio</b> del curso en que se hizo; después se borra solo. Las pruebas de este curso se guardan hasta el <b>${esc(fecha(d.conservacion.cursoActualHasta))}</b>.</p>
+        <p class="muted">Si un alumno tiene una <b>reclamación o recurso</b> abierto, retén sus datos hasta que se resuelva:</p>
+        <div class="row2" style="align-items:end"><div class="field"><label class="flab" for="retEmail">Correo del alumno</label><input type="email" id="retEmail"></div>
+          <div class="field"><label class="flab" for="retHasta">Retener hasta</label><input type="date" id="retHasta"></div></div>
+        <div class="field"><label class="flab" for="retMotivo">Motivo</label><input type="text" id="retMotivo" maxlength="200" placeholder="Ej.: reclamación de la nota final de SAD"></div>
+        <div class="actions" style="justify-content:flex-start"><button class="btn" id="retGuardar">Retener</button></div>
+        ${d.retenciones.length ? `<table class="t"><thead><tr><th>Alumno/a</th><th>Hasta</th><th>Motivo</th><th></th></tr></thead><tbody>${d.retenciones.map((r) => `<tr><td>${esc(r.email)}</td><td>${esc(fecha(r.hasta))}</td><td>${esc(r.motivo)}</td><td><button class="btn ghost sm" data-quitar-ret="${esc(r.email)}">Quitar</button></td></tr>`).join("")}</tbody></table>` : ""}</div>
+      <div class="card"><h3 style="margin-top:0">Registro de cambios de notas</h3>
+        <p class="muted" style="margin-top:0">Quién cambió cada nota, cuándo, qué había antes y si aplicó una sugerencia de la IA. No se puede modificar.</p>
+        <div class="filtros"><input type="search" id="regAlumno" placeholder="Correo del alumno (vacío: lo último)" style="min-width:280px"><button class="btn sm" id="regBuscar">Buscar</button></div>
+        <div id="regTabla"><p class="loading">Cargando…</p></div></div>
+      <div class="card"><h3 style="margin-top:0">Uso de la IA</h3><p class="muted" style="margin-top:0">Cada vez que el profesorado usa la IA (sin el contenido).</p><div id="iaTabla"><p class="loading">Cargando…</p></div></div>`;
+    const msg = (t, cls = "ok") => { const m = $("#cpMsg"); m.className = `msg ${cls}`; m.innerHTML = t; m.hidden = false; };
+    $("#cpAhora").onclick = async (ev) => {
+      ev.target.disabled = true; msg("Copiando…", "info");
+      try { const r = await api("/api/admin/copia", {}); msg(`Copia hecha: ${r.copiados} elementos nuevos o cambiados${r.completa ? "" : " (quedan más: se seguirá en la próxima copia)"}.`); }
+      catch (e) { msg(esc(e.message), "bad"); } finally { ev.target.disabled = false; }
+    };
+    const restaurar = async (alumno) => {
+      if (prompt(`${alumno ? `Se recuperará lo borrado de ${alumno}` : "Se recuperará TODO lo borrado en los últimos 30 días"} (no se sobrescribe nada de lo que hay).\n\nEscribe RESTAURAR para confirmar:`) !== "RESTAURAR") return;
+      try { const r = await api("/api/admin/copia/restaurar", { confirmar: "RESTAURAR", alumno }); msg(`Restaurados ${r.restaurados} elementos${r.restaurados ? `: ${Object.entries(r.porAlmacen).map(([n, x]) => `${esc(n)} ${x}`).join(", ")}` : ""}.`); }
+      catch (e) { msg(esc(e.message), "bad"); }
+    };
+    $("#cpRestAl").onclick = () => { const a = prompt("Correo del alumno:"); if (a) restaurar(a.trim().toLowerCase()); };
+    $("#cpRestTodo").onclick = () => restaurar("");
+    $("#retGuardar").onclick = async () => {
+      try { await api("/api/admin/retener", { email: $("#retEmail").value.trim(), hasta: $("#retHasta").value ? new Date($("#retHasta").value + "T23:59:00").toISOString() : "", motivo: $("#retMotivo").value }); cargarCumple(); }
+      catch (e) { alert(e.message); }
+    };
+    $$("[data-quitar-ret]", c).forEach((b) => (b.onclick = async () => { try { await api("/api/admin/retener", { email: b.dataset.quitarRet, hasta: null }); cargarCumple(); } catch (e) { alert(e.message); } }));
+    const buscar = async () => {
+      $("#regTabla").innerHTML = `<p class="loading">Cargando…</p>`;
+      try { const r = await api(`/api/admin/registro?alumno=${encodeURIComponent($("#regAlumno").value.trim())}`); $("#regTabla").innerHTML = tablaRegistro(r.entradas.slice(0, 200)); }
+      catch (e) { $("#regTabla").innerHTML = `<div class="msg bad">${esc(e.message)}</div>`; }
+    };
+    $("#regBuscar").onclick = buscar; $("#regAlumno").onkeydown = (ev) => { if (ev.key === "Enter") buscar(); };
+    buscar();
+    api("/api/admin/registro-ia").then(({ entradas }) => {
+      $("#iaTabla").innerHTML = entradas.length ? `<div class="tablewrap"><table class="t"><thead><tr><th>Cuándo</th><th>Quién</th><th>Para qué</th><th>Detalle</th></tr></thead><tbody>${entradas.slice(0, 150).map((r) => `<tr><td style="white-space:nowrap">${esc(fechaHora(r.t))}</td><td>${esc(r.por)}</td><td>${esc(r.tipo)}</td><td class="muted" style="font-size:12.5px">${esc(Object.entries(r).filter(([k2]) => !["t", "por", "tipo"].includes(k2)).map(([k2, v]) => `${k2}: ${v}`).join(" · "))}</td></tr>`).join("")}</tbody></table></div>` : `<p class="muted">Todavía no se ha usado.</p>`;
+    }).catch((e) => { $("#iaTabla").innerHTML = `<div class="msg bad">${esc(e.message)}</div>`; });
+  } catch (e) { c.innerHTML = `<div class="msg bad">${esc(e.message)}</div>`; }
+}
 
 /* ── Profesores (solo administrador) ── */
 async function cargarProfes() {
@@ -376,11 +464,12 @@ async function cargarProfes() {
   const pend = profesores.filter((p) => !p.aprobado).length;
   $("#nPend").hidden = !pend; $("#nPend").textContent = pend;
   if (!profesores.length) { $("#tablaProfes").innerHTML = `<div class="empty">Todavía no se ha registrado ningún profesor.</div>`; return; }
-  $("#tablaProfes").innerHTML = `<div class="tablewrap"><table class="t"><thead><tr><th>Profesor/a</th><th>Ciclos con acceso</th><th>Estado</th><th></th></tr></thead><tbody>
+  $("#tablaProfes").innerHTML = `<div class="tablewrap"><table class="t"><thead><tr><th>Profesor/a</th><th>Ciclos con acceso</th><th>Estado</th><th title="Constancia de que ha leído las pautas de uso responsable de la IA (Reglamento de IA, art. 4)">Pautas de IA</th><th></th></tr></thead><tbody>
     ${profesores.map((p) => `<tr data-email="${esc(p.email)}">
       <td><b>${esc(p.apellidos)}, ${esc(p.nombre)}</b><div class="muted" style="font-size:13px">${esc(p.email)} · alta ${fecha(p.creado)}</div></td>
       <td><div style="display:flex;flex-wrap:wrap;gap:6px 14px">${ciclos.map((c) => `<label class="check" style="font-size:14px"><input type="checkbox" data-ciclo value="${esc(c.id)}" ${p.ciclos.includes(c.id) ? "checked" : ""}> ${esc(c.nombre)}</label>`).join("")}</div></td>
       <td>${p.aprobado ? `<span class="chip ok">Con acceso</span>` : `<span class="chip">Pendiente</span>${p.verificado ? "" : ` <span class="chip gray">correo sin confirmar</span>`}`}</td>
+      <td>${p.formacionIA ? `<span class="chip ok">✓ ${esc(fecha(p.formacionIA))}</span>` : `<span class="chip gray">Aún no</span>`}</td>
       <td><div class="acts">${p.aprobado ? `<button class="btn ghost sm" data-quitar-acceso>Quitar acceso</button>` : `<button class="btn sm" data-aprobar>Aprobar</button>`}
         <button class="btn danger sm" data-borrar-profe>Borrar</button></div></td></tr>`).join("")}</tbody></table></div>`;
   const fila = (el) => el.closest("tr").dataset.email;
@@ -444,7 +533,9 @@ function horarioTxt(e) {
   const p = [];
   if (e.ventana?.desde || e.ventana?.hasta) p.push(`${e.ventana.desde ? fechaCorta(e.ventana.desde) : "ya"} → ${e.ventana.hasta ? fechaCorta(e.ventana.hasta) : "sin cierre"}`);
   if (e.duracion) p.push(`${e.duracion} min`);
-  if (e.codigo) p.push(`código <b class="codigo">${esc(e.codigo)}</b>`);
+  if (e.identidad) p.push("🪪 a distancia (código personal)");
+  else if (e.codigo) p.push(`código <b class="codigo">${esc(e.codigo)}</b>`);
+  if (e.ra?.length) p.push(`<span class="chip gray">${esc(e.ra.join(", "))}</span>`);
   return p.length ? p.join(" · ") : `<span class="muted">Sin límite de horario</span>`;
 }
 let HOR_ID = null;
@@ -454,6 +545,8 @@ function abrirHorario(id) {
   $("#hDesde").value = aLocal(e.ventana?.desde); $("#hHasta").value = aLocal(e.ventana?.hasta);
   $("#hDur").value = e.duracion || "";
   $("#hCodigo").checked = !!e.codigo; $("#hCodVal").textContent = e.codigo || "—"; $("#hCodBox").hidden = !e.codigo;
+  $("#hIdent").checked = !!e.identidad; $("#hIdentAyuda").hidden = !e.identidad;
+  $("#hRA").value = (e.ra || []).join(", ");
   $("[data-err]", $("#dHorario")).hidden = true;
   $("#dHorario").showModal();
 }
@@ -462,11 +555,13 @@ async function guardarHorario(extra = {}) {
   const e = EXAMENES.find((x) => x.id === HOR_ID);
   const cuerpo = {
     id: HOR_ID, ventana: { desde: $("#hDesde").value ? new Date($("#hDesde").value).toISOString() : "", hasta: $("#hHasta").value ? new Date($("#hHasta").value).toISOString() : "" },
-    duracion: Number($("#hDur").value || 0), codigo: $("#hCodigo").checked ? (e.codigo || "nuevo") : "", ...extra,
+    duracion: Number($("#hDur").value || 0), codigo: $("#hCodigo").checked ? (e.codigo || "nuevo") : "",
+    identidad: $("#hIdent").checked, ra: $("#hRA").value, ...extra,
   };
   try {
     const r = await api("/api/profesor/examen/ajustes", cuerpo);
-    Object.assign(e, { ventana: r.ventana, duracion: r.duracion, codigo: r.codigo });
+    Object.assign(e, { ventana: r.ventana, duracion: r.duracion, codigo: r.codigo, identidad: r.identidad, ra: r.ra });
+    $("#hIdentAyuda").hidden = !r.identidad;
     $("#hCodVal").textContent = r.codigo || "—"; $("#hCodBox").hidden = !r.codigo;
     pintarExamenes();
     return true;
@@ -479,7 +574,7 @@ function tarjetaExamen(e) {
       <div class="top">
         <div class="where"><span class="tag">${esc(e.ciclo)}</span><span>${esc(e.modulo)}</span><span class="curso" title="Cursos que ven este módulo">${esc(cursoTxt(CATALOGO.find((c) => c.id === e.cicloId)?.modulos.find((m) => m.id === e.moduloId)))}</span></div>
         <h3>${esc(e.titulo)}</h3>
-        <div class="id">Orden ${e.orden} · <code>${esc(e.id)}</code>${e.autor ? ` · ${esc(e.autor)}` : ""}</div>
+        <div class="id">Orden ${e.orden} · <code>${esc(e.id)}</code>${e.autor ? ` · ${esc(e.autor)}` : ""}${e.conIA ? ` · <span title="Preguntas preparadas con ayuda de la IA: el alumnado lo ve al empezar">✨ con IA</span>` : ""}</div>
       </div>
       <div class="stats">
         <span><b>${e.nMc}</b>test</span><span><b>${e.nOpen}</b>abiertas</span>${e.nNum ? `<span><b>${e.nNum}</b>ejercicios</span>` : ""}
@@ -502,7 +597,7 @@ function tarjetaExamen(e) {
         ${e.nVariables ? `<label title="Cada alumno tiene otros valores (${e.nVariables} variables) y sus propios resultados"><span class="switch"><input type="checkbox" data-azar="valores" ${e.aleatorio?.valores ? "checked" : ""}><span></span></span>Valores</label>`
           : (e.nNum || e.nMc) ? `<button type="button" class="link" data-ia-valores title="La IA propone qué datos pueden cambiar y las fórmulas de los resultados; la plataforma comprueba que dan los mismos resultados que el original">✨ Valores aleatorios con IA</button>` : ""}
       </div>
-      <div class="herrbar horariobar" title="Cuándo se puede hacer, cuánto dura y código de acceso">
+      <div class="herrbar horariobar" title="Cuándo se puede hacer, cuánto dura, código de acceso y resultados de aprendizaje">
         <span>⏱ Horario</span>
         <span class="hsum">${horarioTxt(e)}</span>
         <button type="button" class="link" data-horario>Configurar</button>
@@ -553,9 +648,9 @@ function pintarExamenes() {
         h += `<details class="grupo-mod" open data-ciclo="${esc(c.id)}" data-mod="${esc(m.id)}">
           <summary><span class="nom">${esc(m.nombre)}</span>
             <span class="chip gray">${esc(cursoTxt(m))}</span>
-            <span class="muted">${exs.length} ${exs.length === 1 ? "examen" : "exámenes"}${exs.length ? ` · ${publicados} publicados · ${entregas} entregas` : ""}</span>
+            <span class="muted">${exs.length} ${exs.length === 1 ? "examen" : "exámenes"}${exs.length ? ` · ${publicados} publicados · ${entregas} entregas` : ""}</span></summary>
             <span class="acc"><button type="button" class="btn ghost sm" data-renombrar title="Cambiar el nombre del módulo">✎ Renombrar</button>
-              <button type="button" class="btn ghost sm" data-ia-aqui title="Generar un examen con IA en este módulo">✨ Nuevo examen</button></span></summary>
+              <button type="button" class="btn ghost sm" data-ia-aqui title="Generar un examen con IA en este módulo">✨ Nuevo examen</button></span>
           ${exs.length ? `<div class="exgrid">${exs.map(tarjetaExamen).join("")}</div>` : `<p class="muted" style="margin:6px 4px 4px">Todavía no hay exámenes en este módulo.</p>`}
         </details>`;
       }
@@ -606,7 +701,7 @@ function pintarExamenes() {
   }));
   $$("[data-borrar]", t).forEach((b) => (b.onclick = async () => {
     const e = EXAMENES.find((x) => x.id === idDe(b));
-    if (!confirm(`¿Borrar «${e.titulo}»?\n\nSe borrarán también sus ${e.entregas} entregas. Exporta antes las notas si las necesitas. No se puede deshacer.`)) return;
+    if (!confirm(`¿Borrar «${e.titulo}»?\n\nSe borrarán también sus ${e.entregas} entregas. Exporta antes las notas si las necesitas.${"\n\n"}Las entregas desaparecen de la plataforma, pero se guarda una copia durante el plazo de conservación de las pruebas (6 meses tras el final del curso).`)) return;
     try { await api("/api/profesor/examen/borrar", { id: e.id }); cargarExamenes(); } catch (err) { alert(err.message); }
   }));
 }
@@ -654,6 +749,8 @@ function pintarEntregas() {
   if (!filas.length) { $("#tablaEntregas").innerHTML = `<div class="empty">Nadie ha empezado este examen todavía.</div>`; return; }
   $("#tablaEntregas").innerHTML = `<div class="meta" style="margin-bottom:12px"><span class="chip v">${ent.length} entregas</span>
     <span class="chip gray">${filas.length - ent.length} sin entregar</span>${media != null ? `<span class="chip">Media: ${fmt(Math.round(media * 100) / 100)}</span>` : ""}
+    ${ent.some((f) => !f.validada) ? `<span class="chip s" title="Notas automáticas que el alumno ve como provisionales">⏳ ${ent.filter((f) => !f.validada).length} provisionales</span><button class="btn sm" id="validarTodas" title="Marca como definitivas (validadas por ti) las notas de las entregas que aún son provisionales">✓ Validar notas</button>` : ent.length ? `<span class="chip ok">✓ Todas las notas validadas</span>` : ""}
+    ${ent.some((f) => f.revision === "pendiente") ? `<span class="chip bad">✋ ${ent.filter((f) => f.revision === "pendiente").length} solicitudes de revisión</span>` : ""}
     ${EX_ENT?.nOpen ? `<span class="chip" title="Entregas con respuestas escritas sin revisar">⏳ ${ent.filter((f) => f.porRevisar).length} por revisar</span><span class="chip ok" title="Entregas con todas las respuestas escritas revisadas">✓ ${ent.filter((f) => !f.porRevisar).length} revisadas</span>` : ""}</div>
     <div class="tablewrap"><table class="t"><thead><tr><th>Alumno/a</th><th>Grupo</th><th>Estado</th><th>Nota auto.</th><th>Nota final</th><th>Intentos</th><th>Salidas</th><th>Fecha</th><th></th></tr></thead><tbody>
     ${filas.map((f) => `<tr data-email="${esc(f.email)}" class="${f.estado !== "entregado" || !EX_ENT?.nOpen ? "" : f.porRevisar ? "fila-pend" : "fila-hecha"}">
@@ -662,6 +759,8 @@ function pintarEntregas() {
       <td>${f.estado === "entregado" ? `<span class="chip ok">Entregado</span>` : f.enCurso ? `<span class="chip v">En curso</span><div class="muted" style="font-size:12px;margin-top:3px">guardado ${esc(horaCorta(f.enCurso.t))}${f.enCurso.n != null ? ` · ${f.enCurso.n} respondidas` : ""}</div>` : `<span class="chip gray">Sin entregar</span>`}
         ${f.reanudar ? `<div><span class="chip ok" style="margin-top:4px" title="Al volver a entrar, seguirá donde lo dejó">↺ Puede reanudar</span></div>` : ""}
         ${f.porRevisar ? `<div><span class="chip" title="Respuestas escritas sin revisar en el intento que cuenta" style="margin-top:4px">⏳ ${f.porRevisar} por revisar</span></div>` : f.estado === "entregado" && EX_ENT?.nOpen ? `<div><span class="chip ok" style="margin-top:4px" title="Todas sus respuestas escritas están revisadas">✓ Escritas revisadas</span></div>` : ""}
+        ${f.estado === "entregado" ? (f.validada ? `<div><span class="chip ok" style="margin-top:4px" title="El alumno ve la nota como definitiva">✓ Nota validada</span></div>` : `<div><span class="chip s" style="margin-top:4px" title="El alumno ve la nota como provisional hasta que la valides (guardando la revisión o con «Validar notas»)">⏳ Nota provisional</span></div>`) : ""}
+        ${f.revision === "pendiente" ? `<div><span class="chip bad" style="margin-top:4px" title="El alumno pide que revises su nota: ábrela con «Ver / revisar»">✋ Pide revisión</span></div>` : f.revision === "respondida" ? `<div><span class="chip gray" style="margin-top:4px">Revisión respondida</span></div>` : ""}
         ${f.finalizadoPorSalida ? `<div><span class="chip bad" title="${esc(f.finalizadoPorSalida)}" style="margin-top:4px">🔒 Finalizado al salir</span></div>` : ""}
         ${f.finalizadoPorTiempo ? `<div><span class="chip s" style="margin-top:4px" title="Se entregó solo al acabarse el tiempo">⏱ Se acabó el tiempo</span></div>` : ""}
         ${f.fueraDeTiempo ? `<div><span class="chip bad" style="margin-top:4px" title="Entregado después de su hora límite">⏱ ${f.fueraDeTiempo} min tarde</span></div>` : ""}
@@ -677,6 +776,12 @@ function pintarEntregas() {
         <button class="btn ghost sm" data-reabrir title="Borra todos sus intentos y sus intentos extra: empieza de cero">Reabrir</button></div></td>
     </tr>`).join("")}</tbody></table></div>`;
   $$("[data-ver]").forEach((b) => (b.onclick = () => verEntrega(b.closest("tr").dataset.email)));
+  const vt = $("#validarTodas");
+  if (vt) vt.onclick = async () => {
+    const pend = ent.filter((f) => !f.validada), porRev = pend.filter((f) => f.porRevisar).length;
+    if (!confirm(`¿Validar ${pend.length} ${pend.length === 1 ? "nota" : "notas"}? El alumnado las verá como definitivas.${porRev ? `\n\nOjo: ${porRev} ${porRev === 1 ? "entrega tiene" : "entregas tienen"} respuestas escritas sin revisar.` : ""}`)) return;
+    try { await api("/api/profesor/entregas/validar", { id: ACTUAL, emails: g ? pend.map((f) => f.email) : undefined }); await recargarFilas(); } catch (e) { alert(e.message); }
+  };
   $$("[data-extra]").forEach((b) => (b.onclick = async () => {
     const f = FILAS.find((x) => x.email === b.closest("tr").dataset.email);
     try { await api("/api/profesor/entrega/intento-extra", { id: ACTUAL, email: f.email, cambio: Number(b.dataset.extra) }); await recargarFilas(); } catch (e) { alert(e.message); }
@@ -693,7 +798,7 @@ function pintarEntregas() {
   }));
   $$("[data-reabrir]").forEach((b) => (b.onclick = async () => {
     const f = FILAS.find((x) => x.email === b.closest("tr").dataset.email);
-    if (!confirm(`¿Reabrir el examen a ${f.nombre} ${f.apellidos}?\n\nSe borrarán todos sus intentos (notas y respuestas) y empezará de cero.`)) return;
+    if (!confirm(`¿Reabrir el examen a ${f.nombre} ${f.apellidos}?\n\nSus intentos (notas y respuestas) desaparecen y empezará de cero. Se guarda una copia durante el plazo de conservación de las pruebas.`)) return;
     try { await api("/api/profesor/entrega/reabrir", { id: ACTUAL, email: f.email }); abrirEntregas(ACTUAL); } catch (e) { alert(e.message); }
   }));
 }
@@ -777,7 +882,9 @@ async function marcar(card, valor, repintar = true) {
   const { k, i } = RESP_SEL;
   $$("[data-valor]", card).forEach((b) => (b.disabled = true));
   try {
-    const r = await api("/api/profesor/entrega/puntuar", { id: ACTUAL, email: card.dataset.email, intento: Number(card.dataset.intento), k, i, valor });
+    // Si coincide con lo que propuso la IA, queda registrado como sugerencia aceptada.
+    const sug = SUGERENCIAS[`${k}:${i}:${card.dataset.email}#${card.dataset.intento}`];
+    const r = await api("/api/profesor/entrega/puntuar", { id: ACTUAL, email: card.dataset.email, intento: Number(card.dataset.intento), k, i, valor, ia: !!sug && sug.v === valor });
     const f = RESP.filas.find((x) => x.email === card.dataset.email && x.intento === Number(card.dataset.intento));
     f[k][i].pts = r.pts; f[k][i].revisada = valor !== "auto"; f.nota = r.notaIntento;
     $$("[data-valor]", card).forEach((b) => b.classList.toggle("on", b.dataset.valor === valor));
@@ -816,7 +923,7 @@ async function verEntrega(email, intento) {
   $$("[data-int]", $("#rIntentos")).forEach((b) => (b.onclick = () => verEntrega(email, Number(b.dataset.int))));
   $("#rBorrarInt").onclick = async () => {
     const solo = d.intentos.length === 1;
-    if (!confirm(`¿Borrar el intento ${d.intento} de ${d.alumno.nombre} ${d.alumno.apellidos}?\n\n${solo ? "Es su único intento: se borrará la entrega." : "Se borrarán sus respuestas y su nota."} El alumno recupera ese intento. No se puede deshacer.`)) return;
+    if (!confirm(`¿Borrar el intento ${d.intento} de ${d.alumno.nombre} ${d.alumno.apellidos}?\n\n${solo ? "Es su único intento: se borrará la entrega." : "Se borrarán sus respuestas y su nota."} El alumno recupera ese intento. Se guarda una copia durante el plazo de conservación de las pruebas.`)) return;
     try {
       const r = await api("/api/profesor/entrega/borrar-intento", { id: ACTUAL, email, intento: d.intento });
       await recargarFilas();
@@ -829,6 +936,18 @@ async function verEntrega(email, intento) {
     ? d.registroSalidas.map((s) => `<div style="font-size:13.5px">${new Date(s.t).toLocaleString("es-ES")} — ${esc(s.motivo)}</div>`).join("")
     : `<span class="muted">Ninguna</span>`;
   $$("#fRevisar [data-err], #fRevisar [data-ok]").forEach((x) => (x.hidden = true));
+  // Solicitud de revisión del alumno: se responde aquí (queda en el registro de cambios).
+  const rv = d.revision;
+  $("#rRevision").innerHTML = !rv ? "" : `<div class="card" style="margin-bottom:14px;border-color:${rv.estado === "pendiente" ? "var(--bad)" : "var(--line)"}">
+    <b>✋ Solicitud de revisión</b> <span class="muted">· ${esc(new Date(rv.fecha).toLocaleString("es-ES"))} · nota entonces ${fmt(rv.notaEntonces)}</span>
+    <p style="margin:6px 0">«${esc(rv.motivo)}»</p>
+    ${rv.estado === "respondida" ? `<p class="muted" style="margin:0">Respondida el ${esc(new Date(rv.respondida).toLocaleString("es-ES"))}: «${esc(rv.respuesta)}»</p>` : `
+      <div class="field"><label class="flab" for="rvResp">Respuesta para el alumno</label><textarea id="rvResp" style="min-height:60px" placeholder="Explica si cambias la nota y por qué"></textarea></div>
+      <div class="msg bad" id="rvErr" hidden></div><button type="button" class="btn sm" id="rvEnviar">Responder</button>`}</div>`;
+  if ($("#rvEnviar")) $("#rvEnviar").onclick = async () => {
+    try { await api("/api/profesor/entrega/revision", { id: ACTUAL, email: d.alumno.email, respuesta: $("#rvResp").value }); await recargarFilas(); await verEntrega(d.alumno.email, d.intento); }
+    catch (e) { $("#rvErr").textContent = e.message; $("#rvErr").hidden = false; }
+  };
   const c = $("#dEntCont");
   pintarEntrega(c, d);
   $("[data-rev]", c).hidden = false; $("[data-toggle-rev]", c).remove();
@@ -1344,6 +1463,7 @@ $("#nuevoIA").onclick = async () => {
   const r = await api("/api/profesor/ia").catch((e) => ({ disponible: false, error: e.message }));
   if (r.lote) IA_LOTE = r.lote;
   $("#iaNoDisp").hidden = r.disponible;
+  if (r.motivo) $("#iaNoDisp").textContent = r.motivo;
   if (!r.disponible) { con.hidden = true; return; }
   if (r.ok) { con.className = "msg ok"; con.textContent = `✓ Conectado con ${r.proveedor === "gemini" ? `Gemini (${r.modelo})` : "Claude"}.`; }
   else { con.className = "msg bad"; con.textContent = r.error || "No se ha podido conectar con la IA."; }
@@ -1430,6 +1550,7 @@ $("#fIA").onsubmit = async (ev) => {
     $("#dIA").close();
     $("#archivo").value = ""; $("#dropTxt").textContent = `Generado con IA a partir de «${IA_ARCHIVO.name}»`;
     $("#dSubir").showModal();
+    ex.conIA = true; // el alumnado verá que las preguntas se prepararon con ayuda de la IA
     mostrarFormulario(ex, `La IA ha generado <b>${ex.mc.length} preguntas tipo test</b> y <b>${ex.open.length} abiertas</b>. <b>Revísalas</b> (despliega «Revisar las preguntas»), quita las que no te convenzan y guarda. Se guardará sin publicar.${avisos ? `<br><span style="color:var(--bad)">${esc(avisos)}</span>` : ""}`);
     $("#previa").open = true;
   } catch (e) {
@@ -1538,11 +1659,35 @@ async function cargarGrupo() {
   pintarGrupo();
 }
 
+/**
+ * Vista «por resultados de aprendizaje»: cada columna es un RA del módulo y su nota, la
+ * media de las pruebas que lo evalúan (las que no tienen RA asignado no cuentan aquí).
+ */
+function grupoVista() {
+  if (VISTA_GRUPO !== "ra") return GRUPO;
+  const cero = $("#noPresentado0").checked;
+  const alumnos = GRUPO.alumnos.map((a) => ({ ...a, notas: {} }));
+  const modulos = GRUPO.modulos.map((m) => {
+    const codigos = [...new Set(m.examenes.flatMap((ex) => ex.ra || []))].sort((x, y) => x.localeCompare(y, "es", { numeric: true }));
+    const examenes = codigos.map((ra) => {
+      const pruebas = m.examenes.filter((ex) => (ex.ra || []).includes(ra));
+      alumnos.forEach((a, i) => {
+        const ns = pruebas.map((ex) => GRUPO.alumnos[i].notas[ex.id]?.nota ?? (cero ? 0 : null)).filter((x) => x != null);
+        if (ns.length) a.notas[`ra:${m.id}:${ra}`] = { nota: r2(ns.reduce((s2, x) => s2 + x, 0) / ns.length), porRevisar: 0 };
+      });
+      return { id: `ra:${m.id}:${ra}`, titulo: ra, publicado: true, ra: [ra], pruebas: pruebas.map((p) => p.titulo) };
+    });
+    return { ...m, examenes };
+  });
+  return { ...GRUPO, modulos, alumnos };
+}
+
 /** Notas finales: media de los exámenes de cada módulo y media de los módulos. */
 function calcularGrupo() {
   const cero = $("#noPresentado0").checked;
-  const mods = GRUPO.modulos.filter((m) => m.examenes.length);
-  const filas = GRUPO.alumnos.map((a) => {
+  const G = grupoVista();
+  const mods = G.modulos.filter((m) => m.examenes.length);
+  const filas = G.alumnos.map((a) => {
     const porModulo = mods.map((m) => {
       const notas = m.examenes.map((ex) => a.notas[ex.id]?.nota ?? (cero ? 0 : null));
       const validas = notas.filter((x) => x != null);
@@ -1559,14 +1704,15 @@ const celdaNota = (n, extra = "") => `<td class="num nota-c ${claseNota(n)}">${n
 
 function pintarGrupo() {
   if (!GRUPO) return;
-  const { mods, filas } = calcularGrupo(), detalle = VISTA_GRUPO === "detalle";
+  const { mods, filas } = calcularGrupo(), detalle = VISTA_GRUPO !== "medias";
   const t = $("#tablaGrupo");
   if (!GRUPO.alumnos.length) { t.innerHTML = `<div class="empty">Todavía no hay alumnos matriculados en ${esc(GRUPO.grupo)}.</div>`; return; }
+  if (VISTA_GRUPO === "ra" && !mods.length) { t.innerHTML = `<div class="msg info">Ninguna prueba de este grupo tiene resultados de aprendizaje asignados. Indícalos en cada examen («Horario › Configurar») y en cada trabajo (al editarlo).</div>`; return; }
   const finales = filas.map((f) => f.final).filter((x) => x != null);
   const media = finales.length ? r2(finales.reduce((s, x) => s + x, 0) / finales.length) : null;
   const aprobados = finales.filter((x) => x >= 5).length;
   const cab1 = mods.map((m) => `<th colspan="${detalle ? m.examenes.length + 1 : 1}" class="modh">${esc(m.nombre)}</th>`).join("");
-  const cab2 = mods.map((m) => (detalle ? m.examenes.map((ex) => `<th class="num exh" title="${esc(ex.titulo)}${ex.externa ? ` · importada${ex.origen ? ` de ${ex.origen}` : ""}` : ""}">${ex.externa ? "⬆ " : ""}${esc(ex.titulo)}${ex.publicado ? "" : " <span class='muted'>(oculto)</span>"}${ex.externa ? ` <button type="button" class="link" data-borrar-ext="${esc(ex.id.slice(8))}" title="Quitar esta columna importada">✕</button>` : ""}</th>`).join("") : "") + `<th class="num">${detalle ? "Nota módulo" : "Nota"}</th>`).join("");
+  const cab2 = mods.map((m) => (detalle ? m.examenes.map((ex) => `<th class="num exh" title="${esc(ex.pruebas ? `${ex.titulo}: ${ex.pruebas.join(" · ")}` : ex.titulo)}${ex.externa ? ` · importada${ex.origen ? ` de ${ex.origen}` : ""}` : ""}">${ex.externa ? "⬆ " : ""}${esc(ex.titulo)}${ex.publicado ? "" : " <span class='muted'>(oculto)</span>"}${ex.externa ? ` <button type="button" class="link" data-borrar-ext="${esc(ex.id.slice(8))}" title="Quitar esta columna importada">✕</button>` : ""}</th>`).join("") : "") + `<th class="num">${detalle ? "Nota módulo" : "Nota"}</th>`).join("");
   t.innerHTML = `<div class="meta" style="margin-bottom:12px">
       <span class="chip v">${GRUPO.alumnos.length} alumnos</span>
       <span class="chip gray">${mods.length} ${mods.length === 1 ? "módulo" : "módulos"} · ${((n) => `${n} ${n === 1 ? "examen" : "exámenes"}`)(mods.reduce((s, m) => s + m.examenes.length, 0))}</span>
@@ -1599,7 +1745,7 @@ function pintarGrupo() {
 
 /** Filas para exportar (la misma vista que en pantalla). */
 function tablaExport() {
-  const { mods, filas } = calcularGrupo(), detalle = VISTA_GRUPO === "detalle";
+  const { mods, filas } = calcularGrupo(), detalle = VISTA_GRUPO !== "medias";
   const cab = ["Apellidos", "Nombre", "Correo"];
   mods.forEach((m) => { if (detalle) m.examenes.forEach((ex) => cab.push(`${m.nombre} · ${ex.titulo}`)); cab.push(detalle ? `${m.nombre} · NOTA` : m.nombre); });
   if (mods.length > 1) cab.push("Media");
@@ -1744,7 +1890,7 @@ function pintarAlumnos() {
     ${lista.map((a) => `<tr data-email="${esc(a.email)}">
       <td><b>${esc(a.apellidos)}, ${esc(a.nombre)}</b> ${a.profesor ? `<span class="chip">Profesor</span>` : `<button type="button" class="link" data-editar-nombre title="Corregir nombre y apellidos" style="font-size:12.5px">editar</button>`}
         <div class="muted" style="font-size:13px">${esc(a.email)}${a.externo ? ` <span class="chip gray" style="font-size:11px" title="Se registró con un correo que no es del centro">correo personal</span>` : ""}</div></td>
-      <td>${a.profesor ? esc(a.grupo) : `<select data-grupo style="width:auto;padding:6px 10px;font-size:14px">
+      <td>${a.profesor ? esc(a.grupo) : `<select data-grupo style="width:auto;padding:6px 10px;font-size:14px" aria-label="Grupo de ${esc(a.nombre)} ${esc(a.apellidos)}">
         ${GRUPOS.some((g) => g.grupo === a.grupo) ? "" : `<option value="" selected>${esc(a.grupo || "—")} (${a.cicloId ? "ciclo " + esc(a.cicloId.toUpperCase()) : "sin ciclo"})</option>`}
         ${GRUPOS.map((g) => `<option ${g.grupo === a.grupo ? "selected" : ""}>${esc(g.grupo)}</option>`).join("")}</select>`}</td>
       <td>${a.profesor ? "" : `<button type="button" class="link" data-adapt title="${esc(a.adaptacion?.nota || "Tiempo extra o sin modo seguro")}">${a.adaptacion ? adaptTxt(a.adaptacion) : "Añadir"}</button>`}</td>
@@ -1754,6 +1900,7 @@ function pintarAlumnos() {
           <button type="button" data-cambiar-email>✉️ Cambiar correo</button>
           <button type="button" data-pass-temporal>🔑 Contraseña temporal</button>
           <button type="button" data-restablecer>📧 Enviar correo para restablecer</button></div></details>` : ""}
+        <a class="btn ghost sm" target="_blank" href="/profesor/expediente.html?email=${encodeURIComponent(a.email)}" title="Todas sus pruebas, correcciones y el registro de cambios, para imprimir o guardar en PDF">📄 Expediente</a>
         <button class="btn danger sm" data-borrar>Borrar</button>`}</div></td></tr>`).join("")}</tbody></table></div>`;
   $$("[data-grupo]").forEach((i) => (i.onchange = async () => {
     if (!i.value) return;
@@ -2206,7 +2353,7 @@ function pintarCurso() {
     const id = b.dataset.borrarSel, emails = $$(`[data-sel="${id}"]:checked`, el).map((c) => c.value);
     if (!emails.length) return alert("Marca las cuentas que quieres borrar.");
     const datos = $(`[data-datos="${id}"]`, el).checked;
-    if (!confirm(`¿Borrar ${emails.length} ${emails.length === 1 ? "cuenta" : "cuentas"} de alumno?${datos ? "\n\nSe borrarán también sus entregas, trabajos y notas." : "\n\nSus entregas se conservan en las listas de los exámenes."}\n\nNo se puede deshacer.`)) return;
+    if (!confirm(`¿Borrar ${emails.length} ${emails.length === 1 ? "cuenta" : "cuentas"} de alumno?${datos ? "\n\nSe quitarán también sus entregas, trabajos y notas (se guarda una copia durante el plazo de conservación de las pruebas y después se borra sola)." : "\n\nSus entregas se conservan en las listas de los exámenes."}\n\nNo se puede deshacer.`)) return;
     b.disabled = true;
     try { const r = await api("/api/admin/alumnos/borrar", { emails, borrarDatos: datos }); alert(`Borradas ${r.borradas} cuentas${datos ? ` y ${r.datos} registros de entregas y notas` : ""}.`); await cargarCurso(); }
     catch (e) { alert(e.message); b.disabled = false; }
@@ -2214,7 +2361,7 @@ function pintarCurso() {
   $("#cCerrar").onclick = async () => {
     const err = $("#cErr"); err.hidden = true;
     const borrar = $("#cBorrarNotas").checked;
-    if (!confirm(`¿Cerrar el curso ${c.actual} ahora?\n\n· 1.º pasa a 2.º\n· 2.º queda como «terminó»${borrar ? "\n· SE BORRAN TODAS LAS NOTAS DEL CURSO" : ""}\n\nNo se puede deshacer.`)) return;
+    if (!confirm(`¿Cerrar el curso ${c.actual} ahora?\n\n· 1.º pasa a 2.º\n· 2.º queda como «terminó»${borrar ? "\n· SE QUITAN TODAS LAS NOTAS DEL CURSO (se guarda una copia durante el plazo de conservación)" : ""}\n\nNo se puede deshacer.`)) return;
     try {
       const { resumen: r } = await api("/api/admin/curso/cerrar", { confirmar: $("#cConfirmar").value.trim(), borrarNotas: borrar });
       alert(`Curso cerrado: ${r.promocionados} alumnos pasan a 2.º y ${r.terminan} terminan.${r.sinGrupoSiguiente.length ? `\n\n${r.sinGrupoSiguiente.length} no tienen grupo de 2.º y se quedan como estaban.` : ""}`);
@@ -2273,7 +2420,7 @@ function editarTrabajo(t) {
   $("#tTitulo").value = t?.titulo || ""; $("#tDesc").value = t?.descripcion || "";
   $("#tFecha").value = aLocal(t?.fechaLimite); $("#tPeso").value = t?.pesoTrabajo ?? 60;
   $("#tNTest").value = t?.nTest ?? 5; $("#tNAb").value = t?.nAbiertas ?? 2;
-  $("#tTarde").checked = t ? t.admiteTarde : true; $("#tPub").checked = !!t?.publicado; $("#tDefOblig").checked = !!t?.defensaObligatoria;
+  $("#tTarde").checked = t ? t.admiteTarde : true; $("#tPub").checked = !!t?.publicado; $("#tDefOblig").checked = !!t?.defensaObligatoria; $("#tRA").value = (t?.ra || []).join(", ");
   ADJ_PEND = []; ADJ_T = t?.adjuntos ? [...t.adjuntos] : []; pintarAdjuntosT();
   $("#tBorrar").hidden = !t;
   $("#tPeso").oninput();
@@ -2325,7 +2472,7 @@ $("#fTrabajo").onsubmit = async (ev) => {
       id: f.dataset.id || undefined, titulo: $("#tTitulo").value, descripcion: $("#tDesc").value, cicloId: $("#tCiclo").value, moduloId: $("#tModulo").value,
       fechaLimite: $("#tFecha").value ? new Date($("#tFecha").value).toISOString() : "", pesoTrabajo: Number($("#tPeso").value),
       nTest: Number($("#tNTest").value), nAbiertas: Number($("#tNAb").value), admiteTarde: $("#tTarde").checked, publicado: $("#tPub").checked,
-      defensaObligatoria: $("#tDefOblig").checked,
+      defensaObligatoria: $("#tDefOblig").checked, ra: $("#tRA").value,
     });
     // Archivos elegidos antes de guardar un trabajo nuevo: se suben ahora que ya tiene identificador.
     if (ADJ_PEND.length) { f.dataset.id = r.id; const pend = ADJ_PEND; ADJ_PEND = []; const fallos = await subirAdjuntosT(r.id, pend); if (fallos.length) alert("Trabajo guardado, pero algún archivo no se ha subido:\n" + fallos.join("\n")); }
@@ -2335,7 +2482,7 @@ $("#fTrabajo").onsubmit = async (ev) => {
 };
 $("#tBorrar").onclick = async () => {
   const id = $("#fTrabajo").dataset.id, t = TRABAJOS.find((x) => x.id === id) || TRAB;
-  if (!confirm(`¿Borrar el trabajo «${t?.titulo}»?\n\nSe borrarán también los archivos entregados, las notas y las defensas. No se puede deshacer.`)) return;
+  if (!confirm(`¿Borrar el trabajo «${t?.titulo}»?\n\nSe quitarán también los archivos entregados, las notas y las defensas (se guarda una copia durante el plazo de conservación de las pruebas).`)) return;
   try { await api("/api/profesor/trabajo/borrar", { id }); $("#dTrabajo").close(); $("#vTrabajo").hidden = true; $("#vTrabajos").hidden = false; cargarTrabajos(); }
   catch (e) { alert(e.message); }
 };
@@ -2539,7 +2686,9 @@ function pintarPropuestaDefensa() {
 $("#fHorario").onsubmit = async (ev) => { ev.preventDefault(); if (await guardarHorario()) $("#dHorario").close(); };
 $("#hCodigo").onchange = () => guardarHorario();
 $("#hCodNuevo").onclick = () => guardarHorario({ codigo: "nuevo" });
-$("#hQuitar").onclick = async () => { $("#hDesde").value = ""; $("#hHasta").value = ""; $("#hDur").value = ""; $("#hCodigo").checked = false; if (await guardarHorario()) $("#dHorario").close(); };
+$("#hIdent").onchange = () => guardarHorario();
+$("#hVerCodigos").onclick = () => window.open(`/profesor/codigos.html?id=${encodeURIComponent(HOR_ID)}`, "_blank");
+$("#hQuitar").onclick = async () => { $("#hDesde").value = ""; $("#hHasta").value = ""; $("#hDur").value = ""; $("#hCodigo").checked = false; $("#hIdent").checked = false; if (await guardarHorario()) $("#dHorario").close(); };
 
 (async () => {
   const yo = await cabecera({ ciclo: "Profesor" });
@@ -2547,7 +2696,7 @@ $("#hQuitar").onclick = async () => { $("#hDesde").value = ""; $("#hHasta").valu
   if (yo.rol !== "profesor") { location.replace("/panel/"); return; }
   $(".tag").textContent = yo.admin ? "Admin" : "Profesor";
   if (yo.admin) {
-    $("[data-tab=vProfes]").hidden = false; $("[data-tab=vCurso]").hidden = false;
+    $("[data-tab=vProfes]").hidden = false; $("[data-tab=vCurso]").hidden = false; $("[data-tab=vCumple]").hidden = false;
     api("/api/admin/profesores").then(({ profesores }) => { const n = profesores.filter((p) => !p.aprobado).length; $("#nPend").hidden = !n; $("#nPend").textContent = n; }).catch(() => {});
   } else {
     $("#subPanel").innerHTML = `Tus ciclos: <b>${esc(CATALOGO_NOMBRES(yo.ciclos))}</b> · crea y publica exámenes, revisa entregas y gestiona tus grupos.`;

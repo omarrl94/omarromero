@@ -15,7 +15,8 @@ import { almacen, leerTodas } from "./almacen.mjs";
 import { json, fallo, leerCuerpo, texto } from "./http.mjs";
 import { requiereUsuario, requiereProfesor, esStaff, gestionaCiclo, gestionaExamen } from "./auth.mjs";
 import { buscarModulo, cicloDe, moduloVisible } from "./catalogo.mjs";
-import { validarExamen } from "./examenes.mjs";
+import { validarExamen, raValidos } from "./examenes.mjs";
+import { registrar, conservar, conservarYBorrar, registrarIA, seudonimizar } from "./registro.mjs";
 import { generarDefensa } from "./ia.mjs";
 import { enviarCorreo, proveedorConfigurado } from "./correo.mjs";
 import { correoAviso } from "./plantillas.mjs";
@@ -54,6 +55,8 @@ function validarTrabajo(b, previo) {
     pesoTrabajo: peso, nTest, nAbiertas, publicado: b.publicado === true,
     // Si está activado, con la defensa suspensa (< 5) el trabajo queda suspenso.
     defensaObligatoria: b.defensaObligatoria === true,
+    // Resultados de aprendizaje que evalúa (RA1, RA2…).
+    ra: raValidos(b.ra),
   };
 }
 
@@ -105,9 +108,11 @@ async function estadoAlumno(t, e) {
 function resumenTrabajo(t) {
   const { id, titulo, descripcion, cicloId, moduloId, ciclo, modulo, fechaLimite, admiteTarde, pesoTrabajo, nTest, nAbiertas, publicado, creado } = t;
   return { id, titulo, descripcion, cicloId, moduloId, ciclo, modulo, fechaLimite, admiteTarde, pesoTrabajo, nTest, nAbiertas, publicado, creado,
-    defensaObligatoria: !!t.defensaObligatoria, adjuntos: t.adjuntos || [], autor: t.autor?.nombre || "" };
+    defensaObligatoria: !!t.defensaObligatoria, adjuntos: t.adjuntos || [], autor: t.autor?.nombre || "", ra: t.ra || [] };
 }
 const archivosPublicos = (e) => (e?.archivos || []).map(({ id, nombre, tipo, tamano, fecha }) => ({ id, nombre, tipo, tamano, fecha }));
+
+const sobreT = (t) => ({ tipo: "trabajo", id: t.id, titulo: t.titulo, cicloId: t.cicloId });
 
 function avisar(email, nombre, titulo, mensaje) {
   if (!proveedorConfigurado()) return;
@@ -181,7 +186,9 @@ async function borrarArchivo(req) {
   if (!e || !editable(e)) fallo(409, "Este trabajo ya está entregado");
   e.archivos = e.archivos.filter((a) => a.id !== b.archivo);
   if (e.textos) delete e.textos[b.archivo];
-  await archivos().del(`${k}/${b.archivo}`);
+  // Si ya lo había entregado antes (trabajo devuelto), el archivo anterior se conserva como prueba.
+  if (e.fecha) await conservarYBorrar("archivos", [`${k}/${b.archivo}`], { tipo: "archivo de un trabajo", por: u, motivo: "El alumno lo quita al corregir el trabajo devuelto" });
+  else await archivos().del(`${k}/${b.archivo}`);
   await entregasT().set(k, e);
   return json({ ok: true, archivos: archivosPublicos(e) });
 }
@@ -202,6 +209,7 @@ async function entregar(req) {
     fecha: ahora.toISOString(), fechaTexto: ahora.toLocaleString("es-ES", { timeZone: "Europe/Madrid", day: "2-digit", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }),
   });
   await entregasT().set(k, e);
+  await registrar({ por: u, accion: "entrega del trabajo", alumno: u.email, sobre: sobreT(t), despues: { archivos: e.archivos.map((a) => a.nombre) }, detalle: tarde ? "fuera de plazo" : "" });
   avisar(u.email, u.nombre, `Trabajo entregado: ${t.titulo}`, `Hemos recibido tu trabajo «${t.titulo}» (${e.archivos.length} ${e.archivos.length === 1 ? "archivo" : "archivos"}) el ${e.fechaTexto}${tarde ? ", fuera de plazo" : ""}. Te avisaremos cuando el profesor lo revise.`);
   return json({ ok: true });
 }
@@ -317,13 +325,21 @@ async function trabajoProfesor(id, u) {
 async function borrarTrabajo(req) {
   const u = await requiereProfesor(req);
   const t = await trabajoProfesor((await leerCuerpo(req)).id, u);
-  for (const k of await entregasT().list(t.id + "/")) {
+  // Todo se conserva el plazo legal (lib/registro.mjs) aunque se borre el trabajo.
+  const motivo = `Trabajo borrado: ${t.titulo}`, por = u;
+  const ks = await entregasT().list(t.id + "/");
+  for (const k of ks) {
     const e = await entregasT().get(k);
-    if (e?.defensa?.examen) { await examenes().del(e.defensa.examen); await entregasEx().del(`${e.defensa.examen}/${e.email}`); }
-    await entregasT().del(k);
+    if (e?.defensa?.examen) {
+      await conservarYBorrar("examenes", [e.defensa.examen], { tipo: "defensa (examen)", por, motivo, alumnoDe: () => e.email });
+      await conservarYBorrar("entregas", [`${e.defensa.examen}/${e.email}`], { tipo: "defensa (entrega)", por, motivo });
+    }
   }
-  for (const k of await archivos().list(t.id + "/")) await archivos().del(k);
+  await conservarYBorrar("entregasTrabajo", ks, { tipo: "entrega de trabajo", por, motivo });
+  await conservarYBorrar("archivos", await archivos().list(t.id + "/"), { tipo: "archivo de un trabajo", por, motivo, alumnoDe: (k) => (k.split("/")[1] === "_enunciado" ? "" : k.split("/")[1]) });
+  await conservar({ tipo: "trabajo", almacen: "trabajos", clave: t.id, datos: t, por, motivo });
   await trabajos().del(t.id);
+  await registrar({ por: u, accion: "trabajo borrado", sobre: sobreT(t), detalle: `${ks.length} entregas conservadas` });
   return json({ ok: true });
 }
 
@@ -375,11 +391,14 @@ async function calificar(req) {
     if (!Number.isFinite(n) || n < 0 || n > 10) fallo(400, `${que} debe estar entre 0 y 10`);
     return r2(n);
   };
+  const antes = { notaTrabajo: e.notaTrabajo ?? null, notaFinalManual: e.notaFinalManual ?? null, notaFinal: (await estadoAlumno(t, e)).final };
   if (b.notaTrabajo !== undefined) e.notaTrabajo = nota(b.notaTrabajo, "La nota del trabajo");
   if (b.notaFinalManual !== undefined) e.notaFinalManual = nota(b.notaFinalManual, "La nota final");
   if (b.comentario !== undefined) e.comentarioProfesor = String(b.comentario ?? "").slice(0, 3000);
   await entregasT().set(k, e);
   const s = await estadoAlumno(t, e);
+  const despues = { notaTrabajo: e.notaTrabajo ?? null, notaFinalManual: e.notaFinalManual ?? null, notaFinal: s.final };
+  if (JSON.stringify(antes) !== JSON.stringify(despues)) await registrar({ por: u, accion: "nota del trabajo", alumno: e.email, sobre: sobreT(t), antes, despues });
   if (s.final != null && b.avisar) avisar(e.email, e.nombre, `Nota del trabajo: ${t.titulo}`, `Tu trabajo «${t.titulo}» ya está calificado: ${String(s.final).replace(".", ",")} sobre 10. Puedes verlo en la plataforma.`);
   return json({ ok: true, notaFinal: s.final });
 }
@@ -392,9 +411,11 @@ async function devolver(req) {
   const k = clave(t.id, String(b.email || "").toLowerCase());
   const e = await entregasT().get(k);
   if (!e) fallo(404, "Entrega no encontrada");
+  await conservar({ tipo: "entrega de trabajo", almacen: "entregasTrabajo", clave: k, datos: e, alumno: e.email, por: u, motivo: "Trabajo devuelto para corregir" });
   e.estado = "devuelto";
   e.comentarioProfesor = String(b.comentario ?? e.comentarioProfesor ?? "").slice(0, 3000);
   await entregasT().set(k, e);
+  await registrar({ por: u, accion: "trabajo devuelto", alumno: e.email, sobre: sobreT(t), detalle: e.comentarioProfesor.slice(0, 200) });
   avisar(e.email, e.nombre, `Trabajo devuelto: ${t.titulo}`, `El profesor te ha devuelto el trabajo «${t.titulo}» para que lo corrijas y lo vuelvas a entregar.${e.comentarioProfesor ? ` Comentario: ${e.comentarioProfesor}` : ""}`);
   return json({ ok: true });
 }
@@ -407,11 +428,14 @@ async function generarDefensaRuta(req) {
   const t = await trabajoProfesor(b.id, u);
   const e = await entregasT().get(clave(t.id, String(b.email || "").toLowerCase()));
   if (!e || e.estado === "borrador") fallo(404, "Entrega no encontrada");
-  const textoTrabajo = (e.archivos || []).map((a) => (e.textos?.[a.id] ? `### Archivo: ${a.nombre}\n${e.textos[a.id]}` : `### Archivo: ${a.nombre} (sin texto legible)`)).join("\n\n");
+  // A la IA no se le manda quién es el alumno: sin su nombre, correo, DNI ni teléfono (tampoco en el nombre de los archivos).
+  const nomArch = (a, i) => `archivo ${i + 1}${(a.nombre.match(/\.[a-z0-9]{1,6}$/i) || [""])[0]}`;
+  const textoTrabajo = seudonimizar((e.archivos || []).map((a, i) => (e.textos?.[a.id] ? `### Archivo: ${nomArch(a, i)}\n${e.textos[a.id]}` : `### Archivo: ${nomArch(a, i)} (sin texto legible)`)).join("\n\n"), [e]);
   if (textoTrabajo.replace(/###.*\n?/g, "").trim().length < 200) fallo(400, "No hay texto suficiente en los archivos del trabajo (¿son imágenes o un ZIP?). Pide al alumno el trabajo en PDF o Word (devuélveselo para que lo cambie).");
   const nTest = Math.max(0, Math.min(15, Number(b.nTest ?? t.nTest) || 0)), nAbiertas = Math.max(0, Math.min(6, Number(b.nAbiertas ?? t.nAbiertas) || 0));
   const adj = await textoAdjuntos(t);
-  const r = await generarDefensa({ titulo: t.titulo, enunciado: [t.descripcion, adj && `Archivos del enunciado:\n${adj}`].filter(Boolean).join("\n\n"), trabajo: textoTrabajo.slice(0, 80_000), nTest, nAbiertas, indicaciones: texto(b.indicaciones, 800) });
+  const r = await generarDefensa({ titulo: t.titulo, enunciado: [t.descripcion, adj && `Archivos del enunciado:\n${adj}`].filter(Boolean).join("\n\n"), trabajo: textoTrabajo.slice(0, 80_000), nTest, nAbiertas, indicaciones: seudonimizar(texto(b.indicaciones, 800), [e]) });
+  await registrarIA(u, "preguntas de defensa", { trabajo: t.id, caracteres: textoTrabajo.length, seudonimizado: true });
   return json(r);
 }
 
@@ -436,6 +460,7 @@ async function enviarDefensa(req) {
   await examenes().set(idEx, { ...ex, privado: email, defensaDe: { trabajo: t.id, email }, autor: t.autor, creado: ahora, actualizado: ahora });
   e.defensa = { examen: idEx, fecha: ahora, nTest: ex.mc.length, nAbiertas: ex.open.length };
   await entregasT().set(k, e);
+  await registrar({ por: u, accion: "defensa enviada", alumno: email, sobre: sobreT(t), despues: { test: ex.mc.length, abiertas: ex.open.length }, ia: true, detalle: "Preguntas preparadas con ayuda de la IA y revisadas por el profesor" });
   avisar(email, e.nombre, `Defensa de tu trabajo: ${t.titulo}`, `Tu profesor ha preparado unas preguntas sobre tu trabajo «${t.titulo}». Entra en la plataforma, abre el trabajo y pulsa «Hacer la defensa». Solo tienes un intento.`);
   return json({ ok: true, examen: idEx });
 }
@@ -448,15 +473,35 @@ async function borrarDefensa(req) {
   const k = clave(t.id, email);
   const e = await entregasT().get(k);
   if (!e?.defensa) fallo(404, "No hay defensa");
-  await examenes().del(e.defensa.examen);
-  await entregasEx().del(`${e.defensa.examen}/${email}`);
+  const def = await entregasEx().get(`${e.defensa.examen}/${email}`);
+  const motivo = "Defensa anulada para hacer otra";
+  await conservarYBorrar("examenes", [e.defensa.examen], { tipo: "defensa (examen)", por: u, motivo, alumnoDe: () => email });
+  await conservarYBorrar("entregas", [`${e.defensa.examen}/${email}`], { tipo: "defensa (entrega)", por: u, motivo });
   await almacen("progreso").del(`${e.defensa.examen}/${email}`);
+  await registrar({ por: u, accion: "defensa anulada", alumno: email, sobre: sobreT(t), antes: def ? { nota: def.notaProfesor ?? def.resultado?.nota } : null, detalle: "La defensa anterior se conserva" });
   delete e.defensa;
   await entregasT().set(k, e);
   return json({ ok: true });
 }
 
 /** Notas de los trabajos de un ciclo para la pestaña Grupos: { trabajoId: { email: nota } }. */
+/** Trabajos de un alumno para su expediente (los que gestiona este profesor). */
+export async function trabajosDeAlumno(u, email) {
+  const out = [];
+  for (const t of await leerTodas(trabajos(), await trabajos().list())) {
+    if (!gestionaExamen(u, t)) continue;
+    const e = await entregasT().get(clave(t.id, email));
+    if (!e || e.estado === "borrador") continue;
+    const s = await estadoAlumno(t, e);
+    out.push({
+      trabajo: resumenTrabajo(t), estado: s.estado, fechaTexto: e.fechaTexto, tarde: !!e.tarde, comentario: e.comentario || "",
+      archivos: archivosPublicos(e), notaTrabajo: e.notaTrabajo ?? null, notaFinalManual: e.notaFinalManual ?? null, comentarioProfesor: e.comentarioProfesor || "",
+      defensa: e.defensa ? { examen: e.defensa.examen, nota: s.def?.nota ?? null } : null, notaFinal: s.final, suspensoPorDefensa: e.notaFinalManual == null && defensaSuspende(t, s.def),
+    });
+  }
+  return out;
+}
+
 export async function notasTrabajos(u, cicloId, emails) {
   const lista = (await leerTodas(trabajos(), await trabajos().list())).filter((t) => t.cicloId === cicloId && gestionaExamen(u, t));
   const out = [];
