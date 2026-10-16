@@ -66,10 +66,36 @@ function serviceAccount() {
   if (env.FIREBASE_PRIVATE_KEY && env.FIREBASE_CLIENT_EMAIL && projectId())
     return { projectId: projectId(), clientEmail: env.FIREBASE_CLIENT_EMAIL, privateKey: env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n') };
   if (env.FIREBASE_SERVICE_ACCOUNT) {
-    const sa = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT);
-    return { projectId: sa.project_id, clientEmail: sa.client_email, privateKey: sa.private_key };
+    try {
+      const sa = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT);
+      if (sa.client_email && sa.private_key) return { projectId: sa.project_id || projectId(), clientEmail: sa.client_email, privateKey: sa.private_key };
+    } catch {
+      return null; // diagnose() explica el problema
+    }
   }
   return null;
+}
+
+/** Qué falta para poder enviar (solo nombres de variables, nunca valores). */
+function diagnose() {
+  const problems = [];
+  if (!serviceAccount() && !env.FIREBASE_AUTH_EMULATOR_HOST) {
+    if (!env.FIREBASE_SERVICE_ACCOUNT && !env.FIREBASE_PRIVATE_KEY) problems.push('Falta FIREBASE_SERVICE_ACCOUNT');
+    else if (env.FIREBASE_SERVICE_ACCOUNT) {
+      let parsed = null;
+      try {
+        parsed = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT);
+      } catch {
+        problems.push(`FIREBASE_SERVICE_ACCOUNT no es un JSON completo (tiene ${env.FIREBASE_SERVICE_ACCOUNT.length} caracteres; debe empezar por { y acabar en })`);
+      }
+      if (parsed && !(parsed.client_email && parsed.private_key)) problems.push('FIREBASE_SERVICE_ACCOUNT no contiene client_email y private_key: usa el .json de «Cuentas de servicio»');
+    } else problems.push('Faltan FIREBASE_CLIENT_EMAIL o FIREBASE_PROJECT_ID');
+  }
+  if (!provider()) {
+    const missing = ['SMTP_HOST', 'SMTP_USER', 'SMTP_PASS'].filter((k) => !env[k]);
+    problems.push(`Falta configurar el envío: ${missing.join(', ')}`);
+  }
+  return problems;
 }
 
 function firebase() {
@@ -196,7 +222,18 @@ async function link(fn, email, origin) {
 }
 
 export default async (req) => {
-  if (req.method === 'GET') return json(200, { configured: configured(), from: configured() ? fromAddress() : null });
+  if (req.method === 'GET') {
+    const problems = diagnose();
+    return json(200, {
+      configured: configured(),
+      from: configured() ? fromAddress() : null,
+      provider: provider(),
+      ...(problems.length && {
+        problems,
+        hint: 'Netlify → Project configuration → Environment variables: comprueba el nombre exacto, que el ámbito (scope) incluya «Functions» y que valga para todos los contextos de despliegue; después vuelve a desplegar.',
+      }),
+    });
+  }
   if (req.method !== 'POST') return json(405, { error: 'Método no permitido.' });
   if (!configured()) return json(501, { error: 'El envío de correo del centro no está configurado.' });
 
