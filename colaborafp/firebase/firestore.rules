@@ -22,16 +22,18 @@ service cloud.firestore {
         && (request.auth.token.email.matches('.*@jrotero[.]es$')
             || request.auth.token.email == 'omar.rl14@gmail.com');
     }
+    // Cuenta activada: correo verificado o aprobada por un administrador
+    function activated() {
+      return request.auth.token.email_verified == true
+        || get(/databases/$(database)/documents/approvals/$(request.auth.uid)).data.approved == true;
+    }
     function isAdmin() {
       return request.auth != null
-        && request.auth.token.email_verified == true
-        && request.auth.token.email == 'omar.rl14@gmail.com';
+        && request.auth.token.email in ['omar.rl14@gmail.com', 'omar.romero@jrotero.es']
+        && activated();
     }
-    // Cuenta activada: correo verificado o aprobada por el administrador
     function isTeacher() {
-      return teacherEmail()
-        && (request.auth.token.email_verified == true
-            || get(/databases/$(database)/documents/approvals/$(request.auth.uid)).data.approved == true);
+      return teacherEmail() && activated();
     }
     function nowMs() {
       return request.time.toMillis();
@@ -66,7 +68,7 @@ service cloud.firestore {
         && request.resource.data.name is string && request.resource.data.name.size() <= 80
         && request.resource.data.created_at is int
         && request.resource.data.approved == false;
-      allow update: if isAdmin()
+      allow update: if isAdmin() && request.auth.uid != uid
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['approved', 'approved_at'])
         && request.resource.data.approved is bool
         && request.resource.data.approved_at is int;

@@ -35,6 +35,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   const resendVerification = useCallback((credentials) => backend.auth.resendVerification(credentials), []);
+  const resetPassword = useCallback((email) => backend.auth.resetPassword(email), []);
 
   const deleteAccount = useCallback(async (password) => {
     await backend.auth.deleteAccount(password);
@@ -47,8 +48,8 @@ export function AuthProvider({ children }) {
   }, []);
 
   const value = useMemo(
-    () => ({ user, loading, isAuthenticated: !!user, signIn, signUp, signOut, resendVerification, deleteAccount }),
-    [user, loading, signIn, signUp, signOut, resendVerification, deleteAccount],
+    () => ({ user, loading, isAuthenticated: !!user, signIn, signUp, signOut, resendVerification, resetPassword, deleteAccount }),
+    [user, loading, signIn, signUp, signOut, resendVerification, resetPassword, deleteAccount],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

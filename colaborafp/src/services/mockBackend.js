@@ -97,6 +97,7 @@ const auth = {
     return { verificationSent: false, user: publicUser(user) };
   },
   async resendVerification() {},
+  async resetPassword() {},
   async deleteAccount(password) {
     const db = readDb();
     const session = getStoredSession();

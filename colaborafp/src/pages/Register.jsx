@@ -2,7 +2,6 @@ import { MailCheck, UserRound } from 'lucide-react';
 import { useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import AuthCard from '../components/AuthCard';
-import { backend } from '../services/backend';
 import { useAuth } from '../hooks/useAuth';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { isTeacherEmail, TEACHER_EMAIL_DOMAINS } from '../utils/constants';
@@ -17,6 +16,7 @@ export default function Register() {
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [sentTo, setSentTo] = useState(null);
+  const [sender, setSender] = useState(null);
 
   if (user) return <Navigate to="/profesor" replace />;
 
@@ -33,7 +33,10 @@ export default function Register() {
     setSubmitting(true);
     try {
       const result = await signUp({ name: form.name, email: form.email, password: form.password });
-      if (result?.verificationSent) setSentTo(form.email.trim());
+      if (result?.verificationSent) {
+        setSender(result.sender || null);
+        setSentTo(form.email.trim());
+      }
       else navigate('/profesor', { replace: true });
     } catch (err) {
       setError(err.message);
@@ -57,7 +60,7 @@ export default function Register() {
           <MailCheck className="h-7 w-7 shrink-0 text-accent-700 dark:text-accent-300" aria-hidden="true" />
           <p className="text-sm leading-relaxed">
             Tu cuenta <strong>{sentTo}</strong> está creada y pendiente de activación. Se activa de una de estas dos formas:
-            <span className="mt-2 block">· Con el <strong>enlace del correo de verificación</strong>{backend.auth.emailSender && <> (remitente <strong className="break-all">{backend.auth.emailSender}</strong>)</>}.</span>
+            <span className="mt-2 block">· Con el <strong>enlace del correo de verificación</strong>{sender && <> (remitente <strong className="break-all">{sender}</strong>)</>}.</span>
             <span className="block">· Cuando el <strong>administrador apruebe</strong> tu cuenta, si el correo del centro bloquea ese mensaje.</span>
             <span className="mt-2 block">Después, inicia sesión con tu correo y contraseña.</span>
           </p>

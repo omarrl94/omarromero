@@ -25,6 +25,7 @@ import {
   onAuthStateChanged,
   reauthenticateWithCredential,
   sendEmailVerification,
+  sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signOut,
   updateProfile,
@@ -132,7 +133,7 @@ const toUser = (u) =>
         email: u.email,
         name: u.displayName || u.email.split('@')[0],
         emailVerified: u.emailVerified,
-        isAdmin: u.emailVerified && isAdminEmail(u.email),
+        isAdmin: isAdminEmail(u.email), // las reglas exigen además que la cuenta esté activada
       }
     : null;
 const ms = (v) => (v instanceof Timestamp ? v.toMillis() : v);
@@ -189,6 +190,41 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
   const domainError = () =>
     new Error(`Solo el profesorado con correo del centro (${TEACHER_EMAIL_DOMAINS.map((d) => '@' + d).join(', ')}) puede crear una cuenta.`);
 
+  // ---------- Correo del centro (función de Netlify + Microsoft Graph) ----------
+  // Si la función no existe o no está configurada, se usa el envío normal de Firebase.
+  const MAIL_FN = '/.netlify/functions/correo';
+  const firebaseSender = `noreply@${config.projectId}.firebaseapp.com`;
+  const mailConfig = fetch(MAIL_FN, { headers: { Accept: 'application/json' } })
+    .then((r) => (r.ok && (r.headers.get('content-type') || '').includes('json') ? r.json() : null))
+    .catch(() => null);
+  /** Devuelve la respuesta de la función, o null si hay que recurrir a Firebase. */
+  const centroMail = async (body, idToken) => {
+    if (!(await mailConfig)?.configured) return null;
+    const res = await fetch(MAIL_FN, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...(idToken ? { Authorization: `Bearer ${idToken}` } : {}) },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.status === 429) {
+      const e = new Error(data.error);
+      e.code = 'throttled';
+      throw e;
+    }
+    if (!res.ok) {
+      console.error('[ColaboraFP] correo del centro:', data.error || res.status);
+      return null;
+    }
+    return data;
+  };
+  /** Envía la verificación y devuelve el remitente usado. */
+  const sendVerification = async (user) => {
+    const data = await centroMail({ action: 'verify' }, await user.getIdToken());
+    if (data?.sent || data?.alreadyVerified) return data.from;
+    await sendEmailVerification(user);
+    return firebaseSender;
+  };
+
   // Una cuenta se activa de dos formas: con el enlace del correo de verificación o con la aprobación
   // del administrador (approvals/{uid}). La segunda existe porque el correo del centro bloquea los
   // mensajes externos.
@@ -205,17 +241,19 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
     if (snap?.exists()) return;
     await setDoc(ref, { email: u.email, name: (name || u.displayName || '').trim().slice(0, 80), created_at: Date.now(), approved: false });
   };
-  const pendingError = () => {
+  const pendingError = async () => {
+    const from = (await mailConfig)?.from || firebaseSender;
     const e = new Error(
-      `Tu cuenta aún no está activada. Actívala con el enlace del correo de verificación (remitente noreply@${config.projectId}.firebaseapp.com) o espera a que el administrador la apruebe.`,
+      `Tu cuenta aún no está activada. Actívala con el enlace del correo de verificación (remitente ${from}) o espera a que el administrador la apruebe.`,
     );
     e.code = 'unverified';
     return e;
   };
 
   const authApi = {
-    /** Remitente de los correos de Firebase Auth (plantilla por defecto). */
-    emailSender: `noreply@${config.projectId}.firebaseapp.com`,
+    /** Remitente de los correos de la cuenta: el buzón del centro si está configurado. */
+    emailSender: firebaseSender,
+    mailSender: async () => (await mailConfig)?.from || firebaseSender,
     async getUser() {
       await auth.authStateReady();
       const u = auth.currentUser;
@@ -231,9 +269,10 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
         const { user } = await createUserWithEmailAndPassword(auth, email.trim(), password);
         await updateProfile(user, { displayName: name.trim() });
         await ensureRequest(user, name).catch((e) => console.error('[ColaboraFP] solicitud de alta', e));
-        await sendEmailVerification(user).catch(() => {}); // si el correo no llega, queda la aprobación
+        // Si el correo no llega, queda la aprobación del administrador
+        const sender = await sendVerification(user).catch(() => null);
         await signOut(auth);
-        return { verificationSent: true };
+        return { verificationSent: true, sender };
       }),
     signIn: ({ email, password }) =>
       wrap(async () => {
@@ -241,7 +280,7 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
         if (!user.emailVerified && !(await isApproved(user))) {
           await ensureRequest(user).catch(() => {}); // cuentas creadas antes de existir la aprobación
           await signOut(auth);
-          throw pendingError();
+          throw await pendingError();
         }
         await user.getIdToken(true); // token con email_verified actualizado para las reglas
         return toUser(user);
@@ -249,8 +288,21 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
     resendVerification: ({ email, password }) =>
       wrap(async () => {
         const { user } = await signInWithEmailAndPassword(auth, email.trim(), password);
-        if (!user.emailVerified) await sendEmailVerification(user);
-        await signOut(auth);
+        try {
+          return user.emailVerified ? null : await sendVerification(user);
+        } finally {
+          await signOut(auth);
+        }
+      }),
+    /** Enlace para elegir una contraseña nueva (no revela si la cuenta existe). */
+    resetPassword: (email) =>
+      wrap(async () => {
+        const data = await centroMail({ action: 'reset', email: email.trim() });
+        if (data?.sent) return data.from;
+        await sendPasswordResetEmail(auth, email.trim()).catch((e) => {
+          if (e?.code !== 'auth/user-not-found') throw e;
+        });
+        return firebaseSender;
       }),
     async signOut() {
       await signOut(auth);

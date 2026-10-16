@@ -24,8 +24,11 @@ npm run build
    *Firestore* en ubicación europea (`eur3`), y publicar [`firebase/firestore.rules`](firebase/firestore.rules).
 2. **Netlify**: base directory `colaborafp`; variables de entorno de [`.env.example`](.env.example)
    (`VITE_FIREBASE_CONFIG`, `VITE_TEACHER_EMAIL_DOMAINS` y los datos `VITE_CENTRO_*`).
-3. ¿Salas perdidas de la versión anterior? Ver [`scripts/recuperar-salas.mjs`](scripts/recuperar-salas.mjs) (se ejecuta en Google Cloud Shell).
-4. Pasos de cumplimiento (encargo de tratamiento, TTL, etc.): ver [`docs/Cumplimiento_ColaboraFP.docx`](docs/Cumplimiento_ColaboraFP.docx).
+3. **Correos de la cuenta** (verificación y nueva contraseña): salen desde un buzón del Microsoft 365 del centro
+   con [`netlify/functions/correo.mjs`](netlify/functions/correo.mjs) (Microsoft Graph). Variables en `.env.example`.
+   Las cuentas también las puede activar un administrador desde «Altas del profesorado».
+4. ¿Salas perdidas de la versión anterior? Ver [`scripts/recuperar-salas.mjs`](scripts/recuperar-salas.mjs) (se ejecuta en Google Cloud Shell).
+5. Pasos de cumplimiento (encargo de tratamiento, TTL, etc.): ver [`docs/Cumplimiento_ColaboraFP.docx`](docs/Cumplimiento_ColaboraFP.docx).
 
 ## Seguridad y protección de datos (resumen)
 
