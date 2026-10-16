@@ -166,3 +166,16 @@ La **Presence** difunde el estado vivo (apodo, host, % de progreso) y, en la pre
 5. Con **5 X en línea** (fila, columna o diagonal — el comodín central cuenta siempre) se activa el botón **¡BINGO!**
 6. La reclamación se **valida automáticamente en todos los clientes**; si es legítima, la partida se congela, llueve confetti y se proclama al ganador.
 7. El host puede lanzar una **nueva partida** con cartones nuevos para todos.
+
+---
+
+## 🏠 Marcador del Hogar (`/puntos`)
+
+Mini‑app independiente para parejas: cada tarea del hogar suma puntos y **quien llegue primero a 1000 gana** el premio que elijan.
+
+- Archivo único: [`public/puntos/index.html`](./public/puntos/index.html) — Next.js lo sirve en `/puntos/` (también funciona abriéndolo directamente).
+- Elige quién hizo la tarea y toca una tarea del catálogo (o escribe una propia con sus puntos).
+- Barras de progreso hacia la meta, quién va ganando, últimas tareas con opción de quitar.
+- Ajustes: nombres, meta, premio y catálogo de tareas con sus puntos.
+- Al llegar a la meta se proclama ganador; "Empezar nueva ronda" guarda el resultado en el historial y reinicia a cero.
+- Fuera de claude.ai los datos se guardan en el navegador (`localStorage`); dentro de un Artifact de claude.ai se comparten en vivo entre los dos.

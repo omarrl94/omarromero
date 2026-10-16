@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Marcador del Hogar</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=DM+Mono:wght@500&display=swap">
+<style>
+/* Layout: una carrera de dos carriles hacia la meta arriba; debajo, quién hizo qué y la tabla de tareas; historial al final. */
+:root{
+  --bg:#EEF1F6; --surface:#FFFFFF; --ink:#1A1D33; --muted:#5D6380; --line:#D8DCE8;
+  --p1:#2B5BE8; --p1-soft:#DCE5FF; --p2:#E8513F; --p2-soft:#FFE1DC;
+  --gold:#C98A00; --gold-soft:#FFF1CC;
+  --f-display:'Bricolage Grotesque',ui-sans-serif,system-ui,sans-serif;
+  --f-body:'Figtree',ui-sans-serif,system-ui,sans-serif;
+  --f-num:'DM Mono',ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12142A; --surface:#1C1F3A; --ink:#ECEEFA; --muted:#A3A8C7; --line:#2E3256;
+  --p1:#7C9CFF; --p1-soft:#26306A; --p2:#FF8A7A; --p2-soft:#4A2730;
+  --gold:#FFC93D; --gold-soft:#3E3417; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#12142A; --surface:#1C1F3A; --ink:#ECEEFA; --muted:#A3A8C7; --line:#2E3256;
+  --p1:#7C9CFF; --p1-soft:#26306A; --p2:#FF8A7A; --p2-soft:#4A2730;
+  --gold:#FFC93D; --gold-soft:#3E3417; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance}
+h1{font-size:clamp(28px,6vw,40px);font-weight:800;letter-spacing:-.02em;line-height:1.05}
+h2{font-size:18px;font-weight:700}
+.label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+
+header{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.status{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.dot.on{background:#2FB36B}
+
+/* carrera */
+.race{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:16px}
+.prize{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;font-size:14px}
+.prize b{font-family:var(--f-display);font-size:16px}
+.lane{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:end}
+.lane .who{font-family:var(--f-display);font-weight:700;font-size:20px;min-width:0;overflow-wrap:anywhere}
+.lane .score{font-size:30px;line-height:1}
+.lane .score small{font-size:14px;color:var(--muted)}
+.track{grid-column:1/-1;height:16px;border-radius:99px;background:var(--bg);position:relative;overflow:hidden;
+  background-image:repeating-linear-gradient(90deg,transparent 0 calc(10% - 1px),var(--line) calc(10% - 1px) 10%)}
+.fill{position:absolute;inset:0 auto 0 0;border-radius:99px;transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.lane.p1 .fill{background:var(--p1)} .lane.p2 .fill{background:var(--p2)}
+.lane .sub{grid-column:1/-1;font-size:13px;color:var(--muted)}
+.lead{font-size:14px;color:var(--muted)}
+
+/* quién */
+.pick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pick button{border:2px solid var(--line);background:var(--surface);border-radius:14px;padding:12px;font-weight:700;font-size:16px;overflow-wrap:anywhere}
+.pick button[aria-pressed="true"].p1{border-color:var(--p1);background:var(--p1-soft);color:var(--p1)}
+.pick button[aria-pressed="true"].p2{border-color:var(--p2);background:var(--p2-soft);color:var(--p2)}
+
+.chores{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.chore{display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left;background:var(--surface);
+  border:1px solid var(--line);border-radius:12px;padding:10px 12px;min-height:54px;transition:transform .08s}
+.chore:active{transform:scale(.97)}
+.chore span:first-child{min-width:0;overflow-wrap:anywhere;font-weight:500}
+.pts{font-family:var(--f-num);font-size:13px;padding:2px 8px;border-radius:99px;background:var(--gold-soft);color:var(--gold);white-space:nowrap}
+.chore:disabled{opacity:.45;cursor:not-allowed}
+
+.custom{display:flex;gap:8px;flex-wrap:wrap}
+.custom input{flex:1 1 160px;min-width:0;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.custom input[type=number]{flex:0 1 90px}
+.btn{border:0;border-radius:12px;padding:10px 16px;font-weight:700;background:var(--ink);color:var(--bg)}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+
+section{display:flex;flex-direction:column;gap:10px}
+.log{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.log li{display:grid;grid-template-columns:10px 1fr auto auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
+.log .tag{width:10px;height:10px;border-radius:3px}
+.log .what{min-width:0;overflow-wrap:anywhere}
+.log .when{font-size:12px;color:var(--muted)}
+.undo{border:0;background:none;color:var(--muted);font-size:13px;text-decoration:underline;padding:4px}
+.empty{color:var(--muted);font-size:14px;padding:8px 0}
+
+details{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+summary{font-weight:700;cursor:pointer}
+.form{display:grid;gap:12px;margin-top:12px}
+.form label{display:grid;gap:4px;font-size:13px;color:var(--muted)}
+.form input{padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.edit-list{display:grid;gap:6px}
+.edit-list div{display:grid;grid-template-columns:1fr 80px 36px;gap:6px}
+.edit-list input{padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--bg);min-width:0}
+.x{border:1px solid var(--line);background:none;border-radius:8px}
+.winners{list-style:none;padding:0;margin:0;display:grid;gap:6px;font-size:14px}
+
+/* ganador */
+.overlay{position:fixed;inset:0;background:color-mix(in srgb,var(--bg) 70%,transparent);backdrop-filter:blur(6px);display:grid;place-items:center;z-index:20;
+  padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.card{background:var(--surface);border:2px solid var(--gold);border-radius:22px;padding:28px 24px;max-width:420px;width:100%;text-align:center;display:grid;gap:12px}
+.trophy{font-family:var(--f-display);font-size:64px;line-height:1;color:var(--gold)}
+.card h2{font-size:30px;font-weight:800}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);
+  padding:10px 16px;border-radius:12px;font-weight:600;font-size:14px;z-index:30;max-width:calc(100% - 32px)}
+@media (max-width:420px){.row2{grid-template-columns:1fr}.lane .score{font-size:26px}}
+@media (prefers-reduced-motion:reduce){.fill{transition:none}.chore{transition:none}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <div class="label">Tareas del hogar · Ronda <span id="round" class="num">1</span></div>
+      <h1>Primero a <span id="goalH" class="num">1000</span> gana</h1>
+    </div>
+    <div class="status"><span class="dot" id="dot"></span><span id="mode">Conectando…</span></div>
+  </header>
+
+  <div class="race" aria-live="polite">
+    <div class="prize"><span class="label">Premio</span><b id="prize">—</b></div>
+    <div class="lane p1">
+      <div class="who" id="n1">Jugador 1</div>
+      <div class="score num"><span id="s1">0</span> <small>pts</small></div>
+      <div class="track"><div class="fill" id="f1" style="width:0%"></div></div>
+      <div class="sub" id="r1">Faltan 1000</div>
+    </div>
+    <div class="lane p2">
+      <div class="who" id="n2">Jugador 2</div>
+      <div class="score num"><span id="s2">0</span> <small>pts</small></div>
+      <div class="track"><div class="fill" id="f2" style="width:0%"></div></div>
+      <div class="sub" id="r2">Faltan 1000</div>
+    </div>
+    <div class="lead" id="lead">Empatados. La primera tarea rompe el empate.</div>
+  </div>
+
+  <section>
+    <h2>¿Quién hizo la tarea?</h2>
+    <div class="pick">
+      <button id="pick1" class="p1" aria-pressed="true">Jugador 1</button>
+      <button id="pick2" class="p2" aria-pressed="false">Jugador 2</button>
+    </div>
+    <div class="label">Toca una tarea para sumar sus puntos</div>
+    <div class="chores" id="chores"></div>
+    <form class="custom" id="customForm">
+      <input id="customName" placeholder="Otra tarea…" maxlength="40" aria-label="Nombre de otra tarea">
+      <input id="customPts" type="number" min="1" max="200" placeholder="Pts" aria-label="Puntos">
+      <button class="btn" type="submit">Sumar</button>
+    </form>
+  </section>
+
+  <section>
+    <h2>Últimas tareas</h2>
+    <ul class="log" id="log"></ul>
+  </section>
+
+  <details id="settings">
+    <summary>Ajustes de la pareja</summary>
+    <form class="form" id="setForm">
+      <div class="row2">
+        <label>Nombre 1<input id="in1" maxlength="20"></label>
+        <label>Nombre 2<input id="in2" maxlength="20"></label>
+      </div>
+      <div class="row2">
+        <label>Meta de puntos<input id="inGoal" type="number" min="50" max="100000" step="50"></label>
+        <label>Premio para quien gane<input id="inPrize" maxlength="60" placeholder="Ej. Elige la cena del sábado"></label>
+      </div>
+      <div class="label">Tareas y puntos</div>
+      <div class="edit-list" id="editList"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn ghost" type="button" id="addRow">Añadir tarea</button>
+        <button class="btn" type="submit">Guardar ajustes</button>
+      </div>
+    </form>
+  </details>
+
+  <section id="hof" hidden>
+    <h2>Ganadores anteriores</h2>
+    <ul class="winners" id="winners"></ul>
+  </section>
+</div>
+
+<div class="overlay" id="win" hidden>
+  <div class="card" role="dialog" aria-labelledby="winName">
+    <div class="trophy">★</div>
+    <div class="label">Ronda <span id="winRound" class="num"></span> terminada</div>
+    <h2 id="winName">¡Gana!</h2>
+    <div id="winScore" class="num"></div>
+    <div id="winPrize"></div>
+    <button class="btn" id="newRound">Empezar nueva ronda</button>
+  </div>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const DEFAULTS = {
+  p1: "Jugador 1", p2: "Jugador 2", goal: 1000, prize: "Elige la cena y la peli del fin de semana", round: 1, winners: [],
+  chores: [
+    {name:"Lavar los platos",pts:20},{name:"Cocinar",pts:30},{name:"Limpiar el baño",pts:40},
+    {name:"Barrer y trapear",pts:25},{name:"Sacar la basura",pts:10},{name:"Poner la lavadora",pts:15},
+    {name:"Tender o doblar ropa",pts:15},{name:"Hacer la cama",pts:5},{name:"Hacer el súper",pts:30},
+    {name:"Limpiar la cocina",pts:30},{name:"Cuidar a la mascota",pts:15},{name:"Regar las plantas",pts:5}
+  ]
+};
+let settings = {...DEFAULTS};
+let log = [];
+let who = "p1";
+let store = null;
+const $ = id => document.getElementById(id);
+
+/* ---------- almacenamiento: compartido (claude db) o local ---------- */
+function localStore(){
+  const K="marcador-hogar-v1"; const subs={s:[],l:[]};
+  const read=()=>{try{return JSON.parse(localStorage.getItem(K))||{}}catch{return {}}};
+  const write=d=>{try{localStorage.setItem(K,JSON.stringify(d))}catch{}};
+  const emit=()=>{const d=read();subs.s.forEach(f=>f(d.settings||null));subs.l.forEach(f=>f((d.log||[]).slice().sort((a,b)=>b.at-a.at)))};
+  return {
+    kind:"local",
+    onSettings(cb){subs.s.push(cb);setTimeout(emit)},
+    onLog(cb){subs.l.push(cb);setTimeout(emit)},
+    async saveSettings(s){const d=read();d.settings=s;write(d);emit()},
+    async add(e){const d=read();d.log=d.log||[];d.log.push({...e,id:Math.random().toString(36).slice(2)});write(d);emit()},
+    async remove(id){const d=read();d.log=(d.log||[]).filter(x=>x.id!==id);write(d);emit()}
+  };
+}
+function sharedStore(db){
+  return {
+    kind:"shared",
+    onSettings(cb){db.doc("game/settings").onSnapshot(s=>cb(s.exists?s.data():null),e=>toast("No se pudieron leer los ajustes: "+e.message))},
+    onLog(cb){db.collection("log").orderBy("at","desc").limit(2000).onSnapshot(q=>cb(q.docs.map(d=>({id:d.id,...d.data()}))),e=>toast("No se pudo leer el marcador: "+e.message))},
+    saveSettings(s){return db.doc("game/settings").set(s)},
+    add(e){return db.collection("log").add(e)},
+    remove(id){return db.doc("log/"+id).delete()}
+  };
+}
+async function connect(){
+  let db=null;
+  try{ if(window.claude && window.claude.use) db=await window.claude.use("db"); }catch{}
+  store = db ? sharedStore(db) : localStore();
+  $("dot").classList.toggle("on", store.kind==="shared");
+  $("mode").textContent = store.kind==="shared" ? "Compartido en vivo" : "Guardado en este dispositivo";
+  store.onSettings(s=>{ settings={...DEFAULTS,...(s||{})}; render(); fillForm(); });
+  store.onLog(l=>{ log=l; render(); });
+}
+
+/* ---------- lógica ---------- */
+function scores(){
+  const s={p1:0,p2:0};
+  for(const e of log) if((e.round||1)===settings.round && s[e.who]!==undefined) s[e.who]+=Number(e.pts)||0;
+  return s;
+}
+function winner(s){
+  const g=settings.goal;
+  if(s.p1<g && s.p2<g) return null;
+  // gana quien cruzó primero la meta
+  const asc=log.filter(e=>(e.round||1)===settings.round).slice().sort((a,b)=>a.at-b.at);
+  const run={p1:0,p2:0};
+  for(const e of asc){ run[e.who]+=Number(e.pts)||0; if(run[e.who]>=g) return e.who; }
+  return s.p1>=s.p2?"p1":"p2";
+}
+const name = k => settings[k] || (k==="p1"?"Jugador 1":"Jugador 2");
+
+async function addPoints(chore,pts){
+  if(!store) return;
+  if(winner(scores())) return toast("La ronda ya terminó. Empiecen una nueva.");
+  try{
+    await store.add({who,chore,pts:Number(pts),at:Date.now(),round:settings.round});
+    toast(`+${pts} para ${name(who)} · ${chore}`);
+  }catch(e){ toast("No se guardó: "+(e.message||"inténtalo otra vez")); }
+}
+
+/* ---------- render ---------- */
+function ago(t){
+  const m=Math.round((Date.now()-t)/60000);
+  if(m<1) return "ahora"; if(m<60) return `hace ${m} min`;
+  const h=Math.round(m/60); if(h<24) return `hace ${h} h`;
+  return new Date(t).toLocaleDateString("es",{day:"numeric",month:"short"});
+}
+function render(){
+  const s=scores(), g=settings.goal;
+  $("round").textContent=settings.round; $("goalH").textContent=g;
+  $("prize").textContent=settings.prize||"Sin premio todavía";
+  for(const k of ["p1","p2"]){
+    const i=k==="p1"?1:2;
+    $("n"+i).textContent=name(k); $("pick"+i).textContent=name(k);
+    $("s"+i).textContent=s[k];
+    $("f"+i).style.width=Math.min(100,s[k]/g*100)+"%";
+    $("r"+i).textContent = s[k]>=g ? "¡Meta alcanzada!" : `Faltan ${g-s[k]} · ${Math.round(s[k]/g*100)}%`;
+    $("pick"+i).setAttribute("aria-pressed", String(who===k));
+  }
+  const d=s.p1-s.p2;
+  $("lead").textContent = d===0 ? "Empatados." : `${name(d>0?"p1":"p2")} va ganando por ${Math.abs(d)} puntos.`;
+
+  const w=winner(s);
+  $("chores").innerHTML="";
+  for(const c of settings.chores){
+    const b=document.createElement("button"); b.className="chore"; b.disabled=!!w;
+    const a=document.createElement("span"); a.textContent=c.name;
+    const p=document.createElement("span"); p.className="pts"; p.textContent="+"+c.pts;
+    b.append(a,p); b.onclick=()=>addPoints(c.name,c.pts); $("chores").append(b);
+  }
+
+  const cur=log.filter(e=>(e.round||1)===settings.round).slice(0,15);
+  const ul=$("log"); ul.innerHTML="";
+  if(!cur.length){ const li=document.createElement("li"); li.className="empty"; li.style.display="block";
+    li.textContent="Todavía no hay tareas en esta ronda. Elige quién la hizo y toca una tarea de arriba."; ul.append(li); }
+  for(const e of cur){
+    const li=document.createElement("li");
+    const t=document.createElement("span"); t.className="tag"; t.style.background=`var(--${e.who})`;
+    const wtxt=document.createElement("span"); wtxt.className="what"; wtxt.textContent=`${name(e.who)} · ${e.chore}`;
+    const right=document.createElement("span"); right.className="num"; right.textContent="+"+e.pts;
+    const u=document.createElement("button"); u.className="undo"; u.textContent="Quitar";
+    u.title=ago(e.at); u.setAttribute("aria-label",`Quitar ${e.chore} de ${name(e.who)}`);
+    u.onclick=async()=>{try{await store.remove(e.id);toast("Tarea quitada")}catch(err){toast("No se pudo quitar: "+err.message)}};
+    wtxt.append(Object.assign(document.createElement("div"),{className:"when",textContent:ago(e.at)}));
+    li.append(t,wtxt,right,u); ul.append(li);
+  }
+
+  const ws=settings.winners||[];
+  $("hof").hidden=!ws.length;
+  $("winners").innerHTML="";
+  for(const x of ws.slice().reverse()){
+    const li=document.createElement("li");
+    li.textContent=`Ronda ${x.round}: ${x.name} (${x.p1score} – ${x.p2score})${x.prize?" · "+x.prize:""}`;
+    $("winners").append(li);
+  }
+
+  $("win").hidden=!w;
+  if(w){
+    $("winRound").textContent=settings.round;
+    $("winName").textContent=`¡${name(w)} gana!`;
+    $("winScore").textContent=`${name("p1")} ${s.p1} · ${name("p2")} ${s.p2}`;
+    $("winPrize").textContent=settings.prize?`Premio: ${settings.prize}`:"";
+  }
+}
+
+/* ---------- ajustes ---------- */
+function fillForm(){
+  if($("settings").open) return; // no pisar lo que se está editando
+  $("in1").value=settings.p1; $("in2").value=settings.p2;
+  $("inGoal").value=settings.goal; $("inPrize").value=settings.prize||"";
+  $("editList").innerHTML=""; settings.chores.forEach(c=>addRow(c.name,c.pts));
+}
+function addRow(n="",p=10){
+  const d=document.createElement("div");
+  const a=Object.assign(document.createElement("input"),{value:n,placeholder:"Tarea",maxLength:40});
+  const b=Object.assign(document.createElement("input"),{type:"number",value:p,min:1,max:200});
+  a.setAttribute("aria-label","Tarea"); b.setAttribute("aria-label","Puntos");
+  const x=Object.assign(document.createElement("button"),{type:"button",className:"x",textContent:"×"});
+  x.setAttribute("aria-label","Eliminar tarea"); x.onclick=()=>d.remove();
+  d.append(a,b,x); $("editList").append(d);
+}
+$("addRow").onclick=()=>addRow();
+$("setForm").onsubmit=async ev=>{
+  ev.preventDefault();
+  const chores=[...$("editList").children].map(d=>{const [a,b]=d.querySelectorAll("input");return {name:a.value.trim(),pts:Math.max(1,Math.min(200,parseInt(b.value)||0))}}).filter(c=>c.name);
+  const next={...settings,p1:$("in1").value.trim()||"Jugador 1",p2:$("in2").value.trim()||"Jugador 2",
+    goal:Math.max(50,parseInt($("inGoal").value)||1000),prize:$("inPrize").value.trim(),chores:chores.length?chores:DEFAULTS.chores};
+  try{ await store.saveSettings(next); $("settings").open=false; settings=next; fillForm(); render(); toast("Ajustes guardados"); }
+  catch(e){ toast("No se guardaron los ajustes: "+e.message); }
+};
+
+$("newRound").onclick=async()=>{
+  const s=scores(), w=winner(s); if(!w) return;
+  const next={...settings,round:settings.round+1,
+    winners:[...(settings.winners||[]),{round:settings.round,who:w,name:name(w),p1score:s.p1,p2score:s.p2,prize:settings.prize||"",at:Date.now()}]};
+  try{ await store.saveSettings(next); toast(`Ronda ${next.round}: a empezar de cero`); }
+  catch(e){ toast("No se pudo empezar la ronda: "+e.message); }
+};
+
+$("pick1").onclick=()=>{who="p1";render()};
+$("pick2").onclick=()=>{who="p2";render()};
+$("customForm").onsubmit=ev=>{
+  ev.preventDefault();
+  const n=$("customName").value.trim(), p=parseInt($("customPts").value);
+  if(!n||!(p>0)) return toast("Escribe la tarea y sus puntos");
+  addPoints(n,Math.min(200,p)); $("customName").value=""; $("customPts").value="";
+};
+
+let tt; function toast(m){const t=$("toast");t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,2600)}
+
+render(); fillForm(); connect();
+setInterval(render,60000);
+</script>
+</html>
