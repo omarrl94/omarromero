@@ -181,6 +181,8 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
     new Error(`Solo el profesorado con correo del centro (${TEACHER_EMAIL_DOMAINS.map((d) => '@' + d).join(', ')}) puede crear una cuenta.`);
 
   const authApi = {
+    /** Remitente de los correos de Firebase Auth (plantilla por defecto). */
+    emailSender: `noreply@${config.projectId}.firebaseapp.com`,
     async getUser() {
       await auth.authStateReady();
       const u = auth.currentUser;
@@ -204,7 +206,7 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
         const { user } = await signInWithEmailAndPassword(auth, email.trim(), password);
         if (!user.emailVerified) {
           await signOut(auth);
-          const e = new Error('Tu correo aún no está verificado. Revisa tu bandeja de entrada (y el correo no deseado).');
+          const e = new Error(`Tu correo aún no está verificado. Busca el mensaje de noreply@${config.projectId}.firebaseapp.com en tu bandeja de entrada y en el correo no deseado.`);
           e.code = 'unverified';
           throw e;
         }

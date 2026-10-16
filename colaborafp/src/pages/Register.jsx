@@ -2,6 +2,7 @@ import { MailCheck, UserRound } from 'lucide-react';
 import { useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import AuthCard from '../components/AuthCard';
+import { backend } from '../services/backend';
 import { useAuth } from '../hooks/useAuth';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { isTeacherEmail, TEACHER_EMAIL_DOMAINS } from '../utils/constants';
@@ -57,6 +58,12 @@ export default function Register() {
           <p className="text-sm leading-relaxed">
             Hemos enviado un enlace de verificación a <strong>{sentTo}</strong>. Ábrelo para confirmar que es tu correo del
             centro y después inicia sesión. Si no lo ves, revisa la carpeta de correo no deseado.
+            {backend.auth.emailSender && (
+              <>
+                {' '}El remitente es <strong className="break-all">{backend.auth.emailSender}</strong>: si no llega, pide a informática que lo
+                añada a los remitentes permitidos o lo libere de la cuarentena.
+              </>
+            )}
           </p>
         </div>
       </AuthCard>
