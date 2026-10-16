@@ -298,4 +298,7 @@ const realtime = {
   },
 };
 
-export const mockBackend = { mode: 'mock', auth, rooms, resources, reports, realtime };
+// En modo demo no hay aprobación de cuentas: el registro inicia sesión directamente.
+const approvals = { list: async () => [], setApproved: async () => {}, remove: async () => {} };
+
+export const mockBackend = { mode: 'mock', auth, approvals, rooms, resources, reports, realtime };

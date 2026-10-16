@@ -32,6 +32,7 @@ import {
 import {
   collection,
   connectFirestoreEmulator,
+  deleteDoc,
   doc,
   enableNetwork,
   getCountFromServer,
@@ -49,7 +50,7 @@ import {
   where,
   writeBatch,
 } from 'firebase/firestore';
-import { isTeacherEmail, ROOM_OPEN_HOURS, RETENTION_DAYS, TEACHER_EMAIL_DOMAINS } from '../utils/constants';
+import { isAdminEmail, isTeacherEmail, ROOM_OPEN_HOURS, RETENTION_DAYS, TEACHER_EMAIL_DOMAINS } from '../utils/constants';
 import { clampExpiry, defaultExpiry } from '../utils/retention';
 import { generatePin, uuid } from '../utils/ids';
 
@@ -125,7 +126,15 @@ export const parseFirebaseConfig = (raw) => {
 };
 
 const toUser = (u) =>
-  u ? { id: u.uid, email: u.email, name: u.displayName || u.email.split('@')[0], emailVerified: u.emailVerified } : null;
+  u
+    ? {
+        id: u.uid,
+        email: u.email,
+        name: u.displayName || u.email.split('@')[0],
+        emailVerified: u.emailVerified,
+        isAdmin: u.emailVerified && isAdminEmail(u.email),
+      }
+    : null;
 const ms = (v) => (v instanceof Timestamp ? v.toMillis() : v);
 const toResource = (snap) => {
   const d = snap.data();
@@ -168,8 +177,8 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
     const user = auth.currentUser;
     if (user) {
       const { claims } = await user.getIdTokenResult(true);
-      if (!claims.email_verified)
-        return 'Tu sesión aún no tiene el correo verificado. Cierra sesión y vuelve a entrar después de pulsar el enlace del correo de verificación.';
+      if (!claims.email_verified && !(await isApproved(user)))
+        return 'Tu cuenta aún no está activada (ni verificada por correo ni aprobada por el administrador). Cierra sesión y vuelve a entrar cuando lo esté.';
       if (!isTeacherEmail(claims.email || ''))
         return `Tu cuenta (${claims.email}) no es del dominio del profesorado. Las reglas de Firestore solo permiten ${TEACHER_EMAIL_DOMAINS.map((d) => '@' + d).join(', ')}.`;
     }
@@ -180,35 +189,59 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
   const domainError = () =>
     new Error(`Solo el profesorado con correo del centro (${TEACHER_EMAIL_DOMAINS.map((d) => '@' + d).join(', ')}) puede crear una cuenta.`);
 
+  // Una cuenta se activa de dos formas: con el enlace del correo de verificación o con la aprobación
+  // del administrador (approvals/{uid}). La segunda existe porque el correo del centro bloquea los
+  // mensajes externos.
+  const approvalRef = (uid) => doc(db, 'approvals', uid);
+  const isApproved = (u) =>
+    getDoc(approvalRef(u.uid))
+      .then((snap) => snap.exists() && snap.data().approved === true)
+      .catch(() => false);
+  const canEnter = async (u) => !!u && (u.emailVerified || (await isApproved(u)));
+  /** Crea la solicitud de alta (pendiente) si aún no existe. */
+  const ensureRequest = async (u, name) => {
+    const ref = approvalRef(u.uid);
+    const snap = await getDoc(ref).catch(() => null);
+    if (snap?.exists()) return;
+    await setDoc(ref, { email: u.email, name: (name || u.displayName || '').trim().slice(0, 80), created_at: Date.now(), approved: false });
+  };
+  const pendingError = () => {
+    const e = new Error(
+      `Tu cuenta aún no está activada. Actívala con el enlace del correo de verificación (remitente noreply@${config.projectId}.firebaseapp.com) o espera a que el administrador la apruebe.`,
+    );
+    e.code = 'unverified';
+    return e;
+  };
+
   const authApi = {
     /** Remitente de los correos de Firebase Auth (plantilla por defecto). */
     emailSender: `noreply@${config.projectId}.firebaseapp.com`,
     async getUser() {
       await auth.authStateReady();
       const u = auth.currentUser;
-      return u?.emailVerified ? toUser(u) : null;
+      return (await canEnter(u)) ? toUser(u) : null;
     },
     onAuthChange(callback) {
-      return onAuthStateChanged(auth, (u) => callback(u?.emailVerified ? toUser(u) : null));
+      return onAuthStateChanged(auth, async (u) => callback((await canEnter(u)) ? toUser(u) : null));
     },
-    /** Crea la cuenta y envía el correo de verificación. No inicia sesión hasta verificar. */
+    /** Crea la cuenta, la deja pendiente de aprobación y envía el correo de verificación. */
     signUp: ({ name, email, password }) =>
       wrap(async () => {
         if (!isTeacherEmail(email)) throw domainError();
         const { user } = await createUserWithEmailAndPassword(auth, email.trim(), password);
         await updateProfile(user, { displayName: name.trim() });
-        await sendEmailVerification(user);
+        await ensureRequest(user, name).catch((e) => console.error('[ColaboraFP] solicitud de alta', e));
+        await sendEmailVerification(user).catch(() => {}); // si el correo no llega, queda la aprobación
         await signOut(auth);
         return { verificationSent: true };
       }),
     signIn: ({ email, password }) =>
       wrap(async () => {
         const { user } = await signInWithEmailAndPassword(auth, email.trim(), password);
-        if (!user.emailVerified) {
+        if (!user.emailVerified && !(await isApproved(user))) {
+          await ensureRequest(user).catch(() => {}); // cuentas creadas antes de existir la aprobación
           await signOut(auth);
-          const e = new Error(`Tu correo aún no está verificado. Busca el mensaje de noreply@${config.projectId}.firebaseapp.com en tu bandeja de entrada y en el correo no deseado.`);
-          e.code = 'unverified';
-          throw e;
+          throw pendingError();
         }
         await user.getIdToken(true); // token con email_verified actualizado para las reglas
         return toUser(user);
@@ -229,8 +262,20 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
         await reauthenticateWithCredential(user, EmailAuthProvider.credential(user.email, password));
         const snap = await getDocs(query(roomsCol, where('teacher_id', '==', user.uid)));
         for (const d of snap.docs) await removeRoom(d.id, d.data());
+        await deleteDoc(approvalRef(user.uid)).catch(() => {});
         await deleteUser(user);
       }),
+  };
+
+  // ---------- Administración: altas del profesorado ----------
+  const approvals = {
+    list: () =>
+      wrap(async () => {
+        const snap = await getDocs(collection(db, 'approvals'));
+        return snap.docs.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => b.created_at - a.created_at);
+      }),
+    setApproved: (uid, approved) => wrap(() => updateDoc(approvalRef(uid), { approved, approved_at: Date.now() })),
+    remove: (uid) => wrap(() => deleteDoc(approvalRef(uid))),
   };
 
   // ---------- Borrado en cascada ----------
@@ -584,5 +629,5 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
     },
   };
 
-  return { mode: 'firebase', auth: authApi, rooms, resources, reports, realtime };
+  return { mode: 'firebase', auth: authApi, approvals, rooms, resources, reports, realtime };
 };

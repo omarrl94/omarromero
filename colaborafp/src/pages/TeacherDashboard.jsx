@@ -10,6 +10,7 @@ import { formatDate, formatDay, isRoomOpen } from '../utils/format';
 import RetentionPicker from '../components/RetentionPicker';
 import { defaultExpiry } from '../utils/retention';
 import AccountPanel from '../components/AccountPanel';
+import AdminApprovals from '../components/AdminApprovals';
 import { formatPin } from '../utils/ids';
 
 export default function TeacherDashboard() {
@@ -112,6 +113,7 @@ export default function TeacherDashboard() {
             </p>
           </form>
         </section>
+        {user.isAdmin && <AdminApprovals />}
         <AccountPanel />
         </div>
 

@@ -21,7 +21,7 @@ export default function Privacidad() {
       </Section>
 
       <Section id="datos" title="2. Qué datos tratamos y para qué">
-        <p><strong>Profesorado.</strong> Nombre, correo electrónico del centro y contraseña (que gestiona de forma cifrada Firebase Authentication; el centro no puede verla), así como las salas y recursos que publica. Finalidad: gestionar su cuenta y la actividad docente en ColaboraFP.</p>
+        <p><strong>Profesorado.</strong> Nombre, correo electrónico del centro y contraseña (que gestiona de forma cifrada Firebase Authentication; el centro no puede verla), así como las salas y recursos que publica. Finalidad: gestionar su cuenta y la actividad docente en ColaboraFP. Para activar una cuenta, el administrador de la plataforma ve el nombre y el correo de quien solicita el alta.</p>
         <p><strong>Alumnado.</strong> No necesita cuenta ni se le pide ningún dato identificativo. Solo se guardan los contenidos que decide compartir y, si lo escribe, un nombre o alias opcional (recomendamos usar un alias o solo el nombre de pila). Finalidad: la actividad colaborativa de la clase.</p>
         <p><strong>Notificaciones de contenido.</strong> El motivo y la descripción opcional de cada aviso, sin identificar a quien lo envía. Finalidad: retirar contenidos ilícitos o inadecuados.</p>
         <p><strong>Datos técnicos.</strong> Dirección IP y datos de conexión que tratan los proveedores de alojamiento para prestar el servicio y protegerlo frente a abusos.</p>

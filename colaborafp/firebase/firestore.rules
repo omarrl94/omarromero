@@ -15,13 +15,23 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ⚠ Dominio del profesorado y única excepción (administrador). Si lo cambias, cambia también
-    //   TEACHER_EMAIL_DOMAINS / TEACHER_EXTRA_EMAILS en src/utils/constants.js.
-    function isTeacher() {
+    // ⚠ Dominio del profesorado, única excepción y administrador. Si lo cambias, cambia también
+    //   TEACHER_EMAIL_DOMAINS / TEACHER_EXTRA_EMAILS / ADMIN_EMAILS en src/utils/constants.js.
+    function teacherEmail() {
       return request.auth != null
-        && request.auth.token.email_verified == true
         && (request.auth.token.email.matches('.*@jrotero[.]es$')
             || request.auth.token.email == 'omar.rl14@gmail.com');
+    }
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email == 'omar.rl14@gmail.com';
+    }
+    // Cuenta activada: correo verificado o aprobada por el administrador
+    function isTeacher() {
+      return teacherEmail()
+        && (request.auth.token.email_verified == true
+            || get(/databases/$(database)/documents/approvals/$(request.auth.uid)).data.approved == true);
     }
     function nowMs() {
       return request.time.toMillis();
@@ -44,6 +54,23 @@ service cloud.firestore {
     function ownsRoomAfter(roomId, pin) {
       let r = getAfter(roomPath(roomId));
       return r != null && r.data.teacher_id == request.auth.uid && r.data.pin == pin;
+    }
+
+    // ----- Altas del profesorado: cada cuenta pide la suya; solo el administrador aprueba -----
+    match /approvals/{uid} {
+      allow get: if (request.auth != null && request.auth.uid == uid) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if request.auth != null && request.auth.uid == uid && teacherEmail()
+        && request.resource.data.keys().hasOnly(['email', 'name', 'created_at', 'approved'])
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.name is string && request.resource.data.name.size() <= 80
+        && request.resource.data.created_at is int
+        && request.resource.data.approved == false;
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['approved', 'approved_at'])
+        && request.resource.data.approved is bool
+        && request.resource.data.approved_at is int;
+      allow delete: if isAdmin() || (request.auth != null && request.auth.uid == uid);
     }
 
     // ----- Salas: solo su profesor/a -----

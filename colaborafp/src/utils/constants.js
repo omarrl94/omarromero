@@ -57,6 +57,9 @@ export const TEACHER_EMAIL_DOMAINS = String(import.meta.env.VITE_TEACHER_EMAIL_D
   .filter(Boolean);
 /** Única excepción fuera del dominio (administrador). ⚠ Debe coincidir con firebase/firestore.rules. */
 export const TEACHER_EXTRA_EMAILS = ['omar.rl14@gmail.com'];
+/** Administradores: aprueban las cuentas del profesorado. ⚠ Debe coincidir con firebase/firestore.rules (isAdmin). */
+export const ADMIN_EMAILS = ['omar.rl14@gmail.com'];
+export const isAdminEmail = (email) => ADMIN_EMAILS.includes(String(email || '').trim().toLowerCase());
 export const isTeacherEmail = (email) => {
   const e = String(email || '').trim().toLowerCase();
   return TEACHER_EXTRA_EMAILS.includes(e) || TEACHER_EMAIL_DOMAINS.some((d) => e.endsWith('@' + d));

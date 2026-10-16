@@ -45,7 +45,7 @@ export default function Register() {
   if (sentTo)
     return (
       <AuthCard
-        title="Revisa tu correo"
+        title="Cuenta creada"
         subtitle="Solo falta un paso para activar tu cuenta."
         footer={
           <Link to="/login" className="font-semibold text-brand-700 hover:underline dark:text-brand-300">
@@ -56,14 +56,10 @@ export default function Register() {
         <div className="flex gap-4 rounded-2xl bg-accent-100 p-5 text-ink-900 dark:bg-accent-300/15 dark:text-stone-100" role="status">
           <MailCheck className="h-7 w-7 shrink-0 text-accent-700 dark:text-accent-300" aria-hidden="true" />
           <p className="text-sm leading-relaxed">
-            Hemos enviado un enlace de verificación a <strong>{sentTo}</strong>. Ábrelo para confirmar que es tu correo del
-            centro y después inicia sesión. Si no lo ves, revisa la carpeta de correo no deseado.
-            {backend.auth.emailSender && (
-              <>
-                {' '}El remitente es <strong className="break-all">{backend.auth.emailSender}</strong>: si no llega, pide a informática que lo
-                añada a los remitentes permitidos o lo libere de la cuarentena.
-              </>
-            )}
+            Tu cuenta <strong>{sentTo}</strong> está creada y pendiente de activación. Se activa de una de estas dos formas:
+            <span className="mt-2 block">· Con el <strong>enlace del correo de verificación</strong>{backend.auth.emailSender && <> (remitente <strong className="break-all">{backend.auth.emailSender}</strong>)</>}.</span>
+            <span className="block">· Cuando el <strong>administrador apruebe</strong> tu cuenta, si el correo del centro bloquea ese mensaje.</span>
+            <span className="mt-2 block">Después, inicia sesión con tu correo y contraseña.</span>
           </p>
         </div>
       </AuthCard>
