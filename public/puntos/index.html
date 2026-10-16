@@ -3,11 +3,22 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Marcador del Hogar</title>
-<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="theme-color" content="#2B5BE8">
+<meta name="description" content="Puntos por tareas del hogar para la pareja. Primero a 1000 gana.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Marcador">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=DM+Mono:wght@500&display=swap">
 <style>
 /* Layout: una carrera de dos carriles hacia la meta arriba; debajo, quién hizo qué y la tabla de tareas; historial al final. */
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+[hidden]{display:none!important}
 :root{
   --bg:#EEF1F6; --surface:#FFFFFF; --ink:#1A1D33; --muted:#5D6380; --line:#D8DCE8;
   --p1:#2B5BE8; --p1-soft:#DCE5FF; --p2:#E8513F; --p2-soft:#FFE1DC;
@@ -97,6 +108,10 @@ summary{font-weight:700;cursor:pointer}
 .edit-list div{display:grid;grid-template-columns:1fr 80px 36px;gap:6px}
 .edit-list input{padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--bg);min-width:0}
 .x{border:1px solid var(--line);background:none;border-radius:8px}
+.install{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--p1-soft);border-radius:14px;padding:12px 14px;font-size:14px}
+.install p{margin:0;min-width:0;flex:1 1 220px}
+.backup{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.backup input[type=file]{display:none}
 .winners{list-style:none;padding:0;margin:0;display:grid;gap:6px;font-size:14px}
 
 /* ganador */
@@ -117,8 +132,13 @@ summary{font-weight:700;cursor:pointer}
       <div class="label">Tareas del hogar · Ronda <span id="round" class="num">1</span></div>
       <h1>Primero a <span id="goalH" class="num">1000</span> gana</h1>
     </div>
-    <div class="status"><span class="dot" id="dot"></span><span id="mode">Conectando…</span></div>
+    <div class="status"><span class="dot on" id="dot"></span><span id="mode">Guardado en este dispositivo</span></div>
   </header>
+
+  <div class="install" id="install" hidden>
+    <p id="installText">Instala el marcador en tu teléfono para abrirlo como una app, también sin conexión.</p>
+    <button class="btn" id="installBtn" hidden>Instalar app</button>
+  </div>
 
   <div class="race" aria-live="polite">
     <div class="prize"><span class="label">Premio</span><b id="prize">—</b></div>
@@ -174,6 +194,13 @@ summary{font-weight:700;cursor:pointer}
         <button class="btn ghost" type="button" id="addRow">Añadir tarea</button>
         <button class="btn" type="submit">Guardar ajustes</button>
       </div>
+      <div class="label">Copia de seguridad</div>
+      <p style="margin:0;font-size:13px;color:var(--muted)">Los puntos se guardan solo en este navegador. Descarga una copia para pasarla a otro teléfono o por si borras los datos.</p>
+      <div class="backup">
+        <button class="btn ghost" type="button" id="exportBtn">Descargar copia</button>
+        <label class="btn ghost" for="importFile" style="cursor:pointer;color:var(--ink);font-size:15px">Restaurar copia</label>
+        <input type="file" id="importFile" accept="application/json,.json">
+      </div>
     </form>
   </details>
 
@@ -211,7 +238,7 @@ let who = "p1";
 let store = null;
 const $ = id => document.getElementById(id);
 
-/* ---------- almacenamiento: compartido (claude db) o local ---------- */
+/* ---------- almacenamiento local (localStorage) ---------- */
 function localStore(){
   const K="marcador-hogar-v1"; const subs={s:[],l:[]};
   const read=()=>{try{return JSON.parse(localStorage.getItem(K))||{}}catch{return {}}};
@@ -223,25 +250,13 @@ function localStore(){
     onLog(cb){subs.l.push(cb);setTimeout(emit)},
     async saveSettings(s){const d=read();d.settings=s;write(d);emit()},
     async add(e){const d=read();d.log=d.log||[];d.log.push({...e,id:Math.random().toString(36).slice(2)});write(d);emit()},
+    dump(){return read()},
+    async load(d){write(d);emit()},
     async remove(id){const d=read();d.log=(d.log||[]).filter(x=>x.id!==id);write(d);emit()}
   };
 }
-function sharedStore(db){
-  return {
-    kind:"shared",
-    onSettings(cb){db.doc("game/settings").onSnapshot(s=>cb(s.exists?s.data():null),e=>toast("No se pudieron leer los ajustes: "+e.message))},
-    onLog(cb){db.collection("log").onSnapshot(q=>cb(q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>b.at-a.at)),e=>toast("No se pudo leer el marcador: "+e.message))},
-    saveSettings(s){return db.doc("game/settings").set(s)},
-    async add(e){const ref=await db.collection("log").add(e);return ref&&ref.id},
-    async remove(id){await db.doc("log/"+id).delete(); log=log.filter(x=>x.id!==id); render();}
-  };
-}
 async function connect(){
-  let db=null;
-  try{ if(window.claude && window.claude.use) db=await window.claude.use("db"); }catch{}
-  store = db ? sharedStore(db) : localStore();
-  $("dot").classList.toggle("on", store.kind==="shared");
-  $("mode").textContent = store.kind==="shared" ? "Compartido en vivo" : "Guardado en este dispositivo";
+  store = localStore();
   store.onSettings(s=>{ settings={...DEFAULTS,...(s||{})}; render(); fillForm(); });
   store.onLog(l=>{ log=l; render(); });
 }
@@ -381,6 +396,40 @@ $("customForm").onsubmit=ev=>{
   if(!n||!(p>0)) return toast("Escribe la tarea y sus puntos");
   addPoints(n,Math.min(200,p)); $("customName").value=""; $("customPts").value="";
 };
+
+/* ---------- copia de seguridad ---------- */
+$("exportBtn").onclick=()=>{
+  const data=JSON.stringify({app:"marcador-hogar",version:1,exportado:new Date().toISOString(),...store.dump()},null,2);
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([data],{type:"application/json"}));
+  a.download=`marcador-hogar-${new Date().toISOString().slice(0,10)}.json`;
+  document.body.append(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  toast("Copia descargada");
+};
+$("importFile").onchange=async ev=>{
+  const f=ev.target.files[0]; ev.target.value=""; if(!f) return;
+  try{
+    const d=JSON.parse(await f.text());
+    if(d.app!=="marcador-hogar"||!Array.isArray(d.log)) throw new Error("no es una copia del marcador");
+    await store.load({settings:d.settings||null,log:d.log});
+    toast(`Copia restaurada: ${d.log.length} tareas`);
+  }catch(e){ toast("No se pudo restaurar: "+e.message); }
+};
+
+/* ---------- instalar como app ---------- */
+let installEvt=null;
+const standalone=matchMedia("(display-mode: standalone)").matches||navigator.standalone;
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();installEvt=e;$("install").hidden=false;$("installBtn").hidden=false;});
+$("installBtn").onclick=async()=>{ if(!installEvt) return; installEvt.prompt(); await installEvt.userChoice; installEvt=null; $("install").hidden=true; };
+window.addEventListener("appinstalled",()=>{$("install").hidden=true;toast("App instalada")});
+if(!standalone && /iphone|ipad|ipod/i.test(navigator.userAgent) && location.protocol.startsWith("http")){
+  $("installText").textContent="Para instalarla en iPhone: toca Compartir y luego “Añadir a pantalla de inicio”.";
+  $("install").hidden=false;
+}
+if("serviceWorker" in navigator && location.protocol.startsWith("http")){
+  navigator.serviceWorker.register("sw.js").catch(()=>{});
+}
 
 let tt; function toast(m){const t=$("toast");t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,2600)}
 

@@ -178,4 +178,6 @@ Mini‑app independiente para parejas: cada tarea del hogar suma puntos y **quie
 - Barras de progreso hacia la meta, quién va ganando, últimas tareas con opción de quitar.
 - Ajustes: nombres, meta, premio y catálogo de tareas con sus puntos.
 - Al llegar a la meta se proclama ganador; "Empezar nueva ronda" guarda el resultado en el historial y reinicia a cero.
-- Fuera de claude.ai los datos se guardan en el navegador (`localStorage`); dentro de un Artifact de claude.ai se comparten en vivo entre los dos.
+- Los datos se guardan en el navegador (`localStorage`) del dispositivo. En Ajustes hay **Descargar copia / Restaurar copia** (JSON) para pasarlos a otro teléfono.
+- Es una **PWA instalable**: `manifest.webmanifest`, iconos y `sw.js` (funciona sin conexión). Al servirla por HTTPS (p. ej. Netlify en `/puntos/`) aparece el botón "Instalar app" en Android/Chrome; en iPhone: Compartir → "Añadir a pantalla de inicio".
+- También puede abrirse el `index.html` directamente desde el teléfono o el ordenador; así funciona y guarda en local, pero instalarla requiere servirla por HTTPS.
