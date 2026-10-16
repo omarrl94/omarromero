@@ -78,10 +78,26 @@ const friendlyError = (error) => {
   return e;
 };
 
+let diagnose = async () => null; // se define al crear el backend (necesita auth y db)
+
 const wrap = async (fn) => {
   try {
     return await fn();
   } catch (e) {
+    if (e?.code === 'permission-denied') {
+      // diagnose() renueva además el token de sesión: si ese era el problema, basta con reintentar
+      const reason = await diagnose().catch(() => null);
+      if (reason) {
+        const err = new Error(reason);
+        err.code = e.code;
+        throw err;
+      }
+      try {
+        return await fn();
+      } catch (e2) {
+        throw friendlyError(e2);
+      }
+    }
     throw friendlyError(e);
   }
 };
@@ -140,6 +156,25 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
   const chunkRef = (roomId, id, i) => doc(db, 'rooms', roomId, 'resources', id, 'chunks', String(i));
   const reportsCol = (roomId) => collection(db, 'rooms', roomId, 'reports');
   const pinRef = (pin) => doc(db, 'pins', pin);
+
+  /** Explica un «permiso denegado»: reglas sin publicar, sesión sin verificar o dominio ajeno. */
+  diagnose = async () => {
+    // Con las reglas nuevas cualquiera puede leer un recurso concreto por id (aunque no exista)
+    const rulesOk = await getDoc(doc(db, 'rooms', 'diagnostico-reglas', 'resources', 'diagnostico-reglas'))
+      .then(() => true)
+      .catch((e) => (e?.code === 'permission-denied' ? false : null));
+    if (rulesOk === false)
+      return 'Firestore tiene publicadas unas reglas antiguas. Ve a Firebase → Firestore Database → pestaña «Reglas», pega el contenido de firebase/firestore.rules y pulsa «Publicar».';
+    const user = auth.currentUser;
+    if (user) {
+      const { claims } = await user.getIdTokenResult(true);
+      if (!claims.email_verified)
+        return 'Tu sesión aún no tiene el correo verificado. Cierra sesión y vuelve a entrar después de pulsar el enlace del correo de verificación.';
+      if (!isTeacherEmail(claims.email || ''))
+        return `Tu cuenta (${claims.email}) no es del dominio del profesorado. Las reglas de Firestore solo permiten ${TEACHER_EMAIL_DOMAINS.map((d) => '@' + d).join(', ')}.`;
+    }
+    return null;
+  };
 
   // ---------- Auth ----------
   const domainError = () =>
