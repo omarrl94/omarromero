@@ -5,6 +5,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useUbicacion } from "@/hooks/useUbicacion";
 import { useAuth } from "@/lib/auth";
 import { formatearDistancia, metrosEntre } from "@/lib/distancia";
+import { ASEOS, type FiltroAseo } from "@/lib/scores";
 import { GOOGLE_MAPS_API_KEY, HAY_API_KEY } from "@/lib/config";
 import { formatearNota } from "@/lib/scores";
 import { useRollo } from "@/lib/store";
@@ -23,8 +24,18 @@ import { MapPin, Loader2 } from "lucide-react";
  * lista negra y la ficha del baño como cartel.
  */
 export function RolloApp() {
-  const { bares, baresValorados, getBar, adoptarBar, listo, modoDatos, errorDatos, recargar } =
-    useRollo();
+  const {
+    bares,
+    baresValorados,
+    getBar,
+    adoptarBar,
+    listo,
+    modoDatos,
+    errorDatos,
+    recargar,
+    filtroAseo,
+    setFiltroAseo,
+  } = useRollo();
   const { usuario } = useAuth();
   const [seleccion, setSeleccion] = useState<string | null>(null);
   const [valorandoAlAbrir, setValorandoAlAbrir] = useState(false);
@@ -253,7 +264,15 @@ export function RolloApp() {
           )}
 
           <div className="mt-6 grid grid-cols-[repeat(auto-fit,minmax(108px,1fr))] gap-2.5">
-            <Cifra valor={String(ordenados.length)} etiqueta="Baños fichados" color="text-marca" />
+            <Cifra
+              valor={String(ordenados.length)}
+              etiqueta={
+                filtroAseo === "todos"
+                  ? "Baños fichados"
+                  : `Baños ${ASEOS.find((a) => a.key === filtroAseo)?.label.toLowerCase()}`
+              }
+              color="text-marca"
+            />
             <Cifra
               valor={formatearNota(notaMedia)}
               etiqueta="Nota media"
@@ -262,6 +281,42 @@ export function RolloApp() {
             <Cifra valor={String(oros)} etiqueta="Rollos de Oro" color="text-ambar" />
           </div>
         </section>
+
+        <div className="mx-auto w-full max-w-[1240px] px-4 pb-4">
+          <div className="flex flex-wrap items-center gap-2 border-2 border-borde bg-asfalto-800 p-2.5">
+            <span className="px-1 font-mono text-[10px] uppercase tracking-[0.18em] text-papel-apagado">
+              Enséñame el baño
+            </span>
+            {([
+              { key: "todos", label: "Todos", simbolo: "" },
+              ...ASEOS.map(({ key, label, simbolo }) => ({ key, label, simbolo })),
+            ] as { key: FiltroAseo; label: string; simbolo: string }[]).map(
+              ({ key, label, simbolo }) => {
+                const activo = filtroAseo === key;
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    aria-pressed={activo}
+                    onClick={() => setFiltroAseo(key)}
+                    className={`grito border-2 px-3 py-1.5 text-sm ${
+                      activo
+                        ? "border-black bg-acido text-asfalto-900 shadow-dura-s"
+                        : "border-borde text-papel-apagado hover:border-papel hover:text-papel"
+                    }`}
+                  >
+                    {simbolo} {label}
+                  </button>
+                );
+              },
+            )}
+            {filtroAseo !== "todos" && (
+              <span className="ml-auto px-1 font-mono text-[10.5px] text-acido">
+                Notas y pines solo del aseo {ASEOS.find((a) => a.key === filtroAseo)?.label.toLowerCase()}
+              </span>
+            )}
+          </div>
+        </div>
 
         <div className="mx-auto grid w-full max-w-[1240px] gap-4 px-4 pb-10 lg:grid-cols-[1.35fr_1fr]">
           <section

@@ -1,4 +1,11 @@
-import type { Bar, BarConNota, CriterioKey, Review } from "./types";
+import type {
+  Bar,
+  BarConNota,
+  CriterioKey,
+  NotaAseo,
+  Review,
+  TipoAseo,
+} from "./types";
 
 /** Las cuatro categorías, con la pregunta tal y como se hace en la barra. */
 export const CRITERIOS: ReadonlyArray<{
@@ -34,6 +41,41 @@ export const CRITERIOS: ReadonlyArray<{
   },
 ];
 
+/** Los tres aseos posibles, con su etiqueta y su símbolo. */
+export const ASEOS: ReadonlyArray<{
+  key: TipoAseo;
+  label: string;
+  corto: string;
+  simbolo: string;
+  /** Lo que se pregunta al valorar. */
+  pregunta: string;
+}> = [
+  {
+    key: "femenino",
+    label: "Femenino",
+    corto: "Ellas",
+    simbolo: "♀",
+    pregunta: "El de mujeres",
+  },
+  {
+    key: "masculino",
+    label: "Masculino",
+    corto: "Ellos",
+    simbolo: "♂",
+    pregunta: "El de hombres",
+  },
+  {
+    key: "unico",
+    label: "Único",
+    corto: "Único",
+    simbolo: "⚲",
+    pregunta: "Uno solo para todo el mundo",
+  },
+];
+
+/** Filtro activo del mapa: un aseo concreto o la media de todos. */
+export type FiltroAseo = TipoAseo | "todos";
+
 /** Cómo se llama cada puntuación suelta, de 1 a 5. */
 export const GRADOS = ["Infierno", "Malo", "Justito", "Bien", "Gloria"] as const;
 
@@ -68,16 +110,41 @@ export function mediasPorCategoria(
   return acc;
 }
 
-/** Combina un bar con sus reseñas y las notas derivadas. */
-export function componerBar(bar: Bar, reviews: readonly Review[]): BarConNota {
-  const propias = reviews.filter((r) => r.place_id === bar.place_id);
-  const media = mediaDeReviews(propias);
+/** Resumen de cada aseo de un bar: media y número de votos. */
+function resumenPorAseo(
+  reviews: readonly Review[],
+): Record<TipoAseo, NotaAseo> {
+  const resumen = {} as Record<TipoAseo, NotaAseo>;
+  for (const { key } of ASEOS) {
+    const suyas = reviews.filter((r) => r.aseo === key);
+    resumen[key] = { media: mediaDeReviews(suyas), votos: suyas.length };
+  }
+  return resumen;
+}
+
+/**
+ * Combina un bar con sus reseñas y las notas derivadas.
+ *
+ * El filtro decide qué reseñas cuentan: con "femenino" el bar se
+ * comporta como si solo existiera ese aseo, de modo que el mapa, el
+ * ranking y la ficha hablan del baño que le importa a quien mira.
+ */
+export function componerBar(
+  bar: Bar,
+  reviews: readonly Review[],
+  filtro: FiltroAseo = "todos",
+): BarConNota {
+  const delBar = reviews.filter((r) => r.place_id === bar.place_id);
+  const contadas =
+    filtro === "todos" ? delBar : delBar.filter((r) => r.aseo === filtro);
+  const media = mediaDeReviews(contadas);
   return {
     bar,
-    reviews: [...propias].sort((a, b) => b.fecha.localeCompare(a.fecha)),
+    reviews: [...contadas].sort((a, b) => b.fecha.localeCompare(a.fecha)),
     media,
-    medias: mediasPorCategoria(propias),
-    esRolloDeOro: media !== null && media >= 4.5 && propias.length >= 2,
+    medias: mediasPorCategoria(contadas),
+    esRolloDeOro: media !== null && media >= 4.5 && contadas.length >= 2,
+    porAseo: resumenPorAseo(delBar),
   };
 }
 

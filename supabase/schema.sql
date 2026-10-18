@@ -30,6 +30,9 @@ create table if not exists public.bares (
 create table if not exists public.reviews (
   id          uuid primary key default gen_random_uuid(),
   place_id    text not null references public.bares (place_id) on delete cascade,
+  -- Qué aseo se valoró: el de ellas y el de ellos rara vez se parecen.
+  aseo        text not null default 'unico'
+              check (aseo in ('femenino', 'masculino', 'unico')),
   user_id     uuid references auth.users (id) on delete cascade,
   autor       text not null,
   limpieza    smallint not null check (limpieza between 1 and 5),
@@ -40,12 +43,25 @@ create table if not exists public.reviews (
   fecha       timestamptz not null default now()
 );
 
--- Un voto por persona y bar: el segundo actualiza el primero. Sin
+-- Para bases creadas antes de que existiera la distinción de aseos.
+alter table public.reviews
+  add column if not exists aseo text not null default 'unico';
+do $$
+begin
+  alter table public.reviews
+    add constraint reviews_aseo_valido
+    check (aseo in ('femenino', 'masculino', 'unico'));
+exception
+  when duplicate_object then null;
+end $$;
+
+-- Un voto por persona, bar y aseo: el segundo actualiza el primero. Sin
 -- WHERE para que el upsert del cliente pueda inferir el conflicto; las
 -- reseñas de ejemplo (user_id null) conviven porque Postgres trata cada
 -- null como distinto.
-create unique index if not exists reviews_una_por_persona
-  on public.reviews (place_id, user_id);
+drop index if exists public.reviews_una_por_persona;
+create unique index if not exists reviews_una_por_persona_y_aseo
+  on public.reviews (place_id, user_id, aseo);
 
 create index if not exists reviews_por_bar on public.reviews (place_id);
 
@@ -117,22 +133,28 @@ insert into public.bares (place_id, nombre, direccion, lat, lng) values
 on conflict (place_id) do nothing;
 
 insert into public.reviews
-  (place_id, user_id, autor, limpieza, espacio, intimidad, suministros, comentario, fecha)
+  (place_id, aseo, user_id, autor, limpieza, espacio, intimidad, suministros, comentario, fecha)
 select * from (values
-  ('mock-la-venencia',   null::uuid, 'Marta R.',      5, 4, 5, 5,
+  ('mock-la-venencia',   'femenino',  null::uuid, 'Marta R.',      5, 4, 5, 5,
    'Baño de manzanilla y madera noble. Papel de sobra, pestillo firme y cero olor. Aquí se entra sin miedo y se sale mejor persona.',
    now() - interval '38 days'),
-  ('mock-la-venencia',   null::uuid, 'Chule',         4, 4, 5, 5,
+  ('mock-la-venencia',   'femenino',  null::uuid, 'Chule',         4, 4, 5, 5,
    'Impecable a las ocho. A las doce ya hablamos.',
    now() - interval '17 days'),
-  ('mock-casa-camacho',  null::uuid, 'Vermutero',     2, 1, 2, 1,
+  ('mock-la-venencia',   'masculino', null::uuid, 'Nacho',         3, 3, 3, 4,
+   'El de ellos es otra historia: cumple, pero ni madera noble ni leches. A las once ya pide un repaso.',
+   now() - interval '32 days'),
+  ('mock-casa-camacho',  'unico',     null::uuid, 'Vermutero',     2, 1, 2, 1,
    'Cabina tamaño ascensor de finca vieja: cierras la puerta y saludas a tus rodillas. Papel, de casa.',
    now() - interval '14 days'),
-  ('mock-bodega-ardosa', null::uuid, 'Kike',          3, 3, 2, 4,
+  ('mock-bodega-ardosa', 'masculino', null::uuid, 'Kike',          3, 3, 2, 4,
    'El pestillo va a su bola: canta algo mientras estás dentro. Jabón sí, secamanos ni de broma.',
    now() - interval '22 days'),
-  ('mock-el-tigre',      null::uuid, 'Superviviente', 1, 2, 1, 1,
+  ('mock-el-tigre',      'masculino', null::uuid, 'Superviviente', 1, 2, 1, 1,
    'Zona catastrófica confirmada. Entra solo en emergencia nivel cinco, sin respirar y con el móvil guardado.',
-   now() - interval '10 days')
+   now() - interval '10 days'),
+  ('mock-el-tigre',      'femenino',  null::uuid, 'Lucía',         2, 3, 2, 2,
+   'El de mujeres salva los muebles por los pelos: hay papel y cierra, que ya es más de lo que se puede decir del otro.',
+   now() - interval '8 days')
 ) as semilla
 where not exists (select 1 from public.reviews where user_id is null);

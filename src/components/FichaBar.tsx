@@ -1,8 +1,9 @@
 "use client";
 
-import { ExternalLink, Pencil, Trash2, UserRound, X } from "lucide-react";
+import { ExternalLink, UserRound, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
+  ASEOS,
   CRITERIOS,
   GRADOS,
   fechaRelativa,
@@ -41,8 +42,7 @@ export function FichaBar({
 }) {
   const { bar, media, medias, reviews, esRolloDeOro } = barConNota;
   const { usuario } = useAuth();
-  const { miReview, retirarReview } = useRollo();
-  const propia = miReview(bar.place_id, usuario?.id ?? null);
+  const { filtroAseo } = useRollo();
   const [valorando, setValorando] = useState(abrirValorando && Boolean(usuario));
   const veredicto = veredictoDeNota(media);
 
@@ -108,6 +108,12 @@ export function FichaBar({
                 <span className="grito border-2 border-borde bg-asfalto-700 px-2 py-0.5 text-xs text-papel-apagado">
                   {reviews.length} {reviews.length === 1 ? "voto" : "votos"}
                 </span>
+                {filtroAseo !== "todos" && (
+                  <span className="grito border-2 border-acido bg-acido/10 px-2 py-0.5 text-xs text-acido">
+                    {ASEOS.find((a) => a.key === filtroAseo)?.simbolo}{" "}
+                    {ASEOS.find((a) => a.key === filtroAseo)?.label}
+                  </span>
+                )}
                 {metros !== null && (
                   <span className="grito border-2 border-acido bg-acido/10 px-2 py-0.5 text-xs text-acido">
                     a {formatearDistancia(metros)} · {minutosAndando(metros)} min
@@ -136,7 +142,6 @@ export function FichaBar({
           {valorando ? (
             <FormularioValoracion
               bar={bar}
-              anterior={propia}
               onGuardado={(mensaje) => {
                 setValorando(false);
                 onAvisar(mensaje);
@@ -146,7 +151,43 @@ export function FichaBar({
           ) : (
             <>
               <p className="mb-3 font-mono text-[10.5px] uppercase tracking-[0.22em] text-acido">
-                El parte técnico
+                Aseo por aseo
+              </p>
+              <ul className="mb-7 grid grid-cols-3 gap-2">
+                {ASEOS.map(({ key, label, simbolo }) => {
+                  const resumen = barConNota.porAseo[key];
+                  const v = veredictoDeNota(resumen.media);
+                  const mirando = filtroAseo === key;
+                  return (
+                    <li
+                      key={key}
+                      className={`border-2 p-2 text-center ${
+                        mirando ? "border-acido" : "border-borde"
+                      }`}
+                    >
+                      <span className="block font-mono text-[10px] uppercase tracking-[0.14em] text-papel-apagado">
+                        {simbolo} {label}
+                      </span>
+                      <span
+                        className="grito mt-1 block text-3xl leading-none tabular-nums"
+                        style={{ color: resumen.media === null ? "#4A4A52" : v.color }}
+                      >
+                        {formatearNota(resumen.media)}
+                      </span>
+                      <span className="mt-1 block font-mono text-[9.5px] text-papel-apagado">
+                        {resumen.votos === 0
+                          ? "sin catar"
+                          : `${resumen.votos} ${resumen.votos === 1 ? "voto" : "votos"}`}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+
+              <p className="mb-3 font-mono text-[10.5px] uppercase tracking-[0.22em] text-acido">
+                {filtroAseo === "todos"
+                  ? "El parte técnico · todos los aseos"
+                  : `El parte técnico · ${ASEOS.find((a) => a.key === filtroAseo)?.label.toLowerCase()}`}
               </p>
 
               {medias ? (
@@ -198,33 +239,13 @@ export function FichaBar({
               )}
 
               {usuario ? (
-                <div className="mt-6 grid gap-2.5">
-                  <button
-                    type="button"
-                    onClick={() => setValorando(true)}
-                    className="btn btn-acido w-full"
-                  >
-                    {propia && <Pencil className="h-4 w-4" />}
-                    {propia ? "Corregir mi parte" : "Yo he estado ahí dentro"}
-                  </button>
-                  {propia && (
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        const resultado = await retirarReview(propia);
-                        onAvisar(
-                          resultado.ok
-                            ? "Parte retirado."
-                            : (resultado.mensaje ?? "No se ha podido retirar."),
-                        );
-                      }}
-                      className="btn btn-fantasma w-full"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      Retirar mi parte
-                    </button>
-                  )}
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setValorando(true)}
+                  className="btn btn-acido mt-6 w-full"
+                >
+                  Yo he estado ahí dentro
+                </button>
               ) : (
                 <div className="mt-6">
                   <button
@@ -264,6 +285,8 @@ export function FichaBar({
                           </span>
                         </div>
                         <p className="mt-1 font-mono text-[10.5px] text-papel-apagado">
+                          {ASEOS.find((a) => a.key === review.aseo)?.simbolo}{" "}
+                          {ASEOS.find((a) => a.key === review.aseo)?.label} ·{" "}
                           {fechaRelativa(review.fecha)}
                         </p>
                         {review.comentario && (

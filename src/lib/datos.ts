@@ -17,6 +17,7 @@ interface FilaBar {
 interface FilaReview {
   id: string;
   place_id: string;
+  aseo: string;
   user_id: string | null;
   autor: string;
   limpieza: number;
@@ -38,6 +39,7 @@ const aBar = (fila: FilaBar): Bar => ({
 const aReview = (fila: FilaReview): Review => ({
   id: fila.id,
   place_id: fila.place_id,
+  aseo: (fila.aseo ?? "unico") as Review["aseo"],
   user_id: fila.user_id,
   autor: fila.autor,
   limpieza: fila.limpieza as Review["limpieza"],
@@ -59,6 +61,8 @@ function traducir(mensaje: string): string {
     return "No hemos podido hablar con la base de datos. Mira la conexión.";
   if (texto.includes("violates check constraint"))
     return "Esa valoración no cuadra: las notas van de 1 a 5.";
+  if (texto.includes("aseo"))
+    return "Falta la columna del aseo. Vuelve a ejecutar supabase/schema.sql.";
   return mensaje;
 }
 
@@ -75,7 +79,7 @@ export async function cargarTodo(): Promise<{
     supabase
       .from("reviews")
       .select(
-        "id,place_id,user_id,autor,limpieza,espacio,intimidad,suministros,comentario,fecha",
+        "id,place_id,aseo,user_id,autor,limpieza,espacio,intimidad,suministros,comentario,fecha",
       )
       .order("fecha", { ascending: false }),
   ]);
@@ -121,6 +125,7 @@ export async function publicarReview({
     .upsert(
       {
         place_id: bar.place_id,
+        aseo: draft.aseo,
         user_id: userId,
         autor,
         limpieza: draft.limpieza,
@@ -130,7 +135,7 @@ export async function publicarReview({
         comentario: draft.comentario.trim(),
         fecha: new Date().toISOString(),
       },
-      { onConflict: "place_id,user_id" },
+      { onConflict: "place_id,user_id,aseo" },
     )
     .select()
     .single();

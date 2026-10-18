@@ -44,6 +44,15 @@ El identificador de un local es su **`place_id` de Google**. El usuario escribe 
 
 El buscador ofrece primero los bares ya fichados (instantáneo, sin gastar cuota) y debajo las sugerencias de Google. Usa la Places API nueva (`AutocompleteSuggestion`) y cae sola a la clásica (`AutocompleteService`) si la clave solo tiene esa.
 
+### Femenino, masculino o único
+
+El mismo bar puede tener el baño de ellas impecable y el de ellos arrasado, así que **la nota cuelga del aseo, no del local**. Cada parte dice a cuál se refiere: `femenino`, `masculino` o `unico` (el de toda la vida, uno para todo el mundo).
+
+- En la cabecera del listado hay un filtro — **Todos · ♀ Femenino · ♂ Masculino · ⚲ Único** — que manda en todo: las chapas del mapa, el podio, la lista negra y el parte técnico de la ficha pasan a hablar solo de ese aseo. Un bar del que solo se ha valorado el único desaparece al filtrar por femenino, porque de ese no hay nada que decir.
+- La ficha enseña siempre los tres de un vistazo: `♀ 4,6 · ♂ 3,3 · ⚲ sin catar`.
+- Cada comentario lleva su aseo al lado, para que no se mezclen.
+- **Un voto por persona, bar y aseo**: puedes valorar los dos, y cada uno se corrige por separado.
+
 ### Las notas
 
 | Categoría | La pregunta de verdad |
@@ -53,7 +62,7 @@ El buscador ofrece primero los bares ya fichados (instantáneo, sin gastar cuota
 | Intimidad | ¿El pestillo es de verdad o es decorativo? |
 | Suministros | ¿Hay papel y jabón o toca improvisar? |
 
-Cada puntuación suelta tiene nombre: **Infierno · Malo · Justito · Bien · Gloria**. La nota global es la media de las cuatro, y la del bar la media de todas sus reseñas. De ahí sale el veredicto, que es lo que se lee en la chapa del mapa:
+Cada puntuación suelta tiene nombre: **Infierno · Malo · Justito · Bien · Gloria**. La nota global es la media de las cuatro, y la del bar la media de las reseñas del aseo que estés mirando. De ahí sale el veredicto, que es lo que se lee en la chapa del mapa:
 
 | Nota media | Veredicto | Color |
 |---|---|---|
@@ -89,7 +98,7 @@ Montarlo, si quieres cuentas reales:
 1. Crea un proyecto en [supabase.com](https://supabase.com) (plan Free vale).
 2. **Project Settings → API**: copia *Project URL* y *anon public*.
 3. **Authentication → Providers**: deja activado *Email*.
-4. **SQL Editor → New query**: pega entero `supabase/schema.sql` y dale a *Run*. Crea las tablas, las políticas y cinco bares de ejemplo.
+4. **SQL Editor → New query**: pega entero `supabase/schema.sql` y dale a *Run*. Crea las tablas, las políticas y cinco bares de ejemplo. Si ya lo habías ejecutado antes, vuelve a pasarlo: añade la columna del aseo y rehace el índice sin tocar lo que hubiera.
 5. Pega las dos variables en `.env.local` y reinicia el servidor.
 
 ### Dónde viven los datos
@@ -104,7 +113,7 @@ Dos orígenes, elegidos por las variables de entorno:
 
 ```ts
 Bar    { place_id (PK), nombre, direccion, lat, lng, creado_por }
-Review { id, place_id (FK), user_id (FK), autor,
+Review { id, place_id (FK), aseo, user_id (FK), autor,
          limpieza, espacio, intimidad, suministros, comentario, fecha }
 ```
 
@@ -117,7 +126,7 @@ Las notas no se guardan calculadas: se derivan en `src/lib/scores.ts`.
 - Publicar una reseña: solo con sesión y solo a tu nombre (`user_id = auth.uid()`); firmar en nombre de otro lo rechaza Postgres.
 - Corregir o retirar: solo lo tuyo.
 - Cambiar o borrar un bar desde el cliente: nadie. No hay política de update ni de delete.
-- **Un voto por persona y bar**: hay un índice único sobre `(place_id, user_id)`, así que el segundo parte actualiza el primero en vez de duplicarlo. En la app esto se ve como "Corregir mi parte".
+- **Un voto por persona, bar y aseo**: hay un índice único sobre `(place_id, user_id, aseo)`, así que el segundo parte del mismo aseo actualiza el primero en vez de duplicarlo. En la app esto se ve como "Actualizar mi parte".
 
 ---
 

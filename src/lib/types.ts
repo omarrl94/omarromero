@@ -16,6 +16,13 @@ export interface Bar {
   lng: number;
 }
 
+/**
+ * Qué aseo se valoró. Un bar puede tener el de ellas impecable y el de
+ * ellos arrasado, así que la nota cuelga del aseo, no del local.
+ * "unico" es el baño sin distinción, el de toda la vida.
+ */
+export type TipoAseo = "femenino" | "masculino" | "unico";
+
 /** Las cuatro categorías que se puntúan de 1 a 5. */
 export type CriterioKey = "limpieza" | "espacio" | "intimidad" | "suministros";
 
@@ -27,6 +34,8 @@ export interface Review {
   id: string;
   /** FK → Bar.place_id */
   place_id: string;
+  /** El aseo al que se refiere esta valoración. */
+  aseo: TipoAseo;
   limpieza: Puntuacion;
   espacio: Puntuacion;
   intimidad: Puntuacion;
@@ -41,7 +50,13 @@ export interface Review {
 }
 
 /** Valores del formulario antes de convertirse en Review. */
-export type ReviewDraft = Pick<Review, CriterioKey | "comentario">;
+export type ReviewDraft = Pick<Review, CriterioKey | "comentario" | "aseo">;
+
+/** Resumen de un aseo concreto de un bar. */
+export interface NotaAseo {
+  media: number | null;
+  votos: number;
+}
 
 /** Un bar junto a las notas derivadas de sus reseñas. */
 export interface BarConNota {
@@ -53,4 +68,6 @@ export interface BarConNota {
   medias: Record<CriterioKey, number> | null;
   /** Media >= 4.5 con al menos 2 reseñas → Rollo de Oro. */
   esRolloDeOro: boolean;
+  /** Nota de cada aseo, para poder compararlos de un vistazo. */
+  porAseo: Record<TipoAseo, NotaAseo>;
 }

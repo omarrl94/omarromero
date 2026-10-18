@@ -11,8 +11,8 @@ import {
 import { HAY_SUPABASE } from "./config";
 import { borrarReview, cargarTodo, publicarReview as publicarRemota } from "./datos";
 import { BARES_MOCK, REVIEWS_MOCK } from "./mock-data";
-import { componerBar } from "./scores";
-import type { Bar, BarConNota, Review, ReviewDraft } from "./types";
+import { componerBar, type FiltroAseo } from "./scores";
+import type { Bar, BarConNota, Review, ReviewDraft, TipoAseo } from "./types";
 
 /**
  * Estado de bares y reseñas, con dos orígenes posibles:
@@ -41,8 +41,15 @@ interface RolloContexto {
   /** Los que tienen al menos una reseña: son los que van al mapa. */
   baresValorados: BarConNota[];
   getBar: (placeId: string) => BarConNota | null;
-  /** La reseña que esa persona ya escribió de ese bar, si la hay. */
-  miReview: (placeId: string, userId: string | null) => Review | null;
+  /** La reseña que esa persona ya escribió de ese aseo, si la hay. */
+  miReview: (
+    placeId: string,
+    userId: string | null,
+    aseo: TipoAseo,
+  ) => Review | null;
+  /** Qué aseo manda en el mapa, el ranking y las fichas. */
+  filtroAseo: FiltroAseo;
+  setFiltroAseo: (filtro: FiltroAseo) => void;
   /** Deja el bar a la vista; se guarda de verdad al publicar. */
   adoptarBar: (bar: Bar) => void;
   publicarReview: (
@@ -102,6 +109,7 @@ export function RolloProvider({ children }: { children: React.ReactNode }) {
   const [almacen, setAlmacen] = useState<Almacen>({ bares: [], reviews: [] });
   const [listo, setListo] = useState(false);
   const [errorDatos, setErrorDatos] = useState<string | null>(null);
+  const [filtroAseo, setFiltroAseo] = useState<FiltroAseo>("todos");
 
   const recargar = useCallback(async () => {
     if (modoDatos === "local") {
@@ -187,6 +195,7 @@ export function RolloProvider({ children }: { children: React.ReactNode }) {
       const review: Review = {
         id: crearId(),
         place_id: bar.place_id,
+        aseo: draft.aseo,
         user_id: firma.userId,
         autor,
         limpieza: draft.limpieza,
@@ -207,6 +216,7 @@ export function RolloProvider({ children }: { children: React.ReactNode }) {
             (r) =>
               !(
                 r.place_id === bar.place_id &&
+                r.aseo === draft.aseo &&
                 firma.userId !== null &&
                 r.user_id === firma.userId
               ),
@@ -240,8 +250,11 @@ export function RolloProvider({ children }: { children: React.ReactNode }) {
   );
 
   const bares = useMemo(
-    () => almacen.bares.map((bar) => componerBar(bar, almacen.reviews)),
-    [almacen],
+    () =>
+      almacen.bares.map((bar) =>
+        componerBar(bar, almacen.reviews, filtroAseo),
+      ),
+    [almacen, filtroAseo],
   );
 
   const baresValorados = useMemo(
@@ -255,11 +268,14 @@ export function RolloProvider({ children }: { children: React.ReactNode }) {
   );
 
   const miReview = useCallback(
-    (placeId: string, userId: string | null) =>
+    (placeId: string, userId: string | null, aseo: TipoAseo) =>
       userId === null
         ? null
         : (almacen.reviews.find(
-            (r) => r.place_id === placeId && r.user_id === userId,
+            (r) =>
+              r.place_id === placeId &&
+              r.user_id === userId &&
+              r.aseo === aseo,
           ) ?? null),
     [almacen.reviews],
   );
@@ -270,6 +286,8 @@ export function RolloProvider({ children }: { children: React.ReactNode }) {
       baresValorados,
       getBar,
       miReview,
+      filtroAseo,
+      setFiltroAseo,
       adoptarBar,
       publicarReview,
       retirarReview,
@@ -283,6 +301,8 @@ export function RolloProvider({ children }: { children: React.ReactNode }) {
       baresValorados,
       getBar,
       miReview,
+      filtroAseo,
+      setFiltroAseo,
       adoptarBar,
       publicarReview,
       retirarReview,

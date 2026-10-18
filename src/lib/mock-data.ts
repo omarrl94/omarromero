@@ -50,6 +50,7 @@ export const BARES_MOCK: readonly Bar[] = [
 export const REVIEWS_MOCK: readonly Review[] = [
   {
     id: "mock-review-1",
+    aseo: "femenino",
     place_id: "mock-la-venencia",
     limpieza: 5,
     espacio: 4,
@@ -63,6 +64,7 @@ export const REVIEWS_MOCK: readonly Review[] = [
   },
   {
     id: "mock-review-2",
+    aseo: "femenino",
     place_id: "mock-la-venencia",
     limpieza: 4,
     espacio: 4,
@@ -75,6 +77,7 @@ export const REVIEWS_MOCK: readonly Review[] = [
   },
   {
     id: "mock-review-3",
+    aseo: "unico",
     place_id: "mock-casa-camacho",
     limpieza: 2,
     espacio: 1,
@@ -88,6 +91,7 @@ export const REVIEWS_MOCK: readonly Review[] = [
   },
   {
     id: "mock-review-4",
+    aseo: "masculino",
     place_id: "mock-bodega-ardosa",
     limpieza: 3,
     espacio: 3,
@@ -100,7 +104,36 @@ export const REVIEWS_MOCK: readonly Review[] = [
     fecha: "2026-08-28T21:30:00.000Z",
   },
   {
+    id: "mock-review-6",
+    aseo: "masculino",
+    place_id: "mock-la-venencia",
+    limpieza: 3,
+    espacio: 3,
+    intimidad: 3,
+    suministros: 4,
+    comentario:
+      "El de ellos es otra historia: cumple, pero ni madera noble ni leches. A las once ya pide un repaso.",
+    autor: "Nacho",
+    user_id: null,
+    fecha: "2026-09-10T20:20:00.000Z",
+  },
+  {
+    id: "mock-review-7",
+    aseo: "femenino",
+    place_id: "mock-el-tigre",
+    limpieza: 2,
+    espacio: 3,
+    intimidad: 2,
+    suministros: 2,
+    comentario:
+      "El de mujeres salva los muebles por los pelos: hay papel y cierra, que ya es más de lo que se puede decir del otro.",
+    autor: "Lucía",
+    user_id: null,
+    fecha: "2026-09-12T21:05:00.000Z",
+  },
+  {
     id: "mock-review-5",
+    aseo: "masculino",
     place_id: "mock-el-tigre",
     limpieza: 1,
     espacio: 2,

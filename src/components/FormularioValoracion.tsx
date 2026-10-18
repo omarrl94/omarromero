@@ -1,56 +1,75 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { Loader2, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/lib/auth";
 import {
+  ASEOS,
   CRITERIOS,
   GRADOS,
   formatearNota,
   veredictoDeNota,
 } from "@/lib/scores";
-import { useAuth } from "@/lib/auth";
 import { useRollo } from "@/lib/store";
-import type { Bar, CriterioKey, Puntuacion, Review } from "@/lib/types";
+import type { Bar, CriterioKey, Puntuacion, TipoAseo } from "@/lib/types";
 import { EscalaRollos } from "./Rollitos";
 
 type Valores = Partial<Record<CriterioKey, Puntuacion>>;
 
 /**
- * El parte: cuatro categorías de 1 a 5 rollos, veredicto calculado en
- * vivo y el aviso para quien entre después.
+ * El parte: primero qué aseo se visitó —el de ellas y el de ellos no se
+ * parecen en nada—, luego las cuatro categorías, el veredicto en vivo y
+ * el aviso para quien entre después.
  */
 export function FormularioValoracion({
   bar,
-  anterior,
   onGuardado,
   onCancelar,
 }: {
   bar: Bar;
-  /** Si ya habías valorado este baño, el formulario llega relleno. */
-  anterior: Review | null;
   onGuardado: (mensaje: string) => void;
   onCancelar: () => void;
 }) {
-  const { publicarReview } = useRollo();
+  const { publicarReview, retirarReview, miReview, filtroAseo } = useRollo();
   const { usuario } = useAuth();
-  const [valores, setValores] = useState<Valores>(
-    anterior
-      ? {
-          limpieza: anterior.limpieza,
-          espacio: anterior.espacio,
-          intimidad: anterior.intimidad,
-          suministros: anterior.suministros,
-        }
-      : {},
+
+  // Si estabas mirando un aseo concreto, se da por elegido.
+  const [aseo, setAseo] = useState<TipoAseo | null>(
+    filtroAseo === "todos" ? null : filtroAseo,
   );
-  const [comentario, setComentario] = useState(anterior?.comentario ?? "");
+  const [valores, setValores] = useState<Valores>({});
+  const [comentario, setComentario] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const anterior = aseo
+    ? miReview(bar.place_id, usuario?.id ?? null, aseo)
+    : null;
+
+  // Al cambiar de aseo, el formulario se rellena con lo que ya dijiste
+  // de ese aseo (o se vacía si es la primera vez).
+  useEffect(() => {
+    if (!aseo) return;
+    if (anterior) {
+      setValores({
+        limpieza: anterior.limpieza,
+        espacio: anterior.espacio,
+        intimidad: anterior.intimidad,
+        suministros: anterior.suministros,
+      });
+      setComentario(anterior.comentario);
+    } else {
+      setValores({});
+      setComentario("");
+    }
+    // Solo cuando cambia el aseo: lo que teclees después no se pisa.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [aseo, bar.place_id]);
 
   const puestas = CRITERIOS.map(({ key }) => valores[key]).filter(
     (v): v is Puntuacion => v !== undefined,
   );
-  const completo = puestas.length === CRITERIOS.length;
+  const completo = puestas.length === CRITERIOS.length && aseo !== null;
   const notaViva =
     puestas.length > 0
       ? puestas.reduce((a, b) => a + b, 0) / puestas.length
@@ -60,14 +79,14 @@ export function FormularioValoracion({
   const enviar = async (e: React.FormEvent) => {
     e.preventDefault();
     const { limpieza, espacio, intimidad, suministros } = valores;
-    if (!limpieza || !espacio || !intimidad || !suministros || !usuario) return;
-    if (enviando) return;
+    if (!limpieza || !espacio || !intimidad || !suministros) return;
+    if (!aseo || !usuario || enviando) return;
 
     setEnviando(true);
     setError(null);
     const resultado = await publicarReview(
       bar,
-      { limpieza, espacio, intimidad, suministros, comentario },
+      { aseo, limpieza, espacio, intimidad, suministros, comentario },
       { autor: usuario.alias, userId: usuario.id },
     );
     setEnviando(false);
@@ -84,83 +103,121 @@ export function FormularioValoracion({
   return (
     <form onSubmit={enviar}>
       <p className="mb-3 font-mono text-[10.5px] uppercase tracking-[0.22em] text-acido">
-        {anterior ? "Corrige tu parte" : "Canta lo que viste"}
+        ¿En qué baño estuviste?
       </p>
-
-      {CRITERIOS.map(({ key, label, pregunta }) => {
-        const puesta = valores[key];
-        return (
-          <div
-            key={key}
-            className="border-t-2 border-dashed border-borde py-4 first:border-t-0 first:pt-1"
-          >
-            <div className="flex items-baseline justify-between gap-3">
-              <b className="grito text-lg">{label}</b>
-              <span className="font-mono text-[10.5px] uppercase tracking-wider text-acido">
-                {puesta ? `${GRADOS[puesta - 1]} · ${puesta}/5` : "sin nota"}
+      <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Aseo">
+        {ASEOS.map(({ key, label, simbolo, pregunta }) => {
+          const activo = aseo === key;
+          return (
+            <button
+              key={key}
+              type="button"
+              role="radio"
+              aria-checked={activo}
+              onClick={() => setAseo(key)}
+              className={`grito border-2 px-2 py-3 leading-none ${
+                activo
+                  ? "border-black bg-acido text-asfalto-900 shadow-dura-s"
+                  : "border-borde bg-asfalto-700 text-papel-apagado hover:border-papel hover:text-papel"
+              }`}
+            >
+              <span className="block text-2xl">{simbolo}</span>
+              <span className="mt-1.5 block text-sm">{label}</span>
+              <span className="mt-1 block font-mono text-[9px] normal-case tracking-normal opacity-70">
+                {pregunta}
               </span>
-            </div>
-            <p className="mb-3 mt-1 text-sm text-papel-apagado">{pregunta}</p>
-            <EscalaRollos
-              etiqueta={label}
-              valor={puesta ?? null}
-              onChange={(v) => setValores((prev) => ({ ...prev, [key]: v }))}
-              colorDe={(p) => veredictoDeNota(p).color}
-            />
-          </div>
-        );
-      })}
-
-      {/* Veredicto en vivo */}
-      <div
-        className="my-6 flex flex-wrap items-center justify-between gap-3 border-[3px] border-black bg-asfalto-700 px-4 py-3 shadow-dura"
-        style={completo ? { backgroundColor: `${veredicto.color}22` } : undefined}
-      >
-        <span>
-          <b className="block font-mono text-[10px] uppercase tracking-[0.22em] text-papel-apagado">
-            Veredicto
-          </b>
-          <span
-            className="grito mt-1 block text-2xl"
-            style={{ color: completo ? veredicto.color : "#B9B2A4" }}
-          >
-            {completo
-              ? veredicto.texto
-              : `Faltan ${CRITERIOS.length - puestas.length}`}
-          </span>
-        </span>
-        <span
-          className="grito text-5xl leading-none tabular-nums"
-          style={{ color: completo ? veredicto.color : "#B9B2A4" }}
-        >
-          {formatearNota(notaViva)}
-        </span>
+            </button>
+          );
+        })}
       </div>
 
-      <label
-        htmlFor="comentario"
-        className="mb-2 block font-mono text-[10px] uppercase tracking-[0.22em] text-papel-apagado"
-      >
-        El aviso para el siguiente
-      </label>
-      <textarea
-        id="comentario"
-        value={comentario}
-        onChange={(e) => setComentario(e.target.value)}
-        rows={3}
-        maxLength={400}
-        placeholder="Lleva papel, el pestillo es decorativo, no mires al techo…"
-        className="campo"
-      />
+      {anterior && (
+        <p className="mt-3 border-2 border-ambar bg-ambar/10 px-3 py-2 font-mono text-[11px] text-ambar">
+          Ya tenías un parte de este aseo: lo que publiques lo sustituye.
+        </p>
+      )}
 
-      <p className="mt-4 flex items-center gap-2 border-2 border-borde bg-asfalto-700 px-3 py-2.5">
-        <span className="grid h-7 w-7 shrink-0 place-items-center bg-acido text-sm font-extrabold text-[#0A0E02]">
-          {usuario?.alias.slice(0, 1).toUpperCase() ?? "?"}
-        </span>
-        <span className="font-mono text-[11px] text-papel-apagado">
-          Firmas como <b className="text-papel">{usuario?.alias}</b>
-        </span>
-      </p>
+      <div className={aseo ? "" : "pointer-events-none opacity-40"}>
+        <p className="mb-3 mt-6 font-mono text-[10.5px] uppercase tracking-[0.22em] text-acido">
+          {anterior ? "Corrige tu parte" : "Canta lo que viste"}
+        </p>
+
+        {CRITERIOS.map(({ key, label, pregunta }) => {
+          const puesta = valores[key];
+          return (
+            <div
+              key={key}
+              className="border-t-2 border-dashed border-borde py-4 first:border-t-0 first:pt-1"
+            >
+              <div className="flex items-baseline justify-between gap-3">
+                <b className="grito text-lg">{label}</b>
+                <span className="font-mono text-[10.5px] uppercase tracking-wider text-acido">
+                  {puesta ? `${GRADOS[puesta - 1]} · ${puesta}/5` : "sin nota"}
+                </span>
+              </div>
+              <p className="mb-3 mt-1 text-sm text-papel-apagado">{pregunta}</p>
+              <EscalaRollos
+                etiqueta={label}
+                valor={puesta ?? null}
+                onChange={(v) => setValores((prev) => ({ ...prev, [key]: v }))}
+                colorDe={(p) => veredictoDeNota(p).color}
+              />
+            </div>
+          );
+        })}
+
+        <div
+          className="my-6 flex flex-wrap items-center justify-between gap-3 border-[3px] border-black bg-asfalto-700 px-4 py-3 shadow-dura"
+          style={completo ? { backgroundColor: `${veredicto.color}22` } : undefined}
+        >
+          <span>
+            <b className="block font-mono text-[10px] uppercase tracking-[0.22em] text-papel-apagado">
+              Veredicto
+            </b>
+            <span
+              className="grito mt-1 block text-2xl"
+              style={{ color: completo ? veredicto.color : "#B9B2A4" }}
+            >
+              {completo
+                ? veredicto.texto
+                : aseo
+                  ? `Faltan ${CRITERIOS.length - puestas.length}`
+                  : "Elige el aseo"}
+            </span>
+          </span>
+          <span
+            className="grito text-5xl leading-none tabular-nums"
+            style={{ color: completo ? veredicto.color : "#B9B2A4" }}
+          >
+            {formatearNota(notaViva)}
+          </span>
+        </div>
+
+        <label
+          htmlFor="comentario"
+          className="mb-2 block font-mono text-[10px] uppercase tracking-[0.22em] text-papel-apagado"
+        >
+          El aviso para el siguiente
+        </label>
+        <textarea
+          id="comentario"
+          value={comentario}
+          onChange={(e) => setComentario(e.target.value)}
+          rows={3}
+          maxLength={400}
+          placeholder="Lleva papel, el pestillo es decorativo, no mires al techo…"
+          className="campo"
+        />
+
+        <p className="mt-4 flex items-center gap-2 border-2 border-borde bg-asfalto-700 px-3 py-2.5">
+          <span className="grid h-7 w-7 shrink-0 place-items-center bg-acido text-sm font-extrabold text-[#0A0E02]">
+            {usuario?.alias.slice(0, 1).toUpperCase() ?? "?"}
+          </span>
+          <span className="font-mono text-[11px] text-papel-apagado">
+            Firmas como <b className="text-papel">{usuario?.alias}</b>
+          </span>
+        </p>
+      </div>
 
       {error && (
         <p
@@ -180,6 +237,25 @@ export function FormularioValoracion({
           {enviando && <Loader2 className="h-4 w-4 animate-spin" />}
           {anterior ? "Actualizar mi parte" : "Publicar el parte"}
         </button>
+
+        {anterior && (
+          <button
+            type="button"
+            onClick={async () => {
+              const resultado = await retirarReview(anterior);
+              onGuardado(
+                resultado.ok
+                  ? "Parte retirado."
+                  : (resultado.mensaje ?? "No se ha podido retirar."),
+              );
+            }}
+            className="btn btn-fantasma w-full"
+          >
+            <Trash2 className="h-4 w-4" />
+            Retirar mi parte
+          </button>
+        )}
+
         <button
           type="button"
           onClick={onCancelar}
@@ -190,7 +266,9 @@ export function FormularioValoracion({
       </div>
       {!completo && (
         <p className="mt-2 text-center font-mono text-[11px] text-papel-apagado">
-          Puntúa las cuatro categorías para poder publicar.
+          {aseo
+            ? "Puntúa las cuatro categorías para poder publicar."
+            : "Elige primero de qué aseo hablas."}
         </p>
       )}
     </form>
