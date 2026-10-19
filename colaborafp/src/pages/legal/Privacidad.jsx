@@ -40,6 +40,7 @@ export default function Privacidad() {
           items={[
             <>Cada sala se <strong>cierra automáticamente a las {ROOM_OPEN_HOURS} horas</strong> de abrirse (el profesor puede reabrirla).</>,
             <>La sala y <strong>todo su contenido</strong> (recursos, archivos, aportaciones y notificaciones) <strong>se eliminan automáticamente en la fecha que elige el profesor</strong> al crear la sala (por defecto, {RETENTION_DAYS} días; como máximo, {MAX_RETENTION_DAYS} días desde que se fija). El profesorado puede cambiar esa fecha o borrarlo todo antes en cualquier momento.</>,
+            <><strong>Copias de sala.</strong> El profesor puede descargar una copia de una sala (archivo «.colaborafp») para reutilizarla otro curso. Incluye lo que él publicó y, solo si lo marca, las aportaciones aprobadas del alumnado con su alias; lo pendiente nunca se copia. La copia queda bajo la responsabilidad del profesor, que debe guardarla en el almacenamiento del centro y borrarla cuando ya no la necesite.</>,
             <>La cuenta del profesorado se conserva mientras preste servicio en el centro. Puede eliminarla, con todas sus salas, desde «Mis salas → Mi cuenta».</>,
             <>Los datos guardados en tu propio dispositivo (ver apartado 7) permanecen hasta que los borras desde tu navegador.</>,
           ]}
@@ -50,13 +51,17 @@ export default function Privacidad() {
         <p>No se ceden datos a terceros salvo obligación legal. Para prestar el servicio intervienen, como encargados del tratamiento con contrato conforme al art. 28 RGPD:</p>
         <List
           items={[
-            <><strong>Google Ireland Limited</strong> (Firebase Authentication y Cloud Firestore): autenticación del profesorado y base de datos, con servidores en la Unión Europea.</>,
-            <><strong>Netlify, Inc.</strong> (Estados Unidos): alojamiento y entrega de la aplicación web.</>,
+            <><strong>Google Ireland Limited</strong> (Cloud Firestore): base de datos de las salas y sus contenidos, con servidores en la Unión Europea.</>,
+            <><strong>Google LLC</strong> (Firebase Authentication, Estados Unidos): cuentas, contraseñas y verificación del correo del profesorado. Este servicio de Google solo funciona desde centros de datos de Estados Unidos.</>,
+            <><strong>Netlify, Inc.</strong> (Estados Unidos): alojamiento y entrega de la aplicación web, y la función que envía los correos de la cuenta (verificación y nueva contraseña), que trata el nombre y el correo del profesorado.</>,
+            <><strong>El proveedor de correo electrónico del centro</strong> (Microsoft 365 o, si así se configura, Resend): envío de esos correos al profesorado.</>,
           ]}
         />
         <p>
-          Las transferencias internacionales que pudieran producirse se amparan en el Marco de Privacidad de Datos UE-EE. UU.
-          (art. 45 RGPD) y/o en las cláusulas contractuales tipo de la Comisión Europea (art. 46 RGPD).
+          Las transferencias a Estados Unidos se amparan en el Marco de Privacidad de Datos UE-EE. UU. (art. 45 RGPD), al que están
+          adheridos Google LLC y Netlify, y en las cláusulas contractuales tipo de la Comisión Europea (art. 46 RGPD) que recoge el
+          contrato de cada proveedor, incluido el de correo. Los datos del alumnado (aportaciones y alias) no salen de la
+          base de datos en la Unión Europea, salvo en las copias de sala descritas en el apartado 4.
         </p>
       </Section>
 
