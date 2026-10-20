@@ -17,7 +17,7 @@ export const CENTRO = {
   web: env.VITE_CENTRO_WEB || '',
 };
 
-export const LEGAL_VERSION = '15 de octubre de 2026';
+export const LEGAL_VERSION = '19 de octubre de 2026';
 
 /** Campos obligatorios para cumplir el art. 10 LSSI y el art. 13 RGPD. */
 export const LEGAL_MISSING = ['titular', 'nif', 'direccion', 'email', 'dpd'].filter((k) => !CENTRO[k]);
