@@ -12,6 +12,7 @@ import { defaultExpiry } from '../utils/retention';
 import AccountPanel from '../components/AccountPanel';
 import AdminApprovals from '../components/AdminApprovals';
 import BackupModal from '../components/BackupModal';
+import ClassCalendars from '../components/ClassCalendars';
 import RestoreModal from '../components/RestoreModal';
 import { formatPin } from '../utils/ids';
 
@@ -125,6 +126,7 @@ export default function TeacherDashboard() {
         <AccountPanel />
         </div>
 
+        <div className="min-w-0 space-y-10">
         <section>
           <h2 className="section-title mb-4">Historial de salas</h2>
           {error && <p className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">{error}</p>}
@@ -179,6 +181,8 @@ export default function TeacherDashboard() {
             </ul>
           )}
         </section>
+        <ClassCalendars teacherId={user.id} />
+        </div>
       </div>
       {backupRoom && <BackupModal room={backupRoom} onClose={() => setBackupRoom(null)} />}
       {restoring && (

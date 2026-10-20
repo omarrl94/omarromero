@@ -46,20 +46,20 @@ export default function AppLayout() {
             )}
             {user ? (
               <>
-                <Link to="/profesor" className="btn-ghost btn-sm" aria-label="Mis salas">
+                <Link to="/profesor" className="btn-ghost btn-sm">
                   <LayoutDashboard className="h-4 w-4" aria-hidden="true" />
-                  <span className="hidden sm:inline">Mis salas</span>
+                  <span className="sr-only sm:not-sr-only">Mis salas</span>
                 </Link>
-                <button onClick={signOut} className="btn-ghost btn-sm" title={`Cerrar sesión (${user.email})`} aria-label="Cerrar sesión">
+                <button onClick={signOut} className="btn-ghost btn-sm" title={`Cerrar sesión (${user.email})`}>
                   <LogOut className="h-4 w-4" aria-hidden="true" />
-                  <span className="hidden sm:inline">Salir</span>
+                  <span className="sr-only sm:not-sr-only">Salir</span>
                 </button>
               </>
             ) : (
               !isStudentRoom && (
-                <Link to="/login" className="btn-secondary btn-sm" aria-label="Acceso profesorado">
+                <Link to="/login" className="btn-secondary btn-sm">
                   <LogIn className="h-4 w-4" aria-hidden="true" />
-                  <span className="hidden sm:inline">Acceso profesorado</span>
+                  <span className="sr-only sm:not-sr-only">Acceso profesorado</span>
                 </Link>
               )
             )}

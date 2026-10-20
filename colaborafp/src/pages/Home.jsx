@@ -6,9 +6,10 @@ import { useAuth } from '../hooks/useAuth';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { PIN_LENGTH } from '../utils/constants';
 import { normalizePin } from '../utils/ids';
+import { backend } from '../services/backend';
 
 const STEPS = [
-  { icon: QrCode, title: 'Entra al instante', text: 'Escanea el QR de la pizarra o escribe el PIN. Sin cuentas ni contraseñas.', tone: 'bg-brand-100 text-brand-800 dark:bg-brand-400/15 dark:text-brand-300' },
+  { icon: QrCode, title: 'Entra al instante', text: 'Escanea el QR de la pizarra o escribe el PIN de la sala o el código del calendario de tu clase. Sin cuentas ni contraseñas.', tone: 'bg-brand-100 text-brand-800 dark:bg-brand-400/15 dark:text-brand-300' },
   { icon: CodeXml, title: 'Código listo para usar', text: 'Ejemplos con resaltado de sintaxis y botón de copiar en un clic.', tone: 'bg-accent-100 text-accent-800 dark:bg-accent-300/15 dark:text-accent-300' },
   { icon: Inbox, title: 'Comparte con tu clase', text: 'Propón tu código o sube archivos; el profesor los revisa y los publica.', tone: 'bg-sun-100 text-sun-800 dark:bg-sun-400/15 dark:text-sun-300' },
 ];
@@ -21,9 +22,15 @@ export default function Home() {
   const { user } = useAuth();
   const complete = pin.length === PIN_LENGTH;
 
-  const join = (e) => {
+  const [joining, setJoining] = useState(false);
+  // El mismo campo sirve para el PIN de una sala y para el código de un calendario de clase
+  const join = async (e) => {
     e.preventDefault();
-    if (complete) navigate(`/sala/${pin}`);
+    if (!complete || joining) return;
+    setJoining(true);
+    const room = await backend.rooms.getByPin(pin).catch(() => null);
+    if (!room && (await backend.calendars.getByCode(pin).catch(() => null))) return navigate(`/calendario/${pin}`);
+    navigate(`/sala/${pin}`);
   };
 
   return (
@@ -46,7 +53,7 @@ export default function Home() {
 
           <form onSubmit={join} className="card mt-8 max-w-lg p-5 sm:p-6">
             <label htmlFor="pin" className="label">
-              PIN de la sala
+              PIN de la sala o código del calendario
             </label>
             <div className="flex flex-col gap-3 sm:flex-row">
               <input
@@ -62,7 +69,7 @@ export default function Home() {
                 aria-describedby="pin-help"
                 className="min-w-0 flex-1 rounded-xl border-2 border-stone-200 bg-stone-50 px-4 py-3 text-center font-mono text-3xl font-bold uppercase tracking-[0.3em] text-ink-950 placeholder-stone-300 transition focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-brand-400/20 dark:border-ink-700 dark:bg-ink-850 dark:text-white dark:placeholder-ink-700"
               />
-              <button type="submit" disabled={!complete} className="btn-primary px-6 py-3.5 text-base">
+              <button type="submit" disabled={!complete || joining} className="btn-primary px-6 py-3.5 text-base">
                 Entrar
                 <ArrowRight className="h-5 w-5" />
               </button>

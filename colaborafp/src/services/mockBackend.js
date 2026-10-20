@@ -12,6 +12,7 @@
 import { isTeacherEmail, ROOM_OPEN_HOURS, TEACHER_EMAIL_DOMAINS } from '../utils/constants';
 import { clampExpiry, defaultExpiry } from '../utils/retention';
 import { generatePin, uuid } from '../utils/ids';
+import { courseExpiry, sortEvents } from '../utils/calendar';
 
 const HOUR = 3600 * 1000;
 const isOpen = (r) => !!r && r.is_active && r.closes_at > Date.now();
@@ -25,7 +26,7 @@ const LATENCY_MS = 120;
 const delay = (ms = LATENCY_MS) => new Promise((r) => setTimeout(r, ms));
 const clone = (v) => (v == null ? v : JSON.parse(JSON.stringify(v)));
 
-const emptyDb = () => ({ users: [], rooms: [], resources: [], reports: [] });
+const emptyDb = () => ({ users: [], rooms: [], resources: [], reports: [], calendars: [], events: [] });
 
 const readDb = () => {
   try {
@@ -309,4 +310,83 @@ const realtime = {
 // En modo demo no hay aprobación de cuentas: el registro inicia sesión directamente.
 const approvals = { list: async () => [], setApproved: async () => {}, remove: async () => {} };
 
-export const mockBackend = { mode: 'mock', auth, approvals, rooms, resources, reports, realtime };
+// ---------- Calendarios de clase ----------
+const calEvents = (calId) => sortEvents(readDb().events.filter((e) => e.cal_id === calId));
+const notifyCal = (calId) => emit({ table: 'events', calId });
+
+const calendars = {
+  async create({ name, course, teacherId }) {
+    await delay();
+    const db = readDb();
+    let code;
+    do code = generatePin();
+    while (db.calendars.some((c) => c.code === code) || db.rooms.some((r) => r.pin === code));
+    const cal = { id: uuid(), code, name: name.trim().slice(0, 80), course, teacher_id: teacherId, created_at: Date.now(), expire_at: courseExpiry(course) };
+    db.calendars.push(cal);
+    writeDb(db);
+    return clone(cal);
+  },
+  async listByTeacher(teacherId) {
+    await delay(60);
+    for (const c of readDb().calendars.filter((x) => x.teacher_id === teacherId && x.expire_at <= Date.now())) await calendars.remove(c.id);
+    const db = readDb();
+    return db.calendars
+      .filter((c) => c.teacher_id === teacherId)
+      .map((c) => ({ ...c, event_count: db.events.filter((e) => e.cal_id === c.id).length }))
+      .sort((a, b) => b.created_at - a.created_at);
+  },
+  async getById(id) {
+    await delay(60);
+    return clone(readDb().calendars.find((c) => c.id === id) ?? null);
+  },
+  async getByCode(code) {
+    await delay(60);
+    const c = readDb().calendars.find((x) => x.code === code && x.expire_at > Date.now());
+    return c ? { id: c.id, code: c.code, name: c.name, course: c.course, expire_at: c.expire_at } : null;
+  },
+  async rename(cal, name) {
+    const db = readDb();
+    const c = db.calendars.find((x) => x.id === cal.id);
+    c.name = name.trim().slice(0, 80);
+    writeDb(db);
+    return clone(c);
+  },
+  async remove(id) {
+    const db = readDb();
+    db.calendars = db.calendars.filter((c) => c.id !== id);
+    db.events = db.events.filter((e) => e.cal_id !== id);
+    writeDb(db);
+    notifyCal(id);
+  },
+  subscribeEvents(calId, onChange) {
+    onChange(calEvents(calId));
+    const fn = (e) => e.table === 'events' && e.calId === calId && onChange(calEvents(calId));
+    listeners.add(fn);
+    return () => listeners.delete(fn);
+  },
+  async addEvent(cal, event) {
+    const db = readDb();
+    const ev = { id: uuid(), cal_id: cal.id, ...event, created_at: Date.now(), expire_at: cal.expire_at };
+    db.events.push(ev);
+    writeDb(db);
+    notifyCal(cal.id);
+    return ev.id;
+  },
+  async addEvents(cal, events) {
+    for (const ev of events) await calendars.addEvent(cal, ev);
+  },
+  async updateEvent(cal, id, event) {
+    const db = readDb();
+    Object.assign(db.events.find((e) => e.id === id) || {}, event);
+    writeDb(db);
+    notifyCal(cal.id);
+  },
+  async removeEvent(cal, id) {
+    const db = readDb();
+    db.events = db.events.filter((e) => e.id !== id);
+    writeDb(db);
+    notifyCal(cal.id);
+  },
+};
+
+export const mockBackend = { mode: 'mock', auth, approvals, rooms, resources, reports, realtime, calendars };

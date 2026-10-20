@@ -40,6 +40,7 @@ export default function Privacidad() {
           items={[
             <>Cada sala se <strong>cierra automáticamente a las {ROOM_OPEN_HOURS} horas</strong> de abrirse (el profesor puede reabrirla).</>,
             <>La sala y <strong>todo su contenido</strong> (recursos, archivos, aportaciones y notificaciones) <strong>se eliminan automáticamente en la fecha que elige el profesor</strong> al crear la sala (por defecto, {RETENTION_DAYS} días; como máximo, {MAX_RETENTION_DAYS} días desde que se fija). El profesorado puede cambiar esa fecha o borrarlo todo antes en cualquier momento.</>,
+            <>Los <strong>calendarios de clase</strong> contienen solo fechas y avisos del profesorado (no datos del alumnado) y se eliminan automáticamente el <strong>31 de julio</strong> al terminar su curso.</>,
             <>La cuenta del profesorado se conserva mientras preste servicio en el centro. Puede eliminarla, con todas sus salas, desde «Mis salas → Mi cuenta».</>,
             <>Los datos guardados en tu propio dispositivo (ver apartado 7) permanecen hasta que los borras desde tu navegador.</>,
           ]}

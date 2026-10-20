@@ -5,6 +5,7 @@ Plataforma de **sincronización de recursos en tiempo real para el aula** (códi
 
 - **Profesorado** (correo del centro verificado): crea salas, proyecta un QR/PIN, publica recursos y modera las aportaciones.
 - **Alumnado** (sin cuenta): entra con el QR o el PIN, recibe el contenido al instante y **propone** aportaciones que el profesor aprueba.
+- **Calendarios de clase**: uno por aula o grupo durante todo el curso (exámenes, entregas, avisos, festivos); el alumnado lo consulta con un código o QR, en tiempo real, y puede exportarlo a .ics.
 
 ## Stack
 

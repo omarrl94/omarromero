@@ -57,6 +57,7 @@ import {
 import { isAdminEmail, isTeacherEmail, ROOM_OPEN_HOURS, RETENTION_DAYS, TEACHER_EMAIL_DOMAINS } from '../utils/constants';
 import { clampExpiry, defaultExpiry } from '../utils/retention';
 import { generatePin, uuid } from '../utils/ids';
+import { courseExpiry, sortEvents } from '../utils/calendar';
 
 const CHUNK_SIZE = 900_000; // caracteres base64 por documento (límite de Firestore: 1 MiB)
 const HOUR = 3600 * 1000;
@@ -383,8 +384,8 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
       for (let attempt = 0; attempt < 5 && !patch.pin; attempt++) {
         const next = { pin: generatePin(), is_active: false, closes_at: Math.min(now, Number(fresh.closes_at) || now), expire_at: now + RETENTION_DAYS * DAY };
         const done = await runTransaction(db, async (tx) => {
-          const p = await tx.get(pinRef(next.pin));
-          if (p.exists() && p.data().active && p.data().closes_at > Date.now()) return false;
+          const [p, c] = await Promise.all([tx.get(pinRef(next.pin)), tx.get(doc(db, 'calcodes', next.pin))]);
+          if (c.exists() || (p.exists() && p.data().active && p.data().closes_at > Date.now())) return false;
           const oldPin = fresh.pin ? await tx.get(pinRef(fresh.pin)) : null;
           tx.update(roomRef(roomId), { ...next, expire_at: Timestamp.fromMillis(next.expire_at) });
           tx.set(pinRef(next.pin), pinDoc(roomId, { ...fresh, ...next }));
@@ -444,8 +445,8 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
             expire_at,
           };
           const created = await runTransaction(db, async (tx) => {
-            const p = await tx.get(pinRef(pin));
-            if (p.exists() && p.data().active && p.data().closes_at > Date.now()) return false; // colisión
+            const [p, c] = await Promise.all([tx.get(pinRef(pin)), tx.get(doc(db, 'calcodes', pin))]);
+            if (c.exists() || (p.exists() && p.data().active && p.data().closes_at > Date.now())) return false; // colisión
             tx.set(ref, { ...room, expire_at: Timestamp.fromMillis(room.expire_at) });
             tx.set(pinRef(pin), pinDoc(ref.id, room));
             return true;
@@ -691,5 +692,122 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
     },
   };
 
-  return { mode: 'firebase', auth: authApi, approvals, rooms, resources, reports, realtime };
+  // ---------- Calendarios de clase ----------
+  // calendars/{id} (solo su profesor) · calcodes/{código} (el alumnado resuelve UN código) ·
+  // calendars/{id}/events (lectura para quien conoce el calendario; escritura solo su profesor)
+  const calCol = collection(db, 'calendars');
+  const calRef = (id) => doc(calCol, id);
+  const codeRef = (code) => doc(db, 'calcodes', code);
+  const eventsCol = (calId) => collection(db, 'calendars', calId, 'events');
+  const toCal = (id, d) => ({ id, ...d, expire_at: ms(d.expire_at) });
+
+  async function removeCalendar(id, data) {
+    const evs = await getDocs(eventsCol(id));
+    await commitDeletes(evs.docs.map((d) => d.ref));
+    const cal = data ?? (await getDoc(calRef(id))).data();
+    if (cal?.code) await commitDeletes([codeRef(cal.code)]).catch(() => {});
+    await commitDeletes([calRef(id)]);
+  }
+
+  const calendars = {
+    create: ({ name, course, teacherId }) =>
+      wrap(async () => {
+        const expire_at = Timestamp.fromMillis(courseExpiry(course));
+        for (let attempt = 0; attempt < 6; attempt++) {
+          const code = generatePin();
+          const ref = doc(calCol);
+          const cal = { code, name: name.trim().slice(0, 80), course, teacher_id: teacherId, created_at: Date.now(), expire_at };
+          const ok = await runTransaction(db, async (tx) => {
+            const [c, p] = await Promise.all([tx.get(codeRef(code)), tx.get(pinRef(code))]);
+            if (c.exists() || p.exists()) return false; // el código no puede coincidir con un PIN de sala
+            tx.set(ref, cal);
+            tx.set(codeRef(code), { cal_id: ref.id, name: cal.name, course, teacher_id: teacherId, expire_at });
+            return true;
+          });
+          if (ok) return toCal(ref.id, cal);
+        }
+        throw new Error('No se pudo generar un código único. Inténtalo de nuevo.');
+      }),
+
+    /** Lista los calendarios del profesor y borra los que han pasado su fecha (31 de julio). */
+    listByTeacher: (teacherId) =>
+      wrap(async () => {
+        const snap = await getDocs(query(calCol, where('teacher_id', '==', teacherId)));
+        const docs = snap.docs;
+        const now = Date.now();
+        const expired = docs.filter((d) => ms(d.data().expire_at) <= now);
+        await Promise.all(expired.map((d) => removeCalendar(d.id, d.data()).catch(() => {})));
+        const alive = docs.filter((d) => !expired.includes(d));
+        const list = await Promise.all(
+          alive.map(async (d) => {
+            const count = await getCountFromServer(eventsCol(d.id)).catch(() => null);
+            return { ...toCal(d.id, d.data()), event_count: count?.data().count ?? 0 };
+          }),
+        );
+        return list.sort((a, b) => b.created_at - a.created_at);
+      }),
+
+    async getById(id) {
+      try {
+        const snap = await getDoc(calRef(id));
+        return snap.exists() ? toCal(snap.id, snap.data()) : null;
+      } catch {
+        return null;
+      }
+    },
+
+    /** Para el alumnado: resuelve un código (sin poder listar calendarios). */
+    async getByCode(code) {
+      try {
+        const snap = await getDoc(codeRef(code));
+        if (!snap.exists()) return null;
+        const c = snap.data();
+        if (ms(c.expire_at) <= Date.now()) return null;
+        return { id: c.cal_id, code, name: c.name, course: c.course, expire_at: ms(c.expire_at) };
+      } catch {
+        return null;
+      }
+    },
+
+    rename: (cal, name) =>
+      wrap(async () => {
+        const clean = name.trim().slice(0, 80);
+        const batch = writeBatch(db);
+        batch.update(calRef(cal.id), { name: clean });
+        batch.update(codeRef(cal.code), { name: clean });
+        await batch.commit();
+        return { ...cal, name: clean };
+      }),
+
+    remove: (id) => wrap(() => removeCalendar(id)),
+
+    /** Eventos en tiempo real (profesor y alumnado). Devuelve la función para dejar de escuchar. */
+    subscribeEvents(calId, onChange, onError) {
+      return onSnapshot(
+        eventsCol(calId),
+        (snap) => onChange(sortEvents(snap.docs.map((d) => ({ id: d.id, ...d.data(), expire_at: ms(d.data().expire_at) })))),
+        (e) => onError?.(friendlyError(e)),
+      );
+    },
+
+    addEvent: (cal, event) =>
+      wrap(async () => {
+        const ref = doc(eventsCol(cal.id));
+        await setDoc(ref, { ...event, created_at: Date.now(), expire_at: Timestamp.fromMillis(cal.expire_at) });
+        return ref.id;
+      }),
+
+    /** Añade varios eventos de una vez (por ejemplo, los festivos nacionales). */
+    addEvents: (cal, events) =>
+      wrap(async () => {
+        const batch = writeBatch(db);
+        for (const ev of events) batch.set(doc(eventsCol(cal.id)), { ...ev, created_at: Date.now(), expire_at: Timestamp.fromMillis(cal.expire_at) });
+        await batch.commit();
+      }),
+
+    updateEvent: (cal, id, event) => wrap(() => updateDoc(doc(eventsCol(cal.id), id), event)),
+    removeEvent: (cal, id) => wrap(() => deleteDoc(doc(eventsCol(cal.id), id))),
+  };
+
+  return { mode: 'firebase', auth: authApi, approvals, rooms, resources, reports, realtime, calendars };
 };
