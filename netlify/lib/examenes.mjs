@@ -17,6 +17,7 @@
  *  partes: { mc?, open?, num? } → títulos de cada parte.
  */
 import { ventanaValida, duracionValida, codigoValido } from "./plazos.mjs";
+import { validarCircuitos } from "./circuitos.mjs";
 import { almacen } from "./almacen.mjs";
 import { fallo, texto } from "./http.mjs";
 import semillaSad from "./semilla-sad-temas-1-2.mjs";
@@ -179,6 +180,8 @@ export function validarExamen(e) {
     // Resultados de aprendizaje que evalúa (RA1, RA2…) y si las preguntas se prepararon con ayuda de la IA.
     ra: raValidos(e.ra),
     conIA: e.conIA === true,
+    // Resolución de circuitos: el alumno escribe sus ecuaciones y, si están bien, se resuelven (lib/circuitos.mjs).
+    circuitos: validarCircuitos(e.circuitos, num, bloques),
     partes: { mc: opc(e.partes?.mc, 80), open: opc(e.partes?.open, 80), num: opc(e.partes?.num, 80) },
     bloques, mc, open, num,
   };
@@ -195,7 +198,7 @@ export function raValidos(v) {
 
 export const aleatorioValido = (a) => ({ preguntas: a?.preguntas === true, opciones: a?.opciones === true, valores: a?.valores === true });
 
-export const HERRAMIENTAS = ["notas", "calculadora"];
+export const HERRAMIENTAS = ["notas", "calculadora", "circuitos"];
 /** Bloc de notas y calculadora: activados salvo que el profesor los apague. */
 export const herramientasValidas = (h) => Object.fromEntries(HERRAMIENTAS.map((k) => [k, h?.[k] !== false]));
 
@@ -214,6 +217,9 @@ export const enunciado = (ex) => ({
   ...(ex.defensaDe ? { trabajo: ex.defensaDe.trabajo } : {}),
   ventana: ex.ventana || { desde: "", hasta: "" }, duracion: ex.duracion || 0, requiereCodigo: !!ex.codigo && !ex.identidad,
   requiereIdentidad: !!ex.identidad, conIA: !!ex.conIA || !!ex.defensaDe,
+  // Circuitos: solo nombres y a qué resultado corresponde cada incógnita (nunca los valores).
+  circuitos: (ex.circuitos || []).map((c) => ({ titulo: c.titulo, bloque: c.bloque, intentos: c.intentos,
+    incognitas: c.incognitas.map(({ nombre, i, j }) => ({ nombre, apartado: i + 1, etiqueta: ex.num?.[i]?.campos?.[j]?.etiqueta || "", unidad: ex.num?.[i]?.campos?.[j]?.unidad || "" })) })),
   confianza: !!ex.confianza, confianzaTabla: ex.confianza ? CONFIANZA : null,
   partes: ex.partes || {}, bloques: ex.bloques || [],
   mc: ex.mc.map(({ t, o, puntos, bloque }) => ({ t, o, puntos: puntos ?? 1, bloque: bloque || "" })),
@@ -233,7 +239,7 @@ export const resumen = (ex) => ({
   herramientas: herramientasValidas(ex.herramientas),
   aleatorio: aleatorioValido(ex.aleatorio), nVariables: (ex.variables || []).length,
   ventana: ex.ventana || { desde: "", hasta: "" }, duracion: ex.duracion || 0, codigo: ex.codigo || "",
-  identidad: !!ex.identidad, ra: ex.ra || [], conIA: !!ex.conIA,
+  identidad: !!ex.identidad, ra: ex.ra || [], conIA: !!ex.conIA, circuitos: ex.circuitos || [],
   creado: ex.creado, actualizado: ex.actualizado, autor: ex.autor?.nombre || "",
 });
 

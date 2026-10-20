@@ -122,7 +122,8 @@ async function init() {
     $("#start").textContent = EX.enCurso ? "Continuar el examen" : "Reanudar el examen";
     $("#avisoModo").insertAdjacentHTML("beforebegin", `<div class="msg ok">↺ ${EX.reanudar ? "Tu profesor te ha permitido <b>reanudar</b> este examen. " : ""}${EX.enCurso ? `Tienes respuestas guardadas${EX.enCurso.n != null ? ` (${EX.enCurso.n} respondidas)` : ""}: al continuar, seguirás donde lo dejaste.` : ""}</div>`);
   }
-  const herr = [EX.herramientas?.calculadora !== false && "una calculadora científica", EX.herramientas?.notas !== false && "un bloc de notas"].filter(Boolean);
+  const conCircuitos = EX.herramientas?.circuitos !== false && (EX.circuitos || []).length;
+  const herr = [EX.herramientas?.calculadora !== false && "una calculadora científica", conCircuitos && "la herramienta de circuitos (escribes tus ecuaciones y, si están bien, se resuelven)", EX.herramientas?.notas !== false && "un bloc de notas"].filter(Boolean);
   $("#txtHerr").innerHTML = herr.length ? ` Durante el examen tendrás <b>a la derecha</b> ${herr.join(" y ")}; usarlos no cuenta como salir de la página.` : "";
   $("#avisoModo").innerHTML = EX.seguridad
     ? `<b>🔒 Modo seguro:</b> si cambias de pestaña, minimizas, abres otra aplicación o sales de la ventana, <b>el examen se entregará automáticamente</b> con lo que lleves respondido${EX.intentosAlumno?.quedan === 1 ? " y no podrás repetirlo" : " y contará como un intento"}. Ten preparado todo antes de empezar.`
@@ -136,6 +137,7 @@ async function init() {
     EX.open.length && `<span class="chip v">${EX.open.length} preguntas abiertas</span>`,
     EX.num.length && `<span class="chip s">${EX.num.length} apartados de ejercicios</span>`,
     EX.herramientas?.calculadora !== false && `<span class="chip gray">🧮 Calculadora científica</span>`,
+    conCircuitos && `<span class="chip gray">⚡ Resolución de circuitos</span>`,
     EX.herramientas?.notas !== false && `<span class="chip gray">📝 Bloc de notas</span>`,
     `<span class="chip s">Nota automática /10</span>`].filter(Boolean).join("");
   buildQuiz();

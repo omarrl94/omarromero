@@ -10,6 +10,7 @@ import { todosLosExamenes, obtenerExamen, validarExamen, resumen, intentosValido
 import { versionExamen, semillaDe, comprobarFormulas, esAleatorio, comprobarPropuesta, aplicarPropuestas } from "./variantes.mjs";
 import { secreto } from "./auth.mjs";
 import { ventanaValida, duracionValida, codigoValido, adaptacionValida, plazo, codigoPersonal } from "./plazos.mjs";
+import { validarCircuitos } from "./circuitos.mjs";
 import { registrar, conservar, conservarYBorrar, registrarIA, seudonimizar, leerRegistro, conservadasDe } from "./registro.mjs";
 import {
   claveEntrega, vistaEntrega, partesDe, historialDe, intentosHechos, intentosPermitidos,
@@ -168,6 +169,7 @@ async function guardar(req) {
   if (previo && b.identidad === undefined) ex.identidad = !!previo.identidad;
   if (previo && b.ra === undefined) ex.ra = previo.ra || [];
   if (previo && b.conIA === undefined) ex.conIA = !!previo.conIA;
+  if (previo && b.circuitos === undefined) { try { ex.circuitos = validarCircuitos(previo.circuitos, ex.num, ex.bloques); } catch { ex.circuitos = []; } }
   const ahora = new Date().toISOString();
   await examenes().set(ex.id, {
     ...ex, creado: previo?.creado || ahora, actualizado: ahora,
@@ -207,6 +209,7 @@ async function ajustes(req) {
   if (b.codigo !== undefined) ex.codigo = codigoValido(b.codigo);
   if (typeof b.identidad === "boolean") ex.identidad = b.identidad;
   if (b.ra !== undefined) ex.ra = raValidos(b.ra);
+  if (b.circuitos !== undefined) ex.circuitos = validarCircuitos(b.circuitos, ex.num, ex.bloques);
   const cambiaCalif = (b.calificacion === "mejor" || b.calificacion === "ultima") && b.calificacion !== (ex.calificacion || "mejor");
   if (cambiaCalif) ex.calificacion = b.calificacion;
   ex.actualizado = new Date().toISOString();
@@ -220,7 +223,7 @@ async function ajustes(req) {
     }));
   }
   if (cambiaCalif) await registrar({ por: u, accion: "qué intento cuenta", sobre: sobreEx(ex), despues: ex.calificacion, detalle: "Se recalculan las notas de todas las entregas" });
-  return json({ ok: true, codigo: ex.codigo || "", ventana: ex.ventana, duracion: ex.duracion || 0, identidad: !!ex.identidad, ra: ex.ra || [] });
+  return json({ ok: true, codigo: ex.codigo || "", ventana: ex.ventana, duracion: ex.duracion || 0, identidad: !!ex.identidad, ra: ex.ra || [], circuitos: ex.circuitos || [] });
 }
 
 async function borrar(req) {
@@ -367,6 +370,7 @@ async function reabrir(req) {
   const e = await entregas().get(k);
   await conservarYBorrar("entregas", [k], { tipo: "entrega de examen", por: u, motivo: "Examen reabierto (vuelve a empezar)" });
   await conservarYBorrar("progreso", [k], { tipo: "progreso de examen", por: u, motivo: "Examen reabierto (vuelve a empezar)" });
+  await almacen("circuitos").del(k);
   await registrar({ por: u, accion: "examen reabierto", alumno: email, sobre: sobreEx(ex), antes: e ? { notaFinal: e.notaProfesor ?? e.resultado?.nota, intentos: intentosHechos(e) } : null, despues: null, detalle: "La entrega anterior se conserva" });
   return json({ ok: true });
 }

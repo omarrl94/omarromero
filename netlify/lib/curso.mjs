@@ -66,7 +66,7 @@ export async function borrarDatosAlumnos(emails, por = "sistema") {
   const de = (k) => set.has(k.split("/")[1]);
   const motivo = "Datos de una cuenta borrada";
   let n = 0;
-  for (const nombre of ["entregas", "progreso", "entregasTrabajo", "archivos"]) {
+  for (const nombre of ["entregas", "progreso", "entregasTrabajo", "archivos", "circuitos"]) {
     n += await conservarYBorrar(nombre, (await almacen(nombre).list()).filter(de), { tipo: nombre, por, motivo });
   }
   // Defensas de trabajos (exámenes privados de esos alumnos).

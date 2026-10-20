@@ -272,6 +272,18 @@
   </div>
 </dialog>
 
+<!-- Resolución de circuitos -->
+<dialog id="dCircuitos">
+  <div class="dhead"><h2>⚡ Resolución de circuitos · <span id="dCirTitulo"></span></h2><button class="btn ghost sm" data-close>Cerrar</button></div>
+  <div class="dbody">
+    <p class="muted" style="margin-top:0">Para ejercicios de <b>Kirchhoff, mallas o nudos</b>. Marca qué resultados del ejercicio son las incógnitas del circuito y dales un nombre corto (I1, I2, Va…). Durante el examen el alumno escribe <b>sus</b> ecuaciones; la plataforma comprueba cada una con la solución (sin enseñarla) y <b>solo si todas están bien</b> resuelve el sistema. El sentido de las corrientes lo elige el alumno. Es álgebra, no IA: el alumnado no habla con ninguna IA. Verás sus ecuaciones al revisar la entrega.</p>
+    <div id="cirLista"></div>
+    <div class="actions" style="justify-content:flex-start"><button type="button" class="btn ghost" id="cirNuevo">＋ Añadir circuito</button></div>
+    <div class="msg bad" id="cirErr" hidden></div>
+    <div class="actions"><button type="button" class="btn" id="cirGuardar">Guardar</button><button type="button" class="btn ghost" id="cirQuitar">Quitar la herramienta</button></div>
+  </div>
+</dialog>
+
 <!-- Horario del examen -->
 <dialog id="dHorario">
   <div class="dhead"><h2>⏱ Horario y evaluación · <span id="dHorTitulo"></span></h2><button class="btn ghost sm" data-close>Cerrar</button></div>
@@ -612,6 +624,8 @@ function tarjetaExamen(e) {
         <span>Herramientas</span>
         <label><span class="switch"><input type="checkbox" data-herr="notas" ${e.herramientas?.notas !== false ? "checked" : ""}><span></span></span>📝 Notas</label>
         <label><span class="switch"><input type="checkbox" data-herr="calculadora" ${e.herramientas?.calculadora !== false ? "checked" : ""}><span></span></span>🧮 Calculadora</label>
+        ${e.circuitos?.length ? `<label title="El alumno escribe sus ecuaciones (Kirchhoff, mallas…) y, si están bien, se resuelven"><span class="switch"><input type="checkbox" data-herr="circuitos" ${e.herramientas?.circuitos !== false ? "checked" : ""}><span></span></span>⚡ Circuitos <button type="button" class="link" data-circuitos>(${e.circuitos.length})</button></label>`
+          : e.nNum ? `<button type="button" class="link" data-circuitos title="Para ejercicios de Kirchhoff, mallas o nudos: el alumno escribe sus ecuaciones y, solo si están bien, se resuelven">⚡ Resolución de circuitos</button>` : ""}
       </div>
       <div class="herrbar azarbar" title="Examen aleatorio: cada alumno recibe su propia versión">
         <span>🎲 Aleatorio${e.aleatorio?.preguntas || e.aleatorio?.opciones || e.aleatorio?.valores ? ` <a href="/profesor/imprimir.html?id=${encodeURIComponent(e.id)}&v=1" target="_blank" class="link" style="font-weight:600">ver una versión</a>` : ""}</span>
@@ -698,6 +712,7 @@ function pintarExamenes() {
   }));
   $$("[data-ia-valores]", t).forEach((b) => (b.onclick = () => valoresAleatoriosIA(idDe(b))));
   $$("[data-horario]", t).forEach((b) => (b.onclick = () => abrirHorario(idDe(b))));
+  $$("[data-circuitos]", t).forEach((b) => (b.onclick = (ev) => { ev.preventDefault(); abrirCircuitos(idDe(b)); }));
   $$("[data-herr]", t).forEach((c) => (c.onchange = async () => {
     try { await api("/api/profesor/examen/ajustes", { id: idDe(c), herramientas: { [c.dataset.herr]: c.checked } }); }
     catch (e) { alert(e.message); c.checked = !c.checked; }
@@ -973,6 +988,10 @@ async function verEntrega(email, intento) {
   };
   const c = $("#dEntCont");
   pintarEntrega(c, d);
+  // Ecuaciones que escribió en la herramienta de circuitos (cada comprobación).
+  if (d.circuitos && Object.keys(d.circuitos).length) c.insertAdjacentHTML("beforeend", `<div class="card"><h3 style="margin-top:0">⚡ Ecuaciones de circuitos</h3>${Object.entries(d.circuitos).map(([n, log]) => `
+    <p style="margin:6px 0"><b>${esc(d.examen.circuitos?.[n]?.titulo || `Circuito ${Number(n) + 1}`)}</b> · ${log.length} ${log.length === 1 ? "comprobación" : "comprobaciones"}${log.some((x) => x.resuelto) ? ` · <span class="chip ok">resuelto</span>` : ` · <span class="chip gray">sin resolver</span>`}</p>
+    <ol class="cir-log">${log.map((x) => `<li><span class="muted">${esc(new Date(x.t).toLocaleTimeString("es-ES"))}</span> ${x.ecuaciones.map((e, k) => `<code class="${x.ok[k] ? "ok" : "mal"}">${x.ok[k] ? "✓" : "✗"} ${esc(e)}</code>`).join(" ")}${x.resuelto ? " → resuelto" : ""}</li>`).join("")}</ol>`).join("")}</div>`);
   $("[data-rev]", c).hidden = false; $("[data-toggle-rev]", c).remove();
   ponerEditoresPuntos(c, d);
   if (!$("#dEntrega").open) $("#dEntrega").showModal();
@@ -2836,6 +2855,59 @@ async function enviarBloque() {
   abrirTrabajoSilencioso();
 }
 $("#trabDefBloque").onclick = abrirDefensaBloque;
+
+/* ── Resolución de circuitos: configurar las incógnitas de cada circuito ── */
+let CIR = null;
+const nombreIncognita = (etq, n) => { const m = String(etq || "").replace(/[₀-₉]/g, (d) => "₀₁₂₃₄₅₆₇₈₉".indexOf(d)).match(/\b([A-Za-z]{1,3}\d{0,2})\b/); return m ? m[1] : `X${n + 1}`; };
+async function abrirCircuitos(id) {
+  const ex = await api(`/api/profesor/examen?id=${encodeURIComponent(id)}`);
+  const campos = [];
+  (ex.num || []).forEach((q, i) => q.campos.forEach((c, j) => { if (c.tipo === "numero") campos.push({ i, j, q, c, bloque: q.bloque || "" }); }));
+  const titBloque = (b) => (ex.bloques || []).find((x) => x.id === b)?.titulo || "";
+  CIR = { ex, campos, lista: structuredClone(ex.circuitos || []) };
+  if (!CIR.lista.length) CIR.lista.push({ titulo: titBloque(campos[0]?.bloque) || "Circuito 1", intentos: 0, incognitas: [] });
+  CIR.titBloque = titBloque;
+  $("#dCirTitulo").textContent = ex.titulo; $("#cirErr").hidden = true;
+  pintarCircuitos(); $("#dCircuitos").showModal();
+}
+function pintarCircuitos() {
+  const { campos, lista, titBloque } = CIR;
+  // Agrupados por ejercicio (enunciado común); en cada opción, el apartado y el resultado.
+  const opciones = (sel) => [...new Set(campos.map((x) => x.bloque))].map((bl) => `<optgroup label="${esc(titBloque(bl).split(" — ")[0] || "Ejercicios")}">${campos.filter((x) => x.bloque === bl).map((x) =>
+    `<option value="${x.i}:${x.j}" ${sel === `${x.i}:${x.j}` ? "selected" : ""}>${esc((CIR.ex.num[x.i].t.match(/^\s*([a-z](?:\.\d)?\))/i) || [, `Apartado ${x.i + 1}`])[1])} ${esc(x.c.etiqueta || "resultado")}${x.c.unidad ? ` (${esc(x.c.unidad)})` : ""}</option>`).join("")}</optgroup>`).join("");
+  $("#cirLista").innerHTML = lista.map((c, n) => `<div class="card cir" data-n="${n}">
+    <div class="row2"><div class="field"><label class="flab">Nombre del circuito</label><input type="text" data-tit value="${esc(c.titulo)}" maxlength="120"></div>
+      <div class="field"><label class="flab">Comprobaciones por alumno</label><select data-int>${[0, 3, 5, 10].map((k) => `<option value="${k}" ${Number(c.intentos || 0) === k ? "selected" : ""}>${k ? k : "Sin límite"}</option>`).join("")}</select></div></div>
+    <table class="t"><thead><tr><th>Incógnita</th><th>Es el resultado de…</th><th></th></tr></thead><tbody>
+      ${c.incognitas.map((x, k) => `<tr data-k="${k}"><td><input type="text" data-nom value="${esc(x.nombre)}" maxlength="12" style="width:90px" aria-label="Nombre"></td>
+        <td><select data-campo aria-label="Resultado">${opciones(`${x.i}:${x.j}`)}</select></td><td><button type="button" class="btn ghost sm" data-quitar-inc aria-label="Quitar">✕</button></td></tr>`).join("")}</tbody></table>
+    <div class="actions" style="justify-content:flex-start"><button type="button" class="btn ghost sm" data-mas-inc>＋ Incógnita</button>${lista.length > 1 ? `<button type="button" class="btn danger sm" data-quitar-cir>Quitar este circuito</button>` : ""}</div></div>`).join("")
+    || `<p class="muted">Este examen no tiene resultados numéricos.</p>`;
+  const leer = () => $$("#cirLista .cir").forEach((d) => {
+    const c = lista[d.dataset.n]; c.titulo = $("[data-tit]", d).value; c.intentos = Number($("[data-int]", d).value);
+    $$("tr[data-k]", d).forEach((tr) => { const x = c.incognitas[tr.dataset.k]; x.nombre = $("[data-nom]", tr).value.trim(); [x.i, x.j] = $("[data-campo]", tr).value.split(":").map(Number); });
+  });
+  CIR.leer = leer;
+  $$("[data-mas-inc]").forEach((b) => (b.onclick = () => {
+    leer(); const c = lista[b.closest(".cir").dataset.n];
+    const usados = new Set(lista.flatMap((x) => x.incognitas.map((y) => `${y.i}:${y.j}`)));
+    const libre = campos.find((x) => !usados.has(`${x.i}:${x.j}`)) || campos[0];
+    c.incognitas.push({ nombre: nombreIncognita(libre.c.etiqueta, c.incognitas.length), i: libre.i, j: libre.j });
+    pintarCircuitos();
+  }));
+  $$("[data-quitar-inc]").forEach((b) => (b.onclick = () => { leer(); lista[b.closest(".cir").dataset.n].incognitas.splice(b.closest("tr").dataset.k, 1); pintarCircuitos(); }));
+  $$("[data-quitar-cir]").forEach((b) => (b.onclick = () => { leer(); lista.splice(b.closest(".cir").dataset.n, 1); pintarCircuitos(); }));
+}
+$("#cirNuevo").onclick = () => { CIR.leer?.(); CIR.lista.push({ titulo: `Circuito ${CIR.lista.length + 1}`, intentos: 0, incognitas: [] }); pintarCircuitos(); };
+const guardarCircuitos = async (lista) => {
+  try {
+    const r = await api("/api/profesor/examen/ajustes", { id: CIR.ex.id, circuitos: lista, ...(lista.length ? { herramientas: { circuitos: true } } : {}) });
+    const e = EXAMENES.find((x) => x.id === CIR.ex.id); if (e) { e.circuitos = r.circuitos; e.herramientas = { ...e.herramientas, circuitos: true }; }
+    $("#dCircuitos").close(); pintarExamenes();
+  } catch (x) { $("#cirErr").textContent = x.message; $("#cirErr").hidden = false; }
+};
+$("#cirGuardar").onclick = () => { CIR.leer?.(); guardarCircuitos(CIR.lista.filter((c) => c.incognitas.length)); };
+$("#cirQuitar").onclick = () => { if (confirm("¿Quitar la herramienta de circuitos de este examen?")) guardarCircuitos([]); };
 
 $("#fHorario").onsubmit = async (ev) => { ev.preventDefault(); if (await guardarHorario()) $("#dHorario").close(); };
 $("#hCodigo").onchange = () => guardarHorario();

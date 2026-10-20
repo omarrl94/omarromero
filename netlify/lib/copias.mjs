@@ -11,7 +11,7 @@
  */
 import { almacen } from "./almacen.mjs";
 
-export const ALMACENES = ["usuarios", "examenes", "entregas", "progreso", "sistema", "trabajos", "entregasTrabajo", "notasExternas", "auditoria", "conservadas", "registroIA", "archivos"];
+export const ALMACENES = ["usuarios", "examenes", "entregas", "progreso", "sistema", "trabajos", "entregasTrabajo", "notasExternas", "auditoria", "conservadas", "registroIA", "circuitos", "archivos"];
 export const DIAS_COPIA = 30;
 const copias = () => almacen("copias");
 const dia = (d = new Date()) => d.toISOString().slice(0, 10);

@@ -8,6 +8,7 @@ import { versionExamen, semillaDe, aOriginal, aMostrado, esAleatorio } from "./v
 import { secreto } from "./auth.mjs";
 import { plazo, seguridadPara, horaTexto, MARGEN_ENTREGA_MS, codigoPersonal } from "./plazos.mjs";
 import { registrar } from "./registro.mjs";
+import { comprobarYResolver, MAX_ECUACIONES } from "./circuitos.mjs";
 import { claveEntrega, vistaEntrega, historialDe, intentosHechos, intentosPermitidos, consolidar, conIntento } from "./entregas.mjs";
 import { enviarCorreo, proveedorConfigurado } from "./correo.mjs";
 import { CATALOGO, cicloDe, moduloVisible } from "./catalogo.mjs";
@@ -23,6 +24,7 @@ import { correoResultado, correoAviso } from "./plantillas.mjs";
 
 const entregas = () => almacen("entregas");
 const progreso = () => almacen("progreso");
+const circuitosLog = () => almacen("circuitos");
 
 async function examenPublicado(id, u) {
   const ex = await obtenerExamen(id);
@@ -196,6 +198,9 @@ async function entregar(req) {
   // Entregado: ya no hay nada que reanudar.
   const habiaBorrador = !!(p.borrador || p.reanudar || p.inicioIntento);
   delete p.borrador; delete p.reanudar; delete p.inicioIntento;
+  // Ecuaciones de la herramienta de circuitos (almacén aparte: el guardado automático no las pisa).
+  const circ = await circuitosLog().get(k);
+  if (circ) await circuitosLog().del(k);
   if (salida || habiaBorrador) await progreso().set(k, p);
   const { publicado, mostrarSoluciones, creado, actualizado, ...copia } = v.canon;
   if (v.variante) { copia.version = true; delete copia.variables; }
@@ -209,6 +214,8 @@ async function entregar(req) {
     ...(tiempoUsado != null ? { tiempoUsado } : {}),
     ...(porTiempo ? { finalizadoPorTiempo: true } : {}),
     ...(fueraDeTiempo ? { fueraDeTiempo } : {}),
+    // Ecuaciones que escribió en la herramienta de circuitos (las ve el profesor al revisar).
+    ...(circ?.intento === c.hechos + 1 && Object.keys(circ.log || {}).length ? { circuitos: circ.log } : {}),
   };
   const e = consolidar(
     { ...(c.e || {}), email: u.email, nombre: u.nombre, apellidos: u.apellidos, grupo: u.grupo },
@@ -237,6 +244,41 @@ async function entregar(req) {
   console.log(JSON.stringify({ evento: "entrega", examen: ex.id, email: u.email, nota: resultado.nota, correo: correo.enviado }));
   const quedan = c.quedan - 1;
   return json({ ...vistaEntrega(hecho, { soluciones: ex.mostrarSoluciones }), calificacion: ex.calificacion || "mejor", quedan: Number.isFinite(quedan) ? quedan : null, correo });
+}
+
+/**
+ * Herramienta de circuitos: comprueba las ecuaciones del alumno con la solución de su
+ * versión del ejercicio (que nunca sale del servidor) y, si están todas bien, las resuelve.
+ */
+async function circuito(req) {
+  const u = await requiereUsuario(req);
+  const b = await leerCuerpo(req);
+  const ex = await examenPublicado(b.id, u);
+  const cfg = (ex.circuitos || [])[Number(b.c)];
+  if (!cfg || ex.herramientas?.circuitos === false) fallo(404, "Este examen no tiene la herramienta de circuitos");
+  const c = await cuentaIntentos(ex, u.email), k = c.k, intento = c.hechos + 1;
+  const p = c.p || { email: u.email, examen: ex.id, salidas: [] };
+  const staff = esStaff(u);
+  if (!staff) {
+    if (c.quedan <= 0) sinIntentos(c);
+    const pl = plazo(ex, u, p, intento);
+    if (!pl.inicio && !p.inicios?.length) fallo(409, "Empieza el examen para usar la herramienta");
+    if (pl.agotado) fallo(409, "Se ha acabado el tiempo del examen");
+  }
+  const ecuaciones = (Array.isArray(b.ecuaciones) ? b.ecuaciones : []).map((x) => String(x).slice(0, 200)).filter((x) => x.trim()).slice(0, MAX_ECUACIONES);
+  if (!ecuaciones.length) fallo(400, "Escribe al menos una ecuación (una por línea)");
+  let reg = await circuitosLog().get(k);
+  if (reg?.intento !== intento) reg = { intento, log: {} };
+  const log = (reg.log[b.c] ||= []);
+  if (cfg.intentos && log.length >= cfg.intentos && !staff) fallo(429, `Ya has usado las ${cfg.intentos} comprobaciones de este circuito.`);
+  const v = await versionDe(ex, u.email, intento);
+  const incognitas = cfg.incognitas.map(({ nombre, i, j }) => ({ nombre, valor: v.canon.num?.[i]?.campos?.[j]?.valor }));
+  if (incognitas.some((x) => !Number.isFinite(Number(x.valor)))) fallo(500, "El circuito está mal configurado: avisa al profesor");
+  const r = comprobarYResolver(ecuaciones, incognitas);
+  log.push({ t: new Date().toISOString(), ecuaciones, ok: r.ecuaciones.map((x) => x.ok), resuelto: !!r.resuelto });
+  if (log.length > 30) log.splice(0, log.length - 30);
+  await circuitosLog().set(k, reg);
+  return json({ ...r, usados: log.length, intentos: cfg.intentos || null });
 }
 
 /** El alumno pide al profesor que revise la nota de un examen (queda registrado). */
@@ -281,4 +323,5 @@ export default {
   "POST /api/examen/entregar": entregar,
   "GET /api/entrega": miEntrega,
   "POST /api/entrega/revision": pedirRevision,
+  "POST /api/examen/circuito": circuito,
 };

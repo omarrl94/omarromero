@@ -3,11 +3,14 @@
  *  · Bloc de notas: para apuntar cálculos o ideas. Se guarda solo en este
  *    navegador mientras dura el examen y se borra al entregar. No se envía.
  *  · Calculadora científica.
+ *  · Resolución de circuitos: el alumno escribe sus ecuaciones (Kirchhoff, mallas…);
+ *    el servidor comprueba si están bien y, solo entonces, resuelve el sistema.
  * Son ventanas dentro de la página: usarlas no cuenta como salir del examen.
  */
 (() => {
-  const ICONOS = { notas: "📝", calculadora: "🧮" };
-  const TITULOS = { notas: "Bloc de notas", calculadora: "Calculadora científica" };
+  const ICONOS = { notas: "📝", calculadora: "🧮", circuitos: "⚡" };
+  const TITULOS = { notas: "Bloc de notas", calculadora: "Calculadora científica", circuitos: "Resolución de circuitos" };
+  const CORTO = { notas: "Notas", calculadora: "Calculadora", circuitos: "Circuitos" };
   let dock = null, ventanas = {}, claveNotas = "";
 
   const guardar = (k, v) => { try { localStorage.setItem(k, v); } catch { /* sin almacenamiento */ } };
@@ -118,7 +121,7 @@
     const alguna = Object.values(ventanas).some((x) => !x.hidden);
     lateral.hidden = !alguna;
     document.body.classList.toggle("tools-open", alguna);
-    if (si && foco) (w.querySelector("textarea, .calc-in") || w).focus({ preventScroll: true });
+    if (si && foco) (w.querySelector(".calc-in, textarea") || w).focus({ preventScroll: true });
   }
 
   function crearNotas() {
@@ -130,6 +133,49 @@
     ta.addEventListener("input", () => { guardar(claveNotas, ta.value); actualizar(); });
     w.querySelector("[data-vaciar]").onclick = () => { if (!ta.value || confirm("¿Vaciar el bloc de notas?")) { ta.value = ""; guardar(claveNotas, ""); actualizar(); ta.focus(); } };
     actualizar();
+    return w;
+  }
+
+  /* ── Circuitos ──────────────────────────────────────────────────── */
+  function crearCircuitos(ex) {
+    const C = ex.circuitos, txt = C.map(() => "");
+    const w = ventana("circuitos", `<div class="circ">
+      ${C.length > 1 ? `<label class="circ-lab">Circuito <select class="circ-sel">${C.map((c, n) => `<option value="${n}">${esc(c.titulo)}</option>`).join("")}</select></label>` : `<div class="circ-lab"><b>${esc(C[0].titulo)}</b></div>`}
+      <div class="circ-inc"></div>
+      <label class="circ-lab" for="circEc">Tus ecuaciones (una por línea)</label>
+      <textarea id="circEc" class="circ-ec" spellcheck="false" placeholder="Ejemplos:\nI1 = I2 + I3\n12 - 4*I1 - 6*I2 = 0"></textarea>
+      <div class="circ-acc"><button type="button" class="btn sm" data-comprobar>Comprobar y resolver</button><span class="muted circ-cuenta"></span></div>
+      <div class="circ-res" aria-live="polite"></div>
+      <p class="circ-ayuda muted">Escribe las ecuaciones de tu método (nudos y mallas de Kirchhoff…) con las incógnitas de arriba: <code>4*I1</code> o <code>4I1</code>, decimales con coma o punto. El sentido de cada corriente lo eliges tú. Solo se resuelven cuando <b>todas</b> están bien; después copia los resultados en el examen.</p></div>`);
+    const sel = w.querySelector(".circ-sel"), ta = w.querySelector(".circ-ec"), res = w.querySelector(".circ-res"), cuenta = w.querySelector(".circ-cuenta"), boton = w.querySelector("[data-comprobar]");
+    let n = 0;
+    const usados = C.map(() => 0);
+    const pintarInc = () => {
+      const c = C[n];
+      w.querySelector(".circ-inc").innerHTML = `<b>Incógnitas:</b> ${c.incognitas.map((x) => `<span class="chip gray" title="Apartado ${x.apartado}: ${esc(x.etiqueta)}">${esc(x.nombre)}</span>`).join(" ")}
+        <div class="muted" style="font-size:12px;margin-top:3px">${c.incognitas.map((x) => `${esc(x.nombre)} = ${esc(x.etiqueta || "apartado " + x.apartado)}${x.unidad ? ` (${esc(x.unidad)})` : ""}`).join(" · ")}</div>`;
+      ta.value = txt[n]; res.innerHTML = "";
+      cuenta.textContent = c.intentos ? `Comprobaciones: ${usados[n]} de ${c.intentos}` : "";
+    };
+    if (sel) sel.onchange = () => { txt[n] = ta.value; n = Number(sel.value); pintarInc(); };
+    ta.addEventListener("input", () => (txt[n] = ta.value));
+    boton.onclick = async () => {
+      boton.disabled = true; res.innerHTML = `<p class="muted">Comprobando…</p>`;
+      try {
+        const r = await fetch("/api/examen/circuito", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: ex.id, c: n, ecuaciones: ta.value.split(/\n+/) }) });
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(d.error || "No se ha podido comprobar");
+        usados[n] = d.usados;
+        if (C[n].intentos) cuenta.textContent = `Comprobaciones: ${d.usados} de ${C[n].intentos}`;
+        const val = (v) => String(Number(v.toPrecision(6))).replace(".", ",");
+        res.innerHTML = `<ul class="circ-lista">${d.ecuaciones.map((x) => `<li class="${x.ok ? "ok" : "mal"}">${x.ok ? "✓" : "✗"} <code>${esc(x.txt)}</code>${x.error ? `<br><small>${esc(x.error)}</small>` : ""}</li>`).join("")}</ul>
+          <div class="circ-msg ${d.resuelto ? "ok" : d.completas === false ? "info" : "mal"}">${esc(d.mensaje)}</div>
+          ${d.resuelto ? `<table class="circ-sol">${Object.entries(d.resuelto).map(([k, v]) => { const i = C[n].incognitas.find((x) => x.nombre === k); return `<tr><th>${esc(k)}</th><td>${val(v)} ${esc(i?.unidad || "")}</td></tr>`; }).join("")}</table>
+            <p class="muted" style="font-size:12px">Un valor negativo significa que esa corriente va en sentido contrario al que elegiste.</p>` : ""}`;
+      } catch (e) { res.innerHTML = `<div class="circ-msg mal">${esc(e.message)}</div>`; }
+      finally { boton.disabled = false; }
+    };
+    pintarInc();
     return w;
   }
 
@@ -208,16 +254,17 @@
    */
   window.iniciarHerramientas = (ex, email) => {
     const h = ex.herramientas || {};
-    const activas = ["calculadora", "notas"].filter((k) => h[k] !== false);
+    const activas = ["calculadora", "circuitos", "notas"].filter((k) => h[k] !== false && (k !== "circuitos" || (ex.circuitos || []).length));
     if (!activas.length || dock) return;
     claveNotas = `notas:${ex.id}:${email || ""}`;
     dock = document.createElement("div");
     dock.className = "tool-dock"; dock.setAttribute("role", "toolbar"); dock.setAttribute("aria-label", "Herramientas del examen");
-    dock.innerHTML = activas.map((k) => `<button type="button" class="tool-btn" data-tool="${k}" aria-pressed="false" title="${TITULOS[k]}"><span class="ico">${ICONOS[k]}</span><span class="lbl">${k === "notas" ? "Notas" : "Calculadora"}</span></button>`).join("");
+    dock.innerHTML = activas.map((k) => `<button type="button" class="tool-btn" data-tool="${k}" aria-pressed="false" title="${TITULOS[k]}"><span class="ico">${ICONOS[k]}</span><span class="lbl">${CORTO[k]}</span></button>`).join("");
     lateral = document.createElement("aside");
     lateral.className = "tool-side"; lateral.hidden = true; lateral.setAttribute("aria-label", "Herramientas");
     document.body.append(lateral, dock);
     if (activas.includes("calculadora")) ventanas.calculadora = crearCalculadora();
+    if (activas.includes("circuitos")) ventanas.circuitos = crearCircuitos(ex);
     if (activas.includes("notas")) ventanas.notas = crearNotas();
     dock.addEventListener("click", (e) => { const b = e.target.closest("[data-tool]"); if (b) mostrar(b.dataset.tool); });
     if (window.innerWidth >= 1100) activas.forEach((k) => mostrar(k, true, false));
