@@ -4,6 +4,7 @@ import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import AuthCard from '../components/AuthCard';
 import { useAuth } from '../hooks/useAuth';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import PasswordInput from '../components/PasswordInput';
 
 export default function Login() {
   useDocumentTitle('Acceso profesorado');
@@ -73,7 +74,7 @@ export default function Login() {
               ¿Has olvidado tu contraseña?
             </Link>
           </div>
-          <input id="password" type="password" required autoComplete="current-password" className="input"
+          <PasswordInput id="password" required autoComplete="current-password" className="input"
             value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
         </div>
         {error && (

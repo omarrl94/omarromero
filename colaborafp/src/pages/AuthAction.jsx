@@ -5,6 +5,7 @@ import AuthCard from '../components/AuthCard';
 import Spinner from '../components/Spinner';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { backend } from '../services/backend';
+import PasswordInput from '../components/PasswordInput';
 
 const validPassword = (p) => p.length >= 8 && /[A-Za-z]/.test(p) && /\d/.test(p);
 
@@ -107,13 +108,13 @@ export default function AuthAction() {
       <form onSubmit={save} className="space-y-4">
         <div>
           <label className="label" htmlFor="new-password">Contraseña nueva</label>
-          <input id="new-password" type="password" required autoComplete="new-password" className="input" aria-describedby="new-password-help"
+          <PasswordInput id="new-password" required autoComplete="new-password" className="input" aria-describedby="new-password-help"
             value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
           <p id="new-password-help" className="mt-1.5 text-xs text-stone-600 dark:text-stone-400">Mínimo 8 caracteres, con letras y números.</p>
         </div>
         <div>
           <label className="label" htmlFor="new-confirm">Repite la contraseña</label>
-          <input id="new-confirm" type="password" required autoComplete="new-password" className="input"
+          <PasswordInput id="new-confirm" required autoComplete="new-password" className="input"
             value={form.confirm} onChange={(e) => setForm({ ...form, confirm: e.target.value })} />
         </div>
         {error && (

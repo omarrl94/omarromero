@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Modal from './Modal';
+import PasswordInput from './PasswordInput';
 
 /** Mi cuenta: datos básicos y derecho de supresión (borra la cuenta y todas sus salas). */
 export default function AccountPanel() {
@@ -54,7 +55,7 @@ export default function AccountPanel() {
           </p>
           <div>
             <label className="label" htmlFor="delete-password">Tu contraseña</label>
-            <input id="delete-password" type="password" className="input" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+            <PasswordInput id="delete-password" className="input" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
           </div>
           <div>
             <label className="label" htmlFor="delete-confirm">Escribe ELIMINAR para confirmar</label>

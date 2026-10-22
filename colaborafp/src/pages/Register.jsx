@@ -5,6 +5,7 @@ import AuthCard from '../components/AuthCard';
 import { useAuth } from '../hooks/useAuth';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { isTeacherEmail, TEACHER_EMAIL_DOMAINS } from '../utils/constants';
+import PasswordInput from '../components/PasswordInput';
 
 const DOMAINS = TEACHER_EMAIL_DOMAINS.map((d) => '@' + d).join(', ');
 
@@ -95,12 +96,12 @@ export default function Register() {
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label className="label" htmlFor="password">Contraseña</label>
-            <input id="password" type="password" required minLength={8} autoComplete="new-password" className="input"
+            <PasswordInput id="password" required minLength={8} autoComplete="new-password" className="input"
               aria-describedby="password-help" value={form.password} onChange={set('password')} />
           </div>
           <div>
             <label className="label" htmlFor="confirm">Repite la contraseña</label>
-            <input id="confirm" type="password" required autoComplete="new-password" className="input"
+            <PasswordInput id="confirm" required autoComplete="new-password" className="input"
               value={form.confirm} onChange={set('confirm')} />
           </div>
         </div>
