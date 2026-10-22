@@ -278,7 +278,14 @@ async function circuito(req) {
   log.push({ t: new Date().toISOString(), ecuaciones, ok: r.ecuaciones.map((x) => x.ok), resuelto: !!r.resuelto });
   if (log.length > 30) log.splice(0, log.length - 30);
   await circuitosLog().set(k, reg);
-  return json({ ...r, usados: log.length, intentos: cfg.intentos || null });
+  // Al alumno no se le dice qué ecuación falla ni si le faltan: solo «error» (sí, si alguna no se entiende).
+  const noSeEntiende = r.ecuaciones.filter((x) => x.error).map((x) => ({ txt: x.txt, error: x.error }));
+  return json({
+    resuelto: r.resuelto, usados: log.length, intentos: cfg.intentos || null, noSeEntiende,
+    mensaje: r.resuelto ? "Ecuaciones correctas. Este es el resultado:" : noSeEntiende.length
+      ? "Error: hay ecuaciones que no se pueden leer. Corrígelas y vuelve a probar."
+      : "Error: las ecuaciones no son correctas o no bastan para resolver el circuito.",
+  });
 }
 
 /** El alumno pide al profesor que revise la nota de un examen (queda registrado). */

@@ -146,7 +146,7 @@
       <textarea id="circEc" class="circ-ec" spellcheck="false" placeholder="Ejemplos:\nI1 = I2 + I3\n12 - 4*I1 - 6*I2 = 0"></textarea>
       <div class="circ-acc"><button type="button" class="btn sm" data-comprobar>Comprobar y resolver</button><span class="muted circ-cuenta"></span></div>
       <div class="circ-res" aria-live="polite"></div>
-      <p class="circ-ayuda muted">Escribe las ecuaciones de tu método (nudos y mallas de Kirchhoff…) con las incógnitas de arriba: <code>4*I1</code> o <code>4I1</code>, decimales con coma o punto. El sentido de cada corriente lo eliges tú. Solo se resuelven cuando <b>todas</b> están bien; después copia los resultados en el examen.</p></div>`);
+      <p class="circ-ayuda muted">Escribe las ecuaciones de tu método (nudos y mallas de Kirchhoff…) con las incógnitas de arriba: <code>4*I1</code> o <code>4I1</code>, decimales con coma o punto. El sentido de cada corriente lo eliges tú. Solo se resuelven si <b>todas</b> están bien y bastan; si no, verás «Error» (sin decir cuál falla). Después copia los resultados en el examen.</p></div>`);
     const sel = w.querySelector(".circ-sel"), ta = w.querySelector(".circ-ec"), res = w.querySelector(".circ-res"), cuenta = w.querySelector(".circ-cuenta"), boton = w.querySelector("[data-comprobar]");
     let n = 0;
     const usados = C.map(() => 0);
@@ -168,8 +168,8 @@
         usados[n] = d.usados;
         if (C[n].intentos) cuenta.textContent = `Comprobaciones: ${d.usados} de ${C[n].intentos}`;
         const val = (v) => String(Number(v.toPrecision(6))).replace(".", ",");
-        res.innerHTML = `<ul class="circ-lista">${d.ecuaciones.map((x) => `<li class="${x.ok ? "ok" : "mal"}">${x.ok ? "✓" : "✗"} <code>${esc(x.txt)}</code>${x.error ? `<br><small>${esc(x.error)}</small>` : ""}</li>`).join("")}</ul>
-          <div class="circ-msg ${d.resuelto ? "ok" : d.completas === false ? "info" : "mal"}">${esc(d.mensaje)}</div>
+        res.innerHTML = `<div class="circ-msg ${d.resuelto ? "ok" : "mal"}">${d.resuelto ? "✓" : "✗"} ${esc(d.mensaje)}</div>
+          ${d.noSeEntiende?.length ? `<ul class="circ-lista">${d.noSeEntiende.map((x) => `<li class="mal"><code>${esc(x.txt)}</code><br><small>${esc(x.error)}</small></li>`).join("")}</ul>` : ""}
           ${d.resuelto ? `<table class="circ-sol">${Object.entries(d.resuelto).map(([k, v]) => { const i = C[n].incognitas.find((x) => x.nombre === k); return `<tr><th>${esc(k)}</th><td>${val(v)} ${esc(i?.unidad || "")}</td></tr>`; }).join("")}</table>
             <p class="muted" style="font-size:12px">Un valor negativo significa que esa corriente va en sentido contrario al que elegiste.</p>` : ""}`;
       } catch (e) { res.innerHTML = `<div class="circ-msg mal">${esc(e.message)}</div>`; }
