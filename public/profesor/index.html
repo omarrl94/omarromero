@@ -624,8 +624,7 @@ function tarjetaExamen(e) {
         <span>Herramientas</span>
         <label><span class="switch"><input type="checkbox" data-herr="notas" ${e.herramientas?.notas !== false ? "checked" : ""}><span></span></span>📝 Notas</label>
         <label><span class="switch"><input type="checkbox" data-herr="calculadora" ${e.herramientas?.calculadora !== false ? "checked" : ""}><span></span></span>🧮 Calculadora</label>
-        ${e.circuitos?.length ? `<label title="El alumno escribe sus ecuaciones (Kirchhoff, mallas…) y, si están bien, se resuelven"><span class="switch"><input type="checkbox" data-herr="circuitos" ${e.herramientas?.circuitos !== false ? "checked" : ""}><span></span></span>⚡ Circuitos <button type="button" class="link" data-circuitos>(${e.circuitos.length})</button></label>`
-          : e.nNum ? `<button type="button" class="link" data-circuitos title="Para ejercicios de Kirchhoff, mallas o nudos: el alumno escribe sus ecuaciones y, solo si están bien, se resuelven">⚡ Resolución de circuitos</button>` : ""}
+        ${e.nNum ? `<label title="Pestaña para que el alumno escriba sus ecuaciones (Kirchhoff, mallas…): solo si están bien se resuelven; si no, le sale error"><span class="switch"><input type="checkbox" data-herr-circ ${e.circuitos?.length && e.herramientas?.circuitos !== false ? "checked" : ""}><span></span></span>⚡ Circuitos</label>${e.circuitos?.length ? ` <button type="button" class="link" data-circuitos title="Incógnitas de cada circuito">configurar (${e.circuitos.length})</button>` : ""}` : ""}
       </div>
       <div class="herrbar azarbar" title="Examen aleatorio: cada alumno recibe su propia versión">
         <span>🎲 Aleatorio${e.aleatorio?.preguntas || e.aleatorio?.opciones || e.aleatorio?.valores ? ` <a href="/profesor/imprimir.html?id=${encodeURIComponent(e.id)}&v=1" target="_blank" class="link" style="font-weight:600">ver una versión</a>` : ""}</span>
@@ -713,6 +712,13 @@ function pintarExamenes() {
   $$("[data-ia-valores]", t).forEach((b) => (b.onclick = () => valoresAleatoriosIA(idDe(b))));
   $$("[data-horario]", t).forEach((b) => (b.onclick = () => abrirHorario(idDe(b))));
   $$("[data-circuitos]", t).forEach((b) => (b.onclick = (ev) => { ev.preventDefault(); abrirCircuitos(idDe(b)); }));
+  // Pestaña Circuitos: al activarla sin configurar, se abre el cuadro para marcar las incógnitas.
+  $$("[data-herr-circ]", t).forEach((c) => (c.onchange = async () => {
+    const e = EXAMENES.find((x) => x.id === idDe(c));
+    if (c.checked && !e.circuitos?.length) { c.checked = false; return abrirCircuitos(e.id); }
+    try { await api("/api/profesor/examen/ajustes", { id: e.id, herramientas: { circuitos: c.checked } }); e.herramientas = { ...e.herramientas, circuitos: c.checked }; }
+    catch (x) { alert(x.message); c.checked = !c.checked; }
+  }));
   $$("[data-herr]", t).forEach((c) => (c.onchange = async () => {
     try { await api("/api/profesor/examen/ajustes", { id: idDe(c), herramientas: { [c.dataset.herr]: c.checked } }); }
     catch (e) { alert(e.message); c.checked = !c.checked; }
