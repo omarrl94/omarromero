@@ -47,7 +47,7 @@ export default function ClassCalendars({ teacherId }) {
     <section aria-labelledby="calendars-title">
       <h2 id="calendars-title" className="section-title mb-1">Calendarios de clase</h2>
       <p className="mb-4 text-sm text-stone-600 dark:text-stone-400">
-        Un calendario por aula o grupo para todo el curso: exámenes, entregas, avisos y festivos. El alumnado lo consulta con un código o QR, sin cuenta.
+        Un calendario por aula o grupo para todo el curso: exámenes, entregas, avisos y festivos. El alumnado lo consulta con un código o QR, sin cuenta, y otros profesores pueden colaborar.
       </p>
       {error && <p role="alert" className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">{error}</p>}
 
@@ -80,6 +80,11 @@ export default function ClassCalendars({ teacherId }) {
                 </span>
                 <div className="min-w-0 flex-1">
                   <h3 className="truncate font-bold">{cal.name}</h3>
+                  {cal.teacher_id !== teacherId && (
+                    <p className="mb-0.5 inline-block rounded-full bg-accent-100 px-2 py-0.5 text-[11px] font-semibold text-accent-900 dark:bg-accent-300/15 dark:text-accent-200">
+                      Colaboras · de {cal.owner_name || 'otro profesor'}
+                    </p>
+                  )}
                   <p className="text-xs text-stone-600 dark:text-stone-400">
                     Curso {cal.course} · {cal.event_count} {cal.event_count === 1 ? 'fecha' : 'fechas'} · código <span className="font-mono font-semibold">{formatPin(cal.code)}</span>
                   </p>
@@ -89,9 +94,11 @@ export default function ClassCalendars({ teacherId }) {
                 <Link to={`/profesor/calendario/${cal.id}`} className="btn-primary btn-sm flex-1">
                   Abrir calendario <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
                 </Link>
-                <button type="button" className="btn-danger btn-sm" onClick={() => remove(cal)} aria-label={`Eliminar el calendario ${cal.name}`} title="Eliminar calendario">
-                  <Trash2 className="h-4 w-4" aria-hidden="true" />
-                </button>
+                {cal.teacher_id === teacherId && (
+                  <button type="button" className="btn-danger btn-sm" onClick={() => remove(cal)} aria-label={`Eliminar el calendario ${cal.name}`} title="Eliminar calendario">
+                    <Trash2 className="h-4 w-4" aria-hidden="true" />
+                  </button>
+                )}
               </div>
             </li>
           ))}

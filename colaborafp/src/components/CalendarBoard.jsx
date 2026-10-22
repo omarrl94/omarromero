@@ -46,6 +46,7 @@ function EventItem({ ev, onClick }) {
           {formatEventDate(ev)}
         </span>
         {ev.description && <span className="mt-1 block whitespace-pre-line text-sm text-stone-700 dark:text-stone-300">{ev.description}</span>}
+        {onClick && ev.created_by_name && <span className="mt-1 block text-xs text-stone-600 dark:text-stone-400">Añadido por {ev.created_by_name}</span>}
       </span>
     </Tag>
   );

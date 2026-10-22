@@ -34,7 +34,10 @@ import {
   updateProfile,
 } from 'firebase/auth';
 import {
+  arrayRemove,
+  arrayUnion,
   collection,
+  deleteField,
   connectFirestoreEmulator,
   deleteDoc,
   doc,
@@ -699,7 +702,16 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
   const calRef = (id) => doc(calCol, id);
   const codeRef = (code) => doc(db, 'calcodes', code);
   const eventsCol = (calId) => collection(db, 'calendars', calId, 'events');
-  const toCal = (id, d) => ({ id, ...d, expire_at: ms(d.expire_at) });
+  const toCal = (id, d) => ({
+    id,
+    ...d,
+    editors: d.editors || [],
+    editor_info: d.editor_info || {},
+    open_to_teachers: d.open_to_teachers !== false,
+    expire_at: ms(d.expire_at),
+  });
+  const me = () => auth.currentUser;
+  const myInfo = () => ({ name: (me()?.displayName || me()?.email?.split('@')[0] || 'Profesor').slice(0, 80), email: me()?.email || '' });
 
   async function removeCalendar(id, data) {
     const evs = await getDocs(eventsCol(id));
@@ -709,6 +721,9 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
     await commitDeletes([calRef(id)]);
   }
 
+  /** Quién añade cada fecha (se muestra solo al profesorado del calendario). */
+  const author = () => ({ created_by: me().uid, created_by_name: myInfo().name });
+
   const calendars = {
     create: ({ name, course, teacherId }) =>
       wrap(async () => {
@@ -716,7 +731,18 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
         for (let attempt = 0; attempt < 6; attempt++) {
           const code = generatePin();
           const ref = doc(calCol);
-          const cal = { code, name: name.trim().slice(0, 80), course, teacher_id: teacherId, created_at: Date.now(), expire_at };
+          const cal = {
+            code,
+            name: name.trim().slice(0, 80),
+            course,
+            teacher_id: teacherId,
+            owner_name: myInfo().name,
+            editors: [], // profesores que colaboran
+            editor_info: {},
+            open_to_teachers: true, // otros profesores pueden unirse con el código
+            created_at: Date.now(),
+            expire_at,
+          };
           const ok = await runTransaction(db, async (tx) => {
             const [c, p] = await Promise.all([tx.get(codeRef(code)), tx.get(pinRef(code))]);
             if (c.exists() || p.exists()) return false; // el código no puede coincidir con un PIN de sala
@@ -729,15 +755,18 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
         throw new Error('No se pudo generar un código único. Inténtalo de nuevo.');
       }),
 
-    /** Lista los calendarios del profesor y borra los que han pasado su fecha (31 de julio). */
+    /** Calendarios propios y en los que colabora; borra los propios que han pasado su fecha (31 de julio). */
     listByTeacher: (teacherId) =>
       wrap(async () => {
-        const snap = await getDocs(query(calCol, where('teacher_id', '==', teacherId)));
-        const docs = snap.docs;
+        const [own, shared] = await Promise.all([
+          getDocs(query(calCol, where('teacher_id', '==', teacherId))),
+          getDocs(query(calCol, where('editors', 'array-contains', teacherId))).catch(() => ({ docs: [] })),
+        ]);
+        const docs = own.docs;
         const now = Date.now();
         const expired = docs.filter((d) => ms(d.data().expire_at) <= now);
         await Promise.all(expired.map((d) => removeCalendar(d.id, d.data()).catch(() => {})));
-        const alive = docs.filter((d) => !expired.includes(d));
+        const alive = [...docs.filter((d) => !expired.includes(d)), ...shared.docs.filter((d) => ms(d.data().expire_at) > now)];
         const list = await Promise.all(
           alive.map(async (d) => {
             const count = await getCountFromServer(eventsCol(d.id)).catch(() => null);
@@ -781,6 +810,40 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
 
     remove: (id) => wrap(() => removeCalendar(id)),
 
+    // ----- Profesorado colaborador -----
+    /** Un profesor que entra con el código se une como colaborador. */
+    join: (calId) =>
+      wrap(async () => {
+        const uid = me().uid;
+        try {
+          await updateDoc(calRef(calId), { editors: arrayUnion(uid), [`editor_info.${uid}`]: myInfo() });
+        } catch (e) {
+          if (e?.code === 'permission-denied')
+            throw new Error('No puedes unirte: el profesor de este calendario no admite colaboradores ahora mismo, o tu cuenta aún no está activada.');
+          throw e;
+        }
+      }),
+    /** El colaborador deja de colaborar. */
+    leave: (calId) =>
+      wrap(async () => {
+        const uid = me().uid;
+        await updateDoc(calRef(calId), { editors: arrayRemove(uid), [`editor_info.${uid}`]: deleteField() });
+      }),
+    /** El dueño quita a un colaborador. */
+    removeEditor: (cal, uid) =>
+      wrap(async () => {
+        await updateDoc(calRef(cal.id), { editors: arrayRemove(uid), [`editor_info.${uid}`]: deleteField() });
+        const editor_info = { ...cal.editor_info };
+        delete editor_info[uid];
+        return { ...cal, editors: cal.editors.filter((x) => x !== uid), editor_info };
+      }),
+    /** El dueño permite o no que se unan nuevos colaboradores. */
+    setOpenToTeachers: (cal, open) =>
+      wrap(async () => {
+        await updateDoc(calRef(cal.id), { open_to_teachers: open });
+        return { ...cal, open_to_teachers: open };
+      }),
+
     /** Eventos en tiempo real (profesor y alumnado). Devuelve la función para dejar de escuchar. */
     subscribeEvents(calId, onChange, onError) {
       return onSnapshot(
@@ -793,7 +856,7 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
     addEvent: (cal, event) =>
       wrap(async () => {
         const ref = doc(eventsCol(cal.id));
-        await setDoc(ref, { ...event, created_at: Date.now(), expire_at: Timestamp.fromMillis(cal.expire_at) });
+        await setDoc(ref, { ...event, ...author(), created_at: Date.now(), expire_at: Timestamp.fromMillis(cal.expire_at) });
         return ref.id;
       }),
 
@@ -801,7 +864,7 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
     addEvents: (cal, events) =>
       wrap(async () => {
         const batch = writeBatch(db);
-        for (const ev of events) batch.set(doc(eventsCol(cal.id)), { ...ev, created_at: Date.now(), expire_at: Timestamp.fromMillis(cal.expire_at) });
+        for (const ev of events) batch.set(doc(eventsCol(cal.id)), { ...ev, ...author(), created_at: Date.now(), expire_at: Timestamp.fromMillis(cal.expire_at) });
         await batch.commit();
       }),
 

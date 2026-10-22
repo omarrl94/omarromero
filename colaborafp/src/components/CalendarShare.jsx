@@ -29,7 +29,7 @@ export default function CalendarShare({ calendar }) {
           <QRCode value={url} size={256} level="M" fgColor="#171413" style={{ width: '5.5rem', height: 'auto', display: 'block' }} aria-label={`Código QR del calendario ${calendar.name}`} />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-600 dark:text-stone-400">Código para el alumnado</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-600 dark:text-stone-400">Código para el alumnado y el profesorado</p>
           <p className="font-mono text-2xl font-extrabold tracking-widest">{formatPin(calendar.code)}</p>
           <p className="truncate text-xs text-stone-600 dark:text-stone-400">{url}</p>
         </div>

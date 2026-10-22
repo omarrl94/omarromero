@@ -1,6 +1,8 @@
-import { CalendarPlus, ChevronLeft, Flag, Pencil } from 'lucide-react';
+import { CalendarPlus, ChevronLeft, Flag, LogOut, Pencil } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import CalendarCollaborators from '../components/CalendarCollaborators';
+import { useAuth } from '../hooks/useAuth';
 import CalendarBoard from '../components/CalendarBoard';
 import CalendarShare from '../components/CalendarShare';
 import EmptyState from '../components/EmptyState';
@@ -18,6 +20,8 @@ export default function CalendarTeacher() {
   const [modal, setModal] = useState(null);
   const [error, setError] = useState(null);
   const [notice, setNotice] = useState(null);
+  const { user } = useAuth();
+  const navigate = useNavigate();
   useDocumentTitle(calendar ? `Calendario · ${calendar.name}` : 'Calendario');
 
   useEffect(() => {
@@ -42,6 +46,18 @@ export default function CalendarTeacher() {
         </EmptyState>
       </div>
     );
+
+  const isOwner = calendar.teacher_id === user.id;
+
+  const leave = async () => {
+    if (!window.confirm(`¿Dejar de colaborar en «${calendar.name}»? Las fechas que añadiste se quedan en el calendario.`)) return;
+    try {
+      await backend.calendars.leave(calendar.id);
+      navigate('/profesor');
+    } catch (e) {
+      setError(e.message);
+    }
+  };
 
   const rename = async () => {
     const name = window.prompt('Nombre del calendario', calendar.name);
@@ -81,12 +97,22 @@ export default function CalendarTeacher() {
           <p className="eyebrow">Calendario de clase · Curso {calendar.course}</p>
           <h1 className="flex items-center gap-2 truncate text-2xl font-extrabold sm:text-3xl">
             {calendar.name}
-            <button type="button" className="btn-ghost btn-sm" onClick={rename} aria-label="Cambiar el nombre del calendario">
-              <Pencil className="h-4 w-4" />
-            </button>
+            {isOwner && (
+              <button type="button" className="btn-ghost btn-sm" onClick={rename} aria-label="Cambiar el nombre del calendario">
+                <Pencil className="h-4 w-4" />
+              </button>
+            )}
           </h1>
-          <p className="text-xs text-stone-600 dark:text-stone-400">Se borrará automáticamente el {formatDay(calendar.expire_at)}, al acabar el curso.</p>
+          <p className="text-xs text-stone-600 dark:text-stone-400">
+            {!isOwner && <>Colaboras en el calendario de {calendar.owner_name || 'otro profesor'} · </>}
+            Se borrará automáticamente el {formatDay(calendar.expire_at)}, al acabar el curso.
+          </p>
         </div>
+        {!isOwner && (
+          <button type="button" className="btn-ghost" onClick={leave}>
+            <LogOut className="h-4 w-4" aria-hidden="true" /> Dejar de colaborar
+          </button>
+        )}
         <button type="button" className="btn-secondary" onClick={addHolidays}>
           <Flag className="h-4 w-4" aria-hidden="true" /> Añadir festivos nacionales
         </button>
@@ -95,8 +121,9 @@ export default function CalendarTeacher() {
         </button>
       </div>
 
-      <div className="mb-6">
+      <div className={`mb-6 grid gap-6 ${isOwner ? 'lg:grid-cols-[1fr_22rem]' : ''}`}>
         <CalendarShare calendar={calendar} />
+        {isOwner && <CalendarCollaborators calendar={calendar} onChange={setCalendar} />}
       </div>
       {notice && (
         <p role="status" className="mb-4 rounded-xl bg-accent-100 px-4 py-3 text-sm text-accent-900 dark:bg-accent-300/15 dark:text-accent-200">{notice}</p>

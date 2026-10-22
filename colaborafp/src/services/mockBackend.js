@@ -321,7 +321,11 @@ const calendars = {
     let code;
     do code = generatePin();
     while (db.calendars.some((c) => c.code === code) || db.rooms.some((r) => r.pin === code));
-    const cal = { id: uuid(), code, name: name.trim().slice(0, 80), course, teacher_id: teacherId, created_at: Date.now(), expire_at: courseExpiry(course) };
+    const owner = getStoredSession();
+    const cal = {
+      id: uuid(), code, name: name.trim().slice(0, 80), course, teacher_id: teacherId, owner_name: owner?.name || '',
+      editors: [], editor_info: {}, open_to_teachers: true, created_at: Date.now(), expire_at: courseExpiry(course),
+    };
     db.calendars.push(cal);
     writeDb(db);
     return clone(cal);
@@ -331,7 +335,7 @@ const calendars = {
     for (const c of readDb().calendars.filter((x) => x.teacher_id === teacherId && x.expire_at <= Date.now())) await calendars.remove(c.id);
     const db = readDb();
     return db.calendars
-      .filter((c) => c.teacher_id === teacherId)
+      .filter((c) => c.teacher_id === teacherId || (c.editors || []).includes(teacherId))
       .map((c) => ({ ...c, event_count: db.events.filter((e) => e.cal_id === c.id).length }))
       .sort((a, b) => b.created_at - a.created_at);
   },
@@ -358,6 +362,38 @@ const calendars = {
     writeDb(db);
     notifyCal(id);
   },
+  async join(calId) {
+    const me = getStoredSession();
+    const db = readDb();
+    const c = db.calendars.find((x) => x.id === calId);
+    if (!c || c.open_to_teachers === false) throw new Error('No puedes unirte: el profesor de este calendario no admite colaboradores ahora mismo.');
+    c.editors = [...new Set([...(c.editors || []), me.id])];
+    c.editor_info = { ...(c.editor_info || {}), [me.id]: { name: me.name, email: me.email } };
+    writeDb(db);
+  },
+  async leave(calId) {
+    const me = getStoredSession();
+    const db = readDb();
+    const c = db.calendars.find((x) => x.id === calId);
+    c.editors = (c.editors || []).filter((x) => x !== me.id);
+    delete c.editor_info?.[me.id];
+    writeDb(db);
+  },
+  async removeEditor(cal, uid) {
+    const db = readDb();
+    const c = db.calendars.find((x) => x.id === cal.id);
+    c.editors = (c.editors || []).filter((x) => x !== uid);
+    delete c.editor_info?.[uid];
+    writeDb(db);
+    return clone(c);
+  },
+  async setOpenToTeachers(cal, open) {
+    const db = readDb();
+    const c = db.calendars.find((x) => x.id === cal.id);
+    c.open_to_teachers = open;
+    writeDb(db);
+    return clone(c);
+  },
   subscribeEvents(calId, onChange) {
     onChange(calEvents(calId));
     const fn = (e) => e.table === 'events' && e.calId === calId && onChange(calEvents(calId));
@@ -366,7 +402,8 @@ const calendars = {
   },
   async addEvent(cal, event) {
     const db = readDb();
-    const ev = { id: uuid(), cal_id: cal.id, ...event, created_at: Date.now(), expire_at: cal.expire_at };
+    const me = getStoredSession();
+    const ev = { id: uuid(), cal_id: cal.id, ...event, created_by: me?.id, created_by_name: me?.name, created_at: Date.now(), expire_at: cal.expire_at };
     db.events.push(ev);
     writeDb(db);
     notifyCal(cal.id);
