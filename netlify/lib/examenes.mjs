@@ -24,7 +24,7 @@ import semillaSad from "./semilla-sad-temas-1-2.mjs";
 import semillaIa from "./semilla-ia-tema-1.mjs";
 import semillaSea from "./semilla-sea-temas-1-2.mjs";
 import semillaSeaAleatorio from "./semilla-sea-temas-1-2-aleatorio.mjs";
-import { buscarModulo, moduloPorNombre } from "./catalogo.mjs";
+import { buscarModulo, moduloPorNombre, moduloConPython } from "./catalogo.mjs";
 import { validarVariables, valoresVariables, evaluar } from "./variantes.mjs";
 
 const str = (v, max, campo) => {
@@ -198,7 +198,7 @@ export function raValidos(v) {
 
 export const aleatorioValido = (a) => ({ preguntas: a?.preguntas === true, opciones: a?.opciones === true, valores: a?.valores === true });
 
-export const HERRAMIENTAS = ["notas", "calculadora", "circuitos"];
+export const HERRAMIENTAS = ["notas", "calculadora", "circuitos", "python"];
 /** Bloc de notas y calculadora: activados salvo que el profesor los apague. */
 export const herramientasValidas = (h) => Object.fromEntries(HERRAMIENTAS.map((k) => [k, h?.[k] !== false]));
 
@@ -217,6 +217,8 @@ export const enunciado = (ex) => ({
   ...(ex.defensaDe ? { trabajo: ex.defensaDe.trabajo } : {}),
   ventana: ex.ventana || { desde: "", hasta: "" }, duracion: ex.duracion || 0, requiereCodigo: !!ex.codigo && !ex.identidad,
   requiereIdentidad: !!ex.identidad, conIA: !!ex.conIA || !!ex.defensaDe,
+  // Pestaña de Python (Pyodide, en el navegador): solo en los módulos que la tienen activada.
+  python: moduloConPython(ex.cicloId, ex.moduloId),
   // Circuitos: solo nombres y a qué resultado corresponde cada incógnita (nunca los valores).
   circuitos: (ex.circuitos || []).map((c) => ({ titulo: c.titulo, bloque: c.bloque, intentos: c.intentos,
     incognitas: c.incognitas.map(({ nombre, i, j }) => ({ nombre, apartado: i + 1, etiqueta: ex.num?.[i]?.campos?.[j]?.etiqueta || "", unidad: ex.num?.[i]?.campos?.[j]?.unidad || "" })) })),
@@ -239,7 +241,7 @@ export const resumen = (ex) => ({
   herramientas: herramientasValidas(ex.herramientas),
   aleatorio: aleatorioValido(ex.aleatorio), nVariables: (ex.variables || []).length,
   ventana: ex.ventana || { desde: "", hasta: "" }, duracion: ex.duracion || 0, codigo: ex.codigo || "",
-  identidad: !!ex.identidad, ra: ex.ra || [], conIA: !!ex.conIA, circuitos: ex.circuitos || [],
+  identidad: !!ex.identidad, ra: ex.ra || [], conIA: !!ex.conIA, circuitos: ex.circuitos || [], python: moduloConPython(ex.cicloId, ex.moduloId),
   creado: ex.creado, actualizado: ex.actualizado, autor: ex.autor?.nombre || "",
 });
 

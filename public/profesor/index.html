@@ -624,6 +624,7 @@ function tarjetaExamen(e) {
         <span>Herramientas</span>
         <label><span class="switch"><input type="checkbox" data-herr="notas" ${e.herramientas?.notas !== false ? "checked" : ""}><span></span></span>📝 Notas</label>
         <label><span class="switch"><input type="checkbox" data-herr="calculadora" ${e.herramientas?.calculadora !== false ? "checked" : ""}><span></span></span>🧮 Calculadora</label>
+        ${e.python ? `<label title="Pestaña con Python para que el alumno pruebe su código (el último código se guarda con la entrega)"><span class="switch"><input type="checkbox" data-herr="python" ${e.herramientas?.python !== false ? "checked" : ""}><span></span></span>🐍 Python</label>` : ""}
         ${e.nNum ? `<label title="Pestaña para que el alumno escriba sus ecuaciones (Kirchhoff, mallas…): solo si están bien se resuelven; si no, le sale error"><span class="switch"><input type="checkbox" data-herr-circ ${e.circuitos?.length && e.herramientas?.circuitos !== false ? "checked" : ""}><span></span></span>⚡ Circuitos</label>${e.circuitos?.length ? ` <button type="button" class="link" data-circuitos title="Incógnitas de cada circuito">configurar (${e.circuitos.length})</button>` : ""}` : ""}
       </div>
       <div class="herrbar azarbar" title="Examen aleatorio: cada alumno recibe su propia versión">
@@ -994,6 +995,8 @@ async function verEntrega(email, intento) {
   };
   const c = $("#dEntCont");
   pintarEntrega(c, d);
+  // Último código de la pestaña de Python.
+  if (d.python) c.insertAdjacentHTML("beforeend", `<div class="card"><h3 style="margin-top:0">🐍 Código Python del alumno</h3><pre class="py-out" style="max-height:420px">${esc(d.python)}</pre></div>`);
   // Ecuaciones que escribió en la herramienta de circuitos (cada comprobación).
   if (d.circuitos && Object.keys(d.circuitos).length) c.insertAdjacentHTML("beforeend", `<div class="card"><h3 style="margin-top:0">⚡ Ecuaciones de circuitos</h3>${Object.entries(d.circuitos).map(([n, log]) => `
     <p style="margin:6px 0"><b>${esc(d.examen.circuitos?.[n]?.titulo || `Circuito ${Number(n) + 1}`)}</b> · ${log.length} ${log.length === 1 ? "comprobación" : "comprobaciones"}${log.some((x) => x.resuelto) ? ` · <span class="chip ok">resuelto</span>` : ` · <span class="chip gray">sin resolver</span>`}</p>
@@ -1248,9 +1251,10 @@ function pintarModulos() {
   pintarCiclosAdmin().catch((e) => { $("#modErr").textContent = e.message; $("#modErr").hidden = false; });
   $("#listaModulos").innerHTML = CATALOGO.map((c) => `<div class="card modcard" data-ciclo-mod="${esc(c.id)}">
     <b>${esc(c.nombre)}</b> <span class="muted">· ${esc(c.descripcion || "")} (${esc(c.grado || "")})${c.familia ? ` · ${esc(c.familia)}` : ""}</span>
-    ${c.modulos.length ? `<table class="t modt"><thead><tr><th>Módulo</th><th>Curso</th><th></th></tr></thead><tbody>${c.modulos.map((m) => `<tr data-mod="${esc(m.id)}">
+    ${c.modulos.length ? `<table class="t modt"><thead><tr><th>Módulo</th><th>Curso</th><th title="Pestaña de Python en los exámenes del módulo">🐍</th><th></th></tr></thead><tbody>${c.modulos.map((m) => `<tr data-mod="${esc(m.id)}">
       <td><div class="modnom"><b>${esc(m.nombre)}</b><button type="button" class="link" data-renombrar-mod title="Cambiar el nombre del módulo">✎ renombrar</button></div></td>
       <td><div class="cursos">${casillasCurso(c, m.grupos)}</div></td>
+      <td><label class="check" title="Pestaña de Python en los exámenes de este módulo"><input type="checkbox" data-python ${m.python ? "checked" : ""}> Python</label></td>
       <td>${m.propio ? `<button type="button" class="btn danger sm icono" title="Borrar módulo" aria-label="Borrar módulo" data-borrar-mod="${esc(m.id)}">${ICONO.borrar}</button>` : ""}</td></tr>`).join("")}</tbody></table>`
       : `<p class="muted" style="margin:10px 0">Sin módulos todavía.</p>`}
     <form class="nuevomod" data-nuevo-mod><input type="text" placeholder="Nuevo módulo (p. ej. Programación)" maxlength="120">
@@ -1265,7 +1269,13 @@ function pintarModulos() {
     try { await api("/api/profesor/modulo", { cicloId: f.closest("[data-ciclo-mod]").dataset.cicloMod, nombre, grupos: marcados(f) }); await cargarExamenes(); pintarModulos(); }
     catch (e) { err(e.message); }
   }));
-  $$("tr[data-mod] input[type=checkbox]").forEach((i) => (i.onchange = async () => {
+  $$("tr[data-mod] [data-python]").forEach((i) => (i.onchange = async () => {
+    err("");
+    const tr = i.closest("tr");
+    try { await api("/api/profesor/modulo/python", { cicloId: tr.closest("[data-ciclo-mod]").dataset.cicloMod, moduloId: tr.dataset.mod, activo: i.checked }); await cargarExamenes(); }
+    catch (e) { err(e.message); i.checked = !i.checked; }
+  }));
+  $$("tr[data-mod] .cursos input[type=checkbox]").forEach((i) => (i.onchange = async () => {
     err("");
     const tr = i.closest("tr"), g = marcados(tr);
     if (!g.length) { i.checked = true; return err("Un módulo debe ser al menos de un curso."); }

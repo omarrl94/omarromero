@@ -5,12 +5,14 @@
  *  · Calculadora científica.
  *  · Resolución de circuitos: el alumno escribe sus ecuaciones (Kirchhoff, mallas…);
  *    el servidor comprueba si están bien y, solo entonces, resuelve el sistema.
+ *  · Python: editor y ejecución en el propio navegador (Pyodide en un worker, con
+ *    límite de tiempo). Solo en los módulos que la tienen activada (Programación 360).
  * Son ventanas dentro de la página: usarlas no cuenta como salir del examen.
  */
 (() => {
-  const ICONOS = { notas: "📝", calculadora: "🧮", circuitos: "⚡" };
-  const TITULOS = { notas: "Bloc de notas", calculadora: "Calculadora científica", circuitos: "Resolución de circuitos" };
-  const CORTO = { notas: "Notas", calculadora: "Calculadora", circuitos: "Circuitos" };
+  const ICONOS = { notas: "📝", calculadora: "🧮", circuitos: "⚡", python: "🐍" };
+  const TITULOS = { notas: "Bloc de notas", calculadora: "Calculadora científica", circuitos: "Resolución de circuitos", python: "Python" };
+  const CORTO = { notas: "Notas", calculadora: "Calculadora", circuitos: "Circuitos", python: "Python" };
   let dock = null, ventanas = {}, claveNotas = "";
 
   const guardar = (k, v) => { try { localStorage.setItem(k, v); } catch { /* sin almacenamiento */ } };
@@ -179,6 +181,87 @@
     return w;
   }
 
+  /* ── Python (Pyodide en un worker: un bucle infinito no bloquea el examen) ── */
+  const PYODIDE = window.PYODIDE_BASE || "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/"; // PYODIDE_BASE: solo para pruebas sin Internet
+  const LIMITE_PY = 10_000; // ms por ejecución
+  /** Se ejecuta dentro del worker (se pasa como texto: no puede usar nada de fuera). */
+  function trabajadorPython() {
+    importScripts(self.PYODIDE + "pyodide.js");
+    const listo = loadPyodide({ indexURL: self.PYODIDE });
+    listo.then(() => postMessage({ tipo: "listo" }), (e) => postMessage({ tipo: "fallo", s: String((e && e.message) || e) }));
+    const interno = /^\s*File "\/lib\/python|_pyodide|pyodide\.|^\s*\^+\s*$/;
+    onmessage = async (ev) => {
+      let py;
+      try { py = await listo; } catch (e) { postMessage({ tipo: "fin", error: "No se ha podido cargar Python. Comprueba la conexión." }); return; }
+      const entrada = String(ev.data.stdin || "").split("\n");
+      py.setStdin({ stdin: () => (entrada.length ? entrada.shift() : undefined) });
+      py.setStdout({ batched: (s) => postMessage({ tipo: "out", s }) });
+      py.setStderr({ batched: (s) => postMessage({ tipo: "err", s }) });
+      const g = py.globals.get("dict")();
+      try { await py.runPythonAsync(ev.data.codigo, { globals: g }); postMessage({ tipo: "fin" }); }
+      catch (e) {
+        // Solo las líneas que tienen que ver con el código del alumno (no las internas de Pyodide).
+        const todas = String(e.message || e).trim().split("\n");
+        const k = todas.findIndex((l) => /File "<exec>"/.test(l));
+        const lineas = k >= 0 ? ["Traceback (most recent call last):", ...todas.slice(k).filter((l) => !interno.test(l) || /File "<exec>"/.test(l))] : [todas.at(-1)];
+        postMessage({ tipo: "fin", error: lineas.join("\n").replace(/File "<exec>", line (\d+)/g, "Tu código, línea $1").trim() });
+      } finally { g.destroy(); }
+    };
+  }
+  const CODIGO_WORKER = `self.PYODIDE = ${JSON.stringify(PYODIDE)};\n(${trabajadorPython.toString()})();`;
+  let claveCodigo = "";
+  function crearPython() {
+    const w = ventana("python", `<div class="py">
+      <label class="circ-lab" for="pyCod">Código</label>
+      <textarea id="pyCod" class="py-cod" spellcheck="false" autocapitalize="off" placeholder="print('Hola')"></textarea>
+      <details class="py-ent"><summary>Entrada para <code>input()</code></summary><textarea class="py-in" spellcheck="false" placeholder="Una línea por cada input()"></textarea></details>
+      <div class="circ-acc"><button type="button" class="btn sm" data-ejecutar disabled>▶ Ejecutar</button><span class="muted py-estado">Cargando Python…</span></div>
+      <pre class="py-out" aria-live="polite" aria-label="Salida"></pre>
+      <p class="circ-ayuda muted">Se ejecuta en tu navegador (máx. ${LIMITE_PY / 1000} s). Ctrl+Intro ejecuta; Tab sangra. Tu código se guarda solo y lo ve el profesor al entregar.</p></div>`);
+    const ta = w.querySelector(".py-cod"), inp = w.querySelector(".py-in"), out = w.querySelector(".py-out"), estado = w.querySelector(".py-estado"), boton = w.querySelector("[data-ejecutar]");
+    ta.value = leer(claveCodigo);
+    ta.addEventListener("input", () => guardar(claveCodigo, ta.value));
+    ta.addEventListener("keydown", (e) => {
+      if (e.key === "Tab" && !e.shiftKey) { e.preventDefault(); const a = ta.selectionStart; ta.setRangeText("    ", a, ta.selectionEnd, "end"); guardar(claveCodigo, ta.value); }
+      else if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); if (!boton.disabled) ejecutar(); }
+    });
+    let worker = null, listo = false;
+    const nuevoWorker = () => {
+      listo = false; boton.disabled = true; estado.textContent = "Cargando Python…";
+      worker = new Worker(URL.createObjectURL(new Blob([CODIGO_WORKER], { type: "text/javascript" })));
+      worker.onmessage = (e) => {
+        if (e.data.tipo === "listo") { listo = true; boton.disabled = false; estado.textContent = "Python listo"; }
+        if (e.data.tipo === "fallo") estado.textContent = "No se ha podido cargar Python (revisa la conexión).";
+      };
+      worker.onerror = () => { estado.textContent = "No se ha podido cargar Python (revisa la conexión)."; };
+    };
+    const ejecutar = () => new Promise((fin) => {
+      out.textContent = ""; out.classList.remove("err"); boton.disabled = true; estado.textContent = "Ejecutando…";
+      const t0 = Date.now();
+      const reloj = setTimeout(() => {
+        worker.terminate(); out.textContent += `\n⏱ Se ha parado: más de ${LIMITE_PY / 1000} s (¿un bucle infinito?)`; out.classList.add("err");
+        nuevoWorker(); fin();
+      }, LIMITE_PY);
+      worker.onmessage = (e) => {
+        const d = e.data;
+        if (d.tipo === "out") out.textContent += d.s + "\n";
+        else if (d.tipo === "err") out.textContent += d.s + "\n";
+        else if (d.tipo === "fin") {
+          clearTimeout(reloj);
+          if (d.error) { out.textContent += d.error; out.classList.add("err"); }
+          if (!out.textContent) out.textContent = "(sin salida)";
+          estado.textContent = `Terminado en ${((Date.now() - t0) / 1000).toLocaleString("es-ES", { maximumFractionDigits: 1 })} s`;
+          boton.disabled = false; fin();
+        }
+      };
+      worker.postMessage({ codigo: ta.value, stdin: inp.value });
+    });
+    boton.onclick = ejecutar;
+    nuevoWorker();
+    window.codigoPython = () => ta.value;
+    return w;
+  }
+
   function crearCalculadora() {
     const T = [
       ["DEG", "sin", "cos", "tan", "π"],
@@ -254,9 +337,9 @@
    */
   window.iniciarHerramientas = (ex, email) => {
     const h = ex.herramientas || {};
-    const activas = ["calculadora", "circuitos", "notas"].filter((k) => h[k] !== false && (k !== "circuitos" || (ex.circuitos || []).length));
+    const activas = ["calculadora", "python", "circuitos", "notas"].filter((k) => h[k] !== false && (k !== "circuitos" || (ex.circuitos || []).length) && (k !== "python" || ex.python));
     if (!activas.length || dock) return;
-    claveNotas = `notas:${ex.id}:${email || ""}`;
+    claveNotas = `notas:${ex.id}:${email || ""}`; claveCodigo = `python:${ex.id}:${email || ""}`;
     dock = document.createElement("div");
     dock.className = "tool-dock"; dock.setAttribute("role", "toolbar"); dock.setAttribute("aria-label", "Herramientas del examen");
     dock.innerHTML = activas.map((k) => `<button type="button" class="tool-btn" data-tool="${k}" aria-pressed="false" title="${TITULOS[k]}"><span class="ico">${ICONOS[k]}</span><span class="lbl">${CORTO[k]}</span></button>`).join("");
@@ -264,17 +347,19 @@
     lateral.className = "tool-side"; lateral.hidden = true; lateral.setAttribute("aria-label", "Herramientas");
     document.body.append(lateral, dock);
     if (activas.includes("calculadora")) ventanas.calculadora = crearCalculadora();
+    if (activas.includes("python")) ventanas.python = crearPython();
     if (activas.includes("circuitos")) ventanas.circuitos = crearCircuitos(ex);
     if (activas.includes("notas")) ventanas.notas = crearNotas();
     dock.addEventListener("click", (e) => { const b = e.target.closest("[data-tool]"); if (b) mostrar(b.dataset.tool); });
-    if (window.innerWidth >= 1100) activas.forEach((k) => mostrar(k, true, false));
+    // En pantallas grandes se abren solas (Python, que ocupa más, se abre al pulsarlo).
+    if (window.innerWidth >= 1100) activas.filter((k) => k !== "python").forEach((k) => mostrar(k, true, false));
   };
 
   /** Al entregar: se quitan las herramientas y se borran las notas. */
   window.cerrarHerramientas = () => {
     if (!dock) return;
     dock.remove(); lateral?.remove(); document.body.classList.remove("tools-open");
-    borrar(claveNotas);
+    borrar(claveNotas); borrar(claveCodigo); delete window.codigoPython;
     dock = null; lateral = null; ventanas = {};
   };
 

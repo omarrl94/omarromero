@@ -46,11 +46,14 @@ export const CATALOGO = CICLOS.map((c) => ({ ...c, modulos: [...c.modulos] }));
 const CICLOS_PROPIOS = "ciclos"; // clave en «sistema»: [{ id, nombre, grado, familia, descripcion }]
 const MODULOS = "modulos"; // clave en «sistema»: { [cicloId]: [{ id, nombre, grupos }] }
 const CURSOS_MODULOS = "modulos-cursos"; // cursos cambiados en los módulos de serie: { "ciclo/modulo": [grupos] }
-const NOMBRES_MODULOS = "modulos-nombres"; // nombres cambiados desde el panel: { "ciclo/modulo": nombre }
+const NOMBRES_MODULOS = "modulos-nombres";
+const PYTHON_MODULOS = "modulos-python"; // { "ciclo/modulo": true|false }: pestaña de Python en sus exámenes
+/** De serie, la pestaña de Python está en «Programación 360» de DAM. */
+const pythonDeSerie = (cicloId, nombre) => cicloId === "dam" && /programaci[oó]n\s*360/i.test(nombre || ""); // nombres cambiados desde el panel: { "ciclo/modulo": nombre }
 
 export async function cargarModulos() {
   const sis = almacen("sistema");
-  const [extra, cursos, nombres, propios] = await Promise.all([sis.get(MODULOS), sis.get(CURSOS_MODULOS), sis.get(NOMBRES_MODULOS), sis.get(CICLOS_PROPIOS)]);
+  const [extra, cursos, nombres, propios, python] = await Promise.all([sis.get(MODULOS), sis.get(CURSOS_MODULOS), sis.get(NOMBRES_MODULOS), sis.get(CICLOS_PROPIOS), sis.get(PYTHON_MODULOS)]);
   // Ciclos creados por el administrador: se añaden (o se quitan si se han borrado).
   const lista = (propios || []).filter((p) => !CICLOS.some((c) => c.id === p.id));
   for (let i = CATALOGO.length - 1; i >= 0; i--) if (CATALOGO[i].propio && !lista.some((p) => p.id === CATALOGO[i].id)) CATALOGO.splice(i, 1);
@@ -61,7 +64,8 @@ export async function cargarModulos() {
   for (const c of CATALOGO) {
     const base = CICLOS.find((x) => x.id === c.id)?.modulos || [];
     c.modulos = [...base, ...((extra || {})[c.id] || []).filter((m) => !base.some((b) => b.id === m.id)).map((m) => ({ ...m, propio: true }))]
-      .map((m) => ({ ...m, nombre: (nombres || {})[`${c.id}/${m.id}`] || m.nombre, grupos: (cursos || {})[`${c.id}/${m.id}`] ?? m.grupos ?? [] }));
+      .map((m) => ({ ...m, nombre: (nombres || {})[`${c.id}/${m.id}`] || m.nombre, grupos: (cursos || {})[`${c.id}/${m.id}`] ?? m.grupos ?? [] }))
+      .map((m) => ({ ...m, python: (python || {})[`${c.id}/${m.id}`] ?? pythonDeSerie(c.id, m.nombre) }));
   }
 }
 
@@ -80,6 +84,18 @@ export async function renombrarModulo(cicloId, moduloId, nombre) {
   await cargarModulos();
   return { nombre };
 }
+
+/** Activa o quita la pestaña de Python en los exámenes de un módulo. */
+export async function pythonModulo(cicloId, moduloId, activo) {
+  if (!buscarModulo(cicloId, moduloId)) return null;
+  const sis = almacen("sistema");
+  const mapa = (await sis.get(PYTHON_MODULOS)) || {};
+  mapa[`${cicloId}/${moduloId}`] = !!activo;
+  await sis.set(PYTHON_MODULOS, mapa);
+  await cargarModulos();
+  return !!activo;
+}
+export const moduloConPython = (cicloId, moduloId) => !!buscarModulo(cicloId, moduloId)?.modulo.python;
 
 /** Grupos (cursos) de un ciclo: «1.º ASIR», «2.º ASIR»… */
 export const gruposDeCiclo = (c) => c?.grupos || CURSOS.map((k) => `${k} ${c.nombre}`);

@@ -11,7 +11,7 @@ import { registrar } from "./registro.mjs";
 import { comprobarYResolver, MAX_ECUACIONES } from "./circuitos.mjs";
 import { claveEntrega, vistaEntrega, historialDe, intentosHechos, intentosPermitidos, consolidar, conIntento } from "./entregas.mjs";
 import { enviarCorreo, proveedorConfigurado } from "./correo.mjs";
-import { CATALOGO, cicloDe, moduloVisible } from "./catalogo.mjs";
+import { CATALOGO, cicloDe, moduloVisible, moduloConPython } from "./catalogo.mjs";
 
 /**
  * El alumno ve los exámenes de su ciclo y de los módulos de su curso (1.º o 2.º);
@@ -215,6 +215,8 @@ async function entregar(req) {
     ...(porTiempo ? { finalizadoPorTiempo: true } : {}),
     ...(fueraDeTiempo ? { fueraDeTiempo } : {}),
     // Ecuaciones que escribió en la herramienta de circuitos (las ve el profesor al revisar).
+    // Último código de la pestaña de Python (lo ve el profesor al revisar).
+    ...(ex.herramientas?.python !== false && moduloConPython(ex.cicloId, ex.moduloId) && String(b.python || "").trim() ? { python: String(b.python).slice(0, 20_000) } : {}),
     ...(circ?.intento === c.hechos + 1 && Object.keys(circ.log || {}).length ? { circuitos: circ.log } : {}),
   };
   const e = consolidar(

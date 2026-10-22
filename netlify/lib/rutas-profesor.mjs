@@ -19,7 +19,7 @@ import {
 import { proveedorConfigurado, enviarCorreo } from "./correo.mjs";
 import { correoAviso } from "./plantillas.mjs";
 import { nombreCompleto } from "./rutas-cuenta.mjs";
-import { CATALOGO, GRUPOS, cicloDe, moduloVisible, buscarModulo, crearModulo, borrarModulo, cursosModulo, renombrarModulo } from "./catalogo.mjs";
+import { CATALOGO, GRUPOS, cicloDe, moduloVisible, buscarModulo, pythonModulo, crearModulo, borrarModulo, cursosModulo, renombrarModulo } from "./catalogo.mjs";
 import { iaDisponible, motivoSinIA, generarLote, proveedorIA, tamLote, comprobarIA, adaptarParte, sugerirCorreccion, proponerAleatorio } from "./ia.mjs";
 
 const examenes = () => almacen("examenes");
@@ -647,6 +647,16 @@ async function nuevoModulo(req) {
   return json({ ok: true, modulo: await crearModulo(b.cicloId, nombre, b.grupos) });
 }
 
+/** Pestaña de Python en los exámenes de un módulo (de serie, en «Programación 360» de DAM). */
+async function pythonDeModulo(req) {
+  const u = await requiereProfesor(req);
+  const b = await leerCuerpo(req);
+  if (!gestionaCiclo(u, b.cicloId)) fallo(403, "Solo en módulos de tus ciclos");
+  const r = await pythonModulo(b.cicloId, b.moduloId, b.activo === true);
+  if (r === null) fallo(404, "Módulo no encontrado");
+  return json({ ok: true, python: r });
+}
+
 /** Cambiar el nombre de un módulo; los exámenes del módulo se actualizan también. */
 async function renombrar(req) {
   const u = await requiereProfesor(req);
@@ -905,6 +915,7 @@ export default {
   "POST /api/profesor/modulo/borrar": quitarModulo,
   "POST /api/profesor/modulo/cursos": cursosDeModulo,
   "POST /api/profesor/modulo/nombre": renombrar,
+  "POST /api/profesor/modulo/python": pythonDeModulo,
   "GET /api/profesor/grupo": calificacionesGrupo,
   "POST /api/profesor/grupo/externa": guardarExterna,
   "POST /api/profesor/grupo/externa/borrar": borrarExterna,
