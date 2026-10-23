@@ -30,3 +30,9 @@ next-env.d.ts
 # vercel
 .vercel
 demo/
+
+# emulador de firebase
+firestore-debug.log
+ui-debug.log
+firebase-debug.log
+.firebase/
