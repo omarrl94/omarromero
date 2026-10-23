@@ -51,7 +51,7 @@ en la pestaña Grupos y en sus exportaciones.
 2. Recibe un **código de 6 cifras** por correo para confirmar que el correo es suyo.
 3. En su panel entra directamente en **su ciclo**, elige **el módulo** (p. ej. Seguridad y Alta Disponibilidad) y ve **los temas** publicados. Cada examen se **entrega una sola vez**.
 4. Hace el examen en **modo examen**: si cambia de pestaña o sale de la ventana, se cierra y se borran las respuestas. **Cada salida queda registrada** para el profesor.
-5. Al entregar, el servidor corrige, guarda la entrega y **envía el correo** con la nota y la corrección (con copia oculta al profesor si se configura `PROFESOR_EMAIL`).
+5. Al entregar, el servidor corrige, guarda la entrega y **envía el correo** con la nota y la corrección (con copia oculta al profesor que creó el examen; a la administración no se le envía: lo ve en la plataforma).
 6. Puede volver a ver su corrección y descargar el PDF desde el panel en cualquier momento.
 
 **Profesores y administrador**
@@ -91,7 +91,6 @@ en la pestaña Grupos y en sus exportaciones.
    | `SMTP_HOST` / `SMTP_PORT` | para correo | `smtp.office365.com` / `587` |
    | `SMTP_USER` / `SMTP_PASS` | para correo | cuenta que envía, p. ej. `examenes@jrotero.es` |
    | `MAIL_FROM` | para correo | `"Exámenes FP José Ramón Otero <examenes@jrotero.es>"` |
-   | `PROFESOR_EMAIL` | no | recibe copia oculta de cada entrega |
    | `DOMINIOS_PERMITIDOS` | no | `jrotero.es` (por defecto) |
    | `GEMINI_API_KEY` | para la IA | clave de aistudio.google.com/apikey de un proyecto **con facturación activada** (márcala como *secret*) |
    | `GEMINI_NIVEL` | para la IA | `pago`. Google solo permite la **API de pago** en la UE: hasta que no la pongas, la IA queda desactivada |

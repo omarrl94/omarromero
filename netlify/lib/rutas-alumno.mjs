@@ -1,7 +1,7 @@
 /** /api/examenes, /api/examen/*, /api/entrega — lo que hace el alumno. */
 import { almacen } from "./almacen.mjs";
-import { json, fallo, leerCuerpo, texto, env } from "./http.mjs";
-import { requiereUsuario, esStaff, ciclosDe, gestionaExamen } from "./auth.mjs";
+import { json, fallo, leerCuerpo, texto } from "./http.mjs";
+import { requiereUsuario, esStaff, ciclosDe, gestionaExamen, esAdmin } from "./auth.mjs";
 import { todosLosExamenes, obtenerExamen, enunciado, resumen } from "./examenes.mjs";
 import { corregir, limpiarRespuestas } from "./correccion.mjs";
 import { versionExamen, semillaDe, aOriginal, aMostrado, esAleatorio } from "./variantes.mjs";
@@ -235,7 +235,9 @@ async function entregar(req) {
   } else {
     try {
       const c = correoResultado({ ...v.canon, mostrarSoluciones: ex.mostrarSoluciones }, hecho);
-      const profesor = env("PROFESOR_EMAIL");
+      // Copia oculta solo al profesor del examen (su autor); nunca a la administración, que lo ve en la plataforma.
+      const autor = String(ex.autor?.email || "").toLowerCase();
+      const profesor = autor && !esAdmin(autor) && autor !== u.email ? autor : "";
       await enviarCorreo({ to: u.email, bcc: profesor || undefined, replyTo: profesor || undefined, subject: c.asunto, html: c.html, text: c.text });
       correo.enviado = true;
     } catch (err) {
