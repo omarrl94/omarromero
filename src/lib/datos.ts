@@ -1,68 +1,101 @@
-import { getSupabase } from "./supabase";
-import type { Bar, Review, ReviewDraft } from "./types";
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  orderBy,
+  query,
+  setDoc,
+  Timestamp,
+} from "firebase/firestore";
+import { getDb } from "./firebase";
+import type { Bar, Review, ReviewDraft, TipoAseo } from "./types";
 
 /**
- * Acceso a la base de datos. Todo lo que habla con Supabase vive aquí,
+ * Acceso a Cloud Firestore. Todo lo que habla con Firebase vive aquí,
  * para que el resto de la app no sepa de dónde salen los datos.
+ *
+ * Dos colecciones:
+ *   bares/{place_id}
+ *   reviews/{place_id}__{aseo}__{user_id}
+ *
+ * El identificador de la reseña no es casual: al componerlo con esas
+ * tres piezas, Firestore impone por sí solo **un voto por persona, bar y
+ * aseo**, y las reglas de seguridad pueden comprobar que quien escribe es
+ * el dueño sin leer el documento.
  */
 
-interface FilaBar {
-  place_id: string;
-  nombre: string;
-  direccion: string | null;
-  lat: number;
-  lng: number;
+/** Cómo se llama el documento de una reseña. */
+export function idReview(
+  placeId: string,
+  aseo: TipoAseo,
+  userId: string,
+): string {
+  return `${placeId}__${aseo}__${userId}`;
 }
 
-interface FilaReview {
-  id: string;
-  place_id: string;
-  aseo: string;
-  user_id: string | null;
-  autor: string;
-  limpieza: number;
-  espacio: number;
-  intimidad: number;
-  suministros: number;
-  comentario: string | null;
-  fecha: string;
+interface DatosBar {
+  nombre?: string;
+  direccion?: string;
+  lat?: number;
+  lng?: number;
 }
 
-const aBar = (fila: FilaBar): Bar => ({
-  place_id: fila.place_id,
-  nombre: fila.nombre,
-  direccion: fila.direccion ?? "",
-  lat: fila.lat,
-  lng: fila.lng,
+interface DatosReview {
+  place_id?: string;
+  aseo?: string;
+  user_id?: string | null;
+  autor?: string;
+  limpieza?: number;
+  espacio?: number;
+  intimidad?: number;
+  suministros?: number;
+  comentario?: string;
+  fecha?: Timestamp | string;
+}
+
+const aBar = (id: string, d: DatosBar): Bar => ({
+  place_id: id,
+  nombre: d.nombre ?? "Sitio sin nombre",
+  direccion: d.direccion ?? "",
+  lat: d.lat ?? 0,
+  lng: d.lng ?? 0,
 });
 
-const aReview = (fila: FilaReview): Review => ({
-  id: fila.id,
-  place_id: fila.place_id,
-  aseo: (fila.aseo ?? "unico") as Review["aseo"],
-  user_id: fila.user_id,
-  autor: fila.autor,
-  limpieza: fila.limpieza as Review["limpieza"],
-  espacio: fila.espacio as Review["espacio"],
-  intimidad: fila.intimidad as Review["intimidad"],
-  suministros: fila.suministros as Review["suministros"],
-  comentario: fila.comentario ?? "",
-  fecha: fila.fecha,
+/** Firestore guarda marcas de tiempo; la app trabaja con ISO. */
+function aIso(fecha: DatosReview["fecha"]): string {
+  if (!fecha) return new Date().toISOString();
+  if (typeof fecha === "string") return fecha;
+  return fecha.toDate().toISOString();
+}
+
+const aReview = (id: string, d: DatosReview): Review => ({
+  id,
+  place_id: d.place_id ?? "",
+  aseo: (d.aseo ?? "unico") as TipoAseo,
+  user_id: d.user_id ?? null,
+  autor: d.autor ?? "Anónimo con prisa",
+  limpieza: d.limpieza as Review["limpieza"],
+  espacio: d.espacio as Review["espacio"],
+  intimidad: d.intimidad as Review["intimidad"],
+  suministros: d.suministros as Review["suministros"],
+  comentario: d.comentario ?? "",
+  fecha: aIso(d.fecha),
 });
 
-/** Mensajes de Postgres traducidos a algo que se pueda leer en la barra. */
-function traducir(mensaje: string): string {
+/** Los errores de Firebase llegan en inglés y con código. */
+function traducir(e: unknown): string {
+  const mensaje = e instanceof Error ? e.message : String(e);
   const texto = mensaje.toLowerCase();
-  if (texto.includes("row-level security"))
-    return "Necesitas sesión para publicar. Entra y vuelve a intentarlo.";
-  if (texto.includes("does not exist") || texto.includes("schema cache"))
-    return "Faltan las tablas. Ejecuta supabase/schema.sql en el SQL Editor.";
-  if (texto.includes("fetch") || texto.includes("network"))
-    return "No hemos podido hablar con la base de datos. Mira la conexión.";
-  if (texto.includes("violates check constraint"))
-    return "Esa valoración no cuadra: las notas van de 1 a 5.";
-  if (texto.includes("aseo"))
-    return "Falta la columna del aseo. Vuelve a ejecutar supabase/schema.sql.";
+  if (texto.includes("permission-denied") || texto.includes("insufficient permissions"))
+    return "Firestore ha denegado la escritura. Entra con tu cuenta y revisa las reglas de seguridad.";
+  if (texto.includes("unavailable") || texto.includes("network"))
+    return "No hemos podido hablar con Firestore. Mira la conexión.";
+  if (texto.includes("not-found") || texto.includes("does not exist"))
+    return "Falta la base de datos. Créala en la consola de Firebase (Firestore Database).";
+  if (texto.includes("failed-precondition"))
+    return "Firestore pide un índice para esta consulta; el enlace para crearlo sale en la consola del navegador.";
   return mensaje;
 }
 
@@ -71,32 +104,28 @@ export async function cargarTodo(): Promise<{
   bares: Bar[];
   reviews: Review[];
 }> {
-  const supabase = getSupabase();
-  if (!supabase) throw new Error("Sin proyecto de Supabase configurado.");
+  const db = getDb();
+  if (!db) throw new Error("Sin proyecto de Firebase configurado.");
 
-  const [resBares, resReviews] = await Promise.all([
-    supabase.from("bares").select("place_id,nombre,direccion,lat,lng"),
-    supabase
-      .from("reviews")
-      .select(
-        "id,place_id,aseo,user_id,autor,limpieza,espacio,intimidad,suministros,comentario,fecha",
-      )
-      .order("fecha", { ascending: false }),
-  ]);
+  try {
+    const [bares, reviews] = await Promise.all([
+      getDocs(collection(db, "bares")),
+      getDocs(query(collection(db, "reviews"), orderBy("fecha", "desc"))),
+    ]);
 
-  if (resBares.error) throw new Error(traducir(resBares.error.message));
-  if (resReviews.error) throw new Error(traducir(resReviews.error.message));
-
-  return {
-    bares: ((resBares.data ?? []) as FilaBar[]).map(aBar),
-    reviews: ((resReviews.data ?? []) as FilaReview[]).map(aReview),
-  };
+    return {
+      bares: bares.docs.map((d) => aBar(d.id, d.data() as DatosBar)),
+      reviews: reviews.docs.map((d) => aReview(d.id, d.data() as DatosReview)),
+    };
+  } catch (e) {
+    throw new Error(traducir(e));
+  }
 }
 
 /**
  * Publica (o actualiza) la reseña de quien firma, fichando antes el bar
- * si todavía no estaba en la base. Un voto por persona y bar: el
- * segundo pisa al primero.
+ * si todavía no estaba. El identificador compuesto hace que el segundo
+ * parte del mismo aseo pise al primero en vez de duplicarlo.
  */
 export async function publicarReview({
   bar,
@@ -109,45 +138,53 @@ export async function publicarReview({
   autor: string;
   userId: string;
 }): Promise<Review> {
-  const supabase = getSupabase();
-  if (!supabase) throw new Error("Sin proyecto de Supabase configurado.");
+  const db = getDb();
+  if (!db) throw new Error("Sin proyecto de Firebase configurado.");
 
-  const { error: errorBar } = await supabase
-    .from("bares")
-    .upsert({ ...bar, creado_por: userId }, {
-      onConflict: "place_id",
-      ignoreDuplicates: true,
-    });
-  if (errorBar) throw new Error(traducir(errorBar.message));
+  const id = idReview(bar.place_id, draft.aseo, userId);
+  const fecha = new Date();
 
-  const { data, error } = await supabase
-    .from("reviews")
-    .upsert(
-      {
-        place_id: bar.place_id,
-        aseo: draft.aseo,
-        user_id: userId,
-        autor,
-        limpieza: draft.limpieza,
-        espacio: draft.espacio,
-        intimidad: draft.intimidad,
-        suministros: draft.suministros,
-        comentario: draft.comentario.trim(),
-        fecha: new Date().toISOString(),
-      },
-      { onConflict: "place_id,user_id,aseo" },
-    )
-    .select()
-    .single();
+  try {
+    // El bar solo se escribe la primera vez: las reglas prohíben
+    // tocarlo después, para que nadie pueda renombrarlo ni moverlo.
+    const refBar = doc(db, "bares", bar.place_id);
+    if (!(await getDoc(refBar)).exists()) {
+      await setDoc(refBar, {
+        nombre: bar.nombre,
+        direccion: bar.direccion,
+        lat: bar.lat,
+        lng: bar.lng,
+        creado_por: userId,
+      });
+    }
 
-  if (error) throw new Error(traducir(error.message));
-  return aReview(data as FilaReview);
+    const datos = {
+      place_id: bar.place_id,
+      aseo: draft.aseo,
+      user_id: userId,
+      autor,
+      limpieza: draft.limpieza,
+      espacio: draft.espacio,
+      intimidad: draft.intimidad,
+      suministros: draft.suministros,
+      comentario: draft.comentario.trim(),
+      fecha: Timestamp.fromDate(fecha),
+    };
+    await setDoc(doc(db, "reviews", id), datos);
+
+    return aReview(id, datos);
+  } catch (e) {
+    throw new Error(traducir(e));
+  }
 }
 
 /** Retira tu propia reseña. */
 export async function borrarReview(id: string): Promise<void> {
-  const supabase = getSupabase();
-  if (!supabase) throw new Error("Sin proyecto de Supabase configurado.");
-  const { error } = await supabase.from("reviews").delete().eq("id", id);
-  if (error) throw new Error(traducir(error.message));
+  const db = getDb();
+  if (!db) throw new Error("Sin proyecto de Firebase configurado.");
+  try {
+    await deleteDoc(doc(db, "reviews", id));
+  } catch (e) {
+    throw new Error(traducir(e));
+  }
 }

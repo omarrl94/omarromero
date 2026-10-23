@@ -1,0 +1,89 @@
+rules_version = '2';
+
+// ════════════════════════════════════════════════════════════════
+// Rollo Madrid · reglas de Cloud Firestore
+//
+// Las reglas de la casa viven aquí, no en el navegador:
+//   · Leer el mapa es libre (con o sin cuenta).
+//   · Escribir exige sesión.
+//   · Cada quien manda sobre sus propias reseñas y sobre nada más.
+//   · Un bar, una vez fichado, no se renombra ni se borra desde el
+//     cliente.
+//
+// El identificador de una reseña es {place_id}__{aseo}__{uid}: así
+// Firestore impone por sí solo un voto por persona, bar y aseo, y la
+// regla puede comprobar la autoría sin leer nada.
+// ════════════════════════════════════════════════════════════════
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function haySesion() {
+      return request.auth != null;
+    }
+
+    function notaValida(n) {
+      return n is int && n >= 1 && n <= 5;
+    }
+
+    function barValido(d) {
+      return d.keys().hasOnly(['nombre', 'direccion', 'lat', 'lng', 'creado_por'])
+        && d.nombre is string && d.nombre.size() > 0 && d.nombre.size() <= 120
+        && d.direccion is string && d.direccion.size() <= 200
+        && d.lat is number && d.lat >= -90 && d.lat <= 90
+        && d.lng is number && d.lng >= -180 && d.lng <= 180;
+    }
+
+    function reviewValida(d) {
+      return d.keys().hasOnly([
+          'place_id', 'aseo', 'user_id', 'autor',
+          'limpieza', 'espacio', 'intimidad', 'suministros',
+          'comentario', 'fecha'
+        ])
+        && d.place_id is string && d.place_id.size() > 0
+        && d.aseo in ['femenino', 'masculino', 'unico']
+        && d.autor is string && d.autor.size() > 0 && d.autor.size() <= 40
+        && notaValida(d.limpieza) && notaValida(d.espacio)
+        && notaValida(d.intimidad) && notaValida(d.suministros)
+        && d.comentario is string && d.comentario.size() <= 400
+        && d.fecha is timestamp;
+    }
+
+    // ── Bares ──────────────────────────────────────────────────
+    match /bares/{placeId} {
+      allow read: if true;
+
+      // Fichar un bar exige sesión y deja apuntado quién lo trajo.
+      allow create: if haySesion()
+        && barValido(request.resource.data)
+        && request.resource.data.creado_por == request.auth.uid;
+
+      // Ni renombrar ni mover ni borrar: lo que entra desde Google
+      // Places se queda como está.
+      allow update, delete: if false;
+    }
+
+    // ── Reseñas ────────────────────────────────────────────────
+    match /reviews/{reviewId} {
+      allow read: if true;
+
+      // Publicar o corregir: con sesión, a tu nombre, y con el
+      // identificador compuesto que te corresponde.
+      allow create, update: if haySesion()
+        && reviewValida(request.resource.data)
+        && request.resource.data.user_id == request.auth.uid
+        && reviewId == request.resource.data.place_id
+             + '__' + request.resource.data.aseo
+             + '__' + request.auth.uid;
+
+      // Retirar: solo lo tuyo.
+      allow delete: if haySesion()
+        && resource.data.user_id == request.auth.uid;
+    }
+
+    // Todo lo demás, cerrado.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

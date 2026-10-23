@@ -266,6 +266,7 @@ export function RolloApp() {
           <div className="mt-6 grid grid-cols-[repeat(auto-fit,minmax(108px,1fr))] gap-2.5">
             <Cifra
               valor={String(ordenados.length)}
+              cargando={!listo}
               etiqueta={
                 filtroAseo === "todos"
                   ? "Baños fichados"
@@ -275,10 +276,16 @@ export function RolloApp() {
             />
             <Cifra
               valor={formatearNota(notaMedia)}
+              cargando={!listo}
               etiqueta="Nota media"
               color={notaMedia !== null && notaMedia >= 3 ? "text-acido" : "text-ambar"}
             />
-            <Cifra valor={String(oros)} etiqueta="Rollos de Oro" color="text-ambar" />
+            <Cifra
+              valor={String(oros)}
+              cargando={!listo}
+              etiqueta="Rollos de Oro"
+              color="text-ambar"
+            />
           </div>
         </section>
 
@@ -360,6 +367,7 @@ export function RolloApp() {
                 bares={cercanos}
                 seleccion={seleccion}
                 vacio="No hay nada fichado a tu alrededor todavía."
+                cargando={!listo}
                 tono="cerca"
                 distancias={distancias}
                 onElegir={(bar) => abrirBar(bar)}
@@ -372,6 +380,7 @@ export function RolloApp() {
               medallas={["🥇", "🥈", "🥉"]}
               seleccion={seleccion}
               vacio="Todavía no hay nada que premiar."
+              cargando={!listo}
               distancias={distancias}
               onElegir={(bar) => abrirBar(bar)}
             />
@@ -382,6 +391,7 @@ export function RolloApp() {
               medallas={["☠️", "☠️", "☠️"]}
               seleccion={seleccion}
               vacio="Milagro: ningún desastre fichado."
+              cargando={!listo}
               tono="negra"
               distancias={distancias}
               onElegir={(bar) => abrirBar(bar)}
@@ -401,7 +411,7 @@ export function RolloApp() {
             siguiente.
           </p>
           <p className="mt-1.5">
-            {modoDatos === "supabase"
+            {modoDatos === "firebase"
               ? "Datos compartidos: lo que publicas lo ve todo el mundo."
               : "Modo local: sin base de datos configurada, lo que publicas se queda en este navegador."}
           </p>
@@ -469,16 +479,23 @@ function Cifra({
   valor,
   etiqueta,
   color,
+  cargando = false,
 }: {
   valor: string;
   etiqueta: string;
   color: string;
+  /** Hasta que hay datos se enseña un hueco, no un cero falso. */
+  cargando?: boolean;
 }) {
   return (
     <div className="border-2 border-borde bg-asfalto-800 px-3.5 py-3">
-      <b className={`grito block text-[clamp(30px,5vw,46px)] leading-none tabular-nums ${color}`}>
-        {valor}
-      </b>
+      {cargando ? (
+        <span className="block h-[clamp(30px,5vw,46px)] w-16 animate-pulse bg-asfalto-600" />
+      ) : (
+        <b className={`grito block text-[clamp(30px,5vw,46px)] leading-none tabular-nums ${color}`}>
+          {valor}
+        </b>
+      )}
       <span className="mt-1 block font-mono text-[10px] uppercase tracking-[0.16em] text-papel-apagado">
         {etiqueta}
       </span>

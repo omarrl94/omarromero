@@ -8,7 +8,7 @@ import {
   useMemo,
   useState,
 } from "react";
-import { HAY_SUPABASE } from "./config";
+import { HAY_FIREBASE } from "./config";
 import { borrarReview, cargarTodo, publicarReview as publicarRemota } from "./datos";
 import { BARES_MOCK, REVIEWS_MOCK } from "./mock-data";
 import { componerBar, type FiltroAseo } from "./scores";
@@ -17,14 +17,14 @@ import type { Bar, BarConNota, Review, ReviewDraft, TipoAseo } from "./types";
 /**
  * Estado de bares y reseñas, con dos orígenes posibles:
  *
- *   · supabase → base de datos real, compartida entre todos.
+ *   · firebase → Cloud Firestore, compartido entre todos.
  *   · local    → mocks + localStorage, para poder trabajar sin montar
  *                nada. Lo que escribas se queda en tu navegador.
  */
 
 const CLAVE_ALMACEN = "rollo-madrid:v1";
 
-export type ModoDatos = "supabase" | "local";
+export type ModoDatos = "firebase" | "local";
 
 interface Resultado {
   ok: boolean;
@@ -105,7 +105,7 @@ function crearId(): string {
 }
 
 export function RolloProvider({ children }: { children: React.ReactNode }) {
-  const modoDatos: ModoDatos = HAY_SUPABASE ? "supabase" : "local";
+  const modoDatos: ModoDatos = HAY_FIREBASE ? "firebase" : "local";
   const [almacen, setAlmacen] = useState<Almacen>({ bares: [], reviews: [] });
   const [listo, setListo] = useState(false);
   const [errorDatos, setErrorDatos] = useState<string | null>(null);
@@ -162,7 +162,7 @@ export function RolloProvider({ children }: { children: React.ReactNode }) {
     ): Promise<Resultado> => {
       const autor = firma.autor.trim() || "Anónimo con prisa";
 
-      if (modoDatos === "supabase") {
+      if (modoDatos === "firebase") {
         if (!firma.userId) {
           return { ok: false, mensaje: "Entra con tu cuenta para publicar." };
         }
@@ -230,7 +230,7 @@ export function RolloProvider({ children }: { children: React.ReactNode }) {
 
   const retirarReview = useCallback(
     async (review: Review): Promise<Resultado> => {
-      if (modoDatos === "supabase") {
+      if (modoDatos === "firebase") {
         try {
           await borrarReview(review.id);
         } catch (e) {

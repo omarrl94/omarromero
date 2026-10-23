@@ -27,8 +27,8 @@ problemas digestivos, con reglas, o simplemente con criterio.
 
 ## 2. Estado actual
 
-MVP funcional y desplegable. Unas 5.000 líneas entre `src/`, `supabase/` y
-`scripts/`, en 10 commits sobre la rama de trabajo.
+MVP funcional y desplegable. Unas 5.000 líneas entre `src/`, `firebase/` y
+`scripts/`, sobre la rama de trabajo.
 
 | Pieza | Estado |
 |---|---|
@@ -36,17 +36,17 @@ MVP funcional y desplegable. Unas 5.000 líneas entre `src/`, `supabase/` y
 | Buscador con Google Places Autocomplete | Hecho (API nueva, con respaldo a la clásica) |
 | Valoración en 4 criterios + veredicto | Hecho |
 | Distinción femenino / masculino / único | Hecho |
-| Cuentas (registro e inicio de sesión) | Hecho (Supabase Auth, con modo local) |
-| Base de datos compartida con RLS | Hecho (Supabase/Postgres, con modo local) |
+| Cuentas (registro e inicio de sesión) | Hecho (Firebase Auth, con modo local) |
+| Base de datos compartida con reglas | Hecho (Cloud Firestore, con modo local) |
 | Geolocalización y orden por cercanía | Hecho |
 | Mapa simulado cuando falta la clave | Hecho |
 | Vídeo de presentación y reel, generados por script | Hecho |
 | Moderación, fotos, realtime, PWA | Pendiente |
 
 Lo único que no se ha podido verificar de punta a punta es el mapa real de Google
-y el proyecto real de Supabase, por no disponer de credenciales: ambos caminos se
-validaron por separado (el SQL contra un Postgres 16 real, el cliente contra un
-servidor con forma de PostgREST interceptado).
+y un proyecto real de Firebase, por no disponer de credenciales. Las reglas de
+Firestore sí están probadas contra el emulador oficial (17 casos), y el mapa
+simulado cubre el hueco mientras tanto.
 
 ---
 
@@ -58,13 +58,13 @@ servidor con forma de PostgREST interceptado).
   (`noUncheckedIndexedAccess` incluido).
 - **Tailwind CSS 3** con paleta propia; sin librería de componentes.
 - **@vis.gl/react-google-maps** para el mapa y los marcadores avanzados.
-- **@supabase/supabase-js** para cuentas y datos.
+- **firebase** (Authentication + Cloud Firestore) para cuentas y datos.
 - **lucide-react** para iconografía de apoyo.
 - Fuentes servidas desde el propio dominio con `next/font` (Anton, Manrope,
   Space Mono).
 
 Una sola ruta (`/`): la app es una pantalla. No hay backend propio; el cliente
-habla directamente con Supabase y con Google.
+habla directamente con Firebase y con Google.
 
 ### Mapa del código
 
@@ -97,15 +97,16 @@ src/
    ├─ scores.ts               Medias, veredictos, grados, aseos, fechas
    ├─ distancia.ts            Haversine, formato y minutos andando
    ├─ store.tsx               Estado global, dos orígenes de datos
-   ├─ datos.ts                Lectura y escritura contra Supabase
-   ├─ auth.tsx                Cuentas: Supabase o modo local
-   ├─ supabase.ts             Cliente del navegador
+   ├─ datos.ts                Lectura y escritura contra Firestore
+   ├─ auth.tsx                Cuentas: Firebase o modo local
+   ├─ firebase.ts             App, Auth y Firestore
    ├─ mock-data.ts            Cinco clásicos de Madrid con place_id inventados
    └─ config.ts               Centro de Madrid, zooms y variables de entorno
 
-supabase/schema.sql           Tablas, políticas RLS, migración y semilla
+firebase/firestore.rules      Reglas de seguridad, probadas en el emulador
+firebase/semilla.json         Bares de ejemplo para no nacer vacío
 scripts/grabar-demo.mjs       Graba el vídeo de presentación y el reel
-scripts/deploy-netlify.mjs    Despliegue por CLI con un solo comando
+scripts/sembrar-firestore.mjs Semilla opcional de Firestore
 ```
 
 ### Las dos degradaciones, que son parte del diseño
@@ -116,7 +117,7 @@ disimula que le falta:
 1. **Sin clave de Google** → el hueco del mapa dibuja un esquema del centro con
    las mismas chapas, misma interacción, y una tarjeta que dice "Mapa simulado" y
    qué variable falta. El buscador se reduce a los bares ya fichados.
-2. **Sin proyecto de Supabase** → las cuentas pasan a "modo local" (basta un
+2. **Sin proyecto de Firebase** → las cuentas pasan a "modo local" (basta un
    alias, guardado en ese navegador) y los datos vienen de los mocks +
    `localStorage`. El pie de página dice en cuál de los dos modos estás.
 
@@ -140,7 +141,7 @@ Review { id, place_id (FK), aseo, user_id (FK), autor,
 - Un bar solo se persiste cuando alguien publica su primera valoración; hasta
   entonces vive en memoria como "bar a la vista".
 
-### Reglas en la base de datos, no en el navegador (`supabase/schema.sql`)
+### Reglas en la base de datos, no en el navegador (`firebase/firestore.rules`)
 
 | Acción | Quién |
 |---|---|
@@ -150,12 +151,12 @@ Review { id, place_id (FK), aseo, user_id (FK), autor,
 | Corregir o retirar | Solo lo tuyo |
 | Editar o borrar un bar | Nadie desde el cliente (no hay política) |
 
-Más un índice único sobre `(place_id, user_id, aseo)`: **un voto por persona, bar
-y aseo**. El segundo parte actualiza el primero (upsert), y en la interfaz eso es
-"Actualizar mi parte".
+Más el nombre del documento de la reseña, `{place_id}__{aseo}__{uid}`: Firestore
+impone así **un voto por persona, bar y aseo** sin índices ni transacciones, y la
+regla comprueba la autoría sin leer nada. En la interfaz eso es "Actualizar mi
+parte".
 
-El script es idempotente y migra bases de la versión anterior: añade la columna
-`aseo` con `'unico'` por defecto y cambia el índice viejo por el nuevo.
+Las reglas se prueban con el emulador oficial: `npm run probar:reglas`, 17 casos.
 
 ---
 
@@ -292,15 +293,18 @@ npm run dev                    # http://localhost:3000
 |---|---|---|
 | `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | Mapa y buscador | Mapa simulado |
 | `NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID` | Marcadores avanzados | `DEMO_MAP_ID` (marca de agua) |
-| `NEXT_PUBLIC_SUPABASE_URL` | Cuentas y datos | Modo local |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Cuentas y datos | Modo local |
+| `NEXT_PUBLIC_FIREBASE_API_KEY` | Cuentas y datos | Modo local |
+| `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | Cuentas y datos | Modo local |
+| `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | Cuentas y datos | Modo local |
+| `NEXT_PUBLIC_FIREBASE_APP_ID` | Cuentas y datos | Modo local |
 
 En Google Cloud: habilitar **Maps JavaScript API** y **Places API (New)**, crear
-clave restringida por dominio y un **Map ID** vectorial. En Supabase: pegar
-`supabase/schema.sql` en el SQL Editor y dejar activado el proveedor *Email*.
+clave restringida por dominio y un **Map ID** vectorial. En Firebase: activar el
+acceso por correo, crear la base de datos de Firestore y copiar la configuración
+web. Todo en el mismo proyecto.
 
-Despliegue en Netlify con `npm run deploy` (pide credenciales, configura las
-variables y publica) o a mano con `netlify-cli`.
+La app se exporta estática (`output: "export"`) y se publica en Firebase Hosting
+con `npm run desplegar`, que además sube las reglas. Plan gratuito, sin funciones.
 
 ---
 
@@ -310,7 +314,7 @@ variables y publica) o a mano con `netlify-cli`.
   Es lo primero que hará falta el día que entre gente de verdad.
 - **Fotos del baño**: lo más pedido en este tipo de apps y lo más delicado
   (consentimiento, intimidad, moderación).
-- **Realtime**: el mapa no se actualiza solo cuando alguien publica.
+- **Escucha en vivo**: el mapa no se actualiza solo cuando alguien publica (`onSnapshot`).
 - **Accesibilidad del producto** (no del código): falta marcar si el baño es
   accesible en silla, si tiene cambiador, y si hay que pedir llave o consumir.
 - **Horarios**: saber si el bar está abierto ahora mismo (Places lo da).
@@ -319,4 +323,4 @@ variables y publica) o a mano con `netlify-cli`.
 - **Sin PWA**: debería instalarse y funcionar con mala cobertura, que es
   justamente cuando se usa.
 - **El bundle**: 185 kB de first load, de los cuales buena parte es
-  `supabase-js` entero para usar solo auth y dos tablas.
+  el SDK de Firebase entero para usar solo auth y dos colecciones.

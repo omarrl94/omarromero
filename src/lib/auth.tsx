@@ -1,6 +1,13 @@
 "use client";
 
-import type { AuthError, Session } from "@supabase/supabase-js";
+import {
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signOut,
+  updateProfile,
+  type User,
+} from "firebase/auth";
 import {
   createContext,
   useCallback,
@@ -9,25 +16,26 @@ import {
   useMemo,
   useState,
 } from "react";
-import { HAY_SUPABASE } from "./config";
-import { getSupabase } from "./supabase";
+import { HAY_FIREBASE } from "./config";
+import { getAuthSeguro } from "./firebase";
 
 /**
  * Cuentas de Rollo Madrid.
  *
- * Con Supabase configurado son cuentas de verdad (correo + contraseña).
- * Sin él, la app entra en modo local: un alias guardado en este
- * navegador, suficiente para probar el flujo pero sin servidor detrás.
+ * Con Firebase configurado son cuentas de verdad (correo + contraseña,
+ * Firebase Authentication). Sin él, la app entra en modo local: un alias
+ * guardado en este navegador, suficiente para probar el flujo pero sin
+ * servidor detrás.
  */
 
 export interface Usuario {
   id: string;
   alias: string;
   email: string | null;
-  origen: "supabase" | "local";
+  origen: "firebase" | "local";
 }
 
-export type ModoAcceso = "supabase" | "local";
+export type ModoAcceso = "firebase" | "local";
 
 interface Resultado {
   ok: boolean;
@@ -54,43 +62,54 @@ interface AuthContexto {
 const CLAVE_LOCAL = "rollo-madrid:cuenta-local";
 const Contexto = createContext<AuthContexto | null>(null);
 
-/** Traduce los errores de Supabase, que llegan en inglés. */
-function traducir(error: AuthError | Error): string {
-  const texto = error.message.toLowerCase();
-  if (texto.includes("invalid login credentials"))
-    return "Ese correo y esa contraseña no cuadran.";
-  if (texto.includes("already registered") || texto.includes("already exists"))
-    return "Ese correo ya tiene cuenta. Prueba a entrar.";
-  if (texto.includes("password") && texto.includes("6"))
-    return "La contraseña necesita al menos 6 caracteres.";
-  if (texto.includes("email not confirmed"))
-    return "Confirma el correo que te hemos enviado antes de entrar.";
-  if (texto.includes("invalid email") || texto.includes("valid email"))
-    return "Ese correo no tiene buena pinta.";
-  if (texto.includes("rate limit") || texto.includes("too many"))
-    return "Demasiados intentos seguidos. Espera un minuto.";
-  if (texto.includes("fetch") || texto.includes("network"))
-    return "No hemos podido hablar con el servidor de cuentas. Mira la conexión y las variables de Supabase.";
-  return error.message;
+/** Traduce los códigos de Firebase, que llegan en inglés. */
+function traducir(e: unknown): string {
+  const codigo =
+    typeof e === "object" && e !== null && "code" in e
+      ? String((e as { code: unknown }).code)
+      : "";
+  const mensaje = e instanceof Error ? e.message : String(e);
+
+  switch (codigo) {
+    case "auth/invalid-credential":
+    case "auth/wrong-password":
+    case "auth/user-not-found":
+      return "Ese correo y esa contraseña no cuadran.";
+    case "auth/email-already-in-use":
+      return "Ese correo ya tiene cuenta. Prueba a entrar.";
+    case "auth/weak-password":
+      return "La contraseña necesita al menos 6 caracteres.";
+    case "auth/invalid-email":
+      return "Ese correo no tiene buena pinta.";
+    case "auth/too-many-requests":
+      return "Demasiados intentos seguidos. Espera un minuto.";
+    case "auth/network-request-failed":
+      return "No hemos podido hablar con Firebase. Mira la conexión.";
+    case "auth/operation-not-allowed":
+      return "Falta activar el acceso por correo en Firebase → Authentication → Sign-in method.";
+    case "auth/configuration-not-found":
+      return "Firebase Authentication no está configurado en este proyecto.";
+    default:
+      return mensaje;
+  }
 }
 
 /** Alias por defecto: lo que hay antes de la arroba. */
-function aliasDeSesion(session: Session): string {
-  const metadato = session.user.user_metadata?.["alias"];
-  if (typeof metadato === "string" && metadato.trim()) return metadato.trim();
-  return session.user.email?.split("@")[0] ?? "Anónimo con prisa";
+function aliasDeUsuario(user: User): string {
+  if (user.displayName?.trim()) return user.displayName.trim();
+  return user.email?.split("@")[0] ?? "Anónimo con prisa";
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [usuario, setUsuario] = useState<Usuario | null>(null);
   const [cargando, setCargando] = useState(true);
-  const modo: ModoAcceso = HAY_SUPABASE ? "supabase" : "local";
+  const modo: ModoAcceso = HAY_FIREBASE ? "firebase" : "local";
 
   // Recupera la sesión guardada y se queda escuchando los cambios.
   useEffect(() => {
-    const supabase = getSupabase();
+    const auth = getAuthSeguro();
 
-    if (!supabase) {
+    if (!auth) {
       try {
         const crudo = window.localStorage.getItem(CLAVE_LOCAL);
         if (crudo) setUsuario(JSON.parse(crudo) as Usuario);
@@ -101,71 +120,59 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    void supabase.auth.getSession().then(({ data }) => {
-      if (data.session) {
-        setUsuario({
-          id: data.session.user.id,
-          alias: aliasDeSesion(data.session),
-          email: data.session.user.email ?? null,
-          origen: "supabase",
-        });
-      }
+    return onAuthStateChanged(auth, (user) => {
+      setUsuario(
+        user
+          ? {
+              id: user.uid,
+              alias: aliasDeUsuario(user),
+              email: user.email,
+              origen: "firebase",
+            }
+          : null,
+      );
       setCargando(false);
     });
-
-    const { data: suscripcion } = supabase.auth.onAuthStateChange(
-      (_evento, session) => {
-        setUsuario(
-          session
-            ? {
-                id: session.user.id,
-                alias: aliasDeSesion(session),
-                email: session.user.email ?? null,
-                origen: "supabase",
-              }
-            : null,
-        );
-      },
-    );
-
-    return () => suscripcion.subscription.unsubscribe();
   }, []);
 
   const registrar = useCallback(
     async (email: string, password: string, alias: string): Promise<Resultado> => {
-      const supabase = getSupabase();
-      if (!supabase) return { ok: false, mensaje: "No hay servidor de cuentas." };
+      const auth = getAuthSeguro();
+      if (!auth) return { ok: false, mensaje: "No hay servidor de cuentas." };
 
-      const { data, error } = await supabase.auth.signUp({
-        email: email.trim(),
-        password,
-        options: { data: { alias: alias.trim() } },
-      });
-      if (error) return { ok: false, mensaje: traducir(error) };
-
-      // Con la confirmación por correo activada no hay sesión todavía.
-      if (!data.session) {
-        return {
-          ok: true,
-          mensaje: "Cuenta creada. Confirma el correo que te hemos enviado.",
-        };
+      try {
+        const { user } = await createUserWithEmailAndPassword(
+          auth,
+          email.trim(),
+          password,
+        );
+        // El alias es lo único que se ve en los partes.
+        await updateProfile(user, { displayName: alias.trim() });
+        setUsuario({
+          id: user.uid,
+          alias: alias.trim() || aliasDeUsuario(user),
+          email: user.email,
+          origen: "firebase",
+        });
+        return { ok: true, mensaje: "Ya estás dentro. A por esos baños." };
+      } catch (e) {
+        return { ok: false, mensaje: traducir(e) };
       }
-      return { ok: true, mensaje: "Ya estás dentro. A por esos baños." };
     },
     [],
   );
 
   const entrar = useCallback(
     async (email: string, password: string): Promise<Resultado> => {
-      const supabase = getSupabase();
-      if (!supabase) return { ok: false, mensaje: "No hay servidor de cuentas." };
+      const auth = getAuthSeguro();
+      if (!auth) return { ok: false, mensaje: "No hay servidor de cuentas." };
 
-      const { error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
-      });
-      if (error) return { ok: false, mensaje: traducir(error) };
-      return { ok: true, mensaje: "Dentro. Cuenta lo que veas." };
+      try {
+        await signInWithEmailAndPassword(auth, email.trim(), password);
+        return { ok: true, mensaje: "Dentro. Cuenta lo que veas." };
+      } catch (e) {
+        return { ok: false, mensaje: traducir(e) };
+      }
     },
     [],
   );
@@ -191,8 +198,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const salir = useCallback(async () => {
-    const supabase = getSupabase();
-    if (supabase) await supabase.auth.signOut();
+    const auth = getAuthSeguro();
+    if (auth) await signOut(auth);
     setUsuario(null);
     try {
       window.localStorage.removeItem(CLAVE_LOCAL);

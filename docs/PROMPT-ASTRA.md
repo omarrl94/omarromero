@@ -24,7 +24,8 @@ reglas, movilidad reducida).
 
 Next.js 14 (App Router) · React 18 · TypeScript estricto (con
 `noUncheckedIndexedAccess`) · Tailwind CSS · `@vis.gl/react-google-maps` ·
-Supabase (Auth + Postgres) · `next/font` para las tipografías. Sin librería de
+Firebase (Authentication + Cloud Firestore + Hosting) · `next/font` para las
+tipografías. Sin librería de
 componentes: la identidad es propia. Todo el texto de la interfaz, en español de
 España.
 
@@ -46,16 +47,17 @@ Review { id, place_id (FK), aseo, user_id (FK), autor,
 - Las notas **nunca se guardan calculadas**; se derivan siempre.
 - Un bar solo se persiste cuando alguien publica su primera valoración.
 
-### Reglas en la base de datos, no en el navegador (RLS)
+### Reglas en la base de datos, no en el navegador (reglas de Firestore)
 
 - Leer bares y reseñas: cualquiera, con o sin cuenta.
 - Fichar un bar y publicar: solo con sesión, y **solo a tu nombre**
   (`user_id = auth.uid()`).
 - Corregir o retirar: solo lo tuyo. Editar o borrar un bar desde el cliente:
   nadie.
-- Índice único `(place_id, user_id, aseo)`: **un voto por persona, bar y aseo**;
-  el segundo parte actualiza el primero vía upsert.
-- El script SQL debe ser **idempotente** y traer su propia migración.
+- **Un voto por persona, bar y aseo**: nombra el documento de la reseña
+  `{place_id}__{aseo}__{uid}` y la unicidad la impone Firestore sola; de paso la
+  regla comprueba la autoría sin leer nada.
+- Las reglas tienen que venir con **pruebas en el emulador**, no escritas a ojo.
 
 ## 4. Reglas de producto
 
@@ -146,7 +148,7 @@ parte del producto; los insultos y el desprecio no.
 8. Modo urgencia.
 9. **Dos degradaciones honestas**: sin clave de Google, un mapa esquemático con
    los mismos marcadores y una etiqueta que diga que es una simulación; sin
-   Supabase, cuentas y datos locales, avisando de ello. La app nunca se queda
+   Firebase, cuentas y datos locales, avisando de ello. La app nunca se queda
    inservible por falta de configuración **ni finge tener lo que no tiene**.
 
 ## 7. Dónde quiero que lo superes
@@ -166,12 +168,12 @@ Prioridad alta:
 
 Prioridad media:
 
-5. **Realtime** de Supabase: que el mapa se actualice solo cuando alguien publica.
+5. **Escucha en vivo** (`onSnapshot`): que el mapa se actualice solo cuando alguien publica.
 6. **PWA con offline**: se usa con mala cobertura y con prisa; debe instalarse y
    responder.
 7. **Horario desde Places**: "abierto ahora" como filtro.
-8. **Rendimiento**: el bundle actual ronda los 185 kB de carga inicial, con
-   `supabase-js` entero para usar auth y dos tablas. Recórtalo.
+8. **Rendimiento**: el bundle ronda los 185 kB de carga inicial, con el SDK de
+   Firebase entero para usar auth y dos colecciones. Recórtalo.
 9. **Fotos del baño**, si encuentras una forma responsable de hacerlo
    (consentimiento, sin personas, moderación previa).
 
@@ -186,7 +188,7 @@ Libre:
 - **Verifica lo que entregas.** Compila, pasa el typecheck y prueba los flujos en
   un navegador de verdad antes de decir que está hecho.
 - **Di lo que no has podido probar.** Si te faltan credenciales de Google o de
-  Supabase, dilo claramente en vez de dar por bueno el camino sin comprobar.
+  Firebase, dilo claramente en vez de dar por bueno el camino sin comprobar.
 - **Comentarios y commits en español**, explicando el porqué y no el qué.
 - **Mobile-first de verdad**: nada de desbordes laterales, objetivos táctiles
   grandes, la ficha al alcance del pulgar.
@@ -198,7 +200,7 @@ Libre:
 ## 9. Qué entregar
 
 1. El repositorio funcionando con `npm install && npm run dev`.
-2. `supabase/schema.sql` idempotente, con RLS y semilla de ejemplo.
+2. Reglas de Firestore con sus pruebas en el emulador, y una semilla opcional.
 3. `.env.example` documentado y un README que explique las dos degradaciones.
 4. El logo en SVG con sus variantes, favicon e imagen para compartir.
 5. Una nota corta con lo que has mejorado respecto a la especificación y por qué,

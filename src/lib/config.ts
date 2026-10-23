@@ -23,13 +23,25 @@ export const GOOGLE_MAPS_MAP_ID =
 export const HAY_API_KEY = GOOGLE_MAPS_API_KEY.length > 0;
 
 /**
- * Supabase: solo se usa para las cuentas (registro, inicio de sesión).
- * Si falta cualquiera de las dos variables, la app arranca en modo
- * local: las cuentas se quedan en este navegador y sirven para probar.
+ * Firebase: cuentas (Authentication) y datos (Cloud Firestore).
+ *
+ * Los cuatro valores salen de la consola de Firebase → Configuración del
+ * proyecto → Tus apps → Web. Son públicos por diseño: viajan al
+ * navegador. Lo que protege los datos son las reglas de seguridad de
+ * Firestore, no el secreto de estas claves.
+ *
+ * Si falta alguno, la app arranca en modo local: cuentas con alias y
+ * datos en este navegador.
  */
-export const SUPABASE_URL = process.env["NEXT_PUBLIC_SUPABASE_URL"] ?? "";
-export const SUPABASE_ANON_KEY =
-  process.env["NEXT_PUBLIC_SUPABASE_ANON_KEY"] ?? "";
+export const FIREBASE_CONFIG = {
+  apiKey: process.env["NEXT_PUBLIC_FIREBASE_API_KEY"] ?? "",
+  authDomain: process.env["NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN"] ?? "",
+  projectId: process.env["NEXT_PUBLIC_FIREBASE_PROJECT_ID"] ?? "",
+  appId: process.env["NEXT_PUBLIC_FIREBASE_APP_ID"] ?? "",
+} as const;
 
-export const HAY_SUPABASE =
-  SUPABASE_URL.length > 0 && SUPABASE_ANON_KEY.length > 0;
+export const HAY_FIREBASE =
+  FIREBASE_CONFIG.apiKey.length > 0 &&
+  FIREBASE_CONFIG.authDomain.length > 0 &&
+  FIREBASE_CONFIG.projectId.length > 0 &&
+  FIREBASE_CONFIG.appId.length > 0;

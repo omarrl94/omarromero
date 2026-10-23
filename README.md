@@ -27,9 +27,11 @@ Sin clave la app **no se rompe**: en el hueco del mapa sale un esquema del centr
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=AIza...tu-clave
 NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID=DEMO_MAP_ID
 
-# Opcionales: sin ellas las cuentas funcionan en modo local
-NEXT_PUBLIC_SUPABASE_URL=https://TU-PROYECTO.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOi...tu-anon-key
+# Opcionales: sin ellas, cuentas y datos funcionan en modo local
+NEXT_PUBLIC_FIREBASE_API_KEY=AIza...clave-web
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=tu-proyecto.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=tu-proyecto
+NEXT_PUBLIC_FIREBASE_APP_ID=1:123456789:web:abc123
 ```
 
 El mapa se pide en modo oscuro con `colorScheme={ColorScheme.DARK}`, así que no hace falta estilarlo a mano en Cloud Console para que pegue con la app.
@@ -88,26 +90,20 @@ Con ubicación activa, el modo urgencia deja de abrir el mejor valorado y abre *
 
 Leer el mapa no pide nada. **Para firmar un parte hace falta cuenta**: así cada nota lleva autor y, el día que haga falta, se puede moderar.
 
-- **Con Supabase configurado** (`NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY`): registro e inicio de sesión de verdad con correo y contraseña (`supabase.auth`), sesión persistente y alias guardado en `user_metadata`. Si tienes activada la confirmación por correo, el registro avisa de que hay que confirmarlo antes de entrar.
-- **Sin Supabase**: la app entra en **modo local**. Basta un alias, que se guarda en este navegador. Sirve para probar el flujo entero sin montar nada; no es seguridad de verdad y la propia pantalla lo dice.
+- **Con Firebase configurado**: registro e inicio de sesión de verdad con correo y contraseña (Firebase Authentication), sesión persistente y alias en el `displayName`.
+- **Sin Firebase**: la app entra en **modo local**. Basta un alias, que se guarda en este navegador. Sirve para probar el flujo entero sin montar nada; no es seguridad de verdad y la propia pantalla lo dice.
 
-La clave que se usa es la **anon public**, que está pensada para ir en el navegador. La `service_role` es secreta y no debe aparecer en el cliente ni en el repositorio.
+Las cuatro claves de Firebase son **públicas por diseño**: viajan al navegador. Lo que protege los datos son las reglas de Firestore. La clave de **cuenta de servicio** sí es secreta, solo hace falta para sembrar, y no debe acabar nunca en el repositorio.
 
-Montarlo, si quieres cuentas reales:
-
-1. Crea un proyecto en [supabase.com](https://supabase.com) (plan Free vale).
-2. **Project Settings → API**: copia *Project URL* y *anon public*.
-3. **Authentication → Providers**: deja activado *Email*.
-4. **SQL Editor → New query**: pega entero `supabase/schema.sql` y dale a *Run*. Crea las tablas, las políticas y cinco bares de ejemplo. Si ya lo habías ejecutado antes, vuelve a pasarlo: añade la columna del aseo y rehace el índice sin tocar lo que hubiera.
-5. Pega las dos variables en `.env.local` y reinicia el servidor.
+Montarlo, si quieres cuentas reales: ver [DESPLIEGUE-FIREBASE.md](DESPLIEGUE-FIREBASE.md).
 
 ### Dónde viven los datos
 
 Dos orígenes, elegidos por las variables de entorno:
 
-| | Con Supabase | Sin Supabase (modo local) |
+| | Con Firebase | Sin Firebase (modo local) |
 |---|---|---|
-| Bares y reseñas | tablas `bares` y `reviews` | mocks + `localStorage` |
+| Bares y reseñas | colecciones `bares` y `reviews` de Firestore | mocks + `localStorage` |
 | Alcance | compartido entre todo el mundo | solo ese navegador |
 | Quién escribe | hace falta sesión (lo exige RLS) | cualquiera con alias |
 
@@ -119,14 +115,15 @@ Review { id, place_id (FK), aseo, user_id (FK), autor,
 
 Las notas no se guardan calculadas: se derivan en `src/lib/scores.ts`.
 
-**Las reglas están en la base de datos, no en el navegador** (`supabase/schema.sql`):
+**Las reglas están en la base de datos, no en el navegador** (`firebase/firestore.rules`):
 
 - Leer bares y reseñas: cualquiera, con o sin cuenta.
 - Fichar un bar: solo con sesión, y queda apuntado quién lo trajo.
 - Publicar una reseña: solo con sesión y solo a tu nombre (`user_id = auth.uid()`); firmar en nombre de otro lo rechaza Postgres.
 - Corregir o retirar: solo lo tuyo.
 - Cambiar o borrar un bar desde el cliente: nadie. No hay política de update ni de delete.
-- **Un voto por persona, bar y aseo**: hay un índice único sobre `(place_id, user_id, aseo)`, así que el segundo parte del mismo aseo actualiza el primero en vez de duplicarlo. En la app esto se ve como "Actualizar mi parte".
+- **Un voto por persona, bar y aseo**: el documento de la reseña se llama `{place_id}__{aseo}__{uid}`, así que el segundo parte del mismo aseo pisa al primero en vez de duplicarlo, y la regla puede comprobar la autoría sin leer nada. En la app esto se ve como "Actualizar mi parte".
+- Las reglas se comprueban con el emulador: `npm run probar:reglas` (17 casos).
 
 ---
 
@@ -157,18 +154,20 @@ src/
 │  ├─ usePlacesBuscador.ts    Autocompletado + detalle del sitio
 │  └─ useUbicacion.ts         Ubicación del navegador, a petición
 └─ lib/
-   ├─ auth.tsx                Cuentas: Supabase o modo local
-   ├─ datos.ts                Lectura y escritura contra Supabase
+   ├─ auth.tsx                Cuentas: Firebase o modo local
+   ├─ datos.ts                Lectura y escritura contra Firestore
    ├─ distancia.ts            Distancias, formato y minutos andando
-   ├─ supabase.ts             Cliente del navegador (null si no hay proyecto)
+   ├─ firebase.ts             App, Auth y Firestore (null si no hay proyecto)
    ├─ types.ts                Bar, Review, BarConNota
    ├─ scores.ts               Medias, veredictos, grados y fechas
    ├─ mock-data.ts            5 bares clásicos con place_id inventados
    ├─ store.tsx               Estado global + persistencia
    └─ config.ts               Centro de Madrid, zooms y variables de entorno
 
-supabase/
-└─ schema.sql                Tablas, políticas RLS y datos de ejemplo
+firebase/
+├─ firestore.rules           Reglas de seguridad
+├─ firestore.indexes.json    Índices
+└─ semilla.json              Cinco clásicos de Madrid, para no nacer vacío
 ```
 
 ### El logo
@@ -203,7 +202,9 @@ Mobile-first: la ficha sube como BottomSheet, la escala de rollos se pulsa con e
 | `npm run dev` | Servidor de desarrollo |
 | `npm run build` | Compilación de producción |
 | `npm run typecheck` | TypeScript en modo estricto |
-| `npm run deploy` | Publicar en Netlify ([guía](DESPLIEGUE-NETLIFY.md)) |
+| `npm run desplegar` | Compilar y publicar en Firebase ([guía](DESPLIEGUE-FIREBASE.md)) |
+| `npm run sembrar` | Sembrar Firestore con los bares de ejemplo |
+| `npm run probar:reglas` | Probar las reglas de Firestore en el emulador |
 | `npm run demo` | Grabar el vídeo de presentación 16:9 (con `npm run dev` abierto) |
 | `npm run demo:reel` | Grabar el reel vertical 9:16 de 30 segundos |
 
@@ -235,6 +236,6 @@ Los rótulos y sus tiempos están en `grabar()` y `guionReel()`, en el mismo ord
 
 - Moderación: denunciar un parte y esconder lo denunciado hasta revisarlo.
 - Filtros: abiertos ahora, accesibles, con cambiador.
-- Realtime de Supabase para que el mapa se actualice sin recargar.
+- Escucha en vivo de Firestore (`onSnapshot`) para que el mapa se actualice sin recargar.
 - Fotos del baño (con moderación, que nos conocemos).
 - Filtros: solo verdes, abiertos ahora, accesibles, con cambiador.

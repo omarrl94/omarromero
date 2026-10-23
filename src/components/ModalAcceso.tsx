@@ -7,7 +7,7 @@ import { useAuth } from "@/lib/auth";
 type Pestaña = "entrar" | "registro";
 
 /**
- * Registro e inicio de sesión. Con Supabase configurado son cuentas de
+ * Registro e inicio de sesión. Con Firebase configurado son cuentas de
  * verdad; sin él basta un alias y se avisa de que es modo local.
  */
 export function ModalAcceso({
@@ -106,7 +106,7 @@ export function ModalAcceso({
         </header>
 
         <form onSubmit={enviar} className="p-5">
-          {modo === "supabase" && (
+          {modo === "firebase" && (
             <div className="mb-5 grid grid-cols-2 gap-2">
               {(["entrar", "registro"] as const).map((valor) => (
                 <button
@@ -150,7 +150,7 @@ export function ModalAcceso({
             </>
           )}
 
-          {modo === "supabase" && (
+          {modo === "firebase" && (
             <>
               <label
                 htmlFor="email"

@@ -15,6 +15,7 @@ export function Ranking({
   medallas,
   seleccion,
   vacio,
+  cargando = false,
   tono = "podio",
   distancias,
   onElegir,
@@ -26,6 +27,8 @@ export function Ranking({
   medallas?: readonly string[];
   seleccion: string | null;
   vacio: string;
+  /** Mientras se leen los datos no se anuncia que no hay nada. */
+  cargando?: boolean;
   tono?: "podio" | "negra" | "cerca";
   /** Metros hasta cada bar, si hay ubicación. */
   distancias?: ReadonlyMap<string, number>;
@@ -52,7 +55,23 @@ export function Ranking({
         </span>
       </header>
 
-      {bares.length === 0 ? (
+      {cargando ? (
+        <ul aria-hidden="true">
+          {[0, 1, 2].map((i) => (
+            <li
+              key={i}
+              className="grid animate-pulse grid-cols-[46px_1fr_auto] items-center gap-3 border-b border-borde px-3.5 py-3 last:border-b-0"
+            >
+              <span className="h-7 w-7 bg-asfalto-600" />
+              <span className="grid gap-1.5">
+                <span className="block h-4 w-2/5 bg-asfalto-600" />
+                <span className="block h-2.5 w-3/5 bg-asfalto-700" />
+              </span>
+              <span className="h-10 w-14 bg-asfalto-600" />
+            </li>
+          ))}
+        </ul>
+      ) : bares.length === 0 ? (
         <p className="m-4 border-2 border-dashed border-borde p-5 text-center text-papel-apagado">
           {vacio}
         </p>

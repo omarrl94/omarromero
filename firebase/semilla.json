@@ -1,0 +1,19 @@
+{
+  "_nota": "Semilla opcional para Firestore. Mismos datos que src/lib/mock-data.ts, que es lo que ve el modo local. Los place_id llevan prefijo mock- porque son inventados.",
+  "bares": [
+    { "place_id": "mock-la-venencia", "nombre": "La Venencia", "direccion": "C. de Echegaray, 7 · Huertas", "lat": 40.4152, "lng": -3.6995 },
+    { "place_id": "mock-casa-camacho", "nombre": "Casa Camacho", "direccion": "C. de San Andrés, 4 · Malasaña", "lat": 40.4258, "lng": -3.7037 },
+    { "place_id": "mock-bodega-ardosa", "nombre": "La Ardosa", "direccion": "C. de Colón, 13 · Malasaña", "lat": 40.4245, "lng": -3.7009 },
+    { "place_id": "mock-el-tigre", "nombre": "El Tigre", "direccion": "C. de las Infantas, 30 · Chueca", "lat": 40.4211, "lng": -3.6979 },
+    { "place_id": "mock-casa-labra", "nombre": "Casa Labra", "direccion": "C. de Tetuán, 12 · Sol", "lat": 40.4180, "lng": -3.7044 }
+  ],
+  "reviews": [
+    { "id": "semilla__1", "place_id": "mock-la-venencia", "aseo": "femenino", "autor": "Marta R.", "limpieza": 5, "espacio": 4, "intimidad": 5, "suministros": 5, "comentario": "Baño de manzanilla y madera noble. Papel de sobra, pestillo firme y cero olor. Aquí se entra sin miedo y se sale mejor persona.", "dias": 38 },
+    { "id": "semilla__2", "place_id": "mock-la-venencia", "aseo": "femenino", "autor": "Chule", "limpieza": 4, "espacio": 4, "intimidad": 5, "suministros": 5, "comentario": "Impecable a las ocho. A las doce ya hablamos.", "dias": 17 },
+    { "id": "semilla__3", "place_id": "mock-la-venencia", "aseo": "masculino", "autor": "Nacho", "limpieza": 3, "espacio": 3, "intimidad": 3, "suministros": 4, "comentario": "El de ellos es otra historia: cumple, pero ni madera noble ni leches. A las once ya pide un repaso.", "dias": 32 },
+    { "id": "semilla__4", "place_id": "mock-casa-camacho", "aseo": "unico", "autor": "Vermutero", "limpieza": 2, "espacio": 1, "intimidad": 2, "suministros": 1, "comentario": "Cabina tamaño ascensor de finca vieja: cierras la puerta y saludas a tus rodillas. Papel, de casa.", "dias": 14 },
+    { "id": "semilla__5", "place_id": "mock-bodega-ardosa", "aseo": "masculino", "autor": "Kike", "limpieza": 3, "espacio": 3, "intimidad": 2, "suministros": 4, "comentario": "El pestillo va a su bola: canta algo mientras estás dentro. Jabón sí, secamanos ni de broma.", "dias": 22 },
+    { "id": "semilla__6", "place_id": "mock-el-tigre", "aseo": "masculino", "autor": "Superviviente", "limpieza": 1, "espacio": 2, "intimidad": 1, "suministros": 1, "comentario": "Zona catastrófica confirmada. Entra solo en emergencia nivel cinco, sin respirar y con el móvil guardado.", "dias": 10 },
+    { "id": "semilla__7", "place_id": "mock-el-tigre", "aseo": "femenino", "autor": "Lucía", "limpieza": 2, "espacio": 3, "intimidad": 2, "suministros": 2, "comentario": "El de mujeres salva los muebles por los pelos: hay papel y cierra, que ya es más de lo que se puede decir del otro.", "dias": 8 }
+  ]
+}
