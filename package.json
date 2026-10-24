@@ -13,9 +13,19 @@
     "demo:reel": "node scripts/grabar-demo.mjs --reel",
     "desplegar": "npm run build && npx firebase-tools deploy --only hosting,firestore:rules",
     "sembrar": "node scripts/sembrar-firestore.mjs",
-    "probar:reglas": "npx firebase-tools emulators:exec --only firestore \"node scripts/probar-reglas.mjs\""
+    "probar:reglas": "npx firebase-tools emulators:exec --only firestore \"node scripts/probar-reglas.mjs\"",
+    "movil": "npm run build && npx cap sync",
+    "movil:android": "npm run movil && npx cap open android",
+    "movil:ios": "npm run movil && npx cap open ios",
+    "iconos": "node scripts/generar-iconos.mjs"
   },
   "dependencies": {
+    "@capacitor/app": "^8.1.2",
+    "@capacitor/core": "^8.5.3",
+    "@capacitor/geolocation": "^8.2.4",
+    "@capacitor/haptics": "^8.0.2",
+    "@capacitor/splash-screen": "^8.0.2",
+    "@capacitor/status-bar": "^8.0.4",
     "@vis.gl/react-google-maps": "^1.4.0",
     "firebase": "^13.1.0",
     "lucide-react": "^0.454.0",
@@ -24,6 +34,9 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@capacitor/android": "^8.5.3",
+    "@capacitor/cli": "^8.5.3",
+    "@capacitor/ios": "^8.5.3",
     "@types/google.maps": "^3.58.1",
     "@types/node": "^20.16.11",
     "@types/react": "^18.3.11",

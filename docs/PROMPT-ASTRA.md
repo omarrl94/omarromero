@@ -20,7 +20,16 @@ vistazo, con prisa, de pie y con una mano.
 tiene menos margen para improvisar (familias con niños, problemas digestivos,
 reglas, movilidad reducida).
 
-## 2. Pila obligatoria
+## 2. Dónde vive
+
+**Es una app de iOS y Android antes que una web.** Se usa de pie, con prisa y
+con una mano, muchas veces con mala cobertura. Una sola base de código: web
+estática empaquetada con Capacitor, o nativa si lo justificas. Tiene que pasar
+la revisión de App Store y Google Play: permisos explicados en español, política
+de privacidad, borrado de cuenta desde la propia app y clasificación por edad
+acorde al tono.
+
+## 3. Pila obligatoria
 
 Next.js 14 (App Router) · React 18 · TypeScript estricto (con
 `noUncheckedIndexedAccess`) · Tailwind CSS · `@vis.gl/react-google-maps` ·
@@ -29,7 +38,7 @@ tipografías. Sin librería de
 componentes: la identidad es propia. Todo el texto de la interfaz, en español de
 España.
 
-## 3. Modelo de datos (respétalo)
+## 4. Modelo de datos (respétalo)
 
 El identificador universal de un local es el **`place_id` de Google**: los bares
 no se crean a mano, se **adoptan** desde Places al buscarlos. Así no hay
@@ -59,7 +68,7 @@ Review { id, place_id (FK), aseo, user_id (FK), autor,
   regla comprueba la autoría sin leer nada.
 - Las reglas tienen que venir con **pruebas en el emulador**, no escritas a ojo.
 
-## 4. Reglas de producto
+## 5. Reglas de producto
 
 **Los cuatro criterios** (1 a 5, con la pregunta que de verdad se hace la gente):
 
@@ -82,7 +91,7 @@ sigue entera y lo dice sin insistir. No se guarda ni se envía. Con ubicación, 
 **modo urgencia** abre el baño decente (≥ 3,5) que más cerca pilla; si ninguno
 aprueba, el más cercano.
 
-## 5. Identidad visual
+## 6. Identidad visual
 
 Dirección **"fanzine nocturno"**: asfalto de madrugada, rotulador magenta, verde
 ácido de neón, ámbar de bar para los premios, papel de fotocopia para el texto.
@@ -130,7 +139,7 @@ Callejera y directa, sin crueldad. "Antes de entrar a ese baño, mira la nota y
 reza". "Partes de guerra". "El aviso para el siguiente". El humor escatológico es
 parte del producto; los insultos y el desprecio no.
 
-## 6. Qué tiene que hacer (mínimos)
+## 7. Qué tiene que hacer (mínimos)
 
 1. Mapa oscuro de Madrid centrado en Sol, con un marcador por bar que lleve la
    nota y el veredicto dentro, y que se pulse para abrir la ficha.
@@ -151,7 +160,7 @@ parte del producto; los insultos y el desprecio no.
    Firebase, cuentas y datos locales, avisando de ello. La app nunca se queda
    inservible por falta de configuración **ni finge tener lo que no tiene**.
 
-## 7. Dónde quiero que lo superes
+## 8. Dónde quiero que lo superes
 
 Prioridad alta:
 
@@ -169,8 +178,8 @@ Prioridad alta:
 Prioridad media:
 
 5. **Escucha en vivo** (`onSnapshot`): que el mapa se actualice solo cuando alguien publica.
-6. **PWA con offline**: se usa con mala cobertura y con prisa; debe instalarse y
-   responder.
+6. **Offline de verdad**: la app tiene que abrir y ser útil sin cobertura, no
+   solo no romperse.
 7. **Horario desde Places**: "abierto ahora" como filtro.
 8. **Rendimiento**: el bundle ronda los 185 kB de carga inicial, con el SDK de
    Firebase entero para usar auth y dos colecciones. Recórtalo.
@@ -183,7 +192,7 @@ Libre:
     es que un mapa oscuro con marcadores de colores tenga personalidad sin
     volverse ilegible a las tres de la mañana con un 10 % de batería.
 
-## 8. Cómo quiero que trabajes
+## 9. Cómo quiero que trabajes
 
 - **Verifica lo que entregas.** Compila, pasa el typecheck y prueba los flujos en
   un navegador de verdad antes de decir que está hecho.
@@ -197,7 +206,7 @@ Libre:
 - **No inventes datos de bares reales** ni los presentes como verificados: los
   ejemplos van marcados como tales.
 
-## 9. Qué entregar
+## 10. Qué entregar
 
 1. El repositorio funcionando con `npm install && npm run dev`.
 2. Reglas de Firestore con sus pruebas en el emulador, y una semilla opcional.

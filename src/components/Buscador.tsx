@@ -80,7 +80,7 @@ export function Buscador({ onElegir }: { onElegir: (bar: Bar) => void }) {
             type="button"
             onClick={() => setConsulta("")}
             aria-label="Borrar búsqueda"
-            className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-papel-apagado hover:text-marca"
+            className="absolute right-1 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center text-papel-apagado hover:text-marca"
           >
             <X className="h-4 w-4" />
           </button>

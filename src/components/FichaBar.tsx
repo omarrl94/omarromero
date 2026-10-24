@@ -72,14 +72,14 @@ export function FichaBar({
         role="dialog"
         aria-modal="true"
         aria-label={`Baño de ${bar.nombre}`}
-        className="fixed inset-x-0 bottom-0 z-50 flex max-h-[92%] animate-sube flex-col border-t-4 border-black bg-asfalto-800 md:inset-auto md:left-1/2 md:top-1/2 md:max-h-[86vh] md:w-[min(760px,calc(100%-48px))] md:-translate-x-1/2 md:-translate-y-1/2 md:animate-entra md:border-4 md:shadow-dura-l"
+        className="fixed inset-x-0 bottom-0 z-50 flex max-h-[92%] animate-sube flex-col border-t-4 border-black bg-asfalto-800 pb-[env(safe-area-inset-bottom,0px)] md:pb-0 md:inset-auto md:left-1/2 md:top-1/2 md:max-h-[86vh] md:w-[min(760px,calc(100%-48px))] md:-translate-x-1/2 md:-translate-y-1/2 md:animate-entra md:border-4 md:shadow-dura-l"
       >
         <header className="relative border-b-[3px] border-black p-5">
           <button
             type="button"
             onClick={onCerrar}
             aria-label="Cerrar ficha"
-            className="absolute right-3 top-3 grid h-9 w-9 place-items-center border-2 border-black bg-papel text-asfalto-900 shadow-dura-s hover:bg-marca hover:text-white"
+            className="absolute right-3 top-3 grid h-11 w-11 place-items-center border-2 border-black bg-papel text-asfalto-900 shadow-dura-s hover:bg-marca hover:text-white"
           >
             <X className="h-[18px] w-[18px]" />
           </button>

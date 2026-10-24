@@ -1,7 +1,9 @@
 "use client";
 
+import { Geolocation } from "@capacitor/geolocation";
 import { useCallback, useState } from "react";
 import type { Punto } from "@/lib/distancia";
+import { esNativo } from "@/lib/nativo";
 
 export type EstadoUbicacion =
   | "inactiva"
@@ -21,13 +23,34 @@ export function useUbicacion() {
   const [estado, setEstado] = useState<EstadoUbicacion>("inactiva");
   const [posicion, setPosicion] = useState<Punto | null>(null);
 
-  const pedir = useCallback(() => {
+  const pedir = useCallback(async () => {
+    setEstado("pidiendo");
+
+    // En iOS y Android el permiso lo pide el sistema, no el navegador.
+    if (esNativo()) {
+      try {
+        const permiso = await Geolocation.requestPermissions();
+        if (permiso.location === "denied") {
+          setEstado("denegada");
+          return;
+        }
+        const { coords } = await Geolocation.getCurrentPosition({
+          enableHighAccuracy: true,
+          timeout: 10_000,
+        });
+        setPosicion({ lat: coords.latitude, lng: coords.longitude });
+        setEstado("lista");
+      } catch {
+        setEstado("no-disponible");
+      }
+      return;
+    }
+
     if (typeof navigator === "undefined" || !navigator.geolocation) {
       setEstado("no-disponible");
       return;
     }
 
-    setEstado("pidiendo");
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
         setPosicion({ lat: coords.latitude, lng: coords.longitude });

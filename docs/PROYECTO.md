@@ -1,7 +1,7 @@
 # Rollo Madrid — descripción del proyecto
 
 > El mapa callejero de los baños de los bares de Madrid. Antes de entrar a ese
-> baño, mira la nota.
+> baño, mira la nota. App de iOS y Android, y web.
 
 Documento de referencia: qué es, cómo está construido, qué reglas lo gobiernan y
 qué falta. Estado a 19 de octubre de 2026, rama `claude/rollo-madrid-mvp-19emod`.
@@ -41,6 +41,7 @@ MVP funcional y desplegable. Unas 5.000 líneas entre `src/`, `firebase/` y
 | Geolocalización y orden por cercanía | Hecho |
 | Mapa simulado cuando falta la clave | Hecho |
 | Vídeo de presentación y reel, generados por script | Hecho |
+| Empaquetado como app de iOS y Android (Capacitor) | Hecho (falta compilar en macOS/Android Studio) |
 | Moderación, fotos, realtime, PWA | Pendiente |
 
 Lo único que no se ha podido verificar de punta a punta es el mapa real de Google
@@ -60,6 +61,9 @@ simulado cubre el hueco mientras tanto.
 - **@vis.gl/react-google-maps** para el mapa y los marcadores avanzados.
 - **firebase** (Authentication + Cloud Firestore) para cuentas y datos.
 - **lucide-react** para iconografía de apoyo.
+- **Capacitor 8** para empaquetar la web estática como app de iOS y Android,
+  con sus plugins de ubicación, barra de estado, pantalla de carga, vibración y
+  botón atrás.
 - Fuentes servidas desde el propio dominio con `next/font` (Anton, Manrope,
   Space Mono).
 
@@ -320,7 +324,8 @@ con `npm run desplegar`, que además sube las reglas. Plan gratuito, sin funcion
 - **Horarios**: saber si el bar está abierto ahora mismo (Places lo da).
 - **Sin tests automatizados**: todo se ha verificado con Playwright a mano. Falta
   una suite que corra en CI.
-- **Sin PWA**: debería instalarse y funcionar con mala cobertura, que es
-  justamente cuando se usa.
+- **Compilar los binarios**: los proyectos nativos se generan con `cap add`,
+  pero compilarlos exige macOS con Xcode (iOS) y el SDK de Android.
+- **Borrado de cuenta desde la app**: Apple lo exige para publicar, y no está.
 - **El bundle**: 185 kB de first load, de los cuales buena parte es
   el SDK de Firebase entero para usar solo auth y dos colecciones.

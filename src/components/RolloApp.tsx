@@ -2,6 +2,7 @@
 
 import { APIProvider } from "@vis.gl/react-google-maps";
 import { useCallback, useMemo, useState } from "react";
+import { useArranqueNativo, useBotonAtras } from "@/hooks/useAppNativa";
 import { useUbicacion } from "@/hooks/useUbicacion";
 import { useAuth } from "@/lib/auth";
 import { formatearDistancia, metrosEntre } from "@/lib/distancia";
@@ -142,6 +143,23 @@ export function RolloApp() {
         : elegido.bar.nombre,
     );
   };
+
+  // Dentro de la app: barra de estado, pantalla de carga y botón atrás.
+  useArranqueNativo(listo);
+  useBotonAtras(
+    useCallback(() => {
+      if (motivoAcceso !== null) {
+        setMotivoAcceso(null);
+        return true;
+      }
+      if (seleccion !== null) {
+        setSeleccion(null);
+        setValorandoAlAbrir(false);
+        return true;
+      }
+      return false;
+    }, [motivoAcceso, seleccion]),
+  );
 
   const barSeleccionado = seleccion ? getBar(seleccion) : null;
   const mapaUtilizable = HAY_API_KEY && !errorApi;
@@ -306,7 +324,7 @@ export function RolloApp() {
                     type="button"
                     aria-pressed={activo}
                     onClick={() => setFiltroAseo(key)}
-                    className={`grito border-2 px-3 py-1.5 text-sm ${
+                    className={`grito min-h-[44px] border-2 px-3.5 py-1.5 text-sm ${
                       activo
                         ? "border-black bg-acido text-asfalto-900 shadow-dura-s"
                         : "border-borde text-papel-apagado hover:border-papel hover:text-papel"

@@ -23,6 +23,8 @@ import type { Bar, BarConNota, Review, ReviewDraft, TipoAseo } from "./types";
  */
 
 const CLAVE_ALMACEN = "rollo-madrid:v1";
+/** Copia de lo último que se leyó de Firestore, para abrir sin cobertura. */
+const CLAVE_CACHE = "rollo-madrid:cache-remota";
 
 export type ModoDatos = "firebase" | "local";
 
@@ -122,9 +124,34 @@ export function RolloProvider({ children }: { children: React.ReactNode }) {
       const datos = await cargarTodo();
       setAlmacen(datos);
       setErrorDatos(null);
+      // Se guarda para la próxima vez que se abra sin cobertura.
+      try {
+        window.localStorage.setItem(CLAVE_CACHE, JSON.stringify(datos));
+      } catch {
+        // Sin almacenamiento, simplemente no habrá copia.
+      }
     } catch (e) {
+      const mensaje =
+        e instanceof Error ? e.message : "No se ha podido leer la base de datos.";
+      // Si hay copia de la última vez, la app abre con ella en vez de
+      // quedarse en blanco. Se avisa de que puede estar vieja.
+      let huboCache = false;
+      try {
+        const crudo = window.localStorage.getItem(CLAVE_CACHE);
+        if (crudo) {
+          const copia = JSON.parse(crudo) as Almacen;
+          if (Array.isArray(copia.bares) && Array.isArray(copia.reviews)) {
+            setAlmacen(copia);
+            huboCache = true;
+          }
+        }
+      } catch {
+        // Copia ilegible: se ignora.
+      }
       setErrorDatos(
-        e instanceof Error ? e.message : "No se ha podido leer la base de datos.",
+        huboCache
+          ? `${mensaje} Estás viendo la última copia guardada en este dispositivo.`
+          : mensaje,
       );
     } finally {
       setListo(true);

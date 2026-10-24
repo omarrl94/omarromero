@@ -1,5 +1,6 @@
 "use client";
 
+import { vibrar } from "@/hooks/useAppNativa";
 import { GRADOS } from "@/lib/scores";
 import type { Puntuacion } from "@/lib/types";
 
@@ -52,7 +53,10 @@ export function EscalaRollos({
             role="radio"
             aria-checked={activo}
             aria-label={`${n} de 5 en ${etiqueta} (${GRADOS[n - 1]})`}
-            onClick={() => onChange(n)}
+            onClick={() => {
+              vibrar();
+              onChange(n);
+            }}
             style={activo ? { backgroundColor: colorDe(n) } : undefined}
             className={`grid aspect-square max-h-[60px] flex-1 place-items-center gap-0.5 border-2 transition-colors ${
               activo

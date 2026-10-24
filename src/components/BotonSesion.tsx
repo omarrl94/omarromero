@@ -18,7 +18,7 @@ export function BotonSesion({ onPedirAcceso }: { onPedirAcceso: () => void }) {
       <button
         type="button"
         onClick={onPedirAcceso}
-        className="btn btn-papel px-3 py-2 text-sm"
+        className="btn btn-papel min-h-[44px] px-3 py-2 text-sm"
       >
         <UserRound className="h-4 w-4" />
         Entrar
@@ -44,7 +44,7 @@ export function BotonSesion({ onPedirAcceso }: { onPedirAcceso: () => void }) {
         onClick={() => void salir()}
         aria-label="Cerrar sesión"
         title="Cerrar sesión"
-        className="grid h-9 w-9 place-items-center border-2 border-borde text-papel-apagado hover:border-marca hover:text-marca"
+        className="grid h-11 w-11 place-items-center border-2 border-borde text-papel-apagado hover:border-marca hover:text-marca"
       >
         <LogOut className="h-4 w-4" />
       </button>

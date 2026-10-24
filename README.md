@@ -2,9 +2,27 @@
 
 **El mapa callejero de los baños de los bares de Madrid.** Antes de entrar a ese baño, mira la nota. Cuatro categorías, de 1 a 5 rollos, y un aviso para quien entre después.
 
-> MVP funcional: Next.js 14 (App Router) + TypeScript + Tailwind + Google Maps. Las valoraciones viven de momento en el navegador (`localStorage`), listas para enchufarse a un backend real.
+> App de **iOS y Android** (Capacitor) y web, con una sola base de código:
+> Next.js 14 (App Router) + TypeScript + Tailwind + Google Maps + Firebase. Las valoraciones viven de momento en el navegador (`localStorage`), listas para enchufarse a un backend real.
 
 ---
+
+## En el móvil
+
+La app está pensada para el bolsillo: se usa de pie, con prisa y con una mano.
+La web se exporta estática y **Capacitor** la empaqueta en apps nativas para las
+tiendas — ver [GUIA-MOVIL.md](GUIA-MOVIL.md).
+
+```bash
+npm run movil             # compila y sincroniza los proyectos nativos
+npm run movil:android     # abre Android Studio
+npm run movil:ios         # abre Xcode (en macOS)
+```
+
+Dentro de la app: permiso de ubicación del sistema, botón atrás que cierra lo
+que haya abierto, barra de estado y pantalla de carga propias, vibración al
+puntuar, zonas seguras respetadas y apertura sin cobertura con la última copia
+de los datos.
 
 ## Arrancar en local
 
@@ -205,6 +223,8 @@ Mobile-first: la ficha sube como BottomSheet, la escala de rollos se pulsa con e
 | `npm run desplegar` | Compilar y publicar en Firebase ([guía](DESPLIEGUE-FIREBASE.md)) |
 | `npm run sembrar` | Sembrar Firestore con los bares de ejemplo |
 | `npm run probar:reglas` | Probar las reglas de Firestore en el emulador |
+| `npm run movil` | Compilar y sincronizar iOS/Android |
+| `npm run iconos` | Redibujar icono y pantalla de carga desde el logo |
 | `npm run demo` | Grabar el vídeo de presentación 16:9 (con `npm run dev` abierto) |
 | `npm run demo:reel` | Grabar el reel vertical 9:16 de 30 segundos |
 
