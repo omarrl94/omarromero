@@ -33,6 +33,7 @@ const nota = (n) => (n == null ? "—" : Number(n).toLocaleString("es-ES", { max
 const ESTADO = {
   pendiente: ["chip", "Pendiente de entregar"], devuelto: ["chip s", "Devuelto para corregir"], entregado: ["chip v", "Entregado · pendiente de revisión"],
   defensa: ["chip s", "Pendiente de la defensa"], calificado: ["chip ok", "Calificado"],
+  modificando: ["chip s", "Modificando la entrega · vuelve a entregarla"],
 };
 let D = null, YO = null;
 
@@ -55,7 +56,7 @@ function pintar() {
   $("#titulo").textContent = t.titulo;
   const fuera = t.fechaLimite && Date.now() > Date.parse(t.fechaLimite);
   $("#sub").innerHTML = t.fechaLimite ? `Fecha límite: <b>${esc(fechaLarga(t.fechaLimite))}</b>${fuera ? (t.admiteTarde ? " · <span class='chip s'>Fuera de plazo (se admite con retraso)</span>" : " · <span class='chip bad'>Plazo cerrado</span>") : ""}` : "Sin fecha límite";
-  const editable = (e.estado === "pendiente" || e.estado === "devuelto") && !(fuera && !t.admiteTarde) && !YO.staff;
+  const editable = ["pendiente", "devuelto", "modificando"].includes(e.estado) && !(fuera && !t.admiteTarde) && !YO.staff;
   const [cls, txt] = ESTADO[e.estado] || ESTADO.pendiente;
   const def = e.defensa;
   $("#vista").innerHTML = `
@@ -81,8 +82,17 @@ function pintar() {
       <p class="hintline">Mejor en <b>PDF o Word</b>: así el profesor puede preparar tu defensa a partir del texto.</p>
       <div class="field" style="margin-top:14px"><label class="flab" for="comentario">Comentario para el profesor (opcional)</label><textarea id="comentario" style="min-height:70px">${esc(e.comentario || "")}</textarea></div>
       <div class="msg bad" id="err" hidden></div>
-      <div class="actions"><button class="btn" id="entregar" ${e.archivos.length ? "" : "disabled"}>${e.estado === "devuelto" ? "Volver a entregar" : "Entregar trabajo"}</button></div>`
-    : e.fecha ? `<p class="muted">Entregado el ${esc(new Date(e.fecha).toLocaleString("es-ES", { day: "2-digit", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }))}.${e.comentario ? ` Tu comentario: «${esc(e.comentario)}»` : ""}</p>` : ""}`;
+      ${e.estado === "modificando" ? `<div class="msg info">Estás modificando tu entrega: cambia lo que necesites y pulsa «Volver a entregar» <b>antes de la fecha límite</b>. Mientras tanto, el profesor no puede corregirla.</div>` : ""}
+      <div class="actions"><button class="btn" id="entregar" ${e.archivos.length ? "" : "disabled"}>${e.estado === "devuelto" || e.estado === "modificando" ? "Volver a entregar" : "Entregar trabajo"}</button></div>`
+    : e.fecha ? `<p class="muted">Entregado el ${esc(new Date(e.fecha).toLocaleString("es-ES", { day: "2-digit", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }))}.${e.comentario ? ` Tu comentario: «${esc(e.comentario)}»` : ""}</p>
+      ${e.puedeModificar && !YO.staff ? `<div class="actions" style="justify-content:flex-start"><button class="btn ghost" id="modificar">✏️ Modificar la entrega</button></div>
+        <p class="hintline">Puedes cambiar los archivos o el comentario hasta la fecha límite, mientras el profesor no haya empezado a corregirlo. Después tendrás que volver a entregarlo.</p><div class="msg bad" id="errMod" hidden></div>` : ""}` : ""}`;
+  const mod = $("#modificar");
+  if (mod) mod.onclick = async () => {
+    if (!confirm("¿Modificar la entrega? Tendrás que volver a entregarla antes de la fecha límite; mientras tanto, el profesor no podrá corregirla.")) return;
+    try { await api("/api/trabajo/modificar", { id: t.id }); await cargar(); }
+    catch (x) { $("#errMod").textContent = x.message; $("#errMod").hidden = false; }
+  };
   if (!editable) return;
   const err = (m) => { $("#err").textContent = m; $("#err").hidden = !m; };
   const input = $("#archivo"), drop = $("#drop");
@@ -97,7 +107,7 @@ function pintar() {
     if (!confirm("¿Entregar el trabajo? Después ya no podrás cambiar los archivos (salvo que el profesor te lo devuelva).")) return;
     const b = $("#entregar"); b.disabled = true; b.textContent = "Entregando…";
     try { await api("/api/trabajo/entregar", { id: t.id, comentario: $("#comentario").value }); await cargar(); }
-    catch (x) { err(x.message); b.disabled = false; b.textContent = "Entregar trabajo"; }
+    catch (x) { err(x.message); b.disabled = false; b.textContent = e.estado === "pendiente" ? "Entregar trabajo" : "Volver a entregar"; }
   };
 
   async function subir(files) {

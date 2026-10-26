@@ -42,12 +42,12 @@ const plural = (n, s, p) => `${n} ${n === 1 ? s : p}`;
 
 function chipsEstado(lista, trabajos = []) {
   const pend = lista.filter((e) => e.estado === "pendiente").length;
-  const tPend = trabajos.filter((t) => ["pendiente", "devuelto", "defensa"].includes(t.estado)).length;
+  const tPend = trabajos.filter((t) => ["pendiente", "devuelto", "modificando", "defensa"].includes(t.estado)).length;
   return `<div class="meta">${pend ? `<span class="chip">${plural(pend, "pendiente", "pendientes")}</span>` : ""}
     <span class="chip gray">${plural(lista.length, "tema", "temas")}</span>${trabajos.length ? `<span class="chip ${tPend ? "s" : "gray"}">${plural(trabajos.length, "trabajo", "trabajos")}${tPend ? ` · ${tPend} por hacer` : ""}</span>` : ""}</div>`;
 }
 const ESTADO_T = {
-  pendiente: ["chip", "Por entregar"], devuelto: ["chip s", "Devuelto: corrígelo"], entregado: ["chip v", "Entregado"],
+  pendiente: ["chip", "Por entregar"], devuelto: ["chip s", "Devuelto: corrígelo"], modificando: ["chip s", "Modificando: vuelve a entregarlo"], entregado: ["chip v", "Entregado"],
   defensa: ["chip s", "Falta la defensa"], calificado: ["chip ok", "Calificado"],
 };
 const plazo = (t) => (t.fechaLimite ? `Entrega hasta el ${new Date(t.fechaLimite).toLocaleString("es-ES", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" })}` : "Sin fecha límite");
@@ -55,7 +55,7 @@ function tarjetasTrabajos(lista) {
   if (!lista.length) return "";
   return `<h2 class="sec-h">📁 Trabajos</h2><div class="exlist">${lista.map((t) => {
     const [c, txt] = ESTADO_T[t.estado] || ESTADO_T.pendiente;
-    const accion = t.estado === "defensa" ? "Hacer la defensa" : ["pendiente", "devuelto"].includes(t.estado) ? "Entregar" : "Ver";
+    const accion = t.estado === "defensa" ? "Hacer la defensa" : ["pendiente", "devuelto", "modificando"].includes(t.estado) ? "Entregar" : "Ver";
     return `<article class="excard"><div class="info"><h3>${esc(t.titulo)}</h3><div class="muted" style="font-size:14px">${esc(plazo(t))}</div>
       <div class="meta"><span class="${c}">${txt}</span>${t.publicado ? "" : `<span class="chip gray">Oculto</span>`}</div></div>
       <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">${t.notaFinal != null ? `<div class="nota">${fmt(t.notaFinal)}<small> /10</small></div>` : ""}

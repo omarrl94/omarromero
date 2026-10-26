@@ -2473,6 +2473,7 @@ function pintarCurso() {
 let TRABAJOS = [], TRAB = null, FILAS_T = [], ENT_T = null, DEF_PROP = null, VOLVER_TRABAJO = null;
 const ESTADO_TRAB = {
   entregado: ["chip v", "Entregado"], devuelto: ["chip s", "Devuelto"], defensa: ["chip s", "Defensa pendiente"], calificado: ["chip ok", "Calificado"], pendiente: ["chip gray", "Sin entregar"],
+  modificando: ["chip s", "El alumno lo está modificando"],
 };
 const chipEstadoT = (e) => { const [c, t] = ESTADO_TRAB[e] || ESTADO_TRAB.pendiente; return `<span class="${c}">${t}</span>`; };
 const notaT = (n) => (n == null ? "—" : fmt(n));

@@ -99,7 +99,7 @@ const defensaSuspende = (t, def) => !!t.defensaObligatoria && def?.nota != null 
 async function estadoAlumno(t, e) {
   const def = await notaDefensa(e);
   const final = notaFinal(t, e, def);
-  let estado = !e || e.estado === "borrador" ? "pendiente" : e.estado === "devuelto" ? "devuelto" : "entregado";
+  let estado = !e || e.estado === "borrador" ? "pendiente" : ["devuelto", "modificando"].includes(e.estado) ? e.estado : "entregado";
   if (e?.defensa && !def) estado = "defensa";
   if (final != null) estado = "calificado";
   return { estado, def, final };
@@ -145,12 +145,18 @@ async function verAlumno(req, url) {
       notaTrabajo: s.final != null || e.publicarNota ? e.notaTrabajo ?? null : null, comentarioProfesor: e.comentarioProfesor || "",
       defensa: e.defensa ? { examen: e.defensa.examen, hecha: !!s.def, nota: s.def?.nota ?? null, ...(await progresoDefensa(e)) } : null, notaFinal: s.final,
       suspensoPorDefensa: e.notaFinalManual == null && defensaSuspende(t, s.def),
+      puedeModificar: puedeModificar(t, e),
     } : { estado: "pendiente", archivos: [] },
   });
 }
 
 const fueraDePlazo = (t) => t.fechaLimite && Date.now() > Date.parse(t.fechaLimite);
-const editable = (e) => !e || e.estado === "borrador" || e.estado === "devuelto";
+const editable = (e) => !e || ["borrador", "devuelto", "modificando"].includes(e.estado);
+/**
+ * El alumno puede volver a abrir su entrega para cambiarla mientras el plazo siga abierto
+ * y el profesor no haya empezado a corregirla (sin nota ni defensa).
+ */
+const puedeModificar = (t, e) => e?.estado === "entregado" && !e.defensa && e.notaTrabajo == null && e.notaFinalManual == null && !fueraDePlazo(t);
 
 async function subirArchivo(req) {
   const u = await requiereUsuario(req);
@@ -187,7 +193,7 @@ async function borrarArchivo(req) {
   e.archivos = e.archivos.filter((a) => a.id !== b.archivo);
   if (e.textos) delete e.textos[b.archivo];
   // Si ya lo había entregado antes (trabajo devuelto), el archivo anterior se conserva como prueba.
-  if (e.fecha) await conservarYBorrar("archivos", [`${k}/${b.archivo}`], { tipo: "archivo de un trabajo", por: u, motivo: "El alumno lo quita al corregir el trabajo devuelto" });
+  if (e.fecha) await conservarYBorrar("archivos", [`${k}/${b.archivo}`], { tipo: "archivo de un trabajo", por: u, motivo: "El alumno lo quita al cambiar su entrega" });
   else await archivos().del(`${k}/${b.archivo}`);
   await entregasT().set(k, e);
   return json({ ok: true, archivos: archivosPublicos(e) });
@@ -211,6 +217,22 @@ async function entregar(req) {
   await entregasT().set(k, e);
   await registrar({ por: u, accion: "entrega del trabajo", alumno: u.email, sobre: sobreT(t), despues: { archivos: e.archivos.map((a) => a.nombre) }, detalle: tarde ? "fuera de plazo" : "" });
   avisar(u.email, u.nombre, `Trabajo entregado: ${t.titulo}`, `Hemos recibido tu trabajo «${t.titulo}» (${e.archivos.length} ${e.archivos.length === 1 ? "archivo" : "archivos"}) el ${e.fechaTexto}${tarde ? ", fuera de plazo" : ""}. Te avisaremos cuando el profesor lo revise.`);
+  return json({ ok: true });
+}
+
+/** Vuelve a abrir la entrega para cambiar archivos o el comentario (se guarda una copia de la anterior). */
+async function modificarEntrega(req) {
+  const u = await requiereUsuario(req);
+  const t = await trabajoDe((await leerCuerpo(req)).id, u);
+  const k = clave(t.id, u.email);
+  const e = await entregasT().get(k);
+  if (!e || e.estado !== "entregado") fallo(409, "Este trabajo no está entregado");
+  if (e.defensa || e.notaTrabajo != null || e.notaFinalManual != null) fallo(409, "El profesor ya ha empezado a corregir tu trabajo: si necesitas cambiarlo, pídele que te lo devuelva.");
+  if (fueraDePlazo(t)) fallo(409, "El plazo de entrega ha terminado: ya no se puede modificar.");
+  await conservar({ tipo: "entrega de trabajo", almacen: "entregasTrabajo", clave: k, datos: e, alumno: u.email, por: u, motivo: "El alumno modifica su entrega" });
+  e.estado = "modificando";
+  await entregasT().set(k, e);
+  await registrar({ por: u, accion: "modifica la entrega del trabajo", alumno: u.email, sobre: sobreT(t), antes: { archivos: e.archivos.map((a) => a.nombre), fecha: e.fechaTexto } });
   return json({ ok: true });
 }
 
@@ -385,6 +407,7 @@ async function calificar(req) {
   const k = clave(t.id, String(b.email || "").toLowerCase());
   const e = await entregasT().get(k);
   if (!e || e.estado === "borrador") fallo(404, "Entrega no encontrada");
+  if (e.estado === "modificando") fallo(409, "El alumno está modificando su entrega: espera a que la vuelva a entregar.");
   const nota = (v, que) => {
     if (v === null || v === "" || v === undefined) return null;
     const n = Number(String(v).replace(",", "."));
@@ -428,6 +451,7 @@ async function generarDefensaRuta(req) {
   const t = await trabajoProfesor(b.id, u);
   const e = await entregasT().get(clave(t.id, String(b.email || "").toLowerCase()));
   if (!e || e.estado === "borrador") fallo(404, "Entrega no encontrada");
+  if (e.estado === "modificando") fallo(409, "El alumno está modificando su entrega: espera a que la vuelva a entregar.");
   // A la IA no se le manda quién es el alumno: sin su nombre, correo, DNI ni teléfono (tampoco en el nombre de los archivos).
   const nomArch = (a, i) => `archivo ${i + 1}${(a.nombre.match(/\.[a-z0-9]{1,6}$/i) || [""])[0]}`;
   const textoTrabajo = seudonimizar((e.archivos || []).map((a, i) => (e.textos?.[a.id] ? `### Archivo: ${nomArch(a, i)}\n${e.textos[a.id]}` : `### Archivo: ${nomArch(a, i)} (sin texto legible)`)).join("\n\n"), [e]);
@@ -448,6 +472,7 @@ async function enviarDefensa(req) {
   const k = clave(t.id, email);
   const e = await entregasT().get(k);
   if (!e || e.estado === "borrador") fallo(404, "Entrega no encontrada");
+  if (e.estado === "modificando") fallo(409, "El alumno está modificando su entrega: espera a que la vuelva a entregar.");
   const idEx = idDefensa(t.id, email);
   if (e.defensa && (await entregasEx().get(`${idEx}/${email}`))) fallo(409, "El alumno ya ha hecho la defensa. Si quieres repetirla, bórrala primero.");
   const ex = validarExamen({
@@ -522,6 +547,7 @@ export default {
   "POST /api/trabajo/archivo": subirArchivo,
   "POST /api/trabajo/archivo/borrar": borrarArchivo,
   "POST /api/trabajo/entregar": entregar,
+  "POST /api/trabajo/modificar": modificarEntrega,
   "GET /api/trabajo/descargar": descargar,
   "GET /api/trabajo/adjunto": descargarAdjunto,
   "POST /api/profesor/trabajo/adjunto": subirAdjunto,
