@@ -105,26 +105,59 @@ export const buildEvent = (draft) => {
   return { event: { title, type: draft.type, date: draft.date, end_date: end, time, description: String(draft.description || '').trim().slice(0, 1000) } };
 };
 
-// ---------- Exportar a .ics (Google Calendar, Outlook, móvil) ----------
-const icsText = (s) => String(s || '').replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/[,;]/g, (c) => `\\${c}`);
-const fold = (line) => line.match(/.{1,73}/g).join('\r\n ');
+// ---------- Exportar a .ics (Google Calendar, Outlook, móvil) y suscripción ----------
+const icsText = (s) => String(s || '').replace(/\\/g, '\\\\').replace(/\r?\n/g, '\\n').replace(/[,;]/g, (c) => `\\${c}`);
+/** Parte líneas de más de 75 octetos (RFC 5545) sin romper caracteres UTF-8. */
+const fold = (line) => {
+  const out = [];
+  let cur = '';
+  let bytes = 0;
+  for (const ch of line) {
+    const b = new TextEncoder().encode(ch).length;
+    if (bytes + b > (out.length ? 74 : 75)) {
+      out.push(cur);
+      cur = '';
+      bytes = 0;
+    }
+    cur += ch;
+    bytes += b;
+  }
+  out.push(cur);
+  return out.join('\r\n ');
+};
+
+// Hora peninsular española (CET/CEST): así Outlook coloca bien los eventos con hora
+const VTIMEZONE = [
+  'BEGIN:VTIMEZONE', 'TZID:Europe/Madrid', 'X-LIC-LOCATION:Europe/Madrid',
+  'BEGIN:DAYLIGHT', 'TZOFFSETFROM:+0100', 'TZOFFSETTO:+0200', 'TZNAME:CEST', 'DTSTART:19700329T020000', 'RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU', 'END:DAYLIGHT',
+  'BEGIN:STANDARD', 'TZOFFSETFROM:+0200', 'TZOFFSETTO:+0100', 'TZNAME:CET', 'DTSTART:19701025T030000', 'RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU', 'END:STANDARD',
+  'END:VTIMEZONE',
+];
 
 export const toIcs = (calendar, events) => {
   const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
-  const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//ColaboraFP//Calendario de clase//ES', 'CALSCALE:GREGORIAN', `X-WR-CALNAME:${icsText(calendar.name)}`];
+  const lines = [
+    'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//ColaboraFP//Calendario de clase//ES', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH',
+    `X-WR-CALNAME:${icsText(calendar.name)}`,
+    `X-WR-CALDESC:${icsText(`Calendario de clase · Curso ${calendar.course || ''} · ColaboraFP`)}`,
+    'X-WR-TIMEZONE:Europe/Madrid',
+    // Pide a Outlook y a Google que vuelvan a consultar cada hora (cada programa decide al final)
+    'REFRESH-INTERVAL;VALUE=DURATION:PT1H', 'X-PUBLISHED-TTL:PT1H',
+    ...VTIMEZONE,
+  ];
   for (const ev of sortEvents(events)) {
     const d = ev.date.replace(/-/g, '');
     lines.push('BEGIN:VEVENT', `UID:${ev.id}@colaborafp`, `DTSTAMP:${stamp}`);
     if (ev.time) {
       const [h, m] = ev.time.split(':').map(Number);
       const endH = pad((h + 1) % 24);
-      lines.push(`DTSTART:${d}T${pad(h)}${pad(m)}00`, `DTEND:${d}T${endH}${pad(m)}00`);
+      lines.push(`DTSTART;TZID=Europe/Madrid:${d}T${pad(h)}${pad(m)}00`, `DTEND;TZID=Europe/Madrid:${d}T${endH}${pad(m)}00`);
     } else {
-      lines.push(`DTSTART;VALUE=DATE:${d}`, `DTEND;VALUE=DATE:${addDays(eventEnd(ev), 1).replace(/-/g, '')}`);
+      lines.push(`DTSTART;VALUE=DATE:${d}`, `DTEND;VALUE=DATE:${addDays(eventEnd(ev), 1).replace(/-/g, '')}`, 'X-MICROSOFT-CDO-ALLDAYEVENT:TRUE');
     }
     lines.push(`SUMMARY:${icsText(`${EVENT_TYPES[ev.type]?.label || ''}: ${ev.title}`)}`);
     if (ev.description) lines.push(`DESCRIPTION:${icsText(ev.description)}`);
-    lines.push('END:VEVENT');
+    lines.push(`CATEGORIES:${icsText(EVENT_TYPES[ev.type]?.label || '')}`, 'TRANSP:TRANSPARENT', 'END:VEVENT');
   }
   lines.push('END:VCALENDAR');
   return lines.map(fold).join('\r\n') + '\r\n';
@@ -143,3 +176,14 @@ export const downloadIcs = (calendar, events) => {
 };
 
 export const calendarJoinUrl = (code) => `${window.location.origin}/calendario/${code}`;
+
+// ---------- Suscripción (se actualiza sola) ----------
+/** Dirección https del calendario en formato iCalendar (para «Suscribirse desde la web»). */
+export const calendarFeedUrl = (code, origin = window.location.origin) => `${origin}/ics/${code}.ics`;
+/** Outlook del centro (Microsoft 365): abre directamente «Suscribirse desde la web». */
+export const outlookSubscribeUrl = (code, name) =>
+  `https://outlook.office.com/calendar/0/addfromweb?url=${encodeURIComponent(calendarFeedUrl(code))}&name=${encodeURIComponent(name)}`;
+/** Outlook de escritorio, calendario del iPhone/Mac, etc. */
+export const webcalUrl = (code) => calendarFeedUrl(code).replace(/^https?:/, 'webcal:');
+/** Google Calendar. */
+export const googleSubscribeUrl = (code) => `https://calendar.google.com/calendar/render?cid=${encodeURIComponent(webcalUrl(code))}`;

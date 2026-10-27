@@ -1,8 +1,8 @@
-import { CalendarDays, CalendarPlus, ChevronLeft, ChevronRight, Clock, Download } from 'lucide-react';
+import { CalendarDays, CalendarPlus, ChevronLeft, ChevronRight, Clock, RefreshCw } from 'lucide-react';
+import CalendarSyncModal from './CalendarSyncModal';
 import { useMemo, useState } from 'react';
 import {
   courseMonths,
-  downloadIcs,
   EVENT_TYPE_IDS,
   EVENT_TYPES,
   eventEnd,
@@ -66,6 +66,7 @@ export default function CalendarBoard({ calendar, events, editable = false, onAd
   });
   const [selected, setSelected] = useState(today);
   const [hidden, setHidden] = useState(() => new Set());
+  const [syncing, setSyncing] = useState(false);
 
   const visible = events.filter((e) => !hidden.has(e.type));
   const month = months[index];
@@ -199,15 +200,16 @@ export default function CalendarBoard({ calendar, events, editable = false, onAd
           ) : (
             <p className="text-sm text-stone-600 dark:text-stone-400">No hay fechas próximas.</p>
           )}
-          {events.length > 0 && (
-            <button type="button" className="btn-secondary mt-4 w-full" onClick={() => downloadIcs(calendar, events)}>
-              <Download className="h-4 w-4" aria-hidden="true" /> Añadir a mi calendario (.ics)
-            </button>
-          )}
-          {events.length > 0 && (
-            <p className="mt-2 text-xs text-stone-600 dark:text-stone-400">Se abre en Google Calendar, Outlook o el calendario del móvil.</p>
+          {calendar.code && (
+            <>
+              <button type="button" className="btn-secondary mt-4 w-full" onClick={() => setSyncing(true)}>
+                <RefreshCw className="h-4 w-4" aria-hidden="true" /> Sincronizar con Outlook
+              </button>
+              <p className="mt-2 text-xs text-stone-600 dark:text-stone-400">Outlook del centro, Google Calendar o el móvil. Se actualiza solo.</p>
+            </>
           )}
         </section>
+        {syncing && <CalendarSyncModal calendar={calendar} events={events} onClose={() => setSyncing(false)} />}
       </div>
     </div>
   );

@@ -20,6 +20,13 @@
   node_bundler = "esbuild"
   external_node_modules = ["firebase-admin"]
 
+# Suscripción a calendarios de clase (Outlook, Google Calendar, móvil): /ics/CÓDIGO.ics
+[[redirects]]
+  from = "/ics/*"
+  to = "/.netlify/functions/ics?code=:splat"
+  status = 200
+  force = true
+
 # SPA routing: todas las rutas del router las resuelve index.html
 [[redirects]]
   from = "/*"
