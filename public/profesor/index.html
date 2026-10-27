@@ -284,6 +284,18 @@
   </div>
 </dialog>
 
+<!-- Visor de proyectos (ZIP) -->
+<dialog id="dProyecto" class="dlg-ancho">
+  <div class="dhead"><h2>🔍 <span id="pyTit"></span></h2><button class="btn ghost sm" data-close>Cerrar</button></div>
+  <div class="dbody">
+    <div class="meta" id="proyResumen"></div>
+    <div class="proy">
+      <div class="proy-arbol"><input type="search" id="proyBuscar" placeholder="Buscar archivo…" aria-label="Buscar archivo"><ul id="proyLista"></ul></div>
+      <div class="proy-ver"><div class="proy-ruta" id="proyRuta">Elige un archivo</div><pre class="proy-cod" id="proyCod"></pre></div>
+    </div>
+  </div>
+</dialog>
+
 <!-- Horario del examen -->
 <dialog id="dHorario">
   <div class="dhead"><h2>⏱ Horario y evaluación · <span id="dHorTitulo"></span></h2><button class="btn ghost sm" data-close>Cerrar</button></div>
@@ -2649,7 +2661,7 @@ function pintarEntregaT() {
     <div class="meta" style="margin:0 0 12px">${chipEstadoT(e.estado)}<span class="chip gray">${esc(e.grupo || "")}</span><span class="chip gray">Entregado el ${esc(e.fechaTexto || "—")}</span>${e.tarde ? `<span class="chip s">Con retraso</span>` : ""}</div>
     ${e.comentario ? `<div class="msg">Comentario del alumno: «${esc(e.comentario)}»</div>` : ""}
     <h3 style="margin:6px 0 10px">Archivos</h3>
-    <ul class="trab-arch">${e.archivos.map((a) => `<li><a href="${urlArchivo(t.id, e.email, a)}">📎 ${esc(a.nombre)}</a><span class="muted">${kbT(a.tamano)}</span></li>`).join("")}</ul>
+    <ul class="trab-arch">${e.archivos.map((a) => `<li><a href="${urlArchivo(t.id, e.email, a)}">📎 ${esc(a.nombre)}</a><span class="muted">${kbT(a.tamano)}</span>${/\.zip$/i.test(a.nombre) ? `<button type="button" class="btn ghost sm" data-proyecto="${esc(a.id)}">🔍 Ver proyecto</button>` : ""}</li>`).join("")}</ul>
     ${e.texto ? `<details><summary style="cursor:pointer;font-weight:600">Ver el texto del trabajo (${fmt(e.caracteres)} caracteres, lo que lee la IA)</summary><div class="trab-texto">${esc(e.texto)}</div></details>`
       : `<div class="msg bad">No se ha podido leer texto de estos archivos (imágenes, ZIP…). La IA no podrá preparar la defensa: pide el trabajo en PDF o Word.</div>`}
 
@@ -2925,6 +2937,51 @@ const guardarCircuitos = async (lista) => {
 };
 $("#cirGuardar").onclick = () => { CIR.leer?.(); guardarCircuitos(CIR.lista.filter((c) => c.incognitas.length)); };
 $("#cirQuitar").onclick = () => { if (confirm("¿Quitar la herramienta de circuitos de este examen?")) guardarCircuitos([]); };
+
+/* ── Visor de proyectos entregados en ZIP ── */
+let PROY = null;
+async function verProyecto(email, a) {
+  $("#pyTit").textContent = `${a.nombre} · ${ENT_T?.nombre || ""} ${ENT_T?.apellidos || ""}`.trim();
+  $("#proyLista").innerHTML = `<li class="muted">Abriendo el proyecto…</li>`; $("#proyCod").textContent = ""; $("#proyRuta").textContent = "Elige un archivo"; $("#proyResumen").innerHTML = "";
+  $("#dProyecto").showModal();
+  try {
+    const r = await fetch(urlArchivo(TRAB.id, email, a), { credentials: "same-origin" });
+    if (!r.ok) throw new Error("No se ha podido descargar el ZIP");
+    PROY = await window.leerProyecto(await r.blob());
+    const total = Object.values(PROY.resumen).reduce((s2, x) => s2 + x.lineas, 0);
+    $("#proyResumen").innerHTML = `<span class="chip v">${PROY.archivos.length} archivos</span><span class="chip">${fmt(total)} líneas de código</span>${Object.entries(PROY.resumen).sort((x, y) => y[1].lineas - x[1].lineas).map(([l, x]) => `<span class="chip gray">${esc(l)}: ${x.archivos} · ${fmt(x.lineas)} líneas</span>`).join("")}`;
+    pintarArbol("");
+    const principal = PROY.archivos.find((x) => /(^|\/)(main|app|index|program)\.[a-z]+$/i.test(x.ruta) && x.codigo != null) || PROY.archivos.find((x) => x.codigo != null && !/\.(json|xml|md|txt)$/i.test(x.ruta));
+    if (principal) abrirArchivo(principal.ruta);
+  } catch (e) { $("#proyLista").innerHTML = `<li class="msg bad">${esc(e.message)}</li>`; }
+}
+function pintarArbol(q) {
+  const lista = PROY.archivos.filter((x) => !q || x.ruta.toLowerCase().includes(q.toLowerCase()));
+  // Carpetas primero dentro de cada nivel, y una fila con el nombre de cada carpeta.
+  const orden = (r) => r.split("/").map((p, i, arr) => (i < arr.length - 1 ? "0" : "1") + p.toLowerCase()).join("/");
+  let previas = [];
+  $("#proyLista").innerHTML = lista.sort((x, y) => orden(x.ruta).localeCompare(orden(y.ruta))).map((x) => {
+    const partes = x.ruta.split("/"), dirs = partes.slice(0, -1), nom = partes.at(-1);
+    let h = "";
+    if (!q) dirs.forEach((d, i) => { if (previas[i] !== d || dirs.slice(0, i).join("/") !== previas.slice(0, i).join("/")) h += `<li class="proy-dir" style="padding-left:${i * 12}px">📁 ${esc(d)}</li>`; });
+    if (!q) previas = dirs;
+    return h + `<li style="padding-left:${q ? 0 : dirs.length * 12}px"><button type="button" class="proy-f ${x.codigo == null ? "bin" : ""}" data-ruta="${esc(x.ruta)}" title="${esc(x.ruta)}">${x.codigo == null ? "▫" : "📄"} ${esc(q ? x.ruta : nom)}</button></li>`;
+  }).join("") || `<li class="muted">Nada coincide.</li>`;
+  $$("#proyLista [data-ruta]").forEach((b) => (b.onclick = () => abrirArchivo(b.dataset.ruta)));
+}
+function abrirArchivo(ruta) {
+  const x = PROY.archivos.find((y) => y.ruta === ruta);
+  $$("#proyLista [data-ruta]").forEach((b) => b.classList.toggle("on", b.dataset.ruta === ruta));
+  $("#proyRuta").textContent = `${ruta} · ${kbT(x.tamano)}${x.codigo != null ? ` · ${x.codigo.split("\n").length} líneas` : ""}`;
+  $("#proyCod").innerHTML = x.codigo == null ? `<span class="muted">Archivo binario o demasiado grande (imagen, recurso…): descarga el ZIP para abrirlo.</span>`
+    : x.codigo.split("\n").map((l, i) => `<span class="ln">${i + 1}</span>${esc(l)}`).join("\n");
+  $("#proyCod").scrollTop = 0;
+}
+$("#proyBuscar").oninput = (ev) => PROY && pintarArbol(ev.target.value.trim());
+$("#dEntTCont").addEventListener("click", (ev) => {
+  const b = ev.target.closest("[data-proyecto]"); if (!b || !ENT_T) return;
+  verProyecto(ENT_T.email, ENT_T.archivos.find((x) => x.id === b.dataset.proyecto));
+});
 
 $("#fHorario").onsubmit = async (ev) => { ev.preventDefault(); if (await guardarHorario()) $("#dHorario").close(); };
 $("#hCodigo").onchange = () => guardarHorario();

@@ -79,7 +79,7 @@ function pintar() {
     ${editable ? `
       <label class="drop" id="drop"><input type="file" id="archivo" multiple hidden>
         <span id="dropTxt">Arrastra aquí tus archivos o haz clic para elegirlos<br><small>PDF, Word, PowerPoint, Excel, imágenes, código o ZIP · máx. 4 MB cada uno · hasta 6 archivos</small></span></label>
-      <p class="hintline">Mejor en <b>PDF o Word</b>: así el profesor puede preparar tu defensa a partir del texto.</p>
+      <p class="hintline">La memoria, mejor en <b>PDF o Word</b>. Si es un programa, sube también el <b>proyecto en ZIP</b> (se quitan solos <code>node_modules</code>, <code>.git</code>, <code>target</code>, <code>build</code>…): el profesor lo abre aquí y la defensa también pregunta por tu código.</p>
       <div class="field" style="margin-top:14px"><label class="flab" for="comentario">Comentario para el profesor (opcional)</label><textarea id="comentario" style="min-height:70px">${esc(e.comentario || "")}</textarea></div>
       <div class="msg bad" id="err" hidden></div>
       ${e.estado === "modificando" ? `<div class="msg info">Estás modificando tu entrega: cambia lo que necesites y pulsa «Volver a entregar» <b>antes de la fecha límite</b>. Mientras tanto, el profesor no puede corregirla.</div>` : ""}
@@ -113,8 +113,15 @@ function pintar() {
   async function subir(files) {
     err("");
     const txt = $("#dropTxt"), fallos = [];
-    for (const f of files) {
-      if (f.size > MAX) { fallos.push(`«${f.name}» ocupa más de 4 MB. Comprímelo o divídelo en varios archivos.`); continue; }
+    const avisos = [];
+    for (let f of files) {
+      // Proyecto en ZIP: se quitan dependencias y compilados (node_modules, .git, target…).
+      if (/\.zip$/i.test(f.name)) {
+        txt.textContent = `Revisando el proyecto «${f.name}»…`;
+        try { const limpio = await window.limpiarZip(f); if (limpio !== f) { avisos.push(`«${f.name}»: se han quitado ${limpio.quitados} archivos que no hacen falta (dependencias, compilados, .git…): ${kb(f.size)} → ${kb(limpio.size)}.`); f = limpio; } }
+        catch { fallos.push(`«${f.name}» no es un ZIP válido.`); continue; }
+      }
+      if (f.size > MAX) { fallos.push(`«${f.name}» ocupa más de 4 MB${/\.zip$/i.test(f.name) ? " incluso sin dependencias ni compilados: quita imágenes o vídeos grandes del proyecto" : ". Comprímelo o divídelo en varios archivos"}.`); continue; }
       txt.textContent = `Subiendo «${f.name}»…`;
       try {
         const [datos, texto] = await Promise.all([base64(f), window.extraerTexto(f)]);
@@ -126,6 +133,7 @@ function pintar() {
     pintar();
     if ($("#comentario")) $("#comentario").value = coment;
     if (fallos.length && $("#err")) { $("#err").textContent = fallos.join(" · "); $("#err").hidden = false; }
+    if (avisos.length && $("#err")) $("#err").insertAdjacentHTML("afterend", `<div class="msg info">${avisos.map(esc).join("<br>")}</div>`);
   }
 }
 

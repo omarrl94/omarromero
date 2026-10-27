@@ -178,7 +178,7 @@ async function subirArchivo(req) {
   await archivos().set(`${k}/${id}`, { nombre, tipo: texto(b.tipo, 100) || "application/octet-stream", datos });
   e.archivos.push({ id, nombre, tipo: texto(b.tipo, 100), tamano, fecha: new Date().toISOString() });
   // Texto del archivo (lo extrae el navegador): lo usa la IA para las preguntas de la defensa.
-  e.textos = { ...(e.textos || {}), [id]: String(b.texto || "").slice(0, 60_000) };
+  e.textos = { ...(e.textos || {}), [id]: String(b.texto || "").slice(0, /\.zip$/i.test(nombre) ? 150_000 : 60_000) };
   await entregasT().set(k, e);
   return json({ ok: true, archivos: archivosPublicos(e) });
 }
@@ -458,7 +458,7 @@ async function generarDefensaRuta(req) {
   if (textoTrabajo.replace(/###.*\n?/g, "").trim().length < 200) fallo(400, "No hay texto suficiente en los archivos del trabajo (¿son imágenes o un ZIP?). Pide al alumno el trabajo en PDF o Word (devuélveselo para que lo cambie).");
   const nTest = Math.max(0, Math.min(15, Number(b.nTest ?? t.nTest) || 0)), nAbiertas = Math.max(0, Math.min(6, Number(b.nAbiertas ?? t.nAbiertas) || 0));
   const adj = await textoAdjuntos(t);
-  const r = await generarDefensa({ titulo: t.titulo, enunciado: [t.descripcion, adj && `Archivos del enunciado:\n${adj}`].filter(Boolean).join("\n\n"), trabajo: textoTrabajo.slice(0, 80_000), nTest, nAbiertas, indicaciones: seudonimizar(texto(b.indicaciones, 800), [e]) });
+  const r = await generarDefensa({ titulo: t.titulo, enunciado: [t.descripcion, adj && `Archivos del enunciado:\n${adj}`].filter(Boolean).join("\n\n"), trabajo: textoTrabajo.slice(0, 200_000), nTest, nAbiertas, indicaciones: seudonimizar(texto(b.indicaciones, 800), [e]) });
   await registrarIA(u, "preguntas de defensa", { trabajo: t.id, caracteres: textoTrabajo.length, seudonimizado: true });
   return json(r);
 }

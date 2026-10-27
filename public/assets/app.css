@@ -635,3 +635,17 @@ dialog.wide{max-width:980px}
 .py-out.err{color:var(--bad)}
 .py textarea,.py .py-out{width:100%;box-sizing:border-box;max-width:100%}
 .py{min-width:0}
+
+/* ── Visor de proyectos (ZIP) ── */
+dialog.dlg-ancho{width:min(1200px,96vw);max-width:96vw}
+.proy{display:grid;grid-template-columns:minmax(200px,280px) 1fr;gap:12px;margin-top:10px;height:min(68vh,720px)}
+.proy-arbol{display:flex;flex-direction:column;gap:6px;min-height:0}
+.proy-arbol ul{list-style:none;margin:0;padding:0;overflow:auto;flex:1;border:1px solid var(--border);border-radius:10px;padding:6px}
+.proy-f{all:unset;cursor:pointer;display:block;padding:3px 6px;border-radius:6px;font:12.5px/1.4 var(--mono,ui-monospace,monospace);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.proy-f:hover,.proy-f:focus-visible{background:var(--sunken)} .proy-f.on{background:var(--warn-soft);font-weight:700} .proy-f.bin{color:var(--muted)}
+.proy-ver{display:flex;flex-direction:column;min-width:0;min-height:0}
+.proy-ruta{font:12.5px var(--mono,ui-monospace,monospace);color:var(--muted);padding:4px 0}
+.proy-cod{flex:1;margin:0;overflow:auto;padding:10px 12px;border-radius:10px;background:var(--sunken);border:1px solid var(--border);font:12.5px/1.5 var(--mono,ui-monospace,monospace);tab-size:4;white-space:pre}
+.proy-cod .ln{display:inline-block;width:3.2em;margin-right:12px;color:var(--faint);text-align:right;user-select:none}
+@media (max-width:760px){.proy{grid-template-columns:1fr;height:auto}.proy-arbol ul{max-height:200px}.proy-cod{max-height:60vh}}
+.proy-dir{font:12.5px/1.4 var(--mono,ui-monospace,monospace);color:var(--muted);padding:3px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
