@@ -243,6 +243,14 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
       .then((snap) => snap.exists() && snap.data().approved === true)
       .catch(() => false);
   const canEnter = async (u) => !!u && (u.emailVerified || (await isApproved(u)));
+  // Activada con el enlace del correo: su solicitud pendiente ya no hace falta en «Altas del profesorado».
+  // Se intenta en cada inicio de sesión (también al recargar) por si una navegación cortó el intento anterior.
+  const dropPendingRequest = (u) =>
+    u?.emailVerified
+      ? getDoc(approvalRef(u.uid))
+          .then((snap) => snap.exists() && snap.data().approved !== true && deleteDoc(snap.ref))
+          .catch(() => {})
+      : Promise.resolve();
   /** Crea la solicitud de alta (pendiente) si aún no existe. */
   const ensureRequest = async (u, name) => {
     const ref = approvalRef(u.uid);
@@ -269,7 +277,11 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
       return (await canEnter(u)) ? toUser(u) : null;
     },
     onAuthChange(callback) {
-      return onAuthStateChanged(auth, async (u) => callback((await canEnter(u)) ? toUser(u) : null));
+      return onAuthStateChanged(auth, async (u) => {
+        const ok = await canEnter(u);
+        if (ok) dropPendingRequest(u);
+        callback(ok ? toUser(u) : null);
+      });
     },
     /** Crea la cuenta, la deja pendiente de aprobación y envía el correo de verificación. */
     signUp: ({ name, email, password }) =>
@@ -292,6 +304,7 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
           throw await pendingError();
         }
         await user.getIdToken(true); // token con email_verified actualizado para las reglas
+        await dropPendingRequest(user);
         return toUser(user);
       }),
     resendVerification: ({ email, password }) =>
@@ -338,7 +351,10 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
     list: () =>
       wrap(async () => {
         const snap = await getDocs(collection(db, 'approvals'));
-        return snap.docs.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => b.created_at - a.created_at);
+        return snap.docs
+          .filter((d) => d.id !== auth.currentUser?.uid) // la propia cuenta del administrador ya está activa
+          .map((d) => ({ id: d.id, ...d.data() }))
+          .sort((a, b) => b.created_at - a.created_at);
       }),
     setApproved: (uid, approved) => wrap(() => updateDoc(approvalRef(uid), { approved, approved_at: Date.now() })),
     remove: (uid) => wrap(() => deleteDoc(approvalRef(uid))),
