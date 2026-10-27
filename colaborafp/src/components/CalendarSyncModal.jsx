@@ -1,4 +1,4 @@
-import { Check, Copy, Download, ExternalLink, RefreshCw } from 'lucide-react';
+import { Check, Copy, Download, ExternalLink, RefreshCw, Stethoscope } from 'lucide-react';
 import { useState } from 'react';
 import { calendarFeedUrl, downloadIcs, googleSubscribeUrl, outlookSubscribeUrl, webcalUrl } from '../utils/calendar';
 import Modal from './Modal';
@@ -7,6 +7,30 @@ import Modal from './Modal';
 export default function CalendarSyncModal({ calendar, events, onClose }) {
   const [copied, setCopied] = useState(false);
   const feed = calendarFeedUrl(calendar.code);
+
+  const [check, setCheck] = useState(null);
+
+  /** Comprueba en el servidor que la dirección de suscripción responde bien. */
+  const runCheck = async () => {
+    setCheck({ state: 'checking' });
+    try {
+      const r = await fetch(`${feed}?diag=1`, { cache: 'no-store' });
+      const type = r.headers.get('content-type') || '';
+      if (!type.includes('json')) {
+        setCheck({ state: 'bad', text: `La dirección no llega a la función del calendario (respuesta ${r.status}, ${type || 'sin tipo'}). Hay que revisar el despliegue de Netlify.` });
+        return;
+      }
+      const d = await r.json();
+      const feedRes = await fetch(feed, { cache: 'no-store' });
+      const body = await feedRes.text();
+      const valid = feedRes.ok && body.startsWith('BEGIN:VCALENDAR');
+      if (d.resultado === 'correcto' && valid)
+        setCheck({ state: 'ok', text: `La dirección funciona: ${d.fechas} fechas (lectura: ${d.lectura}). Si Outlook aun así no la importa, el bloqueo está en Microsoft 365 del centro.`, raw: d });
+      else setCheck({ state: 'bad', text: d.error || (d.encontrado === false ? 'No se encuentra el calendario con ese código.' : `Respuesta ${feedRes.status}.`), raw: d });
+    } catch (e) {
+      setCheck({ state: 'bad', text: `No se pudo comprobar: ${e.message}` });
+    }
+  };
 
   const copy = async () => {
     try {
@@ -63,6 +87,19 @@ export default function CalendarSyncModal({ calendar, events, onClose }) {
             <li>Pega la dirección de arriba, ponle un nombre y pulsa <strong>Importar</strong>.</li>
           </ol>
         </details>
+
+        <div className="rounded-xl border border-stone-200 p-3 dark:border-ink-700">
+          <button type="button" className="btn-secondary btn-sm" onClick={runCheck} disabled={check?.state === 'checking'}>
+            <Stethoscope className="h-4 w-4" aria-hidden="true" />
+            {check?.state === 'checking' ? 'Comprobando…' : 'Comprobar la dirección'}
+          </button>
+          {check && check.state !== 'checking' && (
+            <div role="status" className={`mt-2 rounded-lg px-3 py-2 text-xs ${check.state === 'ok' ? 'bg-accent-100 text-accent-900 dark:bg-accent-300/15 dark:text-accent-200' : 'bg-red-50 text-red-800 dark:bg-red-950/40 dark:text-red-300'}`}>
+              <p>{check.text}</p>
+              {check.raw && <pre className="mt-1 whitespace-pre-wrap break-all font-mono text-[11px] opacity-80">{JSON.stringify(check.raw)}</pre>}
+            </div>
+          )}
+        </div>
 
         <p className="rounded-xl bg-stone-100 px-3 py-2 text-xs text-stone-700 dark:bg-ink-800 dark:text-stone-300">
           Outlook revisa las suscripciones por su cuenta, normalmente cada pocas horas: un cambio puede tardar en verse allí. En ColaboraFP se ve al
