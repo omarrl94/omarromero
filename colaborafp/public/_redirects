@@ -1,1 +1,5 @@
+# Suscripción a calendarios de clase (Outlook, Google, móvil): debe ir ANTES de la regla general
+/ics/*    /.netlify/functions/ics?code=:splat    200!
+
+# SPA: el resto de rutas las resuelve index.html
 /*    /index.html   200
