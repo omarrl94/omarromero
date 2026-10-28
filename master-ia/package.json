@@ -1,0 +1,13 @@
+{
+  "name": "master-ia-jro",
+  "private": true,
+  "version": "2.0.0",
+  "type": "module",
+  "description": "Plataforma LMS del Máster en Ingeniería de IA, LLMs y Arquitecturas Cognitivas — FP José Ramón Otero",
+  "scripts": {
+    "build": "node scripts/build.mjs"
+  },
+  "devDependencies": {
+    "tailwindcss": "3.4.17"
+  }
+}
