@@ -17,14 +17,15 @@ python -m http.server 8080      # y abrir http://localhost:8080/
 
 - **Director Académico:** `omar.romero@jrotero.es`. En el primer acceso deja la contraseña vacía
   y la plataforma pedirá crearla (PBKDF2-SHA-256, 150 000 iteraciones).
-- **Alumnado:** registro con correo `@jrotero.es` (queda *pendiente* de admisión; accede al Módulo 0)
+- **Alumnado:** registro con correo `@jrotero.es` (queda *pendiente* de admisión; accede a la Introducción y al Módulo 0)
   o con un **código de admisión** generado en el Panel de Dirección (admisión directa).
 - **Logotipo:** se usa la recreación SVG oficial; si junto a `index.html` existe `logo-jrotero.png`,
   se muestra ese archivo automáticamente.
 
 ## Funcionalidad
 
-- 7 módulos y 28 sesiones numeradas, cada una con la barra de 5 pestañas:
+- Módulo Introductorio (Sesión 0: bases de la IA y hoja de ruta) más 7 módulos y 28 sesiones
+  numeradas, cada una con la barra de 5 pestañas:
   Teoría · Taller paso a paso · Biblioteca de Prompts · Actividad práctica · Preguntas frecuentes.
 - Registro conforme a RGPD/LOPDGDD: tabla de primera capa, segunda capa informativa, casillas
   desmarcadas (datos académicos y compromiso ético IA / EU AI Act) y verificación de mayoría de edad.
@@ -40,8 +41,9 @@ python -m http.server 8080      # y abrir http://localhost:8080/
 src/template.html   esqueleto HTML
 src/styles.css      componentes con la paleta oficial (#efcd2f, #a9cabb, #e39f7d)
 src/app.js          lógica (autenticación, rutas, vistas, panel, diploma)
-src/data/*.js       temario: modulos.js + m0…m6.js (una entrada por sesión)
-scripts/build.mjs   valida el temario (sesiones 1-28 completas), compila Tailwind y genera index.html
+src/data/*.js       temario: modulos.js + intro.js (Sesión 0) + m0…m6.js (una entrada por sesión)
+scripts/build.mjs   valida el temario (sesiones 0-28 completas), compila Tailwind y genera index.html
+labs/sesion-XX/     laboratorios ejecutables de cada sesión (código, tests y README)
 ```
 
 ```bash
@@ -51,6 +53,14 @@ npm run build
 
 En los ficheros de temario el código se escribe con `` c`…` `` (`String.raw`): no admite comillas
 invertidas, y un `${` literal se escribe `\${`.
+
+## Laboratorios
+
+Cada sesión se desarrolla también como laboratorio ejecutable en `labs/`. Estado actual:
+
+| Laboratorio | Contenido | Estado |
+|---|---|---|
+| [`labs/sesion-00`](labs/sesion-00) | Verificación del entorno, primer modelo de ML, primer LLM local (Python y Java 21) | ✅ Completo, con tests |
 
 ## Limitaciones del prototipo
 
@@ -64,6 +74,7 @@ y en reposo, copias de seguridad y registro de actividades de tratamiento.
 
 | Nº | Módulo | Sesión | Stack tecnológico |
 |---|---|---|---|
+| 0 | Introducción | Introducción a la Inteligencia Artificial y Hoja de Ruta del Máster | Git, VS Code, IntelliJ IDEA, Python 3.12 + uv, JDK 21, Docker Desktop, Ollama, scikit-learn |
 | 1 | M0 · Fundamentos | Transición de DAM a IA: El Ecosistema Python Científico y Cálculo Tensorial | Python 3.12, uv, NumPy 2, Pandas, PyTorch, CUDA / MPS, VS Code + Jupyter |
 | 2 | M0 · Fundamentos | Machine Learning Clásico para Desarrolladores (Scikit-Learn & XGBoost) | scikit-learn, XGBoost, Pandas, Optuna, joblib, FastAPI, Pydantic v2 |
 | 3 | M0 · Fundamentos | Introducción a las Redes Neuronales Profundas (PyTorch desde Cero) | PyTorch 2, torch.nn, autograd, AdamW, torchvision, TensorBoard |

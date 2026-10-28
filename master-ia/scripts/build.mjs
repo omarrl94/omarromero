@@ -10,7 +10,7 @@ import { execFileSync } from 'node:child_process';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const leer = rel => readFileSync(join(root, rel), 'utf8');
 
-const datos = ['modulos', 'm0', 'm1', 'm2', 'm3', 'm4', 'm5', 'm6']
+const datos = ['modulos', 'intro', 'm0', 'm1', 'm2', 'm3', 'm4', 'm5', 'm6']
   .map(n => leer(`src/data/${n}.js`)).join('\n');
 const app = leer('src/app.js');
 
@@ -20,8 +20,8 @@ vm.createContext(ctx);
 vm.runInContext(datos + '\nthis.__S = SESIONES; this.__M = MODULOS;', ctx);
 new vm.Script(app);
 const nums = ctx.__S.map(s => s.n).sort((a, b) => a - b);
-if (nums.length !== 28 || nums.some((n, i) => n !== i + 1)) {
-  throw new Error('El temario debe contener exactamente las Sesiones 1 a 28. Encontradas: ' + nums.join(','));
+if (nums.length !== 29 || nums.some((n, i) => n !== i)) {
+  throw new Error('El temario debe contener la Sesión 0 y las Sesiones 1 a 28. Encontradas: ' + nums.join(','));
 }
 for (const s of ctx.__S) {
   for (const campo of ['titulo', 'corto', 'resumen', 'stack', 'teoria', 'taller', 'prompts', 'actividad', 'faq']) {

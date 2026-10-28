@@ -18,3 +18,8 @@ orientafp-netlify.zip
 # Presentación generada (se reconstruye con: cd presentacion && npm run build)
 OrientaFP-presentacion.pptx
 presentacion/node_modules
+
+# Entornos de Python de los laboratorios del Máster
+.venv
+__pycache__/
+.pytest_cache/

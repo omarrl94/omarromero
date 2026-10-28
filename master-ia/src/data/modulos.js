@@ -1,9 +1,10 @@
-// Definición de los 7 módulos del Máster. El color estructural sigue la guía de
-// identidad: salvia para fundamentos, backend IA, RAG y agentes; terracota para
-// adaptación de modelos, Edge AI, MLOps, seguridad, EU AI Act y TFM.
+// Módulo Introductorio (Sesión 0) + los 7 módulos del Máster. El color estructural sigue
+// la guía de identidad: oro para la introducción; salvia para fundamentos, backend IA,
+// RAG y agentes; terracota para adaptación de modelos, Edge AI, MLOps, seguridad y TFM.
 const c = String.raw;
 
 const MODULOS = [
+  { id: -1, nombre: 'Introducción a la Inteligencia Artificial y Hoja de Ruta del Máster', corto: 'Introducción', color: 'gold', sesiones: [0, 0] },
   { id: 0, nombre: 'Nivelación y Fundamentos Teórico-Prácticos en IA', corto: 'Fundamentos', color: 'sage', sesiones: [1, 4] },
   { id: 1, nombre: 'Ingeniería de LLMs, Integración Políglota (Python + Java 21) y Salidas Estructuradas', corto: 'Backend IA', color: 'sage', sesiones: [5, 8] },
   { id: 2, nombre: 'Sistemas RAG de Nivel Industrial y Bases de Datos Vectoriales', corto: 'RAG', color: 'sage', sesiones: [9, 12] },

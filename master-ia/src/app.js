@@ -12,7 +12,8 @@ const CENTRO = 'Formación Profesional JOSÉ RAMÓN OTERO';
 const TITULO_MASTER = 'Máster (Título Propio) en Ingeniería de Inteligencia Artificial, LLMs y Arquitecturas Cognitivas para Desarrolladores';
 const DB_KEY = 'jro-master-ia-v2';
 const SESSION_KEY = 'jro-master-ia-sesion';
-const TOTAL_SESIONES = 28;
+const ULTIMA_SESION = 28;                          // sesiones numeradas 1-28 del temario oficial
+const TOTAL_SESIONES = ULTIMA_SESION + 1;          // + Sesión 0 del Módulo Introductorio
 
 const TABS = [
   ['teoria', 'Teoría'],
@@ -169,11 +170,15 @@ function usuarioActual() {
 }
 function esDirector(u) { return !!u && u.rol === 'director'; }
 function alumnos() { return Object.values(db.users).filter(u => u.rol !== 'director'); }
-function puedeAcceder(u, n) { return esDirector(u) || u.estado === 'admitido' || n <= 4; }
+function puedeAcceder(u, n) { return esDirector(u) || u.estado === 'admitido' || n <= 4; }   // Introducción + Módulo 0
 function progresoDe(u) { return Object.keys(u.progreso || {}).filter(k => u.progreso[k]).length; }
 function sesion(n) { return SESIONES.find(s => s.n === n); }
 function moduloDe(n) { return MODULOS.find(m => n >= m.sesiones[0] && n <= m.sesiones[1]); }
-function colorMod(m) { return m.color === 'sage' ? '#a9cabb' : '#e39f7d'; }
+function colorMod(m) { return { sage: '#a9cabb', terra: '#e39f7d', gold: '#efcd2f' }[m.color]; }
+function chipMod(m) { return { sage: 'chip-sage', terra: 'chip-terra', gold: 'chip-gold' }[m.color]; }
+function etiquetaMod(m) { return m.id < 0 ? 'Módulo Introductorio' : 'Módulo ' + m.id; }
+function siglaMod(m) { return m.id < 0 ? 'Intro' : 'M' + m.id; }
+function rangoMod(m) { return m.sesiones[0] === m.sesiones[1] ? 'Sesión ' + m.sesiones[0] : 'Sesiones ' + m.sesiones[0] + '–' + m.sesiones[1]; }
 
 /* ---------------------------------------------------------------------
  *  Logotipo oficial (SVG vectorial + soporte logo-jrotero.png)
@@ -423,7 +428,7 @@ async function onRegistro(f) {
   registrarAuditoria('Alta de alumno (' + (codigoObj ? 'código de admisión' : 'dominio @jrotero.es') + ')', email);
   setSesionEmail(email);
   guardar();
-  toast(codigoObj ? 'Admisión confirmada con código de posgrado. ¡Bienvenido/a!' : 'Solicitud registrada. Mientras la Dirección la valida, tienes acceso al Módulo 0.');
+  toast(codigoObj ? 'Admisión confirmada con código de posgrado. ¡Bienvenido/a!' : 'Solicitud registrada. Mientras la Dirección la valida, tienes acceso a la Introducción y al Módulo 0.');
   ir('inicio');
 }
 
@@ -451,11 +456,11 @@ function barraLateral(u, actual) {
   let html = '<nav class="sidebar p-3' + (ui.sideAbierta ? ' open' : '') + '" aria-label="Módulos y sesiones">';
   html += '<a class="side-link' + (actual === 'inicio' ? ' active' : '') + '" href="#/inicio"><span class="snum">⌂</span>Panel del alumno</a>';
   html += '<a class="side-link' + (actual === 'programa' ? ' active' : '') + '" href="#/programa"><span class="snum">▦</span>Arquitectura del programa</a>';
-  html += '<div class="mt-3 mb-1 px-2 text-[.68rem] font-bold uppercase tracking-widest text-gray-500">7 módulos · 28 sesiones</div>';
+  html += '<div class="mt-3 mb-1 px-2 text-[.68rem] font-bold uppercase tracking-widest text-gray-500">Introducción + 7 módulos · 28 sesiones</div>';
   MODULOS.forEach(m => {
     const cerrado = ui.modsCerrados.has(m.id);
     html += '<div class="mb-1"><button class="mod-btn" data-act="toggle-mod" data-m="' + m.id + '" aria-expanded="' + !cerrado + '">' +
-      '<span class="mod-dot" style="background:' + colorMod(m) + '"></span><span class="flex-1">Módulo ' + m.id + ' · ' + esc(m.corto) + '</span><span class="text-gray-400">' + (cerrado ? '+' : '–') + '</span></button>';
+      '<span class="mod-dot" style="background:' + colorMod(m) + '"></span><span class="flex-1">' + (m.id < 0 ? 'Introducción' : 'Módulo ' + m.id + ' · ' + esc(m.corto)) + '</span><span class="text-gray-400">' + (cerrado ? '+' : '–') + '</span></button>';
     if (!cerrado) {
       html += '<div class="pl-2 border-l-2 ml-3" style="border-color:' + colorMod(m) + '">';
       for (let n = m.sesiones[0]; n <= m.sesiones[1]; n++) {
@@ -483,11 +488,11 @@ function vistaInicio(u) {
   const hechas = progresoDe(u);
   const pct = Math.round(hechas / TOTAL_SESIONES * 100);
   let siguiente = 1;
-  for (let n = 1; n <= TOTAL_SESIONES; n++) { if (!(u.progreso && u.progreso[n])) { siguiente = n; break; } }
+  for (let n = 0; n <= ULTIMA_SESION; n++) { if (!(u.progreso && u.progreso[n])) { siguiente = n; break; } }
   const sig = sesion(siguiente);
   let aviso = '';
   if (!esDirector(u) && u.estado === 'pendiente') {
-    aviso = '<div class="card p-4 mb-5" style="border-left:5px solid #efcd2f"><strong>Admisión pendiente de validación.</strong> La Dirección del Máster revisará tu titulación DAM. Mientras tanto tienes acceso completo al Módulo 0 (Sesiones 1 a 4).</div>';
+    aviso = '<div class="card p-4 mb-5" style="border-left:5px solid #efcd2f"><strong>Admisión pendiente de validación.</strong> La Dirección del Máster revisará tu titulación DAM. Mientras tanto tienes acceso completo a la Introducción y al Módulo 0 (Sesiones 0 a 4).</div>';
   }
   if (u.titulo) {
     aviso += '<div class="card p-4 mb-5 flex flex-wrap items-center gap-3" style="border-left:5px solid #efcd2f"><span class="badge-master">Título expedido</span><span>Tu Título Propio de Máster nº <strong>' + esc(u.titulo.numero) + '</strong> está disponible.</span><a class="btn btn-primary btn-sm ml-auto" href="#/diploma/' + encodeURIComponent(u.email) + '">Ver diploma</a></div>';
@@ -497,7 +502,7 @@ function vistaInicio(u) {
     for (let n = m.sesiones[0]; n <= m.sesiones[1]; n++) if (u.progreso && u.progreso[n]) h++;
     const tot = m.sesiones[1] - m.sesiones[0] + 1;
     return '<a href="#/sesion/' + m.sesiones[0] + '/teoria" class="card p-5 block no-underline hover:shadow-md transition-shadow" style="border-top:6px solid ' + colorMod(m) + '">' +
-      '<div class="flex items-center justify-between"><span class="chip ' + (m.color === 'sage' ? 'chip-sage' : 'chip-terra') + '">Módulo ' + m.id + '</span><span class="text-xs text-gray-500">Sesiones ' + m.sesiones[0] + '–' + m.sesiones[1] + '</span></div>' +
+      '<div class="flex items-center justify-between"><span class="chip ' + chipMod(m) + '">' + etiquetaMod(m) + '</span><span class="text-xs text-gray-500">' + rangoMod(m) + '</span></div>' +
       '<h3 class="font-bold mt-3 leading-snug">' + esc(m.nombre) + '</h3>' +
       '<div class="mt-4 h-2 rounded-full bg-gray-100 overflow-hidden"><div class="h-full" style="width:' + Math.round(h / tot * 100) + '%;background:' + colorMod(m) + '"></div></div>' +
       '<div class="text-xs text-gray-500 mt-1">' + h + '/' + tot + ' sesiones completadas</div></a>';
@@ -509,7 +514,7 @@ function vistaInicio(u) {
     '<h1 class="text-2xl sm:text-3xl font-extrabold mt-3">Hola, ' + esc(u.nombre.split(' ')[0]) + '</h1>' +
     '<p class="text-white/70 mt-1 max-w-2xl">' + esc(TITULO_MASTER) + '</p>' +
     '<div class="mt-6 grid sm:grid-cols-[1fr_auto] gap-4 items-end">' +
-    '<div><div class="flex justify-between text-sm mb-1"><span>Progreso global</span><span class="font-bold">' + hechas + '/28 · ' + pct + ' %</span></div>' +
+    '<div><div class="flex justify-between text-sm mb-1"><span>Progreso global</span><span class="font-bold">' + hechas + '/' + TOTAL_SESIONES + ' · ' + pct + ' %</span></div>' +
     '<div class="h-3 rounded-full bg-white/15 overflow-hidden"><div class="h-full" style="width:' + pct + '%;background:#efcd2f"></div></div></div>' +
     '<a class="btn btn-primary" href="#/sesion/' + siguiente + '/teoria">Continuar · Sesión ' + siguiente + '</a></div>' +
     (sig ? '<p class="text-sm text-white/60 mt-3">Siguiente: ' + esc(sig.titulo) + '</p>' : '') +
@@ -529,12 +534,12 @@ function vistaInicio(u) {
 function vistaPrograma() {
   const filas = SESIONES.map(s => {
     const m = moduloDe(s.n);
-    return '<tr><td><span class="snum" style="background:' + colorMod(m) + '">' + s.n + '</span></td><td><span class="chip ' + (m.color === 'sage' ? 'chip-sage' : 'chip-terra') + '">M' + m.id + ' · ' + esc(m.corto) + '</span></td>' +
+    return '<tr><td><span class="snum" style="background:' + colorMod(m) + '">' + s.n + '</span></td><td><span class="chip ' + chipMod(m) + '">' + siglaMod(m) + ' · ' + esc(m.corto) + '</span></td>' +
       '<td><a class="font-semibold underline-offset-2 hover:underline" href="#/sesion/' + s.n + '/teoria">' + esc(s.titulo) + '</a></td>' +
       '<td>' + s.stack.map(t => '<span class="chip mr-1 mb-1">' + esc(t) + '</span>').join('') + '</td></tr>';
   }).join('');
   return '<div class="max-w-6xl mx-auto p-4 sm:p-8"><span class="badge-master">Plan de estudios</span>' +
-    '<h1 class="text-2xl font-extrabold mt-2">Arquitectura del programa: 7 módulos · 28 sesiones</h1>' +
+    '<h1 class="text-2xl font-extrabold mt-2">Arquitectura del programa: Introducción + 7 módulos · 28 sesiones</h1>' +
     '<p class="text-gray-600 mt-1 mb-5">Cada sesión se estructura en las mismas 5 pestañas: Teoría · Taller paso a paso · Biblioteca de Prompts · Actividad práctica · Preguntas frecuentes.</p>' +
     '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Nº</th><th>Módulo</th><th>Sesión</th><th>Stack tecnológico</th></tr></thead><tbody>' + filas + '</tbody></table></div></div>';
 }
@@ -547,12 +552,12 @@ function vistaSesion(u, n, tab) {
   if (!s) return '<div class="p-8">Sesión no encontrada.</div>';
   const m = moduloDe(n);
   if (!puedeAcceder(u, n)) {
-    return '<div class="max-w-3xl mx-auto p-8"><div class="card p-8 text-center"><div class="text-4xl">🔒</div><h1 class="text-xl font-extrabold mt-3">Sesión ' + n + ' bloqueada</h1><p class="text-gray-600 mt-2">Tu admisión está pendiente de validación por la Dirección del Máster. Mientras tanto puedes cursar el Módulo 0 (Sesiones 1 a 4).</p><a class="btn btn-primary mt-5" href="#/sesion/1/teoria">Ir a la Sesión 1</a></div></div>';
+    return '<div class="max-w-3xl mx-auto p-8"><div class="card p-8 text-center"><div class="text-4xl">🔒</div><h1 class="text-xl font-extrabold mt-3">Sesión ' + n + ' bloqueada</h1><p class="text-gray-600 mt-2">Tu admisión está pendiente de validación por la Dirección del Máster. Mientras tanto puedes cursar la Introducción y el Módulo 0 (Sesiones 0 a 4).</p><a class="btn btn-primary mt-5" href="#/sesion/0/teoria">Ir a la Sesión 0</a></div></div>';
   }
   if (!TABS.some(t => t[0] === tab)) tab = 'teoria';
   const hecho = u.progreso && u.progreso[n];
-  const prev = n > 1 ? '<a class="btn btn-ghost btn-sm" href="#/sesion/' + (n - 1) + '/' + tab + '">← Sesión ' + (n - 1) + '</a>' : '';
-  const next = n < TOTAL_SESIONES ? '<a class="btn btn-ghost btn-sm" href="#/sesion/' + (n + 1) + '/' + tab + '">Sesión ' + (n + 1) + ' →</a>' : '';
+  const prev = n > 0 ? '<a class="btn btn-ghost btn-sm" href="#/sesion/' + (n - 1) + '/' + tab + '">← Sesión ' + (n - 1) + '</a>' : '';
+  const next = n < ULTIMA_SESION ? '<a class="btn btn-ghost btn-sm" href="#/sesion/' + (n + 1) + '/' + tab + '">Sesión ' + (n + 1) + ' →</a>' : '';
 
   let cuerpo = '';
   if (tab === 'teoria') cuerpo = tabTeoria(s);
@@ -563,7 +568,7 @@ function vistaSesion(u, n, tab) {
 
   return '<div class="max-w-5xl mx-auto p-4 sm:p-8">' +
     '<div class="card overflow-hidden"><div style="height:8px;background:' + colorMod(m) + '"></div><div class="p-5 sm:p-7">' +
-    '<div class="flex flex-wrap items-center gap-2"><span class="chip ' + (m.color === 'sage' ? 'chip-sage' : 'chip-terra') + '">Módulo ' + m.id + ' · ' + esc(m.corto) + '</span><span class="chip chip-gold">Sesión ' + n + ' de 28</span>' +
+    '<div class="flex flex-wrap items-center gap-2"><span class="chip ' + chipMod(m) + '">' + etiquetaMod(m) + (m.id < 0 ? '' : ' · ' + esc(m.corto)) + '</span><span class="chip chip-gold">' + (n === 0 ? 'Sesión introductoria' : 'Sesión ' + n + ' de 28') + '</span>' +
     (s.duracion ? '<span class="chip">' + esc(s.duracion) + '</span>' : '') + '</div>' +
     '<h1 class="text-2xl sm:text-[1.7rem] font-extrabold leading-tight mt-3">Sesión ' + n + ' | ' + esc(s.titulo) + '</h1>' +
     '<p class="text-gray-600 mt-2">' + s.resumen + '</p>' +
@@ -695,7 +700,7 @@ function vistaPerfil(u) {
     '<div><span class="badge-master">Mi expediente</span><h1 class="text-2xl font-extrabold mt-2">' + esc(u.nombre) + '</h1>' +
     '<p class="text-gray-600 text-sm">' + esc(u.email) + ' · ' + (esDirector(u) ? 'Director Académico del Máster' : 'Titulado/a DAM · promoción ' + esc(u.promocion) + ' · ' + estadoTxt) + '</p></div>' +
     '<div class="grid sm:grid-cols-3 gap-4">' +
-    '<div class="card p-4"><div class="text-xs text-gray-500 font-bold uppercase">Progreso</div><div class="text-2xl font-extrabold">' + progresoDe(u) + '/28</div></div>' +
+    '<div class="card p-4"><div class="text-xs text-gray-500 font-bold uppercase">Progreso</div><div class="text-2xl font-extrabold">' + progresoDe(u) + '/' + TOTAL_SESIONES + '</div></div>' +
     '<div class="card p-4"><div class="text-xs text-gray-500 font-bold uppercase">Entregas</div><div class="text-2xl font-extrabold">' + mias.length + ' <span class="text-sm font-semibold text-gray-500">(' + evaluadas.length + ' evaluadas)</span></div></div>' +
     '<div class="card p-4"><div class="text-xs text-gray-500 font-bold uppercase">Media de actividades</div><div class="text-2xl font-extrabold">' + fmtNota(media) + '</div></div></div>' +
     bloqueTFM +
@@ -770,7 +775,7 @@ function modalSupresion(u) {
  *  Panel de Dirección
  * ------------------------------------------------------------------- */
 const SUBDIR = [
-  ['admisiones', 'Admisiones'], ['seguimiento', 'Seguimiento 28 sesiones'], ['calificaciones', 'Calificación de repositorios'],
+  ['admisiones', 'Admisiones'], ['seguimiento', 'Seguimiento de sesiones'], ['calificaciones', 'Calificación de repositorios'],
   ['tribunal', 'Tribunal de TFM'], ['titulos', 'Títulos expedidos'], ['datos', 'Datos y auditoría']
 ];
 
@@ -830,17 +835,17 @@ function dirSeguimiento() {
     const ev = ent.filter(e => e.estado === 'evaluada');
     const media = ev.length ? ev.reduce((s, e) => s + e.nota, 0) / ev.length : null;
     let celdas = '';
-    for (let n = 1; n <= TOTAL_SESIONES; n++) {
+    for (let n = 0; n <= ULTIMA_SESION; n++) {
       const m = moduloDe(n);
       const ok = a.progreso && a.progreso[n];
       celdas += '<span title="Sesión ' + n + '" style="display:inline-block;width:9px;height:14px;margin-right:1px;border-radius:2px;background:' + (ok ? colorMod(m) : '#ece9df') + '"></span>';
     }
     return '<tr><td><strong>' + esc(a.nombre) + '</strong><div class="text-xs text-gray-500">' + esc(a.email) + '</div></td><td><span class="chip">' + esc(a.estado) + '</span></td>' +
-      '<td class="whitespace-nowrap">' + celdas + '<div class="text-xs text-gray-500 mt-1">' + p + '/28</div></td>' +
+      '<td class="whitespace-nowrap">' + celdas + '<div class="text-xs text-gray-500 mt-1">' + p + '/' + TOTAL_SESIONES + '</div></td>' +
       '<td>' + ent.length + ' (' + ev.length + ' eval.)</td><td><strong>' + fmtNota(media) + '</strong></td>' +
       '<td>' + (a.tfm ? esc(a.tfm.estado) : '—') + '</td></tr>';
   }).join('');
-  return '<div class="card p-5"><h2 class="font-extrabold text-lg mb-3">Seguimiento de las 28 sesiones</h2><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Alumno/a</th><th>Estado</th><th>Sesiones (S1 → S28)</th><th>Entregas</th><th>Media</th><th>TFM</th></tr></thead><tbody>' + filas + '</tbody></table></div></div>';
+  return '<div class="card p-5"><h2 class="font-extrabold text-lg mb-3">Seguimiento de las sesiones</h2><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Alumno/a</th><th>Estado</th><th>Sesiones (S0 → S28)</th><th>Entregas</th><th>Media</th><th>TFM</th></tr></thead><tbody>' + filas + '</tbody></table></div></div>';
 }
 
 function dirCalificaciones() {
@@ -881,7 +886,7 @@ function dirTribunal() {
     const tfm = a.tfm;
     const final = notaFinalTFM(t);
     const puedeEmitir = tfm && tfm.estado === 'depositado' && t.acta === 'apto' && final != null && final >= 5 && !a.titulo;
-    return '<div class="card p-5"><div class="flex flex-wrap items-center gap-2"><strong class="text-lg">' + esc(a.nombre) + '</strong><span class="text-sm text-gray-500">' + esc(a.email) + ' · DAM ' + esc(a.promocion) + ' · ' + progresoDe(a) + '/28 sesiones</span>' +
+    return '<div class="card p-5"><div class="flex flex-wrap items-center gap-2"><strong class="text-lg">' + esc(a.nombre) + '</strong><span class="text-sm text-gray-500">' + esc(a.email) + ' · DAM ' + esc(a.promocion) + ' · ' + progresoDe(a) + '/' + TOTAL_SESIONES + ' sesiones</span>' +
       (a.titulo ? '<span class="badge-master ml-auto">Título nº ' + esc(a.titulo.numero) + '</span>' : '<span class="chip ml-auto">' + (tfm ? 'TFM ' + esc(tfm.estado) : 'Sin TFM') + '</span>') + '</div>' +
       (tfm ? '<div class="mt-3 p-3 rounded-lg text-sm" style="background:#FAF9F5"><div class="font-bold">' + esc(tfm.titulo) + '</div>' +
         (tfm.repo ? '<a class="underline break-all" href="' + esc(tfm.repo) + '" target="_blank" rel="noopener noreferrer">' + esc(tfm.repo) + '</a>' : '') +
@@ -1003,7 +1008,8 @@ function render() {
   let actual = r[0] || 'inicio';
   let contenido = '';
   if (actual === 'sesion') {
-    const n = Math.min(TOTAL_SESIONES, Math.max(1, parseInt(r[1], 10) || 1));
+    const num = parseInt(r[1], 10);
+    const n = Math.min(ULTIMA_SESION, Math.max(0, isNaN(num) ? 0 : num));
     contenido = vistaSesion(u, n, r[2] || 'teoria');
     actual = 's' + n;
   } else if (actual === 'perfil') contenido = vistaPerfil(u);
@@ -1046,7 +1052,7 @@ const acciones = {
     u.progreso = u.progreso || {};
     if (u.progreso[n]) delete u.progreso[n]; else u.progreso[n] = new Date().toISOString();
     guardar(); render();
-    if (u.progreso[n]) toast('Sesión ' + n + ' completada. ' + progresoDe(u) + '/28');
+    if (u.progreso[n]) toast('Sesión ' + n + ' completada. ' + progresoDe(u) + '/' + TOTAL_SESIONES);
   },
   'exportar-expediente': () => {
     const u = usuarioActual();
@@ -1217,7 +1223,8 @@ window.addEventListener('hashchange', () => {
   ui.sideAbierta = false;
   const r = ruta();
   if (r[0] === 'sesion') {
-    const m = moduloDe(parseInt(r[1], 10) || 1);
+    const num = parseInt(r[1], 10);
+    const m = moduloDe(isNaN(num) ? 0 : num);
     if (m) ui.modsCerrados.delete(m.id);
   }
   render();
