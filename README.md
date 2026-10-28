@@ -2,35 +2,55 @@
 
 Plataforma LMS del curso **"Especialización en Ingeniería de IA, Skills, MCP y Automatización con Claude"** (Título Propio del Centro), para alumnado de Grado Superior de DAM y ASIR.
 
-## Contenido
-
-- `index.html`: la plataforma completa en un único archivo (HTML + JS + Tailwind por CDN).
-- `logo-jrotero.png`: logotipo oficial. Si no carga, la página usa el SVG vectorial integrado (`LOGO_IMG_SRC` al inicio del script).
+**Para publicarla en Firebase y Netlify, sigue [DESPLIEGUE.md](DESPLIEGUE.md).**
 
 ## Qué incluye
 
-- Acceso y registro con correo `@jrotero.es` o código de aula (`CODIGO_AULA`), ciclo (DAM/ASIR) y curso (1º/2º).
-- Cláusula de protección de datos de primera capa, política completa y los dos consentimientos obligatorios (privacidad y compromiso EU AI Act), desmarcados por defecto.
-- 12 sesiones numeradas en 4 bloques, cada una con las pestañas Teoría · Taller paso a paso · Biblioteca de Prompts · Actividad práctica · Preguntas frecuentes.
-- Actividades en tres bloques (DAM, ASIR y Sincronización DAM + ASIR) con formulario de entrega.
-- Panel docente (`omar.romero@jrotero.es`): seguimiento, corrección con nota y comentarios, gestión de usuarios y emisión del Título Propio.
-- Título Propio imprimible en A4 horizontal (o guardado en PDF) con código de verificación.
-- Perfil del alumno: exportar datos en JSON y eliminar la cuenta.
+- **12 sesiones** en 4 bloques, cada una con las pestañas Teoría · Taller paso a paso · Biblioteca de Prompts · Actividad práctica · Preguntas frecuentes.
+- **Actividades** en tres bloques: DAM (`#a9cabb`), ASIR (`#e39f7d`) y Sincronización DAM + ASIR. Tienen formulario de entrega y la nota y los comentarios del profesor se ven en tiempo real.
+- **Registro** con correo `@jrotero.es` (o código de aula), verificación del correo y recuperación de contraseña.
+- **Protección de datos:** cláusula RGPD/LOPDGDD de primera capa y política completa, con los consentimientos de privacidad y de compromiso EU AI Act desmarcados por defecto y con la fecha de aceptación del servidor.
+- **Panel docente** (`omar.romero@jrotero.es`):
+  - Seguimiento por ciclo y CSV descargable.
+  - Corrección de entregas.
+  - Código de aula.
+  - Gestión de usuarios.
+  - Emisión y revocación del Título Propio.
+- **Título Propio** imprimible en A4 horizontal o en PDF, con código de verificación. Cualquiera puede comprobarlo en `#/verificar/CÓDIGO`.
+- **Derechos del alumno:** exportar sus datos en JSON y eliminar su cuenta con todos sus datos.
 
-## Cómo probarla
+## Estructura
 
-Abre `index.html` en el navegador, o sírvela con cualquier servidor estático:
-
-```bash
-python3 -m http.server 8000   # http://localhost:8000
+```
+src/
+  index.html             página base
+  app.js                 interfaz y rutas (#/curso/3/taller, #/perfil, #/admin/entregas…)
+  datos.js               contenido de las 12 sesiones
+  constantes.js          centro, profesor responsable, curso
+  backend-firebase.js    Authentication + Firestore (producción)
+  backend-local.js       modo demostración (localStorage)
+  styles.css             Tailwind + estilos propios
+public/                  logo oficial y favicon
+firebase/                reglas e índices de Firestore
+scripts/                 compilación, servidor local y pruebas de reglas
+netlify.toml · firebase.json
 ```
 
-Los botones de acceso rápido (SuperAdmin, Alumno DAM, Alumna ASIR) se muestran con `DEMO_MODE = true`.
+## Desarrollo
 
-## Importante: es una versión de demostración
+```bash
+npm install
+npm run dev              # modo demostración en http://localhost:8000
+npm run probar:reglas    # 43 pruebas de las reglas de Firestore en el emulador
+```
 
-Todos los datos (usuarios, entregas, notas y títulos) se guardan en el `localStorage` de cada navegador. Nada se comparte entre equipos y cualquiera puede entrar como administrador con el acceso rápido. Para usarla con alumnos reales hace falta:
+Sin variables de Firebase, la compilación genera el **modo demostración**: los datos se guardan en el navegador y hay accesos rápidos de profesor y alumnos. Al desplegar (Netlify o `--produccion`) la compilación se niega a publicar ese modo salvo con `PERMITIR_DEMO=1`.
 
-1. Un backend con autenticación real y base de datos (por ejemplo, Supabase como en otras ramas de este repositorio).
-2. Poner `DEMO_MODE = false`.
-3. Revisar la política de privacidad con el delegado de protección de datos del centro.
+## Seguridad
+
+- Los permisos los imponen las **reglas de Firestore** (`firebase/firestore.rules`), no la interfaz:
+  - Un alumno solo lee y escribe lo suyo, no puede ponerse nota ni nombrarse profesor.
+  - El título exige el Proyecto Final aprobado.
+  - Las verificaciones públicas no se pueden listar.
+- **CSP estricta.** La página no usa scripts en línea ni carga nada de terceros: Tailwind se compila y las fuentes se sirven desde la propia web.
+- Firebase solo se descarga cuando está configurado.

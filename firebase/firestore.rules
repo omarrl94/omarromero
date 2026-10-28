@@ -1,0 +1,163 @@
+rules_version = '2';
+
+// Reglas de Firestore del curso de Claude · FP José Ramón Otero
+//
+// Colecciones:
+//   usuarios/{uid}            perfil + progreso (lo escribe su dueño)
+//   entregas/{uid}_{sesion}   entrega de una actividad (alumno) y su evaluación (profesor)
+//   titulos/{uid}             Título Propio emitido (solo el profesor)
+//   verificaciones/{codigo}   copia mínima para verificar un título con su código (lectura pública)
+//   config/aula               código de acceso de aula (nadie lo lee salvo el profesor)
+//
+// El profesor responsable se identifica por su correo verificado. Si cambia,
+// hay que cambiarlo aquí y en src/constantes.js.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function isOwner(uid) { return signedIn() && request.auth.uid == uid; }
+    function verificado() { return signedIn() && request.auth.token.email_verified == true; }
+    function isAdmin() {
+      return verificado() && request.auth.token.email == 'omar.romero@jrotero.es';
+    }
+    function emailInstitucional() {
+      return request.auth.token.email.matches('.*@jrotero[.]es$');
+    }
+    function cambiaSolo(campos) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(campos);
+    }
+    function perfil(uid) {
+      return get(/databases/$(database)/documents/usuarios/$(uid)).data;
+    }
+    function textoValido(v, min, max) {
+      return v is string && v.size() >= min && v.size() <= max;
+    }
+
+    // ---------------------------------------------------------------- usuarios
+    function codigoAulaCorrecto(codigo) {
+      return codigo is string
+        && exists(/databases/$(database)/documents/config/aula)
+        && get(/databases/$(database)/documents/config/aula).data.codigo == codigo;
+    }
+
+    function perfilNuevoValido() {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['nombre', 'email', 'role', 'ciclo', 'curso', 'createdAt', 'consents', 'progreso', 'codigoAula'])
+        && d.keys().hasAll(['nombre', 'email', 'role', 'ciclo', 'curso', 'createdAt', 'consents', 'progreso'])
+        && textoValido(d.nombre, 3, 80)
+        && d.email == request.auth.token.email
+        && d.createdAt == request.time
+        && d.consents.keys().hasOnly(['privacidad', 'iaAct'])
+        && d.consents.privacidad == request.time
+        && d.consents.iaAct == request.time
+        && d.progreso == {}
+        && (
+          (d.role == 'admin' && isAdmin() && d.ciclo == null && d.curso == null)
+          ||
+          (d.role == 'alumno'
+            && request.auth.token.email != 'omar.romero@jrotero.es'
+            && d.ciclo in ['DAM', 'ASIR']
+            && d.curso in ['1º', '2º']
+            && (emailInstitucional() || codigoAulaCorrecto(d.get('codigoAula', null))))
+        );
+    }
+
+    match /usuarios/{uid} {
+      allow read: if isOwner(uid) || isAdmin();
+      allow create: if isOwner(uid) && perfilNuevoValido();
+      // El alumno solo puede marcar o desmarcar sesiones completadas
+      allow update: if isOwner(uid)
+        && cambiaSolo(['progreso'])
+        && request.resource.data.progreso.keys().hasOnly(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']);
+      // Derecho de supresión (el propio alumno) y gestión de usuarios (profesor)
+      allow delete: if isOwner(uid) || isAdmin();
+    }
+
+    // ---------------------------------------------------------------- entregas
+    function contenidoEntregaValido(d) {
+      return d.enlace is string && d.enlace.size() <= 500 && d.enlace.matches('^https?://[^ ]+$')
+        && d.pareja is string && d.pareja.size() <= 80
+        && d.comentario is string && d.comentario.size() <= 3000
+        && d.ts == request.time
+        && d.estado == 'pendiente';
+    }
+
+    match /entregas/{id} {
+      allow read: if isAdmin() || (signedIn() && resource.data.userId == request.auth.uid);
+
+      allow create: if verificado()
+        && request.resource.data.keys().hasOnly(['userId', 'sesion', 'enlace', 'pareja', 'comentario', 'ts', 'estado', 'nombre', 'ciclo', 'curso'])
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.sesion is int
+        && request.resource.data.sesion >= 1 && request.resource.data.sesion <= 12
+        && id == request.auth.uid + '_' + string(request.resource.data.sesion)
+        && contenidoEntregaValido(request.resource.data)
+        && request.resource.data.nombre == perfil(request.auth.uid).nombre
+        && request.resource.data.ciclo == perfil(request.auth.uid).ciclo
+        && request.resource.data.curso == perfil(request.auth.uid).curso;
+
+      // El alumno reenvía mientras no esté aprobada; el profesor evalúa
+      allow update: if (
+          verificado()
+          && resource.data.userId == request.auth.uid
+          && resource.data.estado != 'aprobada'
+          && cambiaSolo(['enlace', 'pareja', 'comentario', 'ts', 'estado'])
+          && contenidoEntregaValido(request.resource.data)
+        ) || (
+          isAdmin()
+          && cambiaSolo(['estado', 'nota', 'feedback', 'revisadoEn', 'revisadoPor'])
+          && request.resource.data.estado in ['aprobada', 'revision']
+          && (request.resource.data.nota == null
+              || (request.resource.data.nota is number && request.resource.data.nota >= 0 && request.resource.data.nota <= 10))
+          && (request.resource.data.estado != 'aprobada'
+              || (request.resource.data.nota is number && request.resource.data.nota >= 5))
+          && textoValido(request.resource.data.feedback, 0, 3000)
+          && request.resource.data.revisadoEn == request.time
+          && request.resource.data.revisadoPor == request.auth.token.email
+        );
+
+      allow delete: if isAdmin() || (signedIn() && resource.data.userId == request.auth.uid);
+    }
+
+    // ---------------------------------------------------------------- títulos
+    match /titulos/{uid} {
+      allow read: if isAdmin() || isOwner(uid);
+      // Solo con el Proyecto Final (Sesión 12) aprobado
+      allow create: if isAdmin()
+        && request.resource.data.keys().hasOnly(['userId', 'codigo', 'emitidoEn', 'emitidoPor', 'nota', 'nombre', 'ciclo', 'curso'])
+        && request.resource.data.userId == uid
+        && request.resource.data.codigo.matches('^JRO-IA-[0-9]{4}-[0-9A-F]{6}$')
+        && request.resource.data.emitidoEn == request.time
+        && request.resource.data.emitidoPor == request.auth.token.email
+        && get(/databases/$(database)/documents/entregas/$(uid + '_12')).data.estado == 'aprobada';
+      allow update: if false;
+      allow delete: if isAdmin() || isOwner(uid);
+    }
+
+    match /verificaciones/{codigo} {
+      // Cualquiera puede comprobar un título si conoce su código, pero no listar
+      allow get: if true;
+      allow list: if false;
+      allow create: if isAdmin()
+        && request.resource.data.keys().hasOnly(['userId', 'codigo', 'nombre', 'ciclo', 'curso', 'emitidoEn'])
+        && request.resource.data.codigo == codigo
+        && request.resource.data.emitidoEn == request.time
+        && getAfter(/databases/$(database)/documents/titulos/$(request.resource.data.userId)).data.codigo == codigo;
+      allow update: if false;
+      allow delete: if isAdmin() || (signedIn() && resource.data.userId == request.auth.uid);
+    }
+
+    // ---------------------------------------------------------------- configuración
+    match /config/aula {
+      allow read: if isAdmin();
+      allow write: if isAdmin()
+        && request.resource.data.keys().hasOnly(['codigo', 'actualizado'])
+        && textoValido(request.resource.data.codigo, 6, 40);
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
