@@ -192,6 +192,13 @@ a.tile .meta{margin-top:auto;padding-top:8px}
 .q{background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px 22px;margin:12px 0;box-shadow:var(--shadow)}
 .q .qh{font-weight:650;font-size:16px;margin:0 0 14px;display:flex;gap:12px;align-items:flex-start;line-height:1.45}
 .q .qh .qi{flex:none;min-width:28px;height:28px;padding:0 6px;border-radius:8px;display:grid;place-items:center;background:var(--sunken);border:1px solid var(--border);color:var(--muted);font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:-2px}
+.q .cita{margin:0 0 14px;border-left:4px solid var(--amarillo, #EFCD2F);background:var(--sunken);border-radius:0 var(--r) var(--r) 0;padding:10px 14px}
+.q .cita figcaption{font-size:12.5px;font-weight:700;color:var(--muted);margin-bottom:4px}
+.q .cita blockquote{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;font-size:15px;line-height:1.5;max-height:340px;overflow:auto}
+.q .cita.codigo blockquote{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13.5px;overflow-wrap:normal;white-space:pre;overflow-x:auto}
+.defq .cita{margin:0 0 6px;padding:6px 10px;border-left:3px solid var(--border);background:var(--sunken);font-size:13px;white-space:pre-wrap;max-height:160px;overflow:auto}
+.cita-rev{margin:6px 0 8px;padding:6px 10px;border-left:3px solid var(--amarillo);background:var(--sunken);font-size:13px;white-space:pre-wrap;max-height:200px;overflow:auto;border-radius:0 var(--r) var(--r) 0}
+.defq .cita.aprox{border-left-color:var(--salmon-ink, #9A4A26)}
 .opt{display:flex;align-items:flex-start;gap:11px;padding:11px 13px;border:1px solid var(--border);border-radius:10px;margin:7px 0;cursor:pointer;transition:border-color .12s,background .12s}
 .opt:hover{border-color:var(--border-strong);background:var(--sunken)}
 .opt:has(input:checked){border-color:var(--grafito);background:var(--amarillo-soft);box-shadow:inset 3px 0 0 var(--amarillo)}

@@ -193,6 +193,11 @@ function htmlNota(d, extra = "") {
     </div></div>`;
 }
 
+/** Cita del enunciado o del trabajo que acompañaba a la pregunta (defensas). */
+function citaRevH(q) {
+  return q?.cita ? `<div class="cita-rev"><b>${q.citaDe === "enunciado" ? "📄 Del enunciado del trabajo" : "✍️ Del trabajo"}</b>\n${esc(q.cita)}</div>` : "";
+}
+
 function htmlRevision(d) {
   const ex = d.examen, T = titulosPartes(ex), cab = cabeceraBloques(ex);
   const pts = d.pts || { mc: [], open: [], num: [] };
@@ -206,7 +211,7 @@ function htmlRevision(d) {
       const tu = val >= 0 ? `${LETRAS[val]}) ${q.o[val]}` : "—";
       const conf = ex.confianza ? ` · confianza: ${d.respuestas.conf?.[i] >= 0 ? esc(ex.confianzaTabla[d.respuestas.conf[i]].nombre) : "sin marcar"}` : "";
       const s = d.soluciones ? d.mc[i] : null;
-      h += cab(q) + `<div class="rev ${s ? (s.ok ? "ok" : "bad") : ""}"><p class="rq">${++n}. ${esc(q.t)} ${s ? vchip(s.ok) : ""} ${pp(pts.mc[i])}</p>
+      h += cab(q) + `<div class="rev ${s ? (s.ok ? "ok" : "bad") : ""}">${citaRevH(q)}<p class="rq">${++n}. ${esc(q.t)} ${s ? vchip(s.ok) : ""} ${pp(pts.mc[i])}</p>
         <p class="rd">Respuesta: <b>${esc(tu)}</b>${conf}</p>
         ${s && !s.ok ? `<p class="rd">Correcta: <b>${LETRAS[s.correcta]}) ${esc(q.o[s.correcta])}</b></p>` : ""}
         ${s && s.exp ? `<p class="rd">${esc(s.exp)}</p>` : ""}</div>`;
@@ -222,7 +227,7 @@ function htmlRevision(d) {
       // Estado de revisión (solo lo ve el profesor): pendiente si hay respuesta y aún no la ha revisado.
       const estRev = s?.profesor ? "r-hecha" : ans ? "r-pend" : "";
       const marcaRev = estRev ? `<span class="chip-rev ${estRev}">${estRev === "r-hecha" ? "✓ Revisada" : "⏳ Pendiente de revisar"}</span>` : "";
-      h += cab(q) + `<div class="rev ${cls} ${estRev}">${marcaRev}<p class="rq">${++n}. ${esc(q.t)} ${s ? vchip(s.v) : ""}${prof} ${pp(pts.open[i])}</p>
+      h += cab(q) + `<div class="rev ${cls} ${estRev}">${marcaRev}${citaRevH(q)}<p class="rq">${++n}. ${esc(q.t)} ${s ? vchip(s.v) : ""}${prof} ${pp(pts.open[i])}</p>
         <p class="rd">Respuesta: <b>${ans ? esc(ans) : "—"}</b></p>
         ${s ? `<p class="rd">${s.v === "full" ? "Se mencionan los conceptos esperados." : s.exp ? "Qué se esperaba: " + esc(s.exp) : ""}</p>` : ""}</div>`;
     });

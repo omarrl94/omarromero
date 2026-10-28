@@ -123,7 +123,7 @@ export function validarExamen(e) {
     if (!Array.isArray(q?.o) || q.o.length < 2 || q.o.length > 5) fallo(400, `La ${n} debe tener entre 2 y 5 opciones`);
     if (!Number.isInteger(q.c) || q.c < 0 || q.c >= q.o.length) fallo(400, `La ${n} no tiene una respuesta correcta válida (c)`);
     return { t: str(q.t, 2000, n), o: q.o.map((o, j) => str(String(o ?? ""), 1000, `${n}, opción ${j + 1}`)), c: q.c,
-      puntos: puntosDe(q.puntos, n), exp: opc(q.exp, 2000), bloque: bloqueValido(q.bloque, bloques) };
+      puntos: puntosDe(q.puntos, n), exp: opc(q.exp, 2000), bloque: bloqueValido(q.bloque, bloques), ...citaValida(q) };
   });
   const open = e.open.map((q, i) => {
     const n = `pregunta abierta ${i + 1}`;
@@ -144,7 +144,7 @@ export function validarExamen(e) {
       groups: q.groups.map((g) => g.map((s) => s.trim().slice(0, 100))),
       full, partial,
       exp: typeof q.exp === "string" ? q.exp.trim().slice(0, 2000) : "",
-      puntos: puntosDe(q.puntos, n), ...(pesos ? { pesos } : {}), bloque: bloqueValido(q.bloque, bloques),
+      puntos: puntosDe(q.puntos, n), ...(pesos ? { pesos } : {}), bloque: bloqueValido(q.bloque, bloques), ...citaValida(q),
     };
   });
   const ubic = buscarModulo(e.cicloId, e.moduloId) || moduloPorNombre(e.ciclo, e.modulo);
@@ -189,6 +189,12 @@ export function validarExamen(e) {
   return examen;
 }
 
+/** Cita del enunciado o del trabajo que el alumno ve encima de la pregunta (defensas): no tiene por qué recordarlos. */
+function citaValida(q) {
+  const cita = typeof q.cita === "string" ? q.cita.trim().slice(0, 1500) : "";
+  return cita ? { cita, citaDe: q.citaDe === "enunciado" ? "enunciado" : "trabajo" } : {};
+}
+
 /** Resultados de aprendizaje: «RA1», «RA2.b»… (máx. 12). Acepta lista o texto «RA1, RA3». */
 export function raValidos(v) {
   const l = (Array.isArray(v) ? v : String(v ?? "").split(/[,;\s]+/)).map((x) => String(x).trim().toUpperCase().replace(/^(\d)/, "RA$1")).filter(Boolean);
@@ -224,8 +230,8 @@ export const enunciado = (ex) => ({
     incognitas: c.incognitas.map(({ nombre, i, j }) => ({ nombre, apartado: i + 1, etiqueta: ex.num?.[i]?.campos?.[j]?.etiqueta || "", unidad: ex.num?.[i]?.campos?.[j]?.unidad || "" })) })),
   confianza: !!ex.confianza, confianzaTabla: ex.confianza ? CONFIANZA : null,
   partes: ex.partes || {}, bloques: ex.bloques || [],
-  mc: ex.mc.map(({ t, o, puntos, bloque }) => ({ t, o, puntos: puntos ?? 1, bloque: bloque || "" })),
-  open: ex.open.map(({ act, t, puntos, bloque }) => ({ act, t, puntos: puntos ?? 1, bloque: bloque || "" })),
+  mc: ex.mc.map(({ t, o, puntos, bloque, cita, citaDe }) => ({ t, o, puntos: puntos ?? 1, bloque: bloque || "", ...(cita ? { cita, citaDe } : {}) })),
+  open: ex.open.map(({ act, t, puntos, bloque, cita, citaDe }) => ({ act, t, puntos: puntos ?? 1, bloque: bloque || "", ...(cita ? { cita, citaDe } : {}) })),
   num: (ex.num || []).map(({ t, campos, puntos, bloque }) => ({
     t, puntos: puntos ?? 1, bloque: bloque || "",
     campos: campos.map(({ etiqueta, tipo, unidad, opciones }) => ({ etiqueta, tipo, unidad: unidad || "", opciones: opciones || null })),

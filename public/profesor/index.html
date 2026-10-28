@@ -899,7 +899,7 @@ function pintarRespuestas() {
   const conSug = filas.filter((f) => SUGERENCIAS[`${k}:${i}:${f.email}#${f.intento}`]);
   $("#respPregunta").innerHTML = `<div class="card qhead">
     <div class="muted" style="font-size:13px;font-weight:600">${k === "open" ? `Pregunta abierta ${i + 1}` : `Ejercicio ${i + 1}`} · ${fmt(q.puntos)} p${q.act ? ` · ${esc(q.act)}` : ""}</div>
-    <p style="margin:6px 0 10px;font-weight:600;white-space:pre-wrap">${esc(q.t)}</p>
+    ${citaRevH(q)}<p style="margin:6px 0 10px;font-weight:600;white-space:pre-wrap">${esc(q.t)}</p>
     ${k === "open" ? `${q.exp ? `<p class="rd"><b>Respuesta modelo:</b> ${esc(q.exp)}</p>` : ""}
       <p class="rd"><b>Conceptos que busca la corrección automática:</b> ${q.conceptos.map((c) => `<span class="chip gray">${esc(c)}</span>`).join(" ")}</p>`
       : `<p class="rd"><b>Resultados correctos:</b> ${q.campos.map((c) => `${esc(c.etiqueta)} = <b>${esc(c.correcto)}</b>`).join(" · ")}</p>`}
@@ -2771,7 +2771,7 @@ async function generarDefensaUI() {
 function pintarPropuestaDefensa() {
   const p = DEF_PROP, c = $("#defPropuesta");
   const fila = (q, k, i) => `<div class="defq ${q.ok ? "" : "off"}"><input type="checkbox" data-defq="${k}:${i}" ${q.ok ? "checked" : ""} aria-label="Incluir esta pregunta">
-    <div class="dq"><p>${k === "mc" ? "Test" : "Abierta"} ${i + 1}. ${esc(q.t)}</p>
+    <div class="dq">${citaDefH(q)}<p>${k === "mc" ? "Test" : "Abierta"} ${i + 1}. ${esc(q.t)}</p>
       ${k === "mc" ? `<ol type="a">${q.o.map((o, j) => `<li class="${j === q.c ? "ok" : ""}">${esc(o)}${j === q.c ? " ✓" : ""}</li>`).join("")}</ol>`
         : `<div class="exp"><b>Conceptos:</b> ${q.groups.map((g) => esc(g.join(" / "))).join(" · ")}</div>`}
       ${q.exp ? `<div class="exp"><b>${k === "mc" ? "En el trabajo" : "Respuesta modelo"}:</b> ${esc(q.exp)}</div>` : ""}</div></div>`;
@@ -2786,8 +2786,8 @@ function pintarPropuestaDefensa() {
     const [k, i] = x.dataset.defq.split(":"); p[k][i].ok = x.checked; x.closest(".defq").classList.toggle("off", !x.checked);
   }));
   $("#defEnviar").onclick = async () => {
-    const mc = p.mc.filter((q) => q.ok).map(({ t, o, c, exp }) => ({ t, o, c, exp }));
-    const open = p.open.filter((q) => q.ok).map(({ t, groups, full, partial, exp, act }) => ({ t, groups, full, partial, exp, act }));
+    const mc = p.mc.filter((q) => q.ok).map(({ t, o, c, exp, cita, citaDe }) => ({ t, o, c, exp, cita, citaDe }));
+    const open = p.open.filter((q) => q.ok).map(({ t, groups, full, partial, exp, act, cita, citaDe }) => ({ t, groups, full, partial, exp, act, cita, citaDe }));
     const err = $("#defErr2"); err.hidden = true;
     if (!mc.length && !open.length) { err.textContent = "Marca al menos una pregunta."; err.hidden = false; return; }
     if (!confirm(`¿Enviar a ${ENT_T.nombre} la defensa (${mc.length} de test y ${open.length} ${open.length === 1 ? "abierta" : "abiertas"})? Le llegará un aviso y solo tendrá un intento.`)) return;
@@ -2839,8 +2839,10 @@ function pintarDefensaBloque() {
   if ($("#dbEnviar")) $("#dbEnviar").onclick = enviarBloque;
   if ($("#dbCerrar")) $("#dbCerrar").onclick = () => $("#dDefBloque").close();
 }
+/** Cita que verá el alumno encima de la pregunta; si la IA no la copió literal, se avisa para revisarla. */
+const citaDefH = (q) => q.cita ? `<div class="cita${q.citaAprox ? " aprox" : ""}"><b>${q.citaDe === "enunciado" ? "📄 Cita del enunciado" : "✍️ Cita de su trabajo"}${q.citaAprox ? " · ⚠ no aparece tal cual en el trabajo: revísala" : ""}</b>\n${esc(q.cita)}</div>` : "";
 const filaDB = (q, n, k, i) => `<div class="defq ${q.ok ? "" : "off"}"><input type="checkbox" data-dbq="${n}:${k}:${i}" ${q.ok ? "checked" : ""} aria-label="Incluir esta pregunta">
-  <div class="dq"><p>${k === "mc" ? "Test" : "Abierta"} ${i + 1}. ${esc(q.t)}</p>
+  <div class="dq">${citaDefH(q)}<p>${k === "mc" ? "Test" : "Abierta"} ${i + 1}. ${esc(q.t)}</p>
     ${k === "mc" ? `<ol type="a">${q.o.map((o, j) => `<li class="${j === q.c ? "ok" : ""}">${esc(o)}${j === q.c ? " ✓" : ""}</li>`).join("")}</ol>` : `<div class="exp"><b>Conceptos:</b> ${q.groups.map((g) => esc(g.join(" / "))).join(" · ")}</div>`}
     ${q.exp ? `<div class="exp"><b>${k === "mc" ? "En el trabajo" : "Respuesta modelo"}:</b> ${esc(q.exp)}</div>` : ""}</div></div>`;
 async function prepararBloque(lista) {
@@ -2874,8 +2876,8 @@ async function enviarBloque() {
     a.estado = "env"; pintarDefensaBloque();
     try {
       await api("/api/profesor/trabajo/defensa/enviar", { id: TRAB.id, email: a.f.email, seguridad: $("#dbSeg").checked, mostrarSoluciones: $("#dbSol").checked,
-        mc: a.prop.mc.filter((q) => q.ok).map(({ t, o, c, exp }) => ({ t, o, c, exp })),
-        open: a.prop.open.filter((q) => q.ok).map(({ t, groups, full, partial, exp, act }) => ({ t, groups, full, partial, exp, act })) });
+        mc: a.prop.mc.filter((q) => q.ok).map(({ t, o, c, exp, cita, citaDe }) => ({ t, o, c, exp, cita, citaDe })),
+        open: a.prop.open.filter((q) => q.ok).map(({ t, groups, full, partial, exp, act, cita, citaDe }) => ({ t, groups, full, partial, exp, act, cita, citaDe })) });
       a.estado = "enviada"; a.abierto = false;
     } catch (e) { a.estado = "lista"; a.error = e.message; }
   }

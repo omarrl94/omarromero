@@ -280,7 +280,7 @@ function buildQuiz() {
     EX.mc.forEach((q, i) => {
       const opts = q.o.map((o, j) => `<label class="opt"><input type="radio" name="mc${i}" value="${j}"><span><b>${LETRAS[j]})</b> ${esc(o)}</span></label>`).join("");
       const conf = EX.confianza ? `<div class="conf">Confianza: ${EX.confianzaTabla.map((c, k) => `<label><input type="radio" name="conf${i}" value="${k}"> ${esc(c.nombre)}</label>`).join("")}</div>` : "";
-      h += cab(q) + `<div class="q"><p class="qh"><span class="qi">${++n}.</span><span>${esc(q.t)} ${fmtP(q.puntos)}</span></p>${opts}${conf}</div>`;
+      h += cab(q) + `<div class="q">${citaH(q)}<p class="qh"><span class="qi">${++n}.</span><span>${esc(q.t)} ${fmtP(q.puntos)}</span></p>${opts}${conf}</div>`;
     });
   }
   if (EX.open.length) {
@@ -290,7 +290,7 @@ function buildQuiz() {
       h += cab(q);
       if (q.act && q.act !== last) h += `<p class="hintline" style="font-weight:700;color:var(--salmon-ink);margin-bottom:-4px">${esc(q.act)}</p>`;
       last = q.act;
-      h += `<div class="q"><p class="qh"><span class="qi">${++n}.</span><span>${esc(q.t)} ${fmtP(q.puntos)}</span></p><textarea id="op${i}" maxlength="4000" placeholder="Escribe tu respuesta…"></textarea></div>`;
+      h += `<div class="q">${citaH(q)}<p class="qh"><span class="qi">${++n}.</span><span>${esc(q.t)} ${fmtP(q.puntos)}</span></p><textarea id="op${i}" maxlength="4000" placeholder="Escribe tu respuesta…"></textarea></div>`;
     });
   }
   if (EX.num.length) {
@@ -319,6 +319,13 @@ function buildQuiz() {
   progreso();
 }
 const MARCADAS = {};
+
+/** Defensas: fragmento del enunciado o de su propio trabajo al que se refiere la pregunta (no tiene por qué recordarlo). */
+function citaH(q) {
+  if (!q.cita) return "";
+  const codigo = /[{};]\s*$|^\s{2,}\S|^\s*(def|class|public|private|function|import|return)\b/m.test(q.cita);
+  return `<figure class="cita${codigo ? " codigo" : ""}"><figcaption>${q.citaDe === "enunciado" ? "📄 Del enunciado del trabajo" : "✍️ De tu trabajo"}</figcaption><blockquote>${esc(q.cita)}</blockquote></figure>`;
+}
 
 /** Rellena el examen con respuestas guardadas (al reanudarlo). */
 function ponerRespuestas(r) {
