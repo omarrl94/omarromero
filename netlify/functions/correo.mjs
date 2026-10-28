@@ -295,7 +295,8 @@ async function cuentaProfesor(body, req, auth, db) {
     if (await throttle(db, `inicial:${email}`, { gap: 2000, max: 20 })) return json(429, { error: "Demasiados intentos. Espera un poco." });
     if (!iguales(body.password, inicial)) return no();
     if ((await db.doc(claveInicial(email)).get()).exists) return no("usada");   // ya se usó: solo vale una vez
-    let user = await auth.getUserByEmail(email).catch(() => null);
+    // Solo «no existe» significa crearla; cualquier otro error (p. ej. falta de permisos) se explica
+    let user = await auth.getUserByEmail(email).catch((e) => { if (e?.code === "auth/user-not-found") return null; throw e; });
     if (user) await auth.updateUser(user.uid, { password: inicial, emailVerified: true });
     else user = await auth.createUser({ email, password: inicial, emailVerified: true, displayName: "Omar Romero" });
     await auth.setCustomUserClaims(user.uid, { ...(user.customClaims || {}), cambiarPassword: true });
