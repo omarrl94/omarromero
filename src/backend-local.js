@@ -17,6 +17,7 @@ function estadoInicial() {
     progress: {},
     submissions: [],
     diplomas: [],
+    tests: [],
     aprobaciones: {},
     config: { codigoAula: CODIGO_AULA_DEMO }
   };
@@ -59,6 +60,7 @@ export function crearBackendLocal() {
     delete DB.progress[id];
     DB.submissions = DB.submissions.filter(s => s.userId !== id);
     DB.diplomas = DB.diplomas.filter(d => d.userId !== id);
+    DB.tests = (DB.tests || []).filter(t => t.userId !== id);
   };
 
   return {
@@ -68,6 +70,7 @@ export function crearBackendLocal() {
       alCambiarAuth = onAuth; alCambiarDatos = onDatos;
       const datos = cargar();
       datos.config = datos.config || { codigoAula: CODIGO_AULA_DEMO };
+      datos.tests = datos.tests || [];
       reemplazarDB(datos);
       guardar();
       avisar(recordado());
@@ -110,12 +113,22 @@ export function crearBackendLocal() {
       guardar();
     },
 
-    async guardarEntrega(n, { enlace, pareja, comentario }) {
+    async guardarEntrega(n, bloque, { enlace, pareja, comentario }) {
       const u = yo();
-      let e = DB.submissions.find(s => s.userId === u.id && s.sesion === n);
+      if (bloque !== "sync" && bloque !== u.ciclo.toLowerCase()) throw new Error("Solo puedes entregar el bloque de tu ciclo y el de sincronización.");
+      let e = DB.submissions.find(s => s.userId === u.id && s.sesion === n && s.bloque === bloque);
       if (e?.estado === "aprobada") throw new Error("Esta entrega ya está aprobada.");
-      if (!e) { e = { id: `${u.id}_${n}`, userId: u.id, sesion: n, nombre: u.nombre, ciclo: u.ciclo, curso: u.curso }; DB.submissions.push(e); }
+      if (!e) { e = { id: `${u.id}_${n}_${bloque}`, userId: u.id, sesion: n, bloque, nombre: u.nombre, ciclo: u.ciclo, curso: u.curso }; DB.submissions.push(e); }
       Object.assign(e, { enlace, pareja, comentario, ts: ahora(), estado: "pendiente" });
+      guardar();
+    },
+
+    async guardarTest(n, { aciertos, total, nota }) {
+      const u = yo();
+      DB.tests = DB.tests || [];
+      let t = DB.tests.find(x => x.userId === u.id && x.sesion === n);
+      if (!t) { t = { id: `${u.id}_${n}`, userId: u.id, sesion: n, intentos: 0, mejor: 0, nombre: u.nombre, ciclo: u.ciclo, curso: u.curso }; DB.tests.push(t); }
+      Object.assign(t, { aciertos, total, nota, mejor: Math.max(t.mejor, nota), intentos: t.intentos + 1, ts: ahora() });
       guardar();
     },
 
@@ -128,7 +141,7 @@ export function crearBackendLocal() {
     async emitirTitulo(userId) {
       const u = DB.users.find(x => x.id === userId);
       if (DB.diplomas.some(d => d.userId === userId)) return;
-      if (DB.submissions.find(s => s.userId === userId && s.sesion === 12)?.estado !== "aprobada") throw new Error("Falta aprobar el Proyecto Final (Sesión 12).");
+      if (DB.submissions.find(s => s.userId === userId && s.sesion === 12 && s.bloque === "sync")?.estado !== "aprobada") throw new Error("Falta aprobar el Proyecto Final (Sesión 12, bloque de sincronización).");
       DB.diplomas.push({ id: userId, userId, codigo: generarCodigoTitulo(), emitidoEn: ahora(), emitidoPor: ADMIN_EMAIL, nota: notaMediaDe(userId), nombre: u.nombre, ciclo: u.ciclo, curso: u.curso });
       guardar();
     },

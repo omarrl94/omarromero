@@ -4,7 +4,8 @@ rules_version = '2';
 //
 // Colecciones:
 //   usuarios/{uid}            perfil + progreso (lo escribe su dueño)
-//   entregas/{uid}_{sesion}   entrega de una actividad (alumno) y su evaluación (profesor)
+//   entregas/{uid}_{sesion}_{bloque}  entrega de un bloque (dam | asir | sync) y su evaluación
+//   tests/{uid}_{sesion}      resultado del test de autoevaluación de la sesión
 //   titulos/{uid}             Título Propio emitido (solo el profesor)
 //   verificaciones/{codigo}   copia mínima para verificar un título con su código (lectura pública)
 //   config/aula               código de acceso de aula (nadie lo lee salvo el profesor)
@@ -100,12 +101,17 @@ service cloud.firestore {
     match /entregas/{id} {
       allow read: if isAdmin() || (signedIn() && resource.data.userId == request.auth.uid);
 
+      // Cada alumno entrega el bloque de su ciclo y el de sincronización (DAM + ASIR)
       allow create: if activado()
-        && request.resource.data.keys().hasOnly(['userId', 'sesion', 'enlace', 'pareja', 'comentario', 'ts', 'estado', 'nombre', 'ciclo', 'curso'])
+        && request.resource.data.keys().hasOnly(['userId', 'sesion', 'bloque', 'enlace', 'pareja', 'comentario', 'ts', 'estado', 'nombre', 'ciclo', 'curso'])
         && request.resource.data.userId == request.auth.uid
         && request.resource.data.sesion is int
         && request.resource.data.sesion >= 1 && request.resource.data.sesion <= 12
-        && id == request.auth.uid + '_' + string(request.resource.data.sesion)
+        && request.resource.data.bloque in ['dam', 'asir', 'sync']
+        && (request.resource.data.bloque == 'sync'
+            || (request.resource.data.bloque == 'dam' && perfil(request.auth.uid).ciclo == 'DAM')
+            || (request.resource.data.bloque == 'asir' && perfil(request.auth.uid).ciclo == 'ASIR'))
+        && id == request.auth.uid + '_' + string(request.resource.data.sesion) + '_' + request.resource.data.bloque
         && contenidoEntregaValido(request.resource.data)
         && request.resource.data.nombre == perfil(request.auth.uid).nombre
         && request.resource.data.ciclo == perfil(request.auth.uid).ciclo
@@ -134,17 +140,46 @@ service cloud.firestore {
       allow delete: if isAdmin() || (signedIn() && resource.data.userId == request.auth.uid);
     }
 
+    // ---------------------------------------------------------------- tests
+    // Autoevaluación: el alumno guarda su resultado; el intento y la mejor nota no se pueden falsear
+    function testValido(d, previo) {
+      return d.keys().hasOnly(['userId', 'sesion', 'aciertos', 'total', 'nota', 'mejor', 'intentos', 'ts', 'nombre', 'ciclo', 'curso'])
+        && d.userId == request.auth.uid
+        && d.sesion is int && d.sesion >= 1 && d.sesion <= 12
+        && d.total is int && d.total >= 1 && d.total <= 40
+        && d.aciertos is int && d.aciertos >= 0 && d.aciertos <= d.total
+        && d.nota is number && d.nota >= 0 && d.nota <= 10
+        && d.ts == request.time
+        && d.nombre == perfil(request.auth.uid).nombre
+        && d.ciclo == perfil(request.auth.uid).ciclo
+        && d.curso == perfil(request.auth.uid).curso
+        && (previo == null
+            ? (d.intentos == 1 && d.mejor == d.nota)
+            : (d.intentos == previo.intentos + 1 && d.sesion == previo.sesion
+               && d.mejor == (d.nota > previo.mejor ? d.nota : previo.mejor)));
+    }
+
+    match /tests/{id} {
+      allow read: if isAdmin() || (signedIn() && resource.data.userId == request.auth.uid);
+      allow create: if signedIn()
+        && id == request.auth.uid + '_' + string(request.resource.data.sesion)
+        && testValido(request.resource.data, null);
+      allow update: if signedIn() && resource.data.userId == request.auth.uid
+        && testValido(request.resource.data, resource.data);
+      allow delete: if isAdmin() || (signedIn() && resource.data.userId == request.auth.uid);
+    }
+
     // ---------------------------------------------------------------- títulos
     match /titulos/{uid} {
       allow read: if isAdmin() || isOwner(uid);
-      // Solo con el Proyecto Final (Sesión 12) aprobado
+      // Solo con el Proyecto Final (bloque de sincronización de la Sesión 12) aprobado
       allow create: if isAdmin()
         && request.resource.data.keys().hasOnly(['userId', 'codigo', 'emitidoEn', 'emitidoPor', 'nota', 'nombre', 'ciclo', 'curso'])
         && request.resource.data.userId == uid
         && request.resource.data.codigo.matches('^JRO-IA-[0-9]{4}-[0-9A-F]{6}$')
         && request.resource.data.emitidoEn == request.time
         && request.resource.data.emitidoPor == request.auth.token.email
-        && get(/databases/$(database)/documents/entregas/$(uid + '_12')).data.estado == 'aprobada';
+        && get(/databases/$(database)/documents/entregas/$(uid + '_12_sync')).data.estado == 'aprobada';
       allow update: if false;
       allow delete: if isAdmin() || isOwner(uid);
     }

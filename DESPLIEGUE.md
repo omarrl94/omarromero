@@ -168,7 +168,7 @@ FIREBASE_PROJECT_ID=demo-jrotero FIREBASE_APP_ID=1:1:web:1 FIREBASE_EMULADOR=1 n
 
 Los correos de verificación del emulador no se envían: sus enlaces se ven en `http://127.0.0.1:9099/emulator/v1/projects/demo-jrotero/oobCodes`.
 
-Para probar las reglas de seguridad (52 casos: registro, roles, altas aprobadas, entregas, notas, títulos y supresión):
+Para probar las reglas de seguridad (64 casos: registro, roles, altas aprobadas, entregas por bloque, tests, notas, títulos y supresión):
 
 ```bash
 npm run probar:reglas

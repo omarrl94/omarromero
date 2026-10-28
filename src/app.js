@@ -97,7 +97,9 @@ const UI = {
   filtroEstado: "pendiente",
   diplomaId: null,
   codigoVerificar: "",
-  resultadoVerificar: undefined
+  resultadoVerificar: undefined,
+  testResultado: null,      // { sesion, respuestas, aciertos, total, nota }
+  testIntento: {}           // sesión → número de intento (cambia el orden de las opciones)
 };
 
 function aplicarRuta() {
@@ -128,11 +130,15 @@ window.addEventListener("hashchange", () => { aplicarRuta(); render(); window.sc
 const usuario = () => AUTH.estado === "dentro" ? DB.users.find(u => u.id === AUTH.userId) || null : null;
 const esAdmin = () => usuario()?.role === "admin";
 const alumnos = () => DB.users.filter(u => u.role === "alumno");
-const entrega = (userId, n) => DB.submissions.find(s => s.userId === userId && s.sesion === n);
+const entrega = (userId, n, bloque = "sync") => DB.submissions.find(s => s.userId === userId && s.sesion === n && s.bloque === bloque);
 const completadas = (userId) => Object.keys(DB.progress[userId] || {}).length;
 const diplomaDe = (userId) => DB.diplomas.find(d => d.userId === userId);
 const aprobadas = (userId) => DB.submissions.filter(s => s.userId === userId && s.estado === "aprobada");
-const apto = (userId) => entrega(userId, 12)?.estado === "aprobada";
+const apto = (userId) => entrega(userId, 12, "sync")?.estado === "aprobada";
+const mediaTests = (userId) => {
+  const t = (DB.tests || []).filter(x => x.userId === userId);
+  return t.length ? Math.round(t.reduce((a, x) => a + x.mejor, 0) / t.length * 10) / 10 : null;
+};
 const verificado = () => AUTH.verificado !== false;
 
 /* =====================================================================
@@ -528,10 +534,10 @@ function sidebar(u) {
       const activa = x.n === UI.sesion;
       let estado = "";
       if (u.role === "alumno") {
-        const e = entrega(u.id, x.n);
-        if (e?.estado === "aprobada") estado = `<span title="Actividad aprobada" class="block h-2.5 w-2.5 rounded-full bg-jro-gold"></span>`;
+        const ents = [u.ciclo.toLowerCase(), "sync"].map(b => entrega(u.id, x.n, b));
+        if (ents.every(e => e?.estado === "aprobada")) estado = `<span title="Bloques aprobados" class="block h-2.5 w-2.5 rounded-full bg-jro-gold"></span>`;
         else if (DB.progress[u.id]?.[x.n]) estado = `<span title="Completada" class="text-xs font-bold text-[#5f8f7a]">✓</span>`;
-        else if (e) estado = `<span title="Entregada" class="block h-2.5 w-2.5 rounded-full border-2 border-jro-gold"></span>`;
+        else if (ents.some(Boolean)) estado = `<span title="Entregada" class="block h-2.5 w-2.5 rounded-full border-2 border-jro-gold"></span>`;
       }
       html += `<button data-action="ir" data-hash="${rutaSesion(x.n)}" ${activa ? 'aria-current="page"' : ""} class="w-full text-left px-4 py-2.5 flex items-start gap-3 border-l-4 ${activa ? "border-jro-gold bg-jro-cream" : "border-transparent hover:bg-jro-cream"}">
         <span class="shrink-0 mt-0.5 text-xs font-bold ${activa ? "text-jro-ink" : "text-jro-mute"}">S${x.n}</span>
@@ -582,11 +588,33 @@ function contenidoTab(s, u) {
   return "";
 }
 
+const ETIQUETA_EJEMPLO = { dam: ["Ejemplo DAM", "border-jro-sage", "dam-head"], asir: ["Ejemplo ASIR", "border-jro-terra", "asir-head"], general: ["Ejemplo", "border-jro-gold", "bg-jro-gold"], aviso: ["Cuidado", "border-jro-terra", "bg-jro-terra/40"] };
+
+function cajaEjemplo(e) {
+  const [etq, borde, cab] = ETIQUETA_EJEMPLO[e.tipo] || ETIQUETA_EJEMPLO.general;
+  return `<div class="mt-4 rounded-xl border-2 ${borde} overflow-hidden">
+    <div class="${cab} px-4 py-1.5 text-xs font-bold text-jro-ink">${etq}${e.titulo ? ` · ${esc(e.titulo)}` : ""}</div>
+    <div class="px-4 py-3">
+      ${e.texto ? `<div class="prose-jro text-[15px]">${e.texto}</div>` : ""}
+      ${e.code ? codeBlock(e.lang || "Código", e.code) : ""}
+    </div>
+  </div>`;
+}
+
 function tabTeoria(s) {
-  return `<div class="space-y-4">${s.teoria.map(t => `
-    <article class="bg-white rounded-xl border border-jro-line p-5">
-      <h2 class="text-lg font-bold">${esc(t.h)}</h2>
+  const objetivos = s.objetivos?.length ? `<article class="bg-white rounded-xl border-2 border-jro-gold p-5">
+      <h2 class="text-lg font-bold">Al terminar esta sesión sabrás…</h2>
+      <ul class="mt-2 grid sm:grid-cols-2 gap-x-6 gap-y-1.5 text-[15px]">${s.objetivos.map(o => `<li class="flex gap-2"><span class="text-jro-ink font-bold">✓</span><span>${esc(o)}</span></li>`).join("")}</ul>
+    </article>` : "";
+  const indice = s.teoria.length > 3 ? `<nav class="bg-white rounded-xl border border-jro-line p-4 text-sm" aria-label="Índice">
+      <div class="font-semibold mb-1">Contenido</div>
+      <ol class="list-decimal pl-5 grid sm:grid-cols-2 gap-x-6">${s.teoria.map((t, i) => `<li><a class="underline-offset-2 hover:underline" href="#teoria-${s.n}-${i}" data-action="anclar" data-id="teoria-${s.n}-${i}">${esc(t.h)}</a></li>`).join("")}</ol>
+    </nav>` : "";
+  return `<div class="space-y-4">${objetivos}${indice}${s.teoria.map((t, i) => `
+    <article id="teoria-${s.n}-${i}" class="bg-white rounded-xl border border-jro-line p-5 scroll-mt-32">
+      <h2 class="text-lg font-bold">${i + 1}. ${esc(t.h)}</h2>
       <div class="prose-jro mt-1 text-[15px]">${t.html}</div>
+      ${(t.ejemplos || []).map(cajaEjemplo).join("")}
     </article>`).join("")}</div>`;
 }
 
@@ -596,6 +624,10 @@ function tabTaller(s) {
       <h2 class="font-bold">${esc(p.t)}</h2>
       <p class="text-sm text-jro-mute mt-1">${esc(p.d)}</p>
       ${codeBlock(p.lang, p.code)}
+      ${p.resultado ? `<div class="mt-3 rounded-lg border border-jro-sage bg-[#f1f7f4] px-3 py-2">
+        <div class="text-xs font-bold uppercase tracking-wide text-[#3f6b58]">Resultado esperado</div>
+        <pre class="mt-1 text-[12.5px] whitespace-pre-wrap mono">${esc(p.resultado)}</pre></div>` : ""}
+      ${p.nota ? `<p class="mt-2 text-sm"><b>Ojo:</b> ${esc(p.nota)}</p>` : ""}
     </li>`).join("")}</ol>`;
 }
 
@@ -608,50 +640,97 @@ function tabPrompts(s) {
         <h2 class="mt-2 font-bold">${esc(p.t)}</h2></div>
         <button class="btn-cta shrink-0 rounded-lg px-3 py-1.5 text-sm" data-action="copiar" data-target="${id}">Copiar</button>
       </div>
+      ${p.uso ? `<p class="mt-2 text-sm text-jro-mute">${esc(p.uso)}</p>` : ""}
       <pre id="${id}" class="mt-3 flex-1 rounded-lg bg-jro-cream border border-jro-line p-3 text-[12.5px] leading-relaxed whitespace-pre-wrap mono">${esc(p.txt)}</pre>
     </article>`;
   }).join("")}</div>`;
 }
 
-function bloqueActividad(tipo, a, esMio) {
-  const cls = { dam: "border-jro-sage", asir: "border-jro-terra" }[tipo];
-  const head = { dam: "dam-head", asir: "asir-head" }[tipo];
-  const titulo = { dam: "Bloque DAM · Desarrollo de Aplicaciones Multiplataforma", asir: "Bloque ASIR · Administración de Sistemas Informáticos en Red" }[tipo];
-  return `<section class="bg-white rounded-xl border-2 ${cls} overflow-hidden">
-    <div class="${head} px-5 py-2.5 flex items-center justify-between gap-2">
-      <span class="text-sm font-bold text-jro-ink">${titulo}</span>
-      ${esMio ? `<span class="rounded-full bg-white/80 px-2 py-0.5 text-[11px] font-bold shrink-0">Tu ciclo</span>` : ""}
-    </div>
-    <div class="p-5">
-      <h3 class="font-bold text-lg">${esc(a.t)}</h3>
-      <p class="mt-1 text-[15px] leading-relaxed">${esc(a.d)}</p>
-      <div class="mt-3 text-sm font-semibold">Entregables</div>
-      <ul class="mt-1 list-disc pl-5 text-sm space-y-1">${a.entregables.map(e => `<li>${esc(e)}</li>`).join("")}</ul>
-    </div>
+/* ---------- Test de autoevaluación ---------- */
+const testDe = (userId, n) => (DB.tests || []).find(t => t.userId === userId && t.sesion === n);
+
+function barajar(n, semilla) {
+  const idx = [...Array(n).keys()];
+  let x = semilla || 1;
+  for (let i = n - 1; i > 0; i--) { x = (x * 9301 + 49297) % 233280; const j = Math.floor(x / 233280 * (i + 1)); [idx[i], idx[j]] = [idx[j], idx[i]]; }
+  return idx;
+}
+
+function seccionTest(s, u) {
+  const preguntas = s.test || [];
+  if (!preguntas.length) return "";
+  const alumno = u.role === "alumno";
+  const previo = alumno ? testDe(u.id, s.n) : null;
+  const r = UI.testResultado?.sesion === s.n ? UI.testResultado : null;
+  const semilla = (UI.testIntento[s.n] || 0) + s.n * 7;
+  const cabecera = `<div class="flex flex-wrap items-center justify-between gap-2">
+      <div><h3 class="font-bold text-lg">Test de autoevaluación · Sesión ${s.n}</h3>
+      <p class="text-sm text-jro-mute">${preguntas.length} preguntas. Al corregir verás la explicación de cada una. Puedes repetirlo: se guarda tu mejor nota.</p></div>
+      ${previo ? `<div class="text-sm rounded-lg bg-jro-cream px-3 py-1.5">Mejor nota: <b>${previo.mejor}</b>/10 · ${previo.intentos} intento${previo.intentos === 1 ? "" : "s"}</div>` : ""}
+    </div>`;
+  if (!alumno) {
+    const res = (DB.tests || []).filter(t => t.sesion === s.n);
+    const media = res.length ? Math.round(res.reduce((a, t) => a + t.mejor, 0) / res.length * 10) / 10 : null;
+    return `<section class="bg-white rounded-xl border-2 border-jro-gold p-5">${cabecera}
+      <p class="mt-2 text-sm">${res.length} alumnos lo han hecho${media !== null ? ` · media de la mejor nota: <b>${media}</b>` : ""}.</p>
+      <details class="mt-3"><summary class="cursor-pointer text-sm font-semibold">Ver preguntas y soluciones</summary>
+        <ol class="mt-3 space-y-3 list-decimal pl-5 text-sm">${preguntas.map(q => `<li><div class="font-medium">${esc(q.p)}</div>
+          <div class="mt-1">✓ ${esc(q.o[q.c])}</div><div class="text-jro-mute">${esc(q.exp)}</div></li>`).join("")}</ol>
+      </details></section>`;
+  }
+  if (r) {
+    return `<section class="bg-white rounded-xl border-2 border-jro-gold p-5">${cabecera}
+      <div class="mt-3 rounded-lg ${r.nota >= 5 ? "bg-jro-gold/25 border border-jro-gold" : "bg-jro-terra/25 border border-jro-terra"} px-4 py-3">
+        <span class="text-2xl font-extrabold">${r.nota}</span><span class="text-jro-mute"> /10</span> · ${r.aciertos} de ${r.total} aciertos ${r.nota >= 5 ? "· ¡Superado!" : "· Repasa la teoría y vuelve a intentarlo"}
+      </div>
+      <ol class="mt-4 space-y-3">${preguntas.map((q, i) => {
+        const ok = r.respuestas[i] === q.c;
+        return `<li class="rounded-lg border ${ok ? "border-jro-sage bg-[#f1f7f4]" : "border-jro-terra bg-[#fbefe8]"} p-3 text-sm">
+          <div class="font-semibold">${i + 1}. ${esc(q.p)} ${ok ? "✓" : "✗"}</div>
+          ${ok ? "" : `<div class="mt-1">Tu respuesta: ${r.respuestas[i] >= 0 ? esc(q.o[r.respuestas[i]]) : "— en blanco"}</div>`}
+          <div class="mt-1"><b>Correcta:</b> ${esc(q.o[q.c])}</div>
+          <div class="mt-1 text-jro-mute">${esc(q.exp)}</div></li>`;
+      }).join("")}</ol>
+      <button data-action="repetirtest" data-n="${s.n}" class="mt-4 btn-cta rounded-lg px-4 py-2 text-sm">Repetir el test</button>
+    </section>`;
+  }
+  return `<section class="bg-white rounded-xl border-2 border-jro-gold p-5">${cabecera}
+    <form data-form="test" data-n="${s.n}" class="mt-4 space-y-4" novalidate>
+      ${preguntas.map((q, i) => `<fieldset class="rounded-lg border border-jro-line p-3">
+        <legend class="px-1 text-sm font-semibold">${i + 1}. ${esc(q.p)}</legend>
+        <div class="mt-1 grid gap-1.5">${barajar(q.o.length, semilla + i).map(j => `<label class="flex gap-2 items-start text-sm rounded-md px-2 py-1 hover:bg-jro-cream cursor-pointer">
+          <input type="radio" name="q${i}" value="${j}" class="mt-1 accent-[#efcd2f]"><span>${esc(q.o[j])}</span></label>`).join("")}</div>
+      </fieldset>`).join("")}
+      <button class="btn-cta rounded-lg px-5 py-2.5 text-sm">Corregir el test</button>
+    </form>
   </section>`;
 }
 
-function formularioEntrega(s, u) {
-  const e = entrega(u.id, s.n);
+/* ---------- Entregas por bloque ---------- */
+const NOMBRE_BLOQUE = { dam: "Bloque DAM", asir: "Bloque ASIR", sync: "Bloque Sincronización DAM + ASIR" };
+const bloquesDe = (u) => u.role === "alumno" ? [u.ciclo.toLowerCase(), "sync"] : [];
+
+function formularioEntrega(s, u, bloque) {
+  const e = entrega(u.id, s.n, bloque);
   const bloqueada = e?.estado === "aprobada";
-  return `<div class="mt-5 rounded-lg bg-white/85 border border-jro-line p-4">
+  return `<div class="mt-4 rounded-lg bg-white/85 border border-jro-line p-4">
     <div class="flex flex-wrap items-center justify-between gap-2">
-      <h4 class="font-bold">Formulario de entrega para evaluación docente</h4>
+      <h4 class="font-bold">Entrega · ${NOMBRE_BLOQUE[bloque]}</h4>
       ${badgeEstado(e?.estado)}
     </div>
     ${e ? `<p class="text-xs text-jro-mute mt-1">Última entrega: ${fechaHora(e.ts)}</p>` : ""}
     ${e?.revisadoEn ? `<div class="mt-3 rounded-lg ${e.estado === "aprobada" ? "bg-jro-gold/25 border border-jro-gold" : "bg-jro-terra/25 border border-jro-terra"} px-3 py-2 text-sm">
       <div class="font-semibold">Evaluación del profesor${typeof e.nota === "number" ? ` · Nota: ${e.nota}/10` : ""}</div>
       <div class="mt-1 whitespace-pre-wrap">${esc(e.feedback || "Sin comentarios.")}</div></div>` : ""}
-    ${bloqueada ? `<p class="mt-3 text-sm">Actividad aprobada. ¡Buen trabajo!</p>`
+    ${bloqueada ? `<p class="mt-3 text-sm">Bloque aprobado. ¡Buen trabajo!</p>`
     : !verificado() ? `<p class="mt-3 text-sm">Verifica tu correo para poder entregar (aviso en la parte superior).</p>` : `
-    <form data-form="entrega" data-n="${s.n}" class="mt-3 grid gap-3" novalidate>
+    <form data-form="entrega" data-n="${s.n}" data-bloque="${bloque}" class="mt-3 grid gap-3" novalidate>
       <label class="block text-sm"><span class="font-medium">Enlace al repositorio o documento (https://…)</span>
         <input name="enlace" maxlength="500" class="${INPUT}" value="${esc(e?.enlace || "")}" placeholder="https://github.com/usuario/repositorio"></label>
-      <label class="block text-sm"><span class="font-medium">Compañero/a del otro ciclo (bloque de sincronización)</span>
-        <input name="pareja" maxlength="80" class="${INPUT}" value="${esc(e?.pareja || "")}" placeholder="Nombre y ciclo"></label>
+      ${bloque === "sync" ? `<label class="block text-sm"><span class="font-medium">Compañero/a del otro ciclo</span>
+        <input name="pareja" maxlength="80" class="${INPUT}" value="${esc(e?.pareja || "")}" placeholder="Nombre y ciclo"></label>` : ""}
       <label class="block text-sm"><span class="font-medium">Resumen de lo realizado</span>
-        <textarea name="comentario" rows="4" maxlength="3000" class="${INPUT}">${esc(e?.comentario || "")}</textarea></label>
+        <textarea name="comentario" rows="3" maxlength="3000" class="${INPUT}">${esc(e?.comentario || "")}</textarea></label>
       <label class="flex gap-2 items-start text-sm"><input type="checkbox" name="limpio" class="mt-1 h-4 w-4 accent-[#efcd2f]">
         <span>Confirmo que la entrega no contiene datos personales, contraseñas reales ni logs sin anonimizar.</span></label>
       <div><button class="btn-cta rounded-lg px-5 py-2 text-sm">${e ? "Actualizar entrega" : "Enviar entrega"}</button></div>
@@ -659,32 +738,53 @@ function formularioEntrega(s, u) {
   </div>`;
 }
 
+function contenidoBloque(a) {
+  return `<h3 class="font-bold text-lg">${esc(a.t)}</h3>
+    <p class="mt-1 text-[15px] leading-relaxed">${esc(a.d)}</p>
+    ${a.pasos?.length ? `<div class="mt-3 text-sm font-semibold">Pasos</div>
+      <ol class="mt-1 list-decimal pl-5 text-sm space-y-1">${a.pasos.map(p => `<li>${esc(p)}</li>`).join("")}</ol>` : ""}
+    <div class="mt-3 text-sm font-semibold">Entregables</div>
+    <ul class="mt-1 list-disc pl-5 text-sm space-y-1">${a.entregables.map(e => `<li>${esc(e)}</li>`).join("")}</ul>
+    ${a.criterios?.length ? `<div class="mt-3 text-sm font-semibold">Criterios de evaluación</div>
+      <table class="mt-1 w-full text-sm"><tbody>${a.criterios.map(([c, p]) => `<tr class="border-t border-jro-line/70"><td class="py-1 pr-3">${esc(c)}</td><td class="py-1 text-right whitespace-nowrap font-semibold">${esc(String(p))} p</td></tr>`).join("")}</tbody></table>` : ""}`;
+}
+
+function resumenAdminBloque(s, bloque) {
+  const lista = DB.submissions.filter(x => x.sesion === s.n && x.bloque === bloque);
+  return `<div class="mt-4 rounded-lg bg-white/85 border border-jro-line p-3 text-sm flex flex-wrap items-center justify-between gap-2">
+    <span>${lista.length} entregas · ${lista.filter(x => x.estado === "pendiente").length} pendientes</span>
+    <button data-action="ir" data-hash="#/admin/entregas" class="btn-cta rounded-lg px-3 py-1.5 text-sm">Corregir</button></div>`;
+}
+
+function bloqueActividad(s, u, tipo) {
+  const a = s.actividad[tipo];
+  const cls = { dam: "border-jro-sage", asir: "border-jro-terra" }[tipo];
+  const head = { dam: "dam-head", asir: "asir-head" }[tipo];
+  const titulo = { dam: "Bloque DAM · Desarrollo de Aplicaciones Multiplataforma", asir: "Bloque ASIR · Administración de Sistemas Informáticos en Red" }[tipo];
+  const mio = bloquesDe(u).includes(tipo);
+  const pie = u.role === "alumno"
+    ? (mio ? formularioEntrega(s, u, tipo) : `<p class="mt-4 text-xs text-jro-mute">Este bloque lo entrega el alumnado de ${tipo.toUpperCase()}. Léelo: lo necesitarás en el bloque de sincronización.</p>`)
+    : resumenAdminBloque(s, tipo);
+  return `<section class="bg-white rounded-xl border-2 ${cls} overflow-hidden">
+    <div class="${head} px-5 py-2.5 flex items-center justify-between gap-2">
+      <span class="text-sm font-bold text-jro-ink">${titulo}</span>
+      ${mio ? `<span class="rounded-full bg-white/80 px-2 py-0.5 text-[11px] font-bold shrink-0">Tu ciclo</span>` : ""}
+    </div>
+    <div class="p-5">${contenidoBloque(a)}${pie}</div>
+  </section>`;
+}
+
 function tabActividad(s, u) {
-  const a = s.actividad;
-  let form;
-  if (u.role === "alumno") form = formularioEntrega(s, u);
-  else {
-    const lista = DB.submissions.filter(x => x.sesion === s.n);
-    form = `<div class="mt-5 rounded-lg bg-white/85 border border-jro-line p-4">
-      <h4 class="font-bold">Entregas de esta sesión</h4>
-      <p class="text-sm mt-1">${lista.length} entregas · ${lista.filter(x => x.estado === "pendiente").length} pendientes de revisión.</p>
-      <button data-action="ir" data-hash="#/admin/entregas" class="mt-3 btn-cta rounded-lg px-4 py-2 text-sm">Corregir en el Panel docente</button>
-    </div>`;
-  }
+  const pieSync = u.role === "alumno" ? formularioEntrega(s, u, "sync") : resumenAdminBloque(s, "sync");
   return `<div class="space-y-5">
+    ${seccionTest(s, u)}
     <div class="grid xl:grid-cols-2 gap-5">
-      ${bloqueActividad("dam", a.dam, u.ciclo === "DAM")}
-      ${bloqueActividad("asir", a.asir, u.ciclo === "ASIR")}
+      ${bloqueActividad(s, u, "dam")}
+      ${bloqueActividad(s, u, "asir")}
     </div>
     <section class="sync-card rounded-xl overflow-hidden">
-      <div class="sync-head px-5 py-2.5 text-sm font-bold text-jro-ink">Bloque Sincronización DAM + ASIR</div>
-      <div class="p-5">
-        <h3 class="font-bold text-lg">${esc(a.sync.t)}</h3>
-        <p class="mt-1 text-[15px] leading-relaxed">${esc(a.sync.d)}</p>
-        <div class="mt-3 text-sm font-semibold">Entregables</div>
-        <ul class="mt-1 list-disc pl-5 text-sm space-y-1">${a.sync.entregables.map(e => `<li>${esc(e)}</li>`).join("")}</ul>
-        ${form}
-      </div>
+      <div class="sync-head px-5 py-2.5 text-sm font-bold text-jro-ink">Bloque Sincronización DAM + ASIR${s.n === 12 ? " · da acceso al Título Propio" : ""}</div>
+      <div class="p-5">${contenidoBloque(s.actividad.sync)}${pieSync}</div>
     </section>
   </div>`;
 }
@@ -718,7 +818,7 @@ function vistaPerfil() {
         ${u.role === "alumno" ? fila("Ciclo y curso", `${badgeCiclo(u.ciclo)} ${esc(u.curso)} · ${esc(CICLOS[u.ciclo])}`) : fila("Cargo", "Docente y Tutor en FP José Ramón Otero")}
         ${fila("Alta", fecha(u.createdAt))}
         ${fila("Consentimientos", `Privacidad: ${fechaHora(u.consents?.privacidad)}<br>Compromiso EU AI Act: ${fechaHora(u.consents?.iaAct)}`)}
-        ${u.role === "alumno" ? fila("Progreso", `${completadas(u.id)}/12 sesiones · ${aprobadas(u.id).length} actividades aprobadas${media !== null ? ` · nota media ${media}` : ""}`) : ""}
+        ${u.role === "alumno" ? fila("Progreso", `${completadas(u.id)}/12 sesiones · ${aprobadas(u.id).length}/24 bloques aprobados${media !== null ? ` · nota media ${media}` : ""}${mediaTests(u.id) !== null ? ` · tests: ${mediaTests(u.id)}` : ""}`) : ""}
       </table>
     </section>
 
@@ -726,7 +826,7 @@ function vistaPerfil() {
       <h2 class="font-bold text-lg">Título Propio del Centro</h2>
       ${d ? `<p class="mt-1 text-sm">Emitido el ${fecha(d.emitidoEn)} · Código de verificación <span class="mono font-semibold">${esc(d.codigo)}</span></p>
         <button data-action="ir" data-hash="#/titulo/${esc(d.id)}" class="mt-3 btn-cta rounded-lg px-4 py-2 text-sm">Ver, imprimir o guardar en PDF</button>`
-      : `<p class="mt-1 text-sm text-jro-mute">Se emite cuando el profesor valida tu Proyecto Final Integrador (Sesión 12). Estado actual de la Sesión 12: ${badgeEstado(entrega(u.id, 12)?.estado)}</p>`}
+      : `<p class="mt-1 text-sm text-jro-mute">Se emite cuando el profesor valida tu Proyecto Final Integrador (Sesión 12). Estado del bloque de sincronización de la Sesión 12: ${badgeEstado(entrega(u.id, 12, "sync")?.estado)}</p>`}
     </section>` : ""}
 
     <section class="bg-white rounded-xl border border-jro-line p-5">
@@ -750,6 +850,7 @@ function exportarDatos() {
     perfil,
     progreso: DB.progress[u.id] || {},
     entregas: DB.submissions.filter(s => s.userId === u.id),
+    tests: (DB.tests || []).filter(t => t.userId === u.id),
     titulos: DB.diplomas.filter(d => d.userId === u.id)
   };
   descargar(`mis-datos-${u.email}.json`, JSON.stringify(datos, null, 2));
@@ -796,7 +897,7 @@ function adminSeguimiento() {
   const csv = lista.length ? `<button data-action="csv" class="mb-4 rounded-lg border border-jro-line bg-white px-3 py-1.5 text-sm">Descargar CSV de seguimiento</button>` : "";
   if (!lista.length) return filtroCicloHTML() + `<p class="text-sm text-jro-mute">No hay alumnos registrados en este filtro.</p>`;
   return filtroCicloHTML() + csv + `<div class="overflow-x-auto"><table class="w-full text-sm">
-    <thead><tr class="text-left text-jro-mute"><th class="py-2 pr-3">Alumno/a</th><th class="py-2 pr-3">Ciclo</th><th class="py-2 pr-3">Progreso</th><th class="py-2 pr-3">Entregas</th><th class="py-2 pr-3">Media</th><th class="py-2">Título</th></tr></thead>
+    <thead><tr class="text-left text-jro-mute"><th class="py-2 pr-3">Alumno/a</th><th class="py-2 pr-3">Ciclo</th><th class="py-2 pr-3">Progreso</th><th class="py-2 pr-3">Entregas</th><th class="py-2 pr-3">Media</th><th class="py-2 pr-3">Tests</th><th class="py-2">Título</th></tr></thead>
     <tbody>${lista.map(a => {
       const pct = Math.round(completadas(a.id) / 12 * 100);
       const ent = DB.submissions.filter(s => s.userId === a.id);
@@ -804,8 +905,9 @@ function adminSeguimiento() {
         <td class="py-2 pr-3"><div class="font-semibold">${esc(a.nombre)}</div><div class="text-xs text-jro-mute">${esc(a.email)}</div></td>
         <td class="py-2 pr-3 whitespace-nowrap">${badgeCiclo(a.ciclo)} <span class="text-xs">${esc(a.curso)}</span></td>
         <td class="py-2 pr-3 min-w-[140px]"><div class="text-xs">${completadas(a.id)}/12</div><div class="h-1.5 rounded-full bg-gray-100 mt-1"><div class="h-full rounded-full bg-jro-gold" style="width:${pct}%"></div></div></td>
-        <td class="py-2 pr-3 text-xs">${ent.length} enviadas<br>${aprobadas(a.id).length} aprobadas</td>
+        <td class="py-2 pr-3 text-xs">${ent.length} enviadas<br>${aprobadas(a.id).length}/24 aprobadas</td>
         <td class="py-2 pr-3">${notaMediaDe(a.id) ?? "—"}</td>
+        <td class="py-2 pr-3 text-xs">${mediaTests(a.id) ?? "—"}<br>${(DB.tests || []).filter(t => t.userId === a.id).length}/12 hechos</td>
         <td class="py-2">${diplomaDe(a.id) ? `<span class="rounded-full bg-jro-gold px-2 py-0.5 text-xs font-semibold">Emitido</span>` : apto(a.id) ? `<span class="text-xs font-semibold">Apto para emitir</span>` : `<span class="text-xs text-jro-mute">—</span>`}</td>
       </tr>`;
     }).join("")}</tbody></table></div>`;
@@ -813,8 +915,8 @@ function adminSeguimiento() {
 
 function exportarCSV() {
   const celda = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-  const filas = [["Nombre", "Correo", "Ciclo", "Curso", "Sesiones completadas", "Entregas aprobadas", "Nota media", "Título"]];
-  for (const a of alumnosFiltrados()) filas.push([a.nombre, a.email, a.ciclo, a.curso, completadas(a.id), aprobadas(a.id).length, notaMediaDe(a.id) ?? "", diplomaDe(a.id)?.codigo || ""]);
+  const filas = [["Nombre", "Correo", "Ciclo", "Curso", "Sesiones completadas", "Bloques aprobados (de 24)", "Nota media entregas", "Tests hechos", "Media tests", "Título"]];
+  for (const a of alumnosFiltrados()) filas.push([a.nombre, a.email, a.ciclo, a.curso, completadas(a.id), aprobadas(a.id).length, notaMediaDe(a.id) ?? "", (DB.tests || []).filter(t => t.userId === a.id).length, mediaTests(a.id) ?? "", diplomaDe(a.id)?.codigo || ""]);
   descargar("seguimiento-curso-claude.csv", "﻿" + filas.map(f => f.map(celda).join(";")).join("\n"), "text/csv;charset=utf-8");
 }
 
@@ -829,15 +931,15 @@ function adminEntregas() {
     ${filtroCicloHTML()}
     ${!lista.length ? `<p class="text-sm text-jro-mute">No hay entregas en este filtro.</p>` : `<div class="grid gap-4">${lista.map(s => {
       const ses = SESIONES.find(x => x.n === s.sesion);
-      const dam = s.ciclo === "DAM";
+      const dam = s.bloque === "dam" || (s.bloque !== "asir" && s.ciclo === "DAM");
       return `<article class="rounded-xl border-2 ${dam ? "border-jro-sage" : "border-jro-terra"} overflow-hidden">
         <div class="${dam ? "dam-head" : "asir-head"} px-4 py-2 flex flex-wrap items-center justify-between gap-2 text-sm">
           <span class="font-bold">${esc(s.nombre)} · ${esc(s.ciclo)} ${esc(s.curso)}</span>
-          <span>Sesión ${s.sesion} · ${fechaHora(s.ts)}</span>
+          <span>Sesión ${s.sesion} · ${esc(NOMBRE_BLOQUE[s.bloque] || "")} · ${fechaHora(s.ts)}</span>
         </div>
         <div class="p-4 grid md:grid-cols-2 gap-4">
           <div class="text-sm space-y-2 min-w-0">
-            <div class="font-semibold">${esc(ses?.actividad.sync.t || "")}</div>
+            <div class="font-semibold">${esc(ses?.actividad[s.bloque]?.t || "")}</div>
             <div><span class="text-jro-mute">Enlace:</span> ${esURL(s.enlace) ? `<a class="underline break-all" href="${esc(s.enlace)}" target="_blank" rel="noopener noreferrer">${esc(s.enlace)}</a>` : esc(s.enlace || "—")}</div>
             <div><span class="text-jro-mute">Pareja:</span> ${esc(s.pareja || "—")}</div>
             <div class="whitespace-pre-wrap break-words rounded-lg bg-jro-cream p-3">${esc(s.comentario || "Sin comentario.")}</div>
@@ -860,17 +962,17 @@ function adminEntregas() {
 
 function adminTitulos() {
   const lista = alumnosFiltrados();
-  return filtroCicloHTML() + `<p class="text-sm text-jro-mute mb-4">Requisito: Proyecto Final Integrador (Sesión 12) aprobado. La emisión queda firmada por ${esc(ADMIN_NOMBRE)} con fecha y código de verificación público.</p>
+  return filtroCicloHTML() + `<p class="text-sm text-jro-mute mb-4">Requisito: Proyecto Final Integrador aprobado (bloque de sincronización de la Sesión 12). La emisión queda firmada por ${esc(ADMIN_NOMBRE)} con fecha y código de verificación público.</p>
   ${!lista.length ? `<p class="text-sm text-jro-mute">No hay alumnos.</p>` : `<div class="grid md:grid-cols-2 gap-3">${lista.map(a => {
     const d = diplomaDe(a.id);
     return `<div class="rounded-xl border ${d ? "border-jro-gold border-2" : "border-jro-line"} p-4 flex items-center justify-between gap-3">
       <div class="min-w-0"><div class="font-semibold truncate">${esc(a.nombre)}</div>
-        <div class="text-xs text-jro-mute">${esc(a.ciclo)} ${esc(a.curso)} · media ${notaMediaDe(a.id) ?? "—"} · S12: ${esc(entrega(a.id, 12)?.estado || "sin entregar")}</div>
+        <div class="text-xs text-jro-mute">${esc(a.ciclo)} ${esc(a.curso)} · media ${notaMediaDe(a.id) ?? "—"} · S12 (sincronización): ${esc(entrega(a.id, 12, "sync")?.estado || "sin entregar")}</div>
         ${d ? `<div class="text-xs mono mt-1">${esc(d.codigo)}</div>` : ""}</div>
       <div class="flex flex-col gap-1 shrink-0">
         ${d ? `<button data-action="ir" data-hash="#/titulo/${esc(d.id)}" class="btn-cta rounded-lg px-3 py-1.5 text-sm">Ver título</button>
                <button data-action="revocar" data-id="${esc(d.id)}" class="rounded-lg px-3 py-1 text-xs border border-jro-terra bg-white">Revocar</button>`
-           : `<button data-action="emitir" data-id="${esc(a.id)}" class="btn-cta rounded-lg px-3 py-1.5 text-sm" ${apto(a.id) ? "" : "disabled title='Falta aprobar la Sesión 12'"}>Emitir y firmar título</button>`}
+           : `<button data-action="emitir" data-id="${esc(a.id)}" class="btn-cta rounded-lg px-3 py-1.5 text-sm" ${apto(a.id) ? "" : "disabled title='Falta aprobar la sincronización de la Sesión 12'"}>Emitir y firmar título</button>`}
       </div>
     </div>`;
   }).join("")}</div>`}`;
@@ -1095,6 +1197,13 @@ document.addEventListener("click", (ev) => {
     case "cerrarmodal": case "cerrarmodal-fondo": cerrarModal(); break;
     case "ir": ir(el.dataset.hash); break;
     case "copiar": copiar($("#" + el.dataset.target).textContent); break;
+    case "anclar": ev.preventDefault(); document.getElementById(el.dataset.id)?.scrollIntoView({ behavior: "smooth", block: "start" }); break;
+    case "repetirtest": {
+      const n = Number(el.dataset.n);
+      UI.testResultado = null; UI.testIntento[n] = (UI.testIntento[n] || 0) + 1;
+      render(); document.querySelector("form[data-form=test]")?.scrollIntoView({ block: "start" });
+      break;
+    }
     case "recuperar": {
       const email = ($("form[data-form=login] input[name=email]")?.value || "").trim().toLowerCase();
       if (!email) { toast("Escribe tu correo y vuelve a pulsar"); break; }
@@ -1212,7 +1321,22 @@ document.addEventListener("submit", async (ev) => {
       const enlace = (datos.enlace || "").trim();
       if (!esURL(enlace)) { toast("Indica un enlace que empiece por https://"); return; }
       if (!datos.limpio) { toast("Confirma que la entrega no contiene datos personales ni secretos"); return; }
-      await tarea("entrega-" + n, () => backend.guardarEntrega(n, { enlace, pareja: (datos.pareja || "").trim(), comentario: (datos.comentario || "").trim() }), "Entrega enviada al profesor");
+      const bloque = f.dataset.bloque;
+      await tarea("entrega-" + n + bloque, () => backend.guardarEntrega(n, bloque, { enlace, pareja: (datos.pareja || "").trim(), comentario: (datos.comentario || "").trim() }), "Entrega enviada al profesor");
+      break;
+    }
+    case "test": {
+      const n = Number(f.dataset.n);
+      const preguntas = SESIONES.find(x => x.n === n).test;
+      const respuestas = preguntas.map((_, i) => datos["q" + i] === undefined ? -1 : Number(datos["q" + i]));
+      const blancas = respuestas.filter(r => r < 0).length;
+      if (blancas && !confirm(`Te quedan ${blancas} preguntas sin responder. ¿Corregir igualmente?`)) return;
+      const aciertos = respuestas.filter((r, i) => r === preguntas[i].c).length;
+      const nota = Math.round(aciertos / preguntas.length * 100) / 10;
+      UI.testResultado = { sesion: n, respuestas, aciertos, total: preguntas.length, nota };
+      render();
+      document.querySelector("[data-form=test], section .text-2xl")?.closest("section")?.scrollIntoView({ block: "start" });
+      if (usuario()?.role === "alumno") await tarea("test-" + n, () => backend.guardarTest(n, { aciertos, total: preguntas.length, nota }), "Resultado guardado");
       break;
     }
     case "evaluar": {

@@ -43,7 +43,7 @@ function traducir(err, contexto) {
 
 const iso = (v) => (v && typeof v.toDate === "function") ? v.toDate().toISOString() : (v ?? null);
 const leer = (snap) => snap.data({ serverTimestamps: "estimate" });
-const VACIO = () => ({ users: [], progress: {}, submissions: [], diplomas: [], aprobaciones: {}, config: { codigoAula: "" } });
+const VACIO = () => ({ users: [], progress: {}, submissions: [], diplomas: [], tests: [], aprobaciones: {}, config: { codigoAula: "" } });
 
 export function crearBackendFirebase() {
   const app = initializeApp(FIREBASE);
@@ -143,6 +143,10 @@ export function crearBackendFirebase() {
     const d = leer(snap);
     return { ...d, id: snap.id, ts: iso(d.ts), revisadoEn: iso(d.revisadoEn) };
   };
+  const mapearTest = (snap) => {
+    const d = leer(snap);
+    return { ...d, id: snap.id, ts: iso(d.ts) };
+  };
   const mapearTitulo = (snap) => {
     const d = leer(snap);
     return { ...d, id: snap.id, emitidoEn: iso(d.emitidoEn) };
@@ -161,6 +165,7 @@ export function crearBackendFirebase() {
       escuchas.push(onSnapshot(collection(db, "usuarios"), s => { ponerUsuarios(s.docs.map(mapearUsuario)); alCambiarDatos(); }, fallo));
       escuchas.push(onSnapshot(collection(db, "entregas"), s => { DB.submissions = s.docs.map(mapearEntrega); alCambiarDatos(); }, fallo));
       escuchas.push(onSnapshot(collection(db, "titulos"), s => { DB.diplomas = s.docs.map(mapearTitulo); alCambiarDatos(); }, fallo));
+      escuchas.push(onSnapshot(collection(db, "tests"), s => { DB.tests = s.docs.map(mapearTest); alCambiarDatos(); }, fallo));
       escuchas.push(onSnapshot(collection(db, "aprobaciones"), s => { DB.aprobaciones = Object.fromEntries(s.docs.map(d => [d.id, leer(d)])); alCambiarDatos(); }, fallo));
       escuchas.push(onSnapshot(doc(db, "config", "aula"), s => { DB.config = { codigoAula: s.exists() ? s.data().codigo : "" }; alCambiarDatos(); }, fallo));
     } else {
@@ -170,6 +175,7 @@ export function crearBackendFirebase() {
       }, fallo));
       escuchas.push(onSnapshot(query(collection(db, "entregas"), where("userId", "==", user.uid)), s => { DB.submissions = s.docs.map(mapearEntrega); alCambiarDatos(); }, fallo));
       escuchas.push(onSnapshot(doc(db, "titulos", user.uid), s => { DB.diplomas = s.exists() ? [mapearTitulo(s)] : []; alCambiarDatos(); }, fallo));
+      escuchas.push(onSnapshot(query(collection(db, "tests"), where("userId", "==", user.uid)), s => { DB.tests = s.docs.map(mapearTest); alCambiarDatos(); }, fallo));
       // Si el profesor activa la cuenta a mano, el aviso de verificación desaparece al momento
       escuchas.push(onSnapshot(doc(db, "aprobaciones", user.uid), s => {
         const aprobado = s.exists() && s.data().aprobado === true;
@@ -348,20 +354,34 @@ export function crearBackendFirebase() {
       } catch (e) { throw traducir(e); }
     },
 
-    async guardarEntrega(n, { enlace, pareja, comentario }) {
+    async guardarEntrega(n, bloque, { enlace, pareja, comentario }) {
       const u = actual();
-      const id = `${u.uid}_${n}`;
+      const id = `${u.uid}_${n}_${bloque}`;
       const yo = DB.users.find(x => x.id === u.uid);
       const existe = DB.submissions.some(s => s.id === id);
       const contenido = { enlace, pareja, comentario, ts: serverTimestamp(), estado: "pendiente" };
       try {
         if (existe) await updateDoc(doc(db, "entregas", id), contenido);
-        else await setDoc(doc(db, "entregas", id), { userId: u.uid, sesion: n, nombre: yo.nombre, ciclo: yo.ciclo, curso: yo.curso, ...contenido });
+        else await setDoc(doc(db, "entregas", id), { userId: u.uid, sesion: n, bloque, nombre: yo.nombre, ciclo: yo.ciclo, curso: yo.curso, ...contenido });
       } catch (e) {
         throw traducir(e, estado.verificado ? "No se ha podido guardar la entrega." : "Verifica tu correo antes de entregar actividades.");
       }
-      const r = await avisar("entrega", { sesion: n });
+      const r = await avisar("entrega", { sesion: n, bloque });
       return r?.sent ? "Entrega enviada. Te hemos mandado un justificante por correo." : "Entrega enviada al profesor.";
+    },
+
+    async guardarTest(n, { aciertos, total, nota }) {
+      const u = actual();
+      const id = `${u.uid}_${n}`;
+      const yo = DB.users.find(x => x.id === u.uid);
+      const previo = DB.tests.find(t => t.id === id);
+      const datos = {
+        userId: u.uid, sesion: n, aciertos, total, nota,
+        mejor: previo ? Math.max(previo.mejor, nota) : nota,
+        intentos: previo ? previo.intentos + 1 : 1,
+        ts: serverTimestamp(), nombre: yo.nombre, ciclo: yo.ciclo, curso: yo.curso
+      };
+      try { await setDoc(doc(db, "tests", id), datos); } catch (e) { throw traducir(e, "No se ha podido guardar el resultado del test."); }
     },
 
     async evaluarEntrega(id, { estado: decision, nota, feedback }) {
@@ -447,6 +467,10 @@ export function crearBackendFirebase() {
         lote.delete(doc(db, "titulos", userId));
         lote.delete(doc(db, "verificaciones", titulo.data().codigo));
       }
+      const tests = comoAdmin
+        ? DB.tests.filter(t => t.userId === userId).map(t => t.id)
+        : (await getDocs(query(collection(db, "tests"), where("userId", "==", userId)))).docs.map(d => d.id);
+      tests.forEach(id => lote.delete(doc(db, "tests", id)));
       lote.delete(doc(db, "aprobaciones", userId));
       lote.delete(doc(db, "usuarios", userId));
       await lote.commit();

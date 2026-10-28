@@ -21,7 +21,7 @@
  * POST { action: 'verify' }                    + Bearer <ID token>  → correo de verificación
  * POST { action: 'reset', email }                                   → enlace para nueva contraseña
  * POST { action: 'registro' }                  + Bearer (alumno)    → aviso al profesorado de un alta
- * POST { action: 'entrega', sesion }           + Bearer (alumno)    → acuse al alumno, copia al profesor
+ * POST { action: 'entrega', sesion, bloque }   + Bearer (alumno)    → acuse al alumno, copia al profesor
  * POST { action: 'evaluacion', id }            + Bearer (profesor)  → nota y comentarios al alumno
  * POST { action: 'titulo', userId }            + Bearer (profesor)  → aviso de Título Propio emitido
  *
@@ -322,6 +322,7 @@ async function cuentaProfesor(body, req, auth, db) {
 
 const esProfesor = (t) => !!t?.email_verified && ADMINS().includes(String(t.email || "").toLowerCase());
 const ESTADOS = { aprobada: "Aprobada", revision: "Requiere cambios" };
+const BLOQUES = { dam: "bloque DAM", asir: "bloque ASIR", sync: "bloque de Sincronización DAM + ASIR" };
 
 export default async (req) => {
   if (req.method === "GET") {
@@ -433,18 +434,19 @@ export default async (req) => {
         const t = await sesionDe(auth, req);
         if (!t) return json(401, { error: "Sesión no válida." });
         const n = Number(body.sesion);
-        if (!(n >= 1 && n <= 12)) return json(400, { error: "Sesión no válida." });
-        const e = (await db.doc(`entregas/${t.uid}_${n}`).get()).data();
+        const bloque = String(body.bloque || "");
+        if (!(n >= 1 && n <= 12) || !BLOQUES[bloque]) return json(400, { error: "Sesión o bloque no válidos." });
+        const e = (await db.doc(`entregas/${t.uid}_${n}_${bloque}`).get()).data();
         if (!e || e.userId !== t.uid || e.estado !== "pendiente") return json(404, { error: "No hay ninguna entrega pendiente." });
-        if (await throttle(db, `entrega:${t.uid}_${n}`)) return json(200, { sent: false });
+        if (await throttle(db, `entrega:${t.uid}_${n}_${bloque}`)) return json(200, { sent: false });
         const user = await auth.getUser(t.uid);
         const profesor = ADMINS()[0];
         await sendMail({
           to: user.email, bcc: profesor, replyTo: profesor,
           ...plantilla({
-            titulo: `Entrega recibida · Sesión ${n}`,
+            titulo: `Entrega recibida · Sesión ${n} · ${BLOQUES[bloque]}`,
             nombre: e.nombre,
-            parrafos: [`Hemos recibido tu entrega de la Sesión ${n}. El profesor la revisará y te llegará un aviso con la nota y sus comentarios.`],
+            parrafos: [`Hemos recibido tu entrega del ${BLOQUES[bloque]} de la Sesión ${n}. El profesor la revisará y te llegará un aviso con la nota y sus comentarios.`],
             destacado: `Enlace: ${e.enlace}${e.pareja ? `\nPareja: ${e.pareja}` : ""}${e.comentario ? `\nResumen: ${e.comentario}` : ""}`,
             boton: "Ver la actividad", enlace: web && `${web}/#/curso/${n}/actividad`,
             nota: "Guarda este correo como justificante. Si respondes, la respuesta le llega al profesor.",
@@ -457,7 +459,7 @@ export default async (req) => {
         const t = await sesionDe(auth, req);
         if (!esProfesor(t)) return json(403, { error: "Solo el profesorado puede enviar evaluaciones." });
         const id = String(body.id || "");
-        if (!/^[A-Za-z0-9]+_\d{1,2}$/.test(id)) return json(400, { error: "Entrega no válida." });
+        if (!/^[A-Za-z0-9]+_\d{1,2}_(dam|asir|sync)$/.test(id)) return json(400, { error: "Entrega no válida." });
         const e = (await db.doc(`entregas/${id}`).get()).data();
         if (!e || !ESTADOS[e.estado]) return json(404, { error: "La entrega no está evaluada." });
         if (await throttle(db, `evaluacion:${id}:${e.estado}:${e.nota}`, { gap: 10 * 1000 })) return json(200, { sent: false });
@@ -465,12 +467,12 @@ export default async (req) => {
         await sendMail({
           to: user.email, replyTo: t.email,
           ...plantilla({
-            titulo: `${e.estado === "aprobada" ? "Actividad aprobada" : "Tu actividad necesita cambios"} · Sesión ${e.sesion}`,
+            titulo: `${e.estado === "aprobada" ? "Actividad aprobada" : "Tu actividad necesita cambios"} · Sesión ${e.sesion} · ${BLOQUES[e.bloque] || ""}`,
             nombre: e.nombre,
             color: e.estado === "aprobada" ? "#efcd2f" : "#e39f7d",
             parrafos: [e.estado === "aprobada"
-              ? `El profesor ha aprobado tu entrega de la Sesión ${e.sesion}.`
-              : `El profesor ha revisado tu entrega de la Sesión ${e.sesion} y te pide algunos cambios. Corrígela y vuelve a enviarla desde la plataforma.`],
+              ? `El profesor ha aprobado tu entrega del ${BLOQUES[e.bloque] || "bloque"} de la Sesión ${e.sesion}.`
+              : `El profesor ha revisado tu entrega del ${BLOQUES[e.bloque] || "bloque"} de la Sesión ${e.sesion} y te pide algunos cambios. Corrígela y vuelve a enviarla desde la plataforma.`],
             destacado: `Estado: ${ESTADOS[e.estado]}${typeof e.nota === "number" ? `\nNota: ${e.nota}/10` : ""}${e.feedback ? `\n\nComentarios del profesor:\n${e.feedback}` : ""}`,
             boton: "Ver mi entrega", enlace: web && `${web}/#/curso/${e.sesion}/actividad`,
             nota: "Si respondes a este correo, la respuesta le llega al profesor.",
