@@ -1,6 +1,5 @@
 # Netlify: compila con Tailwind/esbuild y publica dist/.
-# Variables obligatorias en Site configuration → Environment variables (ver DESPLIEGUE.md):
-#   FIREBASE_API_KEY, FIREBASE_AUTH_DOMAIN, FIREBASE_PROJECT_ID, FIREBASE_APP_ID
+# La configuración de Firebase se lee de firebase.web.json (las variables FIREBASE_* del panel la sustituyen).
 [build]
   command = "npm run build"
   publish = "dist"
@@ -10,7 +9,7 @@
   # La configuración web de Firebase es pública por diseño (la protegen las reglas de
   # Firestore y las restricciones de la clave), así que se excluye del escáner de secretos.
   SECRETS_SCAN_OMIT_KEYS = "FIREBASE_API_KEY,FIREBASE_AUTH_DOMAIN,FIREBASE_PROJECT_ID,FIREBASE_APP_ID,FIREBASE_STORAGE_BUCKET,FIREBASE_MESSAGING_SENDER_ID"
-  SECRETS_SCAN_OMIT_PATHS = "dist/config.js,dist/chunks/*"
+  SECRETS_SCAN_OMIT_PATHS = "firebase.web.json,dist/config.js,dist/chunks/*"
 
 [[headers]]
   for = "/*"

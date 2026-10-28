@@ -6,7 +6,8 @@
  *   - fuentes Inter y JetBrains Mono alojadas en la propia web
  *   - config.js con la configuración web de Firebase, sacada de variables de entorno
  *
- * Sin variables de Firebase se genera el modo demostración (datos en el navegador).
+ * La configuración sale de firebase.web.json o de variables FIREBASE_*; con --demo se genera
+ * el modo demostración (datos en el navegador).
  * Con --produccion (o en Netlify) el modo demostración solo se permite con PERMITIR_DEMO=1.
  */
 import { build } from "esbuild";
@@ -28,13 +29,18 @@ if (existsSync(envLocal)) {
 }
 
 const env = process.env;
+// Configuración web del proyecto (pública por diseño). Las variables FIREBASE_* la sustituyen;
+// FIREBASE_EMULADOR=1 sin variables usa el modo demostración para no tocar el proyecto real.
+const ficheroWeb = join(raiz, "firebase.web.json");
+const usarFichero = existsSync(ficheroWeb) && !env.FIREBASE_API_KEY && env.FIREBASE_EMULADOR !== "1" && !process.argv.includes("--demo");
+const base = usarFichero ? JSON.parse(readFileSync(ficheroWeb, "utf8")) : {};
 const firebase = {
-  apiKey: env.FIREBASE_API_KEY,
-  authDomain: env.FIREBASE_AUTH_DOMAIN,
-  projectId: env.FIREBASE_PROJECT_ID,
-  appId: env.FIREBASE_APP_ID,
-  storageBucket: env.FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: env.FIREBASE_MESSAGING_SENDER_ID
+  apiKey: env.FIREBASE_API_KEY || base.apiKey,
+  authDomain: env.FIREBASE_AUTH_DOMAIN || base.authDomain,
+  projectId: env.FIREBASE_PROJECT_ID || base.projectId,
+  appId: env.FIREBASE_APP_ID || base.appId,
+  storageBucket: env.FIREBASE_STORAGE_BUCKET || base.storageBucket,
+  messagingSenderId: env.FIREBASE_MESSAGING_SENDER_ID || base.messagingSenderId
 };
 const obligatorias = ["apiKey", "authDomain", "projectId", "appId"];
 const puestas = obligatorias.filter(k => firebase[k]);

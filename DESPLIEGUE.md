@@ -45,8 +45,8 @@ npm run desplegar:reglas           # sube firebase/firestore.rules
 
 1. En [app.netlify.com](https://app.netlify.com): **Add new site → Import an existing project → GitHub** y elige `omarrl94/omarromero`.
 2. **Branch to deploy: `curso-claude`**. El comando de compilación (`npm run build`) y la carpeta (`dist`) se leen de `netlify.toml`: no cambies nada.
-3. Antes de desplegar, abre **Add environment variables** (o, más tarde, **Site configuration → Environment variables**) y crea las cuatro variables del paso 1.5.
-4. **Deploy**. Si falta alguna variable, la compilación se para a propósito para no publicar el modo demostración, en el que cualquiera entraría como profesor.
+3. No hace falta crear variables: la configuración del proyecto `cursoclaude-6bc22` está en `firebase.web.json`. Si algún día usas otro proyecto, cambia ese fichero o define las variables `FIREBASE_*` en **Site configuration → Environment variables**, que tienen prioridad.
+4. **Deploy**. Cada push a `curso-claude` vuelve a publicar la web.
 5. Copia la dirección del sitio (`https://algo.netlify.app`, o tu dominio si lo configuras en **Domain management**).
 
 `netlify.toml` ya incluye:
@@ -57,7 +57,6 @@ npm run desplegar:reglas           # sube firebase/firestore.rules
 ## 3B. Publicar en Firebase Hosting
 
 1. En la consola: **Compilación → Hosting → Comenzar** (basta con aceptar los pasos; la configuración ya está en `firebase.json`).
-2. En tu equipo, crea `.env` a partir de `.env.example` y rellena las cuatro variables.
 3. Publica:
 
    ```bash
@@ -97,7 +96,8 @@ Opcional: en **Uso y facturación → Presupuestos y alertas** pon una alerta de
 ## Trabajar en local
 
 ```bash
-npm run dev                   # modo demostración (datos en el navegador) en http://localhost:8000
+npm run dev                   # contra el proyecto real de Firebase, en http://localhost:8000
+npm run dev:demo              # modo demostración (datos en el navegador, sin Firebase)
 ```
 
 Con los emuladores de Firebase, sin tocar el proyecto real (necesita Java 11 o posterior):
@@ -130,7 +130,7 @@ npm run probar:reglas
 
 | Síntoma | Causa y solución |
 |---|---|
-| Netlify: *Despliegue sin Firebase* | Faltan variables de entorno (paso 3A.3). Después usa **Deploys → Trigger deploy → Clear cache and deploy**. |
+| Netlify: *Despliegue sin Firebase* | Falta `firebase.web.json` en la rama o está incompleto. Después usa **Deploys → Trigger deploy → Clear cache and deploy**. |
 | Netlify: *Secrets scanning detected secrets* | Has renombrado alguna variable; la lista que se excluye está en `SECRETS_SCAN_OMIT_KEYS` de `netlify.toml`. |
 | *El acceso con correo y contraseña no está activado* | Falta el paso 1.2. |
 | *Operación no permitida* al registrarse o entregar | Las reglas no están subidas (paso 2), el correo no está verificado o el código de aula es incorrecto. |

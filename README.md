@@ -40,11 +40,12 @@ netlify.toml · firebase.json
 
 ```bash
 npm install
-npm run dev              # modo demostración en http://localhost:8000
+npm run dev              # contra Firebase (firebase.web.json) en http://localhost:8000
+npm run dev:demo         # modo demostración, sin Firebase
 npm run probar:reglas    # 43 pruebas de las reglas de Firestore en el emulador
 ```
 
-Sin variables de Firebase, la compilación genera el **modo demostración**: los datos se guardan en el navegador y hay accesos rápidos de profesor y alumnos. Al desplegar (Netlify o `--produccion`) la compilación se niega a publicar ese modo salvo con `PERMITIR_DEMO=1`.
+Con `--demo` (o sin `firebase.web.json` ni variables `FIREBASE_*`), la compilación genera el **modo demostración**: los datos se guardan en el navegador y hay accesos rápidos de profesor y alumnos. Al desplegar (Netlify o `--produccion`) la compilación se niega a publicar ese modo salvo con `PERMITIR_DEMO=1`.
 
 ## Seguridad
 
