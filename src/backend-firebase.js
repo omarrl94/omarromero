@@ -101,7 +101,19 @@ export function crearBackendFirebase() {
       body: JSON.stringify(body)
     }).catch(() => null);
     const data = res ? await res.json().catch(() => ({})) : {};
-    return { ok: !!res?.ok, status: res?.status || 0, error: data.error };
+    return { ok: !!res?.ok, status: res?.status || 0, error: data.error, motivo: data.motivo };
+  }
+
+  /** Explica al profesor por qué no ha funcionado la contraseña inicial. */
+  function motivoAccesoInicial(r) {
+    if (r.status === 0 || r.status === 404)
+      return "Correo o contraseña incorrectos. (Contraseña inicial: la función de Netlify no responde; comprueba que el último despliegue terminó en «Published».)";
+    if (r.status === 501 || r.status === 502 || r.status === 429) return r.error;
+    if (r.motivo === "sin-admin-password")
+      return "Correo o contraseña incorrectos. (Contraseña inicial: la función no ve ADMIN_PASSWORD; revisa en Netlify el nombre exacto, que el ámbito incluya «Functions», y vuelve a desplegar.)";
+    if (r.motivo === "usada")
+      return "La contraseña inicial ya se usó y no vale más. Entra con la que elegiste o pulsa «¿Has olvidado tu contraseña?».";
+    return r.error || null;
   }
 
   /** Avisos por correo (entrega, evaluación, título, alta): nunca bloquean la operación. */
@@ -245,7 +257,7 @@ export function crearBackendFirebase() {
         const credencial = ["auth/invalid-credential", "auth/wrong-password", "auth/user-not-found", "auth/invalid-login-credentials"].includes(e?.code);
         if (!(credencial && email === ADMIN_EMAIL)) throw traducir(e);
         const r = await funcionCuenta({ action: "acceso-inicial", email, password });
-        if (!r.ok) throw (r.status === 429 || r.status === 401) && r.error ? new Error(r.error) : traducir(e);
+        if (!r.ok) throw new Error(motivoAccesoInicial(r) || traducir(e).message);
         try { await signInWithEmailAndPassword(auth, email, password); } catch (e2) { throw traducir(e2); }
       }
     },

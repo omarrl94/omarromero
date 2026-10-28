@@ -260,12 +260,13 @@ async function cuentaProfesor(body, req, auth, db) {
   if (body.action === "acceso-inicial") {
     const email = String(body.email || "").trim().toLowerCase();
     const inicial = env.ADMIN_PASSWORD;
-    const no = json(401, { error: "Correo o contraseña incorrectos." });
-    if (!inicial || !ADMINS().includes(email)) return no;
+    const no = (motivo) => json(401, { error: "Correo o contraseña incorrectos.", ...(motivo && { motivo }) });
+    if (!ADMINS().includes(email)) return no();
+    if (!inicial) return no("sin-admin-password");
     // Límite de intentos (como el resto de correos), para que no se pueda probar a ciegas
     if (await throttle(db, `inicial:${email}`, { gap: 2000, max: 20 })) return json(429, { error: "Demasiados intentos. Espera un poco." });
-    if (!iguales(body.password, inicial)) return no;
-    if ((await db.doc(claveInicial(email)).get()).exists) return no;   // ya se usó: solo vale una vez
+    if (!iguales(body.password, inicial)) return no();
+    if ((await db.doc(claveInicial(email)).get()).exists) return no("usada");   // ya se usó: solo vale una vez
     let user = await auth.getUserByEmail(email).catch(() => null);
     if (user) await auth.updateUser(user.uid, { password: inicial, emailVerified: true });
     else user = await auth.createUser({ email, password: inicial, emailVerified: true, displayName: "Omar Romero" });
@@ -299,6 +300,8 @@ export default async (req) => {
       configured: configured(),
       from: configured() ? fromAddress() : null,
       provider: provider(),
+      cuentaServicio: !!(serviceAccount() || emulador()),
+      accesoInicial: !!env.ADMIN_PASSWORD,
       ...(problems.length && {
         problems,
         hint: "Netlify → Project configuration → Environment variables: comprueba el nombre exacto, que el ámbito (scope) incluya «Functions» y que valga para todos los contextos de despliegue; después vuelve a desplegar.",
