@@ -111,6 +111,8 @@ export function crearBackendFirebase() {
     if (r.status === 501 || r.status === 502 || r.status === 429) return r.error;
     if (r.motivo === "sin-admin-password")
       return "Correo o contraseña incorrectos. (Contraseña inicial: la función no ve ADMIN_PASSWORD; revisa en Netlify el nombre exacto, que el ámbito incluya «Functions», y vuelve a desplegar.)";
+    if (r.motivo === "no-coincide")
+      return "Correo o contraseña incorrectos. (Contraseña inicial: no coincide con el valor de ADMIN_PASSWORD en Netlify. Edítala y escribe exactamente la misma, sin espacios; después vuelve a desplegar.)";
     if (r.motivo === "usada")
       return "La contraseña inicial ya se usó y no vale más. Entra con la que elegiste o pulsa «¿Has olvidado tu contraseña?».";
     return r.error || null;

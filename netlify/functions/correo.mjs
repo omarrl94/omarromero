@@ -52,7 +52,8 @@ const env = new Proxy(process.env, {
 
 const CURSO = "Especialización en Ingeniería de IA, Skills, MCP y Automatización con Claude";
 const CENTRO = () => env.NOMBRE_CENTRO || "FP José Ramón Otero";
-const ADMINS = () => String(env.ADMIN_EMAILS || "omar.romero@jrotero.es").split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
+// El profesor responsable siempre está (es el que reconocen las reglas de Firestore)
+const ADMINS = () => [...new Set(["omar.romero@jrotero.es", ...String(env.ADMIN_EMAILS || "").split(",").map((e) => e.trim().toLowerCase()).filter(Boolean)])];
 const LOGIN = env.MS_LOGIN_BASE || "https://login.microsoftonline.com";
 const GRAPH = env.MS_GRAPH_BASE || "https://graph.microsoft.com";
 const MIN_GAP = 60 * 1000;   // un correo por minuto
@@ -293,7 +294,7 @@ async function cuentaProfesor(body, req, auth, db) {
     if (!inicial) return no("sin-admin-password");
     // Límite de intentos (como el resto de correos), para que no se pueda probar a ciegas
     if (await throttle(db, `inicial:${email}`, { gap: 2000, max: 20 })) return json(429, { error: "Demasiados intentos. Espera un poco." });
-    if (!iguales(body.password, inicial)) return no();
+    if (!iguales(body.password, inicial)) return no("no-coincide");
     if ((await db.doc(claveInicial(email)).get()).exists) return no("usada");   // ya se usó: solo vale una vez
     // Solo «no existe» significa crearla; cualquier otro error (p. ej. falta de permisos) se explica
     let user = await auth.getUserByEmail(email).catch((e) => { if (e?.code === "auth/user-not-found") return null; throw e; });
