@@ -192,7 +192,8 @@ npm run probar:reglas
 | *El acceso con correo y contraseña no está activado* | Falta el paso 1.2. |
 | *Operación no permitida* al registrarse o entregar | Las reglas no están subidas (paso 2), el correo no está verificado o el código de aula es incorrecto. |
 | No llega el correo de verificación | Revisa spam. Configura el correo del centro (paso 3C) o activa la cuenta desde **Altas pendientes de verificar**. |
-| `7 PERMISSION_DENIED: Missing or insufficient permissions` | La cuenta de servicio no es de este proyecto o no tiene permisos. Genera una clave nueva en **Cuentas de servicio** con `cursoclaude-6bc22` seleccionado y sustituye `FIREBASE_SERVICE_ACCOUNT`. Compruébalo en `/.netlify/functions/correo?comprobar=1`, donde debe aparecer `"comprobacion":"ok"`. |
+| `7 PERMISSION_DENIED: Missing or insufficient permissions` con la cuenta `firebase-adminsdk-…@cursoclaude-6bc22` | Esa cuenta no tiene roles. En console.cloud.google.com → **IAM y administración → IAM**, pulsa el lápiz junto a ella y añade **Usuario de Cloud Datastore** y **Administrador de Firebase Authentication**. |
+| `7 PERMISSION_DENIED` con una cuenta de otro proyecto | La cuenta de servicio no es de este proyecto. Genera una clave nueva en **Cuentas de servicio** con `cursoclaude-6bc22` seleccionado y sustituye `FIREBASE_SERVICE_ACCOUNT`. Compruébalo en `/.netlify/functions/correo?comprobar=1`, donde debe aparecer `"comprobacion":"ok"`. |
 | *Correo del centro: No configurado* en el panel | El recuadro dice qué variable falta. Revisa que el ámbito incluya **Functions** y vuelve a desplegar. |
 | *El servidor de correo rechazó el envío (535…)* | Microsoft 365 no permite SMTP a ese buzón: el administrador de M365 debe activar **SMTP autenticado** para él (Centro de administración → Usuarios → Correo → Administrar aplicaciones de correo). |
 | El profesor no ve el panel | El correo no está verificado: pulsa **Ya lo he verificado** después de abrir el enlace. |

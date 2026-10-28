@@ -98,11 +98,12 @@ function problemaProyecto() {
 }
 
 /** Traduce los errores de Google a qué hay que hacer. */
-function explicar(e) {
+function explicar(e, servicio = "") {
   const m = String(e?.message || e);
   const sa = serviceAccount();
-  if (/PERMISSION_DENIED|insufficient permission|permission-denied/i.test(m) && !/has not been used|is disabled/i.test(m))
-    return `La cuenta de servicio${sa ? ` (${sa.clientEmail})` : ""} no tiene permiso en el proyecto «${projectId()}». Genera una clave nueva en Firebase → Configuración del proyecto → Cuentas de servicio → Generar nueva clave privada, con el proyecto ${projectId()} seleccionado, y pégala entera en FIREBASE_SERVICE_ACCOUNT. Después vuelve a desplegar.`;
+  const rol = servicio === "Authentication" ? "«Administrador de Firebase Authentication»" : servicio === "Firestore" ? "«Usuario de Cloud Datastore»" : "«Usuario de Cloud Datastore» y «Administrador de Firebase Authentication»";
+  if (/PERMISSION_DENIED|insufficient permission|permission-denied|does not have|caller does not have/i.test(m) && !/has not been used|is disabled/i.test(m))
+    return `${servicio ? servicio + ": " : ""}la cuenta de servicio${sa ? ` ${sa.clientEmail}` : ""} no tiene permiso en el proyecto «${projectId()}». Dale el rol ${rol} en console.cloud.google.com → IAM y administración → IAM (proyecto ${projectId()}) → lápiz junto a esa cuenta → Añadir otro rol → Guardar. Tarda 1-2 minutos; no hace falta volver a desplegar.`;
   if (/has not been used|is disabled|SERVICE_DISABLED/i.test(m))
     return `Una API de Google está desactivada en el proyecto «${projectId()}» (${m.slice(0, 160)}). Actívala en console.cloud.google.com → APIs y servicios.`;
   if (/invalid_grant|invalid JWT|Invalid JWT Signature|private key/i.test(m))
@@ -326,15 +327,12 @@ export default async (req) => {
     // ?comprobar=1 prueba de verdad la cuenta de servicio contra Firestore y Authentication
     let comprobacion;
     if (new URL(req.url, "http://x").searchParams.get("comprobar") && (cuentaValida() || emulador())) {
-      try {
-        const { auth, db } = firebase();
-        await db.collection("mail_log").limit(1).get();
-        await auth.listUsers(1);
-        comprobacion = "ok";
-      } catch (e) {
-        comprobacion = "error";
-        problems.unshift(explicar(e));
-      }
+      const { auth, db } = firebase();
+      const fallos = [];
+      await db.collection("mail_log").limit(1).get().catch((e) => fallos.push(explicar(e, "Firestore")));
+      await auth.listUsers(1).catch((e) => fallos.push(explicar(e, "Authentication")));
+      comprobacion = fallos.length ? "error" : "ok";
+      problems.unshift(...fallos);
     }
     return json(200, {
       configured: configured(),
