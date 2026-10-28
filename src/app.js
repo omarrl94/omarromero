@@ -892,6 +892,8 @@ function seccionCorreo() {
   return `<section class="rounded-xl border ${c?.configured ? "border-jro-sage" : "border-jro-terra"} p-4 mb-6">
     <h2 class="font-bold">Correo del centro</h2>
     ${!c ? `<p class="text-sm text-jro-mute mt-1">Comprobando…</p>`
+      : c.comprobacion === "error" ? `<p class="text-sm mt-1"><b>La cuenta de servicio falla:</b></p>
+        <ul class="mt-2 list-disc pl-5 text-sm">${(c.problems || []).map(x => `<li>${esc(x)}</li>`).join("")}</ul>`
       : c.configured ? `<p class="text-sm mt-1">Activo: los correos de la cuenta y los avisos (entregas, notas, títulos y altas) salen desde <b>${esc(c.from)}</b>${c.provider ? ` (${esc(c.provider)})` : ""}.</p>`
       : `<p class="text-sm mt-1">No configurado: la verificación y el cambio de contraseña los envía Firebase (noreply@…firebaseapp.com, que el correo del centro puede bloquear) y no se envían avisos.</p>
         ${c.problems?.length ? `<ul class="mt-2 list-disc pl-5 text-sm">${c.problems.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}

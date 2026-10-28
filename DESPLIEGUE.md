@@ -80,7 +80,7 @@ Funciona igual que en **ColaboraFP** y en la **web de exámenes**. El correo del
 
 Los enlaces de los correos llevan a la propia web (`/accion`), en castellano y con el diseño del curso.
 
-**Variables en Netlify** (Project configuration → Environment variables). Usa los mismos valores que en ColaboraFP y en la web de exámenes. El **ámbito (scope)** debe incluir **Functions**:
+**Variables en Netlify** (Project configuration → Environment variables). Las `SMTP_*` y `MAIL_FROM` pueden ser las mismas que en ColaboraFP y en la web de exámenes. **La cuenta de servicio no**: tiene que ser la de este proyecto (`cursoclaude-6bc22`), o la función la rechaza. El **ámbito (scope)** debe incluir **Functions**:
 
 | Variable | Valor |
 |---|---|
@@ -192,6 +192,7 @@ npm run probar:reglas
 | *El acceso con correo y contraseña no está activado* | Falta el paso 1.2. |
 | *Operación no permitida* al registrarse o entregar | Las reglas no están subidas (paso 2), el correo no está verificado o el código de aula es incorrecto. |
 | No llega el correo de verificación | Revisa spam. Configura el correo del centro (paso 3C) o activa la cuenta desde **Altas pendientes de verificar**. |
+| `7 PERMISSION_DENIED: Missing or insufficient permissions` | La cuenta de servicio no es de este proyecto o no tiene permisos. Genera una clave nueva en **Cuentas de servicio** con `cursoclaude-6bc22` seleccionado y sustituye `FIREBASE_SERVICE_ACCOUNT`. Compruébalo en `/.netlify/functions/correo?comprobar=1`, donde debe aparecer `"comprobacion":"ok"`. |
 | *Correo del centro: No configurado* en el panel | El recuadro dice qué variable falta. Revisa que el ámbito incluya **Functions** y vuelve a desplegar. |
 | *El servidor de correo rechazó el envío (535…)* | Microsoft 365 no permite SMTP a ese buzón: el administrador de M365 debe activar **SMTP autenticado** para él (Centro de administración → Usuarios → Correo → Administrar aplicaciones de correo). |
 | El profesor no ve el panel | El correo no está verificado: pulsa **Ya lo he verificado** después de abrir el enlace. |

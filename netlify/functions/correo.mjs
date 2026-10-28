@@ -70,7 +70,7 @@ const fromHeader = () => env.MAIL_FROM || env.SMTP_USER;
 const fromAddress = () => (fromHeader()?.match(/<([^>]+)>/)?.[1] || fromHeader() || "").trim();
 const projectId = () => env.FIREBASE_PROJECT_ID || webConfig.projectId;
 const emulador = () => !!env.FIREBASE_AUTH_EMULATOR_HOST;
-const configured = () => !!(serviceAccount() || emulador()) && !!provider();
+const configured = () => !!(cuentaValida() || emulador()) && !!provider();
 const json = (status, body) => new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
 
 /** Credenciales de la cuenta de servicio: el JSON completo o dos variables sueltas. */
@@ -88,9 +88,33 @@ function serviceAccount() {
   return null;
 }
 
+/** La cuenta de servicio solo vale si es del mismo proyecto que la web (nunca la de otra app del centro). */
+const cuentaValida = () => { const sa = serviceAccount(); return sa && sa.projectId === projectId() ? sa : null; };
+function problemaProyecto() {
+  const sa = serviceAccount();
+  return sa && sa.projectId !== projectId()
+    ? `FIREBASE_SERVICE_ACCOUNT es del proyecto «${sa.projectId}», pero esta web usa «${projectId()}». Genera la clave en Firebase → Configuración del proyecto → Cuentas de servicio con el proyecto ${projectId()} seleccionado (no reutilices la de ColaboraFP ni la de exámenes).`
+    : null;
+}
+
+/** Traduce los errores de Google a qué hay que hacer. */
+function explicar(e) {
+  const m = String(e?.message || e);
+  const sa = serviceAccount();
+  if (/PERMISSION_DENIED|insufficient permission|permission-denied/i.test(m) && !/has not been used|is disabled/i.test(m))
+    return `La cuenta de servicio${sa ? ` (${sa.clientEmail})` : ""} no tiene permiso en el proyecto «${projectId()}». Genera una clave nueva en Firebase → Configuración del proyecto → Cuentas de servicio → Generar nueva clave privada, con el proyecto ${projectId()} seleccionado, y pégala entera en FIREBASE_SERVICE_ACCOUNT. Después vuelve a desplegar.`;
+  if (/has not been used|is disabled|SERVICE_DISABLED/i.test(m))
+    return `Una API de Google está desactivada en el proyecto «${projectId()}» (${m.slice(0, 160)}). Actívala en console.cloud.google.com → APIs y servicios.`;
+  if (/invalid_grant|invalid JWT|Invalid JWT Signature|private key/i.test(m))
+    return "La clave de FIREBASE_SERVICE_ACCOUNT no es válida o se ha revocado. Genera una nueva en Firebase → Cuentas de servicio y pégala entera.";
+  return m;
+}
+
 /** Qué falta para poder enviar (solo nombres de variables, nunca valores). */
 function diagnose() {
   const problems = [];
+  const proyecto = problemaProyecto();
+  if (proyecto) problems.push(proyecto);
   if (!serviceAccount() && !emulador()) {
     if (!env.FIREBASE_SERVICE_ACCOUNT && !env.FIREBASE_PRIVATE_KEY) problems.push("Falta FIREBASE_SERVICE_ACCOUNT");
     else if (env.FIREBASE_SERVICE_ACCOUNT) {
@@ -109,7 +133,7 @@ function diagnose() {
 
 function firebase() {
   if (!getApps().length) {
-    const sa = serviceAccount();
+    const sa = cuentaValida();
     initializeApp(sa ? { credential: cert(sa), projectId: sa.projectId } : { projectId: projectId() });
   }
   return { auth: getAuth(), db: getFirestore() };
@@ -255,7 +279,10 @@ const claveInicial = (email) => `sistema/acceso-inicial-${createHash("sha256").u
 const passwordValida = (p) => typeof p === "string" && p.length >= 8 && p.length <= 128 && /[A-Za-z]/.test(p) && /\d/.test(p);
 
 async function cuentaProfesor(body, req, auth, db) {
-  if (!serviceAccount() && !emulador()) return json(501, { error: "Falta FIREBASE_SERVICE_ACCOUNT en Netlify." });
+  if (!emulador()) {
+    if (problemaProyecto()) return json(501, { error: problemaProyecto() });
+    if (!cuentaValida()) return json(501, { error: "Falta FIREBASE_SERVICE_ACCOUNT en Netlify (ámbito «Functions»)." });
+  }
 
   if (body.action === "acceso-inicial") {
     const email = String(body.email || "").trim().toLowerCase();
@@ -296,11 +323,26 @@ const ESTADOS = { aprobada: "Aprobada", revision: "Requiere cambios" };
 export default async (req) => {
   if (req.method === "GET") {
     const problems = diagnose();
+    // ?comprobar=1 prueba de verdad la cuenta de servicio contra Firestore y Authentication
+    let comprobacion;
+    if (new URL(req.url, "http://x").searchParams.get("comprobar") && (cuentaValida() || emulador())) {
+      try {
+        const { auth, db } = firebase();
+        await db.collection("mail_log").limit(1).get();
+        await auth.listUsers(1);
+        comprobacion = "ok";
+      } catch (e) {
+        comprobacion = "error";
+        problems.unshift(explicar(e));
+      }
+    }
     return json(200, {
       configured: configured(),
       from: configured() ? fromAddress() : null,
       provider: provider(),
-      cuentaServicio: !!(serviceAccount() || emulador()),
+      proyecto: projectId(),
+      cuentaServicio: !!(cuentaValida() || emulador()),
+      ...(comprobacion && { comprobacion }),
       accesoInicial: !!env.ADMIN_PASSWORD,
       ...(problems.length && {
         problems,
@@ -316,7 +358,7 @@ export default async (req) => {
   // El primer acceso del profesor no necesita el envío de correo, solo la cuenta de servicio
   if (body.action === "acceso-inicial" || body.action === "cambiar-password") {
     try { return await cuentaProfesor(body, req, ...Object.values(firebase())); }
-    catch (e) { console.error("[cuenta]", e); return json(502, { error: e.message || "No se ha podido preparar la cuenta." }); }
+    catch (e) { console.error("[cuenta]", e); return json(502, { error: explicar(e) }); }
   }
 
   if (!configured()) return json(501, { error: "El envío de correo del centro no está configurado." });
@@ -464,6 +506,6 @@ export default async (req) => {
     return json(400, { error: "Acción no válida." });
   } catch (e) {
     console.error("[correo]", e);
-    return json(502, { error: e.message || "No se pudo enviar el correo." });
+    return json(502, { error: explicar(e) || "No se pudo enviar el correo." });
   }
 };

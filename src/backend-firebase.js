@@ -332,7 +332,11 @@ export function crearBackendFirebase() {
       if (actual()) { await actual().reload().catch(() => {}); await actual().getIdToken(true).catch(() => {}); await procesarUsuario(actual()); }
     },
 
-    async estadoCorreo() { return (await configCorreo()) || { configured: false, problems: ["La función de correo no está disponible (solo funciona publicada en Netlify)."] }; },
+    async estadoCorreo() {
+      const r = await fetch(MAIL_FN + "?comprobar=1", { headers: { Accept: "application/json" } })
+        .then((x) => (x.ok && (x.headers.get("content-type") || "").includes("json") ? x.json() : null)).catch(() => null);
+      return r || { configured: false, problems: ["La función de correo no está disponible (solo funciona publicada en Netlify)."] };
+    },
 
     async alternarProgreso(n) {
       const u = actual();
