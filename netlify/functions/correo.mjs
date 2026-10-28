@@ -25,13 +25,19 @@
  * POST { action: 'evaluacion', id }            + Bearer (profesor)  → nota y comentarios al alumno
  * POST { action: 'titulo', userId }            + Bearer (profesor)  → aviso de Título Propio emitido
  *
+ * Primer acceso del profesor (como ADMIN_PASSWORD en la web de exámenes):
+ *   ADMIN_PASSWORD   contraseña inicial (márcala como secreta). Solo vale UNA vez: al entrar con
+ *                    ella, la web obliga a elegir otra y la inicial deja de funcionar.
+ * POST { action: 'acceso-inicial', email, password }                → crea o prepara la cuenta
+ * POST { action: 'cambiar-password', nueva }   + Bearer (profesor)  → fija la contraseña definitiva
+ *
  * Los avisos se construyen con los datos de Firestore (no con lo que envía el navegador), así que
  * nadie puede usar esta función para mandar correos con contenido propio.
  */
 import { cert, getApps, initializeApp } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
-import { createHash } from "node:crypto";
+import { createHash, timingSafeEqual } from "node:crypto";
 import nodemailer from "nodemailer";
 import webConfig from "../../firebase.web.json" with { type: "json" };
 
@@ -240,6 +246,49 @@ const sesionDe = async (auth, req) => {
   if (!token) return null;
   return auth.verifyIdToken(token).catch(() => null);
 };
+/* ── Primer acceso del profesor con ADMIN_PASSWORD ─────────────────────────── */
+const iguales = (a, b) => {
+  const x = Buffer.from(String(a)), y = Buffer.from(String(b));
+  return x.length === y.length && timingSafeEqual(x, y);
+};
+const claveInicial = (email) => `sistema/acceso-inicial-${createHash("sha256").update(email).digest("hex").slice(0, 32)}`;
+const passwordValida = (p) => typeof p === "string" && p.length >= 8 && p.length <= 128 && /[A-Za-z]/.test(p) && /\d/.test(p);
+
+async function cuentaProfesor(body, req, auth, db) {
+  if (!serviceAccount() && !emulador()) return json(501, { error: "Falta FIREBASE_SERVICE_ACCOUNT en Netlify." });
+
+  if (body.action === "acceso-inicial") {
+    const email = String(body.email || "").trim().toLowerCase();
+    const inicial = env.ADMIN_PASSWORD;
+    const no = json(401, { error: "Correo o contraseña incorrectos." });
+    if (!inicial || !ADMINS().includes(email)) return no;
+    // Límite de intentos (como el resto de correos), para que no se pueda probar a ciegas
+    if (await throttle(db, `inicial:${email}`, { gap: 2000, max: 20 })) return json(429, { error: "Demasiados intentos. Espera un poco." });
+    if (!iguales(body.password, inicial)) return no;
+    if ((await db.doc(claveInicial(email)).get()).exists) return no;   // ya se usó: solo vale una vez
+    let user = await auth.getUserByEmail(email).catch(() => null);
+    if (user) await auth.updateUser(user.uid, { password: inicial, emailVerified: true });
+    else user = await auth.createUser({ email, password: inicial, emailVerified: true, displayName: "Omar Romero" });
+    await auth.setCustomUserClaims(user.uid, { ...(user.customClaims || {}), cambiarPassword: true });
+    return json(200, { ok: true });
+  }
+
+  if (body.action === "cambiar-password") {
+    const t = await sesionDe(auth, req);
+    if (!t?.cambiarPassword || !ADMINS().includes(String(t.email || "").toLowerCase())) return json(403, { error: "No hay ningún cambio de contraseña pendiente." });
+    const nueva = body.nueva;
+    if (!passwordValida(nueva)) return json(400, { error: "La contraseña debe tener al menos 8 caracteres e incluir letras y números." });
+    if (env.ADMIN_PASSWORD && iguales(nueva, env.ADMIN_PASSWORD)) return json(400, { error: "Elige una contraseña distinta de la inicial." });
+    const user = await auth.getUser(t.uid);
+    const { cambiarPassword, ...resto } = user.customClaims || {};
+    await auth.updateUser(t.uid, { password: nueva, emailVerified: true });
+    await auth.setCustomUserClaims(t.uid, Object.keys(resto).length ? resto : null);
+    await db.doc(claveInicial(String(t.email).toLowerCase())).set({ usadaEn: new Date().toISOString() });
+    return json(200, { ok: true });
+  }
+  return null;
+}
+
 const esProfesor = (t) => !!t?.email_verified && ADMINS().includes(String(t.email || "").toLowerCase());
 const ESTADOS = { aprobada: "Aprobada", revision: "Requiere cambios" };
 
@@ -257,10 +306,17 @@ export default async (req) => {
     });
   }
   if (req.method !== "POST") return json(405, { error: "Método no permitido." });
-  if (!configured()) return json(501, { error: "El envío de correo del centro no está configurado." });
 
   let body;
   try { body = await req.json(); } catch { return json(400, { error: "Petición no válida." }); }
+
+  // El primer acceso del profesor no necesita el envío de correo, solo la cuenta de servicio
+  if (body.action === "acceso-inicial" || body.action === "cambiar-password") {
+    try { return await cuentaProfesor(body, req, ...Object.values(firebase())); }
+    catch (e) { console.error("[cuenta]", e); return json(502, { error: e.message || "No se ha podido preparar la cuenta." }); }
+  }
+
+  if (!configured()) return json(501, { error: "El envío de correo del centro no está configurado." });
   const { auth, db } = firebase();
   const origin = /^https?:\/\//.test(req.url) ? new URL(req.url).origin : null;
   const web = baseUrl(origin);

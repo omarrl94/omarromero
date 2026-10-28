@@ -26,8 +26,10 @@ service cloud.firestore {
       return verificado()
         || (signedIn() && get(/databases/$(database)/documents/aprobaciones/$(request.auth.uid)).data.aprobado == true);
     }
+    // Mientras no cambie la contraseña inicial (ADMIN_PASSWORD), el profesor no tiene permisos
     function isAdmin() {
-      return verificado() && request.auth.token.email == 'omar.romero@jrotero.es';
+      return verificado() && request.auth.token.email == 'omar.romero@jrotero.es'
+        && request.auth.token.get('cambiarPassword', false) != true;
     }
     function emailInstitucional() {
       return request.auth.token.email.matches('.*@jrotero[.]es$');

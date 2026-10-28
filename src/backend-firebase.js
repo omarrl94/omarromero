@@ -92,6 +92,18 @@ export function crearBackendFirebase() {
     return data;
   }
 
+  /** Llamada directa a la función (primer acceso del profesor): no depende del envío de correo. */
+  async function funcionCuenta(body, conSesion) {
+    const token = conSesion ? await actual()?.getIdToken() : null;
+    const res = await fetch(MAIL_FN, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      body: JSON.stringify(body)
+    }).catch(() => null);
+    const data = res ? await res.json().catch(() => ({})) : {};
+    return { ok: !!res?.ok, status: res?.status || 0, error: data.error };
+  }
+
   /** Avisos por correo (entrega, evaluación, título, alta): nunca bloquean la operación. */
   const avisar = (action, datos = {}) => correoCentro({ action, ...datos }, true).catch((e) => { console.error("[curso] aviso", action, e); return null; });
 
@@ -182,6 +194,10 @@ export function crearBackendFirebase() {
     const mio = ++turno;
     const vigente = () => mio === turno;
     if (!user) { pararEscuchas(); reemplazarDB(VACIO()); emitir({ estado: "fuera" }); return; }
+    // Primer acceso con la contraseña inicial: hay que cambiarla antes de seguir
+    const { claims } = await user.getIdTokenResult().catch(() => ({ claims: {} }));
+    if (!vigente()) return;
+    if (claims.cambiarPassword) { pararEscuchas(); emitir({ estado: "cambiarpw", email: user.email, userId: user.uid, verificado: true }); return; }
     const aprobado = !user.emailVerified && await estaAprobado(user.uid);
     if (!vigente()) return;
     const base = { email: user.email, verificado: user.emailVerified || aprobado, aprobado, userId: user.uid };
@@ -224,7 +240,24 @@ export function crearBackendFirebase() {
       try {
         const { user } = await signInWithEmailAndPassword(auth, email, password);
         await user.getIdToken(true);   // token con email_verified al día para las reglas
-      } catch (e) { throw traducir(e); }
+      } catch (e) {
+        // Primer acceso del profesor con la contraseña inicial (ADMIN_PASSWORD de Netlify)
+        const credencial = ["auth/invalid-credential", "auth/wrong-password", "auth/user-not-found", "auth/invalid-login-credentials"].includes(e?.code);
+        if (!(credencial && email === ADMIN_EMAIL)) throw traducir(e);
+        const r = await funcionCuenta({ action: "acceso-inicial", email, password });
+        if (!r.ok) throw (r.status === 429 || r.status === 401) && r.error ? new Error(r.error) : traducir(e);
+        try { await signInWithEmailAndPassword(auth, email, password); } catch (e2) { throw traducir(e2); }
+      }
+    },
+
+    async cambiarPasswordInicial(nueva) {
+      const u = actual();
+      const r = await funcionCuenta({ action: "cambiar-password", nueva }, true);
+      if (!r.ok) throw new Error(r.error || "No se ha podido cambiar la contraseña.");
+      try { await signInWithEmailAndPassword(auth, u.email, nueva); } catch (e) { throw traducir(e); }
+      await actual().getIdToken(true);
+      await procesarUsuario(actual());
+      return "Contraseña cambiada. Ya tienes acceso al Panel docente.";
     },
 
     async registrar({ nombre, email, codigo, ciclo, curso, password }) {

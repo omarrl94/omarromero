@@ -73,6 +73,8 @@ await caso("no se puede falsear la fecha del consentimiento", () =>
 console.log("Perfiles y progreso");
 await caso("una alumna no lee el perfil de otro", () => assertFails(getDoc(doc(lucia, "usuarios", "pablo"))));
 await caso("el profesor lee todos los perfiles", () => assertSucceeds(getDocs(collection(admin, "usuarios"))));
+await caso("con la contraseña inicial sin cambiar, el profesor no tiene permisos", () =>
+  assertFails(getDocs(collection(env.authenticatedContext("admin", { email: ADMIN, email_verified: true, cambiarPassword: true }).firestore(), "usuarios"))));
 await caso("marcar una sesión completada", () => assertSucceeds(updateDoc(doc(lucia, "usuarios", "lucia"), { "progreso.3": serverTimestamp() })));
 await caso("desmarcarla", () => assertSucceeds(updateDoc(doc(lucia, "usuarios", "lucia"), { "progreso.3": deleteField() })));
 await caso("sesión inexistente en el progreso → rechazado", () => assertFails(updateDoc(doc(lucia, "usuarios", "lucia"), { "progreso.99": serverTimestamp() })));

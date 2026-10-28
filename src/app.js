@@ -349,6 +349,28 @@ function vistaCompletar() {
     </main>${pie()}</div>`;
 }
 
+function vistaCambiarPassword() {
+  return `<div class="min-h-screen flex flex-col">${cabeceraSimple()}
+    <main class="flex-1 max-w-xl w-full mx-auto px-4 py-8">
+      <section class="bg-white rounded-2xl border-2 border-jro-gold p-6">
+        <h1 class="text-xl font-extrabold">Elige tu contraseña</h1>
+        <p class="mt-2 text-sm">Has entrado con la contraseña inicial de <b>${esc(AUTH.email)}</b>. Por seguridad, cámbiala ahora: la inicial dejará de funcionar.</p>
+        <form data-form="cambiopw" class="mt-4 space-y-3" novalidate>
+          <label class="block text-sm"><span class="font-medium">Contraseña nueva</span>
+            <input name="password" type="password" minlength="8" autocomplete="new-password" class="${INPUT}"></label>
+          <label class="block text-sm"><span class="font-medium">Repetir contraseña</span>
+            <input name="password2" type="password" minlength="8" autocomplete="new-password" class="${INPUT}"></label>
+          <p class="text-xs text-jro-mute">Mínimo 8 caracteres, con letras y números.</p>
+          <div data-error class="hidden rounded-lg bg-jro-terra/30 border border-jro-terra px-3 py-2 text-sm"></div>
+          <div class="flex flex-wrap gap-2">
+            <button class="btn-cta rounded-lg px-5 py-2.5 text-sm">Guardar contraseña</button>
+            <button type="button" data-action="salir" class="rounded-lg px-4 py-2.5 text-sm border border-jro-line bg-white">Salir</button>
+          </div>
+        </form>
+      </section>
+    </main>${pie()}</div>`;
+}
+
 function vistaVerificarCorreo() {
   return `<div class="min-h-screen flex flex-col">${cabeceraSimple()}
     <main class="flex-1 max-w-xl w-full mx-auto px-4 py-8">
@@ -1017,7 +1039,7 @@ function render() {
   const app = $("#app");
   if (UI.vista === "verificar") { app.innerHTML = vistaVerificacion(); return; }
   if (UI.vista === "accion") { app.innerHTML = vistaAccion(); return; }
-  const vistasAuth = { cargando: vistaCargando, error: vistaError, fuera: vistaAuth, completar: vistaCompletar, verificar: vistaVerificarCorreo };
+  const vistasAuth = { cargando: vistaCargando, error: vistaError, fuera: vistaAuth, completar: vistaCompletar, verificar: vistaVerificarCorreo, cambiarpw: vistaCambiarPassword };
   if (vistasAuth[AUTH.estado]) { app.innerHTML = vistasAuth[AUTH.estado](); return; }
   if (!usuario()) { app.innerHTML = vistaCargando(); return; }
   if (UI.vista === "admin" && !esAdmin()) UI.vista = "curso";
@@ -1197,6 +1219,13 @@ document.addEventListener("submit", async (ev) => {
       if (decision === "aprobada" && (nota === null || nota < 5)) { toast("Para aprobar, pon una nota de 5 o más"); return; }
       await tarea("evaluar-" + f.dataset.id, () => backend.evaluarEntrega(f.dataset.id, { estado: decision, nota, feedback: (datos.feedback || "").trim() }),
         decision === "aprobada" ? "Entrega aprobada" : "Se han solicitado cambios");
+      break;
+    }
+    case "cambiopw": {
+      const pw = datos.password || "";
+      if (pw.length < 8 || !/[A-Za-z]/.test(pw) || !/\d/.test(pw)) return err("La contraseña debe tener al menos 8 caracteres e incluir letras y números.");
+      if (pw !== datos.password2) return err("Las contraseñas no coinciden.");
+      await tarea("cambiopw", () => backend.cambiarPasswordInicial(pw));
       break;
     }
     case "nuevapw": {

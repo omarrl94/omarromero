@@ -122,6 +122,16 @@ Los correos tienen un límite de 1 por minuto y 10 al día por destinatario. Los
 
 ## 5. Primer acceso del profesor (hazlo lo primero)
 
+**Opción rápida, con contraseña inicial** (igual que `ADMIN_PASSWORD` en la web de exámenes; necesita `FIREBASE_SERVICE_ACCOUNT`):
+1. En Netlify, crea la variable `ADMIN_PASSWORD` con la contraseña inicial. Márcala como secreta y con el ámbito **Functions**. Después vuelve a desplegar.
+2. En la web, **Iniciar sesión** con `omar.romero@jrotero.es` y esa contraseña. La cuenta se crea sola, ya verificada.
+3. La web te obliga a **elegir una contraseña nueva**. Hasta que lo hagas, las reglas no te dan permisos de profesor.
+4. Desde ese momento la contraseña inicial deja de funcionar. Ya puedes borrar `ADMIN_PASSWORD` de Netlify.
+
+Hazlo nada más desplegar: mientras no la cambies, quien conozca la contraseña inicial podría adelantarse.
+
+**Opción con registro:**
+
 1. Abre la web publicada → **Registro de alumnado** → regístrate con **`omar.romero@jrotero.es`**. El ciclo y el curso no se aplican a la cuenta del profesor.
 2. Abre el enlace del correo de verificación (mira en spam si no llega).
 3. Vuelve a la web y pulsa **Ya lo he verificado**: se activa el **Panel docente**.
