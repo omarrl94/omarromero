@@ -106,6 +106,22 @@ await caso("la alumna consulta sus entregas", () =>
   assertSucceeds(getDocs(query(collection(lucia, "entregas"), where("userId", "==", "lucia")))));
 await caso("la alumna no puede listar todas las entregas", () => assertFails(getDocs(collection(lucia, "entregas"))));
 
+console.log("Altas aprobadas por el profesor");
+await caso("anotar correoVerificado igual que la sesión", () =>
+  assertSucceeds(updateDoc(doc(luciaSinVerificar, "usuarios", "lucia"), { correoVerificado: false })));
+await caso("no se puede anotar verificado si la sesión no lo está", () =>
+  assertFails(updateDoc(doc(luciaSinVerificar, "usuarios", "lucia"), { correoVerificado: true })));
+await caso("la alumna no puede aprobarse a sí misma", () =>
+  assertFails(setDoc(doc(luciaSinVerificar, "aprobaciones", "lucia"), { aprobado: true, aprobadoEn: serverTimestamp(), por: "lucia@jrotero.es" })));
+await caso("el profesor aprueba la cuenta", () =>
+  assertSucceeds(setDoc(doc(admin, "aprobaciones", "lucia"), { aprobado: true, aprobadoEn: serverTimestamp(), por: ADMIN })));
+await caso("aprobada, entrega aunque su correo no esté verificado", () =>
+  assertSucceeds(setDoc(doc(luciaSinVerificar, "entregas", "lucia_3"), entrega("lucia", 3))));
+await caso("la alumna lee su aprobación", () => assertSucceeds(getDoc(doc(luciaSinVerificar, "aprobaciones", "lucia"))));
+await caso("otro alumno no la lee", () => assertFails(getDoc(doc(pablo, "aprobaciones", "lucia"))));
+await caso("el profesor lista las aprobaciones", () => assertSucceeds(getDocs(collection(admin, "aprobaciones"))));
+await caso("nadie lee el registro de correos (mail_log)", () => assertFails(getDoc(doc(admin, "mail_log", "x"))));
+
 const evaluar = (extra) => ({ feedback: "Bien", revisadoEn: serverTimestamp(), revisadoPor: ADMIN, ...extra });
 console.log("Evaluación y títulos");
 await caso("título sin Proyecto Final aprobado → rechazado", async () => {
@@ -141,6 +157,8 @@ await caso("otro alumno no borra datos ajenos", () => assertFails(deleteDoc(doc(
 await caso("la alumna borra entregas, título, verificación y perfil", async () => {
   const b = writeBatch(lucia);
   b.delete(doc(lucia, "entregas", "lucia_12"));
+  b.delete(doc(lucia, "entregas", "lucia_3"));
+  b.delete(doc(lucia, "aprobaciones", "lucia"));
   b.delete(doc(lucia, "titulos", "lucia"));
   b.delete(doc(lucia, "verificaciones", "JRO-IA-2026-ABC123"));
   b.delete(doc(lucia, "usuarios", "lucia"));

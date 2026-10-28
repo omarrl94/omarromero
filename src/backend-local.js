@@ -17,6 +17,7 @@ function estadoInicial() {
     progress: {},
     submissions: [],
     diplomas: [],
+    aprobaciones: {},
     config: { codigoAula: CODIGO_AULA_DEMO }
   };
 }
@@ -138,6 +139,11 @@ export function crearBackendLocal() {
     async eliminarUsuario(id) { borrarDatosDe(id); guardar(); },
     async restablecerPassword(id) { DB.users.find(u => u.id === id).pwHash = null; guardar(); return "Contraseña restablecida: el alumno elegirá una nueva en su siguiente acceso."; },
     async cambiarCodigoAula(codigo) { DB.config.codigoAula = codigo; guardar(); },
+    async aprobarCuenta() { return "En la demostración todas las cuentas están activadas."; },
+    async estadoCorreo() { return { configured: false, problems: ["Modo demostración: no se envían correos."] }; },
+    async comprobarCodigoReset() { throw new Error("En la demostración no hay enlaces de correo."); },
+    async confirmarReset() { throw new Error("En la demostración no hay enlaces de correo."); },
+    async aplicarVerificacion() { throw new Error("En la demostración no hay enlaces de correo."); },
 
     async verificarTitulo(codigo) {
       const d = DB.diplomas.find(x => x.codigo === codigo);

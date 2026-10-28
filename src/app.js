@@ -101,6 +101,7 @@ const UI = {
 };
 
 function aplicarRuta() {
+  if (/\/accion\/?$/.test(location.pathname)) { UI.vista = "accion"; return; }
   const [vista, a, b] = location.hash.replace(/^#\/?/, "").split("/").map(decodeURIComponent);
   if (vista === "perfil") UI.vista = "perfil";
   else if (vista === "admin") { UI.vista = "admin"; if (["seguimiento", "entregas", "titulos", "usuarios"].includes(a)) UI.adminTab = a; }
@@ -190,7 +191,7 @@ function header() {
   </header>
   ${!verificado() ? `<div class="bg-jro-gold/30 border-b border-jro-gold no-print">
     <div class="max-w-7xl mx-auto px-4 py-2 flex flex-wrap items-center gap-2 text-sm">
-      <span><b>Verifica tu correo.</b> Te hemos enviado un enlace a ${esc(AUTH.email)}. Hasta entonces no podrás entregar actividades.</span>
+      <span><b>Verifica tu correo.</b> Te hemos enviado un enlace a ${esc(AUTH.email)} (mira también en correo no deseado). Hasta entonces no podrás entregar actividades. Si no te llega, el profesor puede activar tu cuenta.</span>
       <button data-action="reenviarverif" class="rounded-lg bg-white border border-jro-line px-3 py-1 text-xs font-semibold">Reenviar correo</button>
       <button data-action="comprobarverif" class="rounded-lg btn-cta px-3 py-1 text-xs">Ya lo he verificado</button>
     </div>
@@ -295,7 +296,7 @@ function bloqueLegal() {
         <tr class="border-t border-jro-line"><th class="text-left align-top px-3 py-1.5 w-28">Responsable</th><td class="px-3 py-1.5">Centro de Formación Profesional José Ramón Otero. Contacto docente/admin: ${ADMIN_EMAIL}</td></tr>
         <tr class="border-t border-jro-line"><th class="text-left align-top px-3 py-1.5">Finalidad</th><td class="px-3 py-1.5">Gestión académica, evaluación de laboratorios prácticos y expedición del Título Propio del Centro.</td></tr>
         <tr class="border-t border-jro-line"><th class="text-left align-top px-3 py-1.5">Legitimación</th><td class="px-3 py-1.5">Relación educativa y consentimiento expreso (art. 6.1.a y 6.1.b RGPD). Alumnado de Grado Superior con capacidad para consentir (art. 7 LOPDGDD).</td></tr>
-        <tr class="border-t border-jro-line"><th class="text-left align-top px-3 py-1.5">Destinatarios</th><td class="px-3 py-1.5">No se ceden datos a terceros salvo obligación legal. Encargado del tratamiento: Google (Firebase), servidores en la UE.</td></tr>
+        <tr class="border-t border-jro-line"><th class="text-left align-top px-3 py-1.5">Destinatarios</th><td class="px-3 py-1.5">No se ceden datos a terceros salvo obligación legal. Encargados del tratamiento: Google (Firebase, servidores en la UE), Netlify (alojamiento) y el correo del centro (Microsoft 365) para los avisos.</td></tr>
         <tr class="border-t border-jro-line"><th class="text-left align-top px-3 py-1.5">Derechos</th><td class="px-3 py-1.5">Acceso, rectificación, supresión, oposición, limitación y portabilidad (ARSOPOL). Desde "Mi perfil" puedes exportar tus datos (JSON) y eliminar tu cuenta.</td></tr>
         <tr class="border-t border-jro-line"><th class="text-left align-top px-3 py-1.5">Más información</th><td class="px-3 py-1.5"><button type="button" class="underline font-medium" data-action="privacidad">Política de privacidad completa</button></td></tr>
       </table>
@@ -388,6 +389,54 @@ function vistaVerificacion() {
     </main>${pie()}</div>`;
 }
 
+/* Destino de los enlaces de los correos: confirmar el correo o elegir una contraseña nueva */
+function vistaAccion() {
+  const a = UI.accion || { estado: "comprobando" };
+  const reset = a.modo === "resetPassword";
+  let cuerpo;
+  if (a.estado === "comprobando") cuerpo = `<p class="text-sm text-jro-mute">Comprobando el enlace…</p>`;
+  else if (a.estado === "error") cuerpo = `<p class="text-sm">${esc(a.mensaje)}</p>
+    <p class="mt-2 text-sm text-jro-mute">Los enlaces caducan y solo se pueden usar una vez. Si ya lo habías usado, inicia sesión con normalidad.</p>`;
+  else if (a.estado === "form") cuerpo = `<p class="text-sm">Cuenta: <b>${esc(a.email)}</b></p>
+    <form data-form="nuevapw" class="mt-4 space-y-3" novalidate>
+      <label class="block text-sm"><span class="font-medium">Contraseña nueva</span>
+        <input name="password" type="password" minlength="8" autocomplete="new-password" class="${INPUT}"></label>
+      <label class="block text-sm"><span class="font-medium">Repetir contraseña</span>
+        <input name="password2" type="password" minlength="8" autocomplete="new-password" class="${INPUT}"></label>
+      <button class="btn-cta rounded-lg px-5 py-2.5 text-sm">Guardar contraseña</button>
+    </form>`;
+  else cuerpo = `<div class="rounded-lg bg-jro-gold/25 border border-jro-gold px-4 py-3 text-sm" role="status">${reset
+    ? "Contraseña cambiada. Ya puedes entrar con la nueva."
+    : "Correo confirmado. Tu cuenta está activada."}</div>`;
+  const titulo = a.estado === "error" ? "Enlace no válido" : reset ? (a.estado === "hecho" ? "Contraseña cambiada" : "Nueva contraseña") : (a.estado === "hecho" ? "Correo confirmado" : "Confirmar correo");
+  return `<div class="min-h-screen flex flex-col">${cabeceraSimple()}
+    <main class="flex-1 max-w-xl w-full mx-auto px-4 py-8">
+      <section class="bg-white rounded-2xl border border-jro-line p-6">
+        <h1 class="text-xl font-extrabold mb-3">${titulo}</h1>
+        ${cuerpo}
+        ${a.estado === "hecho" || a.estado === "error" ? `<button data-action="irinicio" class="mt-5 btn-cta rounded-lg px-4 py-2 text-sm">Ir a la plataforma</button>` : ""}
+      </section>
+    </main>${pie()}</div>`;
+}
+
+let accionProcesada = false;
+async function procesarAccion() {
+  if (accionProcesada) return;
+  accionProcesada = true;
+  const p = new URLSearchParams(location.search);
+  const modo = p.get("mode"), codigo = p.get("oobCode") || "";
+  UI.accion = { estado: "comprobando", modo, codigo };
+  render();
+  try {
+    if (modo === "resetPassword") UI.accion = { ...UI.accion, estado: "form", email: await backend.comprobarCodigoReset(codigo) };
+    else if (modo === "verifyEmail") { await backend.aplicarVerificacion(codigo); UI.accion = { ...UI.accion, estado: "hecho" }; }
+    else throw new Error("Este enlace no es válido.");
+  } catch (e) {
+    UI.accion = { ...UI.accion, estado: "error", mensaje: e.message };
+  }
+  render();
+}
+
 async function comprobarTitulo(codigo) {
   const espera = () => new Promise(r => { const t = setInterval(() => { if (backend) { clearInterval(t); r(); } }, 50); });
   await espera();
@@ -403,7 +452,7 @@ function modalPrivacidad() {
     <p><b>Finalidades:</b> (1) gestión académica del curso; (2) evaluación de las actividades prácticas y del proyecto final; (3) expedición y verificación del Título Propio del Centro.</p>
     <p><b>Legitimación:</b> ejecución de la relación educativa (art. 6.1.b RGPD) y consentimiento expreso (art. 6.1.a RGPD). El alumnado de Grado Superior tiene la edad necesaria para consentir por sí mismo (art. 7 LOPDGDD).</p>
     <p><b>Conservación:</b> durante el curso académico y el tiempo necesario para atender reclamaciones sobre la evaluación o verificar los títulos emitidos.</p>
-    <p><b>Destinatarios y encargados:</b> no se ceden datos a terceros salvo obligación legal. La plataforma se aloja en Google Firebase (Authentication y Cloud Firestore, ubicación en la Unión Europea) como encargado del tratamiento. La web no carga fuentes ni scripts de terceros.</p>
+    <p><b>Destinatarios y encargados:</b> no se ceden datos a terceros salvo obligación legal. Encargados del tratamiento: Google (Firebase Authentication y Cloud Firestore, datos en la Unión Europea), Netlify (alojamiento de la web y de la función que envía los correos) y el proveedor de correo del centro (Microsoft 365), desde cuyo buzón salen los correos de la cuenta y los avisos de entregas, notas y títulos. La web no carga fuentes ni scripts de terceros.</p>
     <p><b>Verificación de títulos:</b> quien disponga del código de verificación de un título puede comprobar su validez, viendo el nombre, el ciclo y la fecha de expedición.</p>
     <p><b>Uso de IA:</b> esta plataforma no envía tus datos a Claude ni a ningún proveedor de IA. El uso de Claude en las prácticas lo haces tú, con tu cuenta, y te comprometes a no incluir datos personales ni secretos (compromiso EU AI Act).</p>
     <p><b>Derechos:</b> acceso, rectificación, supresión, oposición, limitación del tratamiento y portabilidad. Puedes ejercerlos escribiendo a ${ADMIN_EMAIL}, y los de acceso/portabilidad y supresión directamente desde "Mi perfil". Si consideras que no se han atendido, puedes reclamar ante la Agencia Española de Protección de Datos (aepd.es).</p>
@@ -805,9 +854,44 @@ function adminTitulos() {
   }).join("")}</div>`}`;
 }
 
+function estadoCuenta(u) {
+  if (u.role === "admin") return "";
+  if (DEMO_MODE || u.correoVerificado) return `<span class="text-xs">Correo verificado</span>`;
+  if (DB.aprobaciones?.[u.id]?.aprobado) return `<span class="text-xs">Activada por el profesor</span>`;
+  return `<span class="text-xs font-semibold text-[#9a4a26]">Pendiente de verificar</span>`;
+}
+
+function seccionCorreo() {
+  if (UI.estadoCorreo === undefined) {
+    UI.estadoCorreo = null;
+    backend.estadoCorreo().then((r) => { UI.estadoCorreo = r; render(); }).catch(() => { UI.estadoCorreo = { configured: false, problems: ["No se ha podido consultar."] }; render(); });
+  }
+  const c = UI.estadoCorreo;
+  return `<section class="rounded-xl border ${c?.configured ? "border-jro-sage" : "border-jro-terra"} p-4 mb-6">
+    <h2 class="font-bold">Correo del centro</h2>
+    ${!c ? `<p class="text-sm text-jro-mute mt-1">Comprobando…</p>`
+      : c.configured ? `<p class="text-sm mt-1">Activo: los correos de la cuenta y los avisos (entregas, notas, títulos y altas) salen desde <b>${esc(c.from)}</b>${c.provider ? ` (${esc(c.provider)})` : ""}.</p>`
+      : `<p class="text-sm mt-1">No configurado: la verificación y el cambio de contraseña los envía Firebase (noreply@…firebaseapp.com, que el correo del centro puede bloquear) y no se envían avisos.</p>
+        ${c.problems?.length ? `<ul class="mt-2 list-disc pl-5 text-sm">${c.problems.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}
+        ${c.hint ? `<p class="mt-2 text-xs text-jro-mute">${esc(c.hint)}</p>` : ""}`}
+  </section>`;
+}
+
+function seccionAltas() {
+  if (DEMO_MODE) return "";
+  const pendientes = alumnos().filter(u => !u.correoVerificado && !DB.aprobaciones?.[u.id]?.aprobado);
+  return `<section class="rounded-xl border-2 ${pendientes.length ? "border-jro-terra" : "border-jro-line"} p-4 mb-6">
+    <h2 class="font-bold">Altas pendientes de verificar (${pendientes.length})</h2>
+    <p class="text-sm text-jro-mute mt-1">Si a un alumno no le llega el correo de verificación, actívale la cuenta aquí. Activa solo a personas que conozcas: la activación sustituye a la verificación por correo.</p>
+    ${pendientes.length ? `<ul class="mt-3 divide-y divide-jro-line">${pendientes.map(u => `<li class="py-2 flex flex-wrap items-center justify-between gap-2">
+      <span><b>${esc(u.nombre)}</b> · ${esc(u.email)} · ${esc(u.ciclo)} ${esc(u.curso)} · alta ${fecha(u.createdAt)}</span>
+      <button data-action="aprobar" data-id="${esc(u.id)}" class="btn-cta rounded-lg px-3 py-1.5 text-sm">Activar cuenta</button></li>`).join("")}</ul>` : ""}
+  </section>`;
+}
+
 function adminUsuarios() {
   const codigo = DB.config?.codigoAula || "";
-  return `<section class="rounded-xl border-2 border-jro-gold p-4 mb-6">
+  return `${seccionCorreo()}${seccionAltas()}<section class="rounded-xl border-2 border-jro-gold p-4 mb-6">
       <h2 class="font-bold">Código de acceso de aula</h2>
       <p class="text-sm text-jro-mute mt-1">Permite registrarse a quien no tenga correo ${DOMINIO}. ${codigo ? "" : "Ahora mismo no hay código: solo pueden registrarse correos institucionales."}</p>
       <form data-form="codigoaula" class="mt-3 flex flex-wrap gap-2" novalidate>
@@ -816,12 +900,14 @@ function adminUsuarios() {
       </form>
     </section>
     <div class="overflow-x-auto"><table class="w-full text-sm">
-    <thead><tr class="text-left text-jro-mute"><th class="py-2 pr-3">Usuario</th><th class="py-2 pr-3">Rol</th><th class="py-2 pr-3">Alta</th><th class="py-2">Acciones</th></tr></thead>
+    <thead><tr class="text-left text-jro-mute"><th class="py-2 pr-3">Usuario</th><th class="py-2 pr-3">Rol</th><th class="py-2 pr-3">Alta</th><th class="py-2 pr-3">Cuenta</th><th class="py-2">Acciones</th></tr></thead>
     <tbody>${DB.users.map(u => `<tr class="border-t border-jro-line">
       <td class="py-2 pr-3"><div class="font-semibold">${esc(u.nombre)}</div><div class="text-xs text-jro-mute">${esc(u.email)}</div></td>
       <td class="py-2 pr-3 whitespace-nowrap">${u.role === "admin" ? "Superadmin" : `${badgeCiclo(u.ciclo)} ${esc(u.curso)}`}</td>
       <td class="py-2 pr-3 text-xs">${fecha(u.createdAt)}</td>
+      <td class="py-2 pr-3 whitespace-nowrap">${estadoCuenta(u)}</td>
       <td class="py-2">${u.role === "admin" ? "—" : `<div class="flex flex-wrap gap-1">
+        ${!DEMO_MODE && DB.aprobaciones?.[u.id]?.aprobado && !u.correoVerificado ? `<button data-action="desaprobar" data-id="${esc(u.id)}" class="rounded-lg px-2.5 py-1 text-xs border border-jro-line bg-white">Retirar activación</button>` : ""}
         <button data-action="resetpw" data-id="${esc(u.id)}" class="rounded-lg px-2.5 py-1 text-xs border border-jro-line bg-white">Restablecer contraseña</button>
         <button data-action="borrarusuario" data-id="${esc(u.id)}" class="rounded-lg px-2.5 py-1 text-xs border border-jro-terra bg-white">Eliminar datos</button></div>`}</td>
     </tr>`).join("")}</tbody></table></div>
@@ -930,6 +1016,7 @@ let renderPendiente = false;
 function render() {
   const app = $("#app");
   if (UI.vista === "verificar") { app.innerHTML = vistaVerificacion(); return; }
+  if (UI.vista === "accion") { app.innerHTML = vistaAccion(); return; }
   const vistasAuth = { cargando: vistaCargando, error: vistaError, fuera: vistaAuth, completar: vistaCompletar, verificar: vistaVerificarCorreo };
   if (vistasAuth[AUTH.estado]) { app.innerHTML = vistasAuth[AUTH.estado](); return; }
   if (!usuario()) { app.innerHTML = vistaCargando(); return; }
@@ -1022,6 +1109,9 @@ document.addEventListener("click", (ev) => {
       break;
     }
     case "resetpw": tarea("resetpw-" + el.dataset.id, () => backend.restablecerPassword(el.dataset.id)); break;
+    case "aprobar": tarea("aprobar-" + el.dataset.id, () => backend.aprobarCuenta(el.dataset.id, true)); break;
+    case "desaprobar": tarea("aprobar-" + el.dataset.id, () => backend.aprobarCuenta(el.dataset.id, false)); break;
+    case "irinicio": location.href = location.pathname.replace(/accion\/?$/, ""); break;
   }
 });
 
@@ -1109,6 +1199,16 @@ document.addEventListener("submit", async (ev) => {
         decision === "aprobada" ? "Entrega aprobada" : "Se han solicitado cambios");
       break;
     }
+    case "nuevapw": {
+      if ((datos.password || "").length < 8) { toast("La contraseña debe tener al menos 8 caracteres"); return; }
+      if (datos.password !== datos.password2) { toast("Las contraseñas no coinciden"); return; }
+      await tarea("nuevapw", async () => {
+        await backend.confirmarReset(UI.accion.codigo, datos.password);
+        UI.accion = { ...UI.accion, estado: "hecho" };
+        render();
+      });
+      break;
+    }
     case "codigoaula": {
       const codigo = (datos.codigo || "").trim();
       if (codigo.length < 6) { toast("El código debe tener al menos 6 caracteres"); return; }
@@ -1138,6 +1238,7 @@ async function arrancar() {
     return;
   }
   backend.iniciar((estado) => { AUTH = estado; render(); }, renderDatos);
+  if (UI.vista === "accion") procesarAccion();
 }
 
 arrancar();

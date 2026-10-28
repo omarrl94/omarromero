@@ -65,6 +65,53 @@ npm run desplegar:reglas           # sube firebase/firestore.rules
 
 La web queda en `https://TU-PROYECTO.web.app`. Las mismas cabeceras de seguridad están en `firebase.json`.
 
+## 3C. Correo del centro (avisos y correos de la cuenta)
+
+Funciona igual que en **ColaboraFP** y en la **web de exámenes**. El correo del centro bloquea los mensajes externos, incluidos los de Firebase, así que los correos salen desde un buzón del propio centro mediante una función de Netlify (`netlify/functions/correo.mjs`):
+
+| Correo | Cuándo | Para quién |
+|---|---|---|
+| Activa tu cuenta | Al registrarse o con **Reenviar correo** | El alumno o el profesor |
+| Elige una contraseña nueva | **¿Has olvidado tu contraseña?** o *Restablecer contraseña* desde el panel | El usuario |
+| Nueva alta en el curso | Cuando se registra un alumno | El profesorado (`ADMIN_EMAILS`) |
+| Entrega recibida | Cuando un alumno entrega una actividad | El alumno (justificante), con copia oculta al profesor |
+| Actividad aprobada / necesita cambios | Cuando el profesor evalúa | El alumno, con la nota y los comentarios |
+| Tu Título Propio | Cuando el profesor lo emite | El alumno, con el código de verificación |
+
+Los enlaces de los correos llevan a la propia web (`/accion`), en castellano y con el diseño del curso.
+
+**Variables en Netlify** (Project configuration → Environment variables). Usa los mismos valores que en ColaboraFP y en la web de exámenes. El **ámbito (scope)** debe incluir **Functions**:
+
+| Variable | Valor |
+|---|---|
+| `SMTP_HOST` | `smtp.office365.com` |
+| `SMTP_PORT` | `587` |
+| `SMTP_USER` | el buzón del centro que envía (p. ej. `omar.romero@jrotero.es`) |
+| `SMTP_PASS` | su contraseña o contraseña de aplicación (**márcala como secreta**) |
+| `MAIL_FROM` | `Curso de Claude · FP José Ramón Otero <omar.romero@jrotero.es>` |
+| `FIREBASE_SERVICE_ACCOUNT` | el JSON completo de la cuenta de servicio (**secreta**, ver abajo) |
+| `ADMIN_EMAILS` | opcional; por defecto `omar.romero@jrotero.es` |
+
+Si prefieres Resend: `RESEND_API_KEY` y `MAIL_FROM` en lugar de las `SMTP_*`.
+
+**Cuenta de servicio:**
+1. Firebase → ⚙ **Configuración del proyecto → Cuentas de servicio → Generar nueva clave privada**. Se descarga un `.json`.
+2. Ábrelo con el Bloc de notas y copia **todo**, desde `{` hasta `}`.
+3. Pégalo como valor de `FIREBASE_SERVICE_ACCOUNT`.
+4. Esa clave da acceso total al proyecto: no la subas al repositorio ni la pegues en un chat.
+
+Después: **Deploys → Trigger deploy → Deploy site**.
+
+**Comprobarlo:**
+- **Panel docente → Usuarios y acceso → Correo del centro** dice "Activo" y muestra el remitente.
+- Si falta algo, ese mismo recuadro dice qué variable falta, sin mostrar nunca los valores.
+
+Si no configuras el correo, todo sigue funcionando con los correos normales de Firebase (que el correo del centro puede bloquear) y sin avisos. Lo mismo pasa al publicar en Firebase Hosting, que no ejecuta funciones de Netlify.
+
+**Si a un alumno no le llega el correo:** en **Panel docente → Usuarios y acceso → Altas pendientes de verificar**, pulsa **Activar cuenta**. Es la misma aprobación manual que en ColaboraFP.
+
+Los correos tienen un límite de 1 por minuto y 10 al día por destinatario. Los avisos se construyen con los datos de Firestore, así que nadie puede usar la función para mandar correos con contenido propio.
+
 ## 4. Autorizar los dominios
 
 **Authentication → Configuración → Dominios autorizados → Agregar dominio**. Añade cada dirección desde la que se use la plataforma:
@@ -111,7 +158,7 @@ FIREBASE_PROJECT_ID=demo-jrotero FIREBASE_APP_ID=1:1:web:1 FIREBASE_EMULADOR=1 n
 
 Los correos de verificación del emulador no se envían: sus enlaces se ven en `http://127.0.0.1:9099/emulator/v1/projects/demo-jrotero/oobCodes`.
 
-Para probar las reglas de seguridad (43 casos: registro, roles, entregas, notas, títulos y supresión):
+Para probar las reglas de seguridad (52 casos: registro, roles, altas aprobadas, entregas, notas, títulos y supresión):
 
 ```bash
 npm run probar:reglas
@@ -134,5 +181,7 @@ npm run probar:reglas
 | Netlify: *Secrets scanning detected secrets* | Has renombrado alguna variable; la lista que se excluye está en `SECRETS_SCAN_OMIT_KEYS` de `netlify.toml`. |
 | *El acceso con correo y contraseña no está activado* | Falta el paso 1.2. |
 | *Operación no permitida* al registrarse o entregar | Las reglas no están subidas (paso 2), el correo no está verificado o el código de aula es incorrecto. |
-| No llega el correo de verificación | Revisa spam. Después de unos minutos usa **Reenviar correo**. Si el centro filtra correos externos, pide que admitan `noreply@TU-PROYECTO.firebaseapp.com`. |
+| No llega el correo de verificación | Revisa spam. Configura el correo del centro (paso 3C) o activa la cuenta desde **Altas pendientes de verificar**. |
+| *Correo del centro: No configurado* en el panel | El recuadro dice qué variable falta. Revisa que el ámbito incluya **Functions** y vuelve a desplegar. |
+| *El servidor de correo rechazó el envío (535…)* | Microsoft 365 no permite SMTP a ese buzón: el administrador de M365 debe activar **SMTP autenticado** para él (Centro de administración → Usuarios → Correo → Administrar aplicaciones de correo). |
 | El profesor no ve el panel | El correo no está verificado: pulsa **Ya lo he verificado** después de abrir el enlace. |

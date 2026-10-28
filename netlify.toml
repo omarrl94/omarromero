@@ -11,6 +11,20 @@
   SECRETS_SCAN_OMIT_KEYS = "FIREBASE_API_KEY,FIREBASE_AUTH_DOMAIN,FIREBASE_PROJECT_ID,FIREBASE_APP_ID,FIREBASE_STORAGE_BUCKET,FIREBASE_MESSAGING_SENDER_ID"
   SECRETS_SCAN_OMIT_PATHS = "firebase.web.json,dist/config.js,dist/chunks/*"
 
+# Correos desde el buzón del centro (mismo sistema que ColaboraFP y la web de exámenes).
+# Variables en Netlify → Project configuration → Environment variables (ámbito «Functions»):
+#   SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, MAIL_FROM  y  FIREBASE_SERVICE_ACCOUNT
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+  external_node_modules = ["firebase-admin"]
+
+# Destino de los enlaces de los correos (confirmar correo, nueva contraseña)
+[[redirects]]
+  from = "/accion"
+  to = "/index.html"
+  status = 200
+
 [[headers]]
   for = "/*"
   [headers.values]

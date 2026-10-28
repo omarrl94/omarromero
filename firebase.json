@@ -3,6 +3,7 @@
     "public": "dist",
     "predeploy": ["npm run build -- --produccion"],
     "ignore": ["**/.*", "**/*.map", "**/*.LEGAL.txt"],
+    "rewrites": [{ "source": "/accion", "destination": "/index.html" }],
     "headers": [
       {
         "source": "/@(app.js|config.js|index.html)",

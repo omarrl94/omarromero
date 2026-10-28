@@ -8,6 +8,8 @@ rules_version = '2';
 //   titulos/{uid}             Título Propio emitido (solo el profesor)
 //   verificaciones/{codigo}   copia mínima para verificar un título con su código (lectura pública)
 //   config/aula               código de acceso de aula (nadie lo lee salvo el profesor)
+//   aprobaciones/{uid}        cuenta activada a mano por el profesor (si el correo no llega)
+//   mail_log/{hash}           límite de envíos de la función de correo (solo el servidor)
 //
 // El profesor responsable se identifica por su correo verificado. Si cambia,
 // hay que cambiarlo aquí y en src/constantes.js.
@@ -18,6 +20,12 @@ service cloud.firestore {
     function signedIn() { return request.auth != null; }
     function isOwner(uid) { return signedIn() && request.auth.uid == uid; }
     function verificado() { return signedIn() && request.auth.token.email_verified == true; }
+    // Cuenta activa: correo verificado o aprobada por el profesor (el correo del centro puede
+    // bloquear los mensajes externos, como en ColaboraFP)
+    function activado() {
+      return verificado()
+        || (signedIn() && get(/databases/$(database)/documents/aprobaciones/$(request.auth.uid)).data.aprobado == true);
+    }
     function isAdmin() {
       return verificado() && request.auth.token.email == 'omar.romero@jrotero.es';
     }
@@ -66,10 +74,14 @@ service cloud.firestore {
     match /usuarios/{uid} {
       allow read: if isOwner(uid) || isAdmin();
       allow create: if isOwner(uid) && perfilNuevoValido();
-      // El alumno solo puede marcar o desmarcar sesiones completadas
-      allow update: if isOwner(uid)
-        && cambiaSolo(['progreso'])
-        && request.resource.data.progreso.keys().hasOnly(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']);
+      // El alumno solo puede marcar o desmarcar sesiones completadas y anotar si su correo
+      // está verificado (tal y como lo dice su sesión, para que el profesor vea las altas pendientes)
+      allow update: if isOwner(uid) && (
+        (cambiaSolo(['progreso'])
+          && request.resource.data.progreso.keys().hasOnly(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']))
+        || (cambiaSolo(['correoVerificado'])
+          && request.resource.data.correoVerificado == (request.auth.token.email_verified == true))
+      );
       // Derecho de supresión (el propio alumno) y gestión de usuarios (profesor)
       allow delete: if isOwner(uid) || isAdmin();
     }
@@ -86,7 +98,7 @@ service cloud.firestore {
     match /entregas/{id} {
       allow read: if isAdmin() || (signedIn() && resource.data.userId == request.auth.uid);
 
-      allow create: if verificado()
+      allow create: if activado()
         && request.resource.data.keys().hasOnly(['userId', 'sesion', 'enlace', 'pareja', 'comentario', 'ts', 'estado', 'nombre', 'ciclo', 'curso'])
         && request.resource.data.userId == request.auth.uid
         && request.resource.data.sesion is int
@@ -99,7 +111,7 @@ service cloud.firestore {
 
       // El alumno reenvía mientras no esté aprobada; el profesor evalúa
       allow update: if (
-          verificado()
+          activado()
           && resource.data.userId == request.auth.uid
           && resource.data.estado != 'aprobada'
           && cambiaSolo(['enlace', 'pareja', 'comentario', 'ts', 'estado'])
@@ -146,6 +158,18 @@ service cloud.firestore {
         && getAfter(/databases/$(database)/documents/titulos/$(request.resource.data.userId)).data.codigo == codigo;
       allow update: if false;
       allow delete: if isAdmin() || (signedIn() && resource.data.userId == request.auth.uid);
+    }
+
+    // ---------------------------------------------------------------- altas
+    match /aprobaciones/{uid} {
+      allow get: if isOwner(uid) || isAdmin();
+      allow list: if isAdmin();
+      allow create, update: if isAdmin()
+        && request.resource.data.keys().hasOnly(['aprobado', 'aprobadoEn', 'por'])
+        && request.resource.data.aprobado is bool
+        && request.resource.data.aprobadoEn == request.time
+        && request.resource.data.por == request.auth.token.email;
+      allow delete: if isAdmin() || isOwner(uid);
     }
 
     // ---------------------------------------------------------------- configuración

@@ -1,6 +1,6 @@
 // Caché en memoria que pinta la interfaz. La rellena el backend activo
 // (localStorage en modo demostración, Firestore en producción).
-export const DB = { users: [], progress: {}, submissions: [], diplomas: [], config: { codigoAula: "" } };
+export const DB = { users: [], progress: {}, submissions: [], diplomas: [], aprobaciones: {}, config: { codigoAula: "" } };
 
 export function reemplazarDB(nuevo) {
   for (const k of Object.keys(DB)) delete DB[k];
