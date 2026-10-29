@@ -330,12 +330,12 @@ Revisa: ¿hay claves escritas en el código? ¿se registran en logs datos sensib
       entregables: ["Capturas de permisos del fichero de secretos.", "Scripts .sh y .ps1.", "Explicación de por qué no debe quedar la clave en el historial de la shell."],
       criterios: [["Permisos mínimos correctos", 4], ["Scripts funcionando en ambos sistemas", 3], ["Prueba de que otro usuario no accede", 2], ["Documentación", 1]]
     },
-    sync: {
-      t: "Calculadora de costes compartida",
-      d: "DAM programa una función que estima el coste por tokens; ASIR la ejecuta sobre un log real anonimizado de 1 MB y documenta cuántos tokens tiene y cuánto costaría analizarlo con cada modelo.",
-      pasos: ["DAM publica la función en el repositorio común.", "ASIR anonimiza el log (IPs, usuarios) y lo mide.", "Juntos redactan la recomendación de modelo para el análisis diario."],
-      entregables: ["Enlace al repositorio común.", "Informe de una página con la tabla de costes y la recomendación."],
-      criterios: [["Integración funcionando", 4], ["Log correctamente anonimizado", 3], ["Recomendación justificada", 3]]
+    comun: {
+      t: "Calculadora de costes personal",
+      d: "Construye tú solo una calculadora que estime cuántos tokens tiene un texto y cuánto costaría procesarlo con cada modelo. Sirve igual para DAM (presupuestar una funcionalidad) que para ASIR (presupuestar el análisis diario de logs).",
+      pasos: ["Escribe una función (Python o PowerShell) que reciba un texto o fichero y use count_tokens para medirlo.", "Aplica los precios de Haiku 5.5, Sonnet 5.5 y Opus 5.5 (entrada y salida) y muestra una tabla.", "Pruébala con un texto de tu ciclo: un fichero de código (DAM) o un log anonimizado de 1 MB (ASIR).", "Redacta qué modelo recomendarías para esa tarea diaria y por qué."],
+      entregables: ["Enlace a tu repositorio con la calculadora.", "Informe de una página con la tabla de costes y tu recomendación."],
+      criterios: [["Calculadora funcionando", 4], ["Datos anonimizados y bien medidos", 3], ["Recomendación justificada", 3]]
     }
   },
   test: [

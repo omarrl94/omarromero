@@ -354,12 +354,12 @@ export function crearBackendFirebase() {
       } catch (e) { throw traducir(e); }
     },
 
-    async guardarEntrega(n, bloque, { enlace, pareja, comentario }) {
+    async guardarEntrega(n, bloque, { enlace, comentario }) {
       const u = actual();
       const id = `${u.uid}_${n}_${bloque}`;
       const yo = DB.users.find(x => x.id === u.uid);
       const existe = DB.submissions.some(s => s.id === id);
-      const contenido = { enlace, pareja, comentario, ts: serverTimestamp(), estado: "pendiente" };
+      const contenido = { enlace, comentario, ts: serverTimestamp(), estado: "pendiente" };
       try {
         if (existe) await updateDoc(doc(db, "entregas", id), contenido);
         else await setDoc(doc(db, "entregas", id), { userId: u.uid, sesion: n, bloque, nombre: yo.nombre, ciclo: yo.ciclo, curso: yo.curso, ...contenido });

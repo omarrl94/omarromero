@@ -236,12 +236,12 @@ description: Redacta el informe de una incidencia de sistemas a partir de logs y
       entregables: ["SKILL.md y scripts.", "Informe sobre una VM real.", "Prueba de una corrección y su vuelta atrás."],
       criterios: [["Script de solo lectura completo", 3], ["Informe con gravedades correctas", 3], ["Vuelta atrás probada", 3], ["Documentación", 1]]
     },
-    sync: {
-      t: "Catálogo de Skills del equipo",
-      d: "Juntad vuestras Skills en un repositorio común con un README que explique cada una, cuándo se activa y un ejemplo de salida.",
-      pasos: ["Repositorio skills-equipo.", "Revisión cruzada: DAM revisa una Skill de ASIR y viceversa.", "README del catálogo."],
-      entregables: ["Repositorio con al menos 4 Skills.", "README del catálogo.", "Revisión cruzada documentada."],
-      criterios: [["Catálogo completo", 4], ["Revisión cruzada", 3], ["README", 3]]
+    comun: {
+      t: "Skill transversal de documentación",
+      d: "Crea una Skill que sirva para DAM y ASIR por igual: generar la documentación de una entrega (README con objetivo, cómo ejecutar, cómo probar y decisiones tomadas).",
+      pasos: ["Escribe SKILL.md con una description precisa de cuándo activarse.", "Añade una plantilla de README como recurso de la Skill.", "Pruébala con dos entregas tuyas anteriores.", "Revisa tú mismo el resultado con una lista de comprobación."],
+      entregables: ["Carpeta de la Skill en tu repositorio.", "Los dos README generados.", "Tu lista de comprobación rellenada."],
+      criterios: [["Skill bien definida", 4], ["Se activa cuando debe", 3], ["README útiles", 3]]
     }
   },
   test: [

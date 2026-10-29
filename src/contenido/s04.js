@@ -219,12 +219,12 @@ Propón un plan de diagnóstico con los comandos de solo lectura que ejecutaría
       entregables: ["settings.json con allow/deny.", "Prueba de que el deny funciona (captura).", "Scripts mejorados con Claude Code."],
       criterios: [["Reglas deny efectivas", 4], ["Scripts mejorados y verificados", 4], ["Documentación", 2]]
     },
-    sync: {
-      t: "Proyecto compartido con memoria común",
-      d: "Un único repositorio con app (DAM) e infraestructura (ASIR) y un CLAUDE.md raíz que describa ambos, más un CLAUDE.md en cada subcarpeta.",
-      pasos: ["Estructura app/ e infra/.", "CLAUDE.md raíz + uno por carpeta.", "Cada uno pide a Claude Code una tarea en la parte del otro y comprueba que respeta sus reglas."],
-      entregables: ["Enlace al repositorio.", "CLAUDE.md con secciones DAM y ASIR.", "Capturas de las dos tareas cruzadas."],
-      criterios: [["Estructura y memorias coherentes", 4], ["Tareas cruzadas que respetan las reglas", 4], ["Presentación", 2]]
+    comun: {
+      t: "Plantilla CLAUDE.md reutilizable",
+      d: "Crea una plantilla de CLAUDE.md que sirva para cualquier proyecto (app o infraestructura) con las secciones que todo equipo necesita: comandos, convenciones, prohibiciones y cómo verificar.",
+      pasos: ["Redacta la plantilla con comentarios que expliquen qué va en cada sección.", "Aplícala a tu proyecto de la sesión.", "Pide a Claude Code dos tareas y comprueba que respeta las prohibiciones.", "Mejora la plantilla con lo que hayas aprendido."],
+      entregables: ["Plantilla en tu repositorio.", "Tu CLAUDE.md rellenado a partir de ella.", "Capturas de las dos tareas."],
+      criterios: [["Plantilla completa y genérica", 4], ["Claude respeta las reglas", 4], ["Presentación", 2]]
     }
   },
   test: [

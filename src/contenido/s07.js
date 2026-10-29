@@ -150,12 +150,12 @@ claude mcp list
       entregables: [".mcp.json.", "Capturas del Inspector.", "Análisis de riesgos de cada tool."],
       criterios: [["Configuración correcta", 3], ["Pruebas en Inspector y en crudo", 4], ["Análisis de riesgos", 3]]
     },
-    sync: {
-      t: "Contrato del servidor común",
-      d: "Acordad el contrato (nombres de tools, parámetros, respuestas y errores) del servidor MCP que construiréis en las Sesiones 8 y 9.",
-      pasos: ["Reunión de 30 minutos.", "Contrato en Markdown o JSON Schema.", "Firmado (commit) por los dos."],
-      entregables: ["Contrato en JSON o Markdown firmado por la pareja."],
-      criterios: [["Contrato completo y sin ambigüedades", 6], ["Errores definidos", 2], ["Acuerdo documentado", 2]]
+    comun: {
+      t: "Contrato de tu servidor MCP",
+      d: "Antes de programar, define el contrato del servidor MCP que construirás en las Sesiones 8 y 9: nombres de tools, parámetros, respuestas y errores. Diseñar contratos es igual de importante para DAM y para ASIR.",
+      pasos: ["Lista las tools que tendrá tu servidor (de datos si eres DAM, de operación si eres ASIR).", "Escribe el contrato en Markdown o JSON Schema.", "Define los errores posibles y qué mensaje recibe el modelo.", "Pide a Claude que busque ambigüedades y corrígelas."],
+      entregables: ["Contrato en JSON o Markdown en tu repositorio.", "Lista de ambigüedades encontradas y cómo las resolviste."],
+      criterios: [["Contrato completo y sin ambigüedades", 6], ["Errores definidos", 2], ["Revisión documentada", 2]]
     }
   },
   test: [

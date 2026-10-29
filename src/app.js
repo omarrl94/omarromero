@@ -7,6 +7,7 @@ import {
   FIREBASE, DEMO_MODE, CICLOS
 } from "./constantes.js";
 import { TABS, BLOQUES, SESIONES } from "./datos.js";
+import PRESENTACION from "./contenido/presentacion.js";
 import { DB, notaMediaDe } from "./estado.js";
 import { crearBackendLocal } from "./backend-local.js";
 
@@ -87,9 +88,14 @@ const urlVerificacion = (codigo) => `${location.origin}${location.pathname}#/ver
    ===================================================================== */
 let backend;
 let AUTH = { estado: "cargando" };
+const leer = (almacen, clave) => { try { return almacen.getItem(clave); } catch { return null; } };
+const escribir = (almacen, clave, valor) => { try { valor == null ? almacen.removeItem(clave) : almacen.setItem(clave, valor); } catch {} };
+
 const UI = {
-  vista: "curso",           // curso | perfil | admin | diploma | verificar
-  sesion: 1,
+  vista: "inicio",          // inicio | presentacion | curso | perfil | admin | diploma | verificar
+  sesion: Math.min(Math.max(Number(leer(localStorage, "jro_ultima_sesion")) || 1, 1), 12),
+  ultimaSesion: Number(leer(localStorage, "jro_ultima_sesion")) || null,
+  vistaAlumno: ["DAM", "ASIR"].includes(leer(sessionStorage, "jro_vista_alumno")) ? leer(sessionStorage, "jro_vista_alumno") : null,
   tab: "teoria",
   authTab: "login",
   adminTab: "seguimiento",
@@ -105,7 +111,9 @@ const UI = {
 function aplicarRuta() {
   if (/\/accion\/?$/.test(location.pathname)) { UI.vista = "accion"; return; }
   const [vista, a, b] = location.hash.replace(/^#\/?/, "").split("/").map(decodeURIComponent);
-  if (vista === "perfil") UI.vista = "perfil";
+  if (!vista) UI.vista = "inicio";
+  else if (vista === "presentacion") UI.vista = "presentacion";
+  else if (vista === "perfil") UI.vista = "perfil";
   else if (vista === "admin") { UI.vista = "admin"; if (["seguimiento", "entregas", "titulos", "usuarios"].includes(a)) UI.adminTab = a; }
   else if (vista === "titulo") { UI.vista = "diploma"; UI.diplomaId = a; }
   else if (vista === "verificar") {
@@ -114,7 +122,7 @@ function aplicarRuta() {
   } else {
     UI.vista = "curso";
     const n = Number(a);
-    if (n >= 1 && n <= SESIONES.length) UI.sesion = n;
+    if (n >= 1 && n <= SESIONES.length) { UI.sesion = n; UI.ultimaSesion = n; escribir(localStorage, "jro_ultima_sesion", String(n)); }
     UI.tab = TABS.some(t => t.id === b) ? b : "teoria";
   }
 }
@@ -127,14 +135,29 @@ const rutaSesion = (n, tab = "teoria") => `#/curso/${n}/${tab}`;
 
 window.addEventListener("hashchange", () => { aplicarRuta(); render(); window.scrollTo(0, 0); });
 
-const usuario = () => AUTH.estado === "dentro" ? DB.users.find(u => u.id === AUTH.userId) || null : null;
+const usuarioReal = () => AUTH.estado === "dentro" ? DB.users.find(u => u.id === AUTH.userId) || null : null;
+// Vista alumno: el profesor ve la plataforma como un alumno de DAM o ASIR, sin guardar nada
+const enVistaAlumno = () => !!UI.vistaAlumno && usuarioReal()?.role === "admin";
+const usuario = () => {
+  const u = usuarioReal();
+  if (!u || !enVistaAlumno()) return u;
+  return { id: "__vista_alumno", role: "alumno", ciclo: UI.vistaAlumno, curso: "2º", nombre: `Alumno/a de ${UI.vistaAlumno} (vista previa)`,
+    email: u.email, createdAt: u.createdAt, consents: u.consents, preview: true };
+};
 const esAdmin = () => usuario()?.role === "admin";
+const AVISO_VISTA = "Vista de alumno: no se guarda nada";
 const alumnos = () => DB.users.filter(u => u.role === "alumno");
-const entrega = (userId, n, bloque = "sync") => DB.submissions.find(s => s.userId === userId && s.sesion === n && s.bloque === bloque);
+const entrega = (userId, n, bloque) => DB.submissions.find(s => s.userId === userId && s.sesion === n && s.bloque === bloque);
 const completadas = (userId) => Object.keys(DB.progress[userId] || {}).length;
 const diplomaDe = (userId) => DB.diplomas.find(d => d.userId === userId);
 const aprobadas = (userId) => DB.submissions.filter(s => s.userId === userId && s.estado === "aprobada");
-const apto = (userId) => entrega(userId, 12, "sync")?.estado === "aprobada";
+// Bloques que entrega un alumno en una sesión: el de su ciclo y, si la sesión lo tiene, el común (todo individual)
+const bloquesDe = (u, s) => u.role === "alumno" ? [u.ciclo.toLowerCase(), ...(s.actividad.comun ? ["comun"] : [])] : [];
+const TOTAL_BLOQUES = SESIONES.reduce((t, s) => t + 1 + (s.actividad.comun ? 1 : 0), 0);
+const cicloDe = (userId) => DB.users.find(u => u.id === userId)?.ciclo;
+// Proyecto Final: bloque del ciclo del alumno en la Sesión 12
+const proyectoFinal = (userId) => entrega(userId, 12, (cicloDe(userId) || "").toLowerCase());
+const apto = (userId) => proyectoFinal(userId)?.estado === "aprobada";
 const mediaTests = (userId) => {
   const t = (DB.tests || []).filter(x => x.userId === userId);
   return t.length ? Math.round(t.reduce((a, x) => a + x.mejor, 0) / t.length * 10) / 10 : null;
@@ -184,17 +207,26 @@ function header() {
   const nav = (vista, hash, texto, corto) => `<button data-action="ir" data-hash="${hash}" class="px-2 sm:px-3 py-2 rounded-md text-xs sm:text-sm whitespace-nowrap ${UI.vista === vista ? "bg-jro-cream font-semibold text-jro-ink" : "text-jro-mute hover:text-jro-ink"}"><span class="sm:hidden">${corto || texto}</span><span class="hidden sm:inline">${texto}</span></button>`;
   return `<header class="bg-white border-b border-jro-line sticky top-0 z-30 no-print">
     <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
-      <button data-action="ir" data-hash="${rutaSesion(UI.sesion)}" class="shrink-0" aria-label="Inicio"><span class="sm:hidden">${isotipoSVG(34)}</span><span class="hidden sm:inline">${logo(36)}</span></button>
+      <button data-action="ir" data-hash="#/presentacion" class="shrink-0" aria-label="Presentación del curso"><span class="sm:hidden">${isotipoSVG(34)}</span><span class="hidden sm:inline">${logo(36)}</span></button>
       <div class="hidden xl:block text-sm font-semibold text-jro-ink truncate">${CURSO}</div>
       <nav class="flex items-center gap-0.5 sm:gap-1">
         ${nav("curso", rutaSesion(UI.sesion, UI.tab), "Curso")}
         ${esAdmin() ? nav("admin", "#/admin/" + UI.adminTab, "Panel docente", "Panel") : ""}
+        ${esAdmin() ? `<button data-action="vistaalumno" data-c="DAM" class="hidden md:inline px-3 py-2 rounded-md text-sm text-jro-mute hover:text-jro-ink whitespace-nowrap">Vista alumno</button>` : ""}
         ${nav("perfil", "#/perfil", "Mi perfil", "Perfil")}
         <span class="hidden sm:inline-flex ml-2">${badgeCiclo(u.role === "admin" ? null : u.ciclo)}</span>
         <button data-action="salir" class="ml-1 px-2 sm:px-3 py-2 rounded-md text-xs sm:text-sm text-jro-mute hover:text-jro-ink">Salir</button>
       </nav>
     </div>
   </header>
+  ${enVistaAlumno() ? `<div class="bg-jro-ink text-white no-print">
+    <div class="max-w-7xl mx-auto px-4 py-2 flex flex-wrap items-center gap-2 text-sm">
+      <span><b>Vista de alumno ${esc(UI.vistaAlumno)}</b> · Estás viendo la plataforma como la ve un alumno. Nada de lo que hagas se guarda.</span>
+      <span class="flex-1"></span>
+      <button data-action="vistaalumno" data-c="${UI.vistaAlumno === "DAM" ? "ASIR" : "DAM"}" class="rounded-lg bg-white text-jro-ink px-3 py-1 text-xs font-semibold">Cambiar a ${UI.vistaAlumno === "DAM" ? "ASIR" : "DAM"}</button>
+      <button data-action="vistaalumno" data-c="" class="rounded-lg btn-cta px-3 py-1 text-xs">Salir de la vista alumno</button>
+    </div>
+  </div>` : ""}
   ${!verificado() ? `<div class="bg-jro-gold/30 border-b border-jro-gold no-print">
     <div class="max-w-7xl mx-auto px-4 py-2 flex flex-wrap items-center gap-2 text-sm">
       <span><b>Verifica tu correo.</b> Te hemos enviado un enlace a ${esc(AUTH.email)} (mira también en correo no deseado). Hasta entonces no podrás entregar actividades. Si no te llega, el profesor puede activar tu cuenta.</span>
@@ -233,8 +265,9 @@ function vistaAuth() {
         </div>
         <div class="mt-6 flex items-center gap-3 text-sm text-jro-mute">
           <span class="h-4 w-4 rounded-full bg-jro-gold"></span><span class="h-4 w-4 rounded-full bg-jro-sage"></span><span class="h-4 w-4 rounded-full bg-jro-terra"></span>
-          <span>${HORAS_CURSO} horas · 12 sesiones · Proyecto final en parejas</span>
+          <span>${HORAS_CURSO} horas · 12 sesiones · Trabajo individual · Proyecto final propio</span>
         </div>
+        <button data-action="ir" data-hash="#/presentacion" class="mt-6 rounded-lg border-2 border-jro-ink bg-white px-4 py-2 text-sm font-semibold">¿De qué va el curso? Ver la presentación →</button>
       </section>
 
       <section class="bg-white rounded-2xl border border-jro-line shadow-sm">
@@ -489,6 +522,99 @@ function modalPrivacidad() {
 }
 
 /* =====================================================================
+   VISTA: PRESENTACIÓN (de qué va el curso, para quién es y cómo funciona)
+   ===================================================================== */
+function vistaPresentacion() {
+  const P = PRESENTACION;
+  const u = usuario();
+  const dentro = !!u;
+  const sigue = UI.ultimaSesion || 1;
+  const ctas = dentro
+    ? `<button data-action="ir" data-hash="${rutaSesion(sigue)}" class="btn-cta rounded-lg px-5 py-2.5">${UI.ultimaSesion ? `Continuar en la Sesión ${sigue}` : "Empezar por la Sesión 1"}</button>
+       ${esAdmin() ? `<button data-action="ir" data-hash="#/admin/${UI.adminTab}" class="rounded-lg border-2 border-jro-ink bg-white px-5 py-2.5 font-semibold">Panel docente</button>` : ""}`
+    : `<button data-action="ir" data-hash="#/" class="btn-cta rounded-lg px-5 py-2.5">Entrar o registrarme</button>`;
+  const titulo = (t, sub = "") => `<h2 class="text-xl sm:text-2xl font-extrabold">${t}</h2>${sub ? `<p class="mt-1 text-sm text-jro-mute">${sub}</p>` : ""}<div class="mt-2 mb-4 h-[3px] w-16 bg-jro-gold"></div>`;
+  const tarjeta = (cuerpo, cls = "border-jro-line") => `<section class="bg-white rounded-2xl border ${cls} p-5 sm:p-6">${cuerpo}</section>`;
+  const temario = [1, 2, 3, 4].map(b => `<div>
+      <div class="text-[11px] font-bold uppercase tracking-wide text-jro-mute">Bloque ${b} · ${esc(BLOQUES[b])}</div>
+      <ul class="mt-2 space-y-1.5">${SESIONES.filter(x => x.bloque === b).map(x => {
+        const chips = `<span class="ml-1 inline-flex gap-1 align-middle">
+          <span class="rounded-full dam-head px-1.5 text-[10px] font-bold">DAM</span><span class="rounded-full asir-head px-1.5 text-[10px] font-bold">ASIR</span>
+          ${x.actividad.comun ? `<span class="rounded-full comun-head px-1.5 text-[10px] font-bold">Común</span>` : ""}</span>`;
+        const texto = `<span class="font-semibold">S${x.n}.</span> ${esc(x.titulo)}${chips}`;
+        return `<li class="text-sm">${dentro
+          ? `<button data-action="ir" data-hash="${rutaSesion(x.n)}" class="text-left hover:underline">${texto}</button>`
+          : texto}</li>`;
+      }).join("")}</ul></div>`).join("");
+  const conComun = SESIONES.filter(x => x.actividad.comun).map(x => x.n);
+
+  const cuerpo = `<main class="max-w-6xl mx-auto px-4 py-8 space-y-6">
+    <section class="rounded-2xl bg-jro-ink text-white p-6 sm:p-10">
+      <span class="inline-flex rounded-full bg-jro-gold px-3 py-1 text-xs font-bold text-jro-ink">Título Propio del Centro · ${HORAS_CURSO} horas</span>
+      <h1 class="mt-4 text-3xl sm:text-4xl font-extrabold leading-tight max-w-4xl">${esc(CURSO)}</h1>
+      <p class="mt-4 text-lg text-white/85 max-w-3xl leading-relaxed">${esc(P.lema)}</p>
+      <div class="mt-5 flex flex-wrap gap-2 text-xs font-semibold">
+        <span class="rounded-full bg-jro-sage text-jro-ink px-3 py-1">Grado Superior DAM</span>
+        <span class="rounded-full bg-jro-terra text-jro-ink px-3 py-1">Grado Superior ASIR</span>
+        <span class="rounded-full bg-white/15 px-3 py-1">12 sesiones en 4 bloques</span>
+        <span class="rounded-full bg-white/15 px-3 py-1">Trabajo individual</span>
+        <span class="rounded-full bg-white/15 px-3 py-1">De principiante a avanzado</span>
+      </div>
+      <div class="mt-6 flex flex-wrap gap-3">${ctas}</div>
+    </section>
+
+    ${tarjeta(`${titulo("¿De qué va el curso?")}<div class="prose-jro text-[15px] max-w-4xl">${P.queEs}</div>`)}
+
+    <div class="grid lg:grid-cols-2 gap-6">
+      ${tarjeta(`${titulo("¿Para quién es?")}
+        <div class="space-y-3">${P.paraQuien.map((x, i) => `<div class="rounded-xl border-2 ${["border-jro-sage", "border-jro-terra", "border-jro-gold"][i] || "border-jro-line"} p-4">
+          <div class="font-bold">${esc(x.t)}</div><p class="mt-1 text-sm text-jro-mute">${esc(x.d)}</p></div>`).join("")}</div>`)}
+      ${tarjeta(`${titulo("Qué necesitas")}
+        <ul class="space-y-2 text-[15px]">${P.requisitos.map(x => `<li class="flex gap-2"><span class="font-bold">•</span><span>${esc(x)}</span></li>`).join("")}</ul>`)}
+    </div>
+
+    ${tarjeta(`${titulo("Qué aprenderás")}
+      <ul class="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-[15px]">${P.aprenderas.map(x => `<li class="flex gap-2"><span class="font-bold">✓</span><span>${esc(x)}</span></li>`).join("")}</ul>`, "border-2 border-jro-gold")}
+
+    ${tarjeta(`${titulo("Temario", `Cada sesión tiene un bloque para DAM y otro para ASIR. En las sesiones ${conComun.join(", ")} hay además un bloque común para los dos ciclos, donde el contenido sirve igual a ambos perfiles.`)}
+      <div class="grid md:grid-cols-2 gap-6">${temario}</div>`)}
+
+    ${tarjeta(`${titulo("Cómo funciona el curso")}
+      <ol class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">${P.pasos.map(([n, t, d]) => `<li class="rounded-xl bg-jro-cream p-4">
+        <div class="flex items-center gap-2"><span class="h-7 w-7 rounded-full bg-jro-gold flex items-center justify-center text-sm font-extrabold">${esc(n)}</span><span class="font-bold">${esc(t)}</span></div>
+        <p class="mt-2 text-sm">${esc(d)}</p></li>`).join("")}</ol>
+      <h3 class="mt-6 font-bold">Las 5 pestañas de cada sesión</h3>
+      <div class="mt-2 grid sm:grid-cols-2 lg:grid-cols-5 gap-3">${P.sesionTabs.map(([t, d]) => `<div class="rounded-xl border border-jro-line p-3">
+        <div class="font-semibold text-sm border-b-[3px] border-jro-gold inline-block pb-0.5">${esc(t)}</div><p class="mt-2 text-xs text-jro-mute">${esc(d)}</p></div>`).join("")}</div>
+      <div class="mt-6 grid md:grid-cols-3 gap-3 text-sm">
+        <div class="rounded-xl border-2 border-jro-sage p-4"><div class="font-bold">Bloque DAM</div><p class="mt-1 text-jro-mute">Lo entrega el alumnado de DAM en todas las sesiones: aplicaciones, APIs, Java 21, Python y servidores MCP de datos.</p></div>
+        <div class="rounded-xl border-2 border-jro-terra p-4"><div class="font-bold">Bloque ASIR</div><p class="mt-1 text-jro-mute">Lo entrega el alumnado de ASIR en todas las sesiones: Linux, Windows Server, Docker, logs y servidores MCP de operación.</p></div>
+        <div class="rounded-xl comun-card p-4"><div class="font-bold">Bloque común</div><p class="mt-1">Solo en las sesiones donde encaja (costes, prompts, memoria del proyecto, Skills, comandos, contratos MCP, costes en producción y seguridad). Lo hacen los dos ciclos, cada alumno por su cuenta.</p></div>
+      </div>`)}
+
+    ${tarjeta(`${titulo("Evaluación")}
+      <div class="overflow-x-auto"><table class="w-full text-sm">
+        <thead><tr class="text-left text-jro-mute"><th class="py-2 pr-3">Qué</th><th class="py-2 pr-3">Cuántas</th><th class="py-2">Cómo se evalúa</th></tr></thead>
+        <tbody>${P.evaluacion.map(([q, c, e]) => `<tr class="border-t border-jro-line align-top"><td class="py-2 pr-3 font-semibold">${esc(q)}</td><td class="py-2 pr-3">${esc(c)}</td><td class="py-2">${esc(e)}</td></tr>`).join("")}</tbody>
+      </table></div>`)}
+
+    <div class="grid lg:grid-cols-2 gap-6">
+      ${tarjeta(`${titulo("Título Propio del Centro")}<div class="prose-jro text-[15px]">${P.titulo}</div>`, "border-2 border-jro-gold")}
+      ${tarjeta(`${titulo("Normas del curso")}
+        <dl class="space-y-3 text-sm">${P.normas.map(([t, d]) => `<div><dt class="font-bold">${esc(t)}</dt><dd class="text-jro-mute">${esc(d)}</dd></div>`).join("")}</dl>`)}
+    </div>
+
+    ${tarjeta(`${titulo("Profesor responsable")}
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div><div class="font-bold text-lg">${esc(ADMIN_NOMBRE)}</div><div class="text-sm text-jro-mute">Docente y Tutor en FP José Ramón Otero · ${esc(ADMIN_EMAIL)}</div>
+        <p class="mt-2 text-sm">Corrige las entregas, resuelve dudas y emite los títulos. Escríbele si tienes problemas con tu cuenta o con una entrega.</p></div>
+        <div class="flex flex-wrap gap-3">${ctas}</div>
+      </div>`)}
+  </main>`;
+  return dentro ? `${header()}${cuerpo}${pie()}` : `<div class="min-h-screen flex flex-col">${cabeceraSimple()}${cuerpo}${pie()}</div>`;
+}
+
+/* =====================================================================
    VISTA: CURSO
    ===================================================================== */
 function vistaCurso() {
@@ -523,6 +649,7 @@ function sidebar(u) {
       ${d ? `<button data-action="ir" data-hash="#/titulo/${esc(d.id)}" class="mt-3 w-full btn-cta rounded-lg py-1.5 text-sm">Ver mi Título Propio</button>` : ""}
     </div>`;
   }
+  html += `<button data-action="ir" data-hash="#/presentacion" class="w-full mb-3 rounded-xl border border-jro-line bg-white px-4 py-2.5 text-left text-sm font-semibold hover:bg-jro-cream">Presentación del curso<span class="block text-xs font-normal text-jro-mute">Qué aprenderás, cómo funciona y evaluación</span></button>`;
   html += `<label class="lg:hidden block mb-2"><span class="sr-only">Sesión</span>
     <select data-action="selsesion" class="w-full rounded-lg border border-jro-line bg-white px-3 py-2 font-medium">
       ${SESIONES.map(x => `<option value="${x.n}" ${x.n === UI.sesion ? "selected" : ""}>Sesión ${x.n} · ${esc(x.titulo)}</option>`).join("")}
@@ -534,7 +661,7 @@ function sidebar(u) {
       const activa = x.n === UI.sesion;
       let estado = "";
       if (u.role === "alumno") {
-        const ents = [u.ciclo.toLowerCase(), "sync"].map(b => entrega(u.id, x.n, b));
+        const ents = bloquesDe(u, x).map(b => entrega(u.id, x.n, b));
         if (ents.every(e => e?.estado === "aprobada")) estado = `<span title="Bloques aprobados" class="block h-2.5 w-2.5 rounded-full bg-jro-gold"></span>`;
         else if (DB.progress[u.id]?.[x.n]) estado = `<span title="Completada" class="text-xs font-bold text-[#5f8f7a]">✓</span>`;
         else if (ents.some(Boolean)) estado = `<span title="Entregada" class="block h-2.5 w-2.5 rounded-full border-2 border-jro-gold"></span>`;
@@ -707,8 +834,7 @@ function seccionTest(s, u) {
 }
 
 /* ---------- Entregas por bloque ---------- */
-const NOMBRE_BLOQUE = { dam: "Bloque DAM", asir: "Bloque ASIR", sync: "Bloque Sincronización DAM + ASIR" };
-const bloquesDe = (u) => u.role === "alumno" ? [u.ciclo.toLowerCase(), "sync"] : [];
+const NOMBRE_BLOQUE = { dam: "Bloque DAM", asir: "Bloque ASIR", comun: "Bloque común DAM y ASIR" };
 
 function formularioEntrega(s, u, bloque) {
   const e = entrega(u.id, s.n, bloque);
@@ -727,8 +853,6 @@ function formularioEntrega(s, u, bloque) {
     <form data-form="entrega" data-n="${s.n}" data-bloque="${bloque}" class="mt-3 grid gap-3" novalidate>
       <label class="block text-sm"><span class="font-medium">Enlace al repositorio o documento (https://…)</span>
         <input name="enlace" maxlength="500" class="${INPUT}" value="${esc(e?.enlace || "")}" placeholder="https://github.com/usuario/repositorio"></label>
-      ${bloque === "sync" ? `<label class="block text-sm"><span class="font-medium">Compañero/a del otro ciclo</span>
-        <input name="pareja" maxlength="80" class="${INPUT}" value="${esc(e?.pareja || "")}" placeholder="Nombre y ciclo"></label>` : ""}
       <label class="block text-sm"><span class="font-medium">Resumen de lo realizado</span>
         <textarea name="comentario" rows="3" maxlength="3000" class="${INPUT}">${esc(e?.comentario || "")}</textarea></label>
       <label class="flex gap-2 items-start text-sm"><input type="checkbox" name="limpio" class="mt-1 h-4 w-4 accent-[#efcd2f]">
@@ -761,31 +885,50 @@ function bloqueActividad(s, u, tipo) {
   const cls = { dam: "border-jro-sage", asir: "border-jro-terra" }[tipo];
   const head = { dam: "dam-head", asir: "asir-head" }[tipo];
   const titulo = { dam: "Bloque DAM · Desarrollo de Aplicaciones Multiplataforma", asir: "Bloque ASIR · Administración de Sistemas Informáticos en Red" }[tipo];
-  const mio = bloquesDe(u).includes(tipo);
+  const mio = bloquesDe(u, s).includes(tipo);
   const pie = u.role === "alumno"
-    ? (mio ? formularioEntrega(s, u, tipo) : `<p class="mt-4 text-xs text-jro-mute">Este bloque lo entrega el alumnado de ${tipo.toUpperCase()}. Léelo: lo necesitarás en el bloque de sincronización.</p>`)
+    ? (mio ? formularioEntrega(s, u, tipo) : `<p class="mt-4 text-xs text-jro-mute">Este bloque es del itinerario de ${tipo.toUpperCase()}: no lo entregas. Puedes leerlo para ver cómo se aplica lo mismo en el otro ciclo.</p>`)
     : resumenAdminBloque(s, tipo);
   return `<section class="bg-white rounded-xl border-2 ${cls} overflow-hidden">
     <div class="${head} px-5 py-2.5 flex items-center justify-between gap-2">
       <span class="text-sm font-bold text-jro-ink">${titulo}</span>
-      ${mio ? `<span class="rounded-full bg-white/80 px-2 py-0.5 text-[11px] font-bold shrink-0">Tu ciclo</span>` : ""}
+      ${mio ? `<span class="rounded-full bg-white/80 px-2 py-0.5 text-[11px] font-bold shrink-0">Tu ciclo${s.n === 12 ? " · da acceso al Título Propio" : ""}</span>` : u.role !== "alumno" && s.n === 12 ? `<span class="rounded-full bg-white/80 px-2 py-0.5 text-[11px] font-bold shrink-0">Proyecto Final · da acceso al Título</span>` : ""}
     </div>
     <div class="p-5">${contenidoBloque(a)}${pie}</div>
   </section>`;
 }
 
-function tabActividad(s, u) {
-  const pieSync = u.role === "alumno" ? formularioEntrega(s, u, "sync") : resumenAdminBloque(s, "sync");
-  return `<div class="space-y-5">
-    ${seccionTest(s, u)}
-    <div class="grid xl:grid-cols-2 gap-5">
-      ${bloqueActividad(s, u, "dam")}
-      ${bloqueActividad(s, u, "asir")}
+function bloqueComun(s, u) {
+  if (!s.actividad.comun) return "";
+  const pie = u.role === "alumno" ? formularioEntrega(s, u, "comun") : resumenAdminBloque(s, "comun");
+  return `<section class="comun-card rounded-xl overflow-hidden">
+    <div class="comun-head px-5 py-2.5 flex items-center justify-between gap-2">
+      <span class="text-sm font-bold text-jro-ink">Bloque común DAM y ASIR</span>
+      <span class="rounded-full bg-white/80 px-2 py-0.5 text-[11px] font-bold shrink-0">Individual · lo hacen los dos ciclos</span>
     </div>
-    <section class="sync-card rounded-xl overflow-hidden">
-      <div class="sync-head px-5 py-2.5 text-sm font-bold text-jro-ink">Bloque Sincronización DAM + ASIR${s.n === 12 ? " · da acceso al Título Propio" : ""}</div>
-      <div class="p-5">${contenidoBloque(s.actividad.sync)}${pieSync}</div>
-    </section>
+    <div class="p-5">${contenidoBloque(s.actividad.comun)}${pie}</div>
+  </section>`;
+}
+
+function tabActividad(s, u) {
+  if (u.role !== "alumno") {
+    return `<div class="space-y-5">
+      ${seccionTest(s, u)}
+      <div class="grid xl:grid-cols-2 gap-5">${bloqueActividad(s, u, "dam")}${bloqueActividad(s, u, "asir")}</div>
+      ${bloqueComun(s, u) || `<p class="text-sm text-jro-mute">Esta sesión no tiene bloque común: cada alumno entrega solo el bloque de su ciclo.</p>`}
+    </div>`;
+  }
+  const mio = u.ciclo.toLowerCase(), otro = mio === "dam" ? "asir" : "dam";
+  const lista = bloquesDe(u, s).map(b => `<b>${NOMBRE_BLOQUE[b].replace(/^Bloque/, "bloque")}</b>`).join(" y el ");
+  return `<div class="space-y-5">
+    <div class="rounded-xl bg-white border border-jro-line px-5 py-3 text-sm">En esta sesión entregas el ${lista}. Todas las entregas son <b>individuales</b>.</div>
+    ${seccionTest(s, u)}
+    ${bloqueActividad(s, u, mio)}
+    ${bloqueComun(s, u)}
+    <details class="bg-white rounded-xl border border-jro-line">
+      <summary class="cursor-pointer px-5 py-3 text-sm font-semibold">Ver el bloque ${otro.toUpperCase()} (es del otro ciclo, no lo entregas)</summary>
+      <div class="px-3 pb-3">${bloqueActividad(s, u, otro)}</div>
+    </details>
   </div>`;
 }
 
@@ -818,7 +961,7 @@ function vistaPerfil() {
         ${u.role === "alumno" ? fila("Ciclo y curso", `${badgeCiclo(u.ciclo)} ${esc(u.curso)} · ${esc(CICLOS[u.ciclo])}`) : fila("Cargo", "Docente y Tutor en FP José Ramón Otero")}
         ${fila("Alta", fecha(u.createdAt))}
         ${fila("Consentimientos", `Privacidad: ${fechaHora(u.consents?.privacidad)}<br>Compromiso EU AI Act: ${fechaHora(u.consents?.iaAct)}`)}
-        ${u.role === "alumno" ? fila("Progreso", `${completadas(u.id)}/12 sesiones · ${aprobadas(u.id).length}/24 bloques aprobados${media !== null ? ` · nota media ${media}` : ""}${mediaTests(u.id) !== null ? ` · tests: ${mediaTests(u.id)}` : ""}`) : ""}
+        ${u.role === "alumno" ? fila("Progreso", `${completadas(u.id)}/12 sesiones · ${aprobadas(u.id).length}/${TOTAL_BLOQUES} bloques aprobados${media !== null ? ` · nota media ${media}` : ""}${mediaTests(u.id) !== null ? ` · tests: ${mediaTests(u.id)}` : ""}`) : ""}
       </table>
     </section>
 
@@ -826,7 +969,7 @@ function vistaPerfil() {
       <h2 class="font-bold text-lg">Título Propio del Centro</h2>
       ${d ? `<p class="mt-1 text-sm">Emitido el ${fecha(d.emitidoEn)} · Código de verificación <span class="mono font-semibold">${esc(d.codigo)}</span></p>
         <button data-action="ir" data-hash="#/titulo/${esc(d.id)}" class="mt-3 btn-cta rounded-lg px-4 py-2 text-sm">Ver, imprimir o guardar en PDF</button>`
-      : `<p class="mt-1 text-sm text-jro-mute">Se emite cuando el profesor valida tu Proyecto Final Integrador (Sesión 12). Estado del bloque de sincronización de la Sesión 12: ${badgeEstado(entrega(u.id, 12, "sync")?.estado)}</p>`}
+      : `<p class="mt-1 text-sm text-jro-mute">Se emite cuando el profesor valida tu Proyecto Final Integrador (Sesión 12). Estado del bloque ${esc(u.ciclo)} de la Sesión 12: ${badgeEstado(entrega(u.id, 12, u.ciclo.toLowerCase())?.estado)}</p>`}
     </section>` : ""}
 
     <section class="bg-white rounded-xl border border-jro-line p-5">
@@ -867,7 +1010,9 @@ function vistaAdmin() {
     <div class="flex flex-wrap items-end justify-between gap-3">
       <div><h1 class="text-2xl font-extrabold">Panel docente</h1>
       <p class="text-sm text-jro-mute">${esc(ADMIN_NOMBRE)} · Docente y Tutor en FP José Ramón Otero</p></div>
-      <div class="flex gap-2 text-sm">
+      <div class="flex flex-wrap gap-2 text-sm">
+        <button data-action="vistaalumno" data-c="DAM" class="rounded-lg dam-head px-3 py-1.5 font-semibold">Ver como alumno DAM</button>
+        <button data-action="vistaalumno" data-c="ASIR" class="rounded-lg asir-head px-3 py-1.5 font-semibold">Ver como alumno ASIR</button>
         <span class="rounded-lg bg-white border border-jro-line px-3 py-1.5">${alumnos().length} alumnos</span>
         <span class="rounded-lg bg-white border border-jro-gold px-3 py-1.5">${pend} entregas pendientes</span>
       </div>
@@ -905,7 +1050,7 @@ function adminSeguimiento() {
         <td class="py-2 pr-3"><div class="font-semibold">${esc(a.nombre)}</div><div class="text-xs text-jro-mute">${esc(a.email)}</div></td>
         <td class="py-2 pr-3 whitespace-nowrap">${badgeCiclo(a.ciclo)} <span class="text-xs">${esc(a.curso)}</span></td>
         <td class="py-2 pr-3 min-w-[140px]"><div class="text-xs">${completadas(a.id)}/12</div><div class="h-1.5 rounded-full bg-gray-100 mt-1"><div class="h-full rounded-full bg-jro-gold" style="width:${pct}%"></div></div></td>
-        <td class="py-2 pr-3 text-xs">${ent.length} enviadas<br>${aprobadas(a.id).length}/24 aprobadas</td>
+        <td class="py-2 pr-3 text-xs">${ent.length} enviadas<br>${aprobadas(a.id).length}/${TOTAL_BLOQUES} aprobadas</td>
         <td class="py-2 pr-3">${notaMediaDe(a.id) ?? "—"}</td>
         <td class="py-2 pr-3 text-xs">${mediaTests(a.id) ?? "—"}<br>${(DB.tests || []).filter(t => t.userId === a.id).length}/12 hechos</td>
         <td class="py-2">${diplomaDe(a.id) ? `<span class="rounded-full bg-jro-gold px-2 py-0.5 text-xs font-semibold">Emitido</span>` : apto(a.id) ? `<span class="text-xs font-semibold">Apto para emitir</span>` : `<span class="text-xs text-jro-mute">—</span>`}</td>
@@ -915,7 +1060,7 @@ function adminSeguimiento() {
 
 function exportarCSV() {
   const celda = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-  const filas = [["Nombre", "Correo", "Ciclo", "Curso", "Sesiones completadas", "Bloques aprobados (de 24)", "Nota media entregas", "Tests hechos", "Media tests", "Título"]];
+  const filas = [["Nombre", "Correo", "Ciclo", "Curso", "Sesiones completadas", `Bloques aprobados (de ${TOTAL_BLOQUES})`, "Nota media entregas", "Tests hechos", "Media tests", "Título"]];
   for (const a of alumnosFiltrados()) filas.push([a.nombre, a.email, a.ciclo, a.curso, completadas(a.id), aprobadas(a.id).length, notaMediaDe(a.id) ?? "", (DB.tests || []).filter(t => t.userId === a.id).length, mediaTests(a.id) ?? "", diplomaDe(a.id)?.codigo || ""]);
   descargar("seguimiento-curso-claude.csv", "﻿" + filas.map(f => f.map(celda).join(";")).join("\n"), "text/csv;charset=utf-8");
 }
@@ -931,9 +1076,9 @@ function adminEntregas() {
     ${filtroCicloHTML()}
     ${!lista.length ? `<p class="text-sm text-jro-mute">No hay entregas en este filtro.</p>` : `<div class="grid gap-4">${lista.map(s => {
       const ses = SESIONES.find(x => x.n === s.sesion);
-      const dam = s.bloque === "dam" || (s.bloque !== "asir" && s.ciclo === "DAM");
-      return `<article class="rounded-xl border-2 ${dam ? "border-jro-sage" : "border-jro-terra"} overflow-hidden">
-        <div class="${dam ? "dam-head" : "asir-head"} px-4 py-2 flex flex-wrap items-center justify-between gap-2 text-sm">
+      const [borde, cab] = { dam: ["border-jro-sage", "dam-head"], asir: ["border-jro-terra", "asir-head"] }[s.bloque] || ["border-jro-gold", "comun-head"];
+      return `<article class="rounded-xl border-2 ${borde} overflow-hidden">
+        <div class="${cab} px-4 py-2 flex flex-wrap items-center justify-between gap-2 text-sm">
           <span class="font-bold">${esc(s.nombre)} · ${esc(s.ciclo)} ${esc(s.curso)}</span>
           <span>Sesión ${s.sesion} · ${esc(NOMBRE_BLOQUE[s.bloque] || "")} · ${fechaHora(s.ts)}</span>
         </div>
@@ -941,7 +1086,6 @@ function adminEntregas() {
           <div class="text-sm space-y-2 min-w-0">
             <div class="font-semibold">${esc(ses?.actividad[s.bloque]?.t || "")}</div>
             <div><span class="text-jro-mute">Enlace:</span> ${esURL(s.enlace) ? `<a class="underline break-all" href="${esc(s.enlace)}" target="_blank" rel="noopener noreferrer">${esc(s.enlace)}</a>` : esc(s.enlace || "—")}</div>
-            <div><span class="text-jro-mute">Pareja:</span> ${esc(s.pareja || "—")}</div>
             <div class="whitespace-pre-wrap break-words rounded-lg bg-jro-cream p-3">${esc(s.comentario || "Sin comentario.")}</div>
             <div>${badgeEstado(s.estado)}</div>
           </div>
@@ -962,17 +1106,17 @@ function adminEntregas() {
 
 function adminTitulos() {
   const lista = alumnosFiltrados();
-  return filtroCicloHTML() + `<p class="text-sm text-jro-mute mb-4">Requisito: Proyecto Final Integrador aprobado (bloque de sincronización de la Sesión 12). La emisión queda firmada por ${esc(ADMIN_NOMBRE)} con fecha y código de verificación público.</p>
+  return filtroCicloHTML() + `<p class="text-sm text-jro-mute mb-4">Requisito: Proyecto Final Integrador aprobado (bloque del ciclo del alumno en la Sesión 12). La emisión queda firmada por ${esc(ADMIN_NOMBRE)} con fecha y código de verificación público.</p>
   ${!lista.length ? `<p class="text-sm text-jro-mute">No hay alumnos.</p>` : `<div class="grid md:grid-cols-2 gap-3">${lista.map(a => {
     const d = diplomaDe(a.id);
     return `<div class="rounded-xl border ${d ? "border-jro-gold border-2" : "border-jro-line"} p-4 flex items-center justify-between gap-3">
       <div class="min-w-0"><div class="font-semibold truncate">${esc(a.nombre)}</div>
-        <div class="text-xs text-jro-mute">${esc(a.ciclo)} ${esc(a.curso)} · media ${notaMediaDe(a.id) ?? "—"} · S12 (sincronización): ${esc(entrega(a.id, 12, "sync")?.estado || "sin entregar")}</div>
+        <div class="text-xs text-jro-mute">${esc(a.ciclo)} ${esc(a.curso)} · media ${notaMediaDe(a.id) ?? "—"} · Proyecto Final (S12): ${esc(proyectoFinal(a.id)?.estado || "sin entregar")}</div>
         ${d ? `<div class="text-xs mono mt-1">${esc(d.codigo)}</div>` : ""}</div>
       <div class="flex flex-col gap-1 shrink-0">
         ${d ? `<button data-action="ir" data-hash="#/titulo/${esc(d.id)}" class="btn-cta rounded-lg px-3 py-1.5 text-sm">Ver título</button>
                <button data-action="revocar" data-id="${esc(d.id)}" class="rounded-lg px-3 py-1 text-xs border border-jro-terra bg-white">Revocar</button>`
-           : `<button data-action="emitir" data-id="${esc(a.id)}" class="btn-cta rounded-lg px-3 py-1.5 text-sm" ${apto(a.id) ? "" : "disabled title='Falta aprobar la sincronización de la Sesión 12'"}>Emitir y firmar título</button>`}
+           : `<button data-action="emitir" data-id="${esc(a.id)}" class="btn-cta rounded-lg px-3 py-1.5 text-sm" ${apto(a.id) ? "" : "disabled title='Falta aprobar el Proyecto Final (Sesión 12)'"}>Emitir y firmar título</button>`}
       </div>
     </div>`;
   }).join("")}</div>`}`;
@@ -1074,7 +1218,7 @@ function vistaDiploma() {
         <div class="mt-3 text-[44px] font-extrabold leading-tight">${esc(a.nombre)}</div>
         <p class="mt-3 text-[16px] max-w-[820px] leading-relaxed">alumno/a de ${esc(a.curso)} curso del Ciclo Formativo de Grado Superior en <b>${esc(CICLOS[a.ciclo])}</b> (${esc(a.ciclo)}), ha superado con aprovechamiento el curso</p>
         <div class="mt-3 text-[24px] font-bold leading-snug max-w-[860px]">${esc(CURSO)}</div>
-        <p class="mt-3 text-[15px]">con una duración de ${HORAS_CURSO} horas lectivas (12 sesiones) y la superación del Proyecto Final Integrador DAM + ASIR${typeof d.nota === "number" ? `, con una calificación media de <b>${d.nota}</b>` : ""}.</p>
+        <p class="mt-3 text-[15px]">con una duración de ${HORAS_CURSO} horas lectivas (12 sesiones) y la superación del Proyecto Final Integrador${typeof d.nota === "number" ? `, con una calificación media de <b>${d.nota}</b>` : ""}.</p>
         <div class="mt-4 flex gap-2 text-[11px] font-semibold">
           <span class="rounded-full px-3 py-1 bg-jro-sage">Skills y Claude Code</span>
           <span class="rounded-full px-3 py-1 bg-jro-gold">Servidores MCP</span>
@@ -1143,11 +1287,12 @@ function render() {
   const app = $("#app");
   if (UI.vista === "verificar") { app.innerHTML = vistaVerificacion(); return; }
   if (UI.vista === "accion") { app.innerHTML = vistaAccion(); return; }
+  if (UI.vista === "presentacion" && AUTH.estado === "fuera") { app.innerHTML = vistaPresentacion(); return; }
   const vistasAuth = { cargando: vistaCargando, error: vistaError, fuera: vistaAuth, completar: vistaCompletar, verificar: vistaVerificarCorreo, cambiarpw: vistaCambiarPassword };
   if (vistasAuth[AUTH.estado]) { app.innerHTML = vistasAuth[AUTH.estado](); return; }
   if (!usuario()) { app.innerHTML = vistaCargando(); return; }
   if (UI.vista === "admin" && !esAdmin()) UI.vista = "curso";
-  app.innerHTML = { curso: vistaCurso, perfil: vistaPerfil, admin: vistaAdmin, diploma: vistaDiploma }[UI.vista]();
+  app.innerHTML = { inicio: vistaPresentacion, presentacion: vistaPresentacion, curso: vistaCurso, perfil: vistaPerfil, admin: vistaAdmin, diploma: vistaDiploma }[UI.vista]();
 }
 
 // Los cambios que llegan de la base de datos no borran lo que se está escribiendo
@@ -1217,7 +1362,17 @@ document.addEventListener("click", (ev) => {
         return ok ? "Correo verificado" : "Aún no consta como verificado. Abre el enlace del correo y vuelve a probar.";
       });
       break;
-    case "completar": tarea("progreso-" + el.dataset.n, () => backend.alternarProgreso(el.dataset.n)); break;
+    case "vistaalumno": {
+      UI.vistaAlumno = el.dataset.c || null;
+      escribir(sessionStorage, "jro_vista_alumno", UI.vistaAlumno);
+      UI.testResultado = null;
+      if (UI.vistaAlumno) { toast(`Vista de alumno ${UI.vistaAlumno}: no se guarda nada`); ir(UI.vista === "admin" ? rutaSesion(UI.sesion, UI.tab) : location.hash || "#/"); }
+      else ir("#/admin/" + UI.adminTab);
+      break;
+    }
+    case "completar":
+      if (enVistaAlumno()) { toast(AVISO_VISTA); break; }
+      tarea("progreso-" + el.dataset.n, () => backend.alternarProgreso(el.dataset.n)); break;
     case "filtrociclo": UI.filtroCiclo = el.dataset.c; render(); break;
     case "filtroestado": UI.filtroEstado = el.dataset.e; render(); break;
     case "emitir": tarea("emitir-" + el.dataset.id, () => backend.emitirTitulo(el.dataset.id), "Título emitido y firmado"); break;
@@ -1226,9 +1381,10 @@ document.addEventListener("click", (ev) => {
         async () => { await backend.revocarTitulo(el.dataset.id); toast("Título revocado"); });
       break;
     case "imprimir": window.print(); break;
-    case "exportar": exportarDatos(); toast("Datos exportados"); break;
+    case "exportar": if (enVistaAlumno()) { toast(AVISO_VISTA); break; } exportarDatos(); toast("Datos exportados"); break;
     case "csv": exportarCSV(); break;
     case "eliminar":
+      if (enVistaAlumno()) { toast(AVISO_VISTA); break; }
       confirmar("Eliminar mi cuenta", "Se borrarán de forma permanente tu perfil, tu progreso, tus entregas y tu título. Descarga antes tus datos si los necesitas.", "ELIMINAR",
         async (pw) => {
           if (backend.modo === "firebase" && !pw) throw new Error("Escribe tu contraseña.");
@@ -1322,7 +1478,8 @@ document.addEventListener("submit", async (ev) => {
       if (!esURL(enlace)) { toast("Indica un enlace que empiece por https://"); return; }
       if (!datos.limpio) { toast("Confirma que la entrega no contiene datos personales ni secretos"); return; }
       const bloque = f.dataset.bloque;
-      await tarea("entrega-" + n + bloque, () => backend.guardarEntrega(n, bloque, { enlace, pareja: (datos.pareja || "").trim(), comentario: (datos.comentario || "").trim() }), "Entrega enviada al profesor");
+      if (enVistaAlumno()) { toast(`${AVISO_VISTA} (la entrega es válida y se enviaría al profesor)`); return; }
+      await tarea("entrega-" + n + bloque, () => backend.guardarEntrega(n, bloque, { enlace, comentario: (datos.comentario || "").trim() }), "Entrega enviada al profesor");
       break;
     }
     case "test": {
@@ -1336,7 +1493,7 @@ document.addEventListener("submit", async (ev) => {
       UI.testResultado = { sesion: n, respuestas, aciertos, total: preguntas.length, nota };
       render();
       document.querySelector("[data-form=test], section .text-2xl")?.closest("section")?.scrollIntoView({ block: "start" });
-      if (usuario()?.role === "alumno") await tarea("test-" + n, () => backend.guardarTest(n, { aciertos, total: preguntas.length, nota }), "Resultado guardado");
+      if (usuario()?.role === "alumno" && !enVistaAlumno()) await tarea("test-" + n, () => backend.guardarTest(n, { aciertos, total: preguntas.length, nota }), "Resultado guardado");
       break;
     }
     case "evaluar": {

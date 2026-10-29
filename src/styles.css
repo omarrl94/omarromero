@@ -37,8 +37,8 @@ code, pre, .mono { font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, 
 
 .dam-head { background: var(--jro-sage); }
 .asir-head { background: var(--jro-terra); }
-.sync-card { border: 2px solid var(--jro-gold); background: linear-gradient(135deg, rgba(169,202,187,.35), rgba(227,159,125,.35)); }
-.sync-head { background: linear-gradient(90deg, var(--jro-sage), var(--jro-terra)); }
+.comun-card { border: 2px solid var(--jro-gold); background: linear-gradient(135deg, rgba(169,202,187,.35), rgba(227,159,125,.35)); }
+.comun-head { background: linear-gradient(90deg, var(--jro-sage), var(--jro-terra)); }
 
 pre.code { background: var(--jro-ink); color: #F5F5F4; border-radius: 0 0 10px 10px; padding: 14px 16px; overflow-x: auto; font-size: 13px; line-height: 1.55; }
 .code-head { background: #262626; color: #D6D3D1; border-radius: 10px 10px 0 0; }

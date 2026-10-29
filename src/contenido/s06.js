@@ -233,12 +233,12 @@ Escribe tests para el código indicado (JUnit 5 o pytest), ejecútalos y no term
       entregables: ["Script del hook y settings.json.", "Tabla de 8 intentos y su resultado.", "Captura de Claude reformulando tras el bloqueo."],
       criterios: [["8 patrones correctos", 4], ["Pruebas automatizadas", 3], ["Prueba real", 2], ["Documentación", 1]]
     },
-    sync: {
-      t: "Pipeline de despliegue seguro",
-      d: "DAM aporta /generate-tests y el subagente revisor; ASIR aporta /audit-dockerfile y el hook de seguridad. Juntos crean /pre-deploy y lo ejecutan sobre el proyecto común.",
-      pasos: ["Unir comandos, hooks y subagente en el repositorio.", "/pre-deploy con veredicto.", "Introducir un fallo a propósito y comprobar que da NO LISTO."],
-      entregables: ["Comando /pre-deploy.", "Ejecución completa documentada (LISTO y NO LISTO)."],
-      criterios: [["Integración completa", 4], ["Detecta el fallo introducido", 4], ["Documentación", 2]]
+    comun: {
+      t: "Comando /pre-entrega",
+      d: "Crea un comando personalizado que revise cualquier entrega antes de subirla: secretos en el código, ficheros que no deben subirse, README presente y pruebas pasando. Vale para un proyecto Java/Python o para scripts de sistemas.",
+      pasos: ["Define el comando en .claude/commands/pre-entrega.md con un veredicto LISTO / NO LISTO.", "Añade un hook que bloquee la escritura de ficheros .env.", "Ejecútalo sobre tu proyecto.", "Introduce un fallo a propósito (un token en el código) y comprueba que da NO LISTO."],
+      entregables: ["Comando y hook en tu repositorio.", "Capturas de las ejecuciones LISTO y NO LISTO."],
+      criterios: [["Comando completo", 4], ["Detecta el fallo introducido", 4], ["Documentación", 2]]
     }
   },
   test: [

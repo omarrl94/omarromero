@@ -269,12 +269,12 @@ Extrae: requisitos funcionales (RF-n), no funcionales (RNF-n), dudas que hay que
       entregables: ["Script y ejemplos few-shot usados.", "Matriz de aciertos sobre 50 líneas.", "Versión mejorada y nueva tasa de acierto."],
       criterios: [["Script funcional", 3], ["Medición rigurosa", 3], ["Mejora demostrada", 3], ["Anonimización", 1]]
     },
-    sync: {
-      t: "Del log al ticket",
-      d: "ASIR genera tickets reales desde los logs clasificados; DAM los muestra en una pequeña web con filtros por prioridad y categoría.",
-      pasos: ["Acordar el esquema JSON común.", "ASIR alimenta el endpoint de DAM.", "DAM muestra y filtra.", "Demostración conjunta."],
-      entregables: ["Repositorio común.", "Captura de la web con tickets reales anonimizados."],
-      criterios: [["Esquema compartido respetado", 3], ["Integración de extremo a extremo", 5], ["Presentación", 2]]
+    comun: {
+      t: "Esquema JSON universal de clasificación",
+      d: "Diseña un esquema JSON que sirva para clasificar cualquier texto técnico (un error de aplicación o una línea de log) y úsalo con salidas estructuradas. Es una habilidad que necesitan por igual DAM y ASIR.",
+      pasos: ["Define el esquema: categoría, prioridad, resumen y acción sugerida.", "Úsalo con output_config.format sobre 10 textos de tu ciclo.", "Valida las 10 respuestas con un validador de JSON Schema.", "Anota los casos dudosos y cómo mejoraste las instrucciones."],
+      entregables: ["Esquema JSON en tu repositorio.", "Script que clasifica y valida.", "Tabla con los 10 resultados."],
+      criterios: [["Esquema claro y reutilizable", 3], ["Clasificación validada al 100 %", 5], ["Análisis de casos dudosos", 2]]
     }
   },
   test: [

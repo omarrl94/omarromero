@@ -269,13 +269,6 @@ Razona con cuidado y entrega: fases, riesgos de cada fase (probabilidad e impact
       pasos: ["docker compose up con los tres servicios.", "docker stop dns y observa el efecto en cadena.", "docker compose logs > incidencia.log y anonimiza IPs y usuarios.", "Analiza y compara con tu propio diagnóstico."],
       entregables: ["docker-compose.yml.", "Log anonimizado.", "Informe post-mortem con línea temporal."],
       criterios: [["Escenario reproducible", 3], ["Anonimización correcta", 2], ["Post-mortem con línea temporal y causa raíz", 4], ["Acciones preventivas", 1]]
-    },
-    sync: {
-      t: "Guardia conjunta",
-      d: "ASIR provoca un fallo en el entorno; DAM recibe solo los logs y, con ayuda de Claude, debe localizar el componente roto en menos de 15 minutos. Después se cambian los papeles.",
-      pasos: ["ASIR prepara dos fallos distintos sin decirlos.", "DAM diagnostica con los logs y diagnostico.py.", "Se cronometra y se anota cada hipótesis.", "Cambio de papeles con un bug de aplicación."],
-      entregables: ["Registro de la guardia (hora a hora).", "Lecciones aprendidas en 5 líneas."],
-      criterios: [["Diagnóstico correcto en tiempo", 4], ["Registro completo", 3], ["Lecciones aprendidas útiles", 3]]
     }
   },
   test: [

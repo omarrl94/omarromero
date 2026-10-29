@@ -256,12 +256,12 @@ Revisa: clave en el servidor, streaming para respuestas largas, control de stop_
       entregables: ["Script y entrada de cron/tarea programada.", "Informe generado de una noche real del aula."],
       criterios: [["Lote correcto con custom_id", 3], ["Anonimización", 3], ["Programación y robustez", 3], ["Informe", 1]]
     },
-    sync: {
-      t: "Panel de costes compartido",
-      d: "ASIR exporta el uso de sus scripts (uso.csv); DAM construye un panel con el gasto diario por modelo y por proyecto y la tasa de aciertos de caché.",
-      pasos: ["Formato común de uso.csv.", "Panel con gráficas.", "Recomendación de ahorro basada en los datos."],
-      entregables: ["Panel funcionando.", "Recomendación de ahorro basada en los datos."],
-      criterios: [["Datos reales integrados", 4], ["Panel útil", 3], ["Recomendación justificada", 3]]
+    comun: {
+      t: "Panel de costes personal",
+      d: "Registra el uso real de tus scripts o tu app durante la semana (tokens de entrada, salida y caché) y construye un pequeño panel con el gasto por día y por modelo.",
+      pasos: ["Guarda el campo usage de cada respuesta en uso.csv.", "Calcula el gasto con los precios de cada modelo.", "Haz un panel (HTML, Python o Excel) con el gasto diario y la tasa de aciertos de caché.", "Propón un ahorro concreto (caché, Batch o cambio de modelo) y estímalo."],
+      entregables: ["uso.csv y el panel en tu repositorio.", "Recomendación de ahorro con cifras."],
+      criterios: [["Datos reales registrados", 4], ["Panel útil", 3], ["Recomendación justificada", 3]]
     }
   },
   test: [

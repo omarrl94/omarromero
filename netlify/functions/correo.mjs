@@ -322,7 +322,7 @@ async function cuentaProfesor(body, req, auth, db) {
 
 const esProfesor = (t) => !!t?.email_verified && ADMINS().includes(String(t.email || "").toLowerCase());
 const ESTADOS = { aprobada: "Aprobada", revision: "Requiere cambios" };
-const BLOQUES = { dam: "bloque DAM", asir: "bloque ASIR", sync: "bloque de Sincronización DAM + ASIR" };
+const BLOQUES = { dam: "bloque DAM", asir: "bloque ASIR", comun: "bloque común DAM y ASIR" };
 
 export default async (req) => {
   if (req.method === "GET") {
@@ -447,7 +447,7 @@ export default async (req) => {
             titulo: `Entrega recibida · Sesión ${n} · ${BLOQUES[bloque]}`,
             nombre: e.nombre,
             parrafos: [`Hemos recibido tu entrega del ${BLOQUES[bloque]} de la Sesión ${n}. El profesor la revisará y te llegará un aviso con la nota y sus comentarios.`],
-            destacado: `Enlace: ${e.enlace}${e.pareja ? `\nPareja: ${e.pareja}` : ""}${e.comentario ? `\nResumen: ${e.comentario}` : ""}`,
+            destacado: `Enlace: ${e.enlace}${e.comentario ? `\nResumen: ${e.comentario}` : ""}`,
             boton: "Ver la actividad", enlace: web && `${web}/#/curso/${n}/actividad`,
             nota: "Guarda este correo como justificante. Si respondes, la respuesta le llega al profesor.",
           }),
@@ -459,7 +459,7 @@ export default async (req) => {
         const t = await sesionDe(auth, req);
         if (!esProfesor(t)) return json(403, { error: "Solo el profesorado puede enviar evaluaciones." });
         const id = String(body.id || "");
-        if (!/^[A-Za-z0-9]+_\d{1,2}_(dam|asir|sync)$/.test(id)) return json(400, { error: "Entrega no válida." });
+        if (!/^[A-Za-z0-9]+_\d{1,2}_(dam|asir|comun)$/.test(id)) return json(400, { error: "Entrega no válida." });
         const e = (await db.doc(`entregas/${id}`).get()).data();
         if (!e || !ESTADOS[e.estado]) return json(404, { error: "La entrega no está evaluada." });
         if (await throttle(db, `evaluacion:${id}:${e.estado}:${e.nota}`, { gap: 10 * 1000 })) return json(200, { sent: false });

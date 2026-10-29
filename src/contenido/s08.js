@@ -226,13 +226,6 @@ Requisitos: type hints y docstring claros, validación con expresión regular, s
       pasos: ["Tools de memoria y servicio.", "Versión Windows con argumentos validados.", "Pruebas de inyección en nombres.", "Diagnóstico real con Claude Code."],
       entregables: ["Código del servidor.", "Demostración de un diagnóstico real con Claude Code."],
       criterios: [["Lista blanca correcta", 4], ["Cobertura Linux y Windows", 3], ["Diagnóstico real", 3]]
-    },
-    sync: {
-      t: "Incidencia de extremo a extremo",
-      d: "ASIR detecta con su servidor un contenedor de BBDD lento; DAM usa el suyo para encontrar la consulta culpable y proponer un índice. Medid antes y después.",
-      pasos: ["ASIR genera carga y detecta la lentitud.", "DAM localiza la consulta con EXPLAIN.", "Crear el índice y medir."],
-      entregables: ["Transcripción resumida de la sesión.", "Índice creado y medición antes/después."],
-      criterios: [["Diagnóstico conjunto", 4], ["Mejora medida", 4], ["Documentación", 2]]
     }
   },
   test: [

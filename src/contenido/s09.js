@@ -268,13 +268,6 @@ Audítalo: ¿alguna tool permite ejecutar comandos o SQL arbitrario? ¿Hay escri
       pasos: ["Usuario mcpops y sudoers limitado.", "Unit de systemd con protecciones.", "nginx con TLS y token.", "Pruebas con curl con y sin token."],
       entregables: ["Ficheros de configuración (unit, nginx, sudoers).", "Pruebas con curl con y sin token.", "Auditoría tras un reinicio confirmado."],
       criterios: [["Privilegios mínimos", 3], ["TLS y autenticación", 4], ["Servicio robusto (systemd)", 2], ["Pruebas", 1]]
-    },
-    sync: {
-      t: "jro-ops de la pareja",
-      d: "Unid vuestras partes en un solo servidor, con la Skill diagnostico-servicio, y simulad una incidencia completa usando el servidor remoto.",
-      pasos: ["Repositorio único con tests en CI (GitHub Actions con pytest).", "Despliegue en la VM de ASIR.", "Incidencia simulada resuelta desde el portátil de DAM."],
-      entregables: ["Repositorio del servidor.", "Vídeo o capturas de la incidencia resuelta.", "Fichero de auditoría."],
-      criterios: [["Integración completa", 4], ["Incidencia resuelta con confirmación", 4], ["CI con tests", 2]]
     }
   },
   test: [

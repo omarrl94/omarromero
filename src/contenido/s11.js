@@ -248,11 +248,11 @@ Para cada herramienta: ¿qué es lo peor que puede pasar si un atacante controla
       entregables: ["Logs de ataque.", "Tabla antes/después de cada defensa.", "Configuración final."],
       criterios: [["Escenario reproducible", 3], ["Medición por capas", 4], ["Configuración final segura", 3]]
     },
-    sync: {
-      t: "Ataque y defensa cruzados",
-      d: "Cada miembro intenta engañar al asistente del otro (DAM con datos de la app, ASIR con logs). Se puntúa por ataques frenados y por correcciones aplicadas.",
-      pasos: ["Cada uno prepara 5 ataques.", "Ronda de ataques.", "Parches y segunda ronda."],
-      entregables: ["Informe de ataques y defensas.", "Parches aplicados."],
+    comun: {
+      t: "Red team de tu propio asistente",
+      d: "Ataca tu propio asistente como lo haría un atacante: inyecciones de instrucciones escondidas en datos de la app (DAM) o en logs (ASIR). Después aplica defensas y vuelve a atacar.",
+      pasos: ["Prepara 5 ataques distintos (instrucción directa, oculta en un dato, en otro idioma, codificada, por herramienta).", "Primera ronda: anota cuáles funcionan.", "Aplica defensas: separación de datos, validación de salidas y permisos mínimos.", "Segunda ronda y comparación."],
+      entregables: ["Informe de ataques y defensas (antes / después).", "Parches aplicados en tu repositorio."],
       criterios: [["Calidad de los ataques", 3], ["Defensas aplicadas", 4], ["Informe", 3]]
     }
   },

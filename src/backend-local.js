@@ -113,13 +113,13 @@ export function crearBackendLocal() {
       guardar();
     },
 
-    async guardarEntrega(n, bloque, { enlace, pareja, comentario }) {
+    async guardarEntrega(n, bloque, { enlace, comentario }) {
       const u = yo();
-      if (bloque !== "sync" && bloque !== u.ciclo.toLowerCase()) throw new Error("Solo puedes entregar el bloque de tu ciclo y el de sincronización.");
+      if (bloque !== "comun" && bloque !== u.ciclo.toLowerCase()) throw new Error("Solo puedes entregar el bloque de tu ciclo y el bloque común.");
       let e = DB.submissions.find(s => s.userId === u.id && s.sesion === n && s.bloque === bloque);
       if (e?.estado === "aprobada") throw new Error("Esta entrega ya está aprobada.");
       if (!e) { e = { id: `${u.id}_${n}_${bloque}`, userId: u.id, sesion: n, bloque, nombre: u.nombre, ciclo: u.ciclo, curso: u.curso }; DB.submissions.push(e); }
-      Object.assign(e, { enlace, pareja, comentario, ts: ahora(), estado: "pendiente" });
+      Object.assign(e, { enlace, comentario, ts: ahora(), estado: "pendiente" });
       guardar();
     },
 
@@ -141,7 +141,7 @@ export function crearBackendLocal() {
     async emitirTitulo(userId) {
       const u = DB.users.find(x => x.id === userId);
       if (DB.diplomas.some(d => d.userId === userId)) return;
-      if (DB.submissions.find(s => s.userId === userId && s.sesion === 12 && s.bloque === "sync")?.estado !== "aprobada") throw new Error("Falta aprobar el Proyecto Final (Sesión 12, bloque de sincronización).");
+      if (DB.submissions.find(s => s.userId === userId && s.sesion === 12 && s.bloque === u.ciclo.toLowerCase())?.estado !== "aprobada") throw new Error("Falta aprobar el Proyecto Final (Sesión 12, bloque de su ciclo).");
       DB.diplomas.push({ id: userId, userId, codigo: generarCodigoTitulo(), emitidoEn: ahora(), emitidoPor: ADMIN_EMAIL, nota: notaMediaDe(userId), nombre: u.nombre, ciclo: u.ciclo, curso: u.curso });
       guardar();
     },

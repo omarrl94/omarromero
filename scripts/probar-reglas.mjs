@@ -32,7 +32,7 @@ const perfil = (extra = {}) => ({
   createdAt: serverTimestamp(), consents: { privacidad: serverTimestamp(), iaAct: serverTimestamp() }, progreso: {}, ...extra
 });
 const entrega = (uid, n, extra = {}) => ({
-  userId: uid, sesion: n, bloque: "sync", enlace: "https://github.com/x/y", pareja: "", comentario: "ok",
+  userId: uid, sesion: n, bloque: n === 12 ? "asir" : "comun", enlace: "https://github.com/x/y", comentario: "ok",
   ts: serverTimestamp(), estado: "pendiente", nombre: "Lucía Pérez", ciclo: "ASIR", curso: "2º", ...extra
 });
 
@@ -88,15 +88,15 @@ await caso("el profesor lee y cambia el código de aula", async () => {
 
 console.log("Entregas");
 await caso("sin correo verificado no se entrega", () =>
-  assertFails(setDoc(doc(luciaSinVerificar, "entregas", "lucia_12_sync"), entrega("lucia", 12))));
+  assertFails(setDoc(doc(luciaSinVerificar, "entregas", "lucia_12_asir"), entrega("lucia", 12))));
 await caso("entrega válida de la Sesión 12", () =>
-  assertSucceeds(setDoc(doc(lucia, "entregas", "lucia_12_sync"), entrega("lucia", 12))));
+  assertSucceeds(setDoc(doc(lucia, "entregas", "lucia_12_asir"), entrega("lucia", 12))));
 await caso("no se entrega ya aprobada", () =>
-  assertFails(setDoc(doc(lucia, "entregas", "lucia_11_sync"), entrega("lucia", 11, { estado: "aprobada" }))));
+  assertFails(setDoc(doc(lucia, "entregas", "lucia_11_comun"), entrega("lucia", 11, { estado: "aprobada" }))));
 await caso("no se entrega en nombre de otro", () =>
-  assertFails(setDoc(doc(lucia, "entregas", "pablo_5_sync"), entrega("pablo", 5))));
+  assertFails(setDoc(doc(lucia, "entregas", "pablo_5_comun"), entrega("pablo", 5))));
 await caso("el id debe coincidir con la sesión", () =>
-  assertFails(setDoc(doc(lucia, "entregas", "lucia_4_sync"), entrega("lucia", 5))));
+  assertFails(setDoc(doc(lucia, "entregas", "lucia_4_comun"), entrega("lucia", 5))));
 await caso("la alumna de ASIR entrega su bloque ASIR", () =>
   assertSucceeds(setDoc(doc(lucia, "entregas", "lucia_8_asir"), entrega("lucia", 8, { bloque: "asir" }))));
 await caso("la alumna de ASIR no entrega el bloque DAM", () =>
@@ -104,12 +104,16 @@ await caso("la alumna de ASIR no entrega el bloque DAM", () =>
 await caso("bloque inexistente → rechazado", () =>
   assertFails(setDoc(doc(lucia, "entregas", "lucia_8_otro"), entrega("lucia", 8, { bloque: "otro" }))));
 await caso("el nombre debe ser el del perfil", () =>
-  assertFails(setDoc(doc(lucia, "entregas", "lucia_6_sync"), entrega("lucia", 6, { nombre: "Otra Persona" }))));
+  assertFails(setDoc(doc(lucia, "entregas", "lucia_6_comun"), entrega("lucia", 6, { nombre: "Otra Persona" }))));
+await caso("entregas individuales: no se admite el campo pareja", () =>
+  assertFails(setDoc(doc(lucia, "entregas", "lucia_5_comun"), { ...entrega("lucia", 5), pareja: "Pablo" })));
+await caso("bloque sync antiguo → rechazado", () =>
+  assertFails(setDoc(doc(lucia, "entregas", "lucia_5_sync"), entrega("lucia", 5, { bloque: "sync" }))));
 await caso("enlace que no es http(s) → rechazado", () =>
-  assertFails(setDoc(doc(lucia, "entregas", "lucia_7_sync"), entrega("lucia", 7, { enlace: "javascript:alert(1)" }))));
+  assertFails(setDoc(doc(lucia, "entregas", "lucia_7_comun"), entrega("lucia", 7, { enlace: "javascript:alert(1)" }))));
 await caso("la alumna no se pone nota", () =>
-  assertFails(updateDoc(doc(lucia, "entregas", "lucia_12_sync"), { nota: 10, estado: "aprobada" })));
-await caso("otro alumno no lee la entrega", () => assertFails(getDoc(doc(pablo, "entregas", "lucia_12_sync"))));
+  assertFails(updateDoc(doc(lucia, "entregas", "lucia_12_asir"), { nota: 10, estado: "aprobada" })));
+await caso("otro alumno no lee la entrega", () => assertFails(getDoc(doc(pablo, "entregas", "lucia_12_asir"))));
 await caso("la alumna consulta sus entregas", () =>
   assertSucceeds(getDocs(query(collection(lucia, "entregas"), where("userId", "==", "lucia")))));
 await caso("la alumna no puede listar todas las entregas", () => assertFails(getDocs(collection(lucia, "entregas"))));
@@ -124,7 +128,7 @@ await caso("la alumna no puede aprobarse a sí misma", () =>
 await caso("el profesor aprueba la cuenta", () =>
   assertSucceeds(setDoc(doc(admin, "aprobaciones", "lucia"), { aprobado: true, aprobadoEn: serverTimestamp(), por: ADMIN })));
 await caso("aprobada, entrega aunque su correo no esté verificado", () =>
-  assertSucceeds(setDoc(doc(luciaSinVerificar, "entregas", "lucia_3_sync"), entrega("lucia", 3))));
+  assertSucceeds(setDoc(doc(luciaSinVerificar, "entregas", "lucia_3_comun"), entrega("lucia", 3))));
 await caso("la alumna lee su aprobación", () => assertSucceeds(getDoc(doc(luciaSinVerificar, "aprobaciones", "lucia"))));
 await caso("otro alumno no la lee", () => assertFails(getDoc(doc(pablo, "aprobaciones", "lucia"))));
 await caso("el profesor lista las aprobaciones", () => assertSucceeds(getDocs(collection(admin, "aprobaciones"))));
@@ -132,19 +136,23 @@ await caso("nadie lee el registro de correos (mail_log)", () => assertFails(getD
 
 const evaluar = (extra) => ({ feedback: "Bien", revisadoEn: serverTimestamp(), revisadoPor: ADMIN, ...extra });
 console.log("Evaluación y títulos");
+await env.withSecurityRulesDisabled(async (ctx) => {
+  // Un bloque común de la S12 aprobado no basta: hace falta el bloque del ciclo
+  await setDoc(doc(ctx.firestore(), "entregas", "lucia_12_comun"), { ...entrega("lucia", 12), bloque: "comun", estado: "aprobada", nota: 9 });
+});
 await caso("título sin Proyecto Final aprobado → rechazado", async () => {
   const b = writeBatch(admin);
   b.set(doc(admin, "titulos", "lucia"), { userId: "lucia", codigo: "JRO-IA-2026-ABC123", emitidoEn: serverTimestamp(), emitidoPor: ADMIN, nota: 8, nombre: "Lucía Pérez", ciclo: "ASIR", curso: "2º" });
   b.set(doc(admin, "verificaciones", "JRO-IA-2026-ABC123"), { userId: "lucia", codigo: "JRO-IA-2026-ABC123", nombre: "Lucía Pérez", ciclo: "ASIR", curso: "2º", emitidoEn: serverTimestamp() });
   await assertFails(b.commit());
 });
-await caso("aprobar con un 3 → rechazado", () => assertFails(updateDoc(doc(admin, "entregas", "lucia_12_sync"), evaluar({ estado: "aprobada", nota: 3 }))));
-await caso("pedir cambios sin nota", () => assertSucceeds(updateDoc(doc(admin, "entregas", "lucia_12_sync"), evaluar({ estado: "revision", nota: null }))));
+await caso("aprobar con un 3 → rechazado", () => assertFails(updateDoc(doc(admin, "entregas", "lucia_12_asir"), evaluar({ estado: "aprobada", nota: 3 }))));
+await caso("pedir cambios sin nota", () => assertSucceeds(updateDoc(doc(admin, "entregas", "lucia_12_asir"), evaluar({ estado: "revision", nota: null }))));
 await caso("la alumna reenvía tras los cambios", () =>
-  assertSucceeds(updateDoc(doc(lucia, "entregas", "lucia_12_sync"), { enlace: "https://github.com/x/v2", pareja: "Pablo (DAM)", comentario: "corregido", ts: serverTimestamp(), estado: "pendiente" })));
-await caso("el profesor aprueba con un 8,5", () => assertSucceeds(updateDoc(doc(admin, "entregas", "lucia_12_sync"), evaluar({ estado: "aprobada", nota: 8.5 }))));
+  assertSucceeds(updateDoc(doc(lucia, "entregas", "lucia_12_asir"), { enlace: "https://github.com/x/v2", comentario: "corregido", ts: serverTimestamp(), estado: "pendiente" })));
+await caso("el profesor aprueba con un 8,5", () => assertSucceeds(updateDoc(doc(admin, "entregas", "lucia_12_asir"), evaluar({ estado: "aprobada", nota: 8.5 }))));
 await caso("una entrega aprobada ya no se modifica", () =>
-  assertFails(updateDoc(doc(lucia, "entregas", "lucia_12_sync"), { enlace: "https://github.com/x/v3", pareja: "", comentario: "", ts: serverTimestamp(), estado: "pendiente" })));
+  assertFails(updateDoc(doc(lucia, "entregas", "lucia_12_asir"), { enlace: "https://github.com/x/v3", comentario: "", ts: serverTimestamp(), estado: "pendiente" })));
 await caso("la alumna no se emite su propio título", () =>
   assertFails(setDoc(doc(lucia, "titulos", "lucia"), { userId: "lucia", codigo: "JRO-IA-2026-ABC123", emitidoEn: serverTimestamp(), emitidoPor: ADMIN, nota: 10, nombre: "Lucía Pérez", ciclo: "ASIR", curso: "2º" })));
 await caso("el profesor emite el título con su verificación", async () => {
@@ -179,8 +187,8 @@ console.log("Supresión (RGPD)");
 await caso("otro alumno no borra datos ajenos", () => assertFails(deleteDoc(doc(pablo, "usuarios", "lucia"))));
 await caso("la alumna borra entregas, título, verificación y perfil", async () => {
   const b = writeBatch(lucia);
-  b.delete(doc(lucia, "entregas", "lucia_12_sync"));
-  b.delete(doc(lucia, "entregas", "lucia_3_sync"));
+  b.delete(doc(lucia, "entregas", "lucia_12_asir"));
+  b.delete(doc(lucia, "entregas", "lucia_3_comun"));
   b.delete(doc(lucia, "entregas", "lucia_8_asir"));
   b.delete(doc(lucia, "tests", "lucia_2"));
   b.delete(doc(lucia, "aprobaciones", "lucia"));
