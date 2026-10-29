@@ -1,6 +1,7 @@
-# Sesión 0 · Introducción a la IA y hoja de ruta del Máster
+# Sesión 0 · Acogida: bases de la IA, hoja de ruta y prueba de nivel
 
-Laboratorio del **Módulo Introductorio** del Máster en Ingeniería de IA (FP José Ramón Otero).
+Laboratorio de la **acogida (semana 1)** del Máster en Inteligencia Artificial Aplicada al Desarrollo de
+Aplicaciones Multiplataforma (título propio del CFP José Ramón Otero, sin carácter oficial, 300 horas).
 Objetivo: dejar el entorno listo para todo el Máster y recorrer por primera vez el ciclo
 *datos → modelo → inferencia*, primero con machine learning clásico y después con un LLM.
 
@@ -42,6 +43,6 @@ Variables opcionales: `OLLAMA_URL` (por defecto `http://localhost:11434`) y `MOD
 
 ## Entrega
 
-Ver la pestaña *Actividad práctica* de la Sesión 0 en la plataforma: repositorio `mia-portafolio`
-con la salida de la verificación, los resultados de este laboratorio, la comparativa de modelos,
-un mapa conceptual y tres ideas iniciales de TFM.
+Ver la pestaña *Actividad práctica* de la Sesión 0 en la plataforma (entrega semanal de la semana 1):
+prueba de nivel, repositorio `mia-portfolio` con la salida de la verificación, los resultados de este
+laboratorio, la comparativa de modelos y tres ideas iniciales para el Proyecto Final.

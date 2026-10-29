@@ -1,0 +1,12 @@
+# Cabeceras de seguridad para Netlify / Cloudflare Pages (se copian a dist/).
+# La política CSP la sustituye scripts/build.mjs con los hashes de los scripts incrustados.
+/*
+  Content-Security-Policy: {{CSP}}
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate

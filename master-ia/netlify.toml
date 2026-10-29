@@ -1,0 +1,16 @@
+# Despliegue de la plataforma del máster en Netlify.
+# En el panel de Netlify: Base directory = master-ia (este fichero se lee desde ahí)
+# y Production branch = la rama del máster (no es la rama por defecto del repositorio).
+
+[build]
+  command = "npm ci && npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# La app enruta por hash (#/programa), pero cualquier ruta vuelve a index.html.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

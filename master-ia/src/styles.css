@@ -133,13 +133,11 @@ code.inline { font-family: "JetBrains Mono", monospace; font-size: .82em; backgr
 .diploma .watermark { position: absolute; right: -6%; bottom: -14%; width: 52%; opacity: .05; pointer-events: none; }
 .diploma h1 { font-family: "Playfair Display", Georgia, serif; }
 
-@media print {
-  @page { size: A4 landscape; margin: 0; }
-  body { background: #fff; }
-  body * { visibility: hidden; }
-  .diploma, .diploma * { visibility: visible; }
-  .diploma { position: fixed; inset: 0; max-width: none; width: 297mm; height: 210mm; aspect-ratio: auto; margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-}
+.diploma.suplemento { padding: 3% 4%; }
+.sup-tabla { width: 100%; border-collapse: collapse; font-size: 11px; }
+.sup-tabla th { text-align: left; background: #111; color: #fff; padding: 4px 6px; font-size: 10px; text-transform: uppercase; letter-spacing: .04em; }
+.sup-tabla td { border-bottom: 1px solid #e7e4da; padding: 4px 6px; vertical-align: top; }
+
 
 /* ---------- Responsive ---------- */
 .layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); min-height: calc(100vh - 64px); }
@@ -148,4 +146,19 @@ code.inline { font-family: "JetBrains Mono", monospace; font-size: .82em; backgr
   .layout { grid-template-columns: minmax(0, 1fr); }
   .sidebar { position: fixed; top: 64px; left: 0; width: 86vw; max-width: 320px; z-index: 50; transform: translateX(-105%); transition: transform .2s; box-shadow: 0 10px 40px rgba(0,0,0,.2); }
   .sidebar.open { transform: translateX(0); }
+}
+
+/* ---------- Impresión (al final para prevalecer sobre la maquetación) ---------- */
+@media print {
+  @page { size: A4 landscape; margin: 0; }
+  body { background: #fff; }
+  .no-print, #toast, #modal-root { display: none !important; }
+  .layout { display: block; min-height: 0; }
+  main { padding: 0 !important; }
+  main > div { max-width: none !important; padding: 0 !important; margin: 0 !important; }
+  .overflow-x-auto { overflow: visible !important; }
+  .overflow-x-auto > div { min-width: 0 !important; gap: 0 !important; }
+  .diploma { width: 297mm; height: 210mm; max-width: none; aspect-ratio: auto; margin: 0;
+    page-break-after: always; break-after: page; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .diploma:last-child { page-break-after: auto; break-after: auto; }
 }

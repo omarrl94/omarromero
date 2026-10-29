@@ -24,7 +24,7 @@ public class HolaIA {
         return s.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n");
     }
 
-    /** Extrae el texto de "message.content" de la respuesta de /api/chat (en la Sesión 6 usaremos Jackson). */
+    /** Extrae el texto de "message.content" de la respuesta de /api/chat (en M3 usaremos Jackson). */
     static String contenido(String json) {
         int clave = json.indexOf("\"content\"");
         if (clave < 0) throw new IllegalStateException("Respuesta inesperada: " + json);
