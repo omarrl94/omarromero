@@ -1,0 +1,111 @@
+@import '@fontsource/jetbrains-mono/400.css';
+@import '@fontsource/jetbrains-mono/500.css';
+@import '@fontsource/jetbrains-mono/700.css';
+@import '@fontsource/jetbrains-mono/800.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  --cyan: #22e4ff;
+  --magenta: #ff3df0;
+  --lime: #a3ff3d;
+  --amber: #ffb534;
+  --red: #ff4767;
+  --violet: #9d7bff;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #05060a;
+  color: #d6dcff;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Fondo vivo: rejilla + viñeta + scanlines muy sutiles */
+.cyber-bg {
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(34, 228, 255, 0.08), transparent 60%),
+    radial-gradient(900px 500px at 110% 10%, rgba(255, 61, 240, 0.07), transparent 60%),
+    linear-gradient(rgba(34, 228, 255, 0.035) 1px, transparent 1px) 0 0 / 32px 32px,
+    linear-gradient(90deg, rgba(34, 228, 255, 0.035) 1px, transparent 1px) 0 0 / 32px 32px,
+    #05060a;
+}
+.scanlines::after {
+  content: '';
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.12) 0 1px, transparent 1px 3px);
+  mix-blend-mode: multiply;
+  z-index: 60;
+}
+
+.glass {
+  background: linear-gradient(180deg, rgba(18, 22, 36, 0.86), rgba(9, 11, 18, 0.9));
+  border: 1px solid rgba(122, 131, 173, 0.18);
+  backdrop-filter: blur(8px);
+}
+.neon-text {
+  text-shadow: 0 0 12px currentColor;
+}
+.neon-border {
+  box-shadow: 0 0 0 1px rgba(34, 228, 255, 0.4), 0 0 24px -6px rgba(34, 228, 255, 0.6);
+}
+
+/* Editor */
+.editor-layer {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 13px;
+  line-height: 20px;
+  tab-size: 4;
+  white-space: pre;
+  letter-spacing: 0;
+  font-variant-ligatures: none;
+}
+.editor-textarea {
+  caret-color: var(--cyan);
+  color: transparent;
+  background: transparent;
+  resize: none;
+  outline: none;
+  overflow: auto;
+}
+.editor-textarea::selection {
+  background: rgba(34, 228, 255, 0.25);
+  color: transparent;
+}
+.tk-kw { color: #ff6bf3; }
+.tk-type { color: #4fe9ff; }
+.tk-str { color: #b6ff6a; }
+.tk-num { color: #ffc65c; }
+.tk-com { color: #5d6690; font-style: italic; }
+.tk-fn { color: #9ab7ff; }
+.tk-bi { color: #7fd8ff; }
+.tk-pp { color: #c792ea; }
+.tk-plain { color: #d6dcff; }
+
+.line-error { background: linear-gradient(90deg, rgba(255, 71, 103, 0.22), rgba(255, 71, 103, 0.04)); }
+.line-focus { background: linear-gradient(90deg, rgba(34, 228, 255, 0.2), transparent); }
+.line-lint { background: linear-gradient(90deg, rgba(255, 181, 52, 0.1), transparent 60%); }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: rgba(122, 131, 173, 0.25); border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-track { background: transparent; }
+
+.btn-neon {
+  @apply inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-bold uppercase tracking-wider transition-all duration-150 active:scale-95 disabled:opacity-40;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+}
