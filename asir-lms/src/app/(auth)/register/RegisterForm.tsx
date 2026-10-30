@@ -18,7 +18,9 @@ function Submit() {
   );
 }
 
-export function RegisterForm() {
+type Campus = { token: string; email: string; nombre: string } | null;
+
+export function RegisterForm({ campus = null }: { campus?: Campus }) {
   const [state, action] = useFormState<RegisterState, FormData>(registerStudent, null);
 
   if (state?.ok) {
@@ -35,13 +37,15 @@ export function RegisterForm() {
 
   return (
     <form action={action} className="space-y-4">
+      {campus && <input type="hidden" name="campus" value={campus.token} />}
       <div className="space-y-2">
         <Label htmlFor="name">Nombre completo</Label>
-        <Input id="name" name="name" required />
+        <Input id="name" name="name" required defaultValue={campus?.nombre} />
       </div>
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
-        <Input id="email" name="email" type="email" placeholder="nombre@jrotero.es" required />
+        <Input id="email" name="email" type="email" placeholder="nombre@jrotero.es" required defaultValue={campus?.email} readOnly={!!campus} />
+        {campus && <p className="text-xs text-muted-foreground">El correo de tu cuenta del Campus Virtual. Si ya tenías cuenta aquí, la activamos y entras con tu contraseña de siempre.</p>}
       </div>
       <div className="space-y-2">
         <Label htmlFor="password">Contraseña</Label>

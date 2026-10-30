@@ -41,6 +41,20 @@ npm run dev                   # http://localhost:3000
 
 `src/middleware.ts` protege las rutas; además, cada página y cada server action vuelve a comprobar el rol en el servidor.
 
+## Campus Virtual
+
+El módulo aparece en el **Campus Virtual** del centro (rama `campus`), que es la puerta de entrada a
+todas las formaciones. Quien tiene acceso en el campus (alumnado `@jrotero.es`, compra, código…) pulsa
+«Entrar a la plataforma» y llega con un enlace firmado (`/?campus=…`, válido 1 h):
+
+- el registro sale relleno con su nombre y correo;
+- la cuenta queda **aprobada al momento**, sin esperar al profesor;
+- si ya tenía cuenta pendiente, se activa.
+
+`src/lib/campus.ts` comprueba la firma en el servidor. Variables (ver `.env.example`):
+`CAMPUS_API_KEY` (la misma que en el campus, secreta), `CAMPUS_FORMACION` (`modulo-sad`) y
+`CAMPUS_URL` (enlace al campus en el inicio de sesión). Sin ellas todo funciona como antes.
+
 ## Temario y niveles
 
 `prisma/seed.ts` carga los 19 temas oficiales (0-18) en 6 bloques, cada uno con su enfoque IA.

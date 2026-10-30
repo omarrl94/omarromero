@@ -5,6 +5,7 @@ import { Server, ShieldCheck, Swords } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { authOptions, homeForRole } from "@/lib/auth";
+import { URL_CAMPUS } from "@/lib/campus";
 import { LoginForm } from "./LoginForm";
 
 const PILLARS = [
@@ -53,6 +54,12 @@ export default async function LoginPage() {
               <LoginForm />
             </CardContent>
           </Card>
+          {URL_CAMPUS && (
+            <p className="text-center text-sm text-muted-foreground">
+              ¿Aún no tienes acceso al módulo?{" "}
+              <a href={URL_CAMPUS} className="font-medium text-foreground underline underline-offset-4">Campus Virtual</a>
+            </p>
+          )}
         </div>
       </section>
     </main>
