@@ -322,6 +322,7 @@ const MARCADAS = {};
 
 /** Defensas: fragmento del enunciado o de su propio trabajo al que se refiere la pregunta (no tiene por qué recordarlo). */
 function citaH(q) {
+  if (q.citaImg) return `<figure class="cita img"><figcaption>📷 Captura de tu trabajo</figcaption><a href="${q.citaImg}" target="_blank" rel="noopener" title="Ver a tamaño completo"><img src="${q.citaImg}" alt="Captura de pantalla de tu trabajo"></a></figure>`;
   if (!q.cita) return "";
   const codigo = /[{};]\s*$|^\s{2,}\S|^\s*(def|class|public|private|function|import|return)\b/m.test(q.cita);
   return `<figure class="cita${codigo ? " codigo" : ""}"><figcaption>${q.citaDe === "enunciado" ? "📄 Del enunciado del trabajo" : "✍️ De tu trabajo"}</figcaption><blockquote>${esc(q.cita)}</blockquote></figure>`;

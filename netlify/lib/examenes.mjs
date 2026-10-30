@@ -191,6 +191,9 @@ export function validarExamen(e) {
 
 /** Cita del enunciado o del trabajo que el alumno ve encima de la pregunta (defensas): no tiene por qué recordarlos. */
 function citaValida(q) {
+  // Captura de pantalla de su trabajo (JPEG reducido, lo pone el servidor al enviar la defensa).
+  if (q.citaDe === "captura" && typeof q.citaImg === "string" && q.citaImg.length < 950_000 && /^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(q.citaImg))
+    return { citaDe: "captura", citaImg: q.citaImg, captura: Number(q.captura) || 0 };
   const cita = typeof q.cita === "string" ? q.cita.trim().slice(0, 1500) : "";
   return cita ? { cita, citaDe: q.citaDe === "enunciado" ? "enunciado" : "trabajo" } : {};
 }
@@ -214,6 +217,8 @@ export function intentosValidos(v) {
   return Number.isInteger(n) && n >= 0 && n <= 50 ? n : 1;
 }
 
+export const citaPublica = ({ cita, citaDe, citaImg, captura }) => (citaImg ? { citaDe, citaImg, captura } : cita ? { cita, citaDe } : {});
+
 /** Lo que ve el alumno antes de entregar: sin soluciones ni criterios. */
 export const enunciado = (ex) => ({
   id: ex.id, titulo: ex.titulo, subtitulo: ex.subtitulo, modulo: ex.modulo, ciclo: ex.ciclo, cicloId: ex.cicloId, moduloId: ex.moduloId,
@@ -230,8 +235,8 @@ export const enunciado = (ex) => ({
     incognitas: c.incognitas.map(({ nombre, i, j }) => ({ nombre, apartado: i + 1, etiqueta: ex.num?.[i]?.campos?.[j]?.etiqueta || "", unidad: ex.num?.[i]?.campos?.[j]?.unidad || "" })) })),
   confianza: !!ex.confianza, confianzaTabla: ex.confianza ? CONFIANZA : null,
   partes: ex.partes || {}, bloques: ex.bloques || [],
-  mc: ex.mc.map(({ t, o, puntos, bloque, cita, citaDe }) => ({ t, o, puntos: puntos ?? 1, bloque: bloque || "", ...(cita ? { cita, citaDe } : {}) })),
-  open: ex.open.map(({ act, t, puntos, bloque, cita, citaDe }) => ({ act, t, puntos: puntos ?? 1, bloque: bloque || "", ...(cita ? { cita, citaDe } : {}) })),
+  mc: ex.mc.map(({ t, o, puntos, bloque, ...q }) => ({ t, o, puntos: puntos ?? 1, bloque: bloque || "", ...citaPublica(q) })),
+  open: ex.open.map(({ act, t, puntos, bloque, ...q }) => ({ act, t, puntos: puntos ?? 1, bloque: bloque || "", ...citaPublica(q) })),
   num: (ex.num || []).map(({ t, campos, puntos, bloque }) => ({
     t, puntos: puntos ?? 1, bloque: bloque || "",
     campos: campos.map(({ etiqueta, tipo, unidad, opciones }) => ({ etiqueta, tipo, unidad: unidad || "", opciones: opciones || null })),

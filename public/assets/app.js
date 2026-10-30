@@ -193,8 +193,20 @@ function htmlNota(d, extra = "") {
     </div></div>`;
 }
 
+/** Sube las capturas de un archivo en lotes de ~3,5 MB; el último marca el total. */
+async function subirCapturas(ruta, base, capturas) {
+  let lote = [], tam = 0, desde = 1;
+  const enviar = async (fin) => { await api(ruta, { ...base, desde, capturas: lote, fin }); desde += lote.length; lote = []; tam = 0; };
+  for (const c of capturas) {
+    if (lote.length && tam + c.length > 3_500_000) await enviar(false);
+    lote.push(c); tam += c.length;
+  }
+  await enviar(true);
+}
+
 /** Cita del enunciado o del trabajo que acompañaba a la pregunta (defensas). */
 function citaRevH(q) {
+  if (q?.citaImg) return `<div class="cita-rev"><b>📷 Captura ${q.captura || ""} del trabajo</b><img src="${q.citaImg}" alt="Captura de pantalla del trabajo" loading="lazy"></div>`;
   return q?.cita ? `<div class="cita-rev"><b>${q.citaDe === "enunciado" ? "📄 Del enunciado del trabajo" : "✍️ Del trabajo"}</b>\n${esc(q.cita)}</div>` : "";
 }
 

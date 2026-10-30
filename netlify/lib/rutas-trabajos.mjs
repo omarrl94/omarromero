@@ -30,6 +30,7 @@ const entregasEx = () => almacen("entregas");
 
 const MAX_ARCHIVO = 4 * 1024 * 1024; // 4 MB por archivo (límite de las funciones de Netlify)
 const MAX_ARCHIVOS = 6;
+const MAX_CAPTURAS_IA = 24, MAX_BYTES_IA = 9_000_000; // capturas que se mandan a la IA en cada defensa
 const TIPOS = /\.(pdf|docx?|pptx?|xlsx?|odt|odp|ods|txt|md|zip|rar|7z|png|jpe?g|gif|webp|c|cpp|h|java|py|js|ts|html|css|sql|json|xml|csv|ino|sh|ps1)$/i;
 const r2 = (x) => Math.round(x * 100) / 100;
 const clave = (id, email) => `${id}/${email}`;
@@ -110,7 +111,61 @@ function resumenTrabajo(t) {
   return { id, titulo, descripcion, cicloId, moduloId, ciclo, modulo, fechaLimite, admiteTarde, pesoTrabajo, nTest, nAbiertas, publicado, creado,
     defensaObligatoria: !!t.defensaObligatoria, adjuntos: t.adjuntos || [], autor: t.autor?.nombre || "", ra: t.ra || [] };
 }
-const archivosPublicos = (e) => (e?.archivos || []).map(({ id, nombre, tipo, tamano, fecha }) => ({ id, nombre, tipo, tamano, fecha }));
+const archivosPublicos = (e) => (e?.archivos || []).map(({ id, nombre, tipo, tamano, fecha }) => ({ id, nombre, tipo, tamano, fecha, capturas: e.capturas?.[id] ?? null }));
+
+/* ── Capturas de pantalla de los archivos (Word, PowerPoint, PDF, imágenes) ───
+ * Las saca el navegador (assets/extraer.js), reducidas a JPEG, y se guardan
+ * junto al archivo: «<trabajo>/<email>/<archivo>/c<n>». La IA las analiza para
+ * la defensa y una pregunta puede citarlas (el alumno la ve encima). */
+const CAPTURABLE = /\.(docx|pptx|pdf|png|jpe?g|gif|webp|bmp)$/i;
+const MAX_CAPTURAS = 20, MAX_CAPTURA = 700_000; // por archivo; bytes en base64 de cada una
+const claveCaptura = (k, archivo, n) => `${k}/${archivo}/c${n}`;
+/** Todas las capturas de la entrega con su número global (Captura 1, 2… en el orden de los archivos). */
+function capturasDe(k, e) {
+  const out = [];
+  for (const a of e.archivos || []) for (let n = 1; n <= (e.capturas?.[a.id] || 0); n++) out.push({ g: out.length + 1, archivo: a.id, n, clave: claveCaptura(k, a.id, n) });
+  return out;
+}
+
+/** Guarda un lote de capturas de un archivo. Las sube el alumno al entregar, o el profesor si la entrega es anterior a esta función. */
+async function guardarCapturas(req) {
+  const u = await requiereUsuario(req);
+  const b = await leerCuerpo(req, 4_500_000);
+  let t, k, e;
+  if (esStaff(u)) {
+    t = await trabajoProfesor(b.id, u); k = clave(t.id, String(b.email || "").toLowerCase()); e = await entregasT().get(k);
+    if (!e || e.estado === "borrador") fallo(404, "Entrega no encontrada");
+  } else {
+    t = await trabajoDe(b.id, u); k = clave(t.id, u.email); e = await entregasT().get(k);
+    if (!editable(e)) fallo(409, "Este trabajo ya está entregado");
+  }
+  const a = (e?.archivos || []).find((x) => x.id === b.archivo);
+  if (!a || !CAPTURABLE.test(a.nombre)) fallo(404, "Archivo no encontrado");
+  const lista = Array.isArray(b.capturas) ? b.capturas : [];
+  const desde = Math.max(1, Number(b.desde) || 1);
+  if (desde + lista.length - 1 > MAX_CAPTURAS) fallo(400, `Como máximo ${MAX_CAPTURAS} capturas por archivo`);
+  for (const [i, c] of lista.entries()) {
+    if (typeof c !== "string" || c.length > MAX_CAPTURA || !/^[A-Za-z0-9+/=]+$/.test(c) || !c.startsWith("/9j/")) fallo(400, "Captura no válida");
+    await archivos().set(claveCaptura(k, a.id, desde + i), { nombre: `${a.nombre} · captura ${desde + i}`, tipo: "image/jpeg", datos: c });
+  }
+  // El texto con las marcas «[Captura n]» (el profesor lo manda al leer una entrega antigua).
+  if (esStaff(u) && typeof b.texto === "string" && b.texto.trim()) e.textos = { ...(e.textos || {}), [a.id]: b.texto.slice(0, 60_000) };
+  if (b.fin) e.capturas = { ...(e.capturas || {}), [a.id]: desde + lista.length - 1 };
+  await entregasT().set(k, e);
+  return json({ ok: true, capturas: e.capturas?.[a.id] ?? null });
+}
+
+/** El profesor ve una captura (para revisar la que cita una pregunta). */
+async function verCaptura(req, url) {
+  const u = await requiereProfesor(req);
+  const t = await trabajoProfesor(url.searchParams.get("id"), u);
+  const k = clave(t.id, String(url.searchParams.get("email") || "").toLowerCase());
+  const e = await entregasT().get(k);
+  const c = e && capturasDe(k, e).find((x) => x.g === Number(url.searchParams.get("n")));
+  const a = c && (await archivos().get(c.clave));
+  if (!a) fallo(404, "Captura no encontrada");
+  return new Response(Buffer.from(a.datos, "base64"), { headers: { "Content-Type": "image/jpeg", "Cache-Control": "private, max-age=600", "X-Content-Type-Options": "nosniff" } });
+}
 
 const sobreT = (t) => ({ tipo: "trabajo", id: t.id, titulo: t.titulo, cicloId: t.cicloId });
 
@@ -192,9 +247,11 @@ async function borrarArchivo(req) {
   if (!e || !editable(e)) fallo(409, "Este trabajo ya está entregado");
   e.archivos = e.archivos.filter((a) => a.id !== b.archivo);
   if (e.textos) delete e.textos[b.archivo];
+  if (e.capturas) delete e.capturas[b.archivo];
+  const caps = await archivos().list(`${k}/${b.archivo}/`);
   // Si ya lo había entregado antes (trabajo devuelto), el archivo anterior se conserva como prueba.
-  if (e.fecha) await conservarYBorrar("archivos", [`${k}/${b.archivo}`], { tipo: "archivo de un trabajo", por: u, motivo: "El alumno lo quita al cambiar su entrega" });
-  else await archivos().del(`${k}/${b.archivo}`);
+  if (e.fecha) await conservarYBorrar("archivos", [`${k}/${b.archivo}`, ...caps], { tipo: "archivo de un trabajo", por: u, motivo: "El alumno lo quita al cambiar su entrega" });
+  else for (const x of [`${k}/${b.archivo}`, ...caps]) await archivos().del(x);
   await entregasT().set(k, e);
   return json({ ok: true, archivos: archivosPublicos(e) });
 }
@@ -454,12 +511,22 @@ async function generarDefensaRuta(req) {
   if (e.estado === "modificando") fallo(409, "El alumno está modificando su entrega: espera a que la vuelva a entregar.");
   // A la IA no se le manda quién es el alumno: sin su nombre, correo, DNI ni teléfono (tampoco en el nombre de los archivos).
   const nomArch = (a, i) => `archivo ${i + 1}${(a.nombre.match(/\.[a-z0-9]{1,6}$/i) || [""])[0]}`;
-  const textoTrabajo = seudonimizar((e.archivos || []).map((a, i) => (e.textos?.[a.id] ? `### Archivo: ${nomArch(a, i)}\n${e.textos[a.id]}` : `### Archivo: ${nomArch(a, i)} (sin texto legible)`)).join("\n\n"), [e]);
-  if (textoTrabajo.replace(/###.*\n?/g, "").trim().length < 200) fallo(400, "No hay texto suficiente en los archivos del trabajo (¿son imágenes o un ZIP?). Pide al alumno el trabajo en PDF o Word (devuélveselo para que lo cambie).");
+  // Las capturas se numeran en toda la entrega («[Captura n]» del archivo → «[Captura g]»).
+  const k = clave(t.id, e.email), caps = b.capturas === false ? [] : capturasDe(k, e);
+  const global = (a, txt) => txt.replace(/\[Captura (\d+)/g, (m, n) => { const c = caps.find((x) => x.archivo === a.id && x.n === Number(n)); return c ? `[Captura ${c.g}` : "[imagen"; });
+  const textoTrabajo = seudonimizar((e.archivos || []).map((a, i) => (e.textos?.[a.id] ? `### Archivo: ${nomArch(a, i)}\n${global(a, e.textos[a.id])}` : `### Archivo: ${nomArch(a, i)} (sin texto legible)`)).join("\n\n"), [e]);
+  const imagenes = [];
+  let bytes = 0;
+  for (const c of caps.slice(0, MAX_CAPTURAS_IA)) {
+    const x = await archivos().get(c.clave);
+    if (!x || bytes + x.datos.length > MAX_BYTES_IA) break;
+    bytes += x.datos.length; imagenes.push({ n: c.g, datos: x.datos });
+  }
+  if (textoTrabajo.replace(/###.*\n?/g, "").replace(/\[Captura \d+[^\]]*\]/g, "").trim().length < 200 && !imagenes.length) fallo(400, "No hay texto suficiente en los archivos del trabajo (¿son imágenes o un ZIP?). Pide al alumno el trabajo en PDF o Word (devuélveselo para que lo cambie).");
   const nTest = Math.max(0, Math.min(15, Number(b.nTest ?? t.nTest) || 0)), nAbiertas = Math.max(0, Math.min(6, Number(b.nAbiertas ?? t.nAbiertas) || 0));
   const adj = await textoAdjuntos(t);
-  const r = await generarDefensa({ titulo: t.titulo, enunciado: [t.descripcion, adj && `Archivos del enunciado:\n${adj}`].filter(Boolean).join("\n\n"), trabajo: textoTrabajo.slice(0, 200_000), nTest, nAbiertas, indicaciones: seudonimizar(texto(b.indicaciones, 800), [e]) });
-  await registrarIA(u, "preguntas de defensa", { trabajo: t.id, caracteres: textoTrabajo.length, seudonimizado: true });
+  const r = await generarDefensa({ titulo: t.titulo, enunciado: [t.descripcion, adj && `Archivos del enunciado:\n${adj}`].filter(Boolean).join("\n\n"), trabajo: textoTrabajo.slice(0, 200_000), imagenes, totalCapturas: caps.length, nTest, nAbiertas, indicaciones: seudonimizar(texto(b.indicaciones, 800), [e]) });
+  await registrarIA(u, "preguntas de defensa", { trabajo: t.id, caracteres: textoTrabajo.length, seudonimizado: true, ...(imagenes.length ? { capturas: imagenes.length } : {}) });
   return json(r);
 }
 
@@ -475,6 +542,14 @@ async function enviarDefensa(req) {
   if (e.estado === "modificando") fallo(409, "El alumno está modificando su entrega: espera a que la vuelva a entregar.");
   const idEx = idDefensa(t.id, email);
   if (e.defensa && (await entregasEx().get(`${idEx}/${email}`))) fallo(409, "El alumno ya ha hecho la defensa. Si quieres repetirla, bórrala primero.");
+  // La captura que cita una pregunta se guarda dentro de la defensa (el alumno la ve encima).
+  const caps = capturasDe(k, e);
+  const conImagen = async (q) => {
+    if (q?.citaDe !== "captura") return q;
+    const c = caps.find((x) => x.g === Number(q.captura)), x = c && (await archivos().get(c.clave));
+    return x ? { ...q, citaImg: `data:image/jpeg;base64,${x.datos}` } : { ...q, citaDe: "", cita: "" };
+  };
+  b.mc = await Promise.all((b.mc || []).map(conImagen)); b.open = await Promise.all((b.open || []).map(conImagen));
   const ex = validarExamen({
     id: idEx, titulo: `Defensa del trabajo: ${t.titulo}`.slice(0, 200), subtitulo: "Preguntas personalizadas sobre tu trabajo",
     cicloId: t.cicloId, moduloId: t.moduloId, mc: b.mc || [], open: b.open || [], publicado: true, mostrarSoluciones: b.mostrarSoluciones !== false,
@@ -546,6 +621,9 @@ export default {
   "GET /api/trabajo": verAlumno,
   "POST /api/trabajo/archivo": subirArchivo,
   "POST /api/trabajo/archivo/borrar": borrarArchivo,
+  "POST /api/trabajo/capturas": guardarCapturas,
+  "POST /api/profesor/trabajo/capturas": guardarCapturas,
+  "GET /api/profesor/trabajo/captura": verCaptura,
   "POST /api/trabajo/entregar": entregar,
   "POST /api/trabajo/modificar": modificarEntrega,
   "GET /api/trabajo/descargar": descargar,

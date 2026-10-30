@@ -6,7 +6,7 @@ import { almacen, leerTodas } from "./almacen.mjs";
 import { json, fallo, leerCuerpo, texto } from "./http.mjs";
 import { requiereProfesor, esAdmin, rolDe, ciclosDe, gestionaCiclo, gestionaExamen } from "./auth.mjs";
 import { notasTrabajos, trabajosDeAlumno } from "./rutas-trabajos.mjs";
-import { todosLosExamenes, obtenerExamen, validarExamen, resumen, intentosValidos, herramientasValidas, HERRAMIENTAS, aleatorioValido, raValidos } from "./examenes.mjs";
+import { todosLosExamenes, obtenerExamen, validarExamen, resumen, intentosValidos, herramientasValidas, HERRAMIENTAS, aleatorioValido, raValidos, citaPublica } from "./examenes.mjs";
 import { versionExamen, semillaDe, comprobarFormulas, esAleatorio, comprobarPropuesta, aplicarPropuestas } from "./variantes.mjs";
 import { secreto } from "./auth.mjs";
 import { ventanaValida, duracionValida, codigoValido, adaptacionValida, plazo, codigoPersonal } from "./plazos.mjs";
@@ -408,7 +408,7 @@ async function respuestas(req, url) {
   return json({
     examen: {
       id: ex.id, titulo: ex.titulo, confianza: !!ex.confianza,
-      open: ex.open.map((q) => ({ t: q.t, act: q.act || "", exp: q.exp || "", puntos: q.puntos ?? 1, conceptos: q.groups.map((g) => g[0]), ...(q.cita ? { cita: q.cita, citaDe: q.citaDe } : {}) })),
+      open: ex.open.map((q) => ({ t: q.t, act: q.act || "", exp: q.exp || "", puntos: q.puntos ?? 1, conceptos: q.groups.map((g) => g[0]), ...citaPublica(q) })),
       num: (ex.num || []).map((q) => ({
         t: q.t, puntos: q.puntos ?? 1,
         campos: q.campos.map((c) => ({ etiqueta: c.etiqueta, correcto: c.tipo === "opcion" ? c.opciones[c.correcta] : `${c.valor} ${c.unidad || ""}`.trim() })),
