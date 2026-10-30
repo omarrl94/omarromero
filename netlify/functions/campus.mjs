@@ -6,16 +6,21 @@
  *                                 de cada formación. Cabecera obligatoria  X-Campus-Key: CAMPUS_API_KEY
  *   POST {action:"checkout"}    → crea el pago en Stripe Checkout y devuelve su URL
  *   POST {action:"canjear"}     → canjea un código de acceso (transacción: usos + matrícula)
+ *   POST {action:"enlace"}      → dirección de la plataforma con ?campus=<token firmado> (1 h): la
+ *                                 plataforma comprueba la firma y da acceso a ese correo (INTEGRACION.md)
  *
  * Variables (Netlify → Environment variables, ámbito «Functions»):
  *   FIREBASE_PROJECT_ID, FIREBASE_SERVICE_ACCOUNT   cuenta de servicio del proyecto del campus
  *   STRIPE_SECRET_KEY                                sk_live_… o sk_test_… (sin ella: «Solicitar matrícula»)
  *   CAMPUS_API_KEY                                   clave compartida con las plataformas de las formaciones
+ *   PLATAFORMAS_CODIGO                               formaciones que se matriculan con código de admisión propio,
+ *                                                    p. ej. {"master-ia-dam":{"proyecto":"master-ia-jrotero","prefijo":"MIA"}}
  *   APP_URL                                          dirección pública del campus (por defecto, la de Netlify)
  */
-import { timingSafeEqual } from "node:crypto";
+import { randomInt, timingSafeEqual } from "node:crypto";
 import { FieldValue } from "firebase-admin/firestore";
-import { firebase, problemaFirebase, json, motivoAcceso } from "../lib/firebase-admin.mjs";
+import { firebase, firestoreDe, problemaFirebase, json, motivoAcceso } from "../lib/firebase-admin.mjs";
+import { firmarTokenCampus } from "../lib/token-campus.mjs";
 
 const env = process.env;
 const pagosActivos = () => !!env.STRIPE_SECRET_KEY && !problemaFirebase();
@@ -111,6 +116,73 @@ async function canjear(t, body, db) {
   }
 }
 
+/* ── Código de admisión en la plataforma (máster) ───────────────────────────────
+   El máster matricula con códigos de admisión de un solo uso. Para quien tiene acceso en el
+   campus, el campus crea uno en el Firestore del máster (o reutiliza el suyo si aún no lo ha
+   usado) y lo lleva ya puesto en el formulario de matrícula. Si ya lo usó, está matriculado. */
+function plataformaConCodigo(formacionId) {
+  let mapa = {};
+  try { mapa = JSON.parse(env.PLATAFORMAS_CODIGO || "{}"); } catch { console.error("[campus] PLATAFORMAS_CODIGO no es JSON"); }
+  const c = mapa[formacionId];
+  if (!c) return null;
+  return typeof c === "string" ? { proyecto: c, prefijo: "MIA" } : { prefijo: "MIA", ...c };
+}
+
+const LETRAS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+const parte = () => Array.from({ length: 4 }, () => LETRAS[randomInt(LETRAS.length)]).join("");
+
+async function codigoAdmision(db, plat, t, formacionId, motivo) {
+  const otro = firestoreDe(plat.proyecto);
+  const ref = db.doc(`codigosPlataforma/${t.uid}_${formacionId}`);
+  const previo = await ref.get();
+  if (previo.exists) {
+    const c = await otro.doc(`codigos/${previo.data().codigo}`).get();
+    if (c.exists && !c.data().revocado) return c.data().usadoPor ? null : previo.data().codigo;
+  }
+  let codigo;
+  do { codigo = `${plat.prefijo}-${parte()}-${parte()}`; } while ((await otro.doc(`codigos/${codigo}`).get()).exists);
+  // Mismos campos que los códigos que crea la Dirección desde su panel
+  await otro.doc(`codigos/${codigo}`).set({
+    creado: new Date().toISOString(), nota: `Campus Virtual · ${motivo} · ${String(t.email).toLowerCase()}`, usadoPor: null, revocado: null
+  });
+  await ref.set({ codigo, proyecto: plat.proyecto, motivo, creadoEn: FieldValue.serverTimestamp() });
+  return codigo;
+}
+
+/* ── Enlace firmado para entrar en la plataforma de una formación ─────────────── */
+async function enlace(t, body, db) {
+  const formacionId = String(body.formacionId || "");
+  const snap = /^[\w-]{1,60}$/.test(formacionId) ? await db.doc(`formaciones/${formacionId}`).get() : null;
+  if (!snap?.exists) return json(404, { error: "Esa formación no existe." });
+  const url = String(snap.data().url || "");
+  if (!/^https:\/\//.test(url)) return json(409, { error: "La plataforma de esta formación aún no está publicada." });
+  const motivo = await motivoAcceso(db, { uid: t.uid, email: t.email, verificado: t.email_verified }, formacionId);
+  if (!motivo) return json(403, { error: "No tienes acceso a esta formación." });
+  const perfil = await db.doc(`usuarios/${t.uid}`).get();
+  const nombre = perfil.exists ? perfil.data().nombre : "";
+  const destino = new URL(url);
+
+  const plat = plataformaConCodigo(formacionId);
+  if (plat) {
+    let codigo = null;
+    try { codigo = await codigoAdmision(db, plat, t, formacionId, motivo); }
+    catch (e) { console.error(`[campus] código de admisión en ${plat.proyecto}:`, e.message); return json(200, { url }); }
+    if (codigo) {
+      destino.searchParams.set("campus_codigo", codigo);
+      destino.searchParams.set("campus_email", String(t.email).toLowerCase());
+      if (nombre) destino.searchParams.set("campus_nombre", nombre);
+    }
+    return json(200, { url: destino.toString() });
+  }
+
+  // Sin clave compartida la plataforma no podría comprobar nada: se entra con su registro de siempre
+  if (!env.CAMPUS_API_KEY) return json(200, { url });
+  destino.searchParams.set("campus", firmarTokenCampus({
+    e: String(t.email).toLowerCase(), n: nombre, f: formacionId, m: motivo
+  }, env.CAMPUS_API_KEY));
+  return json(200, { url: destino.toString() });
+}
+
 export default async (req) => {
   const url = new URL(req.url);
   if (req.method === "GET") {
@@ -132,6 +204,7 @@ export default async (req) => {
   try {
     if (body.action === "checkout") return await checkout(req, t, body, db);
     if (body.action === "canjear") return await canjear(t, body, db);
+    if (body.action === "enlace") return await enlace(t, body, db);
   } catch (e) {
     console.error("[campus]", e);
     return json(500, { error: "Error del servidor del campus." });

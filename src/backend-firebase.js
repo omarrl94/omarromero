@@ -198,6 +198,11 @@ export function crearBackendFirebase() {
       return { redirigiendo: true };
     },
 
+    // Dirección de la plataforma con el enlace firmado que la identifica (ver INTEGRACION.md)
+    async enlacePlataforma(formacionId) {
+      return (await llamar({ action: "enlace", formacionId })).url;
+    },
+
     async canjearCodigo(codigo) {
       const r = await llamar({ action: "canjear", codigo });
       return DB.formaciones.find(f => f.id === r.formacionId) || { id: r.formacionId };

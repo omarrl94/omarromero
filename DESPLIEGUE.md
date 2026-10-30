@@ -64,8 +64,9 @@ Hasta que no hagas esto, las formaciones de pago muestran **«Solicitar matrícu
 
 ## 5. Conectar las plataformas
 
-Pon la dirección de cada plataforma en su ficha (*Panel → Catálogo → Editar → Dirección*), y si quieres que
-comprueben el acceso contra el campus sigue [INTEGRACION.md](INTEGRACION.md).
+1. Pon la dirección de cada plataforma en su ficha (*Panel → Catálogo → Editar → Dirección*).
+2. Define `CAMPUS_API_KEY` también en el curso de Claude y en el módulo SAD. Para el máster, añade
+   `PLATAFORMAS_CODIGO` y el permiso IAM. Los pasos de cada una están en [INTEGRACION.md](INTEGRACION.md).
 
 ## Comprobación final
 

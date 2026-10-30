@@ -128,6 +128,8 @@ export function crearBackendLocal() {
       return { simulado: true };
     },
 
+    async enlacePlataforma(formacionId) { return formacion(formacionId).url; },
+
     async canjearCodigo(texto) {
       const c = DB.codigos.find(x => x.id === texto.toUpperCase());
       if (!c) throw new Error("El código no existe.");

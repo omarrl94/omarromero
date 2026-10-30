@@ -45,7 +45,11 @@ Sin `STRIPE_SECRET_KEY` el botón «Comprar» se convierte en «Solicitar matrí
   - Matrículas: dar acceso, revocar, reactivar y CSV.
   - Solicitudes y alumnado.
   - Códigos de acceso, avisos (para todo el campus o para una formación) y pedidos con CSV.
-- **API de acceso** para las plataformas de las formaciones (`/.netlify/functions/campus`).
+- **Entrada conectada a las tres plataformas**: «Entrar a la plataforma» lleva al alumno identificado.
+  - Curso de Claude y módulo SAD: enlace firmado, válido 1 h.
+  - Máster: código de admisión generado en su Firebase.
+  - Ver [INTEGRACION.md](INTEGRACION.md).
+- **API de acceso** para consultas desde servidor (`/.netlify/functions/campus`).
 - **Protección de datos**: cláusula de primera capa, política completa, condiciones de contratación,
   exportar datos (JSON) y eliminar la cuenta. Los justificantes de pago se conservan.
 

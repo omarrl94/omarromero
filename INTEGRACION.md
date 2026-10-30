@@ -1,52 +1,54 @@
-# Conectar una plataforma con el campus
+# Conexión del campus con las plataformas
 
-Cada formación (curso de Claude, máster, módulo SAD…) mantiene su plataforma y sus cuentas. El campus
-decide **quién tiene acceso a qué**. Para que una plataforma solo deje entrar a quien tenga acceso,
-pregunta al campus cuando el alumno se registra o inicia sesión.
+El Campus Virtual decide **quién tiene acceso a qué**. Cada formación mantiene su plataforma y sus
+cuentas. Cuando un alumno con acceso pulsa **«Entrar a la plataforma»**, el campus le lleva a ella ya
+identificado, sin códigos de aula ni esperas de aprobación. Las tres plataformas actuales ya están
+conectadas.
 
-## 1. Datos que necesita la plataforma
+| Plataforma | Rama | Cómo entra el alumno desde el campus |
+| --- | --- | --- |
+| Curso de Claude | `curso-claude` | Enlace firmado → se registra sin correo `@jrotero.es` ni código de aula, con el correo ya verificado |
+| Máster IA | `feature/master-ia-post-dam-v2` | El campus le crea un **código de admisión** en el Firebase del máster y lo trae puesto en el formulario |
+| Módulo SAD | `claude/dreamy-noether-v2sbqv` | Enlace firmado → la cuenta queda aprobada al momento (o se activa si ya existía) |
 
-En la plataforma (Netlify → Environment variables, ámbito «Functions»):
+Sin las variables de abajo, cada plataforma funciona exactamente como antes.
 
-```
-CAMPUS_URL=https://campus.jrotero.es          # dirección del campus
-CAMPUS_API_KEY=<la misma clave que en el campus>
-CAMPUS_FORMACION=curso-claude                 # id de la formación (master-ia-dam, modulo-sad…)
-```
+## 1. Enlace firmado (curso de Claude y módulo SAD)
 
-La clave **nunca** va al navegador: la consulta se hace desde una función de servidor.
+El campus añade `?campus=<token>` a la dirección de la plataforma. El token lleva el correo, el nombre,
+la formación y el motivo del acceso, caduca en **1 hora** y va firmado con HMAC-SHA256 y `CAMPUS_API_KEY`
+(`netlify/lib/token-campus.mjs`). La plataforma comprueba la firma **en su servidor**, que la formación
+es la suya y que el correo coincide con la cuenta.
 
-## 2. La consulta
+| Dónde | Variable | Valor |
+| --- | --- | --- |
+| Campus y plataforma | `CAMPUS_API_KEY` | la misma clave en los dos sitios (`openssl rand -hex 32`, secreta) |
+| Plataforma | `CAMPUS_FORMACION` | `curso-claude` o `modulo-sad` |
+| Plataforma | `CAMPUS_URL` | dirección del campus (enlace de vuelta) |
+
+El curso de Claude, además, necesita subir sus reglas (`npm run desplegar:reglas`), porque añaden
+`accesoCampus`.
+
+## 2. Código de admisión (máster)
+
+El máster está en Firebase Hosting, sin servidor propio, y matricula con códigos de admisión de un solo
+uso. El campus crea un código normal en el Firestore del máster, con la nota «Campus Virtual · motivo
+· correo». Si el alumno vuelve a entrar sin haberlo usado, reutiliza el mismo. Si ya lo usó, el alumno
+está matriculado y entra sin código.
+
+1. Google Cloud → proyecto del máster → **IAM** → **Conceder acceso** a la cuenta de servicio del campus
+   (`firebase-adminsdk-…@<proyecto-del-campus>.iam.gserviceaccount.com`) con el rol
+   **Usuario de Cloud Datastore**. No hace falta una segunda clave secreta.
+2. En el campus (Netlify, Functions):
+   `PLATAFORMAS_CODIGO={"master-ia-dam":{"proyecto":"<id-del-proyecto-del-máster>","prefijo":"MIA"}}`
+
+## 3. Consulta de acceso (opcional, para servidores)
 
 ```
 GET  {CAMPUS_URL}/.netlify/functions/campus?email=<correo>&formacion=<id>
      X-Campus-Key: <CAMPUS_API_KEY>
-
-200  { "acceso": true,  "motivo": "compra" }      // compra · gratuita · codigo · asignada · centro · admin
-200  { "acceso": false, "motivo": null }
-401  clave incorrecta
+200  { "acceso": true, "motivo": "compra" }    // compra · gratuita · codigo · asignada · centro · admin
 ```
 
-Ejemplo para una función de Netlify (Node 20+), como `correo.mjs` del curso o la del máster:
-
-```js
-async function accesoCampus(email) {
-  const url = new URL("/.netlify/functions/campus", process.env.CAMPUS_URL);
-  url.searchParams.set("email", email);
-  url.searchParams.set("formacion", process.env.CAMPUS_FORMACION);
-  const r = await fetch(url, { headers: { "X-Campus-Key": process.env.CAMPUS_API_KEY } });
-  if (!r.ok) throw new Error(`Campus: ${r.status}`);
-  return (await r.json()).acceso;
-}
-```
-
-## 3. Dónde engancharlo en cada plataforma
-
-| Plataforma | Rama | Punto de control sugerido |
-| --- | --- | --- |
-| Curso de Claude | `curso-claude` | En el registro, aceptar al alumno si `accesoCampus(email)` es `true`, además de las vías actuales (correo `@jrotero.es` o código de aula). |
-| Máster IA | `feature/master-ia-post-dam-v2` | El campus sustituye a la «reserva o pago» que hoy genera el código de admisión: si `accesoCampus` es `true`, la matrícula queda validada. |
-| Módulo SAD | `claude/dreamy-noether-v2sbqv` | En la acción de registro (`register/actions.ts`), crear la cuenta solo si `accesoCampus` es `true`. |
-
-El alumno usa **el mismo correo** en el campus y en la plataforma; así se identifica.
-Si el campus no responde, cada plataforma decide si deja pasar con sus reglas de siempre o espera.
+Sirve para comprobar más adelante si un acceso sigue vigente, por ejemplo al renovar o revocar.
+La clave nunca va al navegador.

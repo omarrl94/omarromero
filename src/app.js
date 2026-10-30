@@ -336,7 +336,7 @@ function vistaInicio() {
    ===================================================================== */
 function botonEntrar(f, clase = "px-5 py-3") {
   return esURL(f.url)
-    ? `<a href="${esc(f.url)}" target="_blank" rel="noopener" class="inline-flex justify-center btn-cta rounded-lg ${clase}">Entrar a la plataforma →</a>`
+    ? `<a href="${esc(f.url)}" target="_blank" rel="noopener" data-action="entrar" data-id="${esc(f.id)}" class="inline-flex justify-center btn-cta rounded-lg ${clase}">Entrar a la plataforma →</a>`
     : `<span class="inline-flex rounded-lg bg-gray-100 text-jro-mute ${clase} text-sm">Plataforma disponible en breve</span>`;
 }
 
@@ -1187,6 +1187,19 @@ document.addEventListener("click", (ev) => {
       break;
 
     /* Alumnado */
+    case "entrar": {
+      // Con Firebase se pide el enlace firmado: la plataforma reconoce al alumno sin pedirle códigos.
+      // La pestaña se abre ya (antes de esperar) para que el navegador no la bloquee.
+      if (backend.modo !== "firebase" || !usuario()) break;
+      ev.preventDefault();
+      const ventana = window.open("", "_blank");
+      tarea("entrar-" + id, async () => {
+        let url = el.href;
+        try { url = await backend.enlacePlataforma(id); } catch (e) { toast(e.message); }
+        if (ventana) { ventana.opener = null; ventana.location.href = url; } else location.href = url;
+      });
+      break;
+    }
     case "gratis":
       tarea("gratis-" + id, () => backend.matricularGratis(id), "¡Matrícula hecha! Ya la tienes en Mi campus");
       break;

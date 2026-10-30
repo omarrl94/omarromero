@@ -33,6 +33,20 @@ export function firebase() {
   return { auth: getAuth(), db: getFirestore() };
 }
 
+/**
+ * Firestore de OTRA plataforma del centro (p. ej. el máster), con la misma cuenta de servicio del
+ * campus. Hay que darle a esa cuenta el rol «Usuario de Cloud Datastore» en el proyecto de la
+ * plataforma (IAM): así no hace falta guardar una segunda clave secreta.
+ */
+export function firestoreDe(proyecto) {
+  const nombre = `plataforma-${proyecto}`;
+  const app = getApps().find(a => a.name === nombre) || (() => {
+    const sa = serviceAccount();
+    return initializeApp(sa && !emulador() ? { credential: cert(sa), projectId: proyecto } : { projectId: proyecto }, nombre);
+  })();
+  return getFirestore(app);
+}
+
 export const json = (status, body, extra = {}) => new Response(JSON.stringify(body), {
   status, headers: { "Content-Type": "application/json", "Cache-Control": "no-store", ...extra }
 });
