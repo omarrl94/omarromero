@@ -39,6 +39,30 @@ function modalSegundaCapa() {
     '</div><div class="mt-4 text-right"><button class="btn btn-primary" data-act="cerrar-modal">Entendido</button></div>');
 }
 
+/* ---------- Entrada desde el Campus Virtual ----------
+   Quien compra el máster o recibe acceso en el campus llega con su código de admisión ya
+   generado (?campus_codigo=…&campus_email=…&campus_nombre=…). Se guarda en la sesión del
+   navegador, se quita de la barra de direcciones y rellena el formulario de matrícula.
+   El código es uno normal de Secretaría: las reglas y la vía de acceso se aplican igual. */
+const CAMPUS = (() => {
+  const clave = 'mia_campus';
+  try {
+    const u = new URL(location.href);
+    if (u.searchParams.has('campus_codigo')) {
+      sessionStorage.setItem(clave, JSON.stringify({
+        codigo: String(u.searchParams.get('campus_codigo') || '').toUpperCase().slice(0, 20),
+        email: String(u.searchParams.get('campus_email') || '').toLowerCase().slice(0, 120),
+        nombre: String(u.searchParams.get('campus_nombre') || '').slice(0, 90)
+      }));
+      ['campus_codigo', 'campus_email', 'campus_nombre', 'campus'].forEach(k => u.searchParams.delete(k));
+      history.replaceState(null, '', u.pathname + u.search + u.hash);
+    }
+    return JSON.parse(sessionStorage.getItem(clave) || 'null');
+  } catch { return null; }
+})();
+if (CAMPUS) ui.authVista = 'registro';
+const olvidarCampus = () => { try { sessionStorage.removeItem('mia_campus'); } catch {} };
+
 function vistaAuth() {
   const v = ui.authVista;
   const pestañas = v === 'setup' ? '' :
@@ -56,22 +80,26 @@ function vistaAuth() {
       '<div class="flex flex-wrap justify-between gap-2 text-xs">' +
       (Almacen.capacidades.recuperarClave ? '<button type="button" class="underline" data-act="recuperar-clave">He olvidado mi contraseña</button>' : '<span></span>') +
       (Almacen.modo === 'firebase' ? '<button type="button" class="underline" data-act="auth-vista" data-v="setup">Primer acceso de la Dirección</button>' : '') + '</div>' +
-      '<p class="text-xs text-gray-500 text-center">¿Quieres comprobar un diploma? <a class="underline" href="#/verificar">Verificar un título</a></p></form>';
+      '<p class="text-xs text-gray-500 text-center">¿Quieres comprobar un diploma? <a class="underline" href="#/verificar">Verificar un título</a>' +
+      (CAMPUS_URL ? ' · <a class="underline" href="' + esc(CAMPUS_URL) + '">Campus Virtual</a>' : '') + '</p></form>';
   } else if (v === 'registro') {
     const año = new Date().getFullYear();
     let promos = '';
     for (let y = año + 4; y >= 2000; y--) promos += '<option value="' + y + '">' + y + '</option>';
+    const c = CAMPUS || {};
+    const externoCampus = !!CAMPUS && !c.email.endsWith('@jrotero.es');
     form = '<form data-form="registro" class="space-y-4" novalidate>' +
+      (CAMPUS ? '<div class="card p-3 text-sm" style="border:2px solid #efcd2f;background:#fdf8dc"><strong>Vienes del Campus Virtual.</strong> Tu código de admisión ya está puesto. Matricúlate con <strong>' + esc(c.email) + '</strong> y completa el resto de datos.</div>' : '') +
       '<div class="grid sm:grid-cols-2 gap-4">' +
-      '<div class="field sm:col-span-2"><label for="r-nombre">Nombre y apellidos (como figurarán en el diploma)</label><input id="r-nombre" name="nombre" required maxlength="90" autocomplete="name"></div>' +
+      '<div class="field sm:col-span-2"><label for="r-nombre">Nombre y apellidos (como figurarán en el diploma)</label><input id="r-nombre" name="nombre" required maxlength="90" autocomplete="name" value="' + esc(c.nombre || '') + '"></div>' +
       '<div class="field"><label for="r-dni">DNI o NIE</label><input id="r-dni" name="dni" required maxlength="12" autocomplete="off" style="text-transform:uppercase"><div class="hint">Solo para el diploma y el registro de títulos.</div></div>' +
       '<div class="field"><label for="r-nac">Fecha de nacimiento</label><input id="r-nac" name="nacimiento" type="date" required></div>' +
       '<div class="field sm:col-span-2"><label>Tipo de plaza</label><div class="grid sm:grid-cols-2 gap-2 mt-1">' +
-      '<label class="check card p-3"><input type="radio" name="plaza" value="centro" checked> <span><strong>Alumnado del centro</strong><br><span class="text-xs text-gray-600">Gratuito al titular en DAM en el centro, según las bases de la promoción. Correo @jrotero.es.</span></span></label>' +
-      '<label class="check card p-3"><input type="radio" name="plaza" value="externo"> <span><strong>Plaza externa</strong><br><span class="text-xs text-gray-600">' + EDICION.precio.general.toLocaleString('es-ES') + ' € · ' + EDICION.precio.prontoPago.toLocaleString('es-ES') + ' € con pronto pago o ' + EDICION.precio.cuotas + '. Requiere código de admisión.</span></span></label>' +
+      '<label class="check card p-3"><input type="radio" name="plaza" value="centro"' + (externoCampus ? '' : ' checked') + '> <span><strong>Alumnado del centro</strong><br><span class="text-xs text-gray-600">Gratuito al titular en DAM en el centro, según las bases de la promoción. Correo @jrotero.es.</span></span></label>' +
+      '<label class="check card p-3"><input type="radio" name="plaza" value="externo"' + (externoCampus ? ' checked' : '') + '> <span><strong>Plaza externa</strong><br><span class="text-xs text-gray-600">' + EDICION.precio.general.toLocaleString('es-ES') + ' € · ' + EDICION.precio.prontoPago.toLocaleString('es-ES') + ' € con pronto pago o ' + EDICION.precio.cuotas + '. Requiere código de admisión.</span></span></label>' +
       '</div></div>' +
-      '<div class="field"><label for="r-email">Correo electrónico</label><input id="r-email" name="email" type="email" required autocomplete="email"></div>' +
-      '<div class="field"><label for="r-codigo">Código de admisión</label><input id="r-codigo" name="codigo" placeholder="MIA-XXXX-XXXX" autocomplete="off" style="text-transform:uppercase"><div class="hint">Lo facilita Secretaría tras la admisión (obligatorio en plazas externas o correos no @jrotero.es).</div></div>' +
+      '<div class="field"><label for="r-email">Correo electrónico</label><input id="r-email" name="email" type="email" required autocomplete="email" value="' + esc(c.email || '') + '"></div>' +
+      '<div class="field"><label for="r-codigo">Código de admisión</label><input id="r-codigo" name="codigo" placeholder="MIA-XXXX-XXXX" autocomplete="off" style="text-transform:uppercase" value="' + esc(c.codigo || '') + '"><div class="hint">Lo facilita Secretaría tras la admisión (obligatorio en plazas externas o correos no @jrotero.es).</div></div>' +
       '<div class="field sm:col-span-2"><label for="r-via">Titulación de acceso</label><select id="r-via" name="via">' + Object.entries(VIAS).map(([k, t]) => '<option value="' + k + '">' + t + '</option>').join('') + '</select><div class="hint">Las vías distintas de DAM requieren entrevista y superar el módulo de nivelación.</div></div>' +
       '<div class="field"><label for="r-promo">Año de titulación</label><select id="r-promo" name="promocion" required><option value="">Selecciona año…</option>' + promos + '</select></div>' +
       '<div class="field"><label for="r-centro">Centro donde titulaste</label><input id="r-centro" name="centro" maxlength="90" placeholder="CFP José Ramón Otero"></div>' +
@@ -204,6 +232,7 @@ async function onRegistro(f) {
   catch (e) { boton.disabled = false; return fallo(mensajeError(e)); }
   toast(r.estado === 'admitido' ? 'Matrícula confirmada. ¡Bienvenido/a al Máster!' :
     'Solicitud registrada. Mientras se valida, tienes acceso a la acogida y a M1.' + (via !== 'DAM' ? ' Te contactaremos para la entrevista.' : ''));
+  olvidarCampus();
   if (r.verificacionEnviada) setTimeout(() => toast('Te hemos enviado un correo para verificar tu dirección: lo necesitas para registrar entregas.'), 3600);
   // En modo Firebase el panel ya puede estar pintado (y el alumno navegando): no lo movemos.
   if (location.hash === hashInicial) ir('inicio');

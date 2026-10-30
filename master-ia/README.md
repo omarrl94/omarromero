@@ -37,6 +37,24 @@ Sin `firebase.config.json`, `npm run build` genera el **modo demostración** (da
 
 Para publicarla en Firebase paso a paso, ver **[DESPLIEGUE.md](DESPLIEGUE.md)**.
 
+## Campus Virtual
+
+El máster aparece en el **Campus Virtual** del centro (rama `campus`), que es la puerta de entrada a
+todas las formaciones y donde se compra la matrícula. Cuando alguien con acceso (compra, código del
+campus o plaza concedida) pulsa «Entrar a la plataforma», el campus le **genera un código de admisión
+normal** en el Firestore del máster y lo lleva en el enlace (`?campus_codigo=…&campus_email=…`). El
+formulario de matrícula sale con el código, el correo, el nombre y la plaza externa ya puestos.
+Las reglas no cambian: con vía DAM queda admitido; con otras vías, pendiente de entrevista.
+
+Para activarlo hay que hacer dos cosas:
+
+- En el proyecto de Firebase del máster, dar a la cuenta de servicio del campus el rol
+  **Usuario de Cloud Datastore** (Google Cloud → IAM).
+- En el campus, definir `PLATAFORMAS_CODIGO={"master-ia-dam":"<id-del-proyecto-del-máster>"}`.
+
+`CAMPUS_URL` al compilar añade el enlace al campus en la pantalla de acceso. Los códigos creados por
+el campus llevan la nota «Campus Virtual · motivo · correo» en *Dirección → Admisiones*.
+
 ## Qué incluye
 
 - **Temario:** acogida + 17 sesiones (una por semana de M1–M7 y tres del PFM), cada una con las

@@ -37,7 +37,10 @@ if (process.env.REQUIERE_FIREBASE === '1' && !firebaseConfig) {
 }
 const modo = EMULADORES ? 'emuladores' : firebaseConfig ? 'firebase' : 'demostración';
 
+// CAMPUS_URL: dirección del Campus Virtual del centro (enlace en la pantalla de acceso)
+const campusUrl = /^https:\/\//.test(process.env.CAMPUS_URL || '') ? process.env.CAMPUS_URL.replace(/\/+$/, '') : null;
 const app = 'const FIREBASE_CONFIG = ' + JSON.stringify(firebaseConfig) + ';\nconst FIREBASE_EMULADORES = ' + EMULADORES + ';\n' +
+  'const CAMPUS_URL = ' + JSON.stringify(campusUrl) + ';\n' +
   readdirSync(join(root, 'src/app')).filter(f => f.endsWith('.js')).sort().map(f => leer(`src/app/${f}`)).join('\n');
 
 // SDK de Firebase empaquetado (solo Authentication y Firestore) e incrustado en el HTML
