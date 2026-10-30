@@ -98,6 +98,7 @@ for (const [paquete, nombre, pesos] of fuentes) {
 
 // 4. Configuración pública (la configuración web de Firebase no es secreta: la protegen las reglas)
 const config = conFirebase ? { firebase, emulador: env.FIREBASE_EMULADOR === "1" } : {};
+if (env.CAMPUS_URL) config.campus = env.CAMPUS_URL.replace(/\/+$/, "");
 writeFileSync(join(dist, "config.js"), `window.JRO_CONFIG = ${JSON.stringify(config, null, 2)};\n`);
 
 console.log(`✔ dist/ generado en modo ${conFirebase ? `Firebase (proyecto ${firebase.projectId}${config.emulador ? ", emuladores locales" : ""})` : "demostración"}`);

@@ -14,6 +14,8 @@ export const CODIGO_AULA_DEMO = "JRO-IA-2026";
 export const HORAS_CURSO = 60;              // 12 sesiones × 5 h
 export const STORE_KEY = "jro_claude_lms_v4";
 
+// Campus Virtual del centro (puerta de entrada a todas las formaciones). Lo fija CAMPUS_URL al compilar.
+export const CAMPUS_URL = /^https:\/\//.test(cfg.campus || "") ? cfg.campus : null;
 export const FIREBASE = cfg.firebase && cfg.firebase.apiKey ? cfg.firebase : null;
 export const EMULADOR = !!cfg.emulador;
 export const DEMO_MODE = !FIREBASE;         // accesos rápidos y datos en el navegador

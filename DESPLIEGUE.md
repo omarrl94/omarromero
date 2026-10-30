@@ -197,3 +197,20 @@ npm run probar:reglas
 | *Correo del centro: No configurado* en el panel | El recuadro dice qué variable falta. Revisa que el ámbito incluya **Functions** y vuelve a desplegar. |
 | *El servidor de correo rechazó el envío (535…)* | Microsoft 365 no permite SMTP a ese buzón: el administrador de M365 debe activar **SMTP autenticado** para él (Centro de administración → Usuarios → Correo → Administrar aplicaciones de correo). |
 | El profesor no ve el panel | El correo no está verificado: pulsa **Ya lo he verificado** después de abrir el enlace. |
+
+## Conexión con el Campus Virtual
+
+El campus (rama `campus`) es la puerta de entrada a todas las formaciones. Para que el alumnado que
+compra el curso o recibe acceso en el campus pueda registrarse aquí sin correo `@jrotero.es` ni código de aula:
+
+1. En Netlify → **Environment variables**:
+   - `CAMPUS_API_KEY`: la misma clave que en el campus. Márcala como secreta y con el ámbito **Functions**.
+   - `CAMPUS_FORMACION`: `curso-claude`. Es el identificador de la formación en el campus.
+   - `CAMPUS_URL`: la dirección del campus (ámbito **Builds**), para el enlace del pie de página.
+2. Sube las reglas: `npm run desplegar:reglas` (añaden `accesoCampus`).
+3. Vuelve a desplegar.
+4. En el campus, pon la dirección de este curso en *Panel → Catálogo → Editar*.
+
+El campus firma un enlace válido durante una hora con el correo del alumno. La función `correo` comprueba
+la firma y que el correo coincide con la cuenta. Después anota `accesoCampus/{uid}` y marca el correo
+como verificado, porque el campus ya lo verificó.

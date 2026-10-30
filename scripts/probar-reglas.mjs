@@ -183,6 +183,25 @@ await caso("no se guarda el test de otro", () => assertFails(setDoc(doc(pablo, "
 await caso("otro alumno no lee el test", () => assertFails(getDoc(doc(pablo, "tests", "lucia_2"))));
 await caso("el profesor lee todos los tests", () => assertSucceeds(getDocs(collection(admin, "tests"))));
 
+console.log("Campus Virtual");
+await env.withSecurityRulesDisabled(async (ctx) => {
+  await setDoc(doc(ctx.firestore(), "accesoCampus", "marta"), { email: "marta@gmail.com", motivo: "compra", comprobadoEn: new Date() });
+});
+const marta = como("marta", "marta@gmail.com");
+const intruso = como("intruso", "intruso@gmail.com");
+await caso("con acceso del campus se registra sin correo del centro ni código", () =>
+  assertSucceeds(setDoc(doc(marta, "usuarios", "marta"), perfil({ nombre: "Marta Ruiz", email: "marta@gmail.com", ciclo: "DAM" }))));
+await caso("sin acceso del campus un correo externo no se registra", () =>
+  assertFails(setDoc(doc(intruso, "usuarios", "intruso"), perfil({ nombre: "Intruso", email: "intruso@gmail.com" }))));
+await caso("nadie se anota el acceso del campus desde el navegador", () =>
+  assertFails(setDoc(doc(intruso, "accesoCampus", "intruso"), { email: "intruso@gmail.com" })));
+await caso("el acceso del campus de otra cuenta no sirve", () =>
+  assertFails(setDoc(doc(como("marta2", "otra@gmail.com"), "usuarios", "marta2"), perfil({ email: "otra@gmail.com" }))));
+await caso("cada uno lee solo su acceso del campus", async () => {
+  await assertSucceeds(getDoc(doc(marta, "accesoCampus", "marta")));
+  await assertFails(getDoc(doc(intruso, "accesoCampus", "marta")));
+});
+
 console.log("Supresión (RGPD)");
 await caso("otro alumno no borra datos ajenos", () => assertFails(deleteDoc(doc(pablo, "usuarios", "lucia"))));
 await caso("la alumna borra entregas, título, verificación y perfil", async () => {
@@ -192,6 +211,7 @@ await caso("la alumna borra entregas, título, verificación y perfil", async ()
   b.delete(doc(lucia, "entregas", "lucia_8_asir"));
   b.delete(doc(lucia, "tests", "lucia_2"));
   b.delete(doc(lucia, "aprobaciones", "lucia"));
+  b.delete(doc(lucia, "accesoCampus", "lucia"));
   b.delete(doc(lucia, "titulos", "lucia"));
   b.delete(doc(lucia, "verificaciones", "JRO-IA-2026-ABC123"));
   b.delete(doc(lucia, "usuarios", "lucia"));

@@ -16,6 +16,7 @@ Plataforma LMS del curso **"Especialización en Ingeniería de IA, Skills, MCP y
 - **Presentación del curso** (`#/presentacion`, pública): de qué va, para quién es, qué se aprende, temario, cómo funciona, evaluación, título y normas. Al entrar, el alumno aterriza aquí y puede continuar en su última sesión.
 - **Entregas individuales por bloque**: cada alumno entrega el bloque de su ciclo (DAM `#a9cabb` o ASIR `#e39f7d`) y, en las sesiones donde encaja (1, 3, 4, 5, 6, 7, 10 y 11), un **bloque común DAM y ASIR**, también individual. No hay trabajo en pareja. Cada bloque tiene su nota y sus comentarios, que llegan en tiempo real y por correo.
 - **Registro** con correo `@jrotero.es` (o código de aula), verificación del correo y recuperación de contraseña. Si el correo no llega, el profesor puede activar la cuenta a mano.
+- **Conexión con el Campus Virtual** (rama `campus`): quien compra el curso o tiene acceso en el campus entra con un enlace firmado y se registra sin correo `@jrotero.es` ni código de aula, con el correo ya verificado. Variables `CAMPUS_API_KEY`, `CAMPUS_FORMACION` y `CAMPUS_URL` (ver `.env.example`). Sin ellas, todo funciona como antes.
 - **Correos y avisos desde el buzón del centro**, con el mismo sistema que ColaboraFP y la web de exámenes: una función de Netlify con SMTP de Microsoft 365, Resend o Graph. Envía la verificación, el cambio de contraseña, las altas al profesor, el justificante de entrega (con copia al profesor), la nota y los comentarios, y el aviso del título.
 - **Protección de datos:** cláusula RGPD/LOPDGDD de primera capa y política completa, con los consentimientos de privacidad y de compromiso EU AI Act desmarcados por defecto y con la fecha de aceptación del servidor.
 - **Panel docente** (`omar.romero@jrotero.es`):
@@ -54,7 +55,7 @@ netlify.toml · firebase.json
 npm install
 npm run dev              # contra Firebase (firebase.web.json) en http://localhost:8000
 npm run dev:demo         # modo demostración, sin Firebase
-npm run probar:reglas    # 66 pruebas de las reglas de Firestore en el emulador
+npm run probar:reglas    # 71 pruebas de las reglas de Firestore en el emulador
 ```
 
 Con `--demo` (o sin `firebase.web.json` ni variables `FIREBASE_*`), la compilación genera el **modo demostración**: los datos se guardan en el navegador y hay accesos rápidos de profesor y alumnos. Al desplegar (Netlify o `--produccion`) la compilación se niega a publicar ese modo salvo con `PERMITIR_DEMO=1`.

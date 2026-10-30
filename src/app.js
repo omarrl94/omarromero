@@ -4,11 +4,11 @@
    ===================================================================== */
 import {
   LOGO_IMG_SRC, CENTRO, CURSO, ADMIN_EMAIL, ADMIN_NOMBRE, DOMINIO, HORAS_CURSO,
-  FIREBASE, DEMO_MODE, CICLOS
+  FIREBASE, DEMO_MODE, CICLOS, CAMPUS_URL
 } from "./constantes.js";
 import { TABS, BLOQUES, SESIONES } from "./datos.js";
 import PRESENTACION from "./contenido/presentacion.js";
-import { DB, notaMediaDe } from "./estado.js";
+import { DB, notaMediaDe, datosCampus } from "./estado.js";
 import { crearBackendLocal } from "./backend-local.js";
 
 /* =====================================================================
@@ -97,7 +97,7 @@ const UI = {
   ultimaSesion: Number(leer(localStorage, "jro_ultima_sesion")) || null,
   vistaAlumno: ["DAM", "ASIR"].includes(leer(sessionStorage, "jro_vista_alumno")) ? leer(sessionStorage, "jro_vista_alumno") : null,
   tab: "teoria",
-  authTab: "login",
+  authTab: datosCampus() ? "registro" : "login",
   adminTab: "seguimiento",
   filtroCiclo: "todos",
   filtroEstado: "pendiente",
@@ -284,6 +284,7 @@ function vistaAuth() {
 
 function pie() {
   return `<footer class="text-center text-xs text-jro-mute py-6 px-4">${CENTRO} · Contacto: ${ADMIN_EMAIL} ·
+    ${CAMPUS_URL ? `<a class="underline" href="${esc(CAMPUS_URL)}">Campus Virtual</a> ·` : ""}
     <button class="underline" data-action="privacidad">Política de privacidad</button> ·
     <a class="underline" href="#/verificar">Verificar un título</a></footer>`;
 }
@@ -346,12 +347,20 @@ function bloqueLegal() {
       <span><b>Compromiso de Seguridad y Normativa IA (EU AI Act):</b> Me comprometo a NO introducir datos personales (PII), contraseñas reales ni código/logs confidenciales sin anonimizar en los prompts o conexiones MCP con Claude.</span></label>`;
 }
 
+// Aviso cuando se llega con el enlace del Campus Virtual: el acceso ya está pagado o concedido
+function avisoCampus() {
+  const c = datosCampus();
+  return c ? `<div class="rounded-lg border-2 border-jro-gold bg-jro-gold/20 px-3 py-2 text-sm"><b>Vienes del Campus Virtual.</b> Tu acceso al curso está confirmado: crea tu cuenta con <b>${esc(c.email)}</b> (no necesitas código de aula). Si ya la tienes, inicia sesión.</div>` : "";
+}
+
 function formRegistro() {
+  const c = datosCampus();
   return `<form data-form="registro" class="space-y-4" novalidate>
+    ${avisoCampus()}
     <label class="block"><span class="text-sm font-medium">Nombre y apellidos</span>
-      <input name="nombre" required maxlength="80" autocomplete="name" class="${INPUT}"></label>
-    <label class="block"><span class="text-sm font-medium">Correo institucional</span>
-      <input name="email" type="email" required autocomplete="email" class="${INPUT}" placeholder="nombre${DOMINIO}"></label>
+      <input name="nombre" required maxlength="80" autocomplete="name" class="${INPUT}" value="${esc(c?.nombre || "")}"></label>
+    <label class="block"><span class="text-sm font-medium">${c ? "Correo" : "Correo institucional"}</span>
+      <input name="email" type="email" required autocomplete="email" class="${INPUT}" placeholder="nombre${DOMINIO}" value="${esc(c?.email || "")}"></label>
     ${camposPerfil()}
     <div class="grid grid-cols-2 gap-3">
       <label class="block"><span class="text-sm font-medium">Contraseña</span>
@@ -1452,7 +1461,9 @@ document.addEventListener("submit", async (ev) => {
       const fallo = validarPerfil(datos, { esProfesor });
       if (fallo) return err(fallo);
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return err("El correo no es válido.");
-      if (!esProfesor && !email.endsWith(DOMINIO) && !(datos.codigo || "").trim()) return err(`Usa tu correo ${DOMINIO} o el código de acceso de aula que te ha dado el profesor.`);
+      const desdeCampus = datosCampus()?.email === email;
+      if (!esProfesor && !email.endsWith(DOMINIO) && !(datos.codigo || "").trim() && !desdeCampus)
+        return err(`Usa tu correo ${DOMINIO}, el código de acceso de aula que te ha dado el profesor${CAMPUS_URL ? " o entra desde el Campus Virtual" : ""}.`);
       if ((datos.password || "").length < 8) return err("La contraseña debe tener al menos 8 caracteres.");
       if (datos.password !== datos.password2) return err("Las contraseñas no coinciden.");
       await tarea("registro", () => backend.registrar({

@@ -37,7 +37,7 @@
 import { cert, getApps, initializeApp } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
-import { createHash, timingSafeEqual } from "node:crypto";
+import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import nodemailer from "nodemailer";
 import webConfig from "../../firebase.web.json" with { type: "json" };
 
@@ -320,6 +320,38 @@ async function cuentaProfesor(body, req, auth, db) {
   return null;
 }
 
+/* ── Entrada desde el Campus Virtual ───────────────────────────────────────────
+   El campus firma con CAMPUS_API_KEY un enlace con el correo del alumno y la formación.
+   Si la firma es buena y el correo coincide con la cuenta, se anota accesoCampus/{uid}
+   (las reglas lo aceptan en lugar del correo @jrotero.es o del código de aula) y el correo
+   queda verificado: el campus ya lo verificó. */
+function verificarTokenCampus(token, secreto, formacion, ahora = Date.now() / 1000) {
+  const [cuerpo, firma] = String(token || "").split(".");
+  if (!cuerpo || !firma || !secreto) return null;
+  const a = Buffer.from(firma), b = Buffer.from(createHmac("sha256", secreto).update(cuerpo).digest("base64url"));
+  if (a.length !== b.length || !timingSafeEqual(a, b)) return null;
+  let p;
+  try { p = JSON.parse(Buffer.from(cuerpo, "base64url").toString("utf8")); } catch { return null; }
+  if (!p || p.f !== formacion || !(p.exp > ahora) || typeof p.e !== "string") return null;
+  return p;
+}
+
+async function accesoCampus(body, req, auth, db) {
+  if (!env.CAMPUS_API_KEY) return json(501, { error: "La conexión con el Campus Virtual no está configurada (falta CAMPUS_API_KEY)." });
+  if (!emulador()) {
+    if (problemaProyecto()) return json(501, { error: problemaProyecto() });
+    if (!cuentaValida()) return json(501, { error: "Falta FIREBASE_SERVICE_ACCOUNT en Netlify (ámbito «Functions»)." });
+  }
+  const t = await sesionDe(auth, req);
+  if (!t?.email) return json(401, { error: "Sesión no válida. Vuelve a iniciar sesión." });
+  const p = verificarTokenCampus(body.token, env.CAMPUS_API_KEY, env.CAMPUS_FORMACION || "curso-claude");
+  if (!p) return json(403, { error: "El enlace del Campus Virtual no es válido o ha caducado. Vuelve a entrar desde el campus." });
+  if (p.e !== String(t.email).toLowerCase()) return json(403, { error: `El enlace del campus es para ${p.e}: regístrate o entra con ese correo.` });
+  await db.doc(`accesoCampus/${t.uid}`).set({ email: t.email, motivo: String(p.m || ""), comprobadoEn: new Date() });
+  if (!t.email_verified) await auth.updateUser(t.uid, { emailVerified: true });
+  return json(200, { ok: true, nombre: p.n || null });
+}
+
 const esProfesor = (t) => !!t?.email_verified && ADMINS().includes(String(t.email || "").toLowerCase());
 const ESTADOS = { aprobada: "Aprobada", revision: "Requiere cambios" };
 const BLOQUES = { dam: "bloque DAM", asir: "bloque ASIR", comun: "bloque común DAM y ASIR" };
@@ -355,6 +387,12 @@ export default async (req) => {
 
   let body;
   try { body = await req.json(); } catch { return json(400, { error: "Petición no válida." }); }
+
+  // Entrada desde el Campus Virtual: tampoco depende del envío de correo
+  if (body.action === "campus") {
+    try { return await accesoCampus(body, req, ...Object.values(firebase())); }
+    catch (e) { console.error("[campus]", e); return json(502, { error: explicar(e) }); }
+  }
 
   // El primer acceso del profesor no necesita el envío de correo, solo la cuenta de servicio
   if (body.action === "acceso-inicial" || body.action === "cambiar-password") {

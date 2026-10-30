@@ -14,6 +14,7 @@ import {
   collection, query, where, onSnapshot, serverTimestamp, writeBatch, getDocs, deleteField
 } from "firebase/firestore";
 import { ADMIN_EMAIL, ADMIN_NOMBRE, FIREBASE, EMULADOR } from "./constantes.js";
+import { tokenCampus, olvidarTokenCampus } from "./estado.js";
 import { DB, reemplazarDB, generarCodigoTitulo, notaMediaDe } from "./estado.js";
 
 const MENSAJES = {
@@ -185,8 +186,22 @@ export function crearBackendFirebase() {
     }
   }
 
+  // Enlace firmado del Campus Virtual: la función lo comprueba y anota el acceso (ver estado.js)
+  async function entrarDesdeCampus(user) {
+    const token = tokenCampus();
+    if (!token) return false;
+    const r = await funcionCuenta({ action: "campus", token }, true);
+    if (!r.ok) throw new Error(r.error || "No se ha podido comprobar el acceso del Campus Virtual.");
+    olvidarTokenCampus();
+    await user.reload();
+    await user.getIdToken(true);   // email_verified y accesoCampus ya cuentan para las reglas
+    return true;
+  }
+
   async function crearPerfil(user, { nombre, ciclo, curso, codigo }) {
     const esAdmin = user.email === ADMIN_EMAIL;
+    // Un enlace del campus caducado no impide registrarse por las vías de siempre
+    if (!esAdmin) await entrarDesdeCampus(user).catch((e) => { if (!user.email.endsWith("@jrotero.es") && !codigo) throw e; });
     const datos = {
       nombre, email: user.email, role: esAdmin ? "admin" : "alumno",
       ciclo: esAdmin ? null : ciclo, curso: esAdmin ? null : curso,
@@ -201,7 +216,7 @@ export function crearBackendFirebase() {
     } catch (e) {
       throw traducir(e, esAdmin
         ? "Verifica primero tu correo para activar la cuenta de profesor."
-        : "No se ha podido crear el perfil: usa tu correo @jrotero.es o revisa el código de acceso de aula.");
+        : "No se ha podido crear el perfil: usa tu correo @jrotero.es, revisa el código de acceso de aula o entra desde el Campus Virtual.");
     }
     if (!esAdmin) avisar("registro");
   }
@@ -472,6 +487,7 @@ export function crearBackendFirebase() {
         : (await getDocs(query(collection(db, "tests"), where("userId", "==", userId)))).docs.map(d => d.id);
       tests.forEach(id => lote.delete(doc(db, "tests", id)));
       lote.delete(doc(db, "aprobaciones", userId));
+      lote.delete(doc(db, "accesoCampus", userId));
       lote.delete(doc(db, "usuarios", userId));
       await lote.commit();
     } catch (e) { throw traducir(e); }
