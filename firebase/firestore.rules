@@ -1,0 +1,111 @@
+rules_version = '2';
+
+// Reglas del Campus Virtual. La interfaz no protege nada: lo imponen estas reglas.
+//  - El catálogo es público; solo la administración lo edita.
+//  - Nadie se da acceso a una formación de pago: las compras las registra el webhook de
+//    Stripe y los códigos los canjea la función «campus», ambos con la cuenta de servicio.
+//  - Un alumno solo lee lo suyo y solo se matricula solo en formaciones gratuitas y abiertas.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function verificado() { return signedIn() && request.auth.token.email_verified == true; }
+    // Si cambia la persona responsable, cámbiala también en src/constantes.js y netlify/lib/firebase-admin.mjs
+    function isAdmin() { return verificado() && request.auth.token.email == 'omar.romero@jrotero.es'; }
+    function isOwner(uid) { return signedIn() && request.auth.uid == uid; }
+    function propio() { return signedIn() && resource.data.uid == request.auth.uid; }
+    function texto(v, max) { return v is string && v.size() <= max; }
+    function lista(v, max) { return v is list && v.size() <= max; }
+
+    function formacionValida(d) {
+      return d.keys().hasOnly(['tipo', 'titulo', 'corto', 'resumen', 'descripcion', 'horas', 'duracion', 'modalidad', 'nivel',
+          'titulacion', 'edicion', 'precio', 'estado', 'url', 'incluidaCentro', 'destacada', 'orden', 'aprenderas', 'temario', 'requisitos'])
+        && d.tipo in ['curso', 'master', 'modulo', 'taller']
+        && d.estado in ['abierta', 'proximamente', 'cerrada']
+        && texto(d.titulo, 200) && d.titulo.size() > 0
+        && (d.precio is int || d.precio is float) && d.precio >= 0 && d.precio <= 20000
+        && (d.horas is int || d.horas is float) && d.horas > 0
+        && (d.url == null || d.url == '' || (texto(d.url, 300) && d.url.matches('^https://.*')))
+        && d.incluidaCentro is bool
+        && lista(d.aprenderas, 30) && lista(d.temario, 40) && lista(d.requisitos, 20);
+    }
+
+    match /formaciones/{id} {
+      allow read: if true;
+      allow create, update: if isAdmin() && id.matches('^[a-z0-9-]{1,60}$') && formacionValida(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /usuarios/{uid} {
+      allow read: if isOwner(uid) || isAdmin();
+      allow create: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['nombre', 'email', 'role', 'createdAt', 'consents'])
+        && texto(request.resource.data.nombre, 80) && request.resource.data.nombre.size() >= 3
+        && request.resource.data.email == request.auth.token.email.lower()
+        && request.resource.data.role == (request.auth.token.email == 'omar.romero@jrotero.es' ? 'admin' : 'alumno')
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.consents.keys().hasOnly(['privacidad'])
+        && request.resource.data.consents.privacidad == request.time;
+      allow update: if (isOwner(uid) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['nombre'])
+          && texto(request.resource.data.nombre, 80) && request.resource.data.nombre.size() >= 3)
+        || (isAdmin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['nombre']));
+      allow delete: if isOwner(uid) || isAdmin();
+    }
+
+    match /matriculas/{id} {
+      allow read: if isAdmin() || propio();
+      // Matrícula gratuita: uno mismo, con el correo verificado, en una formación de precio 0 y abierta
+      allow create: if isAdmin() || (verificado()
+        && id == request.auth.uid + '_' + request.resource.data.formacionId
+        && request.resource.data.keys().hasOnly(['uid', 'formacionId', 'origen', 'estado', 'importe', 'fecha', 'nombre', 'email'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.origen == 'gratuita'
+        && request.resource.data.estado == 'activa'
+        && request.resource.data.importe == 0
+        && request.resource.data.fecha == request.time
+        && request.resource.data.email == request.auth.token.email.lower()
+        && texto(request.resource.data.nombre, 80)
+        && get(/databases/$(database)/documents/formaciones/$(request.resource.data.formacionId)).data.precio == 0
+        && get(/databases/$(database)/documents/formaciones/$(request.resource.data.formacionId)).data.estado == 'abierta');
+      allow update: if isAdmin();
+      // Derecho de supresión: cada uno puede borrar las suyas al eliminar la cuenta
+      allow delete: if isAdmin() || propio();
+    }
+
+    match /solicitudes/{id} {
+      allow read: if isAdmin() || propio();
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['uid', 'formacionId', 'mensaje', 'estado', 'fecha', 'nombre', 'email'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.estado == 'pendiente'
+        && request.resource.data.fecha == request.time
+        && request.resource.data.email == request.auth.token.email.lower()
+        && texto(request.resource.data.mensaje, 1000) && texto(request.resource.data.nombre, 80)
+        && exists(/databases/$(database)/documents/formaciones/$(request.resource.data.formacionId));
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estado', 'respuesta', 'resueltaEn'])
+        && request.resource.data.estado in ['aceptada', 'rechazada'];
+      allow delete: if isAdmin() || propio();
+    }
+
+    // Pedidos: solo los escribe el webhook de Stripe (cuenta de servicio)
+    match /pedidos/{id} {
+      allow read: if isAdmin() || propio();
+      allow write: if false;
+    }
+
+    // Códigos: los canjea la función «campus»; el alumnado no puede ni leerlos
+    match /codigos/{id} {
+      allow read, delete: if isAdmin();
+      allow create: if isAdmin() && id.matches('^[A-Z0-9-]{4,40}$')
+        && request.resource.data.usos == 0 && request.resource.data.usosMax is int && request.resource.data.usosMax >= 1;
+      allow update: if false;
+    }
+
+    match /avisos/{id} {
+      allow read: if signedIn();
+      allow create: if isAdmin() && texto(request.resource.data.titulo, 120) && texto(request.resource.data.texto, 2000);
+      allow delete: if isAdmin();
+    }
+  }
+}

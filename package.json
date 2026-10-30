@@ -1,0 +1,30 @@
+{
+  "name": "campus-jrotero",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Campus Virtual de FP José Ramón Otero: puerta de entrada a cursos, másteres y módulos, con matrícula, compra y acceso por alumno",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "node scripts/build.mjs && node scripts/servir.mjs",
+    "dev:demo": "node scripts/build.mjs --demo && node scripts/servir.mjs",
+    "emuladores": "firebase emulators:start --only auth,firestore --project demo-campus",
+    "probar:reglas": "firebase emulators:exec --only firestore --project demo-campus \"node scripts/probar-reglas.mjs\"",
+    "desplegar:reglas": "firebase deploy --only firestore"
+  },
+  "dependencies": {
+    "firebase": "13.1.0",
+    "firebase-admin": "^13.10.0"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "6.0.0",
+    "@fontsource/inter": "5.3.0",
+    "@fontsource/jetbrains-mono": "5.3.0",
+    "esbuild": "0.28.2",
+    "firebase-tools": "15.34.1",
+    "tailwindcss": "3.4.16"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

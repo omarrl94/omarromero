@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Fuentes alojadas en la propia web (sin peticiones a Google Fonts) */
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 400; font-display: swap; src: url("fonts/inter-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 500; font-display: swap; src: url("fonts/inter-latin-500-normal.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 600; font-display: swap; src: url("fonts/inter-latin-600-normal.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 700; font-display: swap; src: url("fonts/inter-latin-700-normal.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 800; font-display: swap; src: url("fonts/inter-latin-800-normal.woff2") format("woff2"); }
+@font-face { font-family: "JetBrains Mono"; font-style: normal; font-weight: 400; font-display: swap; src: url("fonts/jetbrains-mono-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "JetBrains Mono"; font-style: normal; font-weight: 600; font-display: swap; src: url("fonts/jetbrains-mono-latin-600-normal.woff2") format("woff2"); }
+
+/* Paleta del centro: oro (cursos y CTA), salvia (másteres) y terracota (módulos) */
+:root {
+  --jro-gold: #efcd2f;
+  --jro-sage: #a9cabb;
+  --jro-terra: #e39f7d;
+  --jro-ink: #111111;
+  --jro-cream: #FAF9F5;
+  --jro-line: #E5E7EB;
+  --jro-mute: #6B7280;
+}
+html, body { background: var(--jro-cream); color: var(--jro-ink); }
+body { font-family: "Inter", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+code, pre, .mono { font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+/* Pestañas (acceso y panel), igual que en las plataformas del centro */
+.tabbar { background: #FFFFFF; border-bottom: 1px solid var(--jro-line); }
+.tab { display: inline-block; color: var(--jro-mute); border-bottom: 3px solid transparent; padding: 14px 4px 11px; font-weight: 500; white-space: nowrap; }
+.tab:hover { color: var(--jro-ink); }
+.tab[aria-selected="true"] { color: var(--jro-ink); font-weight: 600; border-bottom: 3px solid var(--jro-gold); }
+.tab:focus-visible, a:focus-visible, button:focus-visible { outline: 2px solid var(--jro-ink); outline-offset: 2px; }
+
+.btn-cta { background: var(--jro-gold); color: var(--jro-ink); font-weight: 700; }
+.btn-cta:hover { filter: brightness(0.95); }
+.btn-cta:disabled { opacity: .5; cursor: not-allowed; }
+button:disabled { cursor: not-allowed; }
+
+details > summary::-webkit-details-marker { display: none; }
+
+.prose-jro p { margin: .5rem 0; line-height: 1.7; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }
