@@ -18,19 +18,24 @@ sistema y código sin colorear.
 ## Uso rápido
 
 ```bash
-npm install && npm run build     # genera index.html y dist/
-python -m http.server 8080       # abrir http://localhost:8080/ (Web Crypto exige https o localhost)
+npm ci
+npm run build:emuladores && npm run emuladores   # Firebase en local: http://127.0.0.1:5002
+npm run test:reglas                              # tests de las reglas de seguridad de Firestore
+npm run deploy                                   # build de producción + firebase deploy (requiere firebase.config.json)
 ```
 
-- **Dirección del Máster:** `omar.romero@jrotero.es`. En el primer acceso deja la contraseña vacía y
-  la plataforma pedirá crearla.
+Sin `firebase.config.json`, `npm run build` genera el **modo demostración** (datos en el navegador),
+útil para enseñar la plataforma sin backend.
+
+- **Dirección del Máster:** `omar.romero@jrotero.es`. En el primer acceso («Primer acceso de la
+  Dirección») crea la contraseña y verifica el correo; sin correo verificado no tiene permisos.
 - **Alumnado del centro:** matrícula con correo `@jrotero.es` (queda pendiente de validación; mientras
-  tanto accede a la acogida y a M1).
+  tanto accede a la acogida y a M1). Para registrar entregas hay que verificar el correo.
 - **Plazas externas:** necesitan un código de admisión que genera la Dirección tras la reserva o el pago.
   Con vía DAM el código matricula directamente; DAW, ASIR o universitarios quedan pendientes de entrevista.
-- **Logotipo:** recreación SVG oficial; si junto a `index.html` existe `logo-jrotero.png`, se usa ese archivo.
+- **Logotipo:** recreación SVG oficial; si en `public/` existe `logo-jrotero.png`, se usa ese archivo.
 
-Para publicarla, ver **[DESPLIEGUE.md](DESPLIEGUE.md)**.
+Para publicarla en Firebase paso a paso, ver **[DESPLIEGUE.md](DESPLIEGUE.md)**.
 
 ## Qué incluye
 
@@ -56,13 +61,15 @@ Para publicarla, ver **[DESPLIEGUE.md](DESPLIEGUE.md)**.
 ```
 src/template.html     esqueleto HTML
 src/styles.css        componentes con la paleta oficial (#efcd2f, #a9cabb, #e39f7d)
-src/app/*.js          lógica, por orden: núcleo, evaluación, acceso, vistas del alumnado,
-                      Dirección, documentos y eventos
+src/app/*.js          lógica, por orden: núcleo, evaluación, almacén (Firebase/local), acceso,
+                      vistas del alumnado, Dirección, documentos y eventos
 src/data/modulos.js   edición, módulos (horas, fechas, contenidos), seminarios, jornadas,
                       calendario semana a semana y pesos de evaluación
 src/data/*.js         temario: acogida.js, m1.js … m7.js y pfm.js
+src/firebase/sdk.js   SDK modular de Firebase (Auth + Firestore) que se empaqueta con esbuild
+firestore.rules       reglas de seguridad · tests/reglas.test.mjs sus tests
 scripts/build.mjs     valida el temario (numeración, rúbricas al 100 %, 300 h, un proyecto por
-                      módulo), compila Tailwind, calcula la CSP y genera index.html y dist/
+                      módulo), compila Tailwind, incrusta el SDK, calcula la CSP y genera index.html, dist/ y firebase.json
 deploy/               cabeceras de seguridad y configuración de nginx
 labs/sesion-XX/       laboratorios ejecutables (código, tests y README)
 ```
@@ -76,12 +83,17 @@ invertidas, y un `${` literal se escribe `\${`.
 |---|---|---|
 | [`labs/sesion-00`](labs/sesion-00) | Verificación del entorno, primer modelo de ML, primer LLM local (Python y Java 21) | ✅ Completo, con tests |
 
-## Limitación importante
+## Arquitectura (Firebase)
 
-Esta versión guarda los datos en el `localStorage` del navegador donde se usa: cada navegador es una
-instancia independiente y la Dirección no ve las matrículas hechas en otros equipos. Sirve para
-publicar el programa y los contenidos y para validar el diseño con la dirección del centro; para la
-operación real con alumnado hace falta un servidor (ver DESPLIEGUE.md, fase 2).
+- **Hosting:** `dist/index.html` con cabeceras de seguridad y CSP con hashes (`firebase.json`, generado
+  en la build).
+- **Authentication:** correo y contraseña, verificación de correo y recuperación de contraseña.
+- **Firestore** (región UE): `usuarios`, `dnis` (unicidad del DNI/NIE), `codigos`, `entregas`,
+  `evaluaciones` (actas, asistencia, tribunal, diploma), `titulos`, `certificados`, `verificaciones`
+  (lectura pública de datos mínimos) y `auditoria` (solo añadir).
+- **Autorización:** `firestore.rules`, probada con `tests/reglas.test.mjs` en el emulador.
+- **Código:** `src/app/03-almacen.js` abstrae la persistencia (`AlmacenFirebase` / `AlmacenLocal`);
+  las vistas leen siempre de la misma caché, que en Firebase se mantiene en directo con `onSnapshot`.
 
 ## Sesiones
 

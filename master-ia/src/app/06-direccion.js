@@ -182,10 +182,14 @@ function dirTitulos() {
 }
 
 function dirDatos() {
-  return '<div class="grid gap-4 md:grid-cols-2"><div class="card p-5"><h2 class="font-extrabold">Copia de seguridad</h2><p class="text-sm text-gray-600 mt-1">Esta versión guarda los datos en este navegador. Exporta la base de datos para archivarla o trasladarla (incluye hashes PBKDF2, nunca contraseñas en claro).</p>' +
-    '<div class="flex flex-wrap gap-2 mt-3"><button class="btn btn-primary" data-act="exportar-db">Exportar base de datos</button>' +
-    '<label class="btn btn-ghost cursor-pointer">Importar copia<input type="file" accept="application/json" data-act-change="importar-db" class="hidden"></label></div></div>' +
-    '<div class="card p-5"><h2 class="font-extrabold">Restablecer</h2><p class="text-sm text-gray-600 mt-1">Borra alumnado, entregas, códigos, títulos y certificados de este navegador. Mantiene la cuenta de Dirección.</p><button class="btn btn-danger mt-3" data-act="reset-db">Restablecer datos</button></div>' +
+  const local = Almacen.modo === 'local';
+  return '<div class="grid gap-4 md:grid-cols-2"><div class="card p-5"><h2 class="font-extrabold">Copia de seguridad</h2><p class="text-sm text-gray-600 mt-1">' +
+    (local ? 'Modo demostración: los datos están en este navegador. Exporta la base de datos para archivarla o trasladarla (incluye hashes PBKDF2, nunca contraseñas en claro).'
+      : 'Los datos están en Cloud Firestore (proyecto ' + esc(FIREBASE_CONFIG.projectId) + '). Exporta una copia en JSON para el archivo del centro; las copias completas programadas se configuran en la consola de Firebase (ver DESPLIEGUE.md).') + '</p>' +
+    '<div class="flex flex-wrap gap-2 mt-3"><button class="btn btn-primary" data-act="exportar-db">Exportar en JSON</button>' +
+    (local ? '<label class="btn btn-ghost cursor-pointer">Importar copia<input type="file" accept="application/json" data-act-change="importar-db" class="hidden"></label>' : '') + '</div></div>' +
+    (local ? '<div class="card p-5"><h2 class="font-extrabold">Restablecer</h2><p class="text-sm text-gray-600 mt-1">Borra alumnado, entregas, códigos, títulos y certificados de este navegador. Mantiene la cuenta de Dirección.</p><button class="btn btn-danger mt-3" data-act="reset-db">Restablecer datos</button></div>'
+      : '<div class="card p-5"><h2 class="font-extrabold">Servidor</h2><p class="text-sm text-gray-600 mt-1">Firebase Authentication + Cloud Firestore. Permisos definidos en <code>firestore.rules</code>: el alumnado solo accede a sus datos y solo la Dirección (correo verificado) califica y expide documentos.</p></div>') +
     '<div class="card p-5 md:col-span-2"><h2 class="font-extrabold mb-2">Registro de auditoría (últimos 60 eventos)</h2>' +
     (db.audit.length ? '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Fecha</th><th>Acción</th><th>Usuario</th></tr></thead><tbody>' + db.audit.slice(0, 60).map(a => '<tr><td class="whitespace-nowrap">' + fmtFecha(a.fecha, true) + '</td><td>' + esc(a.accion) + '</td><td>' + esc(a.email || '—') + '</td></tr>').join('') + '</tbody></table></div>' : '<p class="text-sm text-gray-500">Sin eventos.</p>') +
     '</div></div>';
@@ -205,12 +209,14 @@ async function emitirTitulo(email) {
   const fecha = new Date().toISOString();
   const verificacion = await codigoVerificacion([numero, a.dni, sit.notaFinal, fecha]);
   const modulosSup = sit.modulos.map(r => ({ cod: r.modulo.cod, nombre: r.modulo.nombre, horas: r.modulo.horas, nota: r.nota }));
-  a.titulo = { numero, fecha, nota: sit.notaFinal, distincion: sit.distincion, verificacion, media: sit.media, pfm: sit.pfm, modulos: modulosSup, pfmTitulo: (a.pfm || {}).titulo || '' };
-  db.titulos.push({ numero, email, nombre: a.nombre, dni: a.dni, fecha, nota: sit.notaFinal, distincion: sit.distincion, verificacion, edicion: EDICION.periodo });
-  registrarAuditoria('Expedición del diploma ' + numero, email);
-  guardar();
-  toast('Diploma ' + numero + ' expedido e inscrito en el libro de registro.');
-  ir('diploma/' + encodeURIComponent(email));
+  const titulo = { numero, fecha, nota: sit.notaFinal, distincion: sit.distincion, verificacion, media: sit.media, pfm: sit.pfm, modulos: modulosSup, pfmTitulo: (a.pfm || {}).titulo || '' };
+  const registro = { numero, email, nombre: a.nombre, dni: a.dni, fecha, nota: sit.notaFinal, distincion: sit.distincion, verificacion, edicion: EDICION.periodo };
+  const ok = await operar(async () => {
+    await Almacen.registrarTitulo(email, titulo, registro);
+    await Almacen.auditar('Expedición del diploma ' + numero, email);
+    return true;
+  }, 'Diploma ' + numero + ' expedido e inscrito en el libro de registro.');
+  if (ok) ir('diploma/' + encodeURIComponent(email));
 }
 
 async function emitirCertificado(email) {
@@ -221,10 +227,13 @@ async function emitirCertificado(email) {
   if (!aprobados.length) { toast('No hay módulos superados.', 'bad'); return; }
   const fecha = new Date().toISOString();
   const numero = 'CAP-JRO-' + new Date().getFullYear() + '-' + String(db.certificados.length + 1).padStart(4, '0');
-  a.certificado = { numero, fecha, verificacion: await codigoVerificacion([numero, a.dni, fecha]),
+  const certificado = { numero, fecha, verificacion: await codigoVerificacion([numero, a.dni, fecha]),
     modulos: aprobados.map(r => ({ cod: r.modulo.cod, nombre: r.modulo.nombre, horas: r.modulo.horas, nota: r.nota, contenidos: r.modulo.contenidos })) };
-  db.certificados.push({ numero, email, nombre: a.nombre, dni: a.dni, fecha, verificacion: a.certificado.verificacion, horas: aprobados.reduce((s, r) => s + r.modulo.horas, 0) });
-  registrarAuditoria('Certificado de aprovechamiento ' + numero, email);
-  guardar();
-  ir('certificado/' + encodeURIComponent(email));
+  const registro = { numero, email, nombre: a.nombre, dni: a.dni, fecha, verificacion: certificado.verificacion, horas: aprobados.reduce((s, r) => s + r.modulo.horas, 0) };
+  const ok = await operar(async () => {
+    await Almacen.registrarCertificado(email, certificado, registro);
+    await Almacen.auditar('Certificado de aprovechamiento ' + numero, email);
+    return true;
+  });
+  if (ok) ir('certificado/' + encodeURIComponent(email));
 }

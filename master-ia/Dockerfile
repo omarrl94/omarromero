@@ -1,6 +1,6 @@
 # Plataforma del Máster en IA Aplicada al Desarrollo de Aplicaciones Multiplataforma
 # Imagen estática con nginx sin privilegios (puerto 8080).
-FROM node:22-alpine AS build
+FROM node:24-alpine AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci

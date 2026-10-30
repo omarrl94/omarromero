@@ -3,7 +3,7 @@
 /* =====================================================================
  *  Máster en IA Aplicada al Desarrollo de Aplicaciones Multiplataforma
  *  Centro de Formación Profesional JOSÉ RAMÓN OTERO · Plataforma LMS
- *  Archivo único: el estado vive en el localStorage del navegador.
+ *  Archivo único. Datos en Firebase (producción) o en el navegador (demostración).
  *  Ver master-ia/README.md y master-ia/DESPLIEGUE.md.
  * ===================================================================== */
 
@@ -192,7 +192,7 @@ function setSesionEmail(email) {
   } catch (e) { /* se mantiene en memoria */ }
 }
 function usuarioActual() {
-  const e = getSesionEmail();
+  const e = Almacen.emailSesion();
   return e && db.users[e] ? db.users[e] : null;
 }
 function esDirector(u) { return !!u && u.rol === 'director'; }

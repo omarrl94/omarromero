@@ -1,0 +1,156 @@
+rules_version = '2';
+
+// Reglas de seguridad de la plataforma del Máster en IA Aplicada al Desarrollo de
+// Aplicaciones Multiplataforma (CFP José Ramón Otero).
+//
+// El navegador habla directamente con Firestore, así que TODA la autorización vive aquí:
+// - La Dirección es la cuenta omar.romero@jrotero.es con el correo verificado.
+// - Cada alumno solo lee y escribe lo suyo, y solo los campos que le corresponden.
+// - Notas, actas, asistencia, títulos y certificados solo los escribe la Dirección.
+// - La verificación pública de diplomas solo expone datos mínimos (DNI enmascarado).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function autenticado() { return request.auth != null; }
+    function esPropio(uid) { return autenticado() && request.auth.uid == uid; }
+    function esDireccion() {
+      return autenticado()
+        && request.auth.token.email == 'omar.romero@jrotero.es'
+        && request.auth.token.email_verified == true;
+    }
+    function correoVerificado() { return autenticado() && request.auth.token.email_verified == true; }
+    function soloCambia(campos) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(campos);
+    }
+    function texto(v, max) { return v is string && v.size() <= max; }
+    function textoOpcional(v, max) { return v == null || texto(v, max); }
+    function urlHttps(v) { return texto(v, 500) && v.matches('^https://.+'); }
+
+    // ---------------- Perfiles ----------------
+    match /usuarios/{uid} {
+      allow read: if esPropio(uid) || esDireccion();
+
+      // Matrícula del alumnado: siempre con su propio correo y como «pendiente»,
+      // salvo vía DAM con un código de admisión reclamado en la misma operación.
+      allow create: if esPropio(uid) && (
+        (
+          request.resource.data.keys().hasOnly(['email', 'nombre', 'dni', 'rol', 'plaza', 'via', 'promocion', 'centro',
+            'nacimiento', 'estado', 'admision', 'codigo', 'consentimientos', 'creado', 'progreso', 'pfm',
+            'oposicion', 'limitacion'])
+          && request.resource.data.email == request.auth.token.email
+          && request.resource.data.rol == 'alumno'
+          && texto(request.resource.data.nombre, 90)
+          && texto(request.resource.data.dni, 12)
+          && request.resource.data.plaza in ['centro', 'externo']
+          && request.resource.data.via in ['DAM', 'DAW', 'ASIR', 'UNIV']
+          && (request.resource.data.plaza == 'externo' || request.auth.token.email.matches('.*@jrotero[.]es$'))
+          && existsAfter(/databases/$(database)/documents/dnis/$(request.resource.data.dni))
+          && getAfter(/databases/$(database)/documents/dnis/$(request.resource.data.dni)).data.uid == uid
+          && (
+            request.resource.data.estado == 'pendiente'
+            || (
+              request.resource.data.estado == 'admitido'
+              && request.resource.data.via == 'DAM'
+              && request.resource.data.codigo is string
+              && getAfter(/databases/$(database)/documents/codigos/$(request.resource.data.codigo)).data.usadoPor == uid
+            )
+          )
+        )
+        || (
+          // Perfil de la cuenta de Dirección
+          request.auth.token.email == 'omar.romero@jrotero.es'
+          && request.resource.data.rol == 'director'
+          && request.resource.data.email == request.auth.token.email
+        )
+      );
+
+      // El alumnado solo puede cambiar sus datos de estudio y derechos; nombre solo
+      // mientras no tenga diploma expedido. Estado, rol, DNI y correo: solo la Dirección.
+      allow update: if esDireccion() || (
+        esPropio(uid)
+        && soloCambia(['nombre', 'promocion', 'progreso', 'pfm', 'oposicion', 'limitacion'])
+        && texto(request.resource.data.nombre, 90)
+        && (request.resource.data.nombre == resource.data.nombre
+            || !exists(/databases/$(database)/documents/evaluaciones/$(uid))
+            || !('titulo' in get(/databases/$(database)/documents/evaluaciones/$(uid)).data))
+      );
+
+      // Derecho de supresión (el libro de registro de títulos se conserva aparte)
+      allow delete: if esPropio(uid) || esDireccion();
+    }
+
+    // Unicidad del DNI/NIE: el documento se crea en la matrícula y no puede sobrescribirse.
+    match /dnis/{dni} {
+      allow get: if esDireccion() || (autenticado() && resource.data.uid == request.auth.uid);
+      allow create: if autenticado() && request.resource.data.uid == request.auth.uid
+                    && request.resource.data.keys().hasOnly(['uid']);
+      allow delete: if esDireccion() || (autenticado() && resource.data.uid == request.auth.uid);
+    }
+
+    // ---------------- Códigos de admisión ----------------
+    match /codigos/{codigo} {
+      allow get: if autenticado();                       // validar el código al matricularse
+      allow list, create, delete: if esDireccion();
+      allow update: if esDireccion() || (
+        autenticado()
+        && resource.data.usadoPor == null
+        && resource.data.revocado == null
+        && soloCambia(['usadoPor', 'fechaUso'])
+        && request.resource.data.usadoPor == request.auth.uid
+      );
+    }
+
+    // ---------------- Entregas ----------------
+    match /entregas/{id} {
+      allow read: if esDireccion() || (autenticado() && resource.data.uid == request.auth.uid);
+      allow create: if correoVerificado()
+        && request.resource.data.keys().hasOnly(['uid', 'email', 'sesion', 'tipo', 'hito', 'repo', 'video',
+             'commit', 'notas', 'fecha', 'estado', 'nota', 'feedback'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.sesion is int
+        && request.resource.data.tipo in ['semanal', 'proyecto', 'pfm']
+        && urlHttps(request.resource.data.repo)
+        && (request.resource.data.video == null || urlHttps(request.resource.data.video))
+        && textoOpcional(request.resource.data.commit, 80)
+        && textoOpcional(request.resource.data.notas, 2000)
+        && request.resource.data.estado == 'pendiente'
+        && request.resource.data.nota == null
+        && request.resource.data.feedback == '';
+      allow update: if esDireccion();                    // corrección y nota
+      allow delete: if esDireccion() || (autenticado() && resource.data.uid == request.auth.uid);
+    }
+
+    // ---------------- Evaluación (actas, asistencia, tribunal, diploma) ----------------
+    match /evaluaciones/{uid} {
+      allow read: if esPropio(uid) || esDireccion();
+      allow write: if esDireccion();
+      allow delete: if esPropio(uid) || esDireccion();
+    }
+
+    // Libro de registro de títulos propios y certificados: solo Dirección
+    match /titulos/{numero} {
+      allow read, write: if esDireccion();
+    }
+    match /certificados/{numero} {
+      allow read, write: if esDireccion();
+    }
+
+    // Verificación pública por código: lectura de un documento concreto, nunca listados.
+    match /verificaciones/{codigo} {
+      allow get: if true;
+      allow list: if false;
+      allow write: if esDireccion();
+    }
+
+    // ---------------- Auditoría ----------------
+    match /auditoria/{id} {
+      allow create: if autenticado()
+        && request.resource.data.keys().hasOnly(['fecha', 'accion', 'uid'])
+        && request.resource.data.uid == request.auth.uid
+        && texto(request.resource.data.accion, 200);
+      allow read: if esDireccion();
+      allow update, delete: if false;
+    }
+  }
+}

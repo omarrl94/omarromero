@@ -79,6 +79,10 @@ function vistaInicio(u) {
   if (!esDirector(u) && u.estado === 'pendiente') {
     aviso = '<div class="card p-4 mb-5" style="border-left:5px solid #efcd2f"><strong>Matrícula pendiente de validación.</strong> Secretaría está comprobando tus requisitos' + (u.via && u.via !== 'DAM' ? ' y la coordinación te citará para la entrevista' : '') + '. Mientras tanto tienes acceso a la acogida y a M1.</div>';
   }
+  if (!esDirector(u) && Almacen.modo === 'firebase' && !Almacen.correoVerificado()) {
+    aviso += '<div class="card p-4 mb-5 flex flex-wrap items-center gap-3" style="border-left:5px solid #e39f7d"><span><strong>Verifica tu correo.</strong> Te enviamos un enlace a ' + esc(u.email) + '. Lo necesitas para registrar entregas.</span>' +
+      '<span class="ml-auto flex gap-2"><button class="btn btn-ghost btn-sm" data-act="reenviar-verificacion">Reenviar</button><button class="btn btn-primary btn-sm" data-act="comprobar-verificacion">Ya lo he verificado</button></span></div>';
+  }
   if (u.titulo) {
     aviso += '<div class="card p-4 mb-5 flex flex-wrap items-center gap-3" style="border-left:5px solid #efcd2f"><span class="badge-master">Diploma expedido</span><span>Tu diploma nº <strong>' + esc(u.titulo.numero) + '</strong> está disponible.</span><a class="btn btn-primary btn-sm ml-auto" href="#/diploma/' + encodeURIComponent(u.email) + '">Ver diploma</a></div>';
   }
@@ -293,7 +297,7 @@ function tabFaq(s) {
     '<div class="px-4 pb-4 prose-jro text-sm">' + f[1] + '</div></details>').join('') + '</div>';
 }
 
-function onEntrega(f) {
+async function onEntrega(f) {
   const u = usuarioActual();
   const err = $('#entrega-err');
   const repo = f.repo.value.trim();
@@ -302,16 +306,16 @@ function onEntrega(f) {
   if (video && !isHttpsUrl(video)) { err.textContent = 'El enlace del vídeo o del producto debe ser https://.'; return; }
   if (f.dataset.tipo === 'proyecto' && !video) { err.textContent = 'El proyecto del módulo incluye un vídeo de defensa de 5 minutos.'; return; }
   if (!f.limpio.checked) { err.textContent = 'Debes confirmar la declaración de autoría, uso de IA, secretos y datos personales.'; return; }
+  if (Almacen.modo === 'firebase' && !Almacen.correoVerificado()) { err.textContent = 'Verifica tu correo electrónico antes de registrar entregas (enlace en el aviso de tu panel).'; return; }
   const n = Number(f.dataset.n);
-  db.entregas.push({
-    id: uid(), email: u.email, sesion: n, tipo: f.dataset.tipo, hito: f.hito ? f.hito.value : null,
-    repo, video: video || null, commit: f.commit.value.trim(), notas: f.notas.value.trim(),
-    fecha: new Date().toISOString(), estado: 'pendiente', nota: null, feedback: ''
-  });
-  registrarAuditoria('Entrega de la sesión ' + n + (f.hito ? ' (' + f.hito.value + ')' : ''), u.email);
-  guardar();
-  toast('Entrega registrada. Tu tutor la corregirá.');
-  render();
+  await operar(async () => {
+    await Almacen.crearEntrega({
+      id: uid(), email: u.email, sesion: n, tipo: f.dataset.tipo, hito: f.hito ? f.hito.value : null,
+      repo, video: video || null, commit: f.commit.value.trim(), notas: f.notas.value.trim(),
+      fecha: new Date().toISOString(), estado: 'pendiente', nota: null, feedback: ''
+    });
+    await Almacen.auditar('Entrega de la sesión ' + n + (f.hito ? ' (' + f.hito.value + ')' : ''), u.email);
+  }, 'Entrega registrada. Tu tutor la corregirá.');
 }
 
 /* ---------- Mi expediente ---------- */
@@ -398,7 +402,7 @@ function expedienteDe(email) {
   };
 }
 
-function onPFM(f) {
+async function onPFM(f) {
   const u = usuarioActual();
   const err = $('#pfm-err');
   const repo = f.repo.value.trim();
@@ -406,9 +410,11 @@ function onPFM(f) {
   if (repo && !isHttpsUrl(repo)) { err.textContent = 'El repositorio debe ser una URL https://.'; return; }
   const pareja = f.pareja.value.trim().toLowerCase();
   if (pareja && pareja === u.email) { err.textContent = 'El correo de tu pareja no puede ser el tuyo.'; return; }
-  u.pfm = { titulo: f.titulo.value.trim(), empresa: f.empresa.value.trim(), pareja, repo, resumen: f.resumen.value.trim(), actualizado: new Date().toISOString() };
-  registrarAuditoria('Datos del Proyecto Final actualizados', u.email);
-  guardar(); toast('Datos del Proyecto Final guardados.'); render();
+  const pfm = { titulo: f.titulo.value.trim(), empresa: f.empresa.value.trim(), pareja, repo, resumen: f.resumen.value.trim(), actualizado: new Date().toISOString() };
+  await operar(async () => {
+    await Almacen.guardarPerfil(u.email, { pfm });
+    await Almacen.auditar('Datos del Proyecto Final actualizados', u.email);
+  }, 'Datos del Proyecto Final guardados.');
 }
 
 function modalSupresion(u) {
@@ -417,6 +423,7 @@ function modalSupresion(u) {
     (u.titulo ? '<p class="text-sm mt-2 p-3 rounded" style="background:#fdf6d3">Ya tienes un diploma expedido: el <strong>libro de registro de títulos propios</strong> conservará los datos mínimos para poder verificarlo (nombre, DNI/NIE, número, fecha y nota).</p>' : '') +
     '<p class="text-sm mt-3">Te recomendamos <button class="underline font-semibold" data-act="exportar-expediente">exportar tu expediente</button> antes de continuar.</p>' +
     '<form data-form="suprimir" class="mt-4 grid gap-3"><div class="field"><label for="sup-email">Escribe tu correo para confirmar</label><input id="sup-email" name="email" autocomplete="off"></div>' +
+    (Almacen.modo === 'firebase' ? '<div class="field"><label for="sup-pw">Tu contraseña</label><input id="sup-pw" name="password" type="password" autocomplete="current-password"></div>' : '') +
     '<div class="text-sm" style="color:#9b2c13" id="sup-err"></div>' +
     '<div class="flex gap-2 justify-end"><button class="btn btn-ghost" type="button" data-act="cerrar-modal">Cancelar</button><button class="btn btn-danger" type="submit">Suprimir definitivamente</button></div></form>');
 }

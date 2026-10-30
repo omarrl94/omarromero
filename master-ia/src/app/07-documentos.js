@@ -86,14 +86,26 @@ function vistaCertificado(u, email) {
 
 function vistaVerificar(codigo) {
   const cod = (codigo || '').trim().toUpperCase();
-  const t = cod && db.titulos.find(x => x.verificacion === cod);
-  const cert = cod && !t && db.certificados.find(x => x.verificacion === cod);
+  if (cod && (!ui.verif || ui.verif.codigo !== cod)) {
+    ui.verif = { codigo: cod, estado: 'cargando', datos: null };
+    Almacen.verificar(cod)
+      .then(d => { ui.verif = { codigo: cod, estado: d ? 'ok' : 'no', datos: d }; })
+      .catch(() => { ui.verif = { codigo: cod, estado: 'error', datos: null }; })
+      .then(() => { if (ruta()[0] === 'verificar') render(); });
+  }
   let resultado = '';
   if (cod) {
-    if (t) {
-      resultado = '<div class="card p-5 mt-5" style="border-left:5px solid #a9cabb"><div class="font-extrabold text-lg">✓ Diploma válido</div><p class="text-sm mt-1">Nº <strong class="font-mono">' + esc(t.numero) + '</strong> · ' + esc(t.nombre) + ' · DNI/NIE ' + esc(enmascararDni(t.dni)) + '<br>' + TITULO_MASTER + ' (' + MENCION_LEGAL + ') · edición ' + esc(t.edicion || EDICION.periodo) + '<br>Expedido el ' + fmtFecha(t.fecha) + ' · nota final ' + fmtNota(t.nota) + (t.distincion ? ' · con distinción' : '') + '</p></div>';
-    } else if (cert) {
-      resultado = '<div class="card p-5 mt-5" style="border-left:5px solid #a9cabb"><div class="font-extrabold text-lg">✓ Certificado de aprovechamiento válido</div><p class="text-sm mt-1">Nº <strong class="font-mono">' + esc(cert.numero) + '</strong> · ' + esc(cert.nombre) + ' · ' + cert.horas + ' horas · ' + fmtFecha(cert.fecha) + '</p></div>';
+    const v = ui.verif;
+    if (v.estado === 'cargando') {
+      resultado = '<p class="text-sm text-gray-600 mt-5">Consultando el libro de registro…</p>';
+    } else if (v.estado === 'ok' && v.datos.tipo === 'diploma') {
+      const t = v.datos;
+      resultado = '<div class="card p-5 mt-5" style="border-left:5px solid #a9cabb"><div class="font-extrabold text-lg">✓ Diploma válido</div><p class="text-sm mt-1">Nº <strong class="font-mono">' + esc(t.numero) + '</strong> · ' + esc(t.nombre) + ' · DNI/NIE ' + esc(t.dni) + '<br>' + TITULO_MASTER + ' (' + MENCION_LEGAL + ') · edición ' + esc(t.edicion || EDICION.periodo) + '<br>Expedido el ' + fmtFecha(t.fecha) + ' · nota final ' + fmtNota(t.nota) + (t.distincion ? ' · con distinción' : '') + '</p></div>';
+    } else if (v.estado === 'ok') {
+      const c = v.datos;
+      resultado = '<div class="card p-5 mt-5" style="border-left:5px solid #a9cabb"><div class="font-extrabold text-lg">✓ Certificado de aprovechamiento válido</div><p class="text-sm mt-1">Nº <strong class="font-mono">' + esc(c.numero) + '</strong> · ' + esc(c.nombre) + ' · DNI/NIE ' + esc(c.dni) + ' · ' + esc(c.horas) + ' horas · ' + fmtFecha(c.fecha) + '</p></div>';
+    } else if (v.estado === 'error') {
+      resultado = '<div class="card p-5 mt-5" style="border-left:5px solid #e39f7d"><div class="font-extrabold text-lg">No se pudo consultar el registro</div><p class="text-sm mt-1">Inténtalo de nuevo en unos minutos.</p></div>';
     } else {
       resultado = '<div class="card p-5 mt-5" style="border-left:5px solid #e39f7d"><div class="font-extrabold text-lg">No se encuentra ningún documento con ese código</div><p class="text-sm mt-1">Comprueba el código o escribe a <a class="underline" href="mailto:' + ADMIN_EMAIL + '">' + ADMIN_EMAIL + '</a>.</p></div>';
     }
@@ -102,5 +114,6 @@ function vistaVerificar(codigo) {
     '<div class="card p-6"><h1 class="text-xl font-extrabold">Verificación de diplomas y certificados</h1><p class="text-sm text-gray-600 mt-1">' + TITULO_MASTER + ' · ' + MENCION_LEGAL + '</p>' +
     '<form data-form="verificar" class="flex gap-2 mt-4"><div class="field flex-1"><input name="codigo" value="' + esc(cod) + '" placeholder="XXXX-XXXX-XXXX-XXXX" style="text-transform:uppercase" aria-label="Código de verificación"></div><button class="btn btn-primary" type="submit">Verificar</button></form>' +
     resultado + '</div>' +
-    '<p class="text-xs text-gray-500 mt-4">En esta versión de la plataforma la verificación consulta el registro guardado en este navegador. En producción, el registro se publica desde el servidor del centro (ver DESPLIEGUE.md).</p></div></div>';
+    (Almacen.modo === 'local' ? '<p class="text-xs text-gray-500 mt-4">Modo demostración: la verificación consulta el registro guardado en este navegador.</p>' : '') +
+    '</div></div>';
 }

@@ -50,9 +50,12 @@ function vistaAuth() {
   if (v === 'login') {
     form = '<form data-form="login" class="space-y-4" novalidate>' +
       '<div class="field"><label for="l-email">Correo electrónico</label><input id="l-email" name="email" type="email" autocomplete="username" required placeholder="nombre.apellido@jrotero.es"></div>' +
-      '<div class="field"><label for="l-pw">Contraseña</label><input id="l-pw" name="password" type="password" autocomplete="current-password"><div class="hint">Primer acceso de la Dirección (' + ADMIN_EMAIL + '): deja la contraseña vacía para configurarla.</div></div>' +
+      '<div class="field"><label for="l-pw">Contraseña</label><input id="l-pw" name="password" type="password" autocomplete="current-password">' + (Almacen.modo === 'local' ? '<div class="hint">Primer acceso de la Dirección (' + ADMIN_EMAIL + '): deja la contraseña vacía para configurarla.</div>' : '') + '</div>' +
       '<div class="text-sm" style="color:#9b2c13" id="login-err"></div>' +
       '<button class="btn btn-primary w-full" type="submit">Entrar en el Máster</button>' +
+      '<div class="flex flex-wrap justify-between gap-2 text-xs">' +
+      (Almacen.capacidades.recuperarClave ? '<button type="button" class="underline" data-act="recuperar-clave">He olvidado mi contraseña</button>' : '<span></span>') +
+      (Almacen.modo === 'firebase' ? '<button type="button" class="underline" data-act="auth-vista" data-v="setup">Primer acceso de la Dirección</button>' : '') + '</div>' +
       '<p class="text-xs text-gray-500 text-center">¿Quieres comprobar un diploma? <a class="underline" href="#/verificar">Verificar un título</a></p></form>';
   } else if (v === 'registro') {
     const año = new Date().getFullYear();
@@ -86,7 +89,7 @@ function vistaAuth() {
       '<button class="btn btn-primary w-full" type="submit">Enviar solicitud de matrícula</button></form>';
   } else {
     form = '<form data-form="setup" class="space-y-4" novalidate>' +
-      '<div class="rounded-lg p-3 text-sm" style="background:#fdf6d3">Primer acceso de <strong>' + ADMIN_NAME + '</strong> (' + ADMIN_EMAIL + '), Dirección del Máster. Define la contraseña del Panel de Dirección.</div>' +
+      '<div class="rounded-lg p-3 text-sm" style="background:#fdf6d3">Primer acceso de <strong>' + ADMIN_NAME + '</strong> (' + ADMIN_EMAIL + '), Dirección del Máster. Define la contraseña del Panel de Dirección.' + (Almacen.modo === 'firebase' ? ' Después recibirás un correo para verificar la cuenta.' : '') + '</div>' +
       '<div class="field"><label for="s-pw">Nueva contraseña</label><input id="s-pw" name="password" type="password" autocomplete="new-password"><div class="hint">Mín. 10 caracteres, con mayúscula, minúscula y número.</div></div>' +
       '<div class="field"><label for="s-pw2">Repite la contraseña</label><input id="s-pw2" name="password2" type="password" autocomplete="new-password"></div>' +
       '<div class="text-sm" style="color:#9b2c13" id="setup-err"></div>' +
@@ -113,7 +116,7 @@ function vistaAuth() {
     '</aside>' +
     '<main class="min-w-0 p-4 sm:p-10 flex items-start lg:items-center justify-center"><div class="w-full max-w-2xl">' +
     '<div class="card p-6 sm:p-8">' + pestañas + form + '</div>' +
-    '<p class="text-xs text-gray-500 mt-4 text-center">Plataforma del máster · ' + CENTRO + '</p>' +
+    '<p class="text-xs text-gray-500 mt-4 text-center">Plataforma del máster · ' + CENTRO + (Almacen.modo === 'local' ? ' · <strong>modo demostración</strong>: los datos se guardan solo en este navegador' : '') + '</p>' +
     '</div></main></div>';
 }
 
@@ -122,19 +125,19 @@ async function onLogin(f) {
   const pw = f.password.value;
   const err = $('#login-err');
   err.textContent = '';
-  const u = db.users[email];
-  if (!u) { err.textContent = 'No existe ninguna cuenta con ese correo. Si quieres matricularte, usa la pestaña Matrícula.'; return; }
-  if (esDirector(u) && !u.hash) { ui.authVista = 'setup'; render(); return; }
-  if (!pw) { err.textContent = 'Introduce tu contraseña.'; return; }
   try {
-    const { hash } = await derivarHash(pw, u.salt);
-    if (hash !== u.hash) { err.textContent = 'Contraseña incorrecta.'; return; }
-  } catch (e) { err.textContent = e.message; return; }
-  if (u.estado === 'rechazado') { err.textContent = 'Tu solicitud no ha sido aceptada. Contacta con ' + ADMIN_EMAIL + '.'; return; }
-  setSesionEmail(email);
-  registrarAuditoria('Inicio de sesión', email);
-  guardar();
+    const r = await Almacen.entrar(email, pw);
+    if (r.primerAcceso) { ui.authVista = 'setup'; render(); return; }
+  } catch (e) { err.textContent = mensajeError(e); return; }
   if (!location.hash || location.hash === '#/' || location.hash.indexOf('#/verificar') === 0) ir('inicio'); else render();
+}
+
+async function onRecuperar(f) {
+  const err = $('#login-err');
+  const email = f.email.value.trim().toLowerCase();
+  if (!email) { err.textContent = 'Escribe tu correo y vuelve a pulsar «He olvidado mi contraseña».'; return; }
+  try { await Almacen.recuperarClave(email); toast('Si existe una cuenta con ese correo, recibirás un enlace para cambiar la contraseña.'); }
+  catch (e) { err.textContent = mensajeError(e); }
 }
 
 async function onSetup(f) {
@@ -142,13 +145,14 @@ async function onSetup(f) {
   const pw = f.password.value, pw2 = f.password2.value;
   if (!passwordValida(pw)) { err.textContent = 'La contraseña no cumple la política de seguridad.'; return; }
   if (pw !== pw2) { err.textContent = 'Las contraseñas no coinciden.'; return; }
-  const admin = db.users[ADMIN_EMAIL];
-  if (admin.hash) { err.textContent = 'La contraseña de la Dirección ya está configurada.'; return; }
-  try { Object.assign(admin, await derivarHash(pw)); } catch (e) { err.textContent = e.message; return; }
-  registrarAuditoria('Configuración inicial de la cuenta de Dirección', ADMIN_EMAIL);
-  setSesionEmail(ADMIN_EMAIL);
-  guardar();
-  ui.authVista = 'login';
+  try {
+    const r = await Almacen.crearDireccion(pw);
+    ui.authVista = 'login';
+    if (r.verificacionEnviada) {
+      toast('Cuenta creada. Revisa el correo de ' + ADMIN_EMAIL + ' y pulsa el enlace de verificación.');
+      render(); return;
+    }
+  } catch (e) { err.textContent = mensajeError(e); return; }
   toast('Bienvenido, ' + ADMIN_NAME + '. Panel de Dirección activado.');
   ir('direccion/admisiones');
 }
@@ -168,16 +172,11 @@ async function onRegistro(f) {
 
   if (nombre.length < 5 || nombre.split(/\s+/).length < 2) return fallo('Indica nombre y al menos un apellido.');
   if (!dni) return fallo('El DNI o NIE no es válido (revisa la letra).');
-  if (Object.values(db.users).some(u => u.dni === dni)) return fallo('Ya existe una matrícula con ese DNI/NIE.');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return fallo('El correo electrónico no es válido.');
-  if (db.users[email]) return fallo('Ya existe una cuenta con ese correo.');
+  if (email === ADMIN_EMAIL) return fallo('Ese correo está reservado a la Dirección del Máster.');
   if (plaza === 'centro' && !email.endsWith('@jrotero.es')) return fallo('Las plazas del alumnado del centro se solicitan con el correo @jrotero.es.');
-  let codigoObj = null;
-  if (plaza === 'externo' || !email.endsWith('@jrotero.es')) {
-    if (!codigo) return fallo('Las plazas externas necesitan el código de admisión que facilita Secretaría.');
-    codigoObj = db.codigos.find(x => x.codigo === codigo && !x.usadoPor && !x.revocado);
-    if (!codigoObj) return fallo('El código de admisión no es válido, ya se ha usado o ha sido revocado.');
-  }
+  const necesitaCodigo = plaza === 'externo' || !email.endsWith('@jrotero.es');
+  if (necesitaCodigo && !codigo) return fallo('Las plazas externas necesitan el código de admisión que facilita Secretaría.');
   if (!promocion) return fallo('Selecciona el año de titulación.');
   if (!nacimiento) return fallo('Indica tu fecha de nacimiento.');
   if (edad(nacimiento) < 18) return fallo('Debes ser mayor de edad para matricularte.');
@@ -188,27 +187,43 @@ async function onRegistro(f) {
   if (!f.consentDatos.checked) return fallo('Necesitamos tu consentimiento para tratar tus datos académicos.');
   if (!f.consentEtica.checked) return fallo('Debes aceptar el compromiso ético de uso responsable de la IA.');
 
-  let cred;
-  try { cred = await derivarHash(pw); } catch (e) { return fallo(e.message); }
   const ahora = new Date().toISOString();
-  const admitidoDirecto = !!codigoObj && via === 'DAM';
-  db.users[email] = {
-    email, nombre, dni, rol: 'alumno', plaza, via, promocion, centro: f.centro.value.trim(), nacimiento,
-    salt: cred.salt, hash: cred.hash, creado: ahora,
-    estado: admitidoDirecto ? 'admitido' : 'pendiente',
-    admision: codigoObj ? 'codigo:' + codigoObj.codigo : 'dominio',
+  const perfil = {
+    email, nombre, dni, plaza, via, promocion, centro: f.centro.value.trim(), nacimiento,
     consentimientos: {
       datos: { aceptado: true, fecha: ahora, version: 'RGPD-2.0' },
       etica: { aceptado: true, fecha: ahora, version: 'IA-ETICA-2.0' },
       tituloPropio: { aceptado: true, fecha: ahora }
-    },
-    oposicion: null, limitacion: null, progreso: {}, evaluacion: {}, pfm: null, titulo: null
+    }
   };
-  if (codigoObj) { codigoObj.usadoPor = email; codigoObj.fechaUso = ahora; }
-  registrarAuditoria('Solicitud de matrícula (' + (plaza === 'centro' ? 'alumnado del centro' : 'plaza externa') + ', vía ' + via + ')', email);
-  setSesionEmail(email);
-  guardar();
-  toast(admitidoDirecto ? 'Matrícula confirmada. ¡Bienvenido/a al Máster!' :
+  const boton = f.querySelector('button[type=submit]');
+  boton.disabled = true;
+  const hashInicial = location.hash;
+  let r;
+  try { r = await Almacen.registrar(perfil, pw, necesitaCodigo ? codigo : null); }
+  catch (e) { boton.disabled = false; return fallo(mensajeError(e)); }
+  toast(r.estado === 'admitido' ? 'Matrícula confirmada. ¡Bienvenido/a al Máster!' :
     'Solicitud registrada. Mientras se valida, tienes acceso a la acogida y a M1.' + (via !== 'DAM' ? ' Te contactaremos para la entrevista.' : ''));
-  ir('inicio');
+  if (r.verificacionEnviada) setTimeout(() => toast('Te hemos enviado un correo para verificar tu dirección: lo necesitas para registrar entregas.'), 3600);
+  // En modo Firebase el panel ya puede estar pintado (y el alumno navegando): no lo movemos.
+  if (location.hash === hashInicial) ir('inicio');
+}
+
+/* ---------- Pantallas de estado del modo Firebase ---------- */
+function vistaCargando(texto) {
+  return '<div class="min-h-screen flex items-center justify-center p-6"><div class="text-center">' + logoCompleto(44) +
+    '<p class="mt-6 text-gray-600">' + esc(texto || 'Cargando…') + '</p></div></div>';
+}
+function vistaVerificarDireccion() {
+  return '<div class="min-h-screen flex items-center justify-center p-6"><div class="card p-8 max-w-lg text-center">' + logoCompleto(40) +
+    '<h1 class="text-xl font-extrabold mt-6">Verifica el correo de la Dirección</h1>' +
+    '<p class="text-sm text-gray-600 mt-2">Hemos enviado un enlace a <strong>' + ADMIN_EMAIL + '</strong>. El Panel de Dirección se activa cuando el correo está verificado: así nadie más puede usar esa cuenta.</p>' +
+    '<div class="flex flex-wrap justify-center gap-2 mt-5"><button class="btn btn-primary" data-act="comprobar-verificacion">Ya lo he verificado</button>' +
+    '<button class="btn btn-ghost" data-act="reenviar-verificacion">Reenviar el correo</button><button class="btn btn-ghost" data-act="logout">Salir</button></div></div></div>';
+}
+function vistaSinPerfil() {
+  return '<div class="min-h-screen flex items-center justify-center p-6"><div class="card p-8 max-w-lg text-center">' + logoCompleto(40) +
+    '<h1 class="text-xl font-extrabold mt-6">No encontramos tu matrícula</h1>' +
+    '<p class="text-sm text-gray-600 mt-2">Tu cuenta existe, pero no tiene matrícula asociada (puede que se interrumpiera el proceso o que se haya suprimido). Escribe a <a class="underline" href="mailto:' + ADMIN_EMAIL + '">' + ADMIN_EMAIL + '</a>.</p>' +
+    '<button class="btn btn-ghost mt-5" data-act="logout">Salir</button></div></div>';
 }

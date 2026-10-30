@@ -1,0 +1,8 @@
+{
+  "apiKey": "PEGA_AQUI_LA_API_KEY",
+  "authDomain": "PEGA_AQUI.firebaseapp.com",
+  "projectId": "PEGA_AQUI_EL_ID_DEL_PROYECTO",
+  "storageBucket": "PEGA_AQUI.firebasestorage.app",
+  "messagingSenderId": "PEGA_AQUI",
+  "appId": "PEGA_AQUI_EL_APP_ID"
+}

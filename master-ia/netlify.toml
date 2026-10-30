@@ -7,7 +7,7 @@
   publish = "dist"
 
 [build.environment]
-  NODE_VERSION = "22"
+  NODE_VERSION = "24"
 
 # La app enruta por hash (#/programa), pero cualquier ruta vuelve a index.html.
 [[redirects]]

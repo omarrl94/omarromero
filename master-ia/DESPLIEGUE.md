@@ -1,107 +1,170 @@
-# Despliegue de la plataforma del máster
+# Despliegue de la plataforma del máster en Firebase
 
-La plataforma es una web estática: `npm run build` genera la carpeta `dist/` con `index.html`
-(todo incrustado) y las cabeceras de seguridad. Se puede publicar en cualquier hosting estático con HTTPS.
+La plataforma se publica en **Firebase**:
 
-## 0. Antes de publicar: qué hace y qué no hace esta versión
-
-| Funciona ya | Necesita servidor (fase 2) |
+| Servicio | Para qué |
 |---|---|
-| Programa, calendario y las 18 sesiones con todo su contenido | Que la Dirección vea las matrículas y entregas hechas desde otros equipos |
-| Matrícula, entregas, corrección, actas, tribunal y diploma **dentro de un mismo navegador** | Cuentas de alumnado compartidas entre dispositivos |
-| Impresión del diploma, del suplemento y del certificado | Verificación pública de diplomas desde cualquier lugar (y código QR) |
-| Exportar e importar la base de datos (copia de seguridad) | Avisos por correo, almacenamiento de ficheros y copias automáticas |
+| **Firebase Hosting** | Sirve la web (`dist/index.html`) por HTTPS con las cabeceras de seguridad y la CSP de `firebase.json` |
+| **Firebase Authentication** (correo y contraseña) | Cuentas de la Dirección y del alumnado, verificación del correo y recuperación de contraseña |
+| **Cloud Firestore** | Matrículas, códigos de admisión, entregas, actas, tribunal, libro de registro de títulos, verificación pública y auditoría |
 
-Los datos se guardan en el `localStorage` del navegador. Por eso esta versión sirve para **publicar el
-programa y los contenidos, enseñarlo a la dirección del centro y hacer pilotos en un aula**, pero no para
-gestionar la edición real con 30 alumnos. Para eso, ver la sección 5.
+Toda la autorización vive en `firestore.rules`:
+- La Dirección es la cuenta `omar.romero@jrotero.es`, y solo con el correo verificado.
+- Cada alumno solo lee y escribe lo suyo.
+- Notas, actas, títulos y certificados solo los escribe la Dirección.
+- La verificación pública de un diploma solo expone datos mínimos.
 
-## 1. Preparar la build (en tu equipo, una vez)
+Los tests de `tests/reglas.test.mjs` comprueban estas reglas.
+
+> Sin `firebase.config.json` la build genera el **modo demostración**: los datos se guardan en el navegador.
+> Ese modo sirve para enseñar la plataforma, no para la edición real. `npm run deploy` se niega a publicar en
+> modo demostración.
+
+## 1. Requisitos en tu equipo (una vez)
+
+- **Node.js 22 o posterior** (recomendado 24 LTS): <https://nodejs.org>.
+- **Git** y una cuenta de Google con acceso a la consola de Firebase. Lo ideal es la cuenta del centro.
 
 ```powershell
 git clone https://github.com/omarrl94/omarromero.git
 cd omarromero
 git switch feature/master-ia-post-dam-v2
 cd master-ia
-npm ci
-npm run build          # comprueba el temario y genera dist/
+npm ci                       # instala también firebase-tools (la CLI de Firebase)
+npx firebase login           # abre el navegador para iniciar sesión con tu cuenta de Google
 ```
 
-Opcional: copia el logotipo oficial como `master-ia/public/logo-jrotero.png` antes de la build y se
-usará en lugar de la recreación SVG.
+## 2. Crear el proyecto de Firebase (consola, una vez)
 
-## 2. Opción A · Netlify (recomendada para publicar ya)
+1. Entra en <https://console.firebase.google.com> → **Crear un proyecto**.
+   - Nombre, por ejemplo, `master-ia-jrotero`.
+   - Google Analytics: **desactivado**. No hace falta, y así se evitan cookies de analítica.
+2. **Plan:** el plan gratuito *Spark* basta para 30 alumnos. Para las copias de seguridad programadas
+   (paso 8) necesitas el plan *Blaze* (pago por uso). Con este volumen el coste es de céntimos al mes;
+   pon un **presupuesto con alerta** en Google Cloud → Facturación → Presupuestos.
+3. **Authentication:**
+   1. Ve a **Compilación → Authentication → Comenzar**.
+   2. En **Método de acceso**, activa **Correo electrónico/contraseña**. El «vínculo de correo electrónico» queda desactivado.
+   3. En **Configuración → Dominios autorizados**, añade tu dominio propio cuando lo tengas (paso 7).
+   4. Opcional: en **Plantillas**, pon el idioma **español** y el nombre del centro como remitente.
+4. **Firestore:**
+   1. Ve a **Compilación → Firestore Database → Crear base de datos**.
+   2. Elige la edición **Standard** y la ubicación **`europe-southwest1` (Madrid)**. Los datos se quedan en la UE, y la ubicación **no se puede cambiar** después.
+   3. Empieza en **modo de producción**. Las reglas reales se suben en el paso 5.
+5. **Registrar la app web:**
+   1. Ve a **Configuración del proyecto** (rueda dentada) → **Tus apps** → icono **`</>`** (Web).
+   2. Ponle un apodo, por ejemplo `plataforma`. No marques Hosting aquí.
+   3. Copia el objeto `firebaseConfig` que te muestra.
 
-El repositorio ya despliega OrientaFP en Netlify; el máster se publica como **otro sitio** del mismo repositorio.
+## 3. Conectar el código con tu proyecto
 
-1. Entra en <https://app.netlify.com> → **Add new site** → **Import an existing project** → GitHub →
-   repositorio `omarrl94/omarromero`.
-2. Configura:
-   - **Branch to deploy:** `feature/master-ia-post-dam-v2` (o `main` cuando se fusione).
-   - **Base directory:** `master-ia` (Netlify leerá `master-ia/netlify.toml`).
-   - **Build command** y **Publish directory:** se toman del `netlify.toml` (`npm ci && npm run build` y `dist`).
-3. **Deploy site**. En 1-2 minutos tendrás una URL `https://<nombre>.netlify.app`.
-4. Dominio propio (recomendado): **Domain management** → **Add a domain** → por ejemplo
-   `master-ia.jrotero.es`. En el DNS de `jrotero.es` crea un registro **CNAME** `master-ia` →
-   `<nombre>.netlify.app`. Netlify emite el certificado HTTPS automáticamente.
-5. A partir de ahí, cada `git push` a la rama configurada vuelve a publicar.
+1. Crea el fichero de configuración de la app web:
 
-Alternativa sin conectar GitHub: tras el paso 1, arrastra la carpeta `master-ia/dist` a
-<https://app.netlify.com/drop>, o bien:
+   ```powershell
+   copy firebase.config.example.json firebase.config.json     # en macOS/Linux: cp
+   ```
+
+2. Rellena `firebase.config.json` con los valores copiados: `apiKey`, `authDomain`, `projectId`,
+   `storageBucket`, `messagingSenderId` y `appId`. Esta configuración **no es secreta**: la ve cualquier
+   navegador, y la seguridad la ponen las reglas. Puedes subirla al repositorio.
+3. Vincula la carpeta con el proyecto:
+
+   ```powershell
+   npx firebase use --add      # elige el proyecto y ponle el alias "produccion"
+   ```
+
+   Esto crea `.firebaserc`, que también conviene subir al repositorio.
+
+## 4. Probar en local con los emuladores (recomendado)
 
 ```powershell
-npx netlify-cli deploy --dir dist --prod
+npm run test:reglas          # 22 tests de las reglas de seguridad contra el emulador de Firestore
+npm run build:emuladores     # build que habla con los emuladores (proyecto demo-master-ia)
+npm run emuladores           # Auth 9099 · Firestore 8085 · web en http://127.0.0.1:5002 · panel en http://127.0.0.1:4000
 ```
 
-## 3. Opción B · Servidor del centro con Docker
+En el emulador no se envían correos. El enlace de verificación aparece en la consola de los emuladores
+y en el panel <http://127.0.0.1:4000/auth>.
 
-```bash
-cd master-ia
-docker build -t master-ia:1.0 .
-docker run -d --name master-ia --restart unless-stopped -p 8080:8080 master-ia:1.0
-curl -I http://localhost:8080/          # debe devolver 200 y las cabeceras de seguridad
+Los emuladores necesitan **Java 21** instalado.
+
+## 5. Publicar
+
+```powershell
+npm run deploy
 ```
 
-La imagen usa nginx sin privilegios y aplica la CSP generada en la build. Para HTTPS, pon delante un
-proxy inverso; con Caddy basta este `Caddyfile`:
+El comando hace dos cosas:
+- **Build de producción:** valida el temario, compila Tailwind, incrusta el SDK de Firebase y calcula la CSP.
+- **Despliegue:** `firebase deploy --only hosting,firestore:rules,firestore:indexes`.
 
-```
-master-ia.jrotero.es {
-    reverse_proxy localhost:8080
-}
-```
+Al terminar verás la URL `https://<proyecto>.web.app`.
 
-Sin Docker: copia `dist/index.html` a la carpeta del servidor web y usa `deploy/nginx.conf` con
-`dist/nginx-headers.conf` (en Apache, traslada esas mismas cabeceras).
+## 6. Primer acceso de la Dirección
 
-## 4. Comprobaciones tras publicar
+1. Abre la web → **Primer acceso de la Dirección**.
+2. Elige una contraseña: al menos 10 caracteres, con mayúsculas, minúsculas y números.
+3. Llegará un correo a `omar.romero@jrotero.es`. Pulsa el enlace y vuelve a la web → **Ya lo he verificado**.
+4. Se abre el **Panel de Dirección**. Desde ahí generas los códigos de admisión para plazas externas.
 
-- [ ] La web abre por **HTTPS**. Sin HTTPS, el registro y el acceso no funcionan, porque el cifrado de contraseñas del navegador (Web Crypto) solo está disponible en HTTPS o en `localhost`.
-- [ ] `curl -I https://master-ia.jrotero.es/` muestra `Content-Security-Policy`, `X-Frame-Options` y `Strict-Transport-Security`.
-- [ ] La consola del navegador no muestra errores de CSP.
-- [ ] Prueba completa: primer acceso de la Dirección, código de admisión, matrícula externa, entrega, corrección y diploma (imprimir → Guardar como PDF → 2 páginas A4 apaisadas).
-- [ ] La página **Programa y calendario** coincide con el programa aprobado (fechas, horas y precios).
-- [ ] Textos legales revisados por la asesoría del centro antes de anunciar el máster (puntos 6, 7 y 8 del apartado 15 del programa: publicidad como «título propio, sin carácter oficial», protección de datos y formación del personal en IA).
+> Haz este paso **nada más publicar**: la cuenta de Dirección solo se puede crear con ese correo, y las
+> reglas no le dan permisos hasta que el correo está verificado.
 
-## 5. Fase 2 · Operación real con alumnado (servidor)
+Si el correo no llega, revisa la carpeta de spam y la cuarentena de Microsoft 365 del dominio `jrotero.es`.
+El remitente es `noreply@<proyecto>.firebaseapp.com`.
 
-Para gestionar la edición con alumnado en varios dispositivos, la plataforma necesita un servidor. Lo que hace falta:
+## 7. Dominio propio (`master-ia.jrotero.es`)
 
-| Pieza | Propuesta | Notas |
-|---|---|---|
-| API | FastAPI (Python) o Spring Boot (Java 21) | El mismo stack que se enseña en el máster |
-| Base de datos | PostgreSQL en la UE | Matrículas, entregas, actas, registro de títulos |
-| Acceso | Inicio de sesión con las cuentas Microsoft 365 del centro (Entra ID) y contraseñas en el servidor para el alumnado externo | Evita gestionar contraseñas en el navegador |
-| Ficheros | Almacenamiento de objetos en la UE | Memorias en PDF y vídeos enlazados |
-| Verificación | Página pública `/verificar/<código>` servida desde la base de datos, con código QR en el diploma | Apartado 13 del programa |
-| Hosting | Servidor del centro, o contenedores gestionados en región Madrid/UE | Copias diarias con prueba de restauración |
-| Legal | Contrato de encargado del tratamiento (art. 28 RGPD) entre el centro y la empresa que presta la plataforma, registro de actividades y revisión del DPD | Apartado 15, punto 7 |
+1. En la consola de Firebase, abre **Hosting → Añadir dominio personalizado** → `master-ia.jrotero.es`.
+2. Firebase te da unos registros DNS (normalmente **A** o **TXT** de verificación). Créalos en el DNS de `jrotero.es`.
+3. Espera a que el certificado HTTPS aparezca como **Conectado**. Suele tardar de minutos a pocas horas.
+4. En **Authentication → Configuración → Dominios autorizados**, añade `master-ia.jrotero.es`.
+5. Opcional: para que los correos de verificación salgan con el dominio del centro, configura
+   **Authentication → Plantillas → Dominio personalizado** y añade los registros DNS que indica.
 
-La interfaz actual se mantiene: solo cambia la capa de datos (`src/app/01-nucleo.js`, funciones
-`cargarDB`, `guardar` y las acciones que escriben), que pasaría a llamar a la API.
+## 8. Copias de seguridad y conservación
 
-## 6. Actualizar contenidos
+- **Exportar en JSON:** Panel de Dirección → **Datos y auditoría** → **Exportar en JSON**. Hazlo al cerrar
+  cada módulo y guárdalo en el archivo del centro.
+- **Copias automáticas** (plan Blaze): en Google Cloud Console → Firestore → **Recuperación ante desastres**,
+  activa las **copias de seguridad programadas** (diarias, con retención de 7 a 14 días) y la
+  **recuperación a un momento dado (PITR)**.
+- **Libro de registro de títulos:** los diplomas expedidos quedan en `titulos` y en `verificaciones`.
+  No se borran aunque el alumno ejerza el derecho de supresión.
 
-1. Edita el temario en `master-ia/src/data/` (una sesión por objeto; fechas y horas en `modulos.js`).
-2. `npm run build`: si una rúbrica no suma 100 %, faltan horas o se rompe la numeración, la build falla y no se publica nada.
-3. `git commit` y `git push`: Netlify vuelve a publicar automáticamente.
+## 9. Actualizar la plataforma
+
+1. Edita el temario en `src/data/`: una sesión por objeto; las fechas y las horas van en `modulos.js`.
+2. Ejecuta `npm run deploy`. Si una rúbrica no suma 100 %, faltan horas o la numeración está rota, la build falla y no se publica nada.
+3. Haz `git commit` y `git push` para guardar el cambio en el repositorio.
+
+Para volver a la versión anterior, abre **Hosting** en la consola y pulsa **Revertir** sobre el
+despliegue previo. El cambio es instantáneo.
+
+## 10. Comprobaciones tras publicar
+
+- [ ] `https://<proyecto>.web.app` (y el dominio propio) abre la pantalla de acceso **sin** el aviso de
+      «modo demostración».
+- [ ] `curl -I https://master-ia.jrotero.es/` muestra `Content-Security-Policy`, `X-Frame-Options` y
+      `Strict-Transport-Security`, y la consola del navegador no muestra errores de CSP.
+- [ ] Primer acceso de la Dirección hecho y correo verificado.
+- [ ] Prueba completa en **dos navegadores distintos**:
+  1. Con la Dirección, genera un código de admisión.
+  2. Con una alumna de prueba, matricúlate con el código, verifica el correo y haz una entrega.
+  3. Con la Dirección, corrige la entrega.
+  4. Borra la alumna de prueba con **Perfil → Derecho de supresión**.
+- [ ] **Firestore → Reglas** muestra las reglas de `firestore.rules`, no las de prueba.
+- [ ] Presupuesto con alerta creado (si usas Blaze).
+- [ ] Textos legales revisados por la asesoría del centro (apartado 15 del programa): título propio sin
+      carácter oficial, protección de datos y alfabetización en IA del personal.
+- [ ] Contrato de encargado del tratamiento con Google: aceptar los *Data Processing Terms* de
+      Firebase/Google Cloud en **Configuración del proyecto → Privacidad**. Anótalo también en el registro de actividades de tratamiento.
+
+## Alternativas (sin Firebase)
+
+La build sin `firebase.config.json` genera el modo demostración, que se puede publicar en cualquier
+hosting estático:
+- **Netlify:** `netlify.toml`, con Base directory `master-ia`.
+- **Docker/nginx:** `Dockerfile` y `deploy/nginx.conf`.
+
+En ese modo los datos se guardan en el navegador de cada usuario.

@@ -1,12 +1,18 @@
 // Ensambla master-ia/index.html (archivo único ejecutable) a partir de src/
-// y deja una copia lista para publicar en dist/ (index.html + _headers).
-// Uso: npm run build
+// y deja una copia lista para publicar en dist/, además de firebase.json.
+//
+// Modos (se decide en la build):
+//   - Firebase: existe firebase.config.json → Authentication + Firestore (producción).
+//   - Emuladores: FIREBASE_EMULADORES=1 → Firebase contra los emuladores locales.
+//   - Demostración: sin configuración (o MODO=demo) → datos en el navegador.
+// Uso: npm run build | npm run build:emuladores | MODO=demo npm run build
 import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import vm from 'node:vm';
+import { buildSync } from 'esbuild';
 import { createHash } from 'node:crypto';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -15,8 +21,30 @@ const leer = rel => readFileSync(join(root, rel), 'utf8');
 // Orden del temario: programa, acogida, M1…M7 y Proyecto Final
 const datos = ['modulos', 'acogida', 'm1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7', 'pfm']
   .map(n => leer(`src/data/${n}.js`)).join('\n');
-const app = readdirSync(join(root, 'src/app')).filter(f => f.endsWith('.js')).sort()
-  .map(f => leer(`src/app/${f}`)).join('\n');
+// ---------- Modo y configuración de Firebase ----------
+const EMULADORES = process.env.FIREBASE_EMULADORES === '1';
+let firebaseConfig = null;
+if (EMULADORES) {
+  firebaseConfig = { apiKey: 'demo-clave', authDomain: 'demo-master-ia.firebaseapp.com', projectId: 'demo-master-ia' };
+} else if (process.env.MODO !== 'demo' && existsSync(join(root, 'firebase.config.json'))) {
+  firebaseConfig = JSON.parse(leer('firebase.config.json'));
+  for (const k of ['apiKey', 'authDomain', 'projectId', 'appId']) {
+    if (!firebaseConfig[k] || String(firebaseConfig[k]).includes('PEGA_AQUI')) throw new Error('firebase.config.json: falta el campo ' + k + ' (cópialo de la consola de Firebase).');
+  }
+}
+if (process.env.REQUIERE_FIREBASE === '1' && !firebaseConfig) {
+  throw new Error('No hay firebase.config.json: cópialo de firebase.config.example.json y rellénalo con los datos de la consola de Firebase (ver DESPLIEGUE.md).');
+}
+const modo = EMULADORES ? 'emuladores' : firebaseConfig ? 'firebase' : 'demostración';
+
+const app = 'const FIREBASE_CONFIG = ' + JSON.stringify(firebaseConfig) + ';\nconst FIREBASE_EMULADORES = ' + EMULADORES + ';\n' +
+  readdirSync(join(root, 'src/app')).filter(f => f.endsWith('.js')).sort().map(f => leer(`src/app/${f}`)).join('\n');
+
+// SDK de Firebase empaquetado (solo Authentication y Firestore) e incrustado en el HTML
+const sdk = firebaseConfig ? buildSync({
+  entryPoints: [join(root, 'src/firebase/sdk.js')], bundle: true, minify: true, format: 'iife',
+  target: 'es2020', write: false, legalComments: 'none', logLevel: 'error'
+}).outputFiles[0].text : '';
 
 // ---------- Comprobaciones de integridad antes de generar ----------
 const ctx = {};
@@ -55,6 +83,7 @@ rmSync(tmp, { recursive: true, force: true });
 
 const html = leer('src/template.html')
   .replace('/*__CSS__*/', () => tailwind)
+  .replace('/*__SDK__*/', () => sdk ? '<script>' + sdk.replace(/<\/script/gi, '<\\/script') + '</script>' : '')
   .replace('/*__DATA__*/', () => datos.replace(/<\/script/gi, '<\\/script'))
   .replace('/*__APP__*/', () => app.replace(/<\/script/gi, '<\\/script'));
 
@@ -66,7 +95,9 @@ const hashes = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)]
   .map(m => "'sha256-" + createHash('sha256').update(m[1], 'utf8').digest('base64') + "'");
 const csp = ["default-src 'self'", "script-src 'self' " + hashes.join(' ') + ' https://cdnjs.cloudflare.com',
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com",
-  "font-src 'self' https://fonts.gstatic.com", "img-src 'self' data:", "connect-src 'self'",
+  "font-src 'self' https://fonts.gstatic.com", "img-src 'self' data:",
+  "connect-src 'self'" + (firebaseConfig ? ' https://*.googleapis.com https://*.firebaseio.com' : '') + (EMULADORES ? ' http://127.0.0.1:9099 http://127.0.0.1:8085' : ''),
+  "frame-src" + (firebaseConfig ? ' https://*.firebaseapp.com' : " 'none'"),
   "object-src 'none'", "base-uri 'none'", "form-action 'self'", "frame-ancestors 'none'"].join('; ');
 const dist = join(root, 'dist');
 rmSync(dist, { recursive: true, force: true });
@@ -79,4 +110,30 @@ writeFileSync(join(dist, 'nginx-headers.conf'), [
 ].map(([k, v]) => 'add_header ' + k + ' "' + v + '" always;').join('\n') + '\n');
 if (existsSync(join(root, 'public/logo-jrotero.png'))) copyFileSync(join(root, 'public/logo-jrotero.png'), join(dist, 'logo-jrotero.png'));
 
-console.log(`index.html generado: ${(html.length / 1024).toFixed(0)} KB · ${ctx.S.length} sesiones · ${ctx.M.length} bloques · ${horas} h`);
+// ---------- firebase.json (Hosting + reglas de Firestore + emuladores) ----------
+const cabeceras = [
+  ['Content-Security-Policy', csp], ['X-Content-Type-Options', 'nosniff'], ['X-Frame-Options', 'DENY'],
+  ['Referrer-Policy', 'strict-origin-when-cross-origin'], ['Permissions-Policy', 'camera=(), microphone=(), geolocation=()'],
+  ['Strict-Transport-Security', 'max-age=31536000; includeSubDomains']
+];
+writeFileSync(join(root, 'firebase.json'), JSON.stringify({
+  hosting: {
+    public: 'dist',
+    ignore: ['firebase.json', '**/.*', '**/node_modules/**', '_headers', 'nginx-headers.conf'],
+    rewrites: [{ source: '**', destination: '/index.html' }],
+    headers: [
+      { source: '**', headers: cabeceras.map(([key, value]) => ({ key, value })) },
+      { source: '/index.html', headers: [{ key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' }] }
+    ]
+  },
+  firestore: { rules: 'firestore.rules', indexes: 'firestore.indexes.json' },
+  emulators: {
+    auth: { host: '127.0.0.1', port: 9099 },
+    firestore: { host: '127.0.0.1', port: 8085 },
+    hosting: { host: '127.0.0.1', port: 5002 },
+    ui: { enabled: true, port: 4000 },
+    singleProjectMode: true
+  }
+}, null, 2) + '\n');
+
+console.log(`Modo ${modo} · index.html generado: ${(html.length / 1024).toFixed(0)} KB · ${ctx.S.length} sesiones · ${ctx.M.length} bloques · ${horas} h`);
