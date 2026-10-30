@@ -6,14 +6,14 @@ import { almacen, leerTodas } from "./almacen.mjs";
 import { json, fallo, leerCuerpo, texto } from "./http.mjs";
 import { requiereProfesor, esAdmin, rolDe, ciclosDe, gestionaCiclo, gestionaExamen } from "./auth.mjs";
 import { notasTrabajos, trabajosDeAlumno } from "./rutas-trabajos.mjs";
-import { todosLosExamenes, obtenerExamen, validarExamen, resumen, intentosValidos, herramientasValidas, HERRAMIENTAS, aleatorioValido, raValidos, citaPublica } from "./examenes.mjs";
+import { todosLosExamenes, obtenerExamen, validarExamen, resumen, intentosValidos, herramientasValidas, HERRAMIENTAS, aleatorioValido, raValidos, citaPublica, aciertosValidos } from "./examenes.mjs";
 import { versionExamen, semillaDe, comprobarFormulas, esAleatorio, comprobarPropuesta, aplicarPropuestas } from "./variantes.mjs";
 import { secreto } from "./auth.mjs";
 import { ventanaValida, duracionValida, codigoValido, adaptacionValida, plazo, codigoPersonal } from "./plazos.mjs";
 import { validarCircuitos } from "./circuitos.mjs";
 import { registrar, conservar, conservarYBorrar, registrarIA, seudonimizar, leerRegistro, conservadasDe } from "./registro.mjs";
 import {
-  claveEntrega, vistaEntrega, partesDe, historialDe, intentosHechos, intentosPermitidos,
+  claveEntrega, vistaEntrega, partesDe, aciertosDe, historialDe, intentosHechos, intentosPermitidos,
   consolidar, conIntento, validarAjustes, resultadoCon, puntuarPregunta, porRevisar,
 } from "./entregas.mjs";
 import { proveedorConfigurado, enviarCorreo } from "./correo.mjs";
@@ -210,20 +210,31 @@ async function ajustes(req) {
   if (typeof b.identidad === "boolean") ex.identidad = b.identidad;
   if (b.ra !== undefined) ex.ra = raValidos(b.ra);
   if (b.circuitos !== undefined) ex.circuitos = validarCircuitos(b.circuitos, ex.num, ex.bloques);
+  // Aciertos para aprobar: cambia cómo se pasa de puntos a nota, así que se recalculan las entregas.
+  const antesAciertos = ex.aciertosAprobar || 0;
+  if (b.aciertosAprobar !== undefined) ex.aciertosAprobar = aciertosValidos(b.aciertosAprobar, ex.mc.length + ex.open.length + (ex.num || []).length);
+  const cambiaAciertos = (ex.aciertosAprobar || 0) !== antesAciertos;
   const cambiaCalif = (b.calificacion === "mejor" || b.calificacion === "ultima") && b.calificacion !== (ex.calificacion || "mejor");
   if (cambiaCalif) ex.calificacion = b.calificacion;
   ex.actualizado = new Date().toISOString();
   await examenes().set(ex.id, ex);
-  // Si cambia qué intento cuenta, se recalcula la nota de cada entrega.
-  if (cambiaCalif) {
+  // Si cambia qué intento cuenta o los aciertos para aprobar, se recalcula la nota de cada entrega.
+  if (cambiaCalif || cambiaAciertos) {
     const ks = await entregas().list(ex.id + "/");
     await Promise.all(ks.map(async (k) => {
       const e = await entregas().get(k);
-      if (e) await entregas().set(k, consolidar(e, historialDe(e), ex.calificacion));
+      if (!e) return;
+      const h = historialDe(e).map((x) => {
+        if (!cambiaAciertos) return x;
+        const examen = { ...x.examen, aciertosAprobar: ex.aciertosAprobar || 0 };
+        return { ...x, examen, resultado: resultadoCon(examen, x.respuestas, x.ajustes || null) };
+      });
+      await entregas().set(k, consolidar(e, h, ex.calificacion));
     }));
   }
+  if (cambiaAciertos) await registrar({ por: u, accion: "aciertos para aprobar", sobre: sobreEx(ex), antes: antesAciertos || "sin umbral", despues: ex.aciertosAprobar || "sin umbral", detalle: "Se recalculan las notas de todas las entregas" });
   if (cambiaCalif) await registrar({ por: u, accion: "qué intento cuenta", sobre: sobreEx(ex), despues: ex.calificacion, detalle: "Se recalculan las notas de todas las entregas" });
-  return json({ ok: true, codigo: ex.codigo || "", ventana: ex.ventana, duracion: ex.duracion || 0, identidad: !!ex.identidad, ra: ex.ra || [], circuitos: ex.circuitos || [] });
+  return json({ ok: true, codigo: ex.codigo || "", ventana: ex.ventana, duracion: ex.duracion || 0, identidad: !!ex.identidad, ra: ex.ra || [], circuitos: ex.circuitos || [], aciertosAprobar: ex.aciertosAprobar || 0 });
 }
 
 async function borrar(req) {
@@ -257,7 +268,7 @@ async function filasEntregas(ex) {
   const filas = es.map((e) => ({
     email: e.email, nombre: e.nombre, apellidos: e.apellidos, grupo: e.grupo,
     estado: "entregado", nota: e.resultado.nota, notaProfesor: e.notaProfesor ?? null,
-    partes: partesDe(e), fecha: e.fecha, fechaTexto: e.fechaTexto,
+    partes: partesDe(e), aciertos: aciertosDe(e), fecha: e.fecha, fechaTexto: e.fechaTexto,
     salidas: prog[e.email]?.salidas?.length ?? e.salidas ?? 0,
     finalizadoPorSalida: e.finalizadoPorSalida || "",
     finalizadoPorTiempo: !!e.finalizadoPorTiempo, fueraDeTiempo: e.fueraDeTiempo || 0, tiempoUsado: e.tiempoUsado ?? null,

@@ -1,6 +1,6 @@
 /** Utilidades sobre entregas compartidas por alumno y profesor. */
 import { enunciado } from "./examenes.mjs";
-import { corregir } from "./correccion.mjs";
+import { corregir, notaDePartes, contarAciertos } from "./correccion.mjs";
 import { fallo } from "./http.mjs";
 
 export const claveEntrega = (id, email) => `${id}/${email}`;
@@ -79,11 +79,14 @@ export function resultadoCon(ex, respuestas, ajustes) {
   r.partes.mc.pts = r2(Math.max(0, suma(r.mcRev)));
   r.partes.open.pts = r2(suma(r.opRev));
   r.partes.num.pts = r2(suma(r.numRev));
-  const total = r.partes.mc.max + r.partes.open.max + r.partes.num.max;
-  r.nota = total ? r2((10 * (r.partes.mc.pts + r.partes.open.pts + r.partes.num.pts)) / total) : 0;
+  r.nota = notaDePartes(ex, r.partes);
+  r.aciertos = contarAciertos(ex, r.mcRev, r.opRev, r.numRev);
   r.openPts = r.partes.open.pts;
   return r;
 }
+
+/** Aciertos de la entrega (las anteriores a esta función se cuentan al vuelo). */
+export const aciertosDe = (e) => e.resultado.aciertos || contarAciertos(e.examen, e.resultado.mcRev || [], e.resultado.opRev || [], e.resultado.numRev || []);
 
 /** Puntos por parte (las entregas antiguas no los guardaban: se reconstruyen). */
 export function partesDe(e) {
@@ -104,6 +107,7 @@ export function vistaEntrega(e, { soluciones }) {
     alumno: { email: e.email, nombre: e.nombre, apellidos: e.apellidos, grupo: e.grupo },
     fecha: e.fecha, fechaTexto: e.fechaTexto,
     nota: e.resultado.nota, mcOk: e.resultado.mcOk, openPts: e.resultado.openPts, partes: partesDe(e),
+    aciertos: aciertosDe(e), aciertosAprobar: ex.aciertosAprobar || 0,
     notaProfesor: e.notaProfesor ?? null, comentario: e.comentario || "",
     salidas: e.salidas || 0,
     intentos: listaIntentos(e), intento: (e.mostrado ?? e.vigente ?? 0) + 1,

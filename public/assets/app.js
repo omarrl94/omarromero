@@ -181,6 +181,8 @@ function htmlNota(d, extra = "") {
       <div class="bars">
         ${d.notaProfesor != null ? `<div class="bar"><span>Nota revisada por el profesor</span><span>${fmt(d.notaProfesor)}</span></div><div class="bar"><span class="muted">Nota automática</span><span class="muted">${fmt(d.nota)}</span></div>` : ""}
         ${fila("mc")}${fila("open")}${fila("num")}
+        ${d.aciertos ? `<div class="bar aciertos"><span>Aciertos</span><span><b>${d.aciertos.ok} de ${d.aciertos.total}</b>${d.aciertos.medias ? ` <span class="muted">(+${d.aciertos.medias} a medias)</span>` : ""}</span></div>` : ""}
+        ${d.aciertosAprobar ? `<div class="bar"><span class="muted">Se aprueba con</span><span class="muted">${d.aciertosAprobar} ${d.aciertosAprobar === 1 ? "acierto" : "aciertos"}</span></div>` : ""}
         <div class="bar"><span class="muted">Entregado</span><span class="muted">${esc(d.fechaTexto)}</span></div>
       </div></div>
     ${d.comentario ? `<div class="msg info"><b>Comentario del profesor:</b> ${esc(d.comentario)}</div>` : ""}
@@ -306,7 +308,8 @@ async function descargarPDF(d, boton) {
   line(`Alumno/a: ${d.alumno.nombre} ${d.alumno.apellidos}     Grupo: ${d.alumno.grupo || "—"}`, { size: 10, color: GRIS, gap: 2 });
   line(`Correo: ${d.alumno.email}     Entregado: ${d.fechaTexto}`, { size: 10, color: GRIS, gap: 8 });
   const desg = ["mc", "open", "num"].filter((k) => P[k]?.max).map((k) => `${T[k]} ${fmt(P[k].pts)}/${fmt(P[k].max)}`).join("  ·  ");
-  line(`NOTA: ${fmt(d.notaProfesor ?? d.nota)} / 10    (${desg})${d.notaProfesor != null ? "  · revisada" : ""}`, { size: 14, bold: true, gap: 10 });
+  line(`NOTA: ${fmt(d.notaProfesor ?? d.nota)} / 10    (${desg})${d.notaProfesor != null ? "  · revisada" : ""}`, { size: 14, bold: true, gap: d.aciertos ? 4 : 10 });
+  if (d.aciertos) line(`Aciertos: ${d.aciertos.ok} de ${d.aciertos.total}${d.aciertos.medias ? ` (+${d.aciertos.medias} a medias)` : ""}${d.aciertosAprobar ? `    · se aprueba con ${d.aciertosAprobar}` : ""}`, { size: 11, gap: 10 });
   if (d.finalizadoPorSalida) line(`Examen finalizado automáticamente al salir de la ventana (${d.finalizadoPorSalida}).`, { size: 10, color: ROJO, gap: 6 });
   if (d.comentario) line(`Comentario del profesor: ${d.comentario}`, { size: 10, color: [45, 68, 57], gap: 8 });
   doc.setDrawColor(227, 230, 228); doc.line(M, y, W - M, y); y += 14;

@@ -141,6 +141,7 @@ async function init() {
     EX.python && EX.herramientas?.python !== false && `<span class="chip gray">🐍 Python</span>`,
     conCircuitos && `<span class="chip gray">⚡ Resolución de circuitos</span>`,
     EX.herramientas?.notas !== false && `<span class="chip gray">📝 Bloc de notas</span>`,
+    EX.aciertosAprobar && `<span class="chip ok">✔ Se aprueba con ${EX.aciertosAprobar} ${EX.aciertosAprobar === 1 ? "acierto" : "aciertos"} de ${EX.mc.length + EX.open.length + EX.num.length}</span>`,
     `<span class="chip s">Nota automática /10</span>`].filter(Boolean).join("");
   buildQuiz();
   $("#loading").hidden = true; $("#intro").hidden = false;

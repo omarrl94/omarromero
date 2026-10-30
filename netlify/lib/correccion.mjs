@@ -160,6 +160,34 @@ export function limpiarRespuestas(ex, r) {
  *  · Ejercicios: puntos repartidos entre sus resultados.
  * Las respuestas deben venir ya de `limpiarRespuestas`.
  */
+/** Número de preguntas del examen (test + abiertas + apartados de ejercicios): son los «aciertos» posibles. */
+export const numPreguntas = (ex) => ex.mc.length + ex.open.length + (ex.num || []).length;
+
+/**
+ * Aciertos: preguntas con todos sus puntos (en el test, la respuesta correcta);
+ * «a medias», las que tienen parte de los puntos (abiertas «Casi», ejercicios con algún resultado bien).
+ */
+export function contarAciertos(ex, mcRev, opRev, numRev) {
+  let ok = mcRev.filter((r) => r.ok).length, medias = 0;
+  const mira = (l, qs) => l.forEach((r, i) => { const m = pts(qs[i]); if (r.pts >= m - 1e-9) ok++; else if (r.pts > 1e-9) medias++; });
+  mira(opRev, ex.open); mira(numRev, ex.num || []);
+  return { ok, medias, total: numPreguntas(ex) };
+}
+
+/**
+ * Nota sobre 10 a partir de los puntos. Si el examen dice «se aprueba con N aciertos de Q»,
+ * N/Q de los puntos es el 5: por debajo se reparte de 0 a 5 y por encima de 5 a 10.
+ */
+export function notaDePartes(ex, partes) {
+  const total = partes.mc.max + partes.open.max + partes.num.max;
+  if (!total) return 0;
+  const f = Math.max(0, Math.min(1, (partes.mc.pts + partes.open.pts + partes.num.pts) / total));
+  const q = numPreguntas(ex), n = Number(ex.aciertosAprobar) || 0;
+  if (!n || !q) return r2(10 * f);
+  const u = Math.min(1, n / q);
+  return r2(f < u ? (5 * f) / u : u >= 1 ? 10 : 5 + (5 * (f - u)) / (1 - u));
+}
+
 export function corregir(ex, resp) {
   const mcRev = ex.mc.map((q, i) => {
     const ok = resp.mc[i] === q.c;
@@ -180,10 +208,8 @@ export function corregir(ex, resp) {
     open: { pts: r2(suma(opRev)), max: r2(max(ex.open)) },
     num: { pts: r2(suma(numRev)), max: r2(max(ex.num || [])) },
   };
-  const total = partes.mc.max + partes.open.max + partes.num.max;
-  const nota = total ? r2((10 * (partes.mc.pts + partes.open.pts + partes.num.pts)) / total) : 0;
   return {
-    nota, partes, mcRev, opRev, numRev,
+    nota: notaDePartes(ex, partes), partes, mcRev, opRev, numRev, aciertos: contarAciertos(ex, mcRev, opRev, numRev),
     // Compatibilidad con pantallas y entregas antiguas
     mcOk: mcRev.filter((r) => r.ok).length, openPts: partes.open.pts,
   };

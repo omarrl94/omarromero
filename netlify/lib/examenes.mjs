@@ -179,6 +179,8 @@ export function validarExamen(e) {
     identidad: e.identidad === true,
     // Resultados de aprendizaje que evalúa (RA1, RA2…) y si las preguntas se prepararon con ayuda de la IA.
     ra: raValidos(e.ra),
+    // «Se aprueba con N aciertos»: N/preguntas de los puntos es el 5 (0 = la nota es la proporción de puntos).
+    aciertosAprobar: aciertosValidos(e.aciertosAprobar, mc.length + open.length + num.length),
     conIA: e.conIA === true,
     // Resolución de circuitos: el alumno escribe sus ecuaciones y, si están bien, se resuelven (lib/circuitos.mjs).
     circuitos: validarCircuitos(e.circuitos, num, bloques),
@@ -196,6 +198,14 @@ function citaValida(q) {
     return { citaDe: "captura", citaImg: q.citaImg, captura: Number(q.captura) || 0 };
   const cita = typeof q.cita === "string" ? q.cita.trim().slice(0, 1500) : "";
   return cita ? { cita, citaDe: q.citaDe === "enunciado" ? "enunciado" : "trabajo" } : {};
+}
+
+/** Aciertos para aprobar: entero de 0 (sin umbral) al número de preguntas del examen. */
+export function aciertosValidos(v, total) {
+  if (v === undefined || v === null || v === "") return 0;
+  const n = Number(v);
+  if (!Number.isInteger(n) || n < 0 || n > total) fallo(400, `Los aciertos para aprobar deben ser un número entero entre 1 y ${total} (las preguntas del examen); 0 o vacío para no usarlo`);
+  return n;
 }
 
 /** Resultados de aprendizaje: «RA1», «RA2.b»… (máx. 12). Acepta lista o texto «RA1, RA3». */
@@ -234,6 +244,7 @@ export const enunciado = (ex) => ({
   circuitos: (ex.circuitos || []).map((c) => ({ titulo: c.titulo, bloque: c.bloque, intentos: c.intentos,
     incognitas: c.incognitas.map(({ nombre, i, j }) => ({ nombre, apartado: i + 1, etiqueta: ex.num?.[i]?.campos?.[j]?.etiqueta || "", unidad: ex.num?.[i]?.campos?.[j]?.unidad || "" })) })),
   confianza: !!ex.confianza, confianzaTabla: ex.confianza ? CONFIANZA : null,
+  aciertosAprobar: ex.aciertosAprobar || 0,
   partes: ex.partes || {}, bloques: ex.bloques || [],
   mc: ex.mc.map(({ t, o, puntos, bloque, ...q }) => ({ t, o, puntos: puntos ?? 1, bloque: bloque || "", ...citaPublica(q) })),
   open: ex.open.map(({ act, t, puntos, bloque, ...q }) => ({ act, t, puntos: puntos ?? 1, bloque: bloque || "", ...citaPublica(q) })),
@@ -252,7 +263,7 @@ export const resumen = (ex) => ({
   herramientas: herramientasValidas(ex.herramientas),
   aleatorio: aleatorioValido(ex.aleatorio), nVariables: (ex.variables || []).length,
   ventana: ex.ventana || { desde: "", hasta: "" }, duracion: ex.duracion || 0, codigo: ex.codigo || "",
-  identidad: !!ex.identidad, ra: ex.ra || [], conIA: !!ex.conIA, circuitos: ex.circuitos || [], python: moduloConPython(ex.cicloId, ex.moduloId),
+  identidad: !!ex.identidad, ra: ex.ra || [], aciertosAprobar: ex.aciertosAprobar || 0, nPreguntas: ex.mc.length + ex.open.length + (ex.num || []).length, conIA: !!ex.conIA, circuitos: ex.circuitos || [], python: moduloConPython(ex.cicloId, ex.moduloId),
   creado: ex.creado, actualizado: ex.actualizado, autor: ex.autor?.nombre || "",
 });
 

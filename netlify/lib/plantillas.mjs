@@ -73,6 +73,7 @@ export function correoResultado(ex, e) {
   const res = e.resultado;
   const sol = ex.mostrarSoluciones;
   const partes = res.partes || { mc: { pts: res.mcOk, max: ex.mc.length }, open: { pts: res.openPts, max: ex.open.length }, num: { pts: 0, max: 0 } };
+  const ac = res.aciertos || null;
   const nombre = `${e.nombre} ${e.apellidos}`.trim();
   const asunto = `${ex.titulo} — ${nombre} (${fmt(res.nota)}/10, provisional)`;
   const tit = { mc: ex.partes?.mc || "Test", open: ex.partes?.open || "Preguntas abiertas", num: ex.partes?.num || "Ejercicios" };
@@ -125,7 +126,7 @@ export function correoResultado(ex, e) {
   const seccion = (nombre, color, filas) => `<tr><td style="padding:4px 28px 12px"><h2 style="font-size:17px;margin:14px 0 0;color:${color}">${esc(nombre)}</h2>
     <table role="presentation" width="100%">${filas}</table></td></tr>`;
   const desglose = [["mc", tit.mc], ["open", tit.open], ["num", tit.num]].filter(([k]) => partes[k].max)
-    .map(([k, t]) => `${esc(t)}: <b>${fmt(partes[k].pts)} / ${fmt(partes[k].max)}</b>`).join("<br>");
+    .map(([k, t]) => `${esc(t)}: <b>${fmt(partes[k].pts)} / ${fmt(partes[k].max)}</b>`).join("<br>") + (ac ? `<br>Aciertos: <b>${ac.ok} de ${ac.total}</b>${ac.medias ? ` (+${ac.medias} a medias)` : ""}${ex.aciertosAprobar ? `<br>Se aprueba con ${ex.aciertosAprobar}` : ""}` : "");
 
   const cuerpo = `<tr><td style="padding:0 28px 8px">
     <h1 style="font-size:24px;margin:4px 0">${esc(ex.titulo)}</h1>
@@ -149,6 +150,7 @@ export function correoResultado(ex, e) {
     `Alumno/a: ${nombre}   Grupo: ${e.grupo || "-"}   Entregado: ${e.fechaTexto}`,
     ...(e.finalizadoPorSalida ? [`EXAMEN FINALIZADO AUTOMÁTICAMENTE al salir de la ventana (${e.finalizadoPorSalida}).`] : []),
     `NOTA PROVISIONAL: ${fmt(res.nota)}/10 (la valida tu profesor)`,
+    ...(ac ? [`  Aciertos: ${ac.ok} de ${ac.total}${ac.medias ? ` (+${ac.medias} a medias)` : ""}${ex.aciertosAprobar ? ` · se aprueba con ${ex.aciertosAprobar}` : ""}`] : []),
     ...[["mc", tit.mc], ["open", tit.open], ["num", tit.num]].filter(([k]) => partes[k].max).map(([k, t]) => `  ${t}: ${fmt(partes[k].pts)} / ${fmt(partes[k].max)}`),
     "",
     ...ex.mc.map((q, i) => {

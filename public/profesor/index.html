@@ -312,6 +312,9 @@
     <div class="codbox" id="hCodBox" hidden><span>Código:</span><b id="hCodVal">—</b><button type="button" class="btn ghost sm" id="hCodNuevo">Generar otro</button></div>
     <label class="check" style="margin-top:10px"><input type="checkbox" id="hIdent"> <span>🪪 <b>Examen a distancia</b>: cada alumno necesita su <b>código personal</b>, que le das por la videollamada después de ver su DNI (sustituye al código de clase)</span></label>
     <p class="hintline" id="hIdentAyuda" hidden><button type="button" class="link" id="hVerCodigos">Ver e imprimir los códigos personales</button> · Protocolo: cámara encendida, DNI a cámara, das el código solo a quien has identificado. Queda registrado quién empieza y los códigos erróneos.</p>
+    <div class="field" style="margin-top:14px;max-width:420px"><label class="flab" for="hAciertos">Aciertos para aprobar</label>
+      <div style="display:flex;align-items:center;gap:10px"><input type="number" id="hAciertos" min="0" step="1" placeholder="Sin umbral" style="max-width:140px"><span class="muted" id="hAciertosDe"></span></div>
+      <span class="hintline">Con ese número de aciertos se saca un 5: por debajo, la nota va de 0 a 5 y, por encima, de 5 a 10 (ponderada por los puntos de cada pregunta). Vacío: la nota es la proporción de puntos. Si lo cambias, se recalculan las notas ya entregadas.</span></div>
     <div class="field" style="margin-top:14px"><label class="flab" for="hRA">Resultados de aprendizaje que evalúa</label><input type="text" id="hRA" placeholder="Ej.: RA1, RA2" maxlength="120">
       <span class="hintline">Para el informe por resultados de aprendizaje de la pestaña Grupos.</span></div>
     <div class="msg bad" data-err hidden></div>
@@ -584,6 +587,7 @@ function horarioTxt(e) {
   if (e.identidad) p.push("🪪 a distancia (código personal)");
   else if (e.codigo) p.push(`código <b class="codigo">${esc(e.codigo)}</b>`);
   if (e.ra?.length) p.push(`<span class="chip gray">${esc(e.ra.join(", "))}</span>`);
+  if (e.aciertosAprobar) p.push(`aprueba con <b>${e.aciertosAprobar}</b> de ${e.nPreguntas}`);
   return p.length ? p.join(" · ") : `<span class="muted">Sin límite de horario</span>`;
 }
 let HOR_ID = null;
@@ -595,6 +599,8 @@ function abrirHorario(id) {
   $("#hCodigo").checked = !!e.codigo; $("#hCodVal").textContent = e.codigo || "—"; $("#hCodBox").hidden = !e.codigo;
   $("#hIdent").checked = !!e.identidad; $("#hIdentAyuda").hidden = !e.identidad;
   $("#hRA").value = (e.ra || []).join(", ");
+  $("#hAciertos").value = e.aciertosAprobar || ""; $("#hAciertos").max = e.nPreguntas || "";
+  $("#hAciertosDe").textContent = `de ${e.nPreguntas} ${e.nPreguntas === 1 ? "pregunta" : "preguntas"}`;
   $("[data-err]", $("#dHorario")).hidden = true;
   $("#dHorario").showModal();
 }
@@ -604,11 +610,11 @@ async function guardarHorario(extra = {}) {
   const cuerpo = {
     id: HOR_ID, ventana: { desde: $("#hDesde").value ? new Date($("#hDesde").value).toISOString() : "", hasta: $("#hHasta").value ? new Date($("#hHasta").value).toISOString() : "" },
     duracion: Number($("#hDur").value || 0), codigo: $("#hCodigo").checked ? (e.codigo || "nuevo") : "",
-    identidad: $("#hIdent").checked, ra: $("#hRA").value, ...extra,
+    identidad: $("#hIdent").checked, ra: $("#hRA").value, aciertosAprobar: $("#hAciertos").value === "" ? 0 : Number($("#hAciertos").value), ...extra,
   };
   try {
     const r = await api("/api/profesor/examen/ajustes", cuerpo);
-    Object.assign(e, { ventana: r.ventana, duracion: r.duracion, codigo: r.codigo, identidad: r.identidad, ra: r.ra });
+    Object.assign(e, { ventana: r.ventana, duracion: r.duracion, codigo: r.codigo, identidad: r.identidad, ra: r.ra, aciertosAprobar: r.aciertosAprobar });
     $("#hIdentAyuda").hidden = !r.identidad;
     $("#hCodVal").textContent = r.codigo || "—"; $("#hCodBox").hidden = !r.codigo;
     pintarExamenes();
@@ -825,7 +831,7 @@ function pintarEntregas() {
         ${f.limite && f.estado !== "entregado" ? `<div class="muted" style="font-size:12px;margin-top:3px">⏱ tiempo hasta las ${new Date(f.limite).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}</div>` : ""}
         ${f.adaptacion ? `<div style="margin-top:4px">${adaptTxt(f.adaptacion)}</div>` : ""}</td>
       <td class="num">${f.nota != null ? fmt(f.nota) : "—"}</td>
-      <td class="num">${f.estado === "entregado" ? fmt(f.notaProfesor ?? f.nota) + (f.notaProfesor != null ? ` <span class="chip ok" style="font-size:11px">revisada</span>` : "") : "—"}</td>
+      <td class="num">${f.estado === "entregado" ? fmt(f.notaProfesor ?? f.nota) + (f.notaProfesor != null ? ` <span class="chip ok" style="font-size:11px">revisada</span>` : "") + (f.aciertos ? `<div class="muted" style="font-size:12px;white-space:nowrap" title="Preguntas con todos sus puntos${f.aciertos.medias ? `; ${f.aciertos.medias} a medias` : ""}">${f.aciertos.ok} de ${f.aciertos.total} aciertos</div>` : "") : "—"}</td>
       <td class="num"><div class="intcel"><span title="${f.extra ? `Incluye ${f.extra} extra` : ""}">${f.intentos} / ${f.permitidos ?? "∞"}</span>${f.permitidos != null ? `<button class="btn ghost sm" data-extra="1" title="Dar un intento más a este alumno">+1</button>${f.extra ? `<button class="btn ghost sm" data-extra="-1" title="Quitar un intento extra">−1</button>` : ""}` : ""}</div></td>
       <td class="num">${f.salidas ? `<span class="chip bad">${f.salidas}</span>` : "0"}</td>
       <td style="white-space:nowrap">${esc(f.fechaTexto || fecha(f.fecha))}</td>
