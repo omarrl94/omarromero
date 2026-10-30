@@ -181,6 +181,8 @@ export function validarExamen(e) {
     ra: raValidos(e.ra),
     // «Se aprueba con N aciertos»: N/preguntas de los puntos es el 5 (0 = la nota es la proporción de puntos).
     aciertosAprobar: aciertosValidos(e.aciertosAprobar, mc.length + open.length + num.length),
+    // Defensas: el enunciado del trabajo, para que el alumno lo tenga delante (no puede abrir documentos).
+    ...(typeof e.enunciadoTrabajo === "string" && e.enunciadoTrabajo.trim() ? { enunciadoTrabajo: e.enunciadoTrabajo.trim().slice(0, 20_000) } : {}),
     conIA: e.conIA === true,
     // Resolución de circuitos: el alumno escribe sus ecuaciones y, si están bien, se resuelven (lib/circuitos.mjs).
     circuitos: validarCircuitos(e.circuitos, num, bloques),
@@ -193,12 +195,12 @@ export function validarExamen(e) {
 
 /** Cita del enunciado o del trabajo que el alumno ve encima de la pregunta (defensas): no tiene por qué recordarlos. */
 function citaValida(q) {
-  // Captura de pantalla de su trabajo (JPEG reducido, lo pone el servidor al enviar la defensa).
-  if (q.citaDe === "captura" && typeof q.citaImg === "string" && q.citaImg.length < 950_000 && /^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(q.citaImg))
-    return { citaDe: "captura", citaImg: q.citaImg, captura: Number(q.captura) || 0 };
-  const cita = typeof q.cita === "string" ? q.cita.trim().slice(0, 1500) : "";
-  return cita ? { cita, citaDe: q.citaDe === "enunciado" ? "enunciado" : "trabajo" } : {};
+  const txt = (v) => (typeof v === "string" ? v.replace(/^\s*\n|\s+$/g, "").slice(0, 1500) : "");
+  const cita = txt(q.cita), ejercicio = txt(q.ejercicio);
+  return { ...(ejercicio.trim() ? { ejercicio } : {}), ...(cita.trim() ? { cita, citaDe: q.citaDe === "enunciado" ? "enunciado" : "trabajo" } : {}) };
 }
+/** Contexto que ve el alumno encima de la pregunta (defensas). */
+export const citaPublica = ({ cita, citaDe, ejercicio }) => ({ ...(ejercicio ? { ejercicio } : {}), ...(cita ? { cita, citaDe } : {}) });
 
 /** Aciertos para aprobar: entero de 0 (sin umbral) al número de preguntas del examen. */
 export function aciertosValidos(v, total) {
@@ -227,8 +229,6 @@ export function intentosValidos(v) {
   return Number.isInteger(n) && n >= 0 && n <= 50 ? n : 1;
 }
 
-export const citaPublica = ({ cita, citaDe, citaImg, captura }) => (citaImg ? { citaDe, citaImg, captura } : cita ? { cita, citaDe } : {});
-
 /** Lo que ve el alumno antes de entregar: sin soluciones ni criterios. */
 export const enunciado = (ex) => ({
   id: ex.id, titulo: ex.titulo, subtitulo: ex.subtitulo, modulo: ex.modulo, ciclo: ex.ciclo, cicloId: ex.cicloId, moduloId: ex.moduloId,
@@ -248,6 +248,7 @@ export const enunciado = (ex) => ({
   partes: ex.partes || {}, bloques: ex.bloques || [],
   mc: ex.mc.map(({ t, o, puntos, bloque, ...q }) => ({ t, o, puntos: puntos ?? 1, bloque: bloque || "", ...citaPublica(q) })),
   open: ex.open.map(({ act, t, puntos, bloque, ...q }) => ({ act, t, puntos: puntos ?? 1, bloque: bloque || "", ...citaPublica(q) })),
+  ...(ex.enunciadoTrabajo ? { enunciadoTrabajo: ex.enunciadoTrabajo } : {}),
   num: (ex.num || []).map(({ t, campos, puntos, bloque }) => ({
     t, puntos: puntos ?? 1, bloque: bloque || "",
     campos: campos.map(({ etiqueta, tipo, unidad, opciones }) => ({ etiqueta, tipo, unidad: unidad || "", opciones: opciones || null })),

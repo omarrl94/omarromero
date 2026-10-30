@@ -124,17 +124,9 @@ function pintar() {
       if (f.size > MAX) { fallos.push(`«${f.name}» ocupa más de 4 MB${/\.zip$/i.test(f.name) ? " incluso sin dependencias ni compilados: quita imágenes o vídeos grandes del proyecto" : ". Comprímelo o divídelo en varios archivos"}.`); continue; }
       txt.textContent = `Subiendo «${f.name}»…`;
       try {
-        const capt = window.CAPTURABLE.test(f.name);
-        const [datos, ext] = await Promise.all([base64(f), capt ? window.extraerConCapturas(f) : window.extraerTexto(f).then((texto) => ({ texto, capturas: [] }))]);
-        const r = await api("/api/trabajo/archivo", { id: t.id, nombre: f.name, tipo: f.type, datos, texto: ext.texto });
+        const [datos, texto] = await Promise.all([base64(f), window.extraerTexto(f)]);
+        const r = await api("/api/trabajo/archivo", { id: t.id, nombre: f.name, tipo: f.type, datos, texto });
         D.entrega.archivos = r.archivos;
-        // Capturas de pantalla (para que la IA las analice en la defensa): en lotes que quepan en una petición.
-        if (capt) {
-          const id = r.archivos.at(-1).id;
-          if (ext.capturas.length) txt.textContent = `Subiendo las capturas de «${f.name}» (${ext.capturas.length})…`;
-          await subirCapturas("/api/trabajo/capturas", { id: t.id, archivo: id }, ext.capturas);
-          r.archivos.at(-1).capturas = ext.capturas.length;
-        }
       } catch (x) { fallos.push(`«${f.name}»: ${x.message}`); }
     }
     const coment = $("#comentario").value;

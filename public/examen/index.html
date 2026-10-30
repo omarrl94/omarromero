@@ -272,6 +272,8 @@ function buildQuiz() {
   let h = `<div class="progress"><span id="progTxt"></span><div class="track"><div class="fill" id="progFill"></div></div><span class="muted" id="guardadoTxt" style="font-size:12.5px;white-space:nowrap" title="Tus respuestas se guardan solas mientras haces el examen"></span></div>`;
   const sec = (letra, titulo, color) => `<div class="sec"><span class="n" style="background:var(--${color}-soft);color:var(--${color}-ink)">Parte ${letra}</span><h2>${esc(titulo)}</h2></div>`;
   let parte = 0, n = 0;
+  // Defensa: el enunciado completo del trabajo (no puede abrir el documento durante la defensa).
+  if (EX.enunciadoTrabajo) h += `<details class="card enun-trab" open><summary>📄 Enunciado del trabajo</summary><div class="enun-txt">${esc(EX.enunciadoTrabajo)}</div></details>`;
   if (EX.mc.length) {
     h += sec("ABC"[parte++], T.mc, "amarillo");
     h += `<p class="hintline" style="margin-top:-4px">Para quitar una respuesta marcada, vuelve a pulsarla.</p>`;
@@ -323,10 +325,13 @@ const MARCADAS = {};
 
 /** Defensas: fragmento del enunciado o de su propio trabajo al que se refiere la pregunta (no tiene por qué recordarlo). */
 function citaH(q) {
-  if (q.citaImg) return `<figure class="cita img"><figcaption>📷 Captura de tu trabajo</figcaption><a href="${q.citaImg}" target="_blank" rel="noopener" title="Ver a tamaño completo"><img src="${q.citaImg}" alt="Captura de pantalla de tu trabajo"></a></figure>`;
-  if (!q.cita) return "";
-  const codigo = /[{};]\s*$|^\s{2,}\S|^\s*(def|class|public|private|function|import|return)\b/m.test(q.cita);
-  return `<figure class="cita${codigo ? " codigo" : ""}"><figcaption>${q.citaDe === "enunciado" ? "📄 Del enunciado del trabajo" : "✍️ De tu trabajo"}</figcaption><blockquote>${esc(q.cita)}</blockquote></figure>`;
+  const bloque = (titulo, txt, cls = "") => {
+    const codigo = /[{};]\s*$|^\s{2,}\S|^\s*(def|class|public|private|function|import|return)\b/m.test(txt);
+    return `<figure class="cita${cls}${codigo ? " codigo" : ""}"><figcaption>${titulo}</figcaption><blockquote>${esc(txt)}</blockquote></figure>`;
+  };
+  const ejercicio = q.ejercicio || (q.citaDe === "enunciado" ? q.cita : "");
+  const suyo = q.citaDe === "enunciado" ? "" : q.cita || "";
+  return (ejercicio ? bloque("📄 Lo que pedía el enunciado", ejercicio, " enun") : "") + (suyo ? bloque("✍️ Lo que tú escribiste en tu trabajo", suyo) : "");
 }
 
 /** Rellena el examen con respuestas guardadas (al reanudarlo). */

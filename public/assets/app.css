@@ -196,11 +196,13 @@ a.tile .meta{margin-top:auto;padding-top:8px}
 .q .cita figcaption{font-size:12.5px;font-weight:700;color:var(--muted);margin-bottom:4px}
 .q .cita blockquote{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;font-size:15px;line-height:1.5;max-height:340px;overflow:auto}
 .q .cita.codigo blockquote{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13.5px;overflow-wrap:normal;white-space:pre;overflow-x:auto}
-.q .cita.img img{display:block;max-width:100%;max-height:520px;height:auto;border-radius:6px;border:1px solid var(--border);background:#fff}
-.cita-rev img,.defq .cita img{display:block;max-width:100%;max-height:300px;margin-top:4px;border-radius:6px;border:1px solid var(--border);background:#fff}
 .defq .cita{margin:0 0 6px;padding:6px 10px;border-left:3px solid var(--border);background:var(--sunken);font-size:13px;white-space:pre-wrap;max-height:160px;overflow:auto}
 .cita-rev{margin:6px 0 8px;padding:6px 10px;border-left:3px solid var(--amarillo);background:var(--sunken);font-size:13px;white-space:pre-wrap;max-height:200px;overflow:auto;border-radius:0 var(--r) var(--r) 0}
-.defq .cita:has(img){max-height:none}
+.q .cita.enun,.cita-rev.enun,.defq .cita.enun{border-left-color:var(--verde, #A9CABB)}
+.defq .aviso-cita{color:var(--bad);font-weight:600}
+.enun-trab{padding:14px 18px;margin:8px 0 16px}
+.enun-trab summary{font-weight:700;cursor:pointer}
+.enun-trab .enun-txt{white-space:pre-wrap;overflow-wrap:anywhere;font-size:14.5px;line-height:1.55;max-height:320px;overflow:auto;margin-top:10px;padding-right:6px}
 .defq .cita.aprox{border-left-color:var(--salmon-ink, #9A4A26)}
 .opt{display:flex;align-items:flex-start;gap:11px;padding:11px 13px;border:1px solid var(--border);border-radius:10px;margin:7px 0;cursor:pointer;transition:border-color .12s,background .12s}
 .opt:hover{border-color:var(--border-strong);background:var(--sunken)}

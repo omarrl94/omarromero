@@ -195,21 +195,10 @@ function htmlNota(d, extra = "") {
     </div></div>`;
 }
 
-/** Sube las capturas de un archivo en lotes de ~3,5 MB; el último marca el total. */
-async function subirCapturas(ruta, base, capturas) {
-  let lote = [], tam = 0, desde = 1;
-  const enviar = async (fin) => { await api(ruta, { ...base, desde, capturas: lote, fin }); desde += lote.length; lote = []; tam = 0; };
-  for (const c of capturas) {
-    if (lote.length && tam + c.length > 3_500_000) await enviar(false);
-    lote.push(c); tam += c.length;
-  }
-  await enviar(true);
-}
-
 /** Cita del enunciado o del trabajo que acompañaba a la pregunta (defensas). */
 function citaRevH(q) {
-  if (q?.citaImg) return `<div class="cita-rev"><b>📷 Captura ${q.captura || ""} del trabajo</b><img src="${q.citaImg}" alt="Captura de pantalla del trabajo" loading="lazy"></div>`;
-  return q?.cita ? `<div class="cita-rev"><b>${q.citaDe === "enunciado" ? "📄 Del enunciado del trabajo" : "✍️ Del trabajo"}</b>\n${esc(q.cita)}</div>` : "";
+  const ejercicio = q?.ejercicio || (q?.citaDe === "enunciado" ? q.cita : ""), suyo = q?.citaDe === "enunciado" ? "" : q?.cita || "";
+  return (ejercicio ? `<div class="cita-rev enun"><b>📄 Lo que pedía el enunciado</b>\n${esc(ejercicio)}</div>` : "") + (suyo ? `<div class="cita-rev"><b>✍️ Lo que escribió en su trabajo</b>\n${esc(suyo)}</div>` : "");
 }
 
 function htmlRevision(d) {
