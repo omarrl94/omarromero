@@ -2782,7 +2782,7 @@ async function generarDefensaUI() {
       await new Promise((ok) => setTimeout(ok, x.status === 429 ? 30000 : 1000));
       r = await pedir();
     }
-    DEF_PROP = { mc: r.mc.map((q) => ({ ...q, ok: true })), open: r.open.map((q) => ({ ...q, ok: true })), nTest: $("#defNT").value, nAbiertas: $("#defNA").value, ind: $("#defInd").value };
+    DEF_PROP = { mc: r.mc.map((q) => ({ ...q, ok: true })), open: r.open.map((q) => ({ ...q, ok: true })), enBlanco: r.enBlanco || [], nTest: $("#defNT").value, nAbiertas: $("#defNA").value, ind: $("#defInd").value };
     pintarEntregaT();
     $("#defNT").value = DEF_PROP.nTest; $("#defNA").value = DEF_PROP.nAbiertas; $("#defInd").value = DEF_PROP.ind;
   } catch (x) { err.textContent = x.message; err.hidden = false; b.disabled = false; b.textContent = "✨ Generar preguntas con IA"; }
@@ -2795,7 +2795,7 @@ function pintarPropuestaDefensa() {
       ${k === "mc" ? `<ol type="a">${q.o.map((o, j) => `<li class="${j === q.c ? "ok" : ""}">${esc(o)}${j === q.c ? " ✓" : ""}</li>`).join("")}</ol>`
         : `<div class="exp"><b>Conceptos:</b> ${q.groups.map((g) => esc(g.join(" / "))).join(" · ")}</div>`}
       ${q.exp ? `<div class="exp"><b>${k === "mc" ? "En el trabajo" : "Respuesta modelo"}:</b> ${esc(q.exp)}</div>` : ""}</div></div>`;
-  c.innerHTML = `<div style="margin-top:16px">${p.mc.map((q, i) => fila(q, "mc", i)).join("")}${p.open.map((q, i) => fila(q, "open", i)).join("")}</div>
+  c.innerHTML = `${enBlancoH(p.enBlanco)}<div style="margin-top:16px">${p.mc.map((q, i) => fila(q, "mc", i)).join("")}${p.open.map((q, i) => fila(q, "open", i)).join("")}</div>
     <div style="display:grid;gap:8px;margin:12px 0">
       <label class="check"><input type="checkbox" id="defSeg" checked> 🔒 Modo seguro: si sale de la pantalla, la defensa se entrega sola</label>
       <label class="check"><input type="checkbox" id="defSol"> Mostrar la corrección al alumno al terminar</label>
@@ -2843,7 +2843,7 @@ function pintarDefensaBloque() {
         <span class="chip ${a.estado === "error" ? "bad" : a.estado === "lista" || a.estado === "enviada" ? "ok" : "gray"}">${DB_ESTADO[a.estado]}${a.prop && a.estado === "lista" ? ` · ${a.prop.mc.filter((q) => q.ok).length} test + ${a.prop.open.filter((q) => q.ok).length} abiertas` : ""}</span>
         ${a.error ? `<span class="db-err">${esc(a.error)}</span>` : ""}
         ${a.estado === "lista" ? `<label class="check db-incl" title="Enviar la defensa a este alumno"><input type="checkbox" data-incl ${a.incluir !== false ? "checked" : ""}> enviar</label>` : ""}</summary>
-      ${a.prop ? `<div class="db-q">${preguntas(a, n)}</div>` : ""}</details>`).join("")}</div>`;
+      ${a.prop ? `<div class="db-q">${enBlancoH(a.prop.enBlanco)}${preguntas(a, n)}</div>` : ""}</details>`).join("")}</div>`;
   const listas = A.filter((a) => a.estado === "lista" && a.incluir !== false), errores = A.filter((a) => a.estado === "error").length;
   $("#dbAcciones").innerHTML = fase === "config" ? `<button class="btn accent" id="dbPreparar" ${A.length ? "" : "disabled"}>✨ Preparar las preguntas de todos</button>`
     : fase === "prep" ? `<button class="btn ghost" id="dbParar">Parar</button>`
@@ -2859,6 +2859,9 @@ function pintarDefensaBloque() {
   if ($("#dbEnviar")) $("#dbEnviar").onclick = enviarBloque;
   if ($("#dbCerrar")) $("#dbCerrar").onclick = () => $("#dDefBloque").close();
 }
+/** Ejercicios que el alumno dejó en blanco: la defensa no pregunta por ellos. */
+const enBlancoH = (l) => (l?.length ? `<div class="msg info" style="margin-top:12px">⬜ <b>Sin responder en el trabajo:</b> ${l.map(esc).join(" · ")}. La defensa no pregunta por ${l.length === 1 ? "él" : "ellos"}; tenlo en cuenta en la nota del trabajo.</div>` : "");
+
 /** Cita que verá el alumno encima de la pregunta; si la IA no la copió literal, se avisa para revisarla. */
 const citaDefH = (q, email) => q.citaDe === "captura" && q.captura
   ? `<div class="cita"><b>📷 Cita la captura ${q.captura} de su trabajo</b><img src="/api/profesor/trabajo/captura?id=${encodeURIComponent(TRAB.id)}&email=${encodeURIComponent(email)}&n=${q.captura}" alt="Captura ${q.captura} del trabajo" loading="lazy"></div>`
@@ -2880,7 +2883,7 @@ async function prepararBloque(lista) {
       try {
         if (capturas) await asegurarCapturas(TRAB.id, (await api(`/api/profesor/trabajo/entrega?id=${encodeURIComponent(TRAB.id)}&email=${encodeURIComponent(a.f.email)}`)).entrega);
         const r = await api("/api/profesor/trabajo/defensa/generar", { id: TRAB.id, email: a.f.email, nTest, nAbiertas, indicaciones, capturas });
-        a.prop = { mc: r.mc.map((q) => ({ ...q, ok: true })), open: r.open.map((q) => ({ ...q, ok: true })) }; a.estado = "lista";
+        a.prop = { mc: r.mc.map((q) => ({ ...q, ok: true })), open: r.open.map((q) => ({ ...q, ok: true })), enBlanco: r.enBlanco || [] }; a.estado = "lista";
       } catch (e) { a.estado = "error"; a.error = e.message; }
       pintarDefensaBloque();
     }
