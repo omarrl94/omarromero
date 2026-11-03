@@ -45,10 +45,10 @@ export function validateRegistration({ nick, email, password }) {
 /** Estadísticas públicas que aparecen en el ranking. */
 export function publicStats(stats) {
   return {
-    gold: Math.max(0, Math.min(8000, Math.round(stats.gold || 0))),
-    xp: Math.max(0, Math.round(stats.xp || 0)),
+    gold: Math.max(0, Math.min(40000, Math.round(stats.gold || 0))),
+    xp: Math.max(0, Math.min(100000, Math.round(stats.xp || 0))),
     worlds: Math.max(0, Math.min(9, stats.worlds || 0)),
-    conquered: Math.max(0, Math.min(81, stats.conquered || 0)),
+    conquered: Math.max(0, Math.min(500, stats.conquered || 0)),
   };
 }
 

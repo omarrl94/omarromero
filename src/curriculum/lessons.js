@@ -6,6 +6,8 @@ import rustPack from './rust-pack.js';
 import cppPack from './cpp-pack.js';
 import goPack from './go-pack.js';
 import jsPack from './js-pack.js';
+import { DRILL_LESSONS } from './drill-challenges.js';
+import { OOP_LESSONS } from './oop-levels.js';
 
 export const LESSONS = {
   'm1-world-laws': {
@@ -426,6 +428,9 @@ for (const [id, lesson] of Object.entries(LESSONS)) {
     lesson.mission[pack.lang] = pack.missionText[id];
   }
 }
+
+// Lecciones de los niveles de práctica (generadas: ya traen el ejemplo en los 9 lenguajes).
+Object.assign(LESSONS, DRILL_LESSONS, OOP_LESSONS);
 
 /** Pasos de la lección visibles para un lenguaje. */
 export const lessonSteps = (id, lang) => (LESSONS[id] ? LESSONS[id].steps.filter((s) => !s.langs || s.langs.includes(lang)) : []);

@@ -8,16 +8,22 @@ import rustPack from './rust-pack.js';
 import cppPack from './cpp-pack.js';
 import goPack from './go-pack.js';
 import jsPack from './js-pack.js';
+import { DRILL_CHALLENGES } from './drill-challenges.js';
+import { OOP_LEVELS } from './oop-levels.js';
 
 export const PACKS = [rustPack, cppPack, goPack, jsPack];
 
+const drillsOf = (m) => DRILL_CHALLENGES.filter((d) => d.module === m);
+
 export const MODULES = [
-  { id: 1, name: 'Fundamentos', subtitle: 'Gravedad, tipos y overflow', icon: 'Atom', color: '#22e4ff', challenges: m1 },
-  { id: 2, name: 'Control de Flujo', subtitle: 'Rutas de patrulla de los drones', icon: 'Route', color: '#a3ff3d', challenges: m2 },
-  { id: 3, name: 'Estructuras de Datos', subtitle: 'Bodega, inventario y buffers', icon: 'Boxes', color: '#ffb534', challenges: m3 },
-  { id: 4, name: 'POO', subtitle: 'Jerarquía de entidades', icon: 'Network', color: '#9d7bff', challenges: m4 },
-  { id: 5, name: 'Sistemas', subtitle: 'Memoria manual y concurrencia', icon: 'Cpu', color: '#ff3df0', challenges: m5 },
-  { id: 6, name: 'Boss Fight', subtitle: 'El Enjambre O(n²)', icon: 'Skull', color: '#ff4767', challenges: boss, boss: true },
+  { id: 1, name: 'Fundamentos', subtitle: 'Variables, tipos, operaciones y funciones', icon: 'Atom', color: '#22e4ff', challenges: [...m1, ...drillsOf(1)] },
+  { id: 2, name: 'Control de Flujo', subtitle: 'Condicionales y bucles', icon: 'Route', color: '#a3ff3d', challenges: [...m2, ...drillsOf(2)] },
+  { id: 3, name: 'Estructuras de Datos', subtitle: 'Arrays, diccionarios y conjuntos', icon: 'Boxes', color: '#ffb534', challenges: [...m3, ...drillsOf(3)] },
+  { id: 4, name: 'POO', subtitle: 'Clases, herencia y polimorfismo', icon: 'Network', color: '#9d7bff', challenges: [...m4, ...OOP_LEVELS] },
+  { id: 5, name: 'Sistemas', subtitle: 'Memoria y concurrencia', icon: 'Cpu', color: '#ff3df0', challenges: [...m5, ...drillsOf(5)] },
+  { id: 6, name: 'Funciones y Recursión', subtitle: 'Descomponer problemas', icon: 'Sigma', color: '#7fffd4', challenges: drillsOf(6) },
+  { id: 7, name: 'Algoritmos', subtitle: 'Buscar, ordenar y optimizar', icon: 'Binary', color: '#ff9de2', challenges: drillsOf(7) },
+  { id: 8, name: 'Boss Fight', subtitle: 'El Enjambre O(n²)', icon: 'Skull', color: '#ff4767', challenges: boss, boss: true },
 ];
 
 export const CHALLENGES = MODULES.flatMap((m) => m.challenges);

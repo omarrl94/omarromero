@@ -11,19 +11,19 @@ const keyFor = (uid) => `codeforge.progress.v2.${uid}`;
 
 export const RANKS = [
   { name: 'Script Kiddie', xp: 0, color: '#8b93b8' },
-  { name: 'Bit Wrangler', xp: 150, color: '#22e4ff' },
-  { name: 'Loop Rider', xp: 400, color: '#a3ff3d' },
-  { name: 'Data Smith', xp: 750, color: '#ffb534' },
-  { name: 'Object Shaper', xp: 1150, color: '#9d7bff' },
-  { name: 'Systems Hacker', xp: 1650, color: '#ff3df0' },
-  { name: 'Kernel Sage', xp: 2300, color: '#ff6b4a' },
-  { name: 'Architect Master', xp: 3100, color: '#ffe066' },
+  { name: 'Bit Wrangler', xp: 250, color: '#22e4ff' },
+  { name: 'Loop Rider', xp: 700, color: '#a3ff3d' },
+  { name: 'Data Smith', xp: 1400, color: '#ffb534' },
+  { name: 'Object Shaper', xp: 2200, color: '#9d7bff' },
+  { name: 'Systems Hacker', xp: 3100, color: '#ff3df0' },
+  { name: 'Kernel Sage', xp: 4200, color: '#ff6b4a' },
+  { name: 'Architect Master', xp: 5400, color: '#ffe066' },
 ];
 
 export const ACHIEVEMENTS = {
   'first-blood': { name: 'Primer Latido', desc: 'Completa tu primera misión.', icon: 'Zap' },
   'bug-hunter': { name: 'Cazador de Bugs', desc: 'Repara 5 errores de compilación o ejecución.', icon: 'Bug' },
-  'world-complete': { name: 'Mundo Construido', desc: 'Completa las 9 misiones de un mundo.', icon: 'Globe' },
+  'world-complete': { name: 'Mundo Construido', desc: 'Conquista todos los niveles de un mundo.', icon: 'Globe' },
   'explorer': { name: 'Explorador', desc: 'Supera una misión en 3 mundos distintos.', icon: 'Languages' },
   'clean-coder': { name: 'Código Limpio', desc: 'Consigue 3 estrellas en 5 misiones.', icon: 'Sparkles' },
   'autonomous': { name: 'Piloto Autónomo', desc: 'Completa una misión sin pistas profundas del pato.', icon: 'Bot' },

@@ -25,7 +25,7 @@ const uniqueIds = (n) => {
 
 const boss = {
   id: 'boss-swarm',
-  module: 6,
+  module: 8,
   title: 'El Enjambre O(n²)',
   codename: 'BOSS.BIG-O',
   scene: 'boss',

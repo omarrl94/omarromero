@@ -11,7 +11,7 @@ al instante en un canvas; cada bug también.
 npm install
 npm run dev      # http://localhost:5173
 npm run build    # genera dist/ (estático, desplegable en Netlify/Firebase/GitHub Pages)
-npm test         # verifica el currículo en los 9 lenguajes (162 comprobaciones)
+npm test         # verifica el currículo en los 9 lenguajes (792 comprobaciones)
 npm run test:rules  # reglas de Firestore contra el emulador (23 pruebas, requiere Java)
 ```
 
@@ -23,6 +23,29 @@ npm run test:rules  # reglas de Firestore contra el emulador (23 pruebas, requie
 - **Galaxia de mundos:** cada lenguaje es un planeta que se llena de oro al conquistar sus misiones; al completarlo luce una corona y tu avatar orbita el planeta en el que estás.
 - **Mapa de conquista de cada mundo:** islas por módulo unidas por un camino. Los territorios conquistados se vuelven de oro con tu bandera y tu avatar; el siguiente late con «¡Conquista!».
 - **Salón de la Fama:** ranking de pilotos por oro.
+
+## 44 niveles por mundo
+
+Cada mundo tiene **8 módulos y 44 niveles**: 9 misiones de historia con escenas propias, 32 niveles de
+práctica, 3 niveles extra de POO y el Boss.
+
+| Módulo | Niveles |
+|---|---|
+| 1 · Fundamentos | Leyes del mundo, reactor, combustible, Kelvin, perímetro, segundos, división entera y resto |
+| 2 · Control de flujo | Patrulla, zigzag, par/impar, máximo de tres, sumatorio, múltiplos, Collatz y primos |
+| 3 · Estructuras de datos | Bodega, inventario, suma, máximo, contar, buscar, invertir en el sitio, el más frecuente y distintos |
+| 4 · POO | Jerarquía viva, torretas, asteroides y escuadrón completo |
+| 5 · Sistemas | Núcleo (memoria o concurrencia), buffer circular, bits y potencias de dos |
+| 6 · Funciones y Recursión | Factorial, Fibonacci, potencia, suma de dígitos y Euclides |
+| 7 · Algoritmos | ¿Está ordenado?, búsqueda binaria, segundo mayor, Kadane y ordenación por inserción |
+| 8 · Boss | El Enjambre O(n²) |
+
+Los niveles de práctica se describen **una sola vez** en una representación neutral
+([`src/curriculum/drills.js`](src/curriculum/drills.js)) y un generador
+([`levelgen.js`](src/curriculum/levelgen.js)) produce código idiomático para los 9 lenguajes:
+la firma, el código inicial, la solución y el ejemplo de la lección. Cada nivel trae su explicación,
+casos de prueba visuales en el canvas y pistas. `npm test` ejecuta en los 9 lenguajes el código
+inicial de cada nivel (debe fallar) y su solución (debe pasar).
 
 ## Nueve mundos independientes
 

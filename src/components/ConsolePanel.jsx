@@ -19,7 +19,7 @@ export function Checks({ checks, lang }) {
     <ul className="space-y-1">
       {checks.map((c) => {
         const h = CHECK_HELP[c.id];
-        const help = h && typeof h === 'object' ? h[lang] || h.default : h;
+        const help = c.help || (h && typeof h === 'object' ? h[lang] || h.default : h);
         const open = openId === c.id;
         return (
           <li key={c.id} className="text-xs">

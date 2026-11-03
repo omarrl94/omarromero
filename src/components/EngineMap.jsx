@@ -51,7 +51,7 @@ export default function EngineMap({ onOpen }) {
       </section>
 
       <WorldMap onOpen={onOpen} avatar={account ? account.avatar : 'nova'} />
-      <p className="mt-2 text-center text-[11px] text-slate-500">Cada estrella vale 25 de oro. Conquista las 9 misiones y el mundo ganará una corona (+150).</p>
+      <p className="mt-2 text-center text-[11px] text-slate-500">Cada estrella vale 25 de oro. Conquista los {MODULES.flatMap((m) => m.challenges).length} niveles y el mundo ganará una corona (+150).</p>
       <h2 className="mb-3 mt-8 text-[10px] font-bold uppercase tracking-[0.3em] text-slate-400">Detalle de misiones</h2>
       <div className="relative grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {MODULES.map((m, mi) => {

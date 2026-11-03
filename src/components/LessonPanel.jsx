@@ -50,9 +50,11 @@ export default function LessonPanel({ ch, lang, open, onClose }) {
                   {!last ? (
                     <div className="space-y-4">
                       <h2 className="text-xl font-extrabold text-white" style={{ textWrap: 'balance' }}>{step.title}</h2>
-                      <div className="rounded-xl border border-void-600/60 bg-void-950/50 p-4">
-                        <LessonVisual kind={step.visual} lang={lang} />
-                      </div>
+                      {step.visual && (
+                        <div className="rounded-xl border border-void-600/60 bg-void-950/50 p-4">
+                          <LessonVisual kind={step.visual} lang={lang} />
+                        </div>
+                      )}
                       <p className="text-[14px] leading-relaxed text-slate-300">{(step.textByLang && step.textByLang[lang]) || step.text}</p>
                       {step.code && step.code[lang] && (
                         <div>

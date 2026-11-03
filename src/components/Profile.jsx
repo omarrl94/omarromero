@@ -80,7 +80,7 @@ export default function Profile({ onOpen }) {
               return (
                 <div key={l} className="rounded-lg border p-2 text-center" style={{ borderColor: `${W.color}${l === state.lang ? 'aa' : '33'}` }}>
                   <div className="text-xs font-extrabold" style={{ color: W.color }}>{W.name}</div>
-                  <div className="text-[10px] text-slate-500">{worldDone(state, l)}/9 · {worldXp(state, l)} XP</div>
+                  <div className="text-[10px] text-slate-500">{worldDone(state, l)}/{MODULES.flatMap((m) => m.challenges).length} · {worldXp(state, l)} XP</div>
                   <div className="text-[10px] font-bold text-amber-200">{goldOf(state, l)} oro</div>
                 </div>
               );

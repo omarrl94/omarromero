@@ -569,6 +569,31 @@ function Bars() {
   );
 }
 
+function Stack() {
+  const t = useTick(700, 10);
+  const depth = t <= 4 ? t : 9 - t;
+  const returning = t > 4;
+  const frames = [4, 3, 2, 1];
+  const results = { 1: 1, 2: 2, 3: 6, 4: 24 };
+  return (
+    <div className="flex flex-col items-center gap-1">
+      {frames.slice(0, Math.max(1, depth + (returning ? 1 : 0))).map((n, i) => {
+        const shown = i <= depth;
+        const resolved = returning && i >= depth;
+        return (
+          <motion.div key={n} initial={{ opacity: 0, y: -6 }} animate={{ opacity: shown || resolved ? 1 : 0.2, y: 0 }}
+            className="flex w-64 items-center justify-between rounded-lg border px-3 py-1 text-xs"
+            style={{ borderColor: resolved ? C.lime : C.cyan, marginLeft: i * 14, background: resolved ? 'rgba(163,255,61,0.08)' : 'rgba(34,228,255,0.06)' }}>
+            <span className="text-slate-200">factorial({n}) {n > 1 ? `= ${n} × factorial(${n - 1})` : '= 1 (caso base)'}</span>
+            {resolved && <span className="font-bold text-neon-lime">→ {results[n]}</span>}
+          </motion.div>
+        );
+      })}
+      <div className="mt-1 text-[11px] text-slate-400">{returning ? 'Las llamadas se resuelven de abajo arriba' : 'Cada llamada espera a la siguiente'}</div>
+    </div>
+  );
+}
+
 function Borrow() {
   const t = useTick(1300, 4);
   return (
@@ -587,7 +612,7 @@ const VISUALS = {
   boxes: Boxes, typecut: TypeCut, quotes: Quotes, odometer: Odometer, widths: Widths, promotion: Promotion, division: Division,
   loop: Loop, rangeEnds: RangeEnds, table: Table, branch: Branch, modulo: Modulo, zigzag: Zigzag,
   array: ArrayV, swap: Swap, bubble: Bubble, dict: Dict, counter: Counter, mold: Mold, tree: Tree, poly: Poly,
-  malloc: Malloc, leak: Leak, timeline: Timeline, race: Race, grid: Grid, seen: Seen, bars: Bars, borrow: Borrow,
+  malloc: Malloc, leak: Leak, timeline: Timeline, race: Race, grid: Grid, seen: Seen, bars: Bars, borrow: Borrow, stack: Stack,
 };
 
 export default function LessonVisual({ kind, lang }) {

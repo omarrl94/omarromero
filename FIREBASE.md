@@ -15,7 +15,7 @@ CodeForge guarda las cuentas y el progreso de los jugadores con **Firebase Authe
 El registro hace en **una sola transacción** la reserva del nick, el perfil y el documento
 privado: dos jugadores nunca pueden quedarse el mismo nick. Las reglas
 ([`firebase/firestore.rules`](firebase/firestore.rules)) además impiden leer el progreso o el correo de
-otros, escribir campos extra y subir oro imposible (más de 8000).
+otros, escribir campos extra y subir oro imposible (más de 40000).
 
 Las colecciones llevan el prefijo `codeforge_`, así que pueden convivir con otra app en el
 mismo proyecto. En ese caso **no despliegues este archivo tal cual**: añade estos bloques

@@ -68,7 +68,7 @@ await test('sincronizar progreso + estadísticas en un batch', async () => {
 });
 await test('NO se puede escribir el progreso de otro jugador', () => assertFails(setDoc(doc(bob, 'codeforge_players', 'alice', 'private', 'progress'), { email: 'x', state: '{}', updatedAt: serverTimestamp() })));
 await test('NO se puede modificar el perfil de otro jugador', () => assertFails(updateDoc(doc(bob, 'codeforge_players', 'alice'), { gold: 0 })));
-await test('oro imposible (más de 8000) → rechazado', () => assertFails(updateDoc(doc(alice, 'codeforge_players', 'alice'), { gold: 999999 })));
+await test('oro imposible (más de 40000) → rechazado', () => assertFails(updateDoc(doc(alice, 'codeforge_players', 'alice'), { gold: 999999 })));
 await test('campos extra en el perfil → rechazados', () => assertFails(updateDoc(doc(alice, 'codeforge_players', 'alice'), { admin: true })));
 await test('cambiar el avatar', () => assertSucceeds(updateDoc(doc(alice, 'codeforge_players', 'alice'), { avatar: 'kraken', updatedAt: serverTimestamp() })));
 await test('cambiar de nick (reserva el nuevo y libera el antiguo)', () => assertSucceeds(runTransaction(alice, async (tx) => {

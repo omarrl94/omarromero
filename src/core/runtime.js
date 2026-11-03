@@ -613,6 +613,20 @@ function buildHelpers(S, meta) {
     __gorange1: (x) => (typeof x === 'number' ? rangeGen(0, x, 1) : Array.isArray(x) || typeof x === 'string' ? x.length ? [...Array(x.length).keys()] : [] : Object.keys(x || {})),
     __gorange2: (x) => (Array.isArray(x) || typeof x === 'string' ? [...x].map((v, i) => [i, v]) : Object.entries(x || {})),
     __gi32: (x) => wrapInt(Math.trunc(Number(x)), 32, true),
+    __div: (a, b) => {
+      if (Number.isInteger(a) && Number.isInteger(b)) {
+        if (b === 0) {
+          throw new ForgeRuntimeError('divzero', {
+            java: 'java.lang.ArithmeticException: / by zero', kotlin: 'java.lang.ArithmeticException: / by zero',
+            swift: 'Fatal error: Division by zero', c: 'Floating point exception (core dumped) — división entre cero',
+            cpp: 'Floating point exception (core dumped) — división entre cero', go: 'runtime error: integer divide by zero',
+            rust: 'attempt to divide by zero',
+          }[lang] || 'División entre cero');
+        }
+        return Math.trunc(a / b);
+      }
+      return a / b;
+    },
     __rformat: (f, ...a) => rustFormat(f, a, lang),
     __rprintln: (f = '', ...a) => out(rustFormat(f, a, lang)),
     __rprint: (f = '', ...a) => {

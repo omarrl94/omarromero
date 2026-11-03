@@ -220,7 +220,8 @@ export function analyzeClasses(code, lang) {
     for (const [, field, fn] of assigns) {
       const def = fnDefs[fn];
       if (!def) continue;
-      const owner = Object.keys(classes).find((c) => fn.toLowerCase().startsWith(c.toLowerCase())) || def.type;
+      const flat = fn.replace(/_/g, '').toLowerCase();
+      const owner = Object.keys(classes).filter((c) => flat.startsWith(c.toLowerCase())).sort((x, y) => y.length - x.length)[0] || def.type;
       if (!classes[owner]) continue;
       const isBase = !classes[owner].parent;
       classes[owner].methods[field] = { line: def.line, override: !isBase, body: def.body, fn };

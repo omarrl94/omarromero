@@ -255,6 +255,17 @@ const loopVar = (v) => {
 
 const SIZEOF = { char: 1, bool: 1, int8_t: 1, uint8_t: 1, short: 2, int16_t: 2, int: 4, float: 4, int32_t: 4, uint32_t: 4, long: 8, double: 8, int64_t: 8, uint64_t: 8, size_t: 8 };
 
+/**
+ * División entera en lenguajes tipados: int / int trunca (7 / 2 = 3).
+ * Si algún operando es un literal decimal, se mantiene la división real.
+ */
+const DIV_OPERAND = String.raw`(?:[\w.]+(?:\[[^\]]*\])*(?:\([^()]*\))?|\([^()]*\))`;
+function intDivision(s) {
+  return s
+    .replace(new RegExp(String.raw`^(\s*)([\w.]+(?:\[[^\]]*\])*)\s*\/=\s*(.+?)(;?)$`), (m, sp, t, e, semi) => (/\d\.\d/.test(e) ? m : `${sp}${t} = __div(${t}, ${e})${semi}`))
+    .replace(new RegExp(`(${DIV_OPERAND})\\s*\\/\\s*(${DIV_OPERAND})`, 'g'), (m, a, b) => (/\d\.\d/.test(a + b) ? m : `__div(${a}, ${b})`));
+}
+
 function exprCommon(s) {
   return s
     .replace(/\b(0x[0-9a-fA-F]+|\d+(?:\.\d+)?)(?:[uU]?[lL]{1,2}|[fF](?![\w])|[uU])\b/g, '$1')
@@ -263,6 +274,7 @@ function exprCommon(s) {
 
 function exprPython(s) {
   return exprCommon(s)
+    .replace(/^(\s*[\w.]+(?:\[[^\]]*\])*)\s*\/\/=\s*(.+)$/, '$1 = Math.floor($1 / ($2))')
     .replace(/\bTrue\b/g, 'true')
     .replace(/\bFalse\b/g, 'false')
     .replace(/\bNone\b/g, 'null')
@@ -273,7 +285,7 @@ function exprPython(s) {
     .replace(/\s+or\s+/g, ' || ')
     .replace(/\bis\s+not\b/g, '!==')
     .replace(/\bis\b/g, '===')
-    .replace(/(\w+(?:\[[^\]]*\])?|\([^()]*\))\s*\/\/\s*(\w+(?:\[[^\]]*\])?|\([^()]*\))/g, 'Math.floor($1 / $2)')
+    .replace(/(\w+\([^()]*\)|\w+(?:\[[^\]]*\])?|\([^()]*\))\s*\/\/\s*(\w+\([^()]*\)|\w+(?:\[[^\]]*\])?|\([^()]*\))/g, 'Math.floor($1 / $2)')
     .replace(/\[([^[\]]*)\]\s*\*\s*(\w+|\([^()]*\))/g, '__arr($2, $1)')
     .replace(/\.append\(/g, '.push(')
     .replace(/\.get\(/g, '.__get(')
@@ -287,7 +299,7 @@ function exprPython(s) {
 }
 
 function exprJava(s) {
-  return exprCommon(s)
+  return intDivision(exprCommon(s))
     .replace(/System\.out\.println\(/g, 'print(')
     .replace(/System\.out\.print\(/g, 'print(')
     .replace(/System\.out\.printf\(/g, 'printf(')
@@ -319,7 +331,7 @@ function exprJava(s) {
 }
 
 function exprKotlin(s) {
-  return exprCommon(s)
+  return intDivision(exprCommon(s))
     .replace(/\bprintln\(/g, 'print(')
     .replace(/\?:/g, '??')
     .replace(/!!/g, '')
@@ -367,7 +379,7 @@ function stripSwiftLabels(s) {
 }
 
 function exprSwift(s) {
-  const r = exprCommon(s)
+  const r = intDivision(exprCommon(s))
     .replace(/\bnil\b/g, 'null')
     .replace(/Int\.max\b/g, '9223372036854775807')
     .replace(/Int32\.max\b/g, '2147483647')
@@ -378,8 +390,8 @@ function exprSwift(s) {
     .replace(/\[\s*\w+\s*\]\s*\(\s*\)/g, '[]')
     .replace(/Set<[^()]*>\(\s*\)/g, 'new Set()')
     .replace(/\[((?:\s*\u0001\d+\u0001\s*:\s*[^,\]]+,?)+)\]/g, '__dict({$1})')
-    .replace(/^(\w+)\[([^\],]+),\s*default:\s*([^\]]+)\]\s*\+=\s*(.+)$/, '$1[$2] = ($1[$2] ?? $3) + $4')
-    .replace(/(\w+)\[([^\],]+),\s*default:\s*([^\]]+)\]/g, '($1[$2] ?? $3)')
+    .replace(/^(\w+)\[((?:[^[\],]|\[[^\]]*\])+),\s*default:\s*([^\]]+)\]\s*\+=\s*(.+)$/, '$1[$2] = ($1[$2] ?? $3) + $4')
+    .replace(/(\w+)\[((?:[^[\],]|\[[^\]]*\])+),\s*default:\s*([^\]]+)\]/g, '($1[$2] ?? $3)')
     .replace(/\.count\b(?!\s*\()/g, '.__size()')
     .replace(/\.isEmpty\b/g, '.__isEmpty()')
     .replace(/\.indices\b/g, '.__indices()')
@@ -405,14 +417,16 @@ function exprC(s) {
     .replace(/sizeof\s*\(\s*(\w+)\s*\)/g, (m, t) => (SIZEOF[t] ? String(SIZEOF[t]) : `__sizeof(${t})`))
     .replace(/\(\s*(?:const\s+)?(?:struct\s+)?\w+\s*\*+\s*\)\s*/g, '')
     .replace(/\(\s*(?:long|double|float|int64_t|uint64_t|size_t)\s*\)\s*/g, '')
-    .replace(/\(\s*(?:int|short|char|int32_t)\s*\)\s*(\w+(?:\[[^\]]*\])?|\([^()]*\))/g, 'Math.trunc($1)')
-    .replace(/\*\s*\(\s*(\w+)\s*\+\s*([^()]+)\)/g, '$1[$2]')
+    .replace(/\(\s*(?:int|short|char|int32_t)\s*\)\s*([\w.]+(?:\([^()]*\))?(?:\[[^\]]*\])?|\([^()]*\))/g, 'Math.trunc($1)')
+    .replace(/(^|[=(,!+\-/%<>&|?:]\s*|return\s+)\*\s*\(\s*(\w+)\s*\+\s*([^()]+)\)/g, '$1$2[$3]')
     .replace(/(^|[=(,!+\-/%<>&|?:]\s*|return\s+)\*\s*([A-Za-z_]\w*)/g, '$1__deref($2)')
-    .replace(/(^|[(,=]\s*)&(?=[A-Za-z_])/g, '$1');
+    .replace(/(^|[(,=]\s*)&(?=[A-Za-z_])/g, '$1')
+    .replace(/[\s\S]*/, (x) => intDivision(x));
 }
 
 function exprRust(s) {
-  return s
+  return intDivision(s)
+    .replace(/\.get\(&?([^()]+)\)\.unwrap_or\(&?([^()]+)\)/g, '.__get($1, $2)')
     .replace(/^\*\s*(\w+)\.entry\((.+?)\)\.or_insert\((.+?)\)\s*\+=\s*(.+)$/, '$1[$2] = ($1[$2] ?? $3) + $4')
     .replace(/\b(\d[\d_]*(?:\.\d+)?)(?:i8|i16|i32|i64|i128|u8|u16|u32|u64|usize|isize|f32|f64)\b/g, '$1')
     .replace(/\bprintln!\(/g, '__rprintln(')
@@ -471,7 +485,7 @@ function exprCpp(s) {
 
 const GO_ZERO = { int: '0', int32: '0', int64: '0', float64: '0', bool: 'false', string: '""' };
 function exprGo(s) {
-  return exprCommon(s)
+  return intDivision(exprCommon(s))
     .replace(/\bfmt\.Println\(/g, '__goprintln(')
     .replace(/\bfmt\.Print\(/g, '__goprint(')
     .replace(/\bfmt\.Printf\(/g, 'printf(')
