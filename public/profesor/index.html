@@ -2903,7 +2903,7 @@ function pintarPropuestaDefensa() {
     <div class="dq">${citaDefH(q)}<p>${k === "mc" ? "Test" : "Abierta"} ${i + 1}. ${esc(q.t)}</p>
       ${k === "mc" ? `<ol type="a">${q.o.map((o, j) => `<li class="${j === q.c ? "ok" : ""}">${esc(o)}${j === q.c ? " ✓" : ""}</li>`).join("")}</ol>`
         : `<div class="exp"><b>Conceptos:</b> ${q.groups.map((g) => esc(g.join(" / "))).join(" · ")}</div>`}
-      ${q.exp ? `<div class="exp"><b>${k === "mc" ? "En el trabajo" : "Respuesta modelo"}:</b> ${esc(q.exp)}</div>` : ""}</div></div>`;
+      ${q.exp ? `<div class="exp"><b>${k === "mc" ? "Por qué es la correcta" : "Respuesta modelo"}:</b> ${esc(q.exp)}</div>` : ""}</div></div>`;
   c.innerHTML = `${enBlancoH(p.enBlanco)}<div style="margin-top:16px">${p.mc.map((q, i) => fila(q, "mc", i)).join("")}${p.open.map((q, i) => fila(q, "open", i)).join("")}</div>
     <div style="display:grid;gap:8px;margin:12px 0">
       <label class="check"><input type="checkbox" id="defSeg" checked> 🔒 Modo seguro: si sale de la pantalla, la defensa se entrega sola</label>
@@ -2982,7 +2982,7 @@ const citaDefH = (q) => {
 const filaDB = (q, n, k, i) => `<div class="defq ${q.ok ? "" : "off"}"><input type="checkbox" data-dbq="${n}:${k}:${i}" ${q.ok ? "checked" : ""} aria-label="Incluir esta pregunta">
   <div class="dq">${citaDefH(q)}<p>${k === "mc" ? "Test" : "Abierta"} ${i + 1}. ${esc(q.t)}</p>
     ${k === "mc" ? `<ol type="a">${q.o.map((o, j) => `<li class="${j === q.c ? "ok" : ""}">${esc(o)}${j === q.c ? " ✓" : ""}</li>`).join("")}</ol>` : `<div class="exp"><b>Conceptos:</b> ${q.groups.map((g) => esc(g.join(" / "))).join(" · ")}</div>`}
-    ${q.exp ? `<div class="exp"><b>${k === "mc" ? "En el trabajo" : "Respuesta modelo"}:</b> ${esc(q.exp)}</div>` : ""}</div></div>`;
+    ${q.exp ? `<div class="exp"><b>${k === "mc" ? "Por qué es la correcta" : "Respuesta modelo"}:</b> ${esc(q.exp)}</div>` : ""}</div></div>`;
 async function prepararBloque(lista) {
   const nTest = Number($("#dbNT").value), nAbiertas = Number($("#dbNA").value), indicaciones = $("#dbInd").value;
   if (nTest + nAbiertas < 1) { $("#dbErr").textContent = "Pon al menos una pregunta."; $("#dbErr").hidden = false; return; }
