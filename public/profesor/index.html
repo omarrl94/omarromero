@@ -125,8 +125,8 @@
 <dialog id="dSubir">
   <div class="dhead"><h2>Subir examen</h2><button class="btn ghost sm" data-close>Cerrar</button></div>
   <div class="dbody">
-    <p class="muted" style="margin-top:0">Sube el <b>HTML del cuestionario</b> (con los arrays <code>MC</code> y <code>OPEN</code>, como el de SAD), un <b>JSON</b> con el mismo formato o un examen en <b>Word (.docx)</b>, que se adapta con la IA. <a href="#" id="plantilla">Descargar plantilla JSON</a>.</p>
-    <label class="drop" id="drop"><input type="file" id="archivo" accept=".html,.htm,.json,.docx" hidden><span id="dropTxt">Arrastra aquí el archivo (.html, .json o .docx) o haz clic para elegirlo</span></label>
+    <p class="muted" style="margin-top:0">Sube el <b>HTML del cuestionario</b> (con los arrays <code>MC</code> y <code>OPEN</code>, como el de SAD), un <b>JSON</b> con el mismo formato o un examen ya hecho en <b>Word, PDF u OpenDocument</b> (.docx, .pdf, .odt), que se adapta con la IA. <a href="#" id="plantilla">Descargar plantilla JSON</a>.</p>
+    <label class="drop" id="drop"><input type="file" id="archivo" accept=".html,.htm,.json,.docx,.pdf,.odt" hidden><span id="dropTxt">Arrastra aquí el archivo (.html, .json, .docx, .pdf u .odt) o haz clic para elegirlo</span></label>
     <form id="fExamen" hidden style="margin-top:18px" novalidate>
       <div class="msg info" id="resumenImport"></div>
       <div class="row2">
@@ -183,14 +183,14 @@
     <form id="fIA" novalidate>
       <div class="tabs" role="tablist" style="margin-bottom:14px">
         <button type="button" role="tab" aria-selected="true" data-modo-ia="tema">Desde el temario</button>
-        <button type="button" role="tab" aria-selected="false" data-modo-ia="word">Adaptar examen de Word</button>
+        <button type="button" role="tab" aria-selected="false" data-modo-ia="word">Adaptar examen existente</button>
       </div>
       <p class="muted" style="margin-top:0" data-solo="tema">Sube las diapositivas o el PDF del tema y la IA redactará las preguntas (tipo test y abiertas) con sus soluciones. Después podrás revisarlas y quitar las que no te gusten antes de guardar. El examen se guarda <b>sin publicar</b>.</p>
       <div data-solo="word" hidden>
-        <p class="muted" style="margin-top:0">Sube tu examen en Word y, si lo tienes, el <b>solucionario</b>. La IA lo pasa a la plataforma tal cual: test (también con nivel de confianza), preguntas abiertas con su rúbrica y ejercicios con sus resultados y figuras. Revísalo antes de guardar; se guarda <b>sin publicar</b>.</p>
+        <p class="muted" style="margin-top:0">Sube tu examen (<b>Word, PDF, OpenDocument o texto</b>) y, si lo tienes, el <b>solucionario</b>. La IA lo pasa a la plataforma tal cual: test (también con nivel de confianza), preguntas abiertas con su rúbrica y ejercicios con sus resultados y figuras. Revísalo antes de guardar; se guarda <b>sin publicar</b>.</p>
         <div class="row2">
-          <div class="field"><label class="flab" for="wExamen">Examen (.docx)</label><input type="file" id="wExamen" accept=".docx"></div>
-          <div class="field"><label class="flab" for="wSol">Solucionario (.docx, opcional)</label><input type="file" id="wSol" accept=".docx"></div>
+          <div class="field"><label class="flab" for="wExamen">Examen (.docx, .pdf, .odt, .txt)</label><input type="file" id="wExamen" accept=".docx,.pdf,.odt,.txt,.md"></div>
+          <div class="field"><label class="flab" for="wSol">Solucionario (opcional; .docx, .pdf, .odt, .txt)</label><input type="file" id="wSol" accept=".docx,.pdf,.odt,.txt,.md"></div>
         </div>
       </div>
       <label class="drop" id="iaDrop" data-solo="tema"><input type="file" id="iaArchivo" accept=".pptx,.pdf,.docx,.txt,.md" hidden><span id="iaDropTxt">Arrastra aquí el PowerPoint (.pptx), PDF o Word (.docx), o haz clic para elegirlo</span></label>
@@ -205,7 +205,7 @@
       </div>
       <div class="field"><span class="flab">Tipo de test</span>
         <div class="tipotest" role="radiogroup" aria-label="Tipo de test">
-          <label data-solo="word" hidden><input type="radio" name="iaTipoTest" value="auto"><span><b>Como en el Word</b><small>Normal o con seguridad, según el examen original.</small></span></label>
+          <label data-solo="word" hidden><input type="radio" name="iaTipoTest" value="auto"><span><b>Como en el original</b><small>Normal o con seguridad, según el examen original.</small></span></label>
           <label><input type="radio" name="iaTipoTest" value="normal" checked><span><b>Test normal</b><small>Cada acierto suma su puntuación; los fallos no restan.</small></span></label>
           <label><input type="radio" name="iaTipoTest" value="seguridad"><span><b>Test con seguridad</b><small>El alumno marca lo seguro que está (Muy seguro · Seguro · Poco seguro): si acierta suma y si falla resta.</small></span></label>
         </div></div>
@@ -1137,8 +1137,8 @@ const slug = (s) => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCa
 const capitalizar = (s) => s.toLowerCase().replace(/(^|\s)(\p{L})/gu, (m, a, b) => a + b.toUpperCase()).replace(/\s(Y|De|Del|La|Las|Los|E|En)(?=\s)/g, (m) => m.toLowerCase());
 
 async function leerArchivo(file) {
-  // Un examen en Word se adapta con la IA.
-  if (/\.docx$/i.test(file.name)) {
+  // Un examen ya hecho (Word, PDF, OpenDocument) se adapta con la IA.
+  if (/\.(docx|pdf|odt)$/i.test(file.name)) {
     $("#dSubir").close();
     await $("#nuevoIA").onclick();
     modoIA("word");
@@ -1426,16 +1426,113 @@ async function docxConFiguras(file) {
         const ruta = destino[n.getAttribute("r:embed")];
         const f = ruta && zip.file("word/" + ruta.replace(/^\.\//, ""));
         const ext = (ruta || "").split(".").pop().toLowerCase();
-        if (f && ["png", "jpg", "jpeg", "gif"].includes(ext)) {
-          figuras.push(await reducirImagen(`data:image/${ext === "jpg" ? "jpeg" : ext};base64,${await f.async("base64")}`));
-          t += ` [FIGURA ${figuras.length}] `;
-        }
+        const url = f && ["png", "jpg", "jpeg", "gif"].includes(ext) && (await figuraGrande(`data:image/${ext === "jpg" ? "jpeg" : ext};base64,${await f.async("base64")}`));
+        if (url) { figuras.push(await reducirImagen(url)); t += ` [FIGURA ${figuras.length}] `; }
       }
     }
     if (t.trim()) lineas.push(t.trim());
   }
   return { texto: lineas.join("\n"), figuras };
 }
+/**
+ * Texto y figuras de un examen ya hecho, sea cual sea su formato:
+ * Word (.docx), PDF, OpenDocument (.odt) o texto (.txt, .md).
+ */
+async function examenConFiguras(file, { sinFiguras = false } = {}) {
+  const ext = file.name.split(".").pop().toLowerCase();
+  if (ext === "docx") return docxConFiguras(file);
+  if (ext === "pdf") return pdfConFiguras(file, sinFiguras);
+  if (ext === "odt") return odtConFiguras(file);
+  if (ext === "txt" || ext === "md") return { texto: await file.text(), figuras: [] };
+  throw new Error("formato no admitido: usa Word (.docx), PDF, OpenDocument (.odt) o texto (.txt). Si es un .doc antiguo, guárdalo como .docx");
+}
+
+/**
+ * PDF: el texto de cada página y sus imágenes (sin logotipos ni iconos pequeños).
+ * La marca [FIGURA n] va al final de la página donde está la imagen.
+ */
+async function pdfConFiguras(file, sinFiguras) {
+  if (!window.pdfjsLib) await cargarScript(CDN.pdf);
+  pdfjsLib.GlobalWorkerOptions.workerSrc = CDN.pdfWorker;
+  const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+  const O = pdfjsLib.OPS, figuras = [], paginas = [];
+  for (let i = 1; i <= Math.min(pdf.numPages, 80); i++) {
+    const pag = await pdf.getPage(i);
+    const c = await pag.getTextContent();
+    let t = c.items.map((it) => it.str + (it.hasEOL ? "\n" : " ")).join("");
+    if (!sinFiguras) {
+      const ops = await pag.getOperatorList();
+      for (let k = 0; k < ops.fnArray.length && figuras.length < 30; k++) {
+        const f = ops.fnArray[k];
+        if (f !== O.paintImageXObject && f !== O.paintInlineImageXObject) continue;
+        const a = ops.argsArray[k][0];
+        const img = typeof a === "string" ? await new Promise((ok) => (a.startsWith("g_") ? pag.commonObjs : pag.objs).get(a, ok)) : a;
+        const url = img && imagenPdf(img);
+        if (url) { figuras.push(await reducirImagen(url)); t += ` [FIGURA ${figuras.length}] `; }
+      }
+    }
+    paginas.push(`--- Página ${i} ---\n${t}`);
+  }
+  return { texto: paginas.join("\n\n"), figuras };
+}
+/** Imagen de pdf.js (mapa de bits o píxeles en gris/RGB/RGBA) → data URL; null si es pequeña. */
+function imagenPdf(img) {
+  const w = img.width, h = img.height;
+  if (!w || !h || w < 120 || h < 80) return null;
+  const c = document.createElement("canvas"); c.width = w; c.height = h;
+  const g = c.getContext("2d");
+  if (img.bitmap) g.drawImage(img.bitmap, 0, 0);
+  else if (img.data) {
+    const d = g.createImageData(w, h), src = img.data, n = w * h;
+    const por = src.length >= n * 4 ? 4 : src.length >= n * 3 ? 3 : src.length >= n ? 1 : 0;
+    if (!por) return null; // imágenes de 1 bit por píxel (escaneos en blanco y negro): no se convierten
+    for (let p = 0; p < n; p++) {
+      const o = p * por;
+      d.data[p * 4] = src[o]; d.data[p * 4 + 1] = por === 1 ? src[o] : src[o + 1]; d.data[p * 4 + 2] = por === 1 ? src[o] : src[o + 2]; d.data[p * 4 + 3] = por === 4 ? src[o + 3] : 255;
+    }
+    g.putImageData(d, 0, 0);
+  } else return null;
+  return c.toDataURL("image/png");
+}
+
+/** OpenDocument (.odt, LibreOffice): párrafos y títulos en orden, con [FIGURA n] donde hay imágenes. */
+async function odtConFiguras(file) {
+  if (!window.JSZip) await cargarScript(CDN.jszip);
+  const zip = await JSZip.loadAsync(await file.arrayBuffer());
+  const xml = new DOMParser().parseFromString(await zip.file("content.xml").async("string"), "application/xml");
+  const figuras = [], lineas = [];
+  const esPar = (n) => n.tagName === "text:p" || n.tagName === "text:h";
+  const recorrer = async (n, out) => {
+    for (const h of n.childNodes) {
+      if (h.nodeType === 3) out.t += h.nodeValue;
+      else if (h.nodeType !== 1) continue;
+      else if (esPar(h)) continue; // los párrafos anidados (cuadros de texto) van aparte
+      else if (h.tagName === "text:s" || h.tagName === "text:tab") out.t += " ";
+      else if (h.tagName === "text:line-break") out.t += "\n";
+      else if (h.tagName === "draw:image") {
+        const ruta = h.getAttribute("xlink:href") || "", ext = ruta.split(".").pop().toLowerCase();
+        const f = zip.file(ruta);
+        const url = f && ["png", "jpg", "jpeg", "gif"].includes(ext) && (await figuraGrande(`data:image/${ext === "jpg" ? "jpeg" : ext};base64,${await f.async("base64")}`));
+        if (url) { figuras.push(await reducirImagen(url)); out.t += ` [FIGURA ${figuras.length}] `; }
+      } else await recorrer(h, out);
+    }
+  };
+  for (const p of xml.getElementsByTagName("*")) {
+    if (!esPar(p)) continue;
+    const out = { t: "" };
+    await recorrer(p, out);
+    if (out.t.trim()) lineas.push(out.t.trim());
+  }
+  return { texto: lineas.join("\n"), figuras };
+}
+
+/** La imagen si es una figura de verdad; null si es un logotipo o un icono pequeño. */
+const figuraGrande = (url) => new Promise((ok) => {
+  const img = new Image();
+  img.onload = () => ok(img.naturalWidth >= 120 && img.naturalHeight >= 80 ? url : null);
+  img.onerror = () => ok(null);
+  img.src = url;
+});
 /** Reduce imágenes grandes (máx. 1400 px de ancho y ~300 KB) para que quepan en el examen. */
 function reducirImagen(dataUrl) {
   if (dataUrl.length < 300_000) return Promise.resolve(dataUrl);
@@ -1465,11 +1562,11 @@ const esTiempo = (e) => !e.status || e.status === 504 || e.status === 502 || e.s
 async function adaptarWord(estado) {
   const fe = $("#wExamen").files[0], fs = $("#wSol").files[0];
   if (!fe) throw new Error("elige el archivo del examen (.docx)");
-  estado("Leyendo el Word…", 0, 1);
-  const ex1 = await docxConFiguras(fe);
+  estado("Leyendo el examen…", 0, 1);
+  const ex1 = await examenConFiguras(fe);
   // En el solucionario no se marcan las figuras: las del examen son las que cuentan.
-  const sol = fs ? { texto: (await docxConFiguras(fs)).texto.replace(/\s*\[FIGURA \d+\]\s*/g, " ") } : { texto: "" };
-  if (ex1.texto.length < 100) throw new Error("el examen apenas tiene texto");
+  const sol = fs ? { texto: (await examenConFiguras(fs, { sinFiguras: true })).texto.replace(/\s*\[FIGURA \d+\]\s*/g, " ") } : { texto: "" };
+  if (ex1.texto.length < 100) throw new Error(/\.pdf$/i.test(fe.name) ? "el PDF apenas tiene texto: si es un examen escaneado (una foto), pásalo antes a Word o a un PDF con texto" : "el examen apenas tiene texto");
   const base = { examen: ex1.texto, solucionario: sol.texto, cicloId: $("#iaCiclo").value, moduloId: $("#iaModulo").value, indicaciones: $("#iaInd").value.trim() };
 
   let hechas = 0, total = 1, fase = "Analizando el examen…";

@@ -279,14 +279,15 @@ async function pedirGemini(tipo, material, instruccion, { sistema = SISTEMA, esq
  * El navegador extrae el texto del examen y del solucionario (con marcas
  * [FIGURA n] donde hay imágenes) y pide cada parte por separado.
  * ════════════════════════════════════════════════════════════════ */
-const SISTEMA_ADAPTAR = `Eres profesor de Formación Profesional en un centro de España. Vas a ADAPTAR un examen que ya existe (escrito en Word) a una plataforma de exámenes online con corrección automática.
+const SISTEMA_ADAPTAR = `Eres profesor de Formación Profesional en un centro de España. Vas a ADAPTAR un examen que ya existe (en Word, PDF u otro formato) a una plataforma de exámenes online con corrección automática.
 
 Reglas:
 - Transcribe fielmente: mismas preguntas, mismos datos, mismo orden y misma puntuación. No inventes preguntas ni cambies valores.
 - Usa el SOLUCIONARIO para las respuestas correctas, las justificaciones, las rúbricas y los resultados. Si no hay solucionario, resuelve tú cada pregunta con mucho cuidado y comprueba los cálculos.
 - Ignora portada, logotipos, datos del alumno (nombre, grupo, fecha), instrucciones de entrega y tablas de resumen de puntuación.
 - Conserva subíndices, superíndices y símbolos (R₁, 10⁹, Ω, µC) tal como aparecen.
-- Las marcas [FIGURA n] indican dónde hay una imagen en el documento.`;
+- Las marcas [FIGURA n] indican dónde hay una imagen en el documento (si viene de un PDF, la marca va al final de la página en la que está la imagen).
+- Si el examen viene de un PDF, ignora los saltos de línea a mitad de frase, los encabezados y pies de página repetidos y los números de página («--- Página n ---»).`;
 
 const PARTES_ADAPTAR = {
   // Índice: datos generales y cuántas preguntas hay de cada tipo (respuesta corta y rápida).
