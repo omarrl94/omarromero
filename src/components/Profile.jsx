@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import { ICONS as Icons } from './icons.js';
-import { Star, Flame, Trash2 } from 'lucide-react';
+import { Star, Flame, Trash2, LogOut, Pencil, Check, X, Coins, Mail, Cloud, HardDrive } from 'lucide-react';
+import Avatar, { AvatarPicker } from './Avatar.jsx';
+import { updateAccount, backend, NICK_RE } from '../services/accounts.js';
 import { MODULES } from '../curriculum/index.js';
 import { LANGUAGES, LANG_ORDER } from '../core/languages.js';
-import { useProgress, rankOf, RANKS, ACHIEVEMENTS, starsOf, worldXp, worldDone } from '../core/progress.js';
+import { useProgress, rankOf, RANKS, ACHIEVEMENTS, starsOf, worldXp, worldDone, goldOf, totalGold } from '../core/progress.js';
 import RankBadge from './RankBadge.jsx';
 
 /** Perfil: el rango y las misiones del mundo actual, tus mundos y tus logros. */
 export default function Profile({ onOpen }) {
-  const { state, dispatch } = useProgress();
+  const { state, dispatch, account, setAccount, signOut } = useProgress();
   const L = LANGUAGES[state.lang];
   const xp = worldXp(state);
   const rank = rankOf(xp);
@@ -16,6 +18,7 @@ export default function Profile({ onOpen }) {
   return (
     <div className="mx-auto grid w-full max-w-[1400px] gap-4 px-3 pb-24 lg:grid-cols-[360px_1fr] lg:px-4">
       <div className="space-y-4">
+        <PilotCard account={account} onChange={setAccount} onSignOut={signOut} gold={totalGold(state)} />
         <section className="glass rounded-2xl p-5 text-center">
           <div className="text-[10px] font-bold uppercase tracking-[0.3em]" style={{ color: L.color }}>Mundo {L.name}</div>
           <div className="mt-2 flex justify-center"><RankBadge rank={rank} size={96} /></div>
@@ -78,6 +81,7 @@ export default function Profile({ onOpen }) {
                 <div key={l} className="rounded-lg border p-2 text-center" style={{ borderColor: `${W.color}${l === state.lang ? 'aa' : '33'}` }}>
                   <div className="text-xs font-extrabold" style={{ color: W.color }}>{W.name}</div>
                   <div className="text-[10px] text-slate-500">{worldDone(state, l)}/9 · {worldXp(state, l)} XP</div>
+                  <div className="text-[10px] font-bold text-amber-200">{goldOf(state, l)} oro</div>
                 </div>
               );
             })}
@@ -112,5 +116,68 @@ function Stat({ label, value, icon }) {
       <div className="flex items-center justify-center gap-1 text-lg font-extrabold text-white">{icon}{value}</div>
       <div className="text-[10px] uppercase tracking-wider text-slate-500">{label}</div>
     </div>
+  );
+}
+
+/** Tarjeta del piloto: avatar, nick, correo y sesión. */
+function PilotCard({ account, onChange, onSignOut, gold }) {
+  const [editing, setEditing] = useState(false);
+  const [nick, setNick] = useState(account.nick);
+  const [avatar, setAvatar] = useState(account.avatar);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const save = async () => {
+    setError('');
+    if (!NICK_RE.test(nick)) { setError('El nick debe tener de 3 a 16 caracteres: letras, números, _ o -.'); return; }
+    setBusy(true);
+    try {
+      const next = await updateAccount(account, { nick: nick !== account.nick ? nick : undefined, avatar });
+      onChange(next);
+      setEditing(false);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <section className="glass rounded-2xl p-5">
+      <div className="flex items-center gap-4">
+        <Avatar id={editing ? avatar : account.avatar} size={72} />
+        <div className="min-w-0 flex-1">
+          {editing ? (
+            <input value={nick} onChange={(e) => setNick(e.target.value)} maxLength={16} aria-label="Nick" id="edit-nick"
+              className="w-full rounded-lg border border-void-600 bg-void-950 px-2 py-1 text-base font-bold text-white outline-none focus:border-neon-cyan" />
+          ) : (
+            <div className="truncate text-xl font-extrabold text-white">{account.nick}</div>
+          )}
+          <div className="mt-1 flex items-center gap-1 truncate text-xs text-slate-400"><Mail size={12} /> {account.email}</div>
+          <div className="mt-1 flex items-center gap-3 text-xs">
+            <span className="flex items-center gap-1 font-bold text-amber-200"><Coins size={13} className="text-[#ffd34d]" /> {gold} oro</span>
+            <span className="flex items-center gap-1 text-slate-500">{backend === 'firebase' ? <Cloud size={12} /> : <HardDrive size={12} />} {backend === 'firebase' ? 'cuenta en la nube' : 'cuenta local'}</span>
+          </div>
+        </div>
+      </div>
+      {backend === 'firebase' && account.emailVerified === false && (
+        <p className="mt-3 text-[11px] text-slate-500">Te enviamos un correo para verificar tu dirección. Puedes jugar igualmente.</p>
+      )}
+      {editing && (
+        <div className="mt-3 space-y-2">
+          <AvatarPicker value={avatar} onChange={setAvatar} />
+          {error && <div className="rounded-lg border border-neon-red/40 bg-neon-red/10 px-3 py-2 text-xs text-red-200">{error}</div>}
+        </div>
+      )}
+      <div className="mt-4 flex flex-wrap gap-2">
+        {editing ? (
+          <>
+            <button type="button" onClick={save} disabled={busy} className="btn-neon bg-neon-cyan/20 text-neon-cyan"><Check size={13} /> Guardar</button>
+            <button type="button" onClick={() => { setEditing(false); setNick(account.nick); setAvatar(account.avatar); setError(''); }} className="btn-neon text-slate-300"><X size={13} /> Cancelar</button>
+          </>
+        ) : (
+          <button type="button" onClick={() => setEditing(true)} className="btn-neon border border-void-600 text-slate-200 hover:border-neon-cyan/60"><Pencil size={13} /> Editar nick y avatar</button>
+        )}
+        <button type="button" onClick={onSignOut} className="btn-neon ml-auto border border-neon-red/40 text-red-200 hover:bg-neon-red/10"><LogOut size={13} /> Cerrar sesión</button>
+      </div>
+    </section>
   );
 }

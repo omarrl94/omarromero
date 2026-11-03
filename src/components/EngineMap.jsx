@@ -3,12 +3,14 @@ import { ICONS as Icons } from './icons.js';
 import { Lock, Star, ChevronRight } from 'lucide-react';
 import { MODULES } from '../curriculum/index.js';
 import { LANGUAGES } from '../core/languages.js';
-import { useProgress, moduleUnlocked, starsOf, isDone } from '../core/progress.js';
+import { useProgress, moduleUnlocked, starsOf, isDone, goldOf } from '../core/progress.js';
+import { WorldMap } from './ConquestMaps.jsx';
+import { Coins } from 'lucide-react';
 import { play } from '../core/sound.js';
 
 /** Mapa del motor: cada módulo es un subsistema del Engine Loop que vas construyendo. */
 export default function EngineMap({ onOpen }) {
-  const { state } = useProgress();
+  const { state, account } = useProgress();
   const L = LANGUAGES[state.lang];
   const next = MODULES.flatMap((m) => m.challenges.map((c) => ({ c, m }))).find(({ c, m }) => moduleUnlocked(state, m.id) && !isDone(state, c.id));
   const builtPct = Math.round((MODULES.flatMap((m) => m.challenges).filter((c) => isDone(state, c.id)).length / MODULES.flatMap((m) => m.challenges).length) * 100);
@@ -29,7 +31,11 @@ export default function EngineMap({ onOpen }) {
           <div className="flex items-center gap-4">
             <div className="text-right">
               <div className="text-3xl font-extrabold text-neon-lime neon-text">{builtPct}%</div>
-              <div className="text-[10px] uppercase tracking-widest text-slate-500">motor construido</div>
+              <div className="text-[10px] uppercase tracking-widest text-slate-500">conquistado</div>
+            </div>
+            <div className="text-right">
+              <div className="flex items-center justify-end gap-1 text-3xl font-extrabold text-[#ffd34d] neon-text"><Coins size={26} /> {goldOf(state)}</div>
+              <div className="text-[10px] uppercase tracking-widest text-slate-500">oro del mundo</div>
             </div>
             {next && (
               <button
@@ -44,6 +50,9 @@ export default function EngineMap({ onOpen }) {
         </div>
       </section>
 
+      <WorldMap onOpen={onOpen} avatar={account ? account.avatar : 'nova'} />
+      <p className="mt-2 text-center text-[11px] text-slate-500">Cada estrella vale 25 de oro. Conquista las 9 misiones y el mundo ganará una corona (+150).</p>
+      <h2 className="mb-3 mt-8 text-[10px] font-bold uppercase tracking-[0.3em] text-slate-400">Detalle de misiones</h2>
       <div className="relative grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {MODULES.map((m, mi) => {
           const unlocked = moduleUnlocked(state, m.id);

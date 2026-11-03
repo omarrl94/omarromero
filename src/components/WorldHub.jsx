@@ -2,8 +2,9 @@ import { motion } from 'framer-motion';
 import { Star, ChevronRight } from 'lucide-react';
 import { LANGUAGES, LANG_ORDER } from '../core/languages.js';
 import { CHALLENGES } from '../curriculum/index.js';
-import { useProgress, rankOf, worldXp, worldDone, totalStars } from '../core/progress.js';
+import { useProgress, rankOf, worldXp, worldDone, totalStars, goldOf } from '../core/progress.js';
 import RankBadge from './RankBadge.jsx';
+import { GalaxyMap } from './ConquestMaps.jsx';
 import { play } from '../core/sound.js';
 
 /**
@@ -11,7 +12,7 @@ import { play } from '../core/sound.js';
  * con su propio motor que construir, su XP, su rango y sus estrellas.
  */
 export default function WorldHub({ onEnter, intro = false }) {
-  const { state } = useProgress();
+  const { state, account } = useProgress();
   return (
     <div className="mx-auto w-full max-w-[1400px] px-3 pb-24 lg:px-4">
       <section className="mb-5 pt-2 text-center">
@@ -20,9 +21,11 @@ export default function WorldHub({ onEnter, intro = false }) {
           Cada lenguaje es un <span className="text-neon-magenta neon-text">mundo propio</span>
         </h1>
         <p className="mx-auto mt-2 max-w-2xl text-sm text-slate-400">
-          Dentro de un mundo, todo se explica en su lenguaje: las lecciones, los ejemplos, los errores y las pistas. Cada mundo guarda su propio progreso, su rango y sus estrellas.
+          Cada planeta es un lenguaje. Conquista sus misiones y se irá cubriendo de oro; complétalo y ganará una corona. Dentro de un mundo, todo se explica en su lenguaje.
         </p>
       </section>
+      <GalaxyMap onEnter={onEnter} avatar={account ? account.avatar : 'nova'} />
+      <h2 className="mb-3 mt-8 text-[10px] font-bold uppercase tracking-[0.3em] text-slate-400">Todos los mundos</h2>
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {LANG_ORDER.map((l, i) => {
           const L = LANGUAGES[l];
@@ -63,7 +66,7 @@ export default function WorldHub({ onEnter, intro = false }) {
                 <div className="min-w-0 flex-1">
                   <div className="flex justify-between text-[10px]">
                     <span style={{ color: rank.color }} className="font-bold">{rank.name}</span>
-                    <span className="text-slate-500">{done}/{CHALLENGES.length} misiones · <Star size={10} className="inline fill-neon-amber text-neon-amber" /> {totalStars(state, l)}</span>
+                    <span className="text-slate-500">{done}/{CHALLENGES.length} · <Star size={10} className="inline fill-neon-amber text-neon-amber" /> {totalStars(state, l)} · <span className="text-amber-200">{goldOf(state, l)} oro</span></span>
                   </div>
                   <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-void-700">
                     <div className="h-full rounded-full" style={{ width: `${(done / CHALLENGES.length) * 100}%`, background: L.color }} />

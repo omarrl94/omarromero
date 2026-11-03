@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion';
-import { Flame, Star, Volume2, VolumeX, Keyboard, Map as MapIcon, User, Orbit } from 'lucide-react';
+import { Flame, Star, Volume2, VolumeX, Keyboard, Map as MapIcon, Orbit, Trophy, Coins, Cloud, CloudOff, Loader2, HardDrive } from 'lucide-react';
+import Avatar from './Avatar.jsx';
 import { LANGUAGES } from '../core/languages.js';
-import { useProgress, rankOf, totalStars, worldXp } from '../core/progress.js';
+import { useProgress, rankOf, totalStars, worldXp, totalGold } from '../core/progress.js';
 import RankBadge from './RankBadge.jsx';
 import { play } from '../core/sound.js';
 
@@ -23,8 +24,17 @@ export function Logo({ compact = false }) {
 }
 
 /** Barra superior: el mundo en el que estás, su rango y su progreso. */
-export default function TopBar({ view, onMap, onProfile, onWorlds }) {
-  const { state, dispatch } = useProgress();
+const SYNC = {
+  loading: [Loader2, 'cargando de la nube…', 'text-slate-400 animate-spin'],
+  saving: [Loader2, 'guardando…', 'text-slate-400 animate-spin'],
+  saved: [Cloud, 'guardado en la nube', 'text-neon-lime'],
+  error: [CloudOff, 'sin conexión: se guarda en este navegador y se sincronizará luego', 'text-neon-red'],
+  local: [HardDrive, 'modo local: guardado en este navegador', 'text-slate-500'],
+};
+
+export default function TopBar({ view, onMap, onProfile, onWorlds, onRanking }) {
+  const { state, dispatch, account, sync } = useProgress();
+  const [SyncIcon, syncLabel, syncCls] = SYNC[sync] || SYNC.local;
   const L = LANGUAGES[state.lang];
   const xp = worldXp(state);
   const rank = rankOf(xp);
@@ -53,11 +63,11 @@ export default function TopBar({ view, onMap, onProfile, onWorlds }) {
         )}
 
         <nav className="flex items-center gap-1">
-          <button type="button" onClick={onMap} className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs ${view === 'map' ? 'text-neon-cyan' : 'text-slate-400 hover:text-white'}`}>
+          {L && <button type="button" onClick={onMap} className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs ${view === 'map' ? 'text-neon-cyan' : 'text-slate-400 hover:text-white'}`}>
             <MapIcon size={14} /> <span className="hidden sm:inline">Misiones</span>
-          </button>
-          <button type="button" onClick={onProfile} className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs ${view === 'profile' ? 'text-neon-cyan' : 'text-slate-400 hover:text-white'}`}>
-            <User size={14} /> <span className="hidden sm:inline">Perfil</span>
+          </button>}
+          <button type="button" onClick={onRanking} className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs ${view === 'ranking' ? 'text-neon-cyan' : 'text-slate-400 hover:text-white'}`}>
+            <Trophy size={14} /> <span className="hidden sm:inline">Ranking</span>
           </button>
           <button type="button" onClick={onWorlds} className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs ${view === 'worlds' ? 'text-neon-cyan' : 'text-slate-400 hover:text-white'}`} title="Salir a la galaxia de mundos">
             <Orbit size={14} /> <span className="hidden sm:inline">Mundos</span>
@@ -68,12 +78,20 @@ export default function TopBar({ view, onMap, onProfile, onWorlds }) {
           <div className="flex items-center gap-1 text-xs text-orange-300" title={`Racha: ${state.streak.count} día(s) · récord ${state.streak.best}`}>
             <Flame size={16} className={state.streak.count ? 'fill-orange-400 text-orange-400' : 'text-void-600'} /> {state.streak.count}
           </div>
-          <div className="flex items-center gap-1 text-xs text-neon-amber" title="Estrellas en este mundo">
-            <Star size={15} className="fill-neon-amber" /> {totalStars(state)}
+          {L && (
+            <div className="flex items-center gap-1 text-xs text-neon-amber" title="Estrellas en este mundo">
+              <Star size={15} className="fill-neon-amber" /> {totalStars(state)}
+            </div>
+          )}
+          <div className="flex items-center gap-1 text-xs font-bold text-amber-200" title="Oro conquistado en todos tus mundos">
+            <Coins size={15} className="text-[#ffd34d]" /> {totalGold(state)}
           </div>
-          <button type="button" onClick={onProfile} className="flex items-center gap-2" title={`${xp} Neural XP en el mundo ${L ? L.name : ''}`}>
-            <RankBadge rank={rank} size={34} />
-            <div className="hidden w-36 text-left sm:block">
+          <span title={syncLabel} aria-label={syncLabel}><SyncIcon size={15} className={syncCls} /></span>
+          {L && <RankBadge rank={rank} size={30} />}
+          <button type="button" onClick={onProfile} className={`flex items-center gap-2 rounded-xl px-1.5 py-1 ${view === 'profile' ? 'bg-white/5' : 'hover:bg-white/5'}`} title={`Perfil de ${account ? account.nick : ''}`}>
+            {account && <Avatar id={account.avatar} size={32} />}
+            <div className="hidden w-32 text-left sm:block">
+              <div className="truncate text-xs font-bold text-white">{account ? account.nick : ''}</div>
               <div className="flex justify-between text-[10px]">
                 <span className="font-bold" style={{ color: rank.color }}>{rank.name}</span>
                 <span className="text-slate-500">{xp} XP</span>

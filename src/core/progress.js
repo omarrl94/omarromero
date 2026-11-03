@@ -4,8 +4,10 @@
 // Persistido en localStorage (con try/catch: funciona igual en modo privado).
 import { createContext, useContext } from 'react';
 import { CHALLENGES, MODULES } from '../curriculum/index.js';
+import { LANG_ORDER } from './languages.js';
 
-const KEY = 'codeforge.living-engine.v1';
+const LEGACY_KEY = 'codeforge.living-engine.v1';
+const keyFor = (uid) => `codeforge.progress.v2.${uid}`;
 
 export const RANKS = [
   { name: 'Script Kiddie', xp: 0, color: '#8b93b8' },
@@ -49,26 +51,81 @@ export const initialState = {
   tourSeen: false,
 };
 
-export function loadState() {
-  try {
-    const raw = localStorage.getItem(KEY);
-    if (!raw) return initialState;
-    const data = JSON.parse(raw);
+function normalize(data) {
     // Migración: antes la XP era global y las lecciones no distinguían mundo.
     if (typeof data.xp === 'number') data.xp = data.xp ? { [data.lang || 'python']: data.xp } : {};
     if (data.lessonsSeen && Object.keys(data.lessonsSeen).some((k) => !k.includes(':'))) data.lessonsSeen = {};
     return { ...initialState, ...data, settings: { ...initialState.settings, ...data.settings }, stats: { ...initialState.stats, ...data.stats } };
+}
+
+/**
+ * Progreso de un jugador. Si es la primera vez que entra y existe progreso de
+ * antes de las cuentas (clave antigua), lo hereda y la clave antigua se retira.
+ */
+export function loadState(uid) {
+  try {
+    let raw = uid ? localStorage.getItem(keyFor(uid)) : null;
+    if (!raw && uid) {
+      const legacy = localStorage.getItem(LEGACY_KEY);
+      if (legacy) {
+        raw = legacy;
+        localStorage.setItem(keyFor(uid), legacy);
+        localStorage.removeItem(LEGACY_KEY);
+      }
+    }
+    if (!raw) return { ...initialState, seenIntro: true };
+    return normalize(JSON.parse(raw));
   } catch {
-    return initialState;
+    return { ...initialState, seenIntro: true };
   }
 }
 
-export function saveState(state) {
+export function saveState(state, uid) {
+  if (!uid) return;
   try {
-    localStorage.setItem(KEY, JSON.stringify(state));
+    localStorage.setItem(keyFor(uid), JSON.stringify({ ...state, savedAt: Date.now() }));
   } catch {
     /* almacenamiento no disponible: el progreso vive solo en esta sesión */
   }
+}
+
+/** Une el progreso local y el de la nube sin perder nada: lo mejor de cada uno. */
+export function mergeProgress(localState, remote) {
+  if (!remote) return localState;
+  const r = normalize(remote);
+  // Gana la copia más reciente; un navegador sin progreso propio siempre cede ante la nube.
+  const localEmpty = !localState.lang && !Object.keys(localState.completed || {}).length;
+  const newer = localEmpty || (r.savedAt || 0) > (localState.savedAt || 0) ? r : localState;
+  const completed = { ...r.completed };
+  for (const [id, byLang] of Object.entries(localState.completed || {})) {
+    completed[id] = { ...(completed[id] || {}) };
+    for (const [l, rec] of Object.entries(byLang)) {
+      const other = completed[id][l];
+      completed[id][l] = !other || rec.stars >= other.stars ? rec : other;
+    }
+  }
+  const xp = { ...r.xp };
+  for (const [l, v] of Object.entries(localState.xp || {})) xp[l] = Math.max(v, xp[l] || 0);
+  return {
+    ...newer,
+    completed,
+    xp,
+    achievements: [...new Set([...(localState.achievements || []), ...(r.achievements || [])])],
+    lessonsSeen: { ...r.lessonsSeen, ...localState.lessonsSeen },
+    streak: (r.streak && localState.streak && (r.streak.best || 0) > (localState.streak.best || 0)) ? r.streak : localState.streak || r.streak,
+    seenIntro: true,
+    lastReward: localState.lastReward,
+  };
+}
+
+/** Estadísticas públicas para el ranking. */
+export function playerStats(state) {
+  return {
+    gold: totalGold(state),
+    xp: totalXp(state),
+    worlds: LANG_ORDER.filter((l) => worldDone(state, l) === CHALLENGES.length).length,
+    conquered: LANG_ORDER.reduce((n, l) => n + worldDone(state, l), 0),
+  };
 }
 
 export function rankOf(xp) {
@@ -85,6 +142,14 @@ export const worldXp = (state, lang = state.lang) => (state.xp && state.xp[lang]
 export const starsOf = (state, chId, lang = state.lang) => (state.completed[chId] && state.completed[chId][lang] ? state.completed[chId][lang].stars : 0);
 export const isDone = (state, chId, lang = state.lang) => !!(state.completed[chId] && state.completed[chId][lang]);
 export const worldDone = (state, lang = state.lang) => CHALLENGES.filter((c) => isDone(state, c.id, lang)).length;
+
+// Oro: se deriva del progreso (no se guarda aparte), así siempre es coherente.
+export const GOLD_PER_STAR = 25;
+export const CROWN_BONUS = 150;
+export const goldOf = (state, lang = state.lang) => CHALLENGES.reduce((g, c) => g + starsOf(state, c.id, lang) * GOLD_PER_STAR, 0)
+  + (worldDone(state, lang) === CHALLENGES.length ? CROWN_BONUS : 0);
+export const totalGold = (state) => LANG_ORDER.reduce((g, l) => g + goldOf(state, l), 0);
+export const totalXp = (state) => Object.values(state.xp || {}).reduce((a, b) => a + b, 0);
 
 export function moduleUnlocked(state, moduleId, lang = state.lang) {
   if (moduleId === 1) return true;
@@ -167,6 +232,7 @@ export function reducer(state, action) {
         breakdown.push({ label: `Mejora a ${'★'.repeat(stars)}`, xp: gain });
       }
       const entryRec = { stars: Math.max(stars, prev ? prev.stars : 0), at: Date.now(), noHints: noHints || (prev && prev.noHints) };
+      const goldBefore = goldOf(state, lang);
       let next = {
         ...state,
         xp: { ...state.xp, [lang]: worldXp(state, lang) + gain },
@@ -176,10 +242,13 @@ export function reducer(state, action) {
         lastReward: { id, lang, gain, stars, breakdown, firstTime: !prev, at: Date.now() },
       };
       next = withAchievements(next);
+      next.lastReward = { ...next.lastReward, gold: goldOf(next, lang) - goldBefore, crown: worldDone(next, lang) === CHALLENGES.length && worldDone(state, lang) < CHALLENGES.length };
       return next;
     }
     case 'reset':
       return { ...initialState, seenIntro: true };
+    case 'load':
+      return action.state;
     default:
       return state;
   }

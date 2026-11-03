@@ -12,7 +12,17 @@ npm install
 npm run dev      # http://localhost:5173
 npm run build    # genera dist/ (estático, desplegable en Netlify/Firebase/GitHub Pages)
 npm test         # verifica el currículo en los 9 lenguajes (162 comprobaciones)
+npm run test:rules  # reglas de Firestore contra el emulador (23 pruebas, requiere Java)
 ```
+
+## Jugadores, oro y mapas de conquista
+
+- **Cuentas de piloto:** registro con **nick**, **correo**, contraseña y **avatar** (16 pilotos dibujados en SVG). Nick único, edición de nick y avatar en el perfil, recuperación de contraseña y cierre de sesión.
+- **Firebase:** Authentication + Firestore con perfil público (ranking) y progreso privado sincronizado entre dispositivos. Reglas de seguridad verificadas con 23 pruebas contra el emulador oficial. Sin configuración funciona en **modo local**. Guía completa en [FIREBASE.md](FIREBASE.md).
+- **Oro:** cada estrella vale 25 de oro y completar un mundo da una corona (+150). Se calcula a partir del progreso, así que siempre es coherente.
+- **Galaxia de mundos:** cada lenguaje es un planeta que se llena de oro al conquistar sus misiones; al completarlo luce una corona y tu avatar orbita el planeta en el que estás.
+- **Mapa de conquista de cada mundo:** islas por módulo unidas por un camino. Los territorios conquistados se vuelven de oro con tu bandera y tu avatar; el siguiente late con «¡Conquista!».
+- **Salón de la Fama:** ranking de pilotos por oro.
 
 ## Nueve mundos independientes
 
@@ -95,11 +105,14 @@ src/
     engine.js       evaluate(misión, código, lenguaje) → checks + datos de escena + error
     duck.js         motor socrático del Rubber Duck
     explain.js      explicación de líneas y de errores en lenguaje sencillo
-    progress.js     XP, rangos, estrellas, rachas, logros y persistencia
+    progress.js     XP, oro, rangos, estrellas, rachas, logros, persistencia por jugador y fusión con la nube
     sound.js        sonidos WebAudio
   curriculum/       6 módulos · 9 misiones × 9 lenguajes (starter, solución, validación, pistas)
     lessons.js      lecciones «Aprende primero» y ayudas de cada check
     *-pack.js       paquetes de Rust, C++, Go y JavaScript (misiones, ejemplos y pasos propios)
+  services/
+    firebase.js     configuración y carga bajo demanda del SDK de Firebase
+    accounts.js     cuentas: motor Firebase (Auth + Firestore) y motor local con la misma interfaz
   scenes/           escenas Canvas 2D (mundo lógico 640×360) + Bug Visualizer
   components/       TopBar, mapa del motor, IDE Arena, editor, canvas en vivo, consola, pato, perfil
 scripts/verify-curriculum.mjs

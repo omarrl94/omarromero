@@ -66,6 +66,7 @@ export function RewardOverlay({ reward, onClose, onNext, nextTitle }) {
                 <div key={b.label} className="flex justify-between"><span className="text-slate-300">{b.label}</span><span className="font-bold text-neon-cyan">+{b.xp} XP</span></div>
               ))}
               {!reward.breakdown.length && <div className="text-slate-500">Ya tenías esta misión con estas estrellas.</div>}
+              {reward.gold > 0 && <div className="flex justify-between border-t border-void-600/60 pt-1"><span className="text-amber-100">Oro conquistado{reward.crown ? ' · ¡corona del mundo!' : ''}</span><span className="font-bold text-[#ffd34d]">+{reward.gold} oro</span></div>}
             </div>
             <div className="mt-5 flex flex-wrap justify-center gap-2">
               {nextTitle ? (

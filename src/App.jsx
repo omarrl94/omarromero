@@ -1,30 +1,99 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { MotionConfig } from 'framer-motion';
+import { Loader2 } from 'lucide-react';
 import TopBar from './components/TopBar.jsx';
 import Intro from './components/Intro.jsx';
+import AuthScreen from './components/AuthScreen.jsx';
 import WorldHub from './components/WorldHub.jsx';
 import EngineMap from './components/EngineMap.jsx';
 import Profile from './components/Profile.jsx';
+import Leaderboard from './components/Leaderboard.jsx';
 import Arena from './components/Arena.jsx';
 import { RewardOverlay, RankUpOverlay, AchievementToasts } from './components/Overlays.jsx';
-import { ProgressContext, reducer, loadState, saveState, rankOf, moduleUnlocked, isDone, worldXp } from './core/progress.js';
+import { ProgressContext, reducer, loadState, saveState, mergeProgress, playerStats, rankOf, moduleUnlocked, isDone, worldXp } from './core/progress.js';
 import { configureSound } from './core/sound.js';
 import { byId, MODULES } from './curriculum/index.js';
+import { watchSession, loadCloudProgress, saveCloudProgress, logout, backend } from './services/accounts.js';
 
+const INTRO_KEY = 'codeforge.intro.v1';
+const introSeen = () => { try { return localStorage.getItem(INTRO_KEY) === '1'; } catch { return false; } };
+
+/** Sesión: intro → registro/acceso → partida del jugador. */
 export default function App() {
-  const [state, dispatch] = useReducer(reducer, undefined, loadState);
+  const [account, setAccount] = useState(undefined); // undefined = comprobando sesión
+  const [intro, setIntro] = useState(introSeen);
+
+  useEffect(() => watchSession((acc) => setAccount((prev) => (prev && acc && prev.uid === acc.uid && !acc.incomplete ? { ...prev, ...acc } : acc))), []);
+
+  let screen;
+  if (account === undefined) {
+    screen = <div className="flex min-h-full items-center justify-center text-slate-400"><Loader2 className="mr-2 animate-spin" size={18} /> Conectando con el motor…</div>;
+  } else if (!account && !intro) {
+    screen = <Intro onStart={() => { try { localStorage.setItem(INTRO_KEY, '1'); } catch { /* sin almacenamiento */ } setIntro(true); }} />;
+  } else if (!account) {
+    screen = <AuthScreen onAccount={setAccount} />;
+  } else {
+    return <Game key={account.uid} account={account} onAccountChange={setAccount} />;
+  }
+  return <div className="cyber-bg scanlines min-h-full">{screen}</div>;
+}
+
+/** La partida de un jugador: su progreso, sus mundos y su sincronización. */
+function Game({ account, onAccountChange }) {
+  const [state, dispatch] = useReducer(reducer, account.uid, loadState);
   const [view, setView] = useState('map');
   const [active, setActive] = useState(null);
   const [reward, setReward] = useState(null);
   const [rankUp, setRankUp] = useState(null);
   const [toasts, setToasts] = useState([]);
+  const [sync, setSync] = useState(backend === 'firebase' ? 'loading' : 'local'); // loading | saving | saved | error | local
   const prev = useRef(state);
+  const ready = useRef(backend !== 'firebase');
+  const latest = useRef(state);
+  latest.current = state;
 
-  // Persistencia (con pequeño debounce para no escribir en cada tecla).
+  // Al entrar: une el progreso de este navegador con el de la nube.
   useEffect(() => {
-    const t = setTimeout(() => saveState(state), 250);
+    if (backend !== 'firebase') return;
+    let alive = true;
+    loadCloudProgress(account)
+      .then((remote) => {
+        if (!alive) return;
+        if (remote) dispatch({ type: 'load', state: mergeProgress(latest.current, remote) });
+        ready.current = true;
+        setSync('saved');
+      })
+      .catch(() => { ready.current = true; if (alive) setSync('error'); });
+    return () => { alive = false; };
+  }, [account]);
+
+  // Guardado local inmediato y sincronización con la nube (con debounce).
+  useEffect(() => {
+    const t = setTimeout(() => saveState(state, account.uid), 250);
     return () => clearTimeout(t);
-  }, [state]);
+  }, [state, account.uid]);
+
+  const pushCloud = useCallback(async () => {
+    if (!ready.current) return;
+    if (backend === 'firebase') setSync('saving');
+    try {
+      await saveCloudProgress(account, { ...latest.current, savedAt: Date.now() }, playerStats(latest.current));
+      if (backend === 'firebase') setSync('saved');
+    } catch {
+      if (backend === 'firebase') setSync('error');
+    }
+  }, [account]);
+
+  useEffect(() => {
+    const t = setTimeout(pushCloud, backend === 'firebase' ? 2500 : 600);
+    return () => clearTimeout(t);
+  }, [state.completed, state.xp, state.drafts, state.achievements, state.lessonsSeen, state.lang, pushCloud]);
+
+  useEffect(() => {
+    const flush = () => { if (document.visibilityState === 'hidden') pushCloud(); };
+    document.addEventListener('visibilitychange', flush);
+    return () => document.removeEventListener('visibilitychange', flush);
+  }, [pushCloud]);
 
   useEffect(() => { configureSound(state.settings); }, [state.settings]);
 
@@ -38,7 +107,7 @@ export default function App() {
       if (r1.index > r0.index) setTimeout(() => setRankUp(r1), 1800);
     }
     const fresh = state.achievements.filter((a) => !before.achievements.includes(a));
-    if (fresh.length) setToasts((t) => [...t, ...fresh]);
+    if (fresh.length && before.achievements.length + fresh.length === state.achievements.length && fresh.length < 4) setToasts((t) => [...t, ...fresh]);
     prev.current = state;
   }, [state]);
 
@@ -55,7 +124,13 @@ export default function App() {
     window.scrollTo({ top: 0 });
   }, []);
 
-  const ctx = useMemo(() => ({ state, dispatch }), [state]);
+  const signOut = useCallback(async () => {
+    await pushCloud();
+    await logout();
+    onAccountChange(null);
+  }, [pushCloud, onAccountChange]);
+
+  const ctx = useMemo(() => ({ state, dispatch, account, setAccount: onAccountChange, signOut, sync }), [state, account, onAccountChange, signOut, sync]);
   const clearToasts = useCallback(() => setToasts([]), []);
   const ch = active ? byId(active) : null;
 
@@ -67,27 +142,19 @@ export default function App() {
     return n && moduleUnlocked(state, n.m.id) ? n.c : null;
   }, [reward, state]);
 
-  if (!state.seenIntro) {
-    return (
-      <ProgressContext.Provider value={ctx}>
-        <div className="cyber-bg scanlines min-h-full">
-          <Intro onStart={() => dispatch({ type: 'intro' })} />
-        </div>
-      </ProgressContext.Provider>
-    );
-  }
-
   const inHub = !state.lang || view === 'worlds';
+  const current = inHub ? 'worlds' : view;
 
   return (
     <ProgressContext.Provider value={ctx}>
       <MotionConfig reducedMotion="user">
         <div className="cyber-bg scanlines flex min-h-full flex-col">
-          {state.lang && <TopBar view={inHub ? 'worlds' : view} onMap={() => setView('map')} onProfile={() => setView('profile')} onWorlds={() => setView('worlds')} />}
-          <main className={`flex-1 pt-3 ${view === 'arena' && !inHub ? 'lg:h-[calc(100vh-58px)] lg:min-h-[640px]' : ''}`}>
-            {inHub && <WorldHub onEnter={enterWorld} intro={!state.lang} />}
+          <TopBar view={current} onMap={() => setView('map')} onProfile={() => setView('profile')} onWorlds={() => setView('worlds')} onRanking={() => setView('ranking')} />
+          <main className={`flex-1 pt-3 ${current === 'arena' ? 'lg:h-[calc(100vh-58px)] lg:min-h-[640px]' : ''}`}>
+            {current === 'worlds' && view !== 'ranking' && view !== 'profile' && <WorldHub onEnter={enterWorld} intro={!state.lang} />}
+            {view === 'ranking' && <Leaderboard account={account} refreshKey={state.completed} />}
+            {view === 'profile' && state.lang && <Profile onOpen={open} />}
             {!inHub && view === 'map' && <EngineMap onOpen={open} />}
-            {!inHub && view === 'profile' && <Profile onOpen={open} />}
             {!inHub && view === 'arena' && ch && <Arena key={`${ch.id}-${state.lang}`} ch={ch} onBack={() => setView('map')} />}
           </main>
           <RewardOverlay
