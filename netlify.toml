@@ -1,11 +1,37 @@
+# Netlify: CodeForge: The Living Engine (SPA con Vite + React).
+# Build: Netlify ejecuta `npm ci` y luego `npm run build`, y publica dist/.
+
 [build]
   command = "npm run build"
   publish = "dist"
 
 [build.environment]
   NODE_VERSION = "22"
+  # La configuración web de Firebase (VITE_FIREBASE_*) es pública por diseño: la protegen
+  # las reglas de Firestore. Se excluye del escáner de secretos para que no bloquee el deploy.
+  SECRETS_SCAN_OMIT_KEYS = "VITE_FIREBASE_API_KEY,VITE_FIREBASE_AUTH_DOMAIN,VITE_FIREBASE_PROJECT_ID,VITE_FIREBASE_APP_ID,VITE_FIREBASE_STORAGE_BUCKET,VITE_FIREBASE_MESSAGING_SENDER_ID"
+  SECRETS_SCAN_OMIT_PATHS = "dist/assets/*"
 
+# Todas las rutas sirven la app (single-page application).
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+
+# Los archivos de dist/assets llevan hash en el nombre: se pueden cachear para siempre.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
