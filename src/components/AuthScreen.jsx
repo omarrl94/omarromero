@@ -4,6 +4,7 @@ import { UserPlus, LogIn, KeyRound, Loader2, Cloud, HardDrive, Check } from 'luc
 import { Logo } from './TopBar.jsx';
 import Avatar, { AvatarPicker, AVATARS } from './Avatar.jsx';
 import { register, login, resetPassword, nickAvailable, backend, NICK_RE } from '../services/accounts.js';
+import { LANGUAGES, LANG_ORDER } from '../core/languages.js';
 import { play } from '../core/sound.js';
 
 const TABS = [
@@ -36,6 +37,7 @@ export default function AuthScreen({ onAccount }) {
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [nickState, setNickState] = useState(null); // null | 'checking' | 'free' | 'taken'
+  const [world, setWorld] = useState(null);
 
   const checkNick = async () => {
     if (!NICK_RE.test(nick)) { setNickState(null); return; }
@@ -51,13 +53,17 @@ export default function AuthScreen({ onAccount }) {
     e.preventDefault();
     setError('');
     setNotice('');
+    if (tab === 'register' && !world) {
+      setError('Elige el mundo en el que quieres empezar.');
+      return;
+    }
     setBusy(true);
     try {
       const acc = tab === 'register'
         ? await register({ nick: nick.trim(), email: email.trim(), password, avatar })
         : await login({ email: email.trim(), password });
       play('rankup');
-      onAccount(acc);
+      onAccount(acc, tab === 'register' ? world : null);
     } catch (err) {
       setError(err.message);
       play('error');
@@ -133,6 +139,29 @@ export default function AuthScreen({ onAccount }) {
                 <div>
                   <span className="mb-1 block text-[11px] font-bold uppercase tracking-widest text-slate-400">Avatar</span>
                   <AvatarPicker value={avatar} onChange={(a) => { setAvatar(a); play('click'); }} />
+                </div>
+                <div>
+                  <span className="mb-1 block text-[11px] font-bold uppercase tracking-widest text-slate-400">¿A qué mundo quieres ir?</span>
+                  <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Mundo inicial">
+                    {LANG_ORDER.map((l) => {
+                      const L = LANGUAGES[l];
+                      const active = world === l;
+                      return (
+                        <button key={l} type="button" role="radio" aria-checked={active} onClick={() => { setWorld(l); play('click'); }}
+                          className={`relative rounded-xl border px-2 py-2 text-left transition-transform hover:-translate-y-0.5 ${active ? 'bg-white/5' : 'border-void-600/60'}`}
+                          style={active ? { borderColor: L.color, boxShadow: `0 0 16px -6px ${L.color}` } : {}}>
+                          <span className="flex items-center gap-1.5">
+                            <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: L.color, boxShadow: active ? `0 0 8px ${L.color}` : 'none' }} />
+                            <span className="truncate text-xs font-extrabold" style={{ color: L.color }}>{L.name}</span>
+                            {L.trending && <span className="ml-auto text-[10px]" title="En auge">🔥</span>}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <span className="mt-1 block text-[11px] text-slate-500">
+                    {world ? `Empezarás en el Mundo ${LANGUAGES[world].name}: ${LANGUAGES[world].tagline}` : 'Cada lenguaje es un mundo propio. Podrás visitar otros más adelante desde la galaxia.'}
+                  </span>
                 </div>
               </motion.div>
             )}

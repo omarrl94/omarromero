@@ -22,6 +22,7 @@ const introSeen = () => { try { return localStorage.getItem(INTRO_KEY) === '1'; 
 export default function App() {
   const [account, setAccount] = useState(undefined); // undefined = comprobando sesión
   const [intro, setIntro] = useState(introSeen);
+  const [startWorld, setStartWorld] = useState(null);
 
   useEffect(() => watchSession((acc) => setAccount((prev) => (prev && acc && prev.uid === acc.uid && !acc.incomplete ? { ...prev, ...acc } : acc))), []);
 
@@ -31,16 +32,20 @@ export default function App() {
   } else if (!account && !intro) {
     screen = <Intro onStart={() => { try { localStorage.setItem(INTRO_KEY, '1'); } catch { /* sin almacenamiento */ } setIntro(true); }} />;
   } else if (!account) {
-    screen = <AuthScreen onAccount={setAccount} />;
+    screen = <AuthScreen onAccount={(acc, world) => { setStartWorld(world); setAccount(acc); }} />;
   } else {
-    return <Game key={account.uid} account={account} onAccountChange={setAccount} />;
+    return <Game key={account.uid} account={account} onAccountChange={setAccount} startWorld={startWorld} />;
   }
   return <div className="cyber-bg scanlines min-h-full">{screen}</div>;
 }
 
 /** La partida de un jugador: su progreso, sus mundos y su sincronización. */
-function Game({ account, onAccountChange }) {
-  const [state, dispatch] = useReducer(reducer, account.uid, loadState);
+function Game({ account, onAccountChange, startWorld }) {
+  const [state, dispatch] = useReducer(reducer, account.uid, (uid) => {
+    const s = loadState(uid);
+    // Recién registrado: entra directamente en el mundo que eligió.
+    return startWorld && !s.lang ? { ...s, lang: startWorld } : s;
+  });
   const [view, setView] = useState('map');
   const [active, setActive] = useState(null);
   const [reward, setReward] = useState(null);
@@ -51,6 +56,11 @@ function Game({ account, onAccountChange }) {
   const ready = useRef(backend !== 'firebase');
   const latest = useRef(state);
   latest.current = state;
+
+  // Recién registrado: entra en el mundo elegido (puede llegar justo después de activarse la sesión).
+  useEffect(() => {
+    if (startWorld && !latest.current.lang) dispatch({ type: 'setLang', lang: startWorld });
+  }, [startWorld]);
 
   // Al entrar: une el progreso de este navegador con el de la nube.
   useEffect(() => {
