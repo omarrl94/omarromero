@@ -117,9 +117,65 @@ export const LANGUAGES = {
       impl: 'impl Trait for Tipo {\n    \n}',
     },
   },
+  cpp: {
+    id: 'cpp',
+    name: 'C++',
+    ext: 'cpp',
+    color: '#00a3e0',
+    accent: 'text-sky-400',
+    comment: '//',
+    paradigm: 'Multiparadigma de alto rendimiento: control de C con clases, plantillas y la librería estándar (STL). El motor de videojuegos por excelencia.',
+    tagline: 'Donde nacen los motores de videojuegos. Potencia total, responsabilidad total.',
+    keywords: ['int', 'long', 'double', 'float', 'bool', 'char', 'void', 'auto', 'const', 'class', 'struct', 'public', 'private', 'protected', 'virtual', 'override', 'return', 'if', 'else', 'for', 'while', 'new', 'delete', 'this', 'nullptr', 'true', 'false', 'using', 'namespace', 'include', 'template'],
+    types: ['string', 'vector', 'unordered_map', 'unordered_set', 'map', 'set', 'size_t', 'unique_ptr', 'shared_ptr'],
+    builtins: ['cout', 'endl', 'cin', 'push_back', 'size', 'swap', 'sort', 'insert', 'count', 'find'],
+    snippets: {
+      for: 'for (int i = 0; i < n; i++) {\n    \n}',
+      if: 'if (condicion) {\n    \n}',
+      class: 'class Nombre : public Base {\npublic:\n    \n};',
+    },
+  },
+  go: {
+    id: 'go',
+    name: 'Go',
+    ext: 'go',
+    color: '#00add8',
+    accent: 'text-cyan-300',
+    comment: '//',
+    paradigm: 'Simple a propósito: pocas palabras clave, compilación rapidísima, sin clases ni herencia, y concurrencia de serie con goroutines y canales.',
+    tagline: 'El lenguaje de la nube: Docker y Kubernetes están escritos en Go.',
+    trending: true,
+    keywords: ['package', 'import', 'func', 'var', 'const', 'type', 'struct', 'interface', 'map', 'chan', 'go', 'return', 'if', 'else', 'for', 'range', 'break', 'continue', 'switch', 'case', 'defer', 'select', 'nil', 'true', 'false', 'make', 'new'],
+    types: ['int', 'int32', 'int64', 'float64', 'string', 'bool', 'byte', 'rune', 'error'],
+    builtins: ['fmt', 'Println', 'Printf', 'len', 'append', 'make', 'cap', 'delete', 'panic'],
+    snippets: {
+      for: 'for i := 0; i < n; i++ {\n    \n}',
+      if: 'if condicion {\n    \n}',
+      func: 'func nombre(param int) int {\n    \n}',
+    },
+  },
+  js: {
+    id: 'js',
+    name: 'JavaScript',
+    ext: 'js',
+    color: '#f7df1e',
+    accent: 'text-yellow-200',
+    comment: '//',
+    paradigm: 'El lenguaje de la web: dinámico, con funciones de primera clase, objetos flexibles y asincronía con promesas y async/await.',
+    tagline: 'Corre en todos los navegadores del planeta. Y en servidores, y en móviles…',
+    keywords: ['const', 'let', 'var', 'function', 'return', 'if', 'else', 'for', 'of', 'in', 'while', 'class', 'extends', 'constructor', 'super', 'this', 'new', 'async', 'await', 'null', 'undefined', 'true', 'false', 'typeof', 'import', 'export'],
+    types: ['Number', 'String', 'Boolean', 'Array', 'Object', 'Map', 'Set', 'Promise', 'BigInt'],
+    builtins: ['console', 'log', 'length', 'push', 'Math', 'JSON', 'setTimeout', 'has', 'add'],
+    snippets: {
+      for: 'for (let i = 0; i < n; i++) {\n  \n}',
+      if: 'if (condicion) {\n  \n}',
+      function: 'function nombre(param) {\n  return ;\n}',
+      class: 'class Nombre extends Base {\n  \n}',
+    },
+  },
 };
 
-export const LANG_ORDER = ['python', 'java', 'kotlin', 'swift', 'c', 'rust'];
+export const LANG_ORDER = ['python', 'js', 'java', 'kotlin', 'swift', 'c', 'cpp', 'go', 'rust'];
 
 export const camelToSnake = (s) => s.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toLowerCase();
 

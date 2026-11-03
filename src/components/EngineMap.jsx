@@ -2,13 +2,14 @@ import { motion } from 'framer-motion';
 import { ICONS as Icons } from './icons.js';
 import { Lock, Star, ChevronRight } from 'lucide-react';
 import { MODULES } from '../curriculum/index.js';
-import { LANGUAGES, LANG_ORDER } from '../core/languages.js';
-import { useProgress, moduleUnlocked, bestStars, isDone } from '../core/progress.js';
+import { LANGUAGES } from '../core/languages.js';
+import { useProgress, moduleUnlocked, starsOf, isDone } from '../core/progress.js';
 import { play } from '../core/sound.js';
 
 /** Mapa del motor: cada módulo es un subsistema del Engine Loop que vas construyendo. */
 export default function EngineMap({ onOpen }) {
   const { state } = useProgress();
+  const L = LANGUAGES[state.lang];
   const next = MODULES.flatMap((m) => m.challenges.map((c) => ({ c, m }))).find(({ c, m }) => moduleUnlocked(state, m.id) && !isDone(state, c.id));
   const builtPct = Math.round((MODULES.flatMap((m) => m.challenges).filter((c) => isDone(state, c.id)).length / MODULES.flatMap((m) => m.challenges).length) * 100);
 
@@ -18,11 +19,12 @@ export default function EngineMap({ onOpen }) {
         <div className="pointer-events-none absolute -right-10 -top-10 h-56 w-56 rounded-full bg-neon-magenta/10 blur-3xl" />
         <div className="relative flex flex-wrap items-end justify-between gap-4">
           <div>
-            <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-neon-cyan">The Engine Loop</div>
-            <h1 className="mt-1 text-2xl font-extrabold text-white md:text-3xl">Construye el motor, <span className="text-neon-magenta neon-text">pieza a pieza</span>.</h1>
+            <div className="text-[10px] font-bold uppercase tracking-[0.3em]" style={{ color: L.color }}>Mundo {L.name} · The Engine Loop</div>
+            <h1 className="mt-1 text-2xl font-extrabold text-white md:text-3xl">Construye el motor en <span className="neon-text" style={{ color: L.color }}>{L.name}</span>, pieza a pieza.</h1>
             <p className="mt-2 max-w-2xl text-sm text-slate-400">
-              No hay ejercicios sueltos: cada misión programa una parte real del mundo —física, IA de drones, memoria, entidades—. Cambia de lenguaje cuando quieras: el mismo problema, otro paradigma, bonus políglota.
+              Cada misión programa una parte real del mundo: la física, la IA de los drones, la memoria y las entidades. Antes de cada una tienes una lección que te enseña lo necesario en {L.name}, desde cero.
             </p>
+            <p className="mt-1 max-w-2xl text-xs text-slate-500">{L.paradigm}</p>
           </div>
           <div className="flex items-center gap-4">
             <div className="text-right">
@@ -69,8 +71,7 @@ export default function EngineMap({ onOpen }) {
               </div>
               <div className="mt-3 space-y-2">
                 {m.challenges.map((c) => {
-                  const stars = bestStars(state, c.id);
-                  const langs = Object.keys(state.completed[c.id] || {});
+                  const stars = starsOf(state, c.id);
                   return (
                     <button
                       key={c.id}
@@ -82,11 +83,6 @@ export default function EngineMap({ onOpen }) {
                       <div className="min-w-0 flex-1">
                         <div className="truncate text-sm font-bold text-slate-100 group-hover:text-white">{c.title}</div>
                         <div className="text-[10px] uppercase tracking-widest text-slate-500">{c.codename} · {c.xp} XP</div>
-                      </div>
-                      <div className="flex gap-1" title="Lenguajes completados">
-                        {LANG_ORDER.map((l) => (
-                          <span key={l} className="h-1.5 w-1.5 rounded-full" style={{ background: langs.includes(l) ? LANGUAGES[l].color : '#252c45', boxShadow: langs.includes(l) ? `0 0 6px ${LANGUAGES[l].color}` : 'none' }} />
-                        ))}
                       </div>
                       <div className="flex">
                         {[1, 2, 3].map((i) => <Star key={i} size={12} className={i <= stars ? 'fill-neon-amber text-neon-amber' : 'text-void-600'} />)}

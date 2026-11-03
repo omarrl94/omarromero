@@ -53,7 +53,7 @@ export default function LessonPanel({ ch, lang, open, onClose }) {
                       <div className="rounded-xl border border-void-600/60 bg-void-950/50 p-4">
                         <LessonVisual kind={step.visual} lang={lang} />
                       </div>
-                      <p className="text-[14px] leading-relaxed text-slate-300">{step.text}</p>
+                      <p className="text-[14px] leading-relaxed text-slate-300">{(step.textByLang && step.textByLang[lang]) || step.text}</p>
                       {step.code && step.code[lang] && (
                         <div>
                           <div className="mb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: L.color }}>Así se escribe en {L.name}</div>

@@ -22,6 +22,9 @@ const TYPE_NAMES = {
   swift: { int: 'Int', float: 'Double', bool: 'Bool', str: 'String' },
   c: { int: 'int', float: 'double', bool: 'bool', str: 'char *' },
   rust: { int: 'i32', float: 'f64', bool: 'bool', str: '&str' },
+  cpp: { int: 'int', float: 'double', bool: 'bool', str: 'string' },
+  go: { int: 'int', float: 'float64', bool: 'bool', str: 'string' },
+  js: { int: 'number', float: 'number', bool: 'boolean', str: 'string' },
 };
 
 function Box({ label, value, type, color = C.cyan, shown = true, warn }) {
@@ -43,7 +46,7 @@ function Box({ label, value, type, color = C.cyan, shown = true, warn }) {
 
 function Boxes({ lang }) {
   const t = useTick(900, 6);
-  const T = TYPE_NAMES[lang];
+  const T = TYPE_NAMES[lang] || TYPE_NAMES.python;
   const items = [
     ['gravity', '9.81', T.float, C.cyan],
     ['shipMass', '1200', T.int, C.amber],
@@ -59,8 +62,21 @@ function Boxes({ lang }) {
 
 function TypeCut({ lang }) {
   const t = useTick(1100, 4);
-  const T = TYPE_NAMES[lang];
-  const strict = lang !== 'c' && lang !== 'python';
+  const T = TYPE_NAMES[lang] || TYPE_NAMES.python;
+  const strict = !['c', 'cpp', 'python'].includes(lang);
+  if (lang === 'js') {
+    return (
+      <div className="flex flex-col items-center gap-3 text-center">
+        <div className="flex flex-wrap items-end justify-center gap-4">
+          <Box label="typeof 1200" value="number" color={C.amber} />
+          <Box label="typeof 9.81" value="number" color={C.cyan} />
+          <Box label='typeof "Nova"' value="string" color={C.magenta} />
+          <Box label="typeof true" value="boolean" color={C.lime} />
+        </div>
+        <div className="text-[11px] text-slate-400">En JavaScript enteros y decimales son el mismo tipo: number.</div>
+      </div>
+    );
+  }
   return (
     <div className="flex flex-wrap items-center justify-center gap-8">
       <div className="flex flex-col items-center gap-2">
@@ -118,13 +134,13 @@ function Odometer() {
 }
 
 function Widths({ lang }) {
-  const big = { python: 'int (sin límite)', java: 'long', kotlin: 'Long', swift: 'Int64', c: 'long long', rust: 'i64' }[lang];
-  const small = { python: 'int', java: 'int', kotlin: 'Int', swift: 'Int32', c: 'int', rust: 'i32' }[lang];
+  const big = { python: 'int (sin límite)', java: 'long', kotlin: 'Long', swift: 'Int64', c: 'long long', rust: 'i64', cpp: 'long long', go: 'int64', js: 'BigInt (sin límite)' }[lang];
+  const small = { python: 'int', java: 'int', kotlin: 'Int', swift: 'Int32', c: 'int', rust: 'i32', cpp: 'int', go: 'int32', js: 'number exacto' }[lang];
   return (
     <div className="space-y-3">
-      {[[small, 32, '≈ 2.100 millones'], [big, 64, '≈ 9 trillones']].map(([n, bits, max], k) => (
+      {(lang === 'js' ? [['number', 53, 'exacto hasta 2^53'], ['BigInt', 64, 'sin límite']] : [[small, 32, '≈ 2.100 millones'], [big, 64, '≈ 9 trillones']]).map(([n, bits, max], k) => (
         <div key={n}>
-          <div className="mb-1 flex justify-between text-[11px]"><span className="font-bold text-slate-200">{n}</span><span className="text-slate-500">{bits} bits · máx {max}</span></div>
+          <div className="mb-1 flex justify-between text-[11px]"><span className="font-bold text-slate-200">{n}</span><span className="text-slate-500">{lang === 'js' ? max : `${bits} bits · máx ${max}`}</span></div>
           <div className="flex gap-[2px]">
             {Array.from({ length: bits }).map((_, i) => (
               <motion.div key={i} initial={{ scaleY: 0 }} animate={{ scaleY: 1 }} transition={{ delay: i * 0.02 + k * 0.4 }} className="h-5 flex-1 rounded-sm" style={{ background: k ? C.lime : C.amber, opacity: 0.75 }} />
@@ -132,7 +148,7 @@ function Widths({ lang }) {
           </div>
         </div>
       ))}
-      <div className="text-center text-xs text-slate-400">3.000.000.000 → <span className="text-neon-red">no cabe</span> en {small} · <span className="text-neon-lime">cabe</span> en {big}</div>
+      <div className="text-center text-xs text-slate-400">{lang === 'js' ? <>2^53 + 1 → <span className="text-neon-red">se redondea</span> con number · <span className="text-neon-lime">exacto</span> con BigInt</> : <>3.000.000.000 → <span className="text-neon-red">no cabe</span> en {small} · <span className="text-neon-lime">cabe</span> en {big}</>}</div>
     </div>
   );
 }

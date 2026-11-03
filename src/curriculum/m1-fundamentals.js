@@ -13,7 +13,7 @@ const worldLaws = {
   objective: 'Declara gravity (decimal ≈ 9.81), shipMass (entero 1200), shieldsOn (booleano activo) y pilotName (tu nombre de piloto).',
   concept: {
     title: 'Variables y tipos de datos',
-    text: 'Una variable es una caja con nombre; su tipo decide qué cabe dentro y cuánta memoria ocupa. Un entero no guarda decimales; un texto no se puede multiplicar por un tiempo. Los lenguajes estáticos (Java, Kotlin, Swift, C) comprueban los tipos al compilar; Python, al ejecutar.',
+    text: 'Una variable es una caja con nombre; su tipo decide qué cabe dentro y cuánta memoria ocupa. Un entero no guarda decimales y un texto no se puede multiplicar por un tiempo: elegir bien el tipo es elegir bien las leyes de tu mundo.',
   },
   starter: {
     python: `# Módulo 1 · Las leyes del mundo
@@ -116,12 +116,13 @@ int main(void) {
     const pilot = v(result, 'pilotName', lang);
     const gVal = g ? Number(g.value) : NaN;
     const gIsDecimal = g && g.kind === 'float';
+    const massOk = mass && (mass.kind === 'int' || (lang === 'js' && mass.kind === 'float' && Number.isInteger(mass.value))) && Number(mass.value) === 1200;
     const checks = [
       check('gravity-type', 'gravity es de tipo decimal', gIsDecimal,
-        !g ? 'No encuentro la variable gravity.' : g.kind === 'str' ? 'gravity es texto (str): el motor no puede multiplicar texto por tiempo.'
-          : g.flags.includes('truncated') ? `C truncó 9.81 a ${g.value}: un int no guarda decimales.` : `gravity es ${g.type}: necesitas un tipo con decimales.`),
+        !g ? 'No encuentro la variable gravity.' : g.kind === 'str' ? `gravity es texto (${g.type}): el motor no puede multiplicar texto por tiempo.`
+          : g.flags.includes('truncated') ? `Se truncó 9.81 a ${g.value}: un int no guarda decimales.` : `gravity es ${g.type}: necesitas un tipo con decimales.`),
       check('gravity-value', 'gravity ≈ 9.81 m/s²', gIsDecimal && gVal > 9.7 && gVal < 9.9, gIsDecimal ? `Valor actual: ${gVal}` : ''),
-      check('mass', 'shipMass es un entero de 1200 kg', mass && mass.kind === 'int' && Number(mass.value) === 1200, mass ? `${mass.type} = ${mass.value}` : 'Falta shipMass.'),
+      check('mass', 'shipMass es un entero de 1200 kg', massOk, mass ? `${mass.type} = ${mass.value}` : 'Falta shipMass.'),
       check('shields', 'shieldsOn es booleano y está activo', sh && sh.kind === 'bool' && sh.value === true, sh ? `${sh.type} = ${sh.value}` : 'Falta shieldsOn.'),
       check('pilot', 'pilotName es un texto con tu nombre', pilot && pilot.kind === 'str' && String(pilot.value).trim().length > 0, pilot ? '' : 'Declara pilotName.'),
     ];
@@ -157,11 +158,17 @@ const reactor = {
   scene: 'reactor',
   xp: 160,
   mode: 'run',
-  story: 'El reactor tiene 4 motores de 750 000 000 N cada uno. El ordenador de a bordo suma el empuje total… y el número no cabe. Un entero de 32 bits llega solo hasta 2 147 483 647: lo que sobra da la vuelta y se vuelve negativo. Empuje negativo = explosión.',
-  objective: 'Calcula totalThrust = engines × thrustPerEngine (3 000 000 000) sin desbordamiento. En Python, reparte además 1000 celdas de combustible entre 3 motores en partes enteras.',
+  story: {
+    default: 'El reactor tiene 4 motores de 750 000 000 N cada uno. El ordenador de a bordo suma el empuje total… y el número no cabe. Un entero de 32 bits llega solo hasta 2 147 483 647: lo que sobra da la vuelta (o detiene el programa). Empuje negativo = explosión.',
+    python: 'El reactor tiene 4 motores de 750 000 000 N cada uno. En Python los enteros crecen sin límite, así que el empuje total cabe sin problemas. El peligro está en el combustible: 1000 celdas para 3 motores, y las celdas no se pueden partir.',
+  },
+  objective: {
+    default: 'Calcula totalThrust = engines × thrustPerEngine (3 000 000 000) sin desbordamiento.',
+    python: 'Mantén totalThrust y reparte 1000 celdas de combustible entre 3 motores en partes ENTERAS (fuel_per_engine) y guarda en reserve las que sobran.',
+  },
   concept: {
     title: 'Rangos numéricos y overflow',
-    text: 'Cada tipo entero tiene un número fijo de bits. int/Int32: ±2 147 483 647. long/Int64: ±9,2 trillones. Si una operación se pasa, Java, Kotlin y C dan la vuelta en silencio (wrap-around), Swift detiene el programa y Python amplía el número automáticamente.',
+    text: 'Los ordenadores guardan los números en un espacio fijo de bits, así que cada tipo numérico tiene un rango. Si un cálculo se sale de ese rango, el resultado deja de ser correcto. Saber qué hace tu lenguaje en ese caso, y qué tipo usar, es clave.',
   },
   starter: {
     python: `# En Python los enteros NO desbordan (precisión arbitraria).
@@ -258,6 +265,15 @@ int main(void) {
   },
   evaluate({ result, lang }) {
     const total = v(result, 'totalThrust', lang);
+    if (lang === 'js') {
+      const exact = total && typeof total.value === 'bigint' && total.value === BigInt('9007199254740993');
+      const checks = [
+        check('total-exists', 'totalThrust está calculado', !!total, total ? '' : 'No encuentro totalThrust.'),
+        check('precision', 'Suma exacta: 9007199254740993', exact,
+          !total ? '' : typeof total.value === 'bigint' ? `Valor: ${total.value}` : `Valor: ${total.value} → el +1 se perdió (number no es exacto por encima de 2^53).`),
+      ];
+      return { checks, scene: { total: total ? Number(total.value) : 0, overflow: !exact, typeName: total ? total.type : '?', engines: 4 } };
+    }
     const val = total ? Number(total.value) : NaN;
     const checks = [
       check('total-exists', 'totalThrust está calculado', !!total, total ? '' : 'No encuentro totalThrust.'),
@@ -283,6 +299,7 @@ int main(void) {
       '¿Qué pasaría si conviertes uno de los operandos a un tipo de 64 bits ANTES de multiplicar?',
     ],
     'fuel-int': ['En Python, ¿qué devuelve 7 / 2? ¿Y 7 // 2?', '¿Existe algún operador que divida y descarte los decimales?'],
+    precision: ['¿Qué número da 2 ** 53 + 1 en JavaScript? Pruébalo con console.log.', '¿Existe en JavaScript un tipo de entero que no pierda precisión? ¿Cómo se escribe un número de ese tipo?'],
     'fuel-reserve': ['Si repartes 1000 entre 3 partes enteras, ¿cuánto sobra? ¿Qué operador calcula el resto?'],
     'total-exists': ['¿Has mantenido el nombre exacto de la variable que espera el motor?'],
   },

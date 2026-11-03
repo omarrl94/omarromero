@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
-import { Flame, Star, Volume2, VolumeX, Keyboard, Map as MapIcon, User } from 'lucide-react';
-import { LANGUAGES, LANG_ORDER } from '../core/languages.js';
-import { useProgress, rankOf, totalStars } from '../core/progress.js';
+import { Flame, Star, Volume2, VolumeX, Keyboard, Map as MapIcon, User, Orbit } from 'lucide-react';
+import { LANGUAGES } from '../core/languages.js';
+import { useProgress, rankOf, totalStars, worldXp } from '../core/progress.js';
 import RankBadge from './RankBadge.jsx';
 import { play } from '../core/sound.js';
 
@@ -22,45 +22,45 @@ export function Logo({ compact = false }) {
   );
 }
 
-export default function TopBar({ view, onMap, onProfile }) {
+/** Barra superior: el mundo en el que estás, su rango y su progreso. */
+export default function TopBar({ view, onMap, onProfile, onWorlds }) {
   const { state, dispatch } = useProgress();
-  const rank = rankOf(state.xp);
+  const L = LANGUAGES[state.lang];
+  const xp = worldXp(state);
+  const rank = rankOf(xp);
   const toggle = (key) => { dispatch({ type: 'setting', key, value: !state.settings[key] }); play('click'); };
   return (
     <header className="sticky top-0 z-30 border-b border-void-600/40 bg-void-950/80 backdrop-blur-md">
       <div className="mx-auto flex max-w-[1600px] flex-wrap items-center gap-x-4 gap-y-2 px-3 py-2 lg:px-4">
-        <button type="button" onClick={onMap} className="shrink-0" aria-label="Mapa del motor">
+        <button type="button" onClick={onMap} className="shrink-0" aria-label="Mapa del mundo">
           <Logo />
         </button>
 
-        {/* Polyglot Core: selector de lenguaje */}
-        <div className="order-3 flex w-full items-center gap-1 overflow-x-auto rounded-xl border border-void-600/50 bg-void-900/60 p-1 sm:order-none sm:w-auto" role="radiogroup" aria-label="Lenguaje">
-          {LANG_ORDER.map((l) => {
-            const L = LANGUAGES[l];
-            const active = state.lang === l;
-            return (
-              <button
-                key={l}
-                type="button"
-                role="radio"
-                aria-checked={active}
-                onClick={() => { dispatch({ type: 'setLang', lang: l }); play('click'); }}
-                className={`relative whitespace-nowrap rounded-lg px-3 py-1 text-xs font-bold transition-colors ${active ? 'text-void-950' : 'text-slate-400 hover:text-slate-100'}`}
-              >
-                {active && <motion.span layoutId="lang-pill" className="absolute inset-0 rounded-lg" style={{ background: L.color, boxShadow: `0 0 16px ${L.color}` }} transition={{ type: 'spring', stiffness: 500, damping: 35 }} />}
-                <span className="relative">{L.name}</span>
-                {L.trending && !active && <span className="absolute -right-0.5 -top-0.5 h-1.5 w-1.5 rounded-full bg-orange-400 shadow-[0_0_6px_#fb923c]" title="En auge" />}
-              </button>
-            );
-          })}
-        </div>
+        {L && (
+          <button
+            type="button"
+            onClick={onMap}
+            className="flex items-center gap-2 rounded-xl border px-3 py-1.5 text-left"
+            style={{ borderColor: `${L.color}66`, background: `${L.color}12`, boxShadow: `0 0 18px -8px ${L.color}` }}
+            title="Estás en este mundo"
+          >
+            <span className="h-2.5 w-2.5 rounded-full" style={{ background: L.color, boxShadow: `0 0 10px ${L.color}` }} />
+            <span className="leading-none">
+              <span className="block text-[9px] uppercase tracking-[0.25em] text-slate-400">Mundo</span>
+              <span className="text-sm font-extrabold" style={{ color: L.color }}>{L.name}</span>
+            </span>
+          </button>
+        )}
 
-        <nav className="hidden items-center gap-1 md:flex">
+        <nav className="flex items-center gap-1">
           <button type="button" onClick={onMap} className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs ${view === 'map' ? 'text-neon-cyan' : 'text-slate-400 hover:text-white'}`}>
-            <MapIcon size={14} /> Motor
+            <MapIcon size={14} /> <span className="hidden sm:inline">Misiones</span>
           </button>
           <button type="button" onClick={onProfile} className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs ${view === 'profile' ? 'text-neon-cyan' : 'text-slate-400 hover:text-white'}`}>
-            <User size={14} /> Perfil
+            <User size={14} /> <span className="hidden sm:inline">Perfil</span>
+          </button>
+          <button type="button" onClick={onWorlds} className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs ${view === 'worlds' ? 'text-neon-cyan' : 'text-slate-400 hover:text-white'}`} title="Salir a la galaxia de mundos">
+            <Orbit size={14} /> <span className="hidden sm:inline">Mundos</span>
           </button>
         </nav>
 
@@ -68,15 +68,15 @@ export default function TopBar({ view, onMap, onProfile }) {
           <div className="flex items-center gap-1 text-xs text-orange-300" title={`Racha: ${state.streak.count} día(s) · récord ${state.streak.best}`}>
             <Flame size={16} className={state.streak.count ? 'fill-orange-400 text-orange-400' : 'text-void-600'} /> {state.streak.count}
           </div>
-          <div className="flex items-center gap-1 text-xs text-neon-amber" title="Estrellas">
+          <div className="flex items-center gap-1 text-xs text-neon-amber" title="Estrellas en este mundo">
             <Star size={15} className="fill-neon-amber" /> {totalStars(state)}
           </div>
-          <button type="button" onClick={onProfile} className="flex items-center gap-2" title={`${state.xp} Neural XP`}>
+          <button type="button" onClick={onProfile} className="flex items-center gap-2" title={`${xp} Neural XP en el mundo ${L ? L.name : ''}`}>
             <RankBadge rank={rank} size={34} />
             <div className="hidden w-36 text-left sm:block">
               <div className="flex justify-between text-[10px]">
                 <span className="font-bold" style={{ color: rank.color }}>{rank.name}</span>
-                <span className="text-slate-500">{state.xp} XP</span>
+                <span className="text-slate-500">{xp} XP</span>
               </div>
               <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-void-700">
                 <motion.div className="h-full rounded-full" style={{ background: rank.color, boxShadow: `0 0 8px ${rank.color}` }} animate={{ width: `${Math.round(rank.progress * 100)}%` }} transition={{ type: 'spring', stiffness: 80, damping: 18 }} />

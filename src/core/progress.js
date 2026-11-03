@@ -1,4 +1,6 @@
 // Estado del jugador: Neural XP, rangos, rachas, estrellas, borradores y logros.
+// Cada lenguaje es un MUNDO independiente: XP, rango, estrellas, lecciones vistas
+// y desbloqueo de módulos se guardan por mundo.
 // Persistido en localStorage (con try/catch: funciona igual en modo privado).
 import { createContext, useContext } from 'react';
 import { CHALLENGES, MODULES } from '../curriculum/index.js';
@@ -19,13 +21,13 @@ export const RANKS = [
 export const ACHIEVEMENTS = {
   'first-blood': { name: 'Primer Latido', desc: 'Completa tu primera misión.', icon: 'Zap' },
   'bug-hunter': { name: 'Cazador de Bugs', desc: 'Repara 5 errores de compilación o ejecución.', icon: 'Bug' },
-  'polyglot': { name: 'Políglota', desc: 'Completa una misión en 3 lenguajes.', icon: 'Languages' },
-  'polyglot-max': { name: 'Torre de Babel', desc: 'Completa una misión en los 6 lenguajes.', icon: 'Globe' },
+  'world-complete': { name: 'Mundo Construido', desc: 'Completa las 9 misiones de un mundo.', icon: 'Globe' },
+  'explorer': { name: 'Explorador', desc: 'Supera una misión en 3 mundos distintos.', icon: 'Languages' },
   'clean-coder': { name: 'Código Limpio', desc: 'Consigue 3 estrellas en 5 misiones.', icon: 'Sparkles' },
   'autonomous': { name: 'Piloto Autónomo', desc: 'Completa una misión sin pistas profundas del pato.', icon: 'Bot' },
   'boss-slayer': { name: 'Rompe-Enjambres', desc: 'Derrota al Enjambre O(n²).', icon: 'Skull' },
   'streak-3': { name: 'En Racha', desc: 'Programa 3 días seguidos.', icon: 'Flame' },
-  'memory-master': { name: 'Guardián del Heap', desc: 'Termina el módulo de sistemas en C sin fugas.', icon: 'MemoryStick' },
+  'memory-master': { name: 'Guardián del Heap', desc: 'Termina el módulo de sistemas en C o C++ sin fugas.', icon: 'MemoryStick' },
 };
 
 export const today = () => new Date().toISOString().slice(0, 10);
@@ -33,8 +35,8 @@ const yesterday = () => new Date(Date.now() - 864e5).toISOString().slice(0, 10);
 
 export const initialState = {
   version: 1,
-  xp: 0,
-  lang: 'python',
+  xp: {},
+  lang: null,
   completed: {},
   drafts: {},
   hints: {},
@@ -52,6 +54,9 @@ export function loadState() {
     const raw = localStorage.getItem(KEY);
     if (!raw) return initialState;
     const data = JSON.parse(raw);
+    // Migración: antes la XP era global y las lecciones no distinguían mundo.
+    if (typeof data.xp === 'number') data.xp = data.xp ? { [data.lang || 'python']: data.xp } : {};
+    if (data.lessonsSeen && Object.keys(data.lessonsSeen).some((k) => !k.includes(':'))) data.lessonsSeen = {};
     return { ...initialState, ...data, settings: { ...initialState.settings, ...data.settings }, stats: { ...initialState.stats, ...data.stats } };
   } catch {
     return initialState;
@@ -76,14 +81,15 @@ export function rankOf(xp) {
 
 export const draftKey = (chId, lang) => `${chId}:${lang}`;
 
-export const starsOf = (state, chId, lang) => (state.completed[chId] && state.completed[chId][lang] ? state.completed[chId][lang].stars : 0);
-export const bestStars = (state, chId) => Math.max(0, ...Object.values(state.completed[chId] || {}).map((x) => x.stars));
-export const isDone = (state, chId) => Object.keys(state.completed[chId] || {}).length > 0;
+export const worldXp = (state, lang = state.lang) => (state.xp && state.xp[lang]) || 0;
+export const starsOf = (state, chId, lang = state.lang) => (state.completed[chId] && state.completed[chId][lang] ? state.completed[chId][lang].stars : 0);
+export const isDone = (state, chId, lang = state.lang) => !!(state.completed[chId] && state.completed[chId][lang]);
+export const worldDone = (state, lang = state.lang) => CHALLENGES.filter((c) => isDone(state, c.id, lang)).length;
 
-export function moduleUnlocked(state, moduleId) {
+export function moduleUnlocked(state, moduleId, lang = state.lang) {
   if (moduleId === 1) return true;
   const prev = MODULES.find((m) => m.id === moduleId - 1);
-  return prev.challenges.every((c) => isDone(state, c.id));
+  return prev.challenges.every((c) => isDone(state, c.id, lang));
 }
 
 function bumpStreak(streak) {
@@ -96,17 +102,18 @@ function bumpStreak(streak) {
 function withAchievements(state) {
   const got = new Set(state.achievements);
   const add = (id) => got.add(id);
-  const doneIds = Object.keys(state.completed).filter((id) => isDone(state, id));
-  if (doneIds.length) add('first-blood');
+  const entries = Object.values(state.completed).flatMap((byLang) => Object.entries(byLang));
+  if (entries.length) add('first-blood');
   if (state.stats.bugsFixed >= 5) add('bug-hunter');
-  const langCounts = doneIds.map((id) => Object.keys(state.completed[id]).length);
-  if (langCounts.some((n) => n >= 3)) add('polyglot');
-  if (langCounts.some((n) => n >= 6)) add('polyglot-max');
-  if (doneIds.filter((id) => bestStars(state, id) === 3).length >= 5) add('clean-coder');
-  if (Object.values(state.completed).some((byLang) => Object.values(byLang).some((x) => x.noHints))) add('autonomous');
-  if (isDone(state, 'boss-swarm')) add('boss-slayer');
+  const worlds = new Set(entries.map(([l]) => l));
+  if (worlds.size >= 3) add('explorer');
+  if ([...worlds].some((l) => worldDone(state, l) === CHALLENGES.length)) add('world-complete');
+  if (entries.filter(([, x]) => x.stars === 3).length >= 5) add('clean-coder');
+  if (entries.some(([, x]) => x.noHints)) add('autonomous');
+  if (Object.keys(state.completed['boss-swarm'] || {}).length) add('boss-slayer');
   if (state.streak.count >= 3) add('streak-3');
-  if (state.completed['m5-systems'] && state.completed['m5-systems'].c) add('memory-master');
+  const sys = state.completed['m5-systems'] || {};
+  if (sys.c || sys.cpp) add('memory-master');
   const list = [...got];
   return { ...state, achievements: list };
 }
@@ -114,15 +121,14 @@ function withAchievements(state) {
 /**
  * Reducer del progreso. La acción `complete` calcula estrellas y XP:
  *   ★ superar la misión · ★ sin pistas profundas del pato · ★ estilo impecable
- * XP: base × (60/80/100 %) la primera vez en un lenguaje; +50 % de bonus políglota
- * si ya la habías completado en otro; mejorar estrellas paga la diferencia.
+ * XP del mundo: base × (60/80/100 %) la primera vez; mejorar estrellas paga la diferencia.
  */
 export function reducer(state, action) {
   switch (action.type) {
     case 'hydrate':
       return action.state;
     case 'lessonSeen':
-      return { ...state, lessonsSeen: { ...state.lessonsSeen, [action.id]: true } };
+      return { ...state, lessonsSeen: { ...state.lessonsSeen, [draftKey(action.id, action.lang)]: true } };
     case 'tourSeen':
       return { ...state, tourSeen: true };
     case 'setLang':
@@ -150,18 +156,12 @@ export function reducer(state, action) {
       const noHints = !(state.hints[draftKey(id, lang)] > 0);
       const stars = 1 + (noHints ? 1 : 0) + (clean ? 1 : 0);
       const prev = (state.completed[id] || {})[lang];
-      const otherLangs = Object.keys(state.completed[id] || {}).filter((l) => l !== lang);
       const pct = [0, 0.6, 0.8, 1][stars];
       let gain = 0;
       const breakdown = [];
       if (!prev) {
         gain = Math.round(ch.xp * pct);
         breakdown.push({ label: `Misión superada ${'★'.repeat(stars)}`, xp: gain });
-        if (otherLangs.length) {
-          const bonus = Math.round(ch.xp * 0.5);
-          gain += bonus;
-          breakdown.push({ label: 'Bonus políglota', xp: bonus });
-        }
       } else if (stars > prev.stars) {
         gain = Math.round(ch.xp * (pct - [0, 0.6, 0.8, 1][prev.stars]));
         breakdown.push({ label: `Mejora a ${'★'.repeat(stars)}`, xp: gain });
@@ -169,7 +169,7 @@ export function reducer(state, action) {
       const entryRec = { stars: Math.max(stars, prev ? prev.stars : 0), at: Date.now(), noHints: noHints || (prev && prev.noHints) };
       let next = {
         ...state,
-        xp: state.xp + gain,
+        xp: { ...state.xp, [lang]: worldXp(state, lang) + gain },
         completed: { ...state.completed, [id]: { ...(state.completed[id] || {}), [lang]: entryRec } },
         streak: bumpStreak(state.streak),
         stats: { ...state.stats, deploys: state.stats.deploys + 1 },
@@ -188,4 +188,4 @@ export function reducer(state, action) {
 export const ProgressContext = createContext(null);
 export const useProgress = () => useContext(ProgressContext);
 
-export const totalStars = (state) => CHALLENGES.reduce((s, c) => s + bestStars(state, c.id), 0);
+export const totalStars = (state, lang = state.lang) => CHALLENGES.reduce((s, c) => s + starsOf(state, c.id, lang), 0);

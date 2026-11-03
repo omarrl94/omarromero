@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, Award, ChevronRight, Languages } from 'lucide-react';
+import { Star, Award, ChevronRight } from 'lucide-react';
 import RankBadge from './RankBadge.jsx';
 import { ACHIEVEMENTS } from '../core/progress.js';
 import { LANGUAGES } from '../core/languages.js';
@@ -26,7 +26,7 @@ function Confetti() {
 }
 
 /** Celebración al completar una misión: estrellas, desglose de XP y siguiente paso. */
-export function RewardOverlay({ reward, onClose, onNext, onOtherLang, nextTitle }) {
+export function RewardOverlay({ reward, onClose, onNext, nextTitle }) {
   const [shown, setShown] = useState(0);
   useEffect(() => {
     if (!reward) return undefined;
@@ -50,7 +50,7 @@ export function RewardOverlay({ reward, onClose, onNext, onOtherLang, nextTitle 
           >
             <div className="text-[10px] font-bold uppercase tracking-[0.35em] text-neon-lime">Subsistema operativo</div>
             <h2 className="mt-1 text-2xl font-extrabold text-white">¡Misión completada!</h2>
-            <div className="text-xs text-slate-400">en <span style={{ color: LANGUAGES[reward.lang].color }}>{LANGUAGES[reward.lang].name}</span></div>
+            <div className="text-xs text-slate-400">Mundo <span style={{ color: LANGUAGES[reward.lang].color }}>{LANGUAGES[reward.lang].name}</span></div>
             <div className="my-5 flex justify-center gap-3">
               {[1, 2, 3].map((i) => (
                 <motion.div key={i} animate={i <= shown ? { scale: [0.4, 1.35, 1], rotate: [0, 20, 0] } : { scale: 1 }} transition={{ duration: 0.45 }}>
@@ -68,9 +68,6 @@ export function RewardOverlay({ reward, onClose, onNext, onOtherLang, nextTitle 
               {!reward.breakdown.length && <div className="text-slate-500">Ya tenías esta misión con estas estrellas.</div>}
             </div>
             <div className="mt-5 flex flex-wrap justify-center gap-2">
-              <button type="button" onClick={onOtherLang} className="btn-neon border border-neon-violet/50 text-neon-violet hover:bg-neon-violet/10">
-                <Languages size={13} /> Otro lenguaje (+50%)
-              </button>
               {nextTitle ? (
                 <button type="button" onClick={onNext} className="btn-neon bg-neon-cyan text-void-950 shadow-neon">
                   {nextTitle} <ChevronRight size={13} />
@@ -96,7 +93,7 @@ export function RankUpOverlay({ rank, onClose }) {
             <motion.div animate={{ rotate: 360 }} transition={{ duration: 12, repeat: Infinity, ease: 'linear' }} className="mx-auto w-fit">
               <RankBadge rank={rank} size={160} />
             </motion.div>
-            <div className="mt-4 text-[11px] font-bold uppercase tracking-[0.4em] text-slate-400">Nuevo rango de ingeniero</div>
+            <div className="mt-4 text-[11px] font-bold uppercase tracking-[0.4em] text-slate-400">Nuevo rango en este mundo</div>
             <div className="mt-1 text-4xl font-extrabold neon-text" style={{ color: rank.color }}>{rank.name}</div>
             <div className="mt-6 text-xs text-slate-500">toca para continuar</div>
           </motion.div>

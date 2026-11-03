@@ -25,6 +25,10 @@ const TYPES = {
   i8: INT(8), i16: INT(16), i32: INT(32), i64: INT(64), isize: INT(64),
   u8: INT(8, false), u16: INT(16, false), u32: INT(32, false), u64: INT(64, false), usize: INT(64, false),
   f32: { kind: 'float' }, f64: { kind: 'float' }, '&str': { kind: 'str' },
+  // Go / C++ / JavaScript
+  int32: INT(32), int64: INT(64), int16: INT(16), uint8: INT(8, false), uint32: INT(32, false), uint64: INT(64, false), rune: INT(32),
+  float64: { kind: 'float' }, float32: { kind: 'float' }, string: { kind: 'str' },
+  number: { kind: 'float' }, bigint: { kind: 'int', bits: Infinity, signed: true },
 };
 
 /** Tipo efectivo de una declaración, resolviendo particularidades de cada lenguaje. */
@@ -32,11 +36,15 @@ export function typeInfo(type, lang) {
   if (!type) return null;
   const t = type.trim();
   if (lang === 'swift' && t === 'Int') return INT(64);
+  if (lang === 'go' && (t === 'int' || t === 'uint')) return INT(64, t === 'int');
+  if (lang === 'go' && t === 'bool') return { kind: 'bool' };
+  if (lang === 'js' && t === 'boolean') return { kind: 'bool' };
   if (lang === 'python' && t === 'int') return { kind: 'int', bits: Infinity, signed: true };
   if (lang === 'python' && t === 'float') return { kind: 'float' };
   if (/\*$/.test(t) && t !== 'char*') return { kind: 'ptr' };
   if (/\[\]$|^\[|List|Array|list|Vec|^&\[/.test(t)) return { kind: 'list' };
-  if (/Map|dict|\[\w+\s*:/.test(t)) return { kind: 'map' };
+  if (/Map|dict|\[\w+\s*:|^map|unordered_map/.test(t)) return { kind: 'map' };
+  if (/^vector|^\[\]/.test(t)) return { kind: 'list' };
   if (/Set|set/.test(t)) return { kind: 'set' };
   return TYPES[t] || { kind: 'other' };
 }
@@ -45,6 +53,31 @@ export function typeInfo(type, lang) {
 function inferType(expr, value, lang) {
   const e = (expr || '').trim();
   const py = lang === 'python';
+  if (lang === 'js') {
+    if (typeof value === 'bigint') return 'bigint';
+    if (typeof value === 'number') return 'number';
+    if (typeof value === 'string') return 'string';
+    if (typeof value === 'boolean') return 'boolean';
+    if (Array.isArray(value)) return 'Array';
+    if (value instanceof Set) return 'Set';
+    if (value instanceof Map) return 'Map';
+    if (value && typeof value === 'object') return 'Object';
+    return null;
+  }
+  if (lang === 'go' || lang === 'cpp') {
+    const s2 = lang === 'go' ? { f: 'float64', i: 'int', s: 'string', b: 'bool' } : { f: 'double', i: 'int', s: 'string', b: 'bool' };
+    if (/^-?\d[\d_]*\.\d*$/.test(e)) return s2.f;
+    if (/^-?\d[\d_]*$/.test(e)) return s2.i;
+    if (/^["']/.test(e)) return s2.s;
+    if (/^(true|false)$/.test(e)) return s2.b;
+    if (typeof value === 'number') return Number.isInteger(value) ? s2.i : s2.f;
+    if (typeof value === 'string') return s2.s;
+    if (typeof value === 'boolean') return s2.b;
+    if (Array.isArray(value)) return lang === 'go' ? '[]int' : 'vector';
+    if (value instanceof Set) return 'set';
+    if (value && typeof value === 'object') return lang === 'go' ? 'map' : 'unordered_map';
+    return null;
+  }
   if (lang === 'rust') {
     if (/^-?\d[\d_]*\.\d*(e-?\d+)?(f64|f32)?$/i.test(e)) return 'f64';
     if (/^-?\d[\d_]*(i64|u64)$/.test(e)) return 'i64';
@@ -108,6 +141,9 @@ const ERR = {
     kotlin: `java.lang.ArrayIndexOutOfBoundsException: Index ${i} out of bounds for length ${len}`,
     swift: 'Fatal error: Index out of range',
     rust: `index out of bounds: the len is ${len} but the index is ${i}`,
+    go: `runtime error: index out of range [${i}] with length ${len}`,
+    cpp: `AddressSanitizer: heap-buffer-overflow — acceso a [${i}] de un vector de ${len} elementos (operator[] no comprueba límites)`,
+    js: `lectura fuera del array: [${i}] no existe (longitud ${len}) → undefined`,
     c: `AddressSanitizer: stack-buffer-overflow — acceso a [${i}] en un array de ${len} elementos (comportamiento indefinido)`,
   })[lang],
   overflowTrap: () => 'Fatal error: Arithmetic overflow',
@@ -118,6 +154,9 @@ const ERR = {
     swift: 'Watchdog: el proceso no termina (bucle infinito)',
     c: 'Watchdog: proceso terminado por SIGKILL (bucle infinito)',
     rust: 'Watchdog: el proceso no termina (bucle infinito)',
+    cpp: 'Watchdog: proceso terminado por SIGKILL (bucle infinito)',
+    go: 'Watchdog: el proceso no termina (bucle infinito)',
+    js: 'Watchdog: el script no termina (bucle infinito)',
   })[lang],
 };
 
@@ -129,6 +168,9 @@ const NAMES = {
     swift: `error: cannot find '${n}' in scope`,
     c: `error: '${n}' undeclared (first use in this function)`,
     rust: `error[E0425]: cannot find value \`${n}\` in this scope`,
+    cpp: `error: '${n}' was not declared in this scope`,
+    go: `undefined: ${n}`,
+    js: `ReferenceError: ${n} is not defined`,
   })[lang],
   nullRef: (lang, prop) => ({
     python: `AttributeError: 'NoneType' object has no attribute '${prop}'`,
@@ -137,6 +179,9 @@ const NAMES = {
     swift: 'Fatal error: Unexpectedly found nil while unwrapping an Optional value',
     c: 'Segmentation fault (core dumped) — desreferencia de puntero NULL',
     rust: 'called `Option::unwrap()` on a `None` value',
+    cpp: 'Segmentation fault (core dumped) — acceso a un puntero nulo',
+    go: 'runtime error: invalid memory address or nil pointer dereference',
+    js: `TypeError: Cannot read properties of undefined (reading '${prop}')`,
   })[lang],
   notCallable: (lang, n) => ({
     python: `TypeError: '${n}' object is not callable`,
@@ -145,6 +190,9 @@ const NAMES = {
     swift: `error: cannot call value of non-function type '${n}'`,
     c: `error: called object '${n}' is not a function`,
     rust: `error[E0425]: cannot find function \`${n}\` in this scope`,
+    cpp: `error: '${n}' cannot be used as a function`,
+    go: `invalid operation: cannot call non-function ${n}`,
+    js: `TypeError: ${n} is not a function`,
   })[lang],
   recursion: (lang) => ({
     python: 'RecursionError: maximum recursion depth exceeded',
@@ -153,6 +201,9 @@ const NAMES = {
     swift: 'EXC_BAD_ACCESS: stack overflow',
     c: 'Segmentation fault (core dumped) — stack overflow',
     rust: "thread 'main' has overflowed its stack",
+    cpp: 'Segmentation fault (core dumped) — stack overflow',
+    go: 'runtime: goroutine stack exceeds 1000000000-byte limit\nfatal error: stack overflow',
+    js: 'RangeError: Maximum call stack size exceeded',
   })[lang],
 };
 
@@ -185,7 +236,7 @@ function parseFrames(e, maxLine) {
 
 function frameLabel(fn, lang) {
   if (fn) return fn;
-  return { python: '<module>', java: 'main', kotlin: 'main', swift: 'top-level', c: 'main', rust: 'main' }[lang];
+  return { python: '<module>', java: 'main', kotlin: 'main', swift: 'top-level', c: 'main', rust: 'main', cpp: 'main', go: 'main', js: '<anonymous>' }[lang];
 }
 
 /** Construye un stack trace con el formato nativo de cada lenguaje. */
@@ -201,6 +252,14 @@ export function formatTrace(lang, message, frames) {
       const head = message.startsWith('error') ? message : `Exception in thread "main" ${message}`;
       return [head, ...fr.map((f) => `\tat ${cls}.${frameLabel(f.fn, lang)}(${file}:${f.line})`)].join('\n');
     }
+    case 'go':
+      if (!/^(runtime error|panic|invalid memory)/.test(message) && !/stack/.test(message)) return `./${file}:${fr[0].line}:1: ${message}`;
+      return [`panic: ${message}`, '', 'goroutine 1 [running]:', ...fr.map((f) => `main.${frameLabel(f.fn, lang)}(...)\n\t/app/${file}:${f.line}`), 'exit status 2'].join('\n');
+    case 'js':
+      return [`Uncaught ${message}`, ...fr.map((f) => `    at ${frameLabel(f.fn, lang)} (${file}:${f.line})`)].join('\n');
+    case 'cpp':
+      if (/^error/.test(message)) return `${file}:${fr[0].line}:1: ${message}`;
+      return [`==1==ERROR: ${message}`, ...fr.map((f, i) => `    #${i} in ${frameLabel(f.fn, lang)}() ${file}:${f.line}`)].join('\n');
     case 'rust':
       if (/^error/.test(message)) return [message, `  --> ${file}:${fr[0].line}:1`].join('\n');
       return [`thread 'main' panicked at ${file}:${fr[0].line}:`, message, 'stack backtrace:', ...fr.map((f, i) => `  ${i}: codeforge::${frameLabel(f.fn, lang)}\n             at ${file}:${f.line}`)].join('\n');
@@ -236,7 +295,7 @@ function normalizeError(e, lang, S, maxLine) {
     message = 'error: construcción que el Forge VM no reconoce';
   } else message = `${e.name || 'Error'}: ${e.message}`;
   return {
-    kind: code === 'syntax' || /^error/.test(message) ? 'compile' : 'runtime',
+    kind: code === 'syntax' || /^error/.test(message) || (code === 'type' && lang !== 'python' && lang !== 'js') ? 'compile' : 'runtime',
     code,
     message,
     line,
@@ -295,6 +354,17 @@ function installProtos() {
 
 const isDict = (o) => o && typeof o === 'object' && Object.getPrototypeOf(o) === DictProto;
 
+/** Mapa con «valor cero» (map de Go, unordered_map::operator[] de C++): leer una clave ausente da 0. */
+function zeroDict(zero = 0) {
+  const target = Object.create(DictProto);
+  return new Proxy(target, {
+    get(t, k, r) {
+      if (typeof k === 'symbol' || k in t) return Reflect.get(t, k, r);
+      return zero;
+    },
+  });
+}
+
 export function dictToObject(d) {
   if (!d) return {};
   if (d instanceof Map) return Object.fromEntries(d);
@@ -305,6 +375,24 @@ export function dictToObject(d) {
 
 function fmt(v, lang, nested = false) {
   const py = lang === 'python';
+  if (lang === 'go') {
+    if (v === null || v === undefined) return '<nil>';
+    if (Array.isArray(v)) return `[${v.map((x) => fmt(x, lang, true)).join(' ')}]`;
+    if (v instanceof Set) return `map[${[...v].map((x) => `${fmt(x, lang, true)}:true`).join(' ')}]`;
+    if (isDict(v)) return `map[${Object.keys(v).sort().map((k) => `${k}:${fmt(v[k], lang, true)}`).join(' ')}]`;
+    return String(v);
+  }
+  if (lang === 'js') {
+    if (v === undefined) return 'undefined';
+    if (v === null) return 'null';
+    if (typeof v === 'bigint') return nested ? `${v}n` : String(v);
+    if (typeof v === 'string') return nested ? `'${v}'` : v;
+    if (Array.isArray(v)) return `[ ${v.map((x) => fmt(x, lang, true)).join(', ')} ]`;
+    if (v instanceof Map) return `Map(${v.size}) { ${[...v].map(([k, x]) => `${fmt(k, lang, true)} => ${fmt(x, lang, true)}`).join(', ')} }`;
+    if (v instanceof Set) return `Set(${v.size}) { ${[...v].map((x) => fmt(x, lang, true)).join(', ')} }`;
+    if (v && typeof v === 'object') return `{ ${Object.entries(v).map(([k, x]) => `${k}: ${fmt(x, lang, true)}`).join(', ')} }`;
+    return String(v);
+  }
   if (v === null || v === undefined) return py || lang === 'rust' ? 'None' : lang === 'swift' ? 'nil' : 'null';
   if (typeof v === 'boolean') return py ? (v ? 'True' : 'False') : String(v);
   if (typeof v === 'string') return nested ? (py ? `'${v}'` : lang === 'swift' || lang === 'rust' ? `"${v}"` : v) : v;
@@ -376,6 +464,7 @@ function makeTracked(arr, label, S) {
         if (lang === 'python' && i < 0) i += target.length;
         if (i < 0 || i >= target.length) {
           log({ op: 'oob', label, i, line: S.l });
+          if (lang === 'js') return undefined;
           throw new ForgeRuntimeError('index', ERR.index(lang, Number(key), target.length), { index: Number(key), length: target.length });
         }
         S.reads++;
@@ -389,7 +478,7 @@ function makeTracked(arr, label, S) {
         let i = Number(key);
         if (lang === 'python' && i < 0) i += target.length;
         if (i < 0 || i >= target.length) {
-          if (lang === 'python' || lang === 'c' || lang === 'swift' || lang === 'java' || lang === 'kotlin') {
+          if (lang !== 'js') {
             log({ op: 'oob', label, i, line: S.l });
             throw new ForgeRuntimeError('index', ERR.index(lang, Number(key), target.length), { index: Number(key), length: target.length });
           }
@@ -505,6 +594,25 @@ function buildHelpers(S, meta) {
     },
     __tick: () => tick(),
     __show: (v) => fmt(v, lang),
+    __cout: (...parts) => {
+      const text = parts.map((x) => (typeof x === 'boolean' ? (x ? '1' : '0') : fmt(x, lang))).join('');
+      const ps = (S.partial + text).split('\n');
+      S.partial = ps.pop();
+      ps.forEach(out);
+    },
+    __goprintln: (...a) => out(a.map((x) => fmt(x, lang)).join(' ')),
+    __goprint: (...a) => {
+      const ps = (S.partial + a.map((x) => fmt(x, lang)).join('')).split('\n');
+      S.partial = ps.pop();
+      ps.forEach(out);
+    },
+    __sprintf: (f, ...a) => cprintf(String(f).replace(/%v/g, '%s'), a),
+    __jslog: (...a) => out(a.map((x) => fmt(x, lang)).join(' ')),
+    __gomap: (zero) => zeroDict(zero),
+    __append: (arr, ...xs) => { (arr || []).push(...xs); return arr || xs; },
+    __gorange1: (x) => (typeof x === 'number' ? rangeGen(0, x, 1) : Array.isArray(x) || typeof x === 'string' ? x.length ? [...Array(x.length).keys()] : [] : Object.keys(x || {})),
+    __gorange2: (x) => (Array.isArray(x) || typeof x === 'string' ? [...x].map((v, i) => [i, v]) : Object.entries(x || {})),
+    __gi32: (x) => wrapInt(Math.trunc(Number(x)), 32, true),
     __rformat: (f, ...a) => rustFormat(f, a, lang),
     __rprintln: (f = '', ...a) => out(rustFormat(f, a, lang)),
     __rprint: (f = '', ...a) => {
@@ -591,10 +699,10 @@ function declare(S, meta, type, name, value, line) {
   const d = meta.decls[line] || { expr: '' };
   const exprSrc = d.expr || '';
   let declType = type || inferType(exprSrc, value, lang);
-  if (!type && typeof value === 'number' && lang !== 'python') {
+  if (!type && typeof value === 'number' && lang !== 'python' && lang !== 'js') {
     // Inferencia por operandos: Int32 * Int32 sigue siendo Int32 (Kotlin/Swift/var de Java).
     const opTypes = (exprSrc.match(/[A-Za-z_]\w*/g) || []).filter((x) => S.vars[x] && S.vars[x].kind === 'int').map((x) => S.vars[x].type);
-    if (/Int64\(|\.toLong\(\)|\(\s*long\s*\)|\d[lL]\b|\bas\s+i64\b/.test(exprSrc)) declType = { swift: 'Int64', kotlin: 'Long', java: 'long', c: 'int64_t', rust: 'i64' }[lang];
+    if (/Int64\(|\bint64\(|\.toLong\(\)|\(\s*long\s*\)|\(\s*int64_t\s*\)|\d[lL]\b|\bas\s+i64\b/.test(exprSrc)) declType = { swift: 'Int64', kotlin: 'Long', java: 'long', c: 'int64_t', cpp: 'int64_t', rust: 'i64', go: 'int64' }[lang] || declType;
     else if (opTypes.length && Number.isInteger(value) && !/\d\.\d/.test(exprSrc)) {
       declType = opTypes.reduce((a, b) => ((typeInfo(b, lang).bits || 0) > (typeInfo(a, lang).bits || 0) ? b : a));
     }
@@ -602,7 +710,8 @@ function declare(S, meta, type, name, value, line) {
   const info = typeInfo(declType, lang) || { kind: 'other' };
   const rec = { name, type: declType, declared: !!type, kind: info.kind, line, expr: exprSrc, raw: value, value, flags: [] };
   if (value === undefined) {
-    value = info.kind === 'int' || info.kind === 'float' ? 0 : info.kind === 'bool' ? false : null;
+    value = info.kind === 'int' || info.kind === 'float' ? 0 : info.kind === 'bool' ? false
+      : info.kind === 'map' ? zeroDict(0) : info.kind === 'list' ? [] : info.kind === 'set' ? new Set() : info.kind === 'str' ? '' : null;
     rec.value = value;
     rec.uninit = true;
   }
@@ -618,11 +727,14 @@ function declare(S, meta, type, name, value, line) {
       value = Math.trunc(value); // división entera: int / int trunca hacia cero
     }
     if (!Number.isInteger(value)) {
-      if (lang === 'c') { rec.flags.push('truncated'); value = Math.trunc(value); }
-      else if (lang !== 'python') {
+      if (lang === 'c' || lang === 'cpp') { rec.flags.push('truncated'); value = Math.trunc(value); }
+      else if (lang !== 'python' && lang !== 'js') {
         const from = lang === 'java' ? 'double' : 'Double';
         if (lang === 'rust') {
           throw new ForgeRuntimeError('type', `error[E0308]: mismatched types: expected \`${declType}\`, found floating-point number`, { line, hint: 'Un entero (i32) no puede guardar decimales: usa f64.' });
+        }
+        if (lang === 'go') {
+          throw new ForgeRuntimeError('type', `cannot use ${exprSrc.trim()} (untyped float constant) as ${declType} value in variable declaration (truncated)`, { line, hint: 'Un int no puede guardar decimales: usa float64.' });
         }
         throw new ForgeRuntimeError('type', lang === 'java'
           ? `error: incompatible types: possible lossy conversion from ${from} to ${declType}`
@@ -632,16 +744,19 @@ function declare(S, meta, type, name, value, line) {
     }
     if (info.bits !== Infinity) {
       const ids = (exprSrc.match(/[A-Za-z_]\w*/g) || []).filter((x) => S.vars[x]);
-      const widened = /\(\s*(long|int64_t|long long|double)\s*\)|\.toLong\(\)|Int64\(|\d[lL]\b|\bL\b|\bas\s+(i64|u64|i128|f64)\b|\d(i64|u64)\b/.test(exprSrc)
+      const widened = /\bint64\(|\(\s*(long|int64_t|long long|double)\s*\)|\.toLong\(\)|Int64\(|\d[lL]\b|\bL\b|\bas\s+(i64|u64|i128|f64)\b|\d(i64|u64)\b/.test(exprSrc)
         || ids.some((x) => (typeInfo(S.vars[x].type, lang) || {}).bits >= 64);
       const narrowOps = ids.length > 0 && ids.every((x) => (typeInfo(S.vars[x].type, lang) || {}).bits === 32);
       if (lang === 'swift' && info.bits === 64 && narrowOps && !widened && /[*+-]/.test(exprSrc)) {
         throw new ForgeRuntimeError('type', `error: cannot convert value of type 'Int32' to specified type '${declType}'`, { line, hint: 'Swift no convierte tipos numéricos de forma implícita: usa Int64(valor).' });
       }
+      if (lang === 'go' && info.bits === 64 && narrowOps && !widened && /[*+-]/.test(exprSrc) && rec.declared) {
+        throw new ForgeRuntimeError('type', `cannot use ${exprSrc.trim()} (value of type int32) as ${declType} value in variable declaration`, { line, hint: 'Go nunca mezcla tipos numéricos: convierte cada operando con int64(…).' });
+      }
       if (lang === 'rust' && info.bits === 64 && narrowOps && !widened && /[*+-]/.test(exprSrc)) {
         throw new ForgeRuntimeError('type', `error[E0308]: mismatched types: expected \`${declType}\`, found \`i32\``, { line, hint: 'Rust nunca convierte números por su cuenta: convierte cada operando con «as i64».' });
       }
-      if (info.bits >= 64 && narrowOps && !widened && /\*|\+/.test(exprSrc) && lang !== 'swift' && lang !== 'rust') {
+      if (info.bits >= 64 && narrowOps && !widened && /\*|\+/.test(exprSrc) && !['swift', 'rust', 'go'].includes(lang)) {
         // La operación se evaluó en 32 bits ANTES de ampliarse: el clásico bug de promoción.
         const wrapped = wrapInt(value, 32, true);
         if (wrapped !== value) {
@@ -655,6 +770,7 @@ function declare(S, meta, type, name, value, line) {
         const literal = /^-?[\d_]+[lL]?$/.test(exprSrc.trim());
         if (literal && lang !== 'c') {
           if (lang === 'rust') throw new ForgeRuntimeError('type', `error: literal out of range for \`${declType}\``, { line });
+          if (lang === 'go') throw new ForgeRuntimeError('type', `cannot use ${exprSrc.trim()} (untyped int constant) as ${declType} value in variable declaration (overflows)`, { line });
           throw new ForgeRuntimeError('type', lang === 'java' ? 'error: integer number too large'
             : lang === 'kotlin' ? `error: the integer literal does not conform to the expected type ${declType}`
               : `error: integer literal '${exprSrc.trim()}' overflows when stored into '${declType}'`, { line });
@@ -754,7 +870,7 @@ export function runProgram({ code, lang, invoke, api, maxTicks = 3e6, callMain =
 }
 
 function syntaxMessage(lang) {
-  return { python: 'SyntaxError: invalid syntax', java: 'error: illegal start of expression', kotlin: 'error: expecting an element', swift: 'error: expected expression', c: 'error: expected expression', rust: 'error: expected expression' }[lang];
+  return { python: 'SyntaxError: invalid syntax', java: 'error: illegal start of expression', kotlin: 'error: expecting an element', swift: 'error: expected expression', c: 'error: expected expression', rust: 'error: expected expression', cpp: 'error: expected primary-expression', go: 'syntax error: unexpected token', js: 'SyntaxError: Unexpected token' }[lang];
 }
 
 /** Busca la primera línea que rompe la compilación compilando prefijos con cierres. */
@@ -784,6 +900,8 @@ function formatSyntax(lang, e) {
   if (lang === 'python') return `  File "${file}", line ${e.line}\n${e.message}`;
   if (lang === 'java') return `${file}:${e.line}: ${e.message}`;
   if (lang === 'rust') return `${e.message}\n  --> ${file}:${e.line}:${e.col || 1}`;
+  if (lang === 'go') return `./${file}:${e.line}:${e.col || 1}: ${e.message}`;
+  if (lang === 'js') return `${file}:${e.line}\n${e.message}`;
   return `${file}:${e.line}:${e.col || 1}: ${e.message}`;
 }
 

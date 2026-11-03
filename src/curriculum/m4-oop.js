@@ -11,7 +11,10 @@ const entities = {
   xp: 260,
   mode: 'static',
   story: 'El motor necesita un sistema de entidades. Todas comparten posición (x, y) y un método update() que se llama en cada frame. Pero cada una se comporta distinto: el jugador avanza, el enemigo patrulla y el obstáculo no se mueve. Diseña la jerarquía y el motor la instanciará en la arena en tiempo real.',
-  objective: 'Crea la clase base Entity con update(); las hijas Player, Enemy y Obstacle heredan de ella; Player y Enemy sobrescriben update() con movimientos distintos (x += …, y += …).',
+  objective: {
+    default: 'Crea la clase base Entity con update(); las hijas Player, Enemy y Obstacle heredan de ella; Player y Enemy sobrescriben update() con movimientos distintos (x += …, y += …).',
+    c: 'Crea struct Entity con un puntero a función update; Player, Enemy y Obstacle llevan Entity base como primer campo; conecta a Player y Enemy funciones update distintas (x += …, y += …).',
+  },
   concept: {
     title: 'Herencia y polimorfismo',
     text: 'La herencia permite que una clase hija reutilice lo que define la padre. El polimorfismo hace que el motor llame a entity.update() sin saber qué tipo concreto es: cada clase responde a su manera. Un solo bucle actualiza a todo el mundo.',
@@ -292,6 +295,18 @@ int main(void) {
       checks.push(check('kotlin-open', 'Entity y update() son open', ok,
         ok ? '' : "error: This type is final, so it cannot be inherited from — en Kotlin todo es final por defecto."));
     }
+    if (lang === 'cpp') {
+      const bu = base && base.methods.update;
+      const ok = bu && bu.virtual;
+      const marked = kids.filter((n) => classes[n] && classes[n].methods.update && classes[n].methods.update.override);
+      checks.push(check('cpp-virtual', 'update() es virtual en Entity', ok,
+        ok ? '' : marked.length ? `error: 'void ${marked[0]}::update()' marked 'override', but does not override — falta virtual en Entity.` : 'Sin virtual, el motor siempre llamaría al update() de Entity.'));
+    }
+    if (lang === 'go') {
+      const bad = kids.filter((n) => classes[n] && classes[n].methods.update && !classes[n].methods.update.pointer && (motionOf(classes[n].methods.update.body).vx || motionOf(classes[n].methods.update.body).vy));
+      checks.push(check('go-pointer', 'Los Update() que mueven usan receptor puntero', bad.length === 0,
+        bad.length ? `${bad.join(', ')}: con receptor por valor el cambio se hace sobre una copia y se pierde. Usa (p *${bad[0]}).` : ''));
+    }
     if (lang === 'rust') {
       const trait = classes.Entity;
       const hasDefault = trait && trait.methods.update && trait.methods.update.defaultImpl;
@@ -327,6 +342,8 @@ int main(void) {
     polymorph: ['Si el jugador avanza en x, ¿qué debería cambiar en update() para que el enemigo patrulle en vertical?'],
     'kotlin-open': ['En Kotlin, ¿se puede heredar de cualquier clase? ¿Qué palabra «abre» una clase a la herencia?'],
     'swift-override': ['¿Qué palabra exige Swift delante de un método que reemplaza al del padre?'],
+    'cpp-virtual': ['Si el motor guarda un Entity* que apunta a un Enemy, ¿qué update() se ejecuta si el de Entity no es virtual?'],
+    'go-pointer': ['Si un método recibe una copia del struct y cambia su x, ¿qué le pasa al struct original?'],
     'rust-default': ['Si Obstacle no escribe su propio update(), ¿de dónde debería sacarlo? ¿Puede un trait traer un comportamiento por defecto?'],
   },
 };

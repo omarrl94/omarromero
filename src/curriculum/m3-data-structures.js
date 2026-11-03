@@ -192,7 +192,10 @@ const inventory = {
   xp: 200,
   mode: 'run',
   story: 'Tras la batalla, el rayo tractor recoge 8 objetos. El inventario debe contar cuántos hay de cada tipo, pero el código actual sobrescribe el contador en lugar de incrementarlo: todo marca 1.',
-  objective: 'countItems(pickups) debe devolver un diccionario {objeto: cantidad}. En C no hay diccionarios: rellena counts[código] usando el código numérico de cada objeto.',
+  objective: {
+    default: 'countItems(pickups) debe devolver un diccionario {objeto: cantidad} con cuántos hay de cada tipo.',
+    c: 'C no tiene diccionarios: countItems(ids, n, counts) debe rellenar counts[código] con cuántos objetos hay de cada código (0 = ore, 1 = fuel, 2 = chip).',
+  },
   concept: {
     title: 'Diccionarios (mapas hash)',
     text: 'Un diccionario asocia claves con valores y encuentra una clave en tiempo constante, O(1), gracias a una función hash. Patrón «contador»: si la clave no existe, empieza en 0; después suma 1.',

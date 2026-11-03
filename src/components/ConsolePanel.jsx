@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Terminal, Paintbrush, Languages, CheckCircle2, XCircle, Lock, Boxes, HelpCircle, Lightbulb } from 'lucide-react';
-import { LANGUAGES, LANG_ORDER } from '../core/languages.js';
+import { Terminal, Paintbrush, BookMarked, CheckCircle2, XCircle, Lock, Boxes, HelpCircle, Lightbulb } from 'lucide-react';
+import { LANGUAGES } from '../core/languages.js';
 import { highlight } from './highlight.js';
 import { CHECK_HELP } from '../curriculum/lessons.js';
 import { plainError } from '../core/explain.js';
@@ -9,16 +9,17 @@ const TABS = [
   { id: 'out', label: 'Consola', icon: Terminal },
   { id: 'vars', label: 'Variables', icon: Boxes },
   { id: 'style', label: 'Estilo', icon: Paintbrush },
-  { id: 'poly', label: 'Polyglot', icon: Languages },
+  { id: 'poly', label: 'Codex', icon: BookMarked },
 ];
 
-export function Checks({ checks }) {
+export function Checks({ checks, lang }) {
   const [openId, setOpenId] = useState(null);
   if (!checks || !checks.length) return null;
   return (
     <ul className="space-y-1">
       {checks.map((c) => {
-        const help = CHECK_HELP[c.id];
+        const h = CHECK_HELP[c.id];
+        const help = h && typeof h === 'object' ? h[lang] || h.default : h;
         const open = openId === c.id;
         return (
           <li key={c.id} className="text-xs">
@@ -85,7 +86,7 @@ export function PlainError({ error }) {
   );
 }
 
-export default function ConsolePanel({ evaluation, lang, ch, solved, onSwitchLang, onJumpLine }) {
+export default function ConsolePanel({ evaluation, lang, ch, solved, onJumpLine }) {
   const [tab, setTab] = useState('out');
   const ev = evaluation;
   const lint = ev ? ev.lint : [];
@@ -147,28 +148,18 @@ export default function ConsolePanel({ evaluation, lang, ch, solved, onSwitchLan
         )}
         {tab === 'poly' && (
           <div className="space-y-3">
-            <p className="text-slate-400">El mismo problema de ingeniería, seis lenguajes y sus paradigmas.</p>
-            {LANG_ORDER.map((l) => {
-              const L = LANGUAGES[l];
-              const sol = ch.solution[l];
-              return (
-                <div key={l} className={`rounded-lg border p-2 ${l === lang ? 'border-neon-cyan/40 bg-neon-cyan/5' : 'border-void-600/60'}`}>
-                  <div className="mb-1 flex items-center justify-between">
-                    <span className="font-bold" style={{ color: L.color }}>{L.name}</span>
-                    {l !== lang && (
-                      <button type="button" onClick={() => onSwitchLang(l)} className="text-[10px] uppercase tracking-wider text-neon-cyan hover:underline">Forjar en {L.name} →</button>
-                    )}
-                  </div>
-                  <p className="text-slate-300">{ch.polyglot[l]}</p>
-                  {l !== lang && solved && (
-                    <pre className="editor-layer mt-2 max-h-48 overflow-auto rounded bg-void-950 p-2 !text-[11px] !leading-[16px]" dangerouslySetInnerHTML={{ __html: highlight(sol.trim(), l) }} />
-                  )}
-                  {l !== lang && !solved && (
-                    <div className="mt-1 flex items-center gap-1 text-[10px] text-slate-500"><Lock size={11} /> Supera la misión para desbloquear esta solución en el Codex.</div>
-                  )}
-                </div>
-              );
-            })}
+            <div className="rounded-lg border p-3" style={{ borderColor: `${LANGUAGES[lang].color}55`, background: `${LANGUAGES[lang].color}0d` }}>
+              <div className="mb-1 text-[10px] font-bold uppercase tracking-widest" style={{ color: LANGUAGES[lang].color }}>Así se hace en {LANGUAGES[lang].name}</div>
+              <p className="text-[13px] leading-relaxed text-slate-200">{ch.polyglot[lang]}</p>
+            </div>
+            <div>
+              <div className="mb-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">Solución de referencia</div>
+              {solved ? (
+                <pre className="editor-layer max-h-72 overflow-auto rounded-lg border border-void-600/60 bg-void-950 p-2 !text-[11px] !leading-[16px]" dangerouslySetInnerHTML={{ __html: highlight(ch.solution[lang].trim(), lang) }} />
+              ) : (
+                <div className="flex items-center gap-1.5 text-[11px] text-slate-500"><Lock size={12} /> Supera la misión para comparar tu código con la solución de referencia.</div>
+              )}
+            </div>
           </div>
         )}
       </div>

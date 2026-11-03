@@ -78,7 +78,7 @@ export function askDuck({ ch, lang, code, evaluation }) {
   return {
     mood: 'happy',
     title: '¡Cuack cuack! El mundo funciona.',
-    questions: ['Explícamelo como si yo fuera un pato: ¿por qué funciona tu solución?', '¿Cómo lo resolverías en otro lenguaje? Mira la pestaña Polyglot.'],
+    questions: ['Explícamelo como si yo fuera un pato: ¿por qué funciona tu solución?', 'Compara tu código con la solución de referencia en la pestaña Codex: ¿en qué se parecen y en qué no?'],
   };
 }
 

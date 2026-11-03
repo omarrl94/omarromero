@@ -7,17 +7,20 @@ const systems = {
   module: 5,
   title: 'Núcleo del Sistema',
   codename: 'KERNEL.SYNC',
-  scene: (lang) => (lang === 'c' ? 'heap' : 'concurrency'),
+  scene: (lang) => (lang === 'c' || lang === 'cpp' ? 'heap' : 'concurrency'),
   xp: 320,
-  mode: (lang) => (lang === 'c' ? 'run' : 'static'),
-  story: 'Último módulo antes del jefe final. En C gestionas a mano la memoria de los escudos: cada byte que pides con malloc debes devolverlo con free, o el heap se desangra. En el resto de lenguajes, tres sondas escanean tres sectores: si las lanzas una detrás de otra tardas 3 s; si las lanzas a la vez, 1 s.',
+  mode: (lang) => (lang === 'c' || lang === 'cpp' ? 'run' : 'static'),
+  story: {
+    default: 'Último módulo antes del jefe final. Tres sondas escanean tres sectores y cada escaneo tarda 1 segundo. Si las lanzas una detrás de otra tardas 3 s; si las lanzas a la vez, 1 s. Y al juntar los resultados, nadie debe pisar el trabajo de otro.',
+    c: 'Último módulo antes del jefe final. Gestionas a mano la memoria de los escudos: cada byte que pides con malloc debes devolverlo con free, o el heap se desangra.',
+  },
   objective: {
     c: 'Reserva shields para 8 int y buffer para 4 int, rellena shields[i] = i * 10, y libera TODO al final. Sin overflow de heap, sin use-after-free, sin fugas.',
     default: 'Lanza los 3 escaneos de forma concurrente (todos antes de esperar), espera a que terminen todos y combina el resultado sin carreras de datos.',
   },
   concept: {
     title: 'Memoria manual y concurrencia',
-    text: 'malloc(bytes) reserva memoria en el heap y devuelve un puntero; free() la devuelve. Olvidar free = fuga; usar tras free = use-after-free; pedir pocos bytes = overflow. Concurrencia: lanzar varias tareas antes de esperar a ninguna; si comparten una variable mutable, protégela (atómicos, mutex, actores) o, mejor, devuelve valores y combínalos al final.',
+    text: 'Los programas de sistemas controlan dos recursos escasos: la memoria y el tiempo. Con la memoria manual, todo lo que pides lo devuelves, una sola vez y sin usarlo después. Con la concurrencia, lanzas varias tareas antes de esperar a ninguna, y si comparten datos, los proteges o, mejor, cada una devuelve su resultado.',
   },
   starter: {
     c: `#include <stdio.h>
@@ -202,7 +205,7 @@ func runScanners() async {
     c: 'El heap es tuyo: malloc no inicializa, no comprueba límites y free no anula el puntero. Herramientas como AddressSanitizer y Valgrind detectan lo que ves en pantalla.',
   },
   evaluate({ result, code, lang }) {
-    if (lang === 'c') {
+    if (lang === 'c' || lang === 'cpp') {
       const heap = result && result.state ? result.state.heap : { blocks: [], events: [] };
       const err = result && result.error;
       const blocks = heap.blocks;
@@ -229,11 +232,11 @@ func runScanners() async {
     }
     const a = analyzeConcurrency(code, lang);
     const asyncDecl = {
-      python: /async\s+def\s+scan/, java: /static\s+\w+\s+scan\s*\(/, kotlin: /suspend\s+fun\s+scan/, swift: /func\s+scan\s*\([^)]*\)\s*async/, rust: /fn\s+scan\s*\(/,
+      python: /async\s+def\s+scan/, java: /static\s+\w+\s+scan\s*\(/, kotlin: /suspend\s+fun\s+scan/, swift: /func\s+scan\s*\([^)]*\)\s*async/, rust: /fn\s+scan\s*\(/, go: /func\s+scan\s*\(/, js: /async\s+function\s+scan|scan\s*=\s*async/,
     }[lang].test(code);
     const raceFree = !a.sharedMutation || a.protectedMutation;
     const checks = [
-      check('scan', lang === 'rust' || lang === 'java' ? 'Función scan definida' : 'Función scan asíncrona definida', asyncDecl),
+      check('scan', ['rust', 'java', 'go'].includes(lang) ? 'Función scan definida' : 'Función scan asíncrona definida', asyncDecl),
       check('concurrent', 'Las 3 sondas se lanzan a la vez', a.concurrent, a.concurrent ? `${a.spawnCount} tareas concurrentes` : a.interleaved ? 'Esperas a cada tarea antes de lanzar la siguiente: ejecución en serie.' : 'Las tareas se ejecutan una detrás de otra.'),
       check('waits', 'Espera a que terminen todas antes de usar el resultado', a.waits),
       check('race', 'Sin carreras de datos en el resultado compartido', raceFree,

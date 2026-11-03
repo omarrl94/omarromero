@@ -2,7 +2,10 @@
 // pensada para quien empieza desde cero. Cada paso tiene un texto sencillo, una
 // animación (visual) y, si procede, un ejemplo en el lenguaje elegido.
 // `langs` limita un paso a ciertos lenguajes; `mission` explica qué cambiar en la misión.
-import { RUST_LESSON_CODE, RUST_EXTRA_LANGS, RUST_EXTRA_STEPS, RUST_MISSION_TEXT } from './rust-pack.js';
+import rustPack from './rust-pack.js';
+import cppPack from './cpp-pack.js';
+import goPack from './go-pack.js';
+import jsPack from './js-pack.js';
 
 export const LESSONS = {
   'm1-world-laws': {
@@ -21,7 +24,7 @@ export const LESSONS = {
       },
       {
         title: 'Cada caja tiene un tipo',
-        text: 'No todas las cajas son iguales. El tipo dice qué puede guardar: números enteros (1200), números con decimales (9.81), sí/no (verdadero o falso) o texto ("Nova"). Si intentas meter un decimal en una caja de enteros, los decimales no caben: según el lenguaje, te avisa con un error o los corta sin decir nada.',
+        text: 'No todas las cajas son iguales. El tipo dice qué puede guardar: números enteros (1200), números con decimales (9.81), sí/no (verdadero o falso) o texto ("Nova"). Si intentas meter un decimal en una caja de enteros, los decimales no caben: mira en la animación qué hace tu lenguaje en ese caso.',
         visual: 'typecut',
         code: {
           python: 'ship_mass = 1200      # int   → entero\ngravity = 9.81        # float → decimal\nshields_on = True     # bool  → sí / no\npilot_name = "Nova"   # str   → texto',
@@ -332,7 +335,7 @@ export const LESSONS = {
       },
       {
         title: 'Cómo se lanzan tareas en tu lenguaje',
-        text: 'Cada lenguaje tiene su forma, pero la idea es la misma: crear las tareas sin esperar y, cuando estén todas en marcha, esperar a que terminen.',
+        text: 'La idea es siempre la misma: crear las tareas sin esperar y, cuando estén todas en marcha, esperar a que terminen. Así se escribe en tu mundo:',
         visual: 'timeline',
         langs: ['python', 'java', 'kotlin', 'swift'],
         code: {
@@ -398,17 +401,30 @@ export const LESSONS = {
   },
 };
 
-// Paquete Rust: ejemplos, pasos propios y texto de misión.
+// Paquetes de lenguaje: ejemplos, textos propios, pasos exclusivos y texto de misión.
+const BASE = ['python', 'java', 'kotlin', 'swift', 'c'];
 for (const [id, lesson] of Object.entries(LESSONS)) {
   for (const step of lesson.steps) {
-    if (step.code && RUST_LESSON_CODE[step.title]) step.code.rust = RUST_LESSON_CODE[step.title];
-    if (step.langs && RUST_EXTRA_LANGS.includes(step.title)) step.langs.push('rust');
+    step.generic = !step.langs;
+    if (!step.langs) step.langs = [...BASE];
+    step.textByLang = step.textByLang || {};
   }
-  if (RUST_EXTRA_STEPS[id]) {
-    const { after, step } = RUST_EXTRA_STEPS[id];
-    lesson.steps.splice(after + 1, 0, { ...step, langs: ['rust'] });
+  for (const pack of [rustPack, cppPack, goPack, jsPack]) {
+    for (const step of lesson.steps) {
+      if (step.only) continue;
+      const wasGeneric = step.generic;
+      const excluded = (pack.excludeTitles || []).includes(step.title);
+      if (!excluded && (wasGeneric || (pack.extraLangs || []).includes(step.title))) step.langs.push(pack.lang);
+      if (step.code && pack.lessonCode && pack.lessonCode[step.title]) step.code[pack.lang] = pack.lessonCode[step.title];
+      if (pack.lessonText && pack.lessonText[step.title]) step.textByLang[pack.lang] = pack.lessonText[step.title];
+    }
+    for (const { after, step } of (pack.extraSteps && pack.extraSteps[id]) || []) {
+      const anchor = lesson.steps.filter((s2) => s2.langs.includes(pack.lang))[after];
+      const idx = anchor ? lesson.steps.indexOf(anchor) + 1 : 0;
+      lesson.steps.splice(idx, 0, { ...step, langs: [pack.lang], only: true, textByLang: {} });
+    }
+    lesson.mission[pack.lang] = pack.missionText[id];
   }
-  lesson.mission.rust = RUST_MISSION_TEXT[id];
 }
 
 /** Pasos de la lección visibles para un lenguaje. */
@@ -419,13 +435,29 @@ export const lessonSteps = (id, lang) => (LESSONS[id] ? LESSONS[id].steps.filter
  * Si un check no tiene ayuda propia se muestra la indicación general de la misión.
  */
 export const CHECK_HELP = {
-  'gravity-type': 'Un valor con decimales necesita un tipo decimal (float en Python, double/Double en el resto). Y sin comillas: con comillas es texto.',
+  'gravity-type': {
+    python: 'Quita las comillas: 9.81 sin comillas es un número decimal (float); con comillas es texto (str).',
+    js: 'Quita las comillas: 9.81 sin comillas es un number; con comillas es un string.',
+    java: 'Cambia int por double: es el tipo para números con decimales.',
+    kotlin: 'Cambia Int por Double: es el tipo para números con decimales.',
+    swift: 'Cambia Int por Double: es el tipo para números con decimales.',
+    c: 'Cambia int por double: un int corta los decimales sin avisar.',
+    cpp: 'Cambia int por double: un int corta los decimales sin avisar.',
+    go: 'Cambia int por float64: es el tipo de Go para números con decimales.',
+    rust: 'Cambia i32 por f64: es el tipo de Rust para números con decimales.',
+  },
   'gravity-value': 'Escribe el valor de la gravedad terrestre: 9.81 (con punto, no con coma).',
   mass: 'shipMass ya está bien: 1200 es un entero. No hace falta tocarlo.',
   shields: 'shieldsOn ya está bien: un booleano a true (True en Python).',
   pilot: 'Añade una variable de texto nueva llamada pilotName (pilot_name en Python) con tu nombre entre comillas.',
   'total-exists': 'No cambies el nombre totalThrust: el motor lo busca por ese nombre.',
-  'no-overflow': 'El resultado (3.000 millones) no cabe en 32 bits. Usa un tipo de 64 bits y convierte uno de los números ANTES de multiplicar.',
+  'no-overflow': {
+    default: 'El resultado (3.000 millones) no cabe en 32 bits. Usa un tipo de 64 bits y convierte uno de los números ANTES de multiplicar.',
+    swift: 'Convierte los dos números a Int64 antes de multiplicar: Int64(engines) * Int64(thrustPerEngine).',
+    go: 'Convierte los dos números a int64 antes de multiplicar: int64(engines) * int64(thrustPerEngine).',
+    rust: 'Declara total_thrust como i64 y convierte cada operando con as i64.',
+  },
+  precision: 'Añade una n al final de los dos números para que sean BigInt: 9007199254740992n y 1n.',
   'fuel-int': 'Usa // en lugar de / para obtener una división sin decimales.',
   'fuel-reserve': 'El sobrante de repartir es el resto de la división: usa el operador %.',
   loop: 'Usa un bucle for en lugar de llamar a waypoint varias veces a mano.',
@@ -442,8 +474,24 @@ export const CHECK_HELP = {
   ore: 'Cada vez que aparece un objeto, súmale 1 a lo que ya tenía en vez de poner 1.',
   'fuel-chip': 'Mismo arreglo que para ore: el contador debe sumar, no reemplazar.',
   base: 'Debe existir una clase Entity con un método update(). Ya viene en el código inicial: no la borres.',
-  inherit: 'Crea las clases Enemy y Obstacle haciendo que hereden de Entity, igual que Player.',
-  override: 'Enemy necesita su propio update(). En Kotlin y Swift va con la palabra override.',
+  inherit: {
+    default: 'Crea las clases Enemy y Obstacle haciendo que hereden de Entity, igual que Player.',
+    go: 'Crea los structs Enemy y Obstacle, cada uno con su método Update(): así cumplen la interface Entity.',
+    rust: 'Crea los structs Enemy y Obstacle y escribe impl Entity for Enemy y impl Entity for Obstacle.',
+    c: 'Crea las structs Enemy y Obstacle con Entity base; como primer campo.',
+  },
+  override: {
+    default: 'Enemy necesita su propio update() que reemplace al de Entity.',
+    kotlin: 'Enemy necesita su propio update(), escrito como override fun update().',
+    swift: 'Enemy necesita su propio update(), escrito como override func update().',
+    cpp: 'Enemy necesita void update() override { … }.',
+    c: 'Escribe enemy_update y conéctala: e.base.update = enemy_update;',
+    go: 'Enemy necesita su propio método: func (e *Enemy) Update() { … }.',
+    rust: 'Enemy necesita su bloque impl Entity for Enemy con su propio fn update(&mut self).',
+  },
+  'cpp-virtual': 'Escribe virtual delante de void update() en la clase Entity.',
+  'go-pointer': 'Cambia el receptor por un puntero: func (p *Player) Update() en lugar de func (p Player) Update().',
+  'rust-default': 'En el trait, da a update un cuerpo vacío: fn update(&mut self) {}. Así Obstacle puede usar la versión por defecto.',
   polymorph: 'Haz que Enemy se mueva distinto que Player: por ejemplo y += 3 en lugar de x += 2.',
   'kotlin-open': 'En Kotlin escribe open class Entity y open fun update() para permitir heredar y sobrescribir.',
   'swift-override': 'Pon override delante de func update() en cada clase hija.',

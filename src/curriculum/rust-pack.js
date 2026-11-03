@@ -307,3 +307,17 @@ export const RUST_MISSION_TEXT = {
   'm5-systems': 'El join dentro del bucle espera a cada hilo, y compartir total entre hilos no compila. Lanza los hilos con (0..3).map(|sector| thread::spawn(move || scan(sector))).collect() y suma los resultados de join() al final.',
   'boss-swarm': 'Crea let mut seen = HashSet::new(); recorre una sola vez con for &x in ids y, si seen.insert(x) devuelve false, return true. Al final, false.',
 };
+
+export default {
+  lang: 'rust',
+  missions: RUST_MISSIONS,
+  lessonCode: RUST_LESSON_CODE,
+  extraLangs: RUST_EXTRA_LANGS,
+  extraSteps: Object.fromEntries(Object.entries(RUST_EXTRA_STEPS).map(([id, x]) => [id, [x]])),
+  missionText: RUST_MISSION_TEXT,
+  objective: {
+    'm4-entities': 'Define el trait Entity con update() (con una versión por defecto); los structs Player, Enemy y Obstacle lo implementan; Player y Enemy se mueven distinto con self.x / self.y.',
+    'm5-systems': 'Lanza los 3 escaneos en hilos a la vez (todos antes de esperar), espera con join() a que terminen y suma sus resultados sin compartir una variable mutable.',
+  },
+  story: {},
+};

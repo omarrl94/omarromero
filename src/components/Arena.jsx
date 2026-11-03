@@ -9,7 +9,8 @@ import ConsolePanel, { Checks } from './ConsolePanel.jsx';
 import DuckCompanion from './DuckCompanion.jsx';
 import { evaluate } from '../core/engine.js';
 import { LANGUAGES } from '../core/languages.js';
-import { MODULES, sceneOf, objectiveOf } from '../curriculum/index.js';
+import { MODULES, sceneOf, objectiveOf, storyOf } from '../curriculum/index.js';
+import { sourceFile } from '../core/transpiler.js';
 import { useProgress, draftKey, starsOf } from '../core/progress.js';
 import { play } from '../core/sound.js';
 
@@ -25,7 +26,7 @@ export default function Arena({ ch, onBack }) {
   const [focus, setFocus] = useState(null);
   const [briefOpen, setBriefOpen] = useState(true);
   const [failStreak, setFailStreak] = useState(0);
-  const [lessonOpen, setLessonOpen] = useState(!(state.lessonsSeen || {})[ch.id]);
+  const [lessonOpen, setLessonOpen] = useState(!(state.lessonsSeen || {})[draftKey(ch.id, state.lang)]);
   const [tourOpen, setTourOpen] = useState(false);
   const [solutionOpen, setSolutionOpen] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
@@ -79,17 +80,16 @@ export default function Arena({ ch, onBack }) {
 
   const closeLesson = () => {
     setLessonOpen(false);
-    dispatch({ type: 'lessonSeen', id: ch.id });
+    dispatch({ type: 'lessonSeen', id: ch.id, lang });
     if (!state.tourSeen) setTourOpen(true);
   };
 
   const jump = useCallback((line) => setFocus({ line, at: Date.now() }), []);
-  const switchLang = (l) => { dispatch({ type: 'setLang', lang: l }); play('click'); };
 
   const sceneData = useMemo(() => ({ ...(evaluation ? evaluation.scene : {}), passed: !!(evaluation && evaluation.passed) }), [evaluation]);
   const lintLines = useMemo(() => (evaluation ? evaluation.lint.map((w) => w.line) : []), [evaluation]);
   const stars = starsOf(state, ch.id, lang);
-  const solvedAny = Object.keys(state.completed[ch.id] || {}).length > 0;
+  const solvedHere = stars > 0;
   const L = LANGUAGES[lang];
   const status = !evaluation ? 'idle' : evaluation.error ? 'error' : evaluation.passed ? 'pass' : 'fail';
 
@@ -129,7 +129,7 @@ export default function Arena({ ch, onBack }) {
             <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
               <div className="grid gap-3 pt-3 text-[13px] leading-relaxed md:grid-cols-[1.4fr_1fr]">
                 <div>
-                  <p className="text-slate-300">{ch.story}</p>
+                  <p className="text-slate-300">{storyOf(ch, lang)}</p>
                   <p className="mt-2 rounded-lg border-l-2 border-neon-lime bg-neon-lime/5 px-3 py-2 text-lime-100">
                     <span className="font-bold text-neon-lime">Objetivo › </span>{objectiveOf(ch, lang)}
                   </p>
@@ -149,7 +149,7 @@ export default function Arena({ ch, onBack }) {
         <div className="glass flex min-h-[420px] flex-col overflow-hidden rounded-xl">
           <div className="flex items-center gap-2 border-b border-void-600/50 px-3 py-2">
             <span className="h-2.5 w-2.5 rounded-full" style={{ background: L.color, boxShadow: `0 0 10px ${L.color}` }} />
-            <span className="text-xs font-bold text-slate-200">{ { python: 'main.py', java: 'Main.java', kotlin: 'Main.kt', swift: 'main.swift', c: 'main.c', rust: 'main.rs' }[lang] }</span>
+            <span className="text-xs font-bold text-slate-200">{sourceFile(lang).replace('src/', '')}</span>
             <span className="hidden text-[10px] text-slate-500 sm:inline">{L.tagline}</span>
             <div className="ml-auto flex items-center gap-2">
               <label className="flex cursor-pointer items-center gap-1 text-[10px] uppercase tracking-wider text-slate-500" title="Compilar y ejecutar mientras escribes">
@@ -186,7 +186,12 @@ export default function Arena({ ch, onBack }) {
               <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Checks de la misión</span>
               <StatusPill status={status} />
             </div>
-            {evaluation ? <Checks checks={evaluation.checks} /> : <div className="text-xs text-slate-500">Compilando…</div>}
+            {evaluation && evaluation.error && evaluation.error.kind !== 'runtime' && (
+              <div className="mb-2 rounded-md border border-neon-amber/30 bg-neon-amber/5 px-2 py-1.5 text-[11px] text-amber-100">
+                El código aún no compila{evaluation.error.line ? ` (línea ${evaluation.error.line})` : ''}: arregla primero ese error y los objetivos se comprobarán de verdad.
+              </div>
+            )}
+            {evaluation ? <Checks checks={evaluation.checks} lang={lang} /> : <div className="text-xs text-slate-500">Compilando…</div>}
             {status !== 'pass' && (
               <div className="mt-2 flex flex-wrap items-center gap-2 border-t border-void-600/40 pt-2 text-[11px]">
                 <span className="text-slate-500">¿Perdido?</span>
@@ -209,7 +214,7 @@ export default function Arena({ ch, onBack }) {
             </div>
           </div>
           <div className="glass min-h-[200px] flex-[2] overflow-hidden rounded-xl">
-            <ConsolePanel evaluation={evaluation} lang={lang} ch={ch} solved={solvedAny} onSwitchLang={switchLang} onJumpLine={jump} />
+            <ConsolePanel evaluation={evaluation} lang={lang} ch={ch} solved={solvedHere} onJumpLine={jump} />
           </div>
         </div>
       </div>

@@ -1,11 +1,13 @@
 // Explicaciones en lenguaje sencillo: qué hace una línea de código y qué significa un error.
 
 const TYPE_WORDS = [
-  [/^(int|Int|Int32|i32|int32_t|Integer)$/, 'un número entero (sin decimales, hasta ±2.147 millones)'],
-  [/^(long|Long|Int64|i64|int64_t|long long|usize|u64|size_t)$/, 'un número entero grande (64 bits)'],
-  [/^(double|Double|float|Float|f64|f32)$/, 'un número con decimales'],
+  [/^(number)$/, 'un número (en JavaScript todos son decimales de 64 bits)'],
+  [/^(bigint)$/, 'un entero exacto de cualquier tamaño (BigInt)'],
+  [/^(int|Int|Int32|i32|int32_t|Integer|int32)$/, 'un número entero (sin decimales, hasta ±2.147 millones)'],
+  [/^(long|Long|Int64|i64|int64_t|long long|usize|u64|size_t|int64)$/, 'un número entero grande (64 bits)'],
+  [/^(double|Double|float|Float|f64|f32|float64|float32)$/, 'un número con decimales'],
   [/^(boolean|Boolean|bool|Bool)$/, 'un valor sí/no (verdadero o falso)'],
-  [/^(String|str|&str|char\s*\*|char\*)$/, 'un texto'],
+  [/^(String|str|&str|char\s*\*|char\*|string)$/, 'un texto'],
   [/List|Array|\[\]|Vec|IntArray/, 'una lista de valores'],
   [/Map|dict|\[\w+\s*:\s*\w+\]|HashMap/, 'un diccionario (clave → valor)'],
   [/Set/, 'un conjunto (valores sin repetir)'],
@@ -34,11 +36,14 @@ export function explainLine(raw, lang) {
   let m;
   if (/^(#|\/\/)/.test(t) && !/^#include|^#\[/.test(t)) return `Comentario: el ordenador lo ignora. Es una nota para las personas que leen el código${/TODO/.test(t) ? '. Este marca algo que TIENES QUE HACER tú.' : /⚠/.test(t) ? '. Este avisa de que en esta zona hay un fallo que arreglar.' : '.'}`;
   if (/^\}\s*$/.test(t)) return 'Cierra el bloque que se abrió con { más arriba.';
+  if (/^package\s+main/.test(t)) return 'Dice que este archivo pertenece al paquete main: el que se convierte en un programa ejecutable.';
+  if (/^using\s+namespace\s+std/.test(t)) return 'Permite escribir cout o vector sin el prefijo std:: delante.';
+  if (/^(public|private|protected):$/.test(t)) return 'Lo que viene debajo es ' + (t.startsWith('public') ? 'público: se puede usar desde fuera de la clase.' : 'privado: solo lo usa la propia clase.');
   if (/^#include|^import\b|^from\b|^use\b/.test(t)) return 'Trae herramientas de una librería para poder usarlas en este archivo.';
   if (/^#\[/.test(t)) return 'Atributo de Rust: da instrucciones extra al compilador sobre lo que viene debajo.';
   if (/^(public\s+)?class\s+Main\b/.test(t)) return 'En Java todo el código vive dentro de una clase. Esta es solo el «contenedor» del programa.';
   if (/(static\s+void\s+main|fun\s+main|int\s+main|fn\s+main|func\s+main)/.test(t)) return 'Aquí empieza el programa: main es la primera función que se ejecuta.';
-  if ((m = /^(?:async\s+)?(?:def|fun|fn|func)\s+(\w+)\s*\(([^)]*)\)/.exec(t)) || (m = /^(?:static\s+|public\s+|private\s+)*(?:void|int|bool|boolean|long|double|Map<[^>]*>|String)\s+(\w+)\s*\(([^)]*)\)\s*\{/.exec(t))) {
+  if ((m = /^(?:async\s+)?(?:def|fun|fn|func|function)\s+(\w+)\s*\(([^)]*)\)/.exec(t)) || (m = /^(?:const|let)\s+(\w+)\s*=\s*(?:async\s*)?\(([^)]*)\)\s*=>/.exec(t)) || (m = /^(?:static\s+|public\s+|private\s+)*(?:void|int|bool|boolean|long|double|Map<[^>]*>|String)\s+(\w+)\s*\(([^)]*)\)\s*\{/.exec(t))) {
     const params = m[2].trim();
     return `Define una función llamada ${m[1]}: un bloque de código con nombre que se puede llamar cuando haga falta.${params ? ` Recibe estos datos: ${params}.` : ''}`;
   }
@@ -73,6 +78,15 @@ export function explainLine(raw, lang) {
     return `Condición: el bloque de dentro solo se ejecuta si ${c} es verdadero${extra}.`;
   }
   if (/^return\b/.test(t)) return `Termina la función y devuelve ${t.replace(/^return\s*/, '').replace(/;$/, '') || 'nada'} a quien la llamó.`;
+  if (/^(cout\s*<<|std::cout|console\.log|fmt\.Print)/.test(t)) return 'Muestra un mensaje en la consola (abajo a la derecha). Sirve para ver qué está pasando.';
+  if ((m = /^(\w+(?:\s*,\s*\w+)*)\s*:=\s*(.+)$/.exec(t))) return m[1].includes(',') ? `Crea varias variables a la vez (${m[1]}) con los valores ${m[2]}.` : `Crea una caja llamada ${m[1]} y mete dentro ${valueWord(m[2])}. Con := Go deduce el tipo solo.`;
+  if ((m = /^(?:var|const)\s+(\w+)\s+([\w[\]*]+)\s*=\s*(.+)$/.exec(t)) && lang === 'go') return `Crea una caja llamada ${m[1]} que guarda ${typeWord(m[2])} y mete dentro ${valueWord(m[3])}.`;
+  if ((m = /^go\s+func/.exec(t))) return 'Lanza una goroutine: esta función se ejecuta en paralelo, sin esperar a que termine.';
+  if (/<-/.test(t)) return /^\w+\s*<-/.test(t) ? 'Envía un valor por el canal (como meter una carta en un buzón).' : 'Recibe un valor del canal: espera hasta que alguien envíe uno.';
+  if ((m = /^func\s*\(\s*(\w+)\s+(\*?)(\w+)\s*\)\s*(\w+)/.exec(t))) return `Define el método ${m[4]} del tipo ${m[3]}.${m[2] ? ' Con * recibe el original (puede modificarlo).' : ' Sin * recibe una COPIA: los cambios no se guardan.'}`;
+  if (/^(delete\s*\[\]|delete\s)/.test(t)) return 'Devuelve al sistema la memoria pedida con new. Después no se debe volver a usar ese puntero.';
+  if (/Promise\.all/.test(t)) return 'Lanza todas las tareas a la vez y espera a que terminen todas.';
+  if (/^await\s|=\s*await\s/.test(t)) return 'await espera a que termine una tarea asíncrona antes de seguir.';
   if ((m = /^(?:System\.out\.)?(print(?:ln|f)?!?)\s*\(/.exec(t))) return 'Muestra un mensaje en la consola (abajo a la derecha). Sirve para ver qué está pasando.';
   if ((m = /^free\((\w+)\)/.exec(t))) return `Devuelve al sistema la memoria de ${m[1]}. Después de esto, ${m[1]} no se debe volver a usar.`;
   if ((m = /^waypoint\((.+)\)/.exec(t))) return `Añade un punto a la ruta del dron en las coordenadas (${m[1]}).`;
@@ -80,6 +94,9 @@ export function explainLine(raw, lang) {
   if (lang === 'python' && (m = /^([\w.]+(?:\[[^\]]*\])?)\s*=\s*([^=].*)$/.exec(t)) && /\[/.test(m[1])) return `Guarda ${valueWord(m[2])} en ${m[1]} (una posición o clave concreta de la colección).`;
   if (lang === 'python' && (m = /^(\w+)\s*(?::\s*(\w+))?\s*=\s*([^=].*)$/.exec(t))) return `Crea (o actualiza) una caja llamada ${m[1]} y mete dentro ${valueWord(m[3])}.${/^["']/.test(m[3].trim()) && /^[\d."']+$/.test(m[3].trim()) ? ' Ojo: las comillas lo convierten en TEXTO aunque parezca un número.' : ''}`;
   // Declaraciones
+  if (lang === 'js' && (m = /^(const|let|var)\s+(\w+)\s*=\s*(.+?);?$/.exec(t))) {
+    return `Crea una caja llamada ${m[2]} y mete dentro ${valueWord(m[3])}${m[1] === 'const' ? ' (const: no se podrá reasignar)' : m[1] === 'let' ? ' (let: se puede cambiar después)' : ' (var: forma antigua, mejor let o const)'}.${/^["']/.test(m[3].trim()) && /^["'][\d.]+["']/.test(m[3].trim()) ? ' Ojo: las comillas lo convierten en TEXTO aunque parezca un número.' : ''}`;
+  }
   if ((m = /^(?:val|var|let)\s+(mut\s+)?(\w+)\s*(?::\s*([^=]+?))?\s*=\s*(.+)$/.exec(t))) {
     const kw = /^val|^let(?!\s+mut)/.test(t) && lang !== 'swift' ? ' (constante: no se podrá cambiar después)' : /^let/.test(t) && lang === 'swift' ? ' (constante)' : /mut|^var/.test(t) ? ' (variable: se puede cambiar después)' : '';
     return `Crea una caja llamada ${m[2]}${m[3] ? ` que guarda ${typeWord(m[3])}` : ''} y mete dentro ${valueWord(m[4])}${kw}.`;

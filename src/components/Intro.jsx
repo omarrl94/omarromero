@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Rocket } from 'lucide-react';
 import { LANGUAGES, LANG_ORDER } from '../core/languages.js';
@@ -6,7 +5,7 @@ import { Logo } from './TopBar.jsx';
 import { play } from '../core/sound.js';
 
 const BOOT = [
-  'forge_vm: polyglot core ......... [ OK ]',
+  'forge_vm: 9 mundos cargados ..... [ OK ]',
   'physics: gravity = undefined .... [ESPERANDO TU CÓDIGO]',
   'drones: patrol_ai ............... [SIN PROGRAMAR]',
   'heap: 0 bytes asignados ......... [ OK ]',
@@ -15,7 +14,6 @@ const BOOT = [
 
 /** Pantalla de arranque: eliges tu primer lenguaje y enciendes el motor. */
 export default function Intro({ onStart }) {
-  const [lang, setLang] = useState('python');
   return (
     <div className="flex min-h-full items-center justify-center px-4 py-10">
       <div className="w-full max-w-3xl">
@@ -36,36 +34,18 @@ export default function Intro({ onStart }) {
             </motion.div>
           ))}
         </motion.div>
-        <div className="mt-8 text-center text-[10px] font-bold uppercase tracking-[0.3em] text-slate-500">Elige tu primer lenguaje (podrás cambiar en cualquier momento)</div>
-        <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
-          {LANG_ORDER.map((l, i) => {
-            const L = LANGUAGES[l];
-            const active = l === lang;
-            return (
-              <motion.button
-                key={l}
-                type="button"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.9 + i * 0.05 }}
-                whileHover={{ y: -3 }}
-                onClick={() => { setLang(l); play('click'); }}
-                className={`rounded-xl border p-3 text-left transition-colors ${active ? 'bg-white/5' : 'border-void-600/60 hover:border-void-600'}`}
-                style={active ? { borderColor: L.color, boxShadow: `0 0 24px -8px ${L.color}` } : {}}
-              >
-                {L.trending && <div className="mb-1 w-fit rounded-full bg-orange-500/20 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-orange-300">🔥 en auge</div>}
-                <div className="text-sm font-extrabold" style={{ color: L.color }}>{L.name}</div>
-                <div className="mt-1 text-[10px] leading-snug text-slate-400">{L.tagline}</div>
-              </motion.button>
-            );
-          })}
-        </div>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} className="mt-8 flex flex-wrap justify-center gap-2">
+          {LANG_ORDER.map((l) => (
+            <span key={l} className="rounded-full border px-3 py-1 text-xs font-bold" style={{ borderColor: `${LANGUAGES[l].color}55`, color: LANGUAGES[l].color }}>{LANGUAGES[l].name}</span>
+          ))}
+        </motion.div>
+        <p className="mt-3 text-center text-xs text-slate-500">9 mundos independientes. Cada uno te enseña su lenguaje desde cero.</p>
         <div className="mt-8 flex justify-center">
           <motion.button
             type="button"
             whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.96 }}
-            onClick={() => { play('rankup'); onStart(lang); }}
+            onClick={() => { play('rankup'); onStart(); }}
             className="btn-neon bg-neon-cyan px-6 py-3 text-sm text-void-950 shadow-neon"
           >
             <Rocket size={16} /> Encender el motor

@@ -3,7 +3,7 @@
 // instrumentado. La traducción es línea a línea (1:1) para que cada error y cada
 // frame del stack trace apunten exactamente a la línea que escribió el usuario.
 
-const SRC_FILE = { python: 'main.py', java: 'Main.java', kotlin: 'Main.kt', swift: 'main.swift', c: 'main.c', rust: 'src/main.rs' };
+const SRC_FILE = { python: 'main.py', java: 'Main.java', kotlin: 'Main.kt', swift: 'main.swift', c: 'main.c', rust: 'src/main.rs', cpp: 'main.cpp', go: 'main.go', js: 'main.js' };
 export const sourceFile = (lang) => SRC_FILE[lang];
 
 export class ForgeSyntaxError extends Error {
@@ -73,8 +73,8 @@ function protectStrings(src, lang) {
       prefix = 'f';
     }
     const q = prefix ? src[i + 1] : c;
-    if (q === '"' || q === "'") {
-      if (!prefix && (c !== '"' && c !== "'")) {
+    if (q === '"' || q === "'" || (q === '`' && lang === 'js')) {
+      if (!prefix && (c !== '"' && c !== "'" && c !== '`')) {
         out += c;
         i++;
         continue;
@@ -85,6 +85,7 @@ function protectStrings(src, lang) {
       const body = src.slice(start, j);
       let kind = 'str';
       if (prefix) kind = 'fstr';
+      else if (q === '`') kind = 'jstpl';
       else if (q === "'" && lang !== 'python') kind = 'char';
       else if (lang === 'kotlin' && /\$[\w{]/.test(body)) kind = 'ktpl';
       else if (lang === 'swift' && body.includes('\\(')) kind = 'swtpl';
@@ -118,6 +119,7 @@ function restoreStrings(code, table, lang, exprFn) {
         .replace(/\$\{([^{}]+)\}/g, (m, e) => '${' + exprFn(e.trim()) + '}')
         .replace(/\$([A-Za-z_]\w*(?:\.\w+)*)/g, (m, e) => '${' + exprFn(e) + '}') + '`';
     }
+    if (kind === 'jstpl') return '`' + body + '`';
     if (kind === 'rtpl') {
       return '`' + esc(body).replace(/\{([A-Za-z_]\w*)(:\?)?\}/g, (m, n) => '${__show(' + exprFn(n) + ')}') + '`';
     }
@@ -169,13 +171,19 @@ function isTypeToken(t, lang) {
   const base = t.replace(/<.*>/, '').replace(/\[\s*\]/g, '').replace(/\*/g, '').replace(/^struct\s+/, '').trim();
   if (!base || NOT_TYPES.has(base)) return false;
   if (lang === 'c') return C_PRIMS.includes(base) || /_t$/.test(base) || /^struct\s/.test(t) || /^[A-Z]\w*$/.test(base);
+  if (lang === 'cpp') return C_PRIMS.includes(base) || /_t$/.test(base) || /^(auto|string|vector|unordered_map|unordered_set|map|set|array)$/.test(base) || /^[A-Z]\w*$/.test(base);
   return JAVA_PRIMS.includes(base) || /^[A-Z]\w*$/.test(base);
 }
 
 const lastIdent = (p) => {
-  const m = /([A-Za-z_]\w*)\s*(?:\[\s*\d*\s*\])*\s*$/.exec(p.replace(/\.\.\./g, ' '));
+  const m = /([A-Za-z_]\w*)\s*(?:\[\s*\d*\s*\])*\s*$/.exec(p.replace(/\.\.\./g, ' ').replace(/=.*$/, ''));
   return m ? m[1] : null;
 };
+
+/** Go: «a, b int, c []int» → nombres a, b, c (el tipo va detrás). */
+function paramsGo(params) {
+  return splitTopLevel(params).map((p) => (/^([A-Za-z_]\w*)/.exec(p.trim()) || [])[1]).filter(Boolean);
+}
 
 function paramsCFamily(params) {
   if (!params.trim() || params.trim() === 'void') return [];
@@ -215,6 +223,7 @@ function iterExpr(e, lang, expr) {
     e = m[1];
     step = expr(m[2]);
   }
+  if (lang === 'go') return `__gorange1(${expr(e)})`;
   if (lang === 'rust') {
     e = e.replace(/^&(mut\s+)?/, '').replace(/\.(iter|into_iter|iter_mut)\(\)$/, '');
     if ((m = /^\((.+?)\s*\.\.(=?)\s*(.+)\)\.rev\(\)$/.exec(e))) {
@@ -433,7 +442,60 @@ function exprRust(s) {
     .replace(/(^|[=(,!+\-/%<>&|?:]\s*|return\s+)\*\s*([A-Za-z_]\w*)/g, '$1$2');
 }
 
-const EXPR = { python: exprPython, java: exprJava, kotlin: exprKotlin, swift: exprSwift, c: exprC, rust: exprRust };
+function exprCpp(s) {
+  let r = s.replace(/\bstd::/g, '');
+  let m;
+  if ((m = /^cout\s*<<\s*(.+?);?$/.exec(r.trim()))) {
+    const parts = m[1].split(/\s*<<\s*/).map((p) => (p.trim() === 'endl' ? '"\\n"' : p));
+    r = `__cout(${parts.join(', ')});`;
+  }
+  r = r
+    .replace(/(\w+)\.find\(([^()]*)\)\s*!=\s*\1\.end\(\)/g, '$1.__has($2)')
+    .replace(/(\w+)\.find\(([^()]*)\)\s*==\s*\1\.end\(\)/g, '!$1.__has($2)')
+    .replace(/\bswap\(\s*(\w+)\[([^\]]+)\]\s*,\s*\1\[([^\]]+)\]\s*\)/g, '$1.swapAt($2, $3)')
+    .replace(/\bnew\s+(int|long|double|float|char|bool|short)\s*\[([^\]]+)\]/g, (mm, t, n) => `malloc((${n}) * ${SIZEOF[t] || 4})`)
+    .replace(/\bdelete\s*\[\s*\]\s*(\w+)/g, 'free($1)')
+    .replace(/\bdelete\s+(\w+)/g, 'free($1)')
+    .replace(/\b(?:static_cast|reinterpret_cast)<[^>]+>\(/g, '(')
+    .replace(/\bvector<[^<>]*>\s*\(([^,()]+),\s*([^()]+)\)/g, '__arr($1, $2)')
+    .replace(/\bnullptr\b/g, 'null')
+    .replace(/\.size\(\)/g, '.__size()')
+    .replace(/\.empty\(\)/g, '.__isEmpty()')
+    .replace(/\.(?:push_back|emplace_back)\(/g, '.push(')
+    .replace(/\.insert\(([^()]*)\)\.second/g, '.__add($1)')
+    .replace(/\.insert\(/g, '.__add(')
+    .replace(/\.count\(/g, '.__has(')
+    .replace(/\.at\(([^()]+)\)/g, '[$1]');
+  return exprC(r);
+}
+
+const GO_ZERO = { int: '0', int32: '0', int64: '0', float64: '0', bool: 'false', string: '""' };
+function exprGo(s) {
+  return exprCommon(s)
+    .replace(/\bfmt\.Println\(/g, '__goprintln(')
+    .replace(/\bfmt\.Print\(/g, '__goprint(')
+    .replace(/\bfmt\.Printf\(/g, 'printf(')
+    .replace(/\bfmt\.Sprintf\(/g, '__sprintf(')
+    .replace(/\bmake\(\s*map\[[^\]]+\](\w+)\s*\)/g, (m, t) => `__gomap(${GO_ZERO[t] ?? 'null'})`)
+    .replace(/\bmap\[[^\]]+\](\w+)\{\s*\}/g, (m, t) => `__gomap(${GO_ZERO[t] ?? 'null'})`)
+    .replace(/\bmake\(\s*\[\](\w+)\s*,\s*([^,()]+)(?:,[^()]*)?\)/g, (m, t, n) => `__arr(${n}, ${GO_ZERO[t] ?? 'null'})`)
+    .replace(/\[\]\w+\{([^{}]*)\}/g, '[$1]')
+    .replace(/\bappend\(\s*(\w+)\s*,\s*/g, '__append($1, ')
+    .replace(/\bmath\.MaxInt32\b/g, '2147483647')
+    .replace(/\bmath\.MaxInt64\b/g, '9223372036854775807')
+    .replace(/\bint64\(/g, '__i64(')
+    .replace(/\bint32\(/g, '__gi32(')
+    .replace(/\bint\(/g, 'Math.trunc(')
+    .replace(/\bfloat64\(/g, 'Number(')
+    .replace(/\bnil\b/g, 'null')
+    .replace(/(^|[=(,]|\+=)\s*<-\s*/g, '$1 ');
+}
+
+function exprJs(s) {
+  return s.replace(/\bconsole\.(log|info|warn|error)\(/g, '__jslog(');
+}
+
+const EXPR = { python: exprPython, java: exprJava, kotlin: exprKotlin, swift: exprSwift, c: exprC, rust: exprRust, cpp: exprCpp, go: exprGo, js: exprJs };
 
 // ───────────────────────── 4. Comprobación sintáctica ─────────────────────────
 
@@ -483,20 +545,21 @@ function checkStatements(lines, lang) {
       else if (ch === ')' || ch === ']') depth--;
     }
     if (!t || startDepth > 0 || depth > 0) continue;
-    if (lang === 'java' || lang === 'c') {
+    if (lang === 'java' || lang === 'c' || lang === 'cpp') {
       if (/^(#|@)/.test(t) || /[;{},:]$/.test(t) || /[+\-*/%=&|?<>]$/.test(t)) continue;
       if (/^(else|do|try|finally)$/.test(t)) continue;
       const next = (lines.slice(li + 1).find((l) => l.trim()) || '').trim();
       if (/^[{.+\-*/%&|?:]/.test(next)) continue;
       if (/^(if|for|while|switch)\b.*\)$/.test(t)) continue;
       throw new ForgeSyntaxError(lang === 'java' ? "error: ';' expected" : "error: expected ';' after expression", li + 1, raw.length + 1,
-        `En ${lang === 'java' ? 'Java' : 'C'} cada sentencia termina en punto y coma.`);
+        `En ${{ java: 'Java', c: 'C', cpp: 'C++' }[lang]} cada sentencia termina en punto y coma.`);
     }
     if ((lang === 'java' || lang === 'kotlin') && /^(if|while|for)\s+[^(\s]/.test(t)) {
       throw new ForgeSyntaxError(lang === 'java' ? "error: '(' expected" : "error: expecting '('", li + 1, t.indexOf(' ') + 2,
         `En ${lang === 'java' ? 'Java' : 'Kotlin'} la condición va entre paréntesis.`);
     }
-    if ((lang === 'java' || lang === 'c' || lang === 'kotlin' || lang === 'swift' || lang === 'rust') && /^(if|for|while)\b/.test(t) && !/\{\s*$/.test(t)) {
+    if (lang === 'js' && /^(if|for|while)\s*\(.*\)\s*[^\s{].*$/.test(t)) continue;
+    if (['java', 'c', 'kotlin', 'swift', 'rust', 'cpp', 'go', 'js'].includes(lang) && /^(if|for|while)\b/.test(t) && !/\{\s*$/.test(t)) {
       const next = (lines.slice(li + 1).find((l) => l.trim()) || '').trim();
       if (next !== '{') {
         throw new ForgeSyntaxError(syntaxMsg(lang, 'el Forge VM exige llaves { } en cada bloque'), li + 1, raw.length,
@@ -624,7 +687,8 @@ function translateCFamily(lines, lang, meta, mode) {
   for (let li = 0; li < lines.length; li++) {
     const L = li + 1;
     let raw = lines[li];
-    if (lang === 'c') {
+    if (lang === 'cpp') raw = raw.replace(/\bstd::/g, '').replace(/\b(?:const\s+)?(\w+(?:<[^<>]*>)?)\s*&\s+(\w+)/g, '$1 $2');
+    if (lang === 'c' || lang === 'cpp') {
       raw = raw
         .replace(/\bunsigned\s+long\s+long\b/g, 'uint64_t')
         .replace(/\blong\s+long(\s+int)?\b/g, 'int64_t')
@@ -657,14 +721,55 @@ function translateCFamily(lines, lang, meta, mode) {
       js = `function ${m[1]}(${paramsKotlinSwift(m[2]).map(expr).join(', ')}) { __tick();`;
     } else if (lang === 'rust' && /^loop\s*\{$/.test(rest)) {
       js = 'while (true) { __tick();';
+    } else if (lang === 'go' && (m = /^func\s+(\w+)\s*\(([^)]*)\)\s*[^{]*\{$/.exec(rest))) {
+      meta.functions.push({ name: m[1], line: L });
+      js = `function ${m[1]}(${paramsGo(m[2]).join(', ')}) { __tick();`;
+    } else if (lang === 'go' && /^for\b/.test(rest)) {
+      const head = /^for\s*(.*?)\s*\{$/.exec(rest);
+      if (!head) throw new ForgeSyntaxError('syntax error: cabecera de for no válida', L, 1, 'En Go: for i := 0; i < n; i++ { … }');
+      const h = head[1];
+      let gm;
+      if (!h) js = 'while (true) { __tick();';
+      else if ((gm = /^(\w+)(?:\s*,\s*(\w+))?\s*:?=\s*range\s+(.+)$/.exec(h))) {
+        js = gm[2] ? `for (let [${gm[1]}, ${gm[2]}] of __gorange2(${expr(gm[3])})) { __tick();` : `for (let ${gm[1]} of __gorange1(${expr(gm[3])})) { __tick();`;
+      } else if (h.includes(';')) {
+        const parts = h.split(';').map((x) => x.trim());
+        const init = parts[0].replace(/^(\w+)\s*:=\s*/, 'let $1 = ');
+        js = `for (${expr(init)}; ${expr(parts[1])}; ${expr(parts[2] || '')}) { __tick();`;
+      } else js = `while (${expr(h)}) { __tick();`;
+    } else if (lang === 'js' && (m = /^(async\s+)?function\s*(\w+)\s*\(([^)]*)\)\s*\{$/.exec(rest))) {
+      meta.functions.push({ name: m[2], line: L });
+      js = `${m[1] || ''}function ${m[2]}(${m[3]}) { __tick();`;
+    } else if (lang === 'js' && (m = /^(?:const|let|var)\s+(\w+)\s*=\s*(async\s*)?\(([^)]*)\)\s*=>\s*\{$/.exec(rest))) {
+      meta.functions.push({ name: m[1], line: L });
+      js = `${m[2] ? 'async ' : ''}function ${m[1]}(${m[3]}) { __tick();`;
+    } else if (lang === 'js' && (m = /^for\s*\(\s*(const|let|var)\s+(.+?)\s+(of|in)\s+(.+)\)\s*\{$/.exec(rest))) {
+      js = m[3] === 'of' ? `for (${m[1]} ${m[2]} of __iter(${expr(m[4])})) { __tick();` : `for (${m[1]} ${m[2]} in ${expr(m[4])}) { __tick();`;
+    } else if (lang === 'js' && (m = /^(const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*(.+?);?$/.exec(rest))) {
+      meta.decls[L] = { type: null, name: m[2], expr: m[3], mutable: m[1] !== 'const' };
+      js = `${m[1]} ${m[2]} = __decl(null, '${m[2]}', (${expr(m[3])}), ${L});`;
+    } else if (lang === 'go' && (m = /^(\w+(?:\s*,\s*\w+)+)\s*:=\s*(.+)$/.exec(rest))) {
+      js = `let [${m[1]}] = [${splitTopLevel(m[2]).map(expr).join(', ')}];`;
+    } else if (lang === 'go' && (m = /^(\w+)\s*:=\s*(.+)$/.exec(rest))) {
+      meta.decls[L] = { type: null, name: m[1], expr: m[2], mutable: true };
+      js = `let ${m[1]} = __decl(null, '${m[1]}', (${expr(m[2])}), ${L});`;
+    } else if (lang === 'go' && (m = /^(var|const)\s+(\w+)(?:\s+([^=]+?))?\s*(?:=\s*(.+))?$/.exec(rest))) {
+      const type = m[3] ? m[3].trim() : null;
+      meta.decls[L] = { type, name: m[2], expr: m[4] || '', mutable: m[1] === 'var' };
+      let init = m[4] ? `(${expr(m[4])})` : 'undefined';
+      if (!m[4] && type && /^map\[/.test(type)) init = expr(`make(${type})`);
+      else if (!m[4] && type && /^\[\]/.test(type)) init = '[]';
+      js = `let ${m[2]} = __decl(${type ? `'${type}'` : 'null'}, '${m[2]}', ${init}, ${L});`;
+    } else if (lang === 'go' && (m = /^(.+?,.+?)\s*=\s*([^=].*)$/.exec(rest)) && splitTopLevel(m[1]).length > 1) {
+      js = `;[${splitTopLevel(m[1]).map(expr).join(', ')}] = [${splitTopLevel(m[2]).map(expr).join(', ')}];`;
     }
     else if (isJava && mode === 'run' && /^(?:(?:public|private|final|abstract|static)\s+)*class\s+\w+[^{]*\{$/.test(rest)) {
       dropAt.push(braceDepth);
       braceDepth++;
       js = '';
       rest = '';
-    } else if ((m = /^(?:(?:public|private|protected|static|final|synchronized|inline|extern)\s+)*([A-Za-z_][\w<>, ]*?(?:\[\s*\])*)\s*(\**)\s*([A-Za-z_]\w*)\s*\(([^)]*)\)\s*(?:throws\s+[\w.,\s]+)?\{$/.exec(rest))
-      && (lang === 'java' || lang === 'c') && isTypeToken(m[1].trim(), lang) && !NOT_TYPES.has(m[3])) {
+    } else if ((m = /^(?:(?:public|private|protected|static|final|synchronized|inline|extern)\s+)*([A-Za-z_][\w<>, ]*?(?:\[\s*\])*)\s*([*&]*)\s*([A-Za-z_]\w*)\s*\(([^)]*)\)\s*(?:throws\s+[\w.,\s]+)?\{$/.exec(rest))
+      && (lang === 'java' || lang === 'c' || lang === 'cpp') && isTypeToken(m[1].trim(), lang) && !NOT_TYPES.has(m[3])) {
       meta.functions.push({ name: m[3], line: L });
       js = `function ${m[3]}(${paramsCFamily(m[4]).join(', ')}) { __tick();`;
     } else if ((m = /^(?:(?:private|public|internal|override|open|suspend|inline)\s+)*fun\s+(\w+)\s*\((.*)\)\s*(?::\s*[\w<>?,\s[\]]+)?\s*(\{|=\s*(.+))$/.exec(rest)) && lang === 'kotlin') {
@@ -682,7 +787,7 @@ function translateCFamily(lines, lang, meta, mode) {
         let km;
         if (lang === 'kotlin' && (km = /^(\(.*?\)|\w+)\s+in\s+(.+)$/.exec(inner))) {
           js = `for (let ${loopVar(km[1])} of ${iterExpr(km[2], lang, expr)}) { __tick();`;
-        } else if ((km = /^(?:final\s+)?([\w<>[\]]+)\s+(\w+)\s*:\s*(.+)$/.exec(inner)) && !inner.includes(';')) {
+        } else if ((km = /^(?:final\s+|const\s+)?([\w<>[\]]+)\s*&?\s+(\w+)\s*:\s*(.+)$/.exec(inner)) && !inner.includes(';')) {
           js = `for (let ${km[2]} of __iter(${expr(km[3])})) { __tick();`;
         } else {
           const parts = inner.split(';');
@@ -701,7 +806,7 @@ function translateCFamily(lines, lang, meta, mode) {
       js = `while (${expr(m[1].replace(/^\((.*)\)$/, '$1'))});`;
     } else if ((m = /^(else\s+)?if\s*(.+?)\s*\{$/.exec(rest))) {
       let cond = m[2];
-      if (lang === 'java' || lang === 'c' || lang === 'kotlin') cond = cond.replace(/^\((.*)\)$/, '$1');
+      if (['java', 'c', 'kotlin', 'cpp', 'js', 'go'].includes(lang)) cond = cond.replace(/^\((.*)\)$/, '$1');
       js = `${m[1] ? 'else ' : ''}if (${expr(cond)}) {`;
     } else if ((m = /^guard\s+(.+?)\s+else\s*\{$/.exec(rest))) {
       js = `if (!(${expr(m[1])})) {`;
@@ -714,7 +819,7 @@ function translateCFamily(lines, lang, meta, mode) {
       meta.decls[L] = { type, name: m[2], expr: m[4] || '', mutable: m[1] === 'var' || /\bmut\b/.test(rest) };
       js = `let ${m[2]} = __decl(${type ? `'${type.replace(/'/g, '')}'` : 'null'}, '${m[2]}', ${m[4] ? `(${expr(m[4])})` : 'undefined'}, ${L});`;
     } else if ((m = /^(?:(?:final|const|static|volatile|register)\s+)*((?:struct\s+)?[A-Za-z_][\w]*(?:\s*<[^=;]*>)?(?:\s*\[\s*\])*)\s*(\**)\s*([A-Za-z_]\w*)\s*((?:\[[^\]]*\])*)\s*(?:=\s*(.+?))?;$/.exec(rest))
-      && (lang === 'java' || lang === 'c') && isTypeToken(m[1], lang) && !/^(return|new)$/.test(m[3])) {
+      && (lang === 'java' || lang === 'c' || lang === 'cpp') && isTypeToken(m[1], lang) && !/^(return|new|delete)$/.test(m[3])) {
       const baseType = m[1].replace(/\s+/g, '');
       const type = baseType + m[2];
       const name = m[3];
@@ -728,7 +833,7 @@ function translateCFamily(lines, lang, meta, mode) {
       } else {
         js = `let ${name} = __decl('${type}', '${name}', ${init ? `(${expr(init)})` : 'undefined'}, ${L});`;
       }
-    } else if (/^(?:(?:public|private|protected|abstract|final|open|data|pub)\s+)*(class|struct|interface|typedef|enum|protocol|actor|impl|trait)\b/.test(rest)) {
+    } else if (/^(?:(?:public|private|protected|abstract|final|open|data|pub|export)\s+)*(class|struct|interface|typedef|enum|protocol|actor|impl|trait|type)\b/.test(rest)) {
       throw new ForgeSyntaxError(syntaxMsg(lang, 'las clases y structs se analizan en el Módulo 4'), L, 1, 'Resuelve esta misión con funciones y variables.');
     } else {
       js = expr(rest);
@@ -801,6 +906,31 @@ function rustPrepass(lines) {
   }
 }
 
+/**
+ * Go: elimina bloques import ( … ) y aplica su regla más famosa: una variable
+ * declarada y no usada es un error de compilación.
+ */
+function goPrepass(lines) {
+  for (let i = 0; i < lines.length; i++) {
+    if (/^\s*import\s*\(\s*$/.test(lines[i])) {
+      let j = i;
+      while (j < lines.length && !/^\s*\)\s*$/.test(lines[j])) lines[j++] = '';
+      if (j < lines.length) lines[j] = '';
+    }
+  }
+  const all = lines.join('\n');
+  lines.forEach((raw, i) => {
+    const t = raw.trim();
+    const m = /^(\w+)\s*:=/.exec(t) || /^var\s+(\w+)/.exec(t);
+    if (!m || m[1] === '_') return;
+    const uses = (all.match(new RegExp(`\\b${m[1]}\\b`, 'g')) || []).length;
+    if (uses <= 1) {
+      throw new ForgeSyntaxError(`declared and not used: ${m[1]}`, i + 1, raw.indexOf(m[1]) + 1,
+        `Go no compila si declaras una variable y no la usas. Úsala (por ejemplo, imprímela) o bórrala.`);
+    }
+  });
+}
+
 /** Solo comprobación sintáctica (para misiones de análisis estático). */
 export function syntaxCheck(src, lang) {
   const clean = stripComments(src.replace(/\r\n?/g, '\n'), lang);
@@ -823,6 +953,7 @@ export function transpile(src, lang, { mode = 'run' } = {}) {
   if (lang === 'python') checkPythonIndent(lines);
   else checkStatements(lines, lang);
   if (lang === 'rust') rustPrepass(lines);
+  if (lang === 'go') goPrepass(lines);
   const out = lang === 'python' ? translatePython(lines, meta) : translateCFamily(lines.slice(), lang, meta, mode);
   const exprFn = (e) => EXPR[lang](e);
   const js = restoreStrings(instrumentLines(out).join('\n'), table, lang, exprFn);

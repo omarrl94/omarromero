@@ -29,6 +29,15 @@ export function lintStyle(code, lang) {
       if ((m = /^class\s+(\w+)/.exec(t)) && !isPascal(m[1])) warn(L, `PEP 8: la clase «${m[1]}» debería ir en PascalCase.`, 'naming');
       if (/;\s*$/.test(t)) warn(L, 'Python no necesita «;» al final de la línea.', 'semicolon');
       if (/==\s*(True|False|None)\b/.test(t)) warn(L, 'Compara con «is None» o usa el booleano directamente.', 'compare-bool');
+    } else if (lang === 'go') {
+      if ((m = /^(\w+)\s*:=/.exec(t) || /^var\s+(\w+)/.exec(t)) && !isCamel(m[1]) && m[1] !== '_') warn(L, `Go: «${m[1]}» debería ir en camelCase (sin guiones bajos).`, 'naming');
+      if (/^(?:\}\s*else\s+)?(if|for)\s*\(.*\)\s*\{$/.test(t)) warn(L, 'gofmt quita los paréntesis de la condición: escríbela sin ellos.', 'parens');
+      if (/;\s*$/.test(t)) warn(L, 'Go no necesita «;» al final de la línea.', 'semicolon');
+    } else if (lang === 'js') {
+      if ((m = /^(?:const|let|var)\s+(\w+)/.exec(t)) && !isCamel(m[1]) && !/^[A-Z][A-Z0-9_]*$/.test(m[1])) warn(L, `JavaScript: «${m[1]}» debería ir en camelCase.`, 'naming');
+      if (/^var\s/.test(t)) warn(L, 'Usa let o const en lugar de var (var ignora los bloques).', 'no-var');
+      if (/[^=!]==[^=]/.test(t) || /!=[^=]/.test(t)) warn(L, 'Usa === y !== : == convierte tipos por sorpresa ("1" == 1 es true).', 'eqeqeq');
+      if ((m = /^class\s+(\w+)/.exec(t)) && !isPascal(m[1])) warn(L, `La clase «${m[1]}» debería ir en PascalCase.`, 'naming');
     } else if (lang === 'rust') {
       if ((m = /^(?:pub\s+)?fn\s+(\w+)/.exec(t)) && !isSnake(m[1])) warn(L, `Rust: la función «${m[1]}» debería ir en snake_case.`, 'naming');
       if ((m = /^let\s+(?:mut\s+)?(\w+)/.exec(t)) && !isSnake(m[1])) warn(L, `Rust: la variable «${m[1]}» debería ir en snake_case.`, 'naming');
@@ -37,10 +46,10 @@ export function lintStyle(code, lang) {
     } else {
       if (/\b(if|for|while|switch)\(/.test(t)) warn(L, 'Deja un espacio entre la palabra clave y el paréntesis.', 'keyword-space');
       if ((lang === 'kotlin' || lang === 'swift') && /;\s*$/.test(t)) warn(L, `${lang === 'swift' ? 'Swift' : 'Kotlin'} no necesita «;» al final.`, 'semicolon');
-      const decl = lang === 'c' || lang === 'java'
+      const decl = lang === 'c' || lang === 'java' || lang === 'cpp'
         ? /^(?:final\s+|const\s+|static\s+)*(?:int|long|double|float|boolean|bool|char|String|short|byte)\s*\**\s*([A-Za-z_]\w*)\s*[=;[]/.exec(t)
         : /^(?:val|var|let)\s+([A-Za-z_]\w*)/.exec(t);
-      if (decl && lang !== 'c' && !isCamel(decl[1]) && !/^[A-Z][A-Z0-9_]*$/.test(decl[1])) warn(L, `Convención: «${decl[1]}» debería ir en camelCase.`, 'naming');
+      if (decl && lang !== 'c' && lang !== 'cpp' && !isCamel(decl[1]) && !/^[A-Z][A-Z0-9_]*$/.test(decl[1])) warn(L, `Convención: «${decl[1]}» debería ir en camelCase.`, 'naming');
       if ((m = /\b(?:class|struct|interface|protocol)\s+(\w+)/.exec(t)) && !isPascal(m[1])) warn(L, `El tipo «${m[1]}» debería ir en PascalCase.`, 'naming');
     }
   });
@@ -117,6 +126,53 @@ export function analyzeClasses(code, lang) {
       const fields = [...new Set([...body.matchAll(/self\.(\w+)\s*=/g)].map((x) => x[1]))];
       classes[m[1]] = { name: m[1], parent: m[2] && m[2] !== 'object' ? m[2] : null, line: i + 1, open: true, abstract: /ABC/.test(m[2] || ''), methods, fields };
     });
+  } else if (lang === 'cpp') {
+    for (const m of src.matchAll(/(?:class|struct)\s+(\w+)\s*(?::\s*(?:public|protected|private)?\s*(\w+))?\s*\{/g)) {
+      const { body } = braceBody(src, m.index + m[0].length - 1);
+      const methods = {};
+      for (const mm of body.matchAll(/(virtual\s+)?(?:void|int|bool|double|float)\s+(\w+)\s*\([^)]*\)\s*(?:const\s*)?(override\s*)?(?:=\s*0\s*)?(\{|;)/g)) {
+        const mb = mm[4] === '{' ? braceBody(body, mm.index + mm[0].length - 1).body : '';
+        methods[mm[2]] = { line: lineOf(src, m.index) + body.slice(0, mm.index).split('\n').length - 1, override: !!mm[3], virtual: !!mm[1], body: mb };
+      }
+      classes[m[1]] = { name: m[1], parent: m[2] || null, line: lineOf(src, m.index), open: true, abstract: false, methods, fields: [] };
+    }
+  } else if (lang === 'js') {
+    for (const m of src.matchAll(/class\s+(\w+)(?:\s+extends\s+(\w+))?\s*\{/g)) {
+      const { body } = braceBody(src, m.index + m[0].length - 1);
+      const methods = {};
+      for (const mm of body.matchAll(/^\s*(?:async\s+)?(\w+)\s*\([^)]*\)\s*\{/gm)) {
+        if (/^(if|for|while|switch|constructor|function|catch)$/.test(mm[1])) continue;
+        methods[mm[1]] = { line: lineOf(src, m.index) + body.slice(0, mm.index).split('\n').length - 1, override: false, body: braceBody(body, mm.index + mm[0].length - 1).body, superCall: /super\.\w+\(/.test(mm[0]) };
+      }
+      classes[m[1]] = { name: m[1], parent: m[2] || null, line: lineOf(src, m.index), open: true, abstract: false, methods, fields: [] };
+    }
+  } else if (lang === 'go') {
+    // Go no tiene clases ni herencia: structs + métodos + interfaces implícitas.
+    const ifaces = {};
+    for (const m of src.matchAll(/type\s+(\w+)\s+interface\s*\{/g)) {
+      const { body } = braceBody(src, m.index + m[0].length - 1);
+      const names = [...body.matchAll(/(\w+)\s*\(/g)].map((x) => x[1]);
+      ifaces[m[1]] = names;
+      const methods = {};
+      names.forEach((n) => { methods[n[0].toLowerCase() + n.slice(1)] = { line: lineOf(src, m.index), override: false, body: '' }; });
+      classes[m[1]] = { name: m[1], parent: null, line: lineOf(src, m.index), open: true, abstract: true, methods, fields: [], iface: true };
+    }
+    for (const m of src.matchAll(/type\s+(\w+)\s+struct\s*\{/g)) {
+      classes[m[1]] = { name: m[1], parent: null, line: lineOf(src, m.index), open: false, abstract: false, methods: {}, fields: [], goMethods: [] };
+    }
+    for (const m of src.matchAll(/func\s*\(\s*(\w+)\s+(\*?)(\w+)\s*\)\s*(\w+)\s*\([^)]*\)[^{]*\{/g)) {
+      const c = classes[m[3]];
+      if (!c) continue;
+      const { body } = braceBody(src, m.index + m[0].length - 1);
+      const key = m[4][0].toLowerCase() + m[4].slice(1);
+      c.methods[key] = { line: lineOf(src, m.index), override: true, body: body.replace(new RegExp(`\\b${m[1]}\\.`, 'g'), 'this.'), pointer: m[2] === '*' };
+      c.goMethods.push(m[4]);
+    }
+    for (const c of Object.values(classes)) {
+      if (!c.goMethods) continue;
+      const impl = Object.entries(ifaces).find(([, names]) => names.length && names.every((n) => c.goMethods.includes(n)));
+      if (impl) c.parent = impl[0];
+    }
   } else if (lang === 'rust') {
     // Rust no tiene herencia: un trait define el comportamiento y cada struct lo implementa.
     for (const m of src.matchAll(/(?:pub\s+)?trait\s+(\w+)\s*\{/g)) {
@@ -207,7 +263,7 @@ export function analyzeClasses(code, lang) {
   for (const c of Object.values(classes)) {
     if (!c.parent || !classes[c.parent]) continue;
     for (const [name, md] of Object.entries(c.methods)) {
-      if (classes[c.parent].methods[name] && (lang === 'python' || lang === 'java')) md.override = true;
+      if (classes[c.parent].methods[name] && (lang === 'python' || lang === 'java' || lang === 'js' || (lang === 'cpp' && classes[c.parent].methods[name].virtual))) md.override = true;
     }
   }
   return { classes };
@@ -222,6 +278,9 @@ const SPAWN = {
   swift: /async\s+let\b|\.addTask\s*\{|\bTask\s*\{/,
   c: /pthread_create\(/,
   rust: /thread::spawn\(|tokio::spawn\(|\.spawn\(/,
+  go: /\bgo\s+(func\b|\w+\()/,
+  js: /Promise\.(all|allSettled|race)\(/,
+  cpp: /\bthread\s+\w+\s*\(|std::thread|std::async\(/,
 };
 const JOIN = {
   python: /\bawait\b|\.join\(/,
@@ -230,6 +289,9 @@ const JOIN = {
   swift: /\bawait\b/,
   c: /pthread_join\(/,
   rust: /\.join\(\)|\.await\b|join_all\(/,
+  go: /\.Wait\(\)|(?:^|[=(,]|\+=)\s*<-\s*\w+/,
+  js: /\bawait\b/,
+  cpp: /\.join\(\)|\.get\(\)/,
 };
 const PROTECT = {
   python: /asyncio\.Lock|threading\.Lock|with\s+\w*lock/i,
@@ -238,6 +300,9 @@ const PROTECT = {
   swift: /\bactor\b|NSLock|OSAllocatedUnfairLock/,
   c: /pthread_mutex_lock|atomic_/,
   rust: /Mutex|RwLock|Atomic(I|U)\w+|\.lock\(\)|mpsc::/,
+  go: /sync\.Mutex|\.Lock\(\)|atomic\./,
+  js: /Atomics\./,
+  cpp: /atomic<|mutex|lock_guard/,
 };
 
 /**
@@ -269,6 +334,7 @@ export function analyzeConcurrency(code, lang) {
     if (SPAWN[lang].test(t)) {
       let count = 1;
       if (lang === 'python' && /gather\(/.test(t)) count = /gather\(\s*\*/.test(t) || /\bfor\b/.test(t) ? 3 : (t.match(/\w*scan\w*\(/g) || []).length || 1;
+      if (lang === 'js' && /Promise\./.test(t)) count = /\.map\(/.test(t) ? 3 : (t.match(/\w*scan\w*\(/g) || []).length || 1;
       if (loopOf(L) || /\.(map|forEach)\s*\{|repeat\s*\(|\.map\(\s*(move\s*)?\|/.test(t)) count = 3;
       spawns.push({ line: L, count, loop: loopOf(L), gather: /gather\(/.test(t) });
       if (/\{/.test(t)) closures.push({ from: L, to: blockEnd(lines, i, lang) });
@@ -278,7 +344,7 @@ export function analyzeConcurrency(code, lang) {
     const directAwait = /\bawait\s+\w*scan\w*\(/.test(t) && !/async\s+let|gather|addTask/.test(t);
     if (directAwait) joins.push({ line: L, direct: true, loop: loopOf(L) });
     else if (!SPAWN[lang].test(t) && JOIN[lang].test(t)) joins.push({ line: L, loop: loopOf(L) });
-    else if (SPAWN[lang].test(t) && JOIN[lang].test(t) && lang !== 'python' && lang !== 'swift') joins.push({ line: L, loop: loopOf(L), sameLine: true });
+    else if (SPAWN[lang].test(t) && JOIN[lang].test(t) && !['python', 'swift', 'js'].includes(lang)) joins.push({ line: L, loop: loopOf(L), sameLine: true });
   });
   const real = spawns.filter((x) => x.count > 0);
   const spawnCount = real.reduce((a, x) => a + x.count, 0);
@@ -299,7 +365,7 @@ export function analyzeConcurrency(code, lang) {
     const L = i + 1;
     if (closures.some((c) => L >= c.from && L <= c.to)) sharedMutation = true;
   });
-  if (lang === 'python' && !/threading/.test(src)) sharedMutation = false; // asyncio: un solo hilo
+  if ((lang === 'python' && !/threading/.test(src)) || lang === 'js') sharedMutation = false; // un solo hilo: sin carreras
   const protectedMutation = PROTECT[lang].test(src);
   const tasks = Math.max(spawnCount, direct.reduce((a, d) => a + (d.loop ? 3 : 1), 0));
   return { spawns, joins, spawnCount, concurrent, interleaved, sharedMutation, protectedMutation, tasks, waits: joins.length > 0 };
