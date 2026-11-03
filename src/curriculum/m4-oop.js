@@ -292,6 +292,14 @@ int main(void) {
       checks.push(check('kotlin-open', 'Entity y update() son open', ok,
         ok ? '' : "error: This type is final, so it cannot be inherited from — en Kotlin todo es final por defecto."));
     }
+    if (lang === 'rust') {
+      const trait = classes.Entity;
+      const hasDefault = trait && trait.methods.update && trait.methods.update.defaultImpl;
+      const missing = kids.filter((n) => classes[n] && classes[n].parent === 'Entity' && !classes[n].methods.update);
+      const ok = hasDefault || missing.length === 0;
+      checks.push(check('rust-default', 'Todas las structs cumplen el trait', ok,
+        ok ? '' : `error[E0046]: not all trait items implemented, missing: \`update\` (${missing.join(', ')}) — dale a update() un cuerpo por defecto en el trait.`));
+    }
     if (lang === 'swift') {
       const missing = kids.filter((n) => classes[n] && classes[n].methods.update && !classes[n].methods.update.override);
       checks.push(check('swift-override', 'Cada update() hija lleva override', missing.length === 0,
@@ -319,6 +327,7 @@ int main(void) {
     polymorph: ['Si el jugador avanza en x, ¿qué debería cambiar en update() para que el enemigo patrulle en vertical?'],
     'kotlin-open': ['En Kotlin, ¿se puede heredar de cualquier clase? ¿Qué palabra «abre» una clase a la herencia?'],
     'swift-override': ['¿Qué palabra exige Swift delante de un método que reemplaza al del padre?'],
+    'rust-default': ['Si Obstacle no escribe su propio update(), ¿de dónde debería sacarlo? ¿Puede un trait traer un comportamiento por defecto?'],
   },
 };
 

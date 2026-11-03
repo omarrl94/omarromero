@@ -109,3 +109,5 @@ body {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
 }
+.line-todo { background: linear-gradient(90deg, rgba(255, 181, 52, 0.14), rgba(255, 181, 52, 0.02)); }
+.line-caret { background: rgba(157, 123, 255, 0.06); }

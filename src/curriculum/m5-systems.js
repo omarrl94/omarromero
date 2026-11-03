@@ -229,15 +229,15 @@ func runScanners() async {
     }
     const a = analyzeConcurrency(code, lang);
     const asyncDecl = {
-      python: /async\s+def\s+scan/, java: /static\s+\w+\s+scan\s*\(/, kotlin: /suspend\s+fun\s+scan/, swift: /func\s+scan\s*\([^)]*\)\s*async/,
+      python: /async\s+def\s+scan/, java: /static\s+\w+\s+scan\s*\(/, kotlin: /suspend\s+fun\s+scan/, swift: /func\s+scan\s*\([^)]*\)\s*async/, rust: /fn\s+scan\s*\(/,
     }[lang].test(code);
     const raceFree = !a.sharedMutation || a.protectedMutation;
     const checks = [
-      check('scan', 'Función scan asíncrona definida', asyncDecl),
+      check('scan', lang === 'rust' || lang === 'java' ? 'Función scan definida' : 'Función scan asíncrona definida', asyncDecl),
       check('concurrent', 'Las 3 sondas se lanzan a la vez', a.concurrent, a.concurrent ? `${a.spawnCount} tareas concurrentes` : a.interleaved ? 'Esperas a cada tarea antes de lanzar la siguiente: ejecución en serie.' : 'Las tareas se ejecutan una detrás de otra.'),
       check('waits', 'Espera a que terminen todas antes de usar el resultado', a.waits),
       check('race', 'Sin carreras de datos en el resultado compartido', raceFree,
-        raceFree ? '' : lang === 'swift' ? "error: mutation of captured var 'total' in concurrently-executing code" : 'total += … desde varias tareas sin protección: se pueden perder sumas.'),
+        raceFree ? '' : lang === 'rust' ? 'error[E0373]: closure may outlive the current function, but it borrows `total` — Rust no compila una carrera de datos.' : lang === 'swift' ? "error: mutation of captured var 'total' in concurrently-executing code" : 'total += … desde varias tareas sin protección: se pueden perder sumas.'),
     ];
     return { checks, scene: { concurrent: a.concurrent, tasks: Math.max(3, a.tasks), race: !raceFree, lang } };
   },

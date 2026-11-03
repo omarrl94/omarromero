@@ -20,7 +20,7 @@ export const ACHIEVEMENTS = {
   'first-blood': { name: 'Primer Latido', desc: 'Completa tu primera misión.', icon: 'Zap' },
   'bug-hunter': { name: 'Cazador de Bugs', desc: 'Repara 5 errores de compilación o ejecución.', icon: 'Bug' },
   'polyglot': { name: 'Políglota', desc: 'Completa una misión en 3 lenguajes.', icon: 'Languages' },
-  'polyglot-max': { name: 'Torre de Babel', desc: 'Completa una misión en los 5 lenguajes.', icon: 'Globe' },
+  'polyglot-max': { name: 'Torre de Babel', desc: 'Completa una misión en los 6 lenguajes.', icon: 'Globe' },
   'clean-coder': { name: 'Código Limpio', desc: 'Consigue 3 estrellas en 5 misiones.', icon: 'Sparkles' },
   'autonomous': { name: 'Piloto Autónomo', desc: 'Completa una misión sin pistas profundas del pato.', icon: 'Bot' },
   'boss-slayer': { name: 'Rompe-Enjambres', desc: 'Derrota al Enjambre O(n²).', icon: 'Skull' },
@@ -43,6 +43,8 @@ export const initialState = {
   settings: { sound: true, keys: false, autorun: true },
   achievements: [],
   seenIntro: false,
+  lessonsSeen: {},
+  tourSeen: false,
 };
 
 export function loadState() {
@@ -99,7 +101,7 @@ function withAchievements(state) {
   if (state.stats.bugsFixed >= 5) add('bug-hunter');
   const langCounts = doneIds.map((id) => Object.keys(state.completed[id]).length);
   if (langCounts.some((n) => n >= 3)) add('polyglot');
-  if (langCounts.some((n) => n >= 5)) add('polyglot-max');
+  if (langCounts.some((n) => n >= 6)) add('polyglot-max');
   if (doneIds.filter((id) => bestStars(state, id) === 3).length >= 5) add('clean-coder');
   if (Object.values(state.completed).some((byLang) => Object.values(byLang).some((x) => x.noHints))) add('autonomous');
   if (isDone(state, 'boss-swarm')) add('boss-slayer');
@@ -119,6 +121,10 @@ export function reducer(state, action) {
   switch (action.type) {
     case 'hydrate':
       return action.state;
+    case 'lessonSeen':
+      return { ...state, lessonsSeen: { ...state.lessonsSeen, [action.id]: true } };
+    case 'tourSeen':
+      return { ...state, tourSeen: true };
     case 'setLang':
       return { ...state, lang: action.lang };
     case 'intro':

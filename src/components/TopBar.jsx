@@ -49,6 +49,7 @@ export default function TopBar({ view, onMap, onProfile }) {
               >
                 {active && <motion.span layoutId="lang-pill" className="absolute inset-0 rounded-lg" style={{ background: L.color, boxShadow: `0 0 16px ${L.color}` }} transition={{ type: 'spring', stiffness: 500, damping: 35 }} />}
                 <span className="relative">{L.name}</span>
+                {L.trending && !active && <span className="absolute -right-0.5 -top-0.5 h-1.5 w-1.5 rounded-full bg-orange-400 shadow-[0_0_6px_#fb923c]" title="En auge" />}
               </button>
             );
           })}

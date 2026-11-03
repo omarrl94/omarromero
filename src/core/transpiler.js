@@ -1,9 +1,9 @@
 // Forge VM · Polyglot Core
-// Traduce un subconjunto realista de Python, Java, Kotlin, Swift y C a JavaScript
+// Traduce un subconjunto realista de Python, Java, Kotlin, Swift, C y Rust a JavaScript
 // instrumentado. La traducción es línea a línea (1:1) para que cada error y cada
 // frame del stack trace apunten exactamente a la línea que escribió el usuario.
 
-const SRC_FILE = { python: 'main.py', java: 'Main.java', kotlin: 'Main.kt', swift: 'main.swift', c: 'main.c' };
+const SRC_FILE = { python: 'main.py', java: 'Main.java', kotlin: 'Main.kt', swift: 'main.swift', c: 'main.c', rust: 'src/main.rs' };
 export const sourceFile = (lang) => SRC_FILE[lang];
 
 export class ForgeSyntaxError extends Error {
@@ -88,6 +88,7 @@ function protectStrings(src, lang) {
       else if (q === "'" && lang !== 'python') kind = 'char';
       else if (lang === 'kotlin' && /\$[\w{]/.test(body)) kind = 'ktpl';
       else if (lang === 'swift' && body.includes('\\(')) kind = 'swtpl';
+      else if (lang === 'rust' && /\{[A-Za-z_]\w*(:\?)?\}/.test(body)) kind = 'rtpl';
       table.push({ body, kind, q });
       out += `${PH}${table.length - 1}${PH}`;
       i = j + 1;
@@ -116,6 +117,9 @@ function restoreStrings(code, table, lang, exprFn) {
       return '`' + esc(body)
         .replace(/\$\{([^{}]+)\}/g, (m, e) => '${' + exprFn(e.trim()) + '}')
         .replace(/\$([A-Za-z_]\w*(?:\.\w+)*)/g, (m, e) => '${' + exprFn(e) + '}') + '`';
+    }
+    if (kind === 'rtpl') {
+      return '`' + esc(body).replace(/\{([A-Za-z_]\w*)(:\?)?\}/g, (m, n) => '${__show(' + exprFn(n) + ')}') + '`';
     }
     if (kind === 'swtpl') {
       let s = esc(body);
@@ -211,6 +215,16 @@ function iterExpr(e, lang, expr) {
     e = m[1];
     step = expr(m[2]);
   }
+  if (lang === 'rust') {
+    e = e.replace(/^&(mut\s+)?/, '').replace(/\.(iter|into_iter|iter_mut)\(\)$/, '');
+    if ((m = /^\((.+?)\s*\.\.(=?)\s*(.+)\)\.rev\(\)$/.exec(e))) {
+      return m[2] ? `__rangeIncl(${expr(m[3])}, ${expr(m[1])}, -1)` : `__rangeIncl((${expr(m[3])}) - 1, ${expr(m[1])}, -1)`;
+    }
+    e = e.replace(/^\((.*)\)$/, '$1');
+    if ((m = /^(.+?)\s*\.\.=\s*(.+)$/.exec(e))) return `__rangeIncl(${expr(m[1])}, ${expr(m[2])}, 1)`;
+    if ((m = /^(.+?)\s*\.\.\s*(.+)$/.exec(e))) return `__range(${expr(m[1])}, ${expr(m[2])}, 1)`;
+    return `__iter(${expr(e)})`;
+  }
   if ((m = /^(.+?)\s+until\s+(.+)$/.exec(e))) return `__range(${expr(m[1])}, ${expr(m[2])}, ${step})`;
   if ((m = /^(.+?)\s+downTo\s+(.+)$/.exec(e))) return `__rangeIncl(${expr(m[1])}, ${expr(m[2])}, -(${step}))`;
   if ((m = /^(.+?)\s*\.\.<\s*(.+)$/.exec(e))) return `__range(${expr(m[1])}, ${expr(m[2])}, ${step})`;
@@ -224,7 +238,7 @@ function iterExpr(e, lang, expr) {
 
 const loopVar = (v) => {
   v = v.trim().replace(/^\((.*)\)$/, '$1');
-  const parts = splitTopLevel(v).map((p) => p.replace(/^(val|var|let)\s+/, '').replace(/:.*$/, '').trim());
+  const parts = splitTopLevel(v).map((p) => p.replace(/^(val|var|let)\s+/, '').replace(/^&/, '').replace(/^mut\s+/, '').replace(/:.*$/, '').trim());
   return parts.length > 1 ? `[${parts.join(', ')}]` : parts[0];
 };
 
@@ -388,7 +402,38 @@ function exprC(s) {
     .replace(/(^|[(,=]\s*)&(?=[A-Za-z_])/g, '$1');
 }
 
-const EXPR = { python: exprPython, java: exprJava, kotlin: exprKotlin, swift: exprSwift, c: exprC };
+function exprRust(s) {
+  return s
+    .replace(/^\*\s*(\w+)\.entry\((.+?)\)\.or_insert\((.+?)\)\s*\+=\s*(.+)$/, '$1[$2] = ($1[$2] ?? $3) + $4')
+    .replace(/\b(\d[\d_]*(?:\.\d+)?)(?:i8|i16|i32|i64|i128|u8|u16|u32|u64|usize|isize|f32|f64)\b/g, '$1')
+    .replace(/\bprintln!\(/g, '__rprintln(')
+    .replace(/\beprintln!\(/g, '__rprintln(')
+    .replace(/\bprint!\(/g, '__rprint(')
+    .replace(/\bformat!\(/g, '__rformat(')
+    .replace(/\bpanic!\(/g, '__panic(')
+    .replace(/\bvec!\[/g, '[')
+    .replace(/\bString::from\(/g, '(')
+    .replace(/\b(?:Vec|String)(?:::<[^>]*>)?::(?:new|with_capacity)\([^)]*\)/g, (m) => (m.startsWith('String') ? '""' : '[]'))
+    .replace(/\bHashMap(?:::<[^>]*>)?::new\(\)/g, '__dict()')
+    .replace(/\bHashSet(?:::<[^>]*>)?::new\(\)/g, 'new Set()')
+    .replace(/\bi32::MAX\b/g, '2147483647')
+    .replace(/\bi32::MIN\b/g, '(-2147483648)')
+    .replace(/\bi64::MAX\b/g, '9223372036854775807')
+    .replace(/\.(?:to_string|to_owned|clone|unwrap|iter|into_iter|copied|cloned)\(\)/g, '')
+    .replace(/\s+as\s+(?:i8|i16|i32|i64|i128|u8|u16|u32|u64|usize|isize|f32|f64)\b/g, '')
+    .replace(/\.len\(\)/g, '.length')
+    .replace(/\.is_empty\(\)/g, '.__isEmpty()')
+    .replace(/\.insert\(([^,()]+),\s*/g, '.__put($1, ')
+    .replace(/\.insert\(/g, '.__add(')
+    .replace(/\.contains(?:_key)?\(/g, '.__has(')
+    .replace(/\.get\(/g, '.__get(')
+    .replace(/\.swap\(/g, '.swapAt(')
+    .replace(/&mut\s+/g, '')
+    .replace(/(^|[(,=\s!\[])&(?=[\w[])/g, '$1')
+    .replace(/(^|[=(,!+\-/%<>&|?:]\s*|return\s+)\*\s*([A-Za-z_]\w*)/g, '$1$2');
+}
+
+const EXPR = { python: exprPython, java: exprJava, kotlin: exprKotlin, swift: exprSwift, c: exprC, rust: exprRust };
 
 // ───────────────────────── 4. Comprobación sintáctica ─────────────────────────
 
@@ -451,7 +496,7 @@ function checkStatements(lines, lang) {
       throw new ForgeSyntaxError(lang === 'java' ? "error: '(' expected" : "error: expecting '('", li + 1, t.indexOf(' ') + 2,
         `En ${lang === 'java' ? 'Java' : 'Kotlin'} la condición va entre paréntesis.`);
     }
-    if ((lang === 'java' || lang === 'c' || lang === 'kotlin' || lang === 'swift') && /^(if|for|while)\b/.test(t) && !/\{\s*$/.test(t)) {
+    if ((lang === 'java' || lang === 'c' || lang === 'kotlin' || lang === 'swift' || lang === 'rust') && /^(if|for|while)\b/.test(t) && !/\{\s*$/.test(t)) {
       const next = (lines.slice(li + 1).find((l) => l.trim()) || '').trim();
       if (next !== '{') {
         throw new ForgeSyntaxError(syntaxMsg(lang, 'el Forge VM exige llaves { } en cada bloque'), li + 1, raw.length,
@@ -606,7 +651,13 @@ function translateCFamily(lines, lang, meta, mode) {
     let js = rest;
     let m;
     if (!rest) js = '';
-    else if (/^#/.test(rest) || /^(import|package)\s/.test(rest) || /^@\w+/.test(rest) || /^using\s/.test(rest)) js = '';
+    else if (/^#/.test(rest) || /^(import|package|use|mod|extern\s+crate)\s/.test(rest) || /^@\w+/.test(rest) || /^using\s/.test(rest)) js = '';
+    else if (lang === 'rust' && (m = /^(?:pub\s+)?fn\s+(\w+)\s*(?:<[^>]*>)?\s*\((.*)\)\s*(?:->\s*[^{]+)?\{$/.exec(rest))) {
+      meta.functions.push({ name: m[1], line: L });
+      js = `function ${m[1]}(${paramsKotlinSwift(m[2]).map(expr).join(', ')}) { __tick();`;
+    } else if (lang === 'rust' && /^loop\s*\{$/.test(rest)) {
+      js = 'while (true) { __tick();';
+    }
     else if (isJava && mode === 'run' && /^(?:(?:public|private|final|abstract|static)\s+)*class\s+\w+[^{]*\{$/.test(rest)) {
       dropAt.push(braceDepth);
       braceDepth++;
@@ -624,7 +675,7 @@ function translateCFamily(lines, lang, meta, mode) {
       meta.functions.push({ name: m[1], line: L });
       js = `${m[3] ? 'async ' : ''}function ${m[1]}(${paramsKotlinSwift(m[2]).map(expr).join(', ')}) { __tick();`;
     } else if (/^for\b/.test(rest)) {
-      if (lang === 'swift' && (m = /^for\s+(.+?)\s+in\s+(.+?)\s*\{$/.exec(rest))) {
+      if ((lang === 'swift' || lang === 'rust') && (m = /^for\s+(.+?)\s+in\s+(.+?)\s*\{$/.exec(rest))) {
         js = `for (let ${loopVar(m[1])} of ${iterExpr(m[2], lang, expr)}) { __tick();`;
       } else if ((m = /^for\s*\((.+)\)\s*\{$/.exec(rest))) {
         const inner = m[1];
@@ -656,11 +707,11 @@ function translateCFamily(lines, lang, meta, mode) {
       js = `if (!(${expr(m[1])})) {`;
     } else if (/^else\s*\{$/.test(rest)) {
       js = 'else {';
-    } else if (/^when\b/.test(rest) || /^switch\b/.test(rest)) {
+    } else if (/^when\b/.test(rest) || /^switch\b/.test(rest) || /^match\b/.test(rest)) {
       throw new ForgeSyntaxError(syntaxMsg(lang, `'${rest.split(/\W/)[0]}' aún no está soportado por el Forge VM`), L, 1, 'Usa una cadena de if / else if.');
-    } else if ((m = /^(?:(?:private|public)\s+)?(val|var|let)\s+(\w+)\s*(?::\s*([^=]+?))?\s*(?:=\s*(.+?))?;?$/.exec(rest)) && (lang === 'kotlin' || lang === 'swift')) {
+    } else if ((m = /^(?:(?:private|public)\s+)?(val|var|let)\s+(?:mut\s+)?(\w+)\s*(?::\s*([^=]+?))?\s*(?:=\s*(.+?))?;?$/.exec(rest)) && (lang === 'kotlin' || lang === 'swift' || lang === 'rust')) {
       const type = m[3] ? m[3].trim() : null;
-      meta.decls[L] = { type, name: m[2], expr: m[4] || '', mutable: m[1] === 'var' };
+      meta.decls[L] = { type, name: m[2], expr: m[4] || '', mutable: m[1] === 'var' || /\bmut\b/.test(rest) };
       js = `let ${m[2]} = __decl(${type ? `'${type.replace(/'/g, '')}'` : 'null'}, '${m[2]}', ${m[4] ? `(${expr(m[4])})` : 'undefined'}, ${L});`;
     } else if ((m = /^(?:(?:final|const|static|volatile|register)\s+)*((?:struct\s+)?[A-Za-z_][\w]*(?:\s*<[^=;]*>)?(?:\s*\[\s*\])*)\s*(\**)\s*([A-Za-z_]\w*)\s*((?:\[[^\]]*\])*)\s*(?:=\s*(.+?))?;$/.exec(rest))
       && (lang === 'java' || lang === 'c') && isTypeToken(m[1], lang) && !/^(return|new)$/.test(m[3])) {
@@ -677,7 +728,7 @@ function translateCFamily(lines, lang, meta, mode) {
       } else {
         js = `let ${name} = __decl('${type}', '${name}', ${init ? `(${expr(init)})` : 'undefined'}, ${L});`;
       }
-    } else if (/^(?:(?:public|private|protected|abstract|final|open|data)\s+)*(class|struct|interface|typedef|enum|protocol|actor)\b/.test(rest)) {
+    } else if (/^(?:(?:public|private|protected|abstract|final|open|data|pub)\s+)*(class|struct|interface|typedef|enum|protocol|actor|impl|trait)\b/.test(rest)) {
       throw new ForgeSyntaxError(syntaxMsg(lang, 'las clases y structs se analizan en el Módulo 4'), L, 1, 'Resuelve esta misión con funciones y variables.');
     } else {
       js = expr(rest);
@@ -708,6 +759,48 @@ function instrumentLines(out) {
   });
 }
 
+/**
+ * Rust: comprueba la inmutabilidad (let sin mut no se reasigna, error E0384) e
+ * inserta `return` en la expresión final de cada función (las funciones de Rust
+ * devuelven su última expresión si no termina en «;»).
+ */
+function rustPrepass(lines) {
+  const immutable = new Map();
+  lines.forEach((raw, i) => {
+    const t = raw.trim();
+    let m;
+    if ((m = /^let\s+(mut\s+)?(\w+)/.exec(t))) {
+      if (m[1]) immutable.delete(m[2]);
+      else immutable.set(m[2], i + 1);
+      return;
+    }
+    if ((m = /^(\w+)\s*([+\-*/%]?=)(?!=)/.exec(t)) && immutable.has(m[1])) {
+      const decl = immutable.get(m[1]);
+      throw new ForgeSyntaxError(`error[E0384]: cannot assign twice to immutable variable \`${m[1]}\``, i + 1, raw.indexOf(m[1]) + 1,
+        `En Rust las variables son inmutables por defecto. Declárala con «let mut ${m[1]}» en la línea ${decl} si necesitas cambiarla.`);
+    }
+  });
+  for (let i = 0; i < lines.length; i++) {
+    if (!/^\s*(?:pub\s+)?fn\s+\w+.*\{\s*$/.test(lines[i])) continue;
+    let depth = 0;
+    let end = -1;
+    for (let j = i; j < lines.length; j++) {
+      for (const ch of lines[j]) {
+        if (ch === '{') depth++;
+        else if (ch === '}') depth--;
+      }
+      if (depth === 0) { end = j; break; }
+    }
+    if (end < 0 || !/^\s*\}\s*$/.test(lines[end])) continue;
+    let k = end - 1;
+    while (k > i && !lines[k].trim()) k--;
+    const t = lines[k].trim();
+    if (k > i && t && !/[;{}]$/.test(t) && !/^(return|let|for|while|if|loop|\}|\/\/)/.test(t)) {
+      lines[k] = lines[k].replace(/^(\s*)/, '$1return ');
+    }
+  }
+}
+
 /** Solo comprobación sintáctica (para misiones de análisis estático). */
 export function syntaxCheck(src, lang) {
   const clean = stripComments(src.replace(/\r\n?/g, '\n'), lang);
@@ -729,6 +822,7 @@ export function transpile(src, lang, { mode = 'run' } = {}) {
   checkBrackets(lines, lang);
   if (lang === 'python') checkPythonIndent(lines);
   else checkStatements(lines, lang);
+  if (lang === 'rust') rustPrepass(lines);
   const out = lang === 'python' ? translatePython(lines, meta) : translateCFamily(lines.slice(), lang, meta, mode);
   const exprFn = (e) => EXPR[lang](e);
   const js = restoreStrings(instrumentLines(out).join('\n'), table, lang, exprFn);

@@ -97,11 +97,31 @@ export const LANGUAGES = {
       malloc: 'int *p = malloc(n * sizeof(int));\n',
     },
   },
+  rust: {
+    id: 'rust',
+    name: 'Rust',
+    ext: 'rs',
+    color: '#f74c00',
+    accent: 'text-orange-400',
+    comment: '//',
+    paradigm: 'Sistemas sin recolector de basura y sin miedo: el borrow checker garantiza la seguridad de memoria al compilar. Traits en lugar de herencia.',
+    tagline: 'Velocidad de C, seguridad garantizada por el compilador. El más querido año tras año.',
+    trending: true,
+    keywords: ['fn', 'let', 'mut', 'return', 'if', 'else', 'for', 'in', 'while', 'loop', 'break', 'continue', 'match', 'struct', 'enum', 'impl', 'trait', 'pub', 'use', 'mod', 'self', 'Self', 'true', 'false', 'as', 'move', 'ref', 'dyn', 'where', 'const'],
+    types: ['i8', 'i16', 'i32', 'i64', 'u8', 'u32', 'u64', 'usize', 'f32', 'f64', 'bool', 'char', 'str', 'String', 'Vec', 'HashMap', 'HashSet', 'Option', 'Result', 'Box', 'Arc', 'Mutex'],
+    builtins: ['println', 'print', 'vec', 'len', 'push', 'insert', 'contains', 'entry', 'or_insert', 'swap', 'iter', 'spawn', 'join', 'unwrap'],
+    snippets: {
+      for: 'for i in 0..n {\n    \n}',
+      if: 'if condicion {\n    \n}',
+      fn: 'fn nombre(param: i32) -> i32 {\n    \n}',
+      impl: 'impl Trait for Tipo {\n    \n}',
+    },
+  },
 };
 
-export const LANG_ORDER = ['python', 'java', 'kotlin', 'swift', 'c'];
+export const LANG_ORDER = ['python', 'java', 'kotlin', 'swift', 'c', 'rust'];
 
 export const camelToSnake = (s) => s.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toLowerCase();
 
-/** Nombre idiomático de un identificador en un lenguaje (snake_case en Python). */
-export const idiom = (name, lang) => (lang === 'python' ? camelToSnake(name) : name);
+/** Nombre idiomático de un identificador en un lenguaje (snake_case en Python y Rust). */
+export const idiom = (name, lang) => (lang === 'python' || lang === 'rust' ? camelToSnake(name) : name);

@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, RotateCcw, ChevronDown, BookOpen, Zap, Star, ArrowLeft, Radio } from 'lucide-react';
+import { Play, RotateCcw, ChevronDown, BookOpen, Zap, Star, ArrowLeft, Radio, GraduationCap, Eye } from 'lucide-react';
+import LessonPanel from './LessonPanel.jsx';
+import { ArenaTour, SolutionPanel, ConfirmBar } from './Guides.jsx';
 import CodeEditor from './CodeEditor.jsx';
 import LiveCanvas from './LiveCanvas.jsx';
 import ConsolePanel, { Checks } from './ConsolePanel.jsx';
@@ -23,6 +25,10 @@ export default function Arena({ ch, onBack }) {
   const [focus, setFocus] = useState(null);
   const [briefOpen, setBriefOpen] = useState(true);
   const [failStreak, setFailStreak] = useState(0);
+  const [lessonOpen, setLessonOpen] = useState(!(state.lessonsSeen || {})[ch.id]);
+  const [tourOpen, setTourOpen] = useState(false);
+  const [solutionOpen, setSolutionOpen] = useState(false);
+  const [confirmReset, setConfirmReset] = useState(false);
   const prevError = useRef(false);
   const stateRef = useRef(state);
   stateRef.current = state;
@@ -66,9 +72,15 @@ export default function Arena({ ch, onBack }) {
   }, [code]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const reset = () => {
-    if (!window.confirm('¿Restaurar el código inicial de la misión? Perderás tu borrador en este lenguaje.')) return;
     dispatch({ type: 'resetDraft', id: ch.id, lang });
     setCode(ch.starter[lang]);
+    setConfirmReset(false);
+  };
+
+  const closeLesson = () => {
+    setLessonOpen(false);
+    dispatch({ type: 'lessonSeen', id: ch.id });
+    if (!state.tourSeen) setTourOpen(true);
   };
 
   const jump = useCallback((line) => setFocus({ line, at: Date.now() }), []);
@@ -104,6 +116,9 @@ export default function Arena({ ch, onBack }) {
             <div className="flex items-center gap-1 rounded-lg border border-neon-cyan/30 px-2 py-1 text-xs text-neon-cyan">
               <Zap size={13} /> {ch.xp} XP
             </div>
+            <button type="button" onClick={() => { setLessonOpen(true); play('click'); }} className="btn-neon border border-neon-lime/40 text-neon-lime hover:bg-neon-lime/10">
+              <GraduationCap size={14} /> Aprende
+            </button>
             <button type="button" onClick={() => setBriefOpen(!briefOpen)} className="flex items-center gap-1 text-xs text-slate-400 hover:text-white">
               <BookOpen size={14} /> Briefing <ChevronDown size={14} className={`transition-transform ${briefOpen ? 'rotate-180' : ''}`} />
             </button>
@@ -134,14 +149,14 @@ export default function Arena({ ch, onBack }) {
         <div className="glass flex min-h-[420px] flex-col overflow-hidden rounded-xl">
           <div className="flex items-center gap-2 border-b border-void-600/50 px-3 py-2">
             <span className="h-2.5 w-2.5 rounded-full" style={{ background: L.color, boxShadow: `0 0 10px ${L.color}` }} />
-            <span className="text-xs font-bold text-slate-200">{ { python: 'main.py', java: 'Main.java', kotlin: 'Main.kt', swift: 'main.swift', c: 'main.c' }[lang] }</span>
+            <span className="text-xs font-bold text-slate-200">{ { python: 'main.py', java: 'Main.java', kotlin: 'Main.kt', swift: 'main.swift', c: 'main.c', rust: 'main.rs' }[lang] }</span>
             <span className="hidden text-[10px] text-slate-500 sm:inline">{L.tagline}</span>
             <div className="ml-auto flex items-center gap-2">
               <label className="flex cursor-pointer items-center gap-1 text-[10px] uppercase tracking-wider text-slate-500" title="Compilar y ejecutar mientras escribes">
                 <input type="checkbox" className="accent-cyan-400" checked={state.settings.autorun} onChange={(e) => dispatch({ type: 'setting', key: 'autorun', value: e.target.checked })} />
                 <Radio size={12} /> vivo
               </label>
-              <button type="button" onClick={reset} className="rounded-md p-1.5 text-slate-500 hover:text-white" title="Restaurar código inicial" aria-label="Restaurar código inicial">
+              <button type="button" onClick={() => setConfirmReset(true)} className="rounded-md p-1.5 text-slate-500 hover:text-white" title="Restaurar código inicial" aria-label="Restaurar código inicial">
                 <RotateCcw size={14} />
               </button>
               <button
@@ -154,6 +169,7 @@ export default function Arena({ ch, onBack }) {
               </button>
             </div>
           </div>
+          {confirmReset && <ConfirmBar text="¿Volver al código inicial? Perderás tus cambios en este lenguaje." confirm="Restaurar" onConfirm={reset} onCancel={() => setConfirmReset(false)} />}
           <div className="min-h-0 flex-1 p-1.5">
             <CodeEditor
               code={code}
@@ -171,6 +187,16 @@ export default function Arena({ ch, onBack }) {
               <StatusPill status={status} />
             </div>
             {evaluation ? <Checks checks={evaluation.checks} /> : <div className="text-xs text-slate-500">Compilando…</div>}
+            {status !== 'pass' && (
+              <div className="mt-2 flex flex-wrap items-center gap-2 border-t border-void-600/40 pt-2 text-[11px]">
+                <span className="text-slate-500">¿Perdido?</span>
+                <button type="button" onClick={() => setLessonOpen(true)} className="text-neon-lime hover:underline">repasa la lección</button>
+                <span className="text-void-600">·</span>
+                <span className="text-slate-500">pregunta al pato 🦆</span>
+                <span className="text-void-600">·</span>
+                <button type="button" onClick={() => setSolutionOpen(true)} className="flex items-center gap-1 text-slate-400 hover:text-white"><Eye size={12} /> ver la solución explicada</button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -188,6 +214,16 @@ export default function Arena({ ch, onBack }) {
         </div>
       </div>
 
+      <LessonPanel key={`${ch.id}-${lang}`} ch={ch} lang={lang} open={lessonOpen} onClose={closeLesson} />
+      <ArenaTour open={tourOpen} onClose={() => { setTourOpen(false); dispatch({ type: 'tourSeen' }); }} />
+      <SolutionPanel
+        ch={ch}
+        lang={lang}
+        open={solutionOpen}
+        onClose={() => setSolutionOpen(false)}
+        onReveal={() => dispatch({ type: 'hint', id: ch.id, lang })}
+        onLoad={(c) => { setCode(c); setSolutionOpen(false); }}
+      />
       <DuckCompanion
         ch={ch}
         lang={lang}

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { ICONS as Icons } from './icons.js';
 import { Star, Flame, Trash2 } from 'lucide-react';
 import { CHALLENGES } from '../curriculum/index.js';
@@ -8,6 +9,7 @@ import RankBadge from './RankBadge.jsx';
 export default function Profile({ onOpen }) {
   const { state, dispatch } = useProgress();
   const rank = rankOf(state.xp);
+  const [armed, setArmed] = useState(false);
   return (
     <div className="mx-auto grid w-full max-w-[1400px] gap-4 px-3 pb-24 lg:grid-cols-[360px_1fr] lg:px-4">
       <div className="space-y-4">
@@ -38,10 +40,11 @@ export default function Profile({ onOpen }) {
         </section>
         <button
           type="button"
-          onClick={() => { if (window.confirm('¿Borrar TODO el progreso guardado en este navegador?')) dispatch({ type: 'reset' }); }}
+          onClick={() => { if (armed) { dispatch({ type: 'reset' }); setArmed(false); } else setArmed(true); }}
+          onBlur={() => setArmed(false)}
           className="flex w-full items-center justify-center gap-2 rounded-xl border border-neon-red/30 py-2 text-xs text-neon-red/80 hover:bg-neon-red/5"
         >
-          <Trash2 size={13} /> Reiniciar progreso
+          <Trash2 size={13} /> {armed ? 'Pulsa otra vez para borrar TODO el progreso' : 'Reiniciar progreso'}
         </button>
       </div>
       <div className="space-y-4">

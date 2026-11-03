@@ -29,6 +29,11 @@ export function lintStyle(code, lang) {
       if ((m = /^class\s+(\w+)/.exec(t)) && !isPascal(m[1])) warn(L, `PEP 8: la clase «${m[1]}» debería ir en PascalCase.`, 'naming');
       if (/;\s*$/.test(t)) warn(L, 'Python no necesita «;» al final de la línea.', 'semicolon');
       if (/==\s*(True|False|None)\b/.test(t)) warn(L, 'Compara con «is None» o usa el booleano directamente.', 'compare-bool');
+    } else if (lang === 'rust') {
+      if ((m = /^(?:pub\s+)?fn\s+(\w+)/.exec(t)) && !isSnake(m[1])) warn(L, `Rust: la función «${m[1]}» debería ir en snake_case.`, 'naming');
+      if ((m = /^let\s+(?:mut\s+)?(\w+)/.exec(t)) && !isSnake(m[1])) warn(L, `Rust: la variable «${m[1]}» debería ir en snake_case.`, 'naming');
+      if ((m = /^(?:pub\s+)?(?:struct|trait|enum)\s+(\w+)/.exec(t)) && !isPascal(m[1])) warn(L, `Rust: el tipo «${m[1]}» debería ir en PascalCase.`, 'naming');
+      if (/^(?:\}\s*else\s+)?(if|while)\s*\(.*\)\s*\{$/.test(t)) warn(L, 'Rust no necesita paréntesis alrededor de la condición.', 'parens');
     } else {
       if (/\b(if|for|while|switch)\(/.test(t)) warn(L, 'Deja un espacio entre la palabra clave y el paréntesis.', 'keyword-space');
       if ((lang === 'kotlin' || lang === 'swift') && /;\s*$/.test(t)) warn(L, `${lang === 'swift' ? 'Swift' : 'Kotlin'} no necesita «;» al final.`, 'semicolon');
@@ -90,7 +95,7 @@ export function motionOf(body) {
 // ───────────────────────── Clases (POO) ─────────────────────────
 
 /**
- * Detecta jerarquías de clases en los cinco lenguajes.
+ * Detecta jerarquías de clases en los seis lenguajes.
  * @returns {{ classes: Record<string, {name, parent, line, open, abstract, methods: Record<string, {line, override, body}>, fields: string[]}> , fnPointers: object }}
  */
 export function analyzeClasses(code, lang) {
@@ -112,6 +117,29 @@ export function analyzeClasses(code, lang) {
       const fields = [...new Set([...body.matchAll(/self\.(\w+)\s*=/g)].map((x) => x[1]))];
       classes[m[1]] = { name: m[1], parent: m[2] && m[2] !== 'object' ? m[2] : null, line: i + 1, open: true, abstract: /ABC/.test(m[2] || ''), methods, fields };
     });
+  } else if (lang === 'rust') {
+    // Rust no tiene herencia: un trait define el comportamiento y cada struct lo implementa.
+    for (const m of src.matchAll(/(?:pub\s+)?trait\s+(\w+)\s*\{/g)) {
+      const { body } = braceBody(src, m.index + m[0].length - 1);
+      const methods = {};
+      for (const mm of body.matchAll(/fn\s+(\w+)\s*\([^)]*\)[^;{]*(\{|;)/g)) {
+        const mb = mm[2] === '{' ? braceBody(body, mm.index + mm[0].length - 1).body : '';
+        methods[mm[1]] = { line: lineOf(src, m.index), override: false, body: mb, defaultImpl: mm[2] === '{' };
+      }
+      classes[m[1]] = { name: m[1], parent: null, line: lineOf(src, m.index), open: true, abstract: true, methods, fields: [], trait: true };
+    }
+    for (const m of src.matchAll(/(?:pub\s+)?struct\s+(\w+)/g)) {
+      if (!classes[m[1]]) classes[m[1]] = { name: m[1], parent: null, line: lineOf(src, m.index), open: false, abstract: false, methods: {}, fields: [] };
+    }
+    for (const m of src.matchAll(/impl\s+(\w+)\s+for\s+(\w+)\s*\{/g)) {
+      const { body } = braceBody(src, m.index + m[0].length - 1);
+      const target = classes[m[2]] || (classes[m[2]] = { name: m[2], parent: null, line: lineOf(src, m.index), open: false, abstract: false, methods: {}, fields: [] });
+      target.parent = m[1];
+      for (const mm of body.matchAll(/fn\s+(\w+)\s*\([^)]*\)[^{]*\{/g)) {
+        const { body: mb } = braceBody(body, mm.index + mm[0].length - 1);
+        target.methods[mm[1]] = { line: lineOf(src, m.index) + body.slice(0, mm.index).split('\n').length - 1, override: true, body: mb };
+      }
+    }
   } else if (lang === 'c') {
     const re = /(typedef\s+)?struct\s+(\w+)?\s*\{/g;
     let m;
@@ -193,6 +221,7 @@ const SPAWN = {
   kotlin: /\blaunch\s*(?:\([^)]*\))?\s*\{|\basync\s*(?:\([^)]*\))?\s*\{/,
   swift: /async\s+let\b|\.addTask\s*\{|\bTask\s*\{/,
   c: /pthread_create\(/,
+  rust: /thread::spawn\(|tokio::spawn\(|\.spawn\(/,
 };
 const JOIN = {
   python: /\bawait\b|\.join\(/,
@@ -200,6 +229,7 @@ const JOIN = {
   kotlin: /\.join\(\)|\.await\(\)|awaitAll\(|joinAll\(/,
   swift: /\bawait\b/,
   c: /pthread_join\(/,
+  rust: /\.join\(\)|\.await\b|join_all\(/,
 };
 const PROTECT = {
   python: /asyncio\.Lock|threading\.Lock|with\s+\w*lock/i,
@@ -207,6 +237,7 @@ const PROTECT = {
   kotlin: /Mutex|withLock|AtomicInteger|\.incrementAndGet|\.addAndGet/,
   swift: /\bactor\b|NSLock|OSAllocatedUnfairLock/,
   c: /pthread_mutex_lock|atomic_/,
+  rust: /Mutex|RwLock|Atomic(I|U)\w+|\.lock\(\)|mpsc::/,
 };
 
 /**
@@ -221,7 +252,7 @@ export function analyzeConcurrency(code, lang) {
   const loops = []; // { id, from, to }
   const closures = []; // rangos de líneas dentro de una tarea lanzada
   // 1. Bucles (rango de líneas) por sangría (Python) o llaves (resto).
-  const loopRe = lang === 'python' ? /^(for|while)\b/ : /^(for|while)\b|\brepeat\s*\(\s*\d+\s*\)\s*\{|\.forEach\s*\{|\.map\s*\{/;
+  const loopRe = lang === 'python' ? /^(for|while)\b/ : /^(for|while)\b|\brepeat\s*\(\s*\d+\s*\)\s*\{|\.forEach\s*\{|\.map\s*\{|\.map\(\s*(move\s*)?\|/;
   lines.forEach((l, i) => {
     const t = l.trim();
     if (!loopRe.test(t) && !(lang !== 'python' && /\.(forEach|map)\s*\{/.test(t))) return;
@@ -238,7 +269,7 @@ export function analyzeConcurrency(code, lang) {
     if (SPAWN[lang].test(t)) {
       let count = 1;
       if (lang === 'python' && /gather\(/.test(t)) count = /gather\(\s*\*/.test(t) || /\bfor\b/.test(t) ? 3 : (t.match(/\w*scan\w*\(/g) || []).length || 1;
-      if (loopOf(L) || /\.(map|forEach)\s*\{|repeat\s*\(/.test(t)) count = 3;
+      if (loopOf(L) || /\.(map|forEach)\s*\{|repeat\s*\(|\.map\(\s*(move\s*)?\|/.test(t)) count = 3;
       spawns.push({ line: L, count, loop: loopOf(L), gather: /gather\(/.test(t) });
       if (/\{/.test(t)) closures.push({ from: L, to: blockEnd(lines, i, lang) });
     } else if (lang === 'java' && /\.start\(\)/.test(t)) {

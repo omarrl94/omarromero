@@ -37,7 +37,7 @@ export default function Intro({ onStart }) {
           ))}
         </motion.div>
         <div className="mt-8 text-center text-[10px] font-bold uppercase tracking-[0.3em] text-slate-500">Elige tu primer lenguaje (podrás cambiar en cualquier momento)</div>
-        <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-5">
+        <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
           {LANG_ORDER.map((l, i) => {
             const L = LANGUAGES[l];
             const active = l === lang;
@@ -53,6 +53,7 @@ export default function Intro({ onStart }) {
                 className={`rounded-xl border p-3 text-left transition-colors ${active ? 'bg-white/5' : 'border-void-600/60 hover:border-void-600'}`}
                 style={active ? { borderColor: L.color, boxShadow: `0 0 24px -8px ${L.color}` } : {}}
               >
+                {L.trending && <div className="mb-1 w-fit rounded-full bg-orange-500/20 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-orange-300">🔥 en auge</div>}
                 <div className="text-sm font-extrabold" style={{ color: L.color }}>{L.name}</div>
                 <div className="mt-1 text-[10px] leading-snug text-slate-400">{L.tagline}</div>
               </motion.button>

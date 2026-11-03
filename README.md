@@ -3,7 +3,7 @@
 > Aquí no se hacen ejercicios. **Se programa el mundo.**
 
 SPA gamificada (React + Tailwind + Canvas + Framer Motion + Lucide) donde aprender a programar en
-**Python, Java, Kotlin, Swift y C** consiste en construir, pieza a pieza, las físicas, la IA y las
+**Python, Java, Kotlin, Swift, C y Rust** consiste en construir, pieza a pieza, las físicas, la IA y las
 reglas de un motor de juego vivo. Cada línea que escribes se compila **de verdad** y el resultado se ve
 al instante en un canvas; cada bug también.
 
@@ -11,14 +11,27 @@ al instante en un canvas; cada bug también.
 npm install
 npm run dev      # http://localhost:5173
 npm run build    # genera dist/ (estático, desplegable en Netlify/Firebase/GitHub Pages)
-npm test         # verifica el currículo en los 5 lenguajes (90 comprobaciones)
+npm test         # verifica el currículo en los 6 lenguajes (108 comprobaciones)
 ```
+
+## Pensado para aprender desde cero
+
+| Ayuda | Qué hace |
+|---|---|
+| **Aprende primero** | Antes de cada misión, una lección de 3-5 pasos con una animación que muestra la idea (cajas que son variables, un cuentakilómetros que desborda, burbujas que se ordenan…), el ejemplo en tu lenguaje y una tarjeta final «Qué tienes que cambiar». |
+| **Explicación de cada línea** | Debajo del editor, una barra traduce a castellano la línea donde está el cursor («Bucle: repite 7 veces; el 7 no se incluye»). |
+| **Líneas marcadas** | Las líneas que tienes que tocar llevan ✎ en el margen y un fondo ámbar. |
+| **Checks con «¿Cómo?»** | Cada objetivo pendiente tiene una pista concreta en lenguaje sencillo. |
+| **Errores en cristiano** | Encima del mensaje técnico: qué ha pasado y cómo arreglarlo. |
+| **Inspector de variables** | Tus variables dibujadas como cajas con nombre, tipo y valor (y aviso si se desbordaron). |
+| **Tour y solución explicada** | Un tour de 4 pasos la primera vez y, como último recurso, la solución comentada (cuesta la estrella de autonomía). |
 
 ## Qué lo hace distinto
 
 | Pieza | Qué hace |
 |---|---|
-| **Forge VM (Polyglot Core)** | Transpilador 1:1 de un subconjunto realista de los 5 lenguajes a JavaScript instrumentado. Conserva la numeración de líneas, así que cada error y cada frame del stack trace apunta a tu línea. |
+| **Forge VM (Polyglot Core)** | Transpilador 1:1 de un subconjunto realista de los 6 lenguajes a JavaScript instrumentado. Conserva la numeración de líneas, así que cada error y cada frame del stack trace apunta a tu línea. |
+| **Rust 🦀** | El lenguaje más querido de los últimos años: *panic* al desbordar, inmutabilidad por defecto (error E0384), `HashMap::entry`, traits en lugar de herencia y concurrencia sin carreras de datos. |
 | **Tipos reales** | `int` desborda a los 2 147 483 647 (wrap-around en Java/Kotlin/C, *trap* en Swift, precisión arbitraria en Python), la promoción `long x = a * b` se evalúa en 32 bits como en la JVM, `int g = 9.81` es error de compilación en Java/Kotlin/Swift y truncado silencioso en C. |
 | **Heap simulado (C)** | `malloc`/`calloc`/`free` sobre bloques visualizados: detecta *heap-buffer-overflow*, *use-after-free*, *double free* y fugas, con mensajes estilo AddressSanitizer. |
 | **Bug Visualizer** | Un error no es solo texto: corrompe el canvas (separación RGB, desgarros) y genera *fragmentos corruptos* con los frames del stack trace. Al pulsarlos, el editor salta a la línea culpable. |
@@ -41,10 +54,10 @@ npm test         # verifica el currículo en los 5 lenguajes (90 comprobaciones)
 | 5 · Sistemas | Núcleo del Sistema | `malloc`/`free` en C · concurrencia (asyncio, hilos, corrutinas, `async let`) | Heap visual · línea de tiempo serie vs paralelo |
 | Boss | El Enjambre O(n²) | Refactorizar de O(n²) a O(n) | La velocidad de la simulación depende de tu complejidad |
 
-Cada misión trae, para **cada lenguaje**, un código inicial con un bug didáctico y una solución de
-referencia. `npm test` comprueba que el código inicial falla y la solución pasa en los 5 lenguajes.
+Cada misión trae, para **cada uno de los 6 lenguajes**, un código inicial con un bug didáctico y una solución de
+referencia. `npm test` comprueba que el código inicial falla y la solución pasa en los 6 lenguajes.
 Al superar una misión se desbloquea el **Codex Polyglot**: cómo se resuelve el mismo problema en los
-otros cuatro paradigmas.
+otros cinco lenguajes.
 
 ## Gamificación
 
@@ -66,9 +79,12 @@ src/
     analyzer.js     análisis estático: estilo, clases (POO), concurrencia, anidamiento de bucles
     engine.js       evaluate(misión, código, lenguaje) → checks + datos de escena + error
     duck.js         motor socrático del Rubber Duck
+    explain.js      explicación de líneas y de errores en lenguaje sencillo
     progress.js     XP, rangos, estrellas, rachas, logros y persistencia
     sound.js        sonidos WebAudio
-  curriculum/       6 módulos · 9 misiones × 5 lenguajes (starter, solución, validación, pistas)
+  curriculum/       6 módulos · 9 misiones × 6 lenguajes (starter, solución, validación, pistas)
+    lessons.js      lecciones «Aprende primero» y ayudas de cada check
+    rust-pack.js    paquete de Rust (misiones, ejemplos y pasos propios)
   scenes/           escenas Canvas 2D (mundo lógico 640×360) + Bug Visualizer
   components/       TopBar, mapa del motor, IDE Arena, editor, canvas en vivo, consola, pato, perfil
 scripts/verify-curriculum.mjs

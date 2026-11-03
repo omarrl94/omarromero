@@ -1,4 +1,4 @@
-// Resaltado de sintaxis ligero (tokenizador por regex) para los cinco lenguajes.
+// Resaltado de sintaxis ligero (tokenizador por regex) para los seis lenguajes.
 import { LANGUAGES } from '../core/languages.js';
 
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');

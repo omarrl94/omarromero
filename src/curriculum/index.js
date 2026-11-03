@@ -4,6 +4,7 @@ import m3 from './m3-data-structures.js';
 import m4 from './m4-oop.js';
 import m5 from './m5-systems.js';
 import boss from './boss.js';
+import { RUST_MISSIONS } from './rust-pack.js';
 
 export const MODULES = [
   { id: 1, name: 'Fundamentos', subtitle: 'Gravedad, tipos y overflow', icon: 'Atom', color: '#22e4ff', challenges: m1 },
@@ -15,6 +16,15 @@ export const MODULES = [
 ];
 
 export const CHALLENGES = MODULES.flatMap((m) => m.challenges);
+
+// Paquetes de lenguaje: cada misión recibe su versión en Rust.
+for (const ch of CHALLENGES) {
+  const r = RUST_MISSIONS[ch.id];
+  if (!r) continue;
+  ch.starter.rust = r.starter;
+  ch.solution.rust = r.solution;
+  ch.polyglot.rust = r.polyglot;
+}
 export const byId = (id) => CHALLENGES.find((c) => c.id === id);
 
 export const modeOf = (ch, lang) => (typeof ch.mode === 'function' ? ch.mode(lang) : ch.mode);

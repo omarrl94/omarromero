@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { highlight } from './highlight.js';
 import { LANGUAGES } from '../core/languages.js';
 import { play } from '../core/sound.js';
+import { explainLine } from '../core/explain.js';
 
 const LINE_H = 20;
 const PAD = 12;
@@ -19,10 +20,14 @@ export default function CodeEditor({ code, onChange, lang, errorLine, lintLines 
   const [ac, setAc] = useState(null); // { items, index, word, top, left }
   const [charW, setCharW] = useState(7.8);
   const [flash, setFlash] = useState(null);
+  const [caretLine, setCaretLine] = useState(1);
+  const trackCaret = (el) => setCaretLine(el.value.slice(0, el.selectionStart).split('\n').length);
 
   const lines = useMemo(() => code.split('\n'), [code]);
   const html = useMemo(() => highlight(code, lang) + '\n', [code, lang]);
   const lintSet = useMemo(() => new Set(lintLines), [lintLines]);
+  const todoSet = useMemo(() => new Set(lines.map((l, i) => (/TODO|⚠/.test(l) ? i + 1 : 0)).filter(Boolean)), [lines]);
+  const explanation = useMemo(() => explainLine(lines[caretLine - 1], lang), [lines, caretLine, lang]);
 
   useEffect(() => {
     const c = document.createElement('canvas').getContext('2d');
@@ -157,7 +162,8 @@ export default function CodeEditor({ code, onChange, lang, errorLine, lintLines 
   };
 
   return (
-    <div className="relative flex h-full min-h-0 overflow-hidden rounded-xl bg-void-900/80" onBlur={() => setTimeout(() => setAc(null), 150)}>
+    <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-xl bg-void-900/80">
+    <div className="relative flex min-h-0 flex-1 overflow-hidden" onBlur={() => setTimeout(() => setAc(null), 150)}>
       {/* margen con números de línea y marcadores */}
       <div className="relative w-11 shrink-0 select-none overflow-hidden border-r border-void-600/50 bg-void-950/60">
         <div ref={gutter} style={{ transform: `translateY(${-scroll.top}px)`, paddingTop: PAD }} className="editor-layer text-right">
@@ -165,9 +171,10 @@ export default function CodeEditor({ code, onChange, lang, errorLine, lintLines 
             const n = i + 1;
             const isErr = errorLine === n;
             const isLint = lintSet.has(n);
+            const isTodo = todoSet.has(n);
             return (
-              <div key={n} className={`pr-2 ${isErr ? 'text-neon-red' : isLint ? 'text-neon-amber' : 'text-void-600'}`} style={{ height: LINE_H }}>
-                {isErr ? '●' : isLint ? '◆' : n}
+              <div key={n} title={isTodo ? 'Aquí hay trabajo para ti' : undefined} className={`pr-2 ${isErr ? 'text-neon-red' : isTodo ? 'text-neon-amber' : isLint ? 'text-neon-amber' : caretLine === n ? 'text-slate-300' : 'text-void-600'}`} style={{ height: LINE_H }}>
+                {isErr ? '●' : isTodo ? '✎' : isLint ? '◆' : n}
               </div>
             );
           })}
@@ -178,7 +185,7 @@ export default function CodeEditor({ code, onChange, lang, errorLine, lintLines 
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div style={{ transform: `translateY(${PAD - scroll.top}px)` }}>
             {lines.map((_, i) => (
-              <div key={i} style={{ height: LINE_H }} className={errorLine === i + 1 ? 'line-error' : flash === i + 1 ? 'line-focus' : lintSet.has(i + 1) ? 'line-lint' : ''} />
+              <div key={i} style={{ height: LINE_H }} className={errorLine === i + 1 ? 'line-error' : flash === i + 1 ? 'line-focus' : todoSet.has(i + 1) ? 'line-todo' : lintSet.has(i + 1) ? 'line-lint' : caretLine === i + 1 ? 'line-caret' : ''} />
             ))}
           </div>
         </div>
@@ -199,10 +206,12 @@ export default function CodeEditor({ code, onChange, lang, errorLine, lintLines 
           aria-label={`Editor de código ${LANGUAGES[lang].name}`}
           className="editor-layer editor-textarea absolute inset-0 h-full w-full"
           style={{ padding: PAD }}
-          onChange={(e) => { onChange(e.target.value); updateAc(e.target); }}
+          onChange={(e) => { onChange(e.target.value); updateAc(e.target); trackCaret(e.target); }}
           onKeyDown={onKeyDown}
+          onKeyUp={(e) => trackCaret(e.currentTarget)}
+          onSelect={(e) => trackCaret(e.currentTarget)}
           onScroll={syncScroll}
-          onClick={() => setAc(null)}
+          onClick={(e) => { setAc(null); trackCaret(e.currentTarget); }}
         />
         {ac && (
           <div className="absolute z-20 min-w-[180px] overflow-hidden rounded-lg border border-neon-cyan/40 bg-void-900/95 shadow-neon" style={{ top: ac.top, left: Math.max(4, ac.left) }}>
@@ -220,6 +229,12 @@ export default function CodeEditor({ code, onChange, lang, errorLine, lintLines 
             <div className="border-t border-void-600/50 px-3 py-1 text-[10px] text-slate-500">Tab ↹ aceptar · Esc cerrar</div>
           </div>
         )}
+      </div>
+    </div>
+      {/* explicación en castellano de la línea donde está el cursor */}
+      <div className="flex items-start gap-2 border-t border-void-600/50 bg-void-950/70 px-3 py-2 text-[12px] leading-snug" aria-live="polite">
+        <span className="shrink-0 rounded bg-neon-violet/15 px-1.5 py-0.5 text-[10px] font-bold text-neon-violet">L{caretLine}</span>
+        <span className="text-slate-300">{explanation}</span>
       </div>
     </div>
   );

@@ -21,6 +21,10 @@ const TYPES = {
   boolean: { kind: 'bool' }, bool: { kind: 'bool' }, Boolean: { kind: 'bool' }, Bool: { kind: 'bool' },
   String: { kind: 'str' }, str: { kind: 'str' }, 'char*': { kind: 'str' }, 'char[]': { kind: 'str' },
   char: { kind: 'char' }, Char: { kind: 'char' }, Character: { kind: 'char' },
+  // Rust
+  i8: INT(8), i16: INT(16), i32: INT(32), i64: INT(64), isize: INT(64),
+  u8: INT(8, false), u16: INT(16, false), u32: INT(32, false), u64: INT(64, false), usize: INT(64, false),
+  f32: { kind: 'float' }, f64: { kind: 'float' }, '&str': { kind: 'str' },
 };
 
 /** Tipo efectivo de una declaración, resolviendo particularidades de cada lenguaje. */
@@ -31,7 +35,7 @@ export function typeInfo(type, lang) {
   if (lang === 'python' && t === 'int') return { kind: 'int', bits: Infinity, signed: true };
   if (lang === 'python' && t === 'float') return { kind: 'float' };
   if (/\*$/.test(t) && t !== 'char*') return { kind: 'ptr' };
-  if (/\[\]$|^\[|List|Array|list/.test(t)) return { kind: 'list' };
+  if (/\[\]$|^\[|List|Array|list|Vec|^&\[/.test(t)) return { kind: 'list' };
   if (/Map|dict|\[\w+\s*:/.test(t)) return { kind: 'map' };
   if (/Set|set/.test(t)) return { kind: 'set' };
   return TYPES[t] || { kind: 'other' };
@@ -41,6 +45,20 @@ export function typeInfo(type, lang) {
 function inferType(expr, value, lang) {
   const e = (expr || '').trim();
   const py = lang === 'python';
+  if (lang === 'rust') {
+    if (/^-?\d[\d_]*\.\d*(e-?\d+)?(f64|f32)?$/i.test(e)) return 'f64';
+    if (/^-?\d[\d_]*(i64|u64)$/.test(e)) return 'i64';
+    if (/^-?\d[\d_]*(i32|usize|u32)?$/.test(e)) return 'i32';
+    if (/^["']|String::from/.test(e)) return '&str';
+    if (/^(true|false)$/.test(e)) return 'bool';
+    if (typeof value === 'number') return Number.isInteger(value) ? 'i32' : 'f64';
+    if (typeof value === 'string') return '&str';
+    if (typeof value === 'boolean') return 'bool';
+    if (Array.isArray(value)) return 'Vec';
+    if (value instanceof Set) return 'HashSet';
+    if (value && typeof value === 'object') return 'HashMap';
+    return null;
+  }
   if (/^-?\d[\d_]*\.\d*(e-?\d+)?$/i.test(e) || /^-?\d+e-?\d+$/i.test(e)) return py ? 'float' : 'Double';
   if (/^-?\d[\d_]*[lL]$/.test(e)) return lang === 'kotlin' ? 'Long' : 'long';
   if (/^-?\d[\d_]*$/.test(e)) return py ? 'int' : lang === 'java' ? 'int' : 'Int';
@@ -69,7 +87,7 @@ const rangeOf = (bits, signed) => (signed ? [-(2 ** (bits - 1)), 2 ** (bits - 1)
 
 const LANG_TYPE_NAMES = {
   java: { int32: 'int', int64: 'long' }, c: { int32: 'int', int64: 'long long' },
-  kotlin: { int32: 'Int', int64: 'Long' }, swift: { int32: 'Int32', int64: 'Int64' }, python: { int32: 'int', int64: 'int' },
+  kotlin: { int32: 'Int', int64: 'Long' }, swift: { int32: 'Int32', int64: 'Int64' }, python: { int32: 'int', int64: 'int' }, rust: { int32: 'i32', int64: 'i64' },
 };
 
 // ───────────────────────── Errores ─────────────────────────
@@ -89,6 +107,7 @@ const ERR = {
     java: `java.lang.ArrayIndexOutOfBoundsException: Index ${i} out of bounds for length ${len}`,
     kotlin: `java.lang.ArrayIndexOutOfBoundsException: Index ${i} out of bounds for length ${len}`,
     swift: 'Fatal error: Index out of range',
+    rust: `index out of bounds: the len is ${len} but the index is ${i}`,
     c: `AddressSanitizer: stack-buffer-overflow — acceso a [${i}] en un array de ${len} elementos (comportamiento indefinido)`,
   })[lang],
   overflowTrap: () => 'Fatal error: Arithmetic overflow',
@@ -98,6 +117,7 @@ const ERR = {
     kotlin: 'kotlinx.coroutines.TimeoutCancellationException: el bucle no termina',
     swift: 'Watchdog: el proceso no termina (bucle infinito)',
     c: 'Watchdog: proceso terminado por SIGKILL (bucle infinito)',
+    rust: 'Watchdog: el proceso no termina (bucle infinito)',
   })[lang],
 };
 
@@ -108,6 +128,7 @@ const NAMES = {
     kotlin: `error: unresolved reference: ${n}`,
     swift: `error: cannot find '${n}' in scope`,
     c: `error: '${n}' undeclared (first use in this function)`,
+    rust: `error[E0425]: cannot find value \`${n}\` in this scope`,
   })[lang],
   nullRef: (lang, prop) => ({
     python: `AttributeError: 'NoneType' object has no attribute '${prop}'`,
@@ -115,6 +136,7 @@ const NAMES = {
     kotlin: 'java.lang.NullPointerException',
     swift: 'Fatal error: Unexpectedly found nil while unwrapping an Optional value',
     c: 'Segmentation fault (core dumped) — desreferencia de puntero NULL',
+    rust: 'called `Option::unwrap()` on a `None` value',
   })[lang],
   notCallable: (lang, n) => ({
     python: `TypeError: '${n}' object is not callable`,
@@ -122,6 +144,7 @@ const NAMES = {
     kotlin: `error: unresolved reference: ${n}`,
     swift: `error: cannot call value of non-function type '${n}'`,
     c: `error: called object '${n}' is not a function`,
+    rust: `error[E0425]: cannot find function \`${n}\` in this scope`,
   })[lang],
   recursion: (lang) => ({
     python: 'RecursionError: maximum recursion depth exceeded',
@@ -129,6 +152,7 @@ const NAMES = {
     kotlin: 'java.lang.StackOverflowError',
     swift: 'EXC_BAD_ACCESS: stack overflow',
     c: 'Segmentation fault (core dumped) — stack overflow',
+    rust: "thread 'main' has overflowed its stack",
   })[lang],
 };
 
@@ -161,7 +185,7 @@ function parseFrames(e, maxLine) {
 
 function frameLabel(fn, lang) {
   if (fn) return fn;
-  return { python: '<module>', java: 'main', kotlin: 'main', swift: 'top-level', c: 'main' }[lang];
+  return { python: '<module>', java: 'main', kotlin: 'main', swift: 'top-level', c: 'main', rust: 'main' }[lang];
 }
 
 /** Construye un stack trace con el formato nativo de cada lenguaje. */
@@ -177,6 +201,9 @@ export function formatTrace(lang, message, frames) {
       const head = message.startsWith('error') ? message : `Exception in thread "main" ${message}`;
       return [head, ...fr.map((f) => `\tat ${cls}.${frameLabel(f.fn, lang)}(${file}:${f.line})`)].join('\n');
     }
+    case 'rust':
+      if (/^error/.test(message)) return [message, `  --> ${file}:${fr[0].line}:1`].join('\n');
+      return [`thread 'main' panicked at ${file}:${fr[0].line}:`, message, 'stack backtrace:', ...fr.map((f, i) => `  ${i}: codeforge::${frameLabel(f.fn, lang)}\n             at ${file}:${f.line}`)].join('\n');
     case 'swift':
       return [`${file}:${fr[0].line}: ${message}`, ...fr.map((f, i) => `${i} main  ${frameLabel(f.fn, lang)} + ${f.line * 4} (${file}:${f.line})`)].join('\n');
     default:
@@ -278,9 +305,9 @@ export function dictToObject(d) {
 
 function fmt(v, lang, nested = false) {
   const py = lang === 'python';
-  if (v === null || v === undefined) return py ? 'None' : lang === 'swift' ? 'nil' : 'null';
+  if (v === null || v === undefined) return py || lang === 'rust' ? 'None' : lang === 'swift' ? 'nil' : 'null';
   if (typeof v === 'boolean') return py ? (v ? 'True' : 'False') : String(v);
-  if (typeof v === 'string') return nested ? (py ? `'${v}'` : lang === 'swift' ? `"${v}"` : v) : v;
+  if (typeof v === 'string') return nested ? (py ? `'${v}'` : lang === 'swift' || lang === 'rust' ? `"${v}"` : v) : v;
   if (typeof v === 'number') {
     if (py && !Number.isInteger(v)) return String(v);
     return String(v);
@@ -295,10 +322,20 @@ function fmt(v, lang, nested = false) {
     const ents = Object.entries(v);
     if (py) return `{${ents.map(([k, x]) => `'${k}': ${fmt(x, lang, true)}`).join(', ')}}`;
     if (lang === 'swift') return `[${ents.map(([k, x]) => `"${k}": ${fmt(x, lang, true)}`).join(', ')}]`;
+    if (lang === 'rust') return `{${ents.map(([k, x]) => `"${k}": ${fmt(x, lang, true)}`).join(', ')}}`;
     return `{${ents.map(([k, x]) => `${k}=${fmt(x, lang, true)}`).join(', ')}}`;
   }
   if (typeof v === 'function') return `<function ${v.name}>`;
   return String(v);
+}
+
+function rustFormat(f, args, lang) {
+  let i = 0;
+  return String(f).replace(/\{(:\?|:\.(\d+))?\}/g, (m, spec, prec) => {
+    const a = args[i++];
+    if (prec !== undefined) return Number(a).toFixed(Number(prec));
+    return fmt(a, lang, !!spec);
+  });
 }
 
 function cprintf(format, args) {
@@ -467,6 +504,15 @@ function buildHelpers(S, meta) {
       parts.forEach(out);
     },
     __tick: () => tick(),
+    __show: (v) => fmt(v, lang),
+    __rformat: (f, ...a) => rustFormat(f, a, lang),
+    __rprintln: (f = '', ...a) => out(rustFormat(f, a, lang)),
+    __rprint: (f = '', ...a) => {
+      const parts = (S.partial + rustFormat(f, a, lang)).split('\n');
+      S.partial = parts.pop();
+      parts.forEach(out);
+    },
+    __panic: (msg = 'explicit panic', ...a) => { throw new ForgeRuntimeError('panic', rustFormat(msg, a, lang)); },
     __range: (a, b, s) => rangeGen(a, b, s),
     __rangeIncl: (a, b, s = 1) => rangeGen(a, s > 0 ? b + 1 : b - 1, s),
     __iter: (x) => {
@@ -548,7 +594,7 @@ function declare(S, meta, type, name, value, line) {
   if (!type && typeof value === 'number' && lang !== 'python') {
     // Inferencia por operandos: Int32 * Int32 sigue siendo Int32 (Kotlin/Swift/var de Java).
     const opTypes = (exprSrc.match(/[A-Za-z_]\w*/g) || []).filter((x) => S.vars[x] && S.vars[x].kind === 'int').map((x) => S.vars[x].type);
-    if (/Int64\(|\.toLong\(\)|\(\s*long\s*\)|\d[lL]\b/.test(exprSrc)) declType = { swift: 'Int64', kotlin: 'Long', java: 'long', c: 'int64_t' }[lang];
+    if (/Int64\(|\.toLong\(\)|\(\s*long\s*\)|\d[lL]\b|\bas\s+i64\b/.test(exprSrc)) declType = { swift: 'Int64', kotlin: 'Long', java: 'long', c: 'int64_t', rust: 'i64' }[lang];
     else if (opTypes.length && Number.isInteger(value) && !/\d\.\d/.test(exprSrc)) {
       declType = opTypes.reduce((a, b) => ((typeInfo(b, lang).bits || 0) > (typeInfo(a, lang).bits || 0) ? b : a));
     }
@@ -575,6 +621,9 @@ function declare(S, meta, type, name, value, line) {
       if (lang === 'c') { rec.flags.push('truncated'); value = Math.trunc(value); }
       else if (lang !== 'python') {
         const from = lang === 'java' ? 'double' : 'Double';
+        if (lang === 'rust') {
+          throw new ForgeRuntimeError('type', `error[E0308]: mismatched types: expected \`${declType}\`, found floating-point number`, { line, hint: 'Un entero (i32) no puede guardar decimales: usa f64.' });
+        }
         throw new ForgeRuntimeError('type', lang === 'java'
           ? `error: incompatible types: possible lossy conversion from ${from} to ${declType}`
           : lang === 'kotlin' ? `error: the floating-point literal does not conform to the expected type ${declType}`
@@ -583,13 +632,16 @@ function declare(S, meta, type, name, value, line) {
     }
     if (info.bits !== Infinity) {
       const ids = (exprSrc.match(/[A-Za-z_]\w*/g) || []).filter((x) => S.vars[x]);
-      const widened = /\(\s*(long|int64_t|long long|double)\s*\)|\.toLong\(\)|Int64\(|\d[lL]\b|\bL\b/.test(exprSrc)
+      const widened = /\(\s*(long|int64_t|long long|double)\s*\)|\.toLong\(\)|Int64\(|\d[lL]\b|\bL\b|\bas\s+(i64|u64|i128|f64)\b|\d(i64|u64)\b/.test(exprSrc)
         || ids.some((x) => (typeInfo(S.vars[x].type, lang) || {}).bits >= 64);
       const narrowOps = ids.length > 0 && ids.every((x) => (typeInfo(S.vars[x].type, lang) || {}).bits === 32);
       if (lang === 'swift' && info.bits === 64 && narrowOps && !widened && /[*+-]/.test(exprSrc)) {
         throw new ForgeRuntimeError('type', `error: cannot convert value of type 'Int32' to specified type '${declType}'`, { line, hint: 'Swift no convierte tipos numéricos de forma implícita: usa Int64(valor).' });
       }
-      if (info.bits >= 64 && narrowOps && !widened && /\*|\+/.test(exprSrc) && lang !== 'swift') {
+      if (lang === 'rust' && info.bits === 64 && narrowOps && !widened && /[*+-]/.test(exprSrc)) {
+        throw new ForgeRuntimeError('type', `error[E0308]: mismatched types: expected \`${declType}\`, found \`i32\``, { line, hint: 'Rust nunca convierte números por su cuenta: convierte cada operando con «as i64».' });
+      }
+      if (info.bits >= 64 && narrowOps && !widened && /\*|\+/.test(exprSrc) && lang !== 'swift' && lang !== 'rust') {
         // La operación se evaluó en 32 bits ANTES de ampliarse: el clásico bug de promoción.
         const wrapped = wrapInt(value, 32, true);
         if (wrapped !== value) {
@@ -602,12 +654,17 @@ function declare(S, meta, type, name, value, line) {
       if (value > hi || value < lo) {
         const literal = /^-?[\d_]+[lL]?$/.test(exprSrc.trim());
         if (literal && lang !== 'c') {
+          if (lang === 'rust') throw new ForgeRuntimeError('type', `error: literal out of range for \`${declType}\``, { line });
           throw new ForgeRuntimeError('type', lang === 'java' ? 'error: integer number too large'
             : lang === 'kotlin' ? `error: the integer literal does not conform to the expected type ${declType}`
               : `error: integer literal '${exprSrc.trim()}' overflows when stored into '${declType}'`, { line });
         }
         if (lang === 'swift') {
           throw new ForgeRuntimeError('overflow', ERR.overflowTrap(), { line, hint: 'Swift detiene el programa antes de corromper datos: es seguro por diseño.' });
+        }
+        if (lang === 'rust') {
+          const op = /\*/.test(exprSrc) ? 'multiply' : /-/.test(exprSrc) ? 'subtract' : 'add';
+          throw new ForgeRuntimeError('overflow', `attempt to ${op} with overflow`, { line, hint: 'En modo debug, Rust detiene el programa (panic) en cuanto un entero se desborda.' });
         }
         rec.flags.push('overflow');
         rec.overflow = true;
@@ -697,7 +754,7 @@ export function runProgram({ code, lang, invoke, api, maxTicks = 3e6, callMain =
 }
 
 function syntaxMessage(lang) {
-  return { python: 'SyntaxError: invalid syntax', java: 'error: illegal start of expression', kotlin: 'error: expecting an element', swift: 'error: expected expression', c: 'error: expected expression' }[lang];
+  return { python: 'SyntaxError: invalid syntax', java: 'error: illegal start of expression', kotlin: 'error: expecting an element', swift: 'error: expected expression', c: 'error: expected expression', rust: 'error: expected expression' }[lang];
 }
 
 /** Busca la primera línea que rompe la compilación compilando prefijos con cierres. */
@@ -726,6 +783,7 @@ function formatSyntax(lang, e) {
   const file = sourceFile(lang);
   if (lang === 'python') return `  File "${file}", line ${e.line}\n${e.message}`;
   if (lang === 'java') return `${file}:${e.line}: ${e.message}`;
+  if (lang === 'rust') return `${e.message}\n  --> ${file}:${e.line}:${e.col || 1}`;
   return `${file}:${e.line}:${e.col || 1}: ${e.message}`;
 }
 
