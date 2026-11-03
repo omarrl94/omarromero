@@ -425,14 +425,33 @@ body.exam img,body.exam svg{-webkit-user-drag:none;pointer-events:none}
 .tool-win{background:var(--card);border:1px solid var(--border-strong);border-radius:14px;box-shadow:0 14px 40px rgba(0,0,0,.16);display:flex;flex-direction:column;overflow:hidden;flex:none}
 .tool-win[hidden]{display:none}
 .tool-notas{flex:1 1 auto;min-height:150px}
+/* Texto de lectura: siempre a la vista durante el examen */
+.tool-lectura{flex:1 1 auto;min-height:220px}
+.lect-tabs{display:flex;flex-wrap:wrap;gap:4px;padding:8px 8px 0;border-bottom:1px solid var(--border)}
+.lect-tabs button{font:inherit;font-size:12.5px;font-weight:600;border:1px solid var(--border);border-bottom:none;background:var(--sunken);color:var(--fg);border-radius:8px 8px 0 0;padding:5px 10px;cursor:pointer}
+.lect-tabs button[aria-selected="true"]{background:var(--card);color:var(--fg);border-color:var(--border-strong)}
+.lect-cuerpo{flex:1 1 auto;overflow:auto;padding:12px 16px 16px;min-height:0}
+.lect-cuerpo h3{margin:0 0 8px;font-size:15px}
+.lect-cuerpo img{display:block;max-width:100%;margin:0 0 10px;border-radius:6px}
+.lect-txt{white-space:pre-wrap;overflow-wrap:anywhere;font-size:15px;line-height:1.6}
+.bloque.lectura summary{cursor:pointer;margin-bottom:8px}
+.bloque.lectura .lect-txt{max-height:420px;overflow:auto}
+.bloque.lectura-aviso{padding:10px 14px}
+body.con-lectura .tool-side{width:460px}
 .tool-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 6px 6px 14px;background:var(--grafito);color:#fff;font-size:13.5px;font-weight:600}
 .tool-x{border:none;background:transparent;color:#fff;font-size:15px;width:30px;height:30px;border-radius:8px;cursor:pointer}
 .tool-x:hover{background:rgba(255,255,255,.15)}
 /* Con el panel abierto en pantalla grande, el examen se aparta para no quedar tapado */
 @media (min-width:1100px){
   body.tools-open .wrap{margin-left:max(16px,calc((100vw - 480px - 900px) / 2));margin-right:480px}
+  body.tools-open.con-lectura .wrap{margin-left:max(16px,calc((100vw - 590px - 900px) / 2));margin-right:590px}
 }
 @media (max-height:760px) and (min-width:641px){ .tool-side{top:72px;bottom:8px;gap:8px} .ck{height:32px} }
+/* Tableta con texto de lectura: el texto abajo, a lo ancho, y el examen deja sitio */
+@media (max-width:1099px) and (min-width:641px){
+  body.con-lectura .tool-side{left:12px;right:110px;width:auto;top:auto;bottom:12px;max-height:42vh}
+  body.tools-open.con-lectura .wrap{padding-bottom:44vh}
+}
 @media (max-width:1099px) and (min-width:641px){ .tool-side{width:330px;top:auto;bottom:16px;max-height:calc(100vh - 96px)} }
 .notas-txt{flex:1;border:none;border-radius:0;resize:none;padding:12px 14px;font:inherit;font-size:14.5px;line-height:1.55;background:var(--card);color:var(--fg);min-height:0}
 .notas-txt:focus-visible{box-shadow:none;outline:none}
@@ -465,6 +484,8 @@ body.exam .wrap{padding-bottom:90px}
   .tool-btn{width:auto;flex-direction:row;padding:8px 12px;gap:6px}
   .tool-btn .ico{font-size:18px}
   .tool-side{left:8px;right:8px;top:auto;bottom:76px;width:auto;max-height:62vh}
+  body.con-lectura .tool-side{width:auto;max-height:48vh}
+  body.tools-open.con-lectura .wrap{padding-bottom:50vh}
   .tool-notas{min-height:120px}
 }
 

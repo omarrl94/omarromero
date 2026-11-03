@@ -65,7 +65,10 @@ function validarBloques(lista) {
       peso += b.imagen.length;
       imagen = b.imagen;
     }
-    return { id, titulo: opc(b.titulo, 300), texto: opc(b.texto, 4000), imagen };
+    // Texto de lectura (un texto que hay que leer para contestar): el alumno lo tiene a la vista todo el examen.
+    const texto = opc(b.texto, 30_000);
+    if (texto.length > 4000 && b.lectura !== true) fallo(400, `El texto del bloque ${i + 1} es muy largo: márcalo como texto de lectura`);
+    return { id, titulo: opc(b.titulo, 300), texto, imagen, ...(b.lectura === true && texto ? { lectura: true } : {}) };
   });
   if (peso > 1_500_000) fallo(400, "Las imágenes del examen ocupan demasiado (máximo 1 MB en total)");
   return bloques;

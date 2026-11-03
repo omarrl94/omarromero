@@ -151,6 +151,9 @@
           <label class="check"><input type="checkbox" id="eAzOpc"> Barajar el orden de las opciones del test</label>
           <label class="check" id="eAzValWrap"><input type="checkbox" id="eAzVal"> Valores distintos en los ejercicios <span class="muted" id="eAzValInfo"></span></label>
           <p class="hintline" id="eAzIA" hidden>Para que cambien los valores, guarda el examen y pulsa <b>«✨ Valores aleatorios con IA»</b> en su tarjeta.</p></div>
+        <div class="field" id="eLecturaWrap" style="margin-top:6px"><label class="flab" for="eLectura">📖 Texto de lectura (opcional)</label>
+          <textarea id="eLectura" style="min-height:90px" maxlength="30000" placeholder="Si las preguntas son sobre un texto que tienen que leer, pégalo aquí: el alumnado lo verá durante todo el examen."></textarea>
+          <span class="hintline" id="eLecturaInfo"></span></div>
         <label class="check" id="eSobreWrap" hidden><input type="checkbox" id="eSobre"> Reemplazar el examen existente con este identificador</label>
       </div>
       <details id="previa" style="margin:6px 0 14px"><summary style="cursor:pointer;font-weight:700">Revisar las preguntas</summary><div id="previaLista"></div></details>
@@ -206,6 +209,7 @@
           <label><input type="radio" name="iaTipoTest" value="normal" checked><span><b>Test normal</b><small>Cada acierto suma su puntuación; los fallos no restan.</small></span></label>
           <label><input type="radio" name="iaTipoTest" value="seguridad"><span><b>Test con seguridad</b><small>El alumno marca lo seguro que está (Muy seguro · Seguro · Poco seguro): si acierta suma y si falla resta.</small></span></label>
         </div></div>
+      <label class="check" style="margin:-4px 0 8px" data-solo="tema"><input type="checkbox" id="iaLectura"> 📖 <b>Examen sobre un texto de lectura:</b> el archivo es el texto que tienen que leer; las preguntas serán de comprensión y el alumnado <b>verá el texto durante todo el examen</b>.</label>
       <label class="check" style="margin:-4px 0 12px"><input type="checkbox" id="iaAzar"> 🎲 <b>Examen aleatorio:</b> cada alumno con las preguntas y las opciones en otro orden. (Después podrás hacer que cambien también los valores de los ejercicios.)</label>
       <div class="field"><label class="flab" for="iaInd">Indicaciones para la IA (opcional)</label><textarea id="iaInd" style="min-height:60px" placeholder="Ej.: nivel de 1.º, céntrate en los conceptos y no en las fechas…"></textarea></div>
       <div id="iaProgreso" hidden>
@@ -1189,6 +1193,9 @@ function mostrarFormulario(ex, resumen) {
     $("#eAzIA").hidden = !!nv || !((ex.num || []).length || (ex.mc || []).length);
     // Calculadora: por defecto en los exámenes con ejercicios de cálculo.
     $("#eNotas").checked = ex.herramientas?.notas !== false; $("#eCalc").checked = ex.herramientas?.calculadora !== false;
+    const lects = (ex.bloques || []).filter((b) => b.lectura);
+    $("#eLectura").value = ""; $("#eLectura").hidden = lects.length > 0;
+    $("#eLecturaInfo").textContent = lects.length ? `Este examen ya tiene ${lects.length === 1 ? "un texto de lectura" : `${lects.length} textos de lectura`} (${lects.map((b) => `«${b.titulo}»`).join(", ")}): el alumnado ${lects.length === 1 ? "lo" : "los"} verá durante todo el examen.` : "";
     $("#resumenImport").innerHTML = resumen;
     comprobarId();
     pintarPrevia();
@@ -1536,6 +1543,15 @@ async function adaptarWord(estado) {
     else ejercicios.push({ ...e, n: r.ejercicio, apartados: [...e.apartados] });
   }
   const bloques = [], num = [];
+  // Textos de lectura: se muestran al alumno durante todo el examen, junto a sus preguntas.
+  (ind.lecturas || []).forEach((l, k) => {
+    const id = `lectura${k + 1}`;
+    bloques.push({ id, titulo: l.titulo || `Texto ${k + 1}`, texto: l.texto, lectura: true });
+    l.test.forEach((n) => { if (mc[n - 1] && !mc[n - 1].bloque) mc[n - 1].bloque = id; });
+    l.abiertas.forEach((n) => { if (open[n - 1] && !open[n - 1].bloque) open[n - 1].bloque = id; });
+  });
+  // Si hay un único texto y ninguna pregunta asignada, es el texto de todo el examen.
+  if (bloques.length === 1 && ![...mc, ...open].some((q) => q.bloque)) [...mc, ...open].forEach((q) => (q.bloque = bloques[0].id));
   ejercicios.forEach((e, i) => {
     const id = `ej${i + 1}`;
     bloques.push({ id, titulo: e.titulo, texto: e.texto, imagen: ex1.figuras[e.figura - 1] || "" });
@@ -1634,6 +1650,8 @@ $("#fIA").onsubmit = async (ev) => {
     estado("Leyendo el archivo…", 0, 0);
     const material = (await textoDeArchivo(IA_ARCHIVO)).trim();
     if (material.length < 200) throw new Error("el archivo apenas tiene texto (¿diapositivas solo con imágenes?)");
+    const lectura = $("#iaLectura").checked;
+    if (lectura && material.length > 30_000) throw new Error("el texto es demasiado largo para mostrarlo durante el examen (máximo 30.000 caracteres)");
 
     // Lotes pequeños: cada petición tarda poco.
     const plan = [];
@@ -1647,7 +1665,8 @@ $("#fIA").onsubmit = async (ev) => {
     for (const paso of plan) {
       const hechas = ex.mc.length + ex.open.length;
       estado(`Generando ${paso.tipo === "mc" ? "preguntas tipo test" : "preguntas abiertas"}… (${hechas} de ${total})`, hechas, total);
-      const cuerpo = { ...paso, material, titulo, cicloId: ex.cicloId, moduloId: ex.moduloId, indicaciones: $("#iaInd").value.trim(),
+      const cuerpo = { ...paso, material, titulo, cicloId: ex.cicloId, moduloId: ex.moduloId,
+        indicaciones: [lectura ? "Es un examen de COMPRENSIÓN de este texto, que el alumno tendrá delante durante todo el examen: pregunta por lo que dice el texto (ideas, datos, argumentos, vocabulario en contexto, intención), no por conocimientos externos." : "", $("#iaInd").value.trim()].filter(Boolean).join(" "),
         ya: [...ex.mc, ...ex.open].map((q) => q.t) };
       let r;
       try { r = await api("/api/profesor/ia/preguntas", cuerpo); }
@@ -1662,6 +1681,7 @@ $("#fIA").onsubmit = async (ev) => {
       ex[paso.tipo].push(...r.preguntas);
     }
     if (!ex.mc.length && !ex.open.length) throw new Error(avisos || "la IA no ha devuelto preguntas");
+    if (lectura) { ex.bloques = [{ id: "lectura", titulo, texto: material, lectura: true }]; [...ex.mc, ...ex.open].forEach((q) => (q.bloque = "lectura")); }
     estado("¡Listo!", total, total);
     ex.id = slug(`${ex.moduloId} ${titulo}`);
     $("#dIA").close();
@@ -1688,8 +1708,13 @@ $("#fExamen").onsubmit = async (ev) => {
   // «Guardar e imprimir»: la ventana se abre ya (si no, el navegador la bloquea) y se rellena al guardar.
   const imprimir = ev.submitter?.hasAttribute("data-imprimir") ? window.open("", "_blank") : null;
   try {
+    // Texto de lectura pegado en el formulario: para todas las preguntas que no tengan ya su bloque.
+    const lect = $("#eLectura").value.trim(), conLectura = lect ? {
+      bloques: [...(IMPORT.bloques || []), { id: "lectura", titulo: $("#eTitulo").value.trim() || "Texto", texto: lect, lectura: true }],
+      mc: (IMPORT.mc || []).map((q) => ({ ...q, bloque: q.bloque || "lectura" })), open: (IMPORT.open || []).map((q) => ({ ...q, bloque: q.bloque || "lectura" })),
+    } : {};
     const { id } = await api("/api/profesor/examen", {
-      ...IMPORT, id: $("#eId").value.trim(), titulo: $("#eTitulo").value.trim(), subtitulo: $("#eSub").value.trim(),
+      ...IMPORT, ...conLectura, id: $("#eId").value.trim(), titulo: $("#eTitulo").value.trim(), subtitulo: $("#eSub").value.trim(),
       cicloId: $("#eCiclo").value, moduloId: $("#eModulo").value, orden: Number($("#eOrden").value) || 0,
       publicado: $("#ePub").checked, mostrarSoluciones: $("#eSol").checked, seguridad: $("#eSeg").checked, sobrescribir: $("#eSobre").checked,
       herramientas: { notas: $("#eNotas").checked, calculadora: $("#eCalc").checked },

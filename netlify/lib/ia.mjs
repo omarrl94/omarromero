@@ -296,12 +296,15 @@ const PARTES_ADAPTAR = {
 - si el test se puntúa con NIVEL DE CONFIANZA (el alumno marca lo seguro que está y se suma o resta según acierte);
 - el nombre de cada parte tal como aparece (test, preguntas abiertas/definiciones, ejercicios); vacío si no existe;
 - cuántas preguntas tipo test hay (nTest) y cuántas preguntas abiertas cortas (nAbiertas; NO cuentes los ejercicios de cálculo);
-- la lista de ejercicios prácticos o de cálculo, en orden, con su título y cuántos apartados tiene cada uno (nApartados; 1 si no tiene apartados).`,
+- la lista de ejercicios prácticos o de cálculo, en orden, con su título y cuántos apartados tiene cada uno (nApartados; 1 si no tiene apartados);
+- los TEXTOS DE LECTURA: textos que el alumno tiene que leer para contestar (un fragmento, un artículo, una noticia, un caso práctico, un documento, una norma…), NO los enunciados normales de las preguntas. Para cada uno: título (el del examen o «Texto 1», «Texto 2»…), «inicio» (sus primeras 8 palabras copiadas EXACTAMENTE como aparecen), «fin» (sus últimas 8 palabras, EXACTAMENTE como aparecen) y qué preguntas se refieren a él: «test» (números de las preguntas tipo test, contando desde la primera del test) y «abiertas» (números de las preguntas abiertas, contando desde la primera abierta). Lista vacía si no hay textos de lectura.`,
     esquema: objeto({ titulo: { type: "string" }, subtitulo: { type: "string" }, confianza: { type: "boolean" },
       partes: objeto({ test: { type: "string" }, abiertas: { type: "string" }, ejercicios: { type: "string" } }),
-      nTest: { type: "integer" }, nAbiertas: { type: "integer" }, ejercicios: lista(objeto({ titulo: { type: "string" }, nApartados: { type: "integer" } })) }),
+      nTest: { type: "integer" }, nAbiertas: { type: "integer" }, ejercicios: lista(objeto({ titulo: { type: "string" }, nApartados: { type: "integer" } })),
+      lecturas: lista(objeto({ titulo: { type: "string" }, inicio: { type: "string" }, fin: { type: "string" }, test: lista({ type: "integer" }), abiertas: lista({ type: "integer" }) })) }),
     esquemaG: gObj({ titulo: G.s, subtitulo: G.s, confianza: { type: "BOOLEAN" }, partes: gObj({ test: G.s, abiertas: G.s, ejercicios: G.s }),
-      nTest: G.i, nAbiertas: G.i, ejercicios: gArr(gObj({ titulo: G.s, nApartados: G.i })) }),
+      nTest: G.i, nAbiertas: G.i, ejercicios: gArr(gObj({ titulo: G.s, nApartados: G.i })),
+      lecturas: gArr(gObj({ titulo: G.s, inicio: G.s, fin: G.s, test: gArr(G.i), abiertas: gArr(G.i) })) }),
   },
   mc: {
     instruccion: `Devuelve TODAS las preguntas tipo test (opción múltiple con una sola respuesta correcta), en su orden, con sus opciones (sin la letra delante), el índice de la correcta (0 = primera), los puntos de cada pregunta y la justificación del solucionario (vacía si no hay). Si el examen no tiene test, devuelve una lista vacía.`,
@@ -338,6 +341,7 @@ const ADAPTADORES = {
     partes: { mc: String(d.partes?.test || "").trim(), open: String(d.partes?.abiertas || "").trim(), num: String(d.partes?.ejercicios || "").trim() },
     nTest: Math.max(0, Math.min(200, Number(d.nTest) || 0)), nAbiertas: Math.max(0, Math.min(100, Number(d.nAbiertas) || 0)),
     ejercicios: (d.ejercicios || []).slice(0, 40).map((e) => ({ titulo: String(e.titulo || "").trim(), nApartados: Math.max(1, Math.min(40, Number(e.nApartados) || 1)) })),
+    lecturas: (d.lecturas || []).slice(0, 10),
   }),
   mc: (d) => ({
     preguntas: (d.preguntas || []).map((p) => {
@@ -394,6 +398,30 @@ function trozo(parte, { desde, hasta, ejercicio, titulo, apDesde, apHasta }) {
   return "";
 }
 
+/**
+ * Textos de lectura del examen: la IA solo dice dónde empieza y acaba cada uno; el texto
+ * se copia del propio Word (así no se cambia ni una palabra). Los que no se encuentran se descartan.
+ */
+function recortarLecturas(lecturas, examen) {
+  const patron = (frase) => {
+    const p = String(frase || "").split(/[^\p{L}\p{N}]+/u).filter(Boolean).slice(0, 12);
+    return p.length >= 3 ? new RegExp(p.map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("[^\\p{L}\\p{N}]+"), "iu") : null;
+  };
+  const nums = (l) => [...new Set((l || []).map(Number).filter((n) => Number.isInteger(n) && n > 0 && n <= 200))];
+  const out = [];
+  for (const l of lecturas || []) {
+    const pi = patron(l.inicio), pf = patron(l.fin);
+    const mi = pi && pi.exec(examen);
+    if (!mi) continue;
+    const resto = examen.slice(mi.index), mf = pf && pf.exec(resto);
+    const corte = mf ? mf.index + mf[0].length : 0;
+    const texto = (mf ? resto.slice(0, corte) + (resto.slice(corte).match(/^[^\s\p{L}\p{N}]*/u) || [""])[0] : "").replace(/\s*\[FIGURA \d+\]\s*/g, " ").trim();
+    if (texto.length < 80 || texto.length > 30_000) continue;
+    out.push({ titulo: String(l.titulo || "").trim().slice(0, 200), texto, test: nums(l.test), abiertas: nums(l.abiertas) });
+  }
+  return out;
+}
+
 /** Pide a la IA una parte del examen adaptado: indice | mc | open | num (o un trozo de ellas). */
 export async function adaptarParte({ parte, examen, solucionario = "", indicaciones = "", rango = {} }) {
   if (!iaDisponible()) fallo(503, motivoSinIA());
@@ -409,6 +437,7 @@ export async function adaptarParte({ parte, examen, solucionario = "", indicacio
     ? await pedirGemini(parte, material, instruccion, { sistema: SISTEMA_ADAPTAR, esquemaG: P.esquemaG, temperatura: 0.1, pensar })
     : await pedirClaude(parte, material, instruccion, { sistema: SISTEMA_ADAPTAR, esquema: P.esquema, esfuerzo: pensar ? "medium" : "low" });
   const r = ADAPTADORES[parte](datos);
+  if (parte === "indice") r.lecturas = recortarLecturas(r.lecturas, examen);
   console.log(JSON.stringify({ evento: "ia-adaptar", proveedor: proveedorIA(), parte, rango, ms: Date.now() - t0, uso: datos._uso }));
   return r;
 }

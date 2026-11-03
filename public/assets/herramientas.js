@@ -10,9 +10,9 @@
  * Son ventanas dentro de la página: usarlas no cuenta como salir del examen.
  */
 (() => {
-  const ICONOS = { notas: "📝", calculadora: "🧮", circuitos: "⚡", python: "🐍" };
-  const TITULOS = { notas: "Bloc de notas", calculadora: "Calculadora científica", circuitos: "Resolución de circuitos", python: "Python" };
-  const CORTO = { notas: "Notas", calculadora: "Calculadora", circuitos: "Circuitos", python: "Python" };
+  const ICONOS = { lectura: "📖", notas: "📝", calculadora: "🧮", circuitos: "⚡", python: "🐍" };
+  const TITULOS = { lectura: "Texto", notas: "Bloc de notas", calculadora: "Calculadora científica", circuitos: "Resolución de circuitos", python: "Python" };
+  const CORTO = { lectura: "Texto", notas: "Notas", calculadora: "Calculadora", circuitos: "Circuitos", python: "Python" };
   let dock = null, ventanas = {}, claveNotas = "";
 
   const guardar = (k, v) => { try { localStorage.setItem(k, v); } catch { /* sin almacenamiento */ } };
@@ -110,8 +110,10 @@
     w.className = `tool-win tool-${tipo}`; w.hidden = true;
     w.setAttribute("role", "region"); w.setAttribute("aria-label", TITULOS[tipo]);
     w.innerHTML = `<header class="tool-head"><span>${ICONOS[tipo]} ${TITULOS[tipo]}</span><button type="button" class="tool-x" aria-label="Ocultar ${TITULOS[tipo]}" title="Ocultar (no se pierde nada)">✕</button></header>${contenido}`;
-    // La calculadora va arriba y las notas debajo.
-    if (tipo === "calculadora") lateral.prepend(w); else lateral.appendChild(w);
+    // El texto de lectura va arriba del todo, luego la calculadora y las notas debajo.
+    if (tipo === "lectura") lateral.prepend(w);
+    else if (tipo === "calculadora") lateral.querySelector(".tool-lectura") ? lateral.querySelector(".tool-lectura").after(w) : lateral.prepend(w);
+    else lateral.appendChild(w);
     w.querySelector(".tool-x").onclick = () => mostrar(tipo, false);
     return w;
   }
@@ -135,6 +137,41 @@
     ta.addEventListener("input", () => { guardar(claveNotas, ta.value); actualizar(); });
     w.querySelector("[data-vaciar]").onclick = () => { if (!ta.value || confirm("¿Vaciar el bloc de notas?")) { ta.value = ""; guardar(claveNotas, ""); actualizar(); ta.focus(); } };
     actualizar();
+    return w;
+  }
+
+  /* ── Texto de lectura ───────────────────────────────────────────────
+   * Si el examen tiene textos que hay que leer, el alumno los tiene siempre a la vista.
+   * Con varios textos, se muestra el de la pregunta en la que está (y puede cambiar a mano). */
+  const esLectura = (b) => !!b && (b.lectura || String(b.texto || "").length >= 600);
+  function crearLectura(ex) {
+    const lects = (ex.bloques || []).filter(esLectura);
+    const esc = (t) => String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const w = ventana("lectura", `${lects.length > 1 ? `<div class="lect-tabs" role="tablist">${lects.map((b, i) => `<button type="button" role="tab" data-lect="${esc(b.id)}">${esc(b.titulo || `Texto ${i + 1}`)}</button>`).join("")}</div>` : ""}
+      <div class="lect-cuerpo" tabindex="0">${lects.map((b) => `<article data-lect-txt="${esc(b.id)}" hidden>${lects.length === 1 && b.titulo ? `<h3>${esc(b.titulo)}</h3>` : ""}${b.imagen ? `<img src="${esc(b.imagen)}" alt="">` : ""}<div class="lect-txt">${esc(b.texto)}</div></article>`).join("")}</div>`);
+    let actual = "";
+    const ver = (id) => {
+      if (!lects.some((b) => b.id === id) || id === actual) return;
+      actual = id;
+      w.querySelectorAll("[data-lect-txt]").forEach((a) => (a.hidden = a.dataset.lectTxt !== id));
+      w.querySelectorAll("[data-lect]").forEach((b) => b.setAttribute("aria-selected", b.dataset.lect === id));
+      w.querySelector(".lect-cuerpo").scrollTop = 0;
+    };
+    w.addEventListener("click", (e) => { const b = e.target.closest("[data-lect]"); if (b) ver(b.dataset.lect); });
+    ver(lects[0].id);
+    // Cambia solo al texto de la pregunta que se está mirando o contestando.
+    const enVista = () => {
+      let id = "";
+      for (const q of document.querySelectorAll("#quiz .q[data-bloque]")) {
+        if (q.getBoundingClientRect().top > window.innerHeight * 0.45) break;
+        if (q.dataset.bloque) id = q.dataset.bloque;
+      }
+      if (id) ver(id);
+    };
+    let pendiente = false;
+    window.addEventListener("scroll", () => { if (!pendiente) { pendiente = true; requestAnimationFrame(() => { pendiente = false; enVista(); }); } }, { passive: true });
+    document.addEventListener("focusin", (e) => { const q = e.target.closest?.("#quiz .q[data-bloque]"); if (q?.dataset.bloque) ver(q.dataset.bloque); });
+    document.addEventListener("click", (e) => { const b = e.target.closest?.("[data-ver-lectura]"); if (b) { ver(b.dataset.verLectura); mostrar("lectura", true, false); } });
     return w;
   }
 
@@ -337,7 +374,9 @@
    */
   window.iniciarHerramientas = (ex, email) => {
     const h = ex.herramientas || {};
-    const activas = ["calculadora", "python", "circuitos", "notas"].filter((k) => h[k] !== false && (k !== "circuitos" || (ex.circuitos || []).length) && (k !== "python" || ex.python));
+    const lectura = (ex.bloques || []).some(esLectura);
+    // El texto de lectura no se puede desactivar: si el examen tiene texto, el alumno lo ve.
+    const activas = [...(lectura ? ["lectura"] : []), ...["calculadora", "python", "circuitos", "notas"].filter((k) => h[k] !== false && (k !== "circuitos" || (ex.circuitos || []).length) && (k !== "python" || ex.python))];
     if (!activas.length || dock) return;
     claveNotas = `notas:${ex.id}:${email || ""}`; claveCodigo = `python:${ex.id}:${email || ""}`;
     dock = document.createElement("div");
@@ -350,15 +389,18 @@
     if (activas.includes("python")) ventanas.python = crearPython();
     if (activas.includes("circuitos")) ventanas.circuitos = crearCircuitos(ex);
     if (activas.includes("notas")) ventanas.notas = crearNotas();
+    if (lectura) { ventanas.lectura = crearLectura(ex); document.body.classList.add("con-lectura"); }
     dock.addEventListener("click", (e) => { const b = e.target.closest("[data-tool]"); if (b) mostrar(b.dataset.tool); });
-    // En pantallas grandes se abren solas (Python, que ocupa más, se abre al pulsarlo).
-    if (window.innerWidth >= 1100) activas.filter((k) => k !== "python").forEach((k) => mostrar(k, true, false));
+    // Con texto de lectura, se abre solo el texto (en cualquier pantalla); las demás, al pulsarlas.
+    // Sin texto, en pantallas grandes se abren solas (Python, que ocupa más, se abre al pulsarlo).
+    if (lectura) mostrar("lectura", true, false);
+    else if (window.innerWidth >= 1100) activas.filter((k) => k !== "python").forEach((k) => mostrar(k, true, false));
   };
 
   /** Al entregar: se quitan las herramientas y se borran las notas. */
   window.cerrarHerramientas = () => {
     if (!dock) return;
-    dock.remove(); lateral?.remove(); document.body.classList.remove("tools-open");
+    dock.remove(); lateral?.remove(); document.body.classList.remove("tools-open", "con-lectura");
     borrar(claveNotas); borrar(claveCodigo); delete window.codigoPython;
     dock = null; lateral = null; ventanas = {};
   };

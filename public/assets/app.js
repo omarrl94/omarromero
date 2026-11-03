@@ -145,18 +145,23 @@ const fmtP = (p) => `<span class="pts">(${fmt(p)} p)</span>`;
 const titulosPartes = (ex) => ({ mc: ex.partes?.mc || "Test", open: ex.partes?.open || "Preguntas abiertas", num: ex.partes?.num || "Ejercicios" });
 
 /** Enunciado común de un ejercicio (título, texto y figura). */
-function htmlBloque(b) {
+/** Textos de lectura: los marcados al crear el examen y, en los antiguos, los textos largos. */
+const esLectura = (b) => !!b && (b.lectura || String(b.texto || "").length >= 600);
+function htmlBloque(b, { enPanel = false } = {}) {
   if (!b) return "";
+  // Durante el examen el texto está en el panel «📖 Texto»: aquí solo se indica, sin repetirlo.
+  if (enPanel && esLectura(b)) return `<div class="bloque lectura-aviso" data-lectura="${esc(b.id)}"><b>📖 ${esc(b.titulo || "Texto")}</b> <span class="muted">— lee el texto en el panel «📖 Texto» (siempre a la vista).</span> <button type="button" class="link" data-ver-lectura="${esc(b.id)}">Ver el texto</button></div>`;
+  if (esLectura(b)) return `<details class="bloque lectura" open><summary><b>📖 ${esc(b.titulo || "Texto")}</b></summary><div class="lect-txt">${esc(b.texto)}</div></details>`;
   return `<div class="bloque">${b.titulo ? `<h3>${esc(b.titulo)}</h3>` : ""}${b.texto ? `<p>${esc(b.texto)}</p>` : ""}
     ${b.imagen ? `<div class="fig"><img src="${esc(b.imagen)}" alt="${esc(b.titulo || "Figura")}"></div>` : ""}</div>`;
 }
 /** Devuelve una función que pinta el bloque solo la primera vez que aparece. */
-function cabeceraBloques(ex) {
+function cabeceraBloques(ex, opciones) {
   let ultimo = "";
   return (q) => {
     if (!q.bloque || q.bloque === ultimo) return "";
     ultimo = q.bloque;
-    return htmlBloque((ex.bloques || []).find((b) => b.id === q.bloque));
+    return htmlBloque((ex.bloques || []).find((b) => b.id === q.bloque), opciones);
   };
 }
 
