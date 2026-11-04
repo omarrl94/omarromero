@@ -1,3 +1,4 @@
+import { haptic } from './native.js';
 // Sonidos táctiles sintetizados con WebAudio (sin archivos): opcionales y discretos.
 let ctx = null;
 let enabled = true;
@@ -48,6 +49,7 @@ const SOUNDS = {
 };
 
 export function play(name) {
+  haptic(name);
   if (!enabled) return;
   if (name === 'key' && !keysEnabled) return;
   try {

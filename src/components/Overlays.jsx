@@ -1,3 +1,4 @@
+import { useBackHandler } from '../core/native.js';
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Star, Award, ChevronRight } from 'lucide-react';
@@ -28,6 +29,7 @@ function Confetti() {
 /** Celebración al completar una misión: estrellas, desglose de XP y siguiente paso. */
 export function RewardOverlay({ reward, onClose, onNext, nextTitle }) {
   const [shown, setShown] = useState(0);
+  useBackHandler(onClose, !!reward);
   useEffect(() => {
     if (!reward) return undefined;
     setShown(0);
@@ -85,6 +87,7 @@ export function RewardOverlay({ reward, onClose, onNext, nextTitle }) {
 }
 
 export function RankUpOverlay({ rank, onClose }) {
+  useBackHandler(onClose, !!rank);
   useEffect(() => { if (rank) play('rankup'); }, [rank]);
   return (
     <AnimatePresence>

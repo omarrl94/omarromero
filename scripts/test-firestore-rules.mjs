@@ -81,7 +81,17 @@ await test('cambiar de nick (reserva el nuevo y libera el antiguo)', () => asser
 })));
 await test('NO se puede robar el nick de otro al cambiar', () => assertFails(updateDoc(doc(alice, 'codeforge_players', 'alice'), { nick: 'ByteQueen', nickLower: 'bytequeen' })));
 await test('NO se puede borrar la reserva de nick de otro', () => assertFails(deleteDoc(doc(alice, 'codeforge_nicks', 'bytequeen'))));
-await test('nadie puede borrar perfiles', () => assertFails(deleteDoc(doc(alice, 'codeforge_players', 'alice'))));
+await test('NO se puede borrar el perfil de otro jugador', () => assertFails(deleteDoc(doc(bob, 'codeforge_players', 'alice'))));
+await test('NO se puede borrar el progreso de otro jugador', () => assertFails(deleteDoc(doc(bob, 'codeforge_players', 'alice', 'private', 'progress'))));
+await test('sin sesión no se puede borrar nada', () => assertFails(deleteDoc(doc(anon, 'codeforge_players', 'bob'))));
+await test('borrar mi cuenta: progreso + perfil + nick en un batch', () => {
+  const batch = writeBatch(alice);
+  batch.delete(doc(alice, 'codeforge_players', 'alice', 'private', 'progress'));
+  batch.delete(doc(alice, 'codeforge_players', 'alice'));
+  batch.delete(doc(alice, 'codeforge_nicks', 'novaprime'));
+  return assertSucceeds(batch.commit());
+});
+await test('tras borrar la cuenta, el nick queda libre para otro', () => assertSucceeds(setDoc(doc(bob, 'codeforge_nicks', 'novaprime'), { uid: 'bob' })));
 
 await env.cleanup();
 console.log(`\n${passed}/${passed + failed} reglas verificadas`);

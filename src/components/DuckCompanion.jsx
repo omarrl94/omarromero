@@ -1,3 +1,4 @@
+import { useBackHandler } from '../core/native.js';
 import { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Send, X, Lightbulb, Crosshair } from 'lucide-react';
@@ -33,6 +34,7 @@ function Duck({ mood, size = 56 }) {
  */
 export default function DuckCompanion({ ch, lang, code, evaluation, stuck, onDeepHint, onFocusLine, hintsUsed }) {
   const [open, setOpen] = useState(false);
+  useBackHandler(() => setOpen(false), open);
   const [step, setStep] = useState(0);
   const [talk, setTalk] = useState([]);
   const [draft, setDraft] = useState('');
@@ -58,7 +60,7 @@ export default function DuckCompanion({ ch, lang, code, evaluation, stuck, onDee
   };
 
   return (
-    <div className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] right-3 z-40 flex flex-col items-end gap-3 lg:bottom-4 lg:right-4">
+    <div className="kb-hide fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] right-3 z-40 flex flex-col items-end gap-3 lg:bottom-4 lg:right-4">
       <AnimatePresence>
         {open && (
           <motion.div

@@ -16,6 +16,13 @@
     "desplegar:hosting": "npm run build && firebase deploy --only hosting"
   },
   "dependencies": {
+    "@capacitor/android": "8.5.3",
+    "@capacitor/app": "8.1.2",
+    "@capacitor/core": "8.5.3",
+    "@capacitor/haptics": "8.0.2",
+    "@capacitor/keyboard": "8.0.6",
+    "@capacitor/splash-screen": "8.0.2",
+    "@capacitor/status-bar": "8.0.4",
     "@fontsource/jetbrains-mono": "5.1.1",
     "firebase": "11.10.0",
     "framer-motion": "11.11.17",
@@ -24,6 +31,7 @@
     "react-dom": "18.3.1"
   },
   "devDependencies": {
+    "@capacitor/cli": "8.5.3",
     "@firebase/rules-unit-testing": "4.0.1",
     "@vitejs/plugin-react": "4.3.4",
     "autoprefixer": "10.4.20",

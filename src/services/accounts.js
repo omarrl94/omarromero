@@ -82,6 +82,11 @@ async function hash(text) {
   }
 }
 
+/** Borra el progreso guardado en este dispositivo para un jugador. */
+function forgetLocalProgress(uid) {
+  try { localStorage.removeItem(`codeforge.progress.v2.${uid}`); } catch { /* sin almacenamiento */ }
+}
+
 const toAccount = (uid, rec) => (rec ? { uid, nick: rec.nick, email: rec.email, avatar: rec.avatar, provider: 'local', emailVerified: false, createdAt: rec.createdAt } : null);
 const emit = (acc) => listeners.forEach((cb) => cb(acc));
 
@@ -143,6 +148,17 @@ const local = {
   },
   async loadProgress() {
     return null; // el progreso local ya vive en localStorage (progress.js)
+  },
+  async deleteAccount(acc, password) {
+    const db = readLocal();
+    const rec = db[acc.uid];
+    if (!rec) throw new AccountError('no-account', 'No encuentro tu cuenta.');
+    if (rec.pass !== (await hash(password || ''))) throw new AccountError('auth/invalid-credential', 'La contraseña no es correcta.');
+    delete db[acc.uid];
+    writeLocal(db);
+    forgetLocalProgress(acc.uid);
+    writeSession(null);
+    emit(null);
   },
   async saveProgress(acc, state, stats) {
     const db = readLocal();
@@ -279,6 +295,29 @@ const cloud = {
       throw friendly(e);
     }
   },
+  async deleteAccount(acc, password) {
+    try {
+      const fb = await getFirebase();
+      const { A, F, db, auth } = fb;
+      const user = auth.currentUser;
+      if (!user) throw new AccountError('no-session', 'Vuelve a entrar en tu cuenta para borrarla.');
+      // Firebase exige haber iniciado sesión hace poco: confirmamos con la contraseña.
+      await A.reauthenticateWithCredential(user, A.EmailAuthProvider.credential(user.email, password || ''));
+      const player = await F.getDoc(F.doc(db, COL.players, acc.uid));
+      const batch = F.writeBatch(db);
+      batch.delete(F.doc(db, COL.players, acc.uid, 'private', 'progress'));
+      batch.delete(F.doc(db, COL.players, acc.uid));
+      const lower = player.exists() ? player.data().nickLower : null;
+      if (lower) batch.delete(F.doc(db, COL.nicks, lower));
+      await batch.commit();
+      await A.deleteUser(user);
+      forgetLocalProgress(acc.uid);
+    } catch (e) {
+      const code = e && e.code;
+      if (code === 'auth/invalid-credential' || code === 'auth/wrong-password' || code === 'auth/missing-password') throw new AccountError(code, 'La contraseña no es correcta.');
+      throw friendly(e);
+    }
+  },
   async loadProgress(acc) {
     const fb = await getFirebase();
     const snap = await fb.F.getDoc(fb.F.doc(fb.db, COL.players, acc.uid, 'private', 'progress'));
@@ -316,3 +355,4 @@ export const updateAccount = (acc, patch) => impl.updateProfile(acc, patch);
 export const loadCloudProgress = (acc) => impl.loadProgress(acc);
 export const saveCloudProgress = (acc, state, stats) => impl.saveProgress(acc, state, stats);
 export const fetchLeaderboard = (limit) => impl.leaderboard(limit);
+export const deleteAccount = (acc, password) => impl.deleteAccount(acc, password);

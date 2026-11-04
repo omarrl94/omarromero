@@ -283,7 +283,7 @@ function MobileArenaBar({ pane, setPane, status, evaluation, onDeploy }) {
     </button>
   );
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-void-600/50 bg-void-950/95 px-3 pb-[calc(0.5rem+env(safe-area-inset-bottom))] pt-2 backdrop-blur-md lg:hidden" aria-label="Vistas de la arena">
+    <nav className="kb-hide fixed inset-x-0 bottom-0 z-30 border-t border-void-600/50 bg-void-950/95 px-3 pb-[calc(0.5rem+env(safe-area-inset-bottom))] pt-2 backdrop-blur-md lg:hidden" aria-label="Vistas de la arena">
       <div className="mx-auto flex max-w-xl items-stretch gap-2">
         {tab('code', Code2, checks.length ? `Código · ${ok}/${checks.length}` : 'Código')}
         {tab('engine', MonitorPlay, 'Motor', <span className={`absolute -right-1.5 -top-0.5 h-2 w-2 rounded-full ${dot}`} />)}

@@ -123,7 +123,7 @@ export function MobileNav({ view, onMap, onProfile, onWorlds, onRanking }) {
     state.lang && { id: 'profile', label: 'Perfil', Icon: UserRound, on: onProfile },
   ].filter(Boolean);
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-void-600/50 bg-void-950/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md sm:hidden" aria-label="Navegación principal">
+    <nav className="kb-hide fixed inset-x-0 bottom-0 z-30 border-t border-void-600/50 bg-void-950/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md sm:hidden" aria-label="Navegación principal">
       <div className="flex">
         {items.map(({ id, label, Icon, on }) => (
           <button

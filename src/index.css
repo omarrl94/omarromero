@@ -122,3 +122,6 @@ body {
 @media (max-width: 1023px) {
   .editor-textarea { overscroll-behavior: contain; }
 }
+
+/* Con el teclado en pantalla abierto se esconden las barras inferiores (más sitio para el código). */
+.kb-open .kb-hide { display: none !important; }

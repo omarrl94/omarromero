@@ -12,8 +12,9 @@ import Arena from './components/Arena.jsx';
 import { RewardOverlay, RankUpOverlay, AchievementToasts } from './components/Overlays.jsx';
 import { ProgressContext, reducer, loadState, saveState, mergeProgress, playerStats, rankOf, moduleUnlocked, isDone, worldXp } from './core/progress.js';
 import { configureSound } from './core/sound.js';
+import { useBackHandler, BACK, appReady } from './core/native.js';
 import { byId, MODULES } from './curriculum/index.js';
-import { watchSession, loadCloudProgress, saveCloudProgress, logout, backend } from './services/accounts.js';
+import { watchSession, loadCloudProgress, saveCloudProgress, logout, deleteAccount, backend } from './services/accounts.js';
 
 const INTRO_KEY = 'codeforge.intro.v1';
 const introSeen = () => { try { return localStorage.getItem(INTRO_KEY) === '1'; } catch { return false; } };
@@ -24,6 +25,7 @@ export default function App() {
   const [intro, setIntro] = useState(introSeen);
   const [startWorld, setStartWorld] = useState(null);
 
+  useEffect(() => { appReady(); }, []);
   useEffect(() => watchSession((acc) => setAccount((prev) => (prev && acc && prev.uid === acc.uid && !acc.incomplete ? { ...prev, ...acc } : acc))), []);
 
   let screen;
@@ -47,6 +49,8 @@ function Game({ account, onAccountChange, startWorld }) {
     return startWorld && !s.lang ? { ...s, lang: startWorld } : s;
   });
   const [view, setView] = useState('map');
+  // «Atrás» en Android: desde cualquier sección vuelve a las misiones (o a la galaxia).
+  useBackHandler(() => setView(state.lang ? 'map' : 'worlds'), state.lang ? view !== 'map' : view === 'ranking' || view === 'profile', BACK.screen);
   const [active, setActive] = useState(null);
   const [reward, setReward] = useState(null);
   const [rankUp, setRankUp] = useState(null);
@@ -140,7 +144,20 @@ function Game({ account, onAccountChange, startWorld }) {
     onAccountChange(null);
   }, [pushCloud, onAccountChange]);
 
-  const ctx = useMemo(() => ({ state, dispatch, account, setAccount: onAccountChange, signOut, sync }), [state, account, onAccountChange, signOut, sync]);
+  // Borrado definitivo de la cuenta y de todo su progreso (en la nube y en este dispositivo).
+  const removeAccount = useCallback(async (password) => {
+    const wasReady = ready.current;
+    ready.current = false; // no volver a subir nada a la nube mientras se borra
+    try {
+      await deleteAccount(account, password);
+    } catch (e) {
+      ready.current = wasReady;
+      throw e;
+    }
+    onAccountChange(null);
+  }, [account, onAccountChange]);
+
+  const ctx = useMemo(() => ({ state, dispatch, account, setAccount: onAccountChange, signOut, removeAccount, sync }), [state, account, onAccountChange, signOut, removeAccount, sync]);
   const clearToasts = useCallback(() => setToasts([]), []);
   const ch = active ? byId(active) : null;
 

@@ -1,3 +1,4 @@
+import { useBackHandler } from '../core/native.js';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, GraduationCap, Target, X } from 'lucide-react';
@@ -10,6 +11,7 @@ import { play } from '../core/sound.js';
 
 /** «Aprende primero»: lección visual paso a paso antes de cada misión. */
 export default function LessonPanel({ ch, lang, open, onClose }) {
+  useBackHandler(onClose, open);
   const steps = lessonSteps(ch.id, lang);
   const lesson = LESSONS[ch.id];
   const total = steps.length + 1; // + la tarjeta «Tu misión»

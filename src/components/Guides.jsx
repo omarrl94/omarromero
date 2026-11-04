@@ -6,6 +6,7 @@ import { LESSONS } from '../curriculum/lessons.js';
 import { LANGUAGES } from '../core/languages.js';
 import { play } from '../core/sound.js';
 import { useMedia, COMPACT } from '../core/useMedia.js';
+import { useBackHandler } from '../core/native.js';
 
 /** Barra de confirmación dentro de la página (los diálogos del navegador no siempre están disponibles). */
 export function ConfirmBar({ text, confirm, onConfirm, onCancel }) {
@@ -36,6 +37,7 @@ const TOUR_MOBILE = [
 /** Tour de 4 pasos la primera vez que se entra en la arena. */
 export function ArenaTour({ open, onClose }) {
   const [i, setI] = useState(0);
+  useBackHandler(() => { setI(0); onClose(); }, open);
   const compact = useMedia(COMPACT);
   const steps = compact ? TOUR_MOBILE : TOUR;
   const step = steps[i];
@@ -78,6 +80,7 @@ export function SolutionPanel({ ch, lang, open, onClose, onReveal, onLoad }) {
   const L = LANGUAGES[lang];
   const sol = ch.solution[lang].trim();
   const close = () => { setRevealed(false); onClose(); };
+  useBackHandler(close, open);
   return (
     <AnimatePresence>
       {open && (

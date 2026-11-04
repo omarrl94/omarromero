@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
+import { useBackHandler } from '../core/native.js';
 import { ICONS as Icons } from './icons.js';
-import { Star, Flame, Trash2, LogOut, Pencil, Check, X, Coins, Mail, Cloud, HardDrive } from 'lucide-react';
+import { Star, Flame, Trash2, LogOut, Pencil, Check, X, Coins, Mail, Cloud, HardDrive, ShieldCheck, UserX } from 'lucide-react';
 import Avatar, { AvatarPicker } from './Avatar.jsx';
 import { updateAccount, backend, NICK_RE } from '../services/accounts.js';
 import { MODULES } from '../curriculum/index.js';
@@ -10,7 +12,7 @@ import RankBadge from './RankBadge.jsx';
 
 /** Perfil: el rango y las misiones del mundo actual, tus mundos y tus logros. */
 export default function Profile({ onOpen }) {
-  const { state, dispatch, account, setAccount, signOut } = useProgress();
+  const { state, dispatch, account, setAccount, signOut, removeAccount } = useProgress();
   const L = LANGUAGES[state.lang];
   const xp = worldXp(state);
   const rank = rankOf(xp);
@@ -19,6 +21,7 @@ export default function Profile({ onOpen }) {
     <div className="mx-auto grid w-full max-w-[1400px] gap-4 px-3 pb-24 lg:grid-cols-[360px_1fr] lg:px-4">
       <div className="space-y-4">
         <PilotCard account={account} onChange={setAccount} onSignOut={signOut} gold={totalGold(state)} />
+        <AccountPrivacy onDelete={removeAccount} />
         <section className="glass rounded-2xl p-5 text-center">
           <div className="text-[10px] font-bold uppercase tracking-[0.3em]" style={{ color: L.color }}>Mundo {L.name}</div>
           <div className="mt-2 flex justify-center"><RankBadge rank={rank} size={96} /></div>
@@ -178,6 +181,60 @@ function PilotCard({ account, onChange, onSignOut, gold }) {
         )}
         <button type="button" onClick={onSignOut} className="btn-neon ml-auto border border-neon-red/40 text-red-200 hover:bg-neon-red/10"><LogOut size={13} /> Cerrar sesión</button>
       </div>
+    </section>
+  );
+}
+
+/** Privacidad y borrado de cuenta: el jugador puede eliminar su cuenta y todos sus datos. */
+function AccountPrivacy({ onDelete }) {
+  const [open, setOpen] = useState(false);
+  const [policy, setPolicy] = useState(false);
+  const [password, setPassword] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  useBackHandler(() => setPolicy(false), policy);
+  const confirm = async () => {
+    setError('');
+    if (!password) { setError('Escribe tu contraseña para confirmar.'); return; }
+    setBusy(true);
+    try {
+      await onDelete(password);
+    } catch (e) {
+      setError(e.message);
+      setBusy(false);
+    }
+  };
+  return (
+    <section className="glass rounded-2xl p-4">
+      <div className="flex flex-wrap items-center gap-2">
+        <button type="button" onClick={() => setPolicy(true)} className="btn-neon border border-void-600 text-slate-300 hover:border-neon-cyan/60"><ShieldCheck size={13} /> Privacidad</button>
+        <button type="button" onClick={() => { setOpen(!open); setError(''); }} className="btn-neon ml-auto text-slate-500 hover:text-red-200" aria-expanded={open}><UserX size={13} /> Borrar mi cuenta</button>
+      </div>
+      {open && (
+        <div className="mt-3 rounded-xl border border-neon-red/40 bg-neon-red/5 p-3 text-xs text-red-100">
+          <p className="leading-relaxed">Se borrarán para siempre tu cuenta, tu nick, tu puesto en el ranking y el progreso de todos tus mundos. No se puede deshacer.</p>
+          <label htmlFor="delete-password" className="mt-3 block text-[10px] font-bold uppercase tracking-widest text-red-200">Confirma con tu contraseña</label>
+          <input id="delete-password" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)}
+            className="mt-1 w-full rounded-lg border border-neon-red/40 bg-void-950 px-3 py-2 text-sm text-white outline-none focus:border-neon-red" />
+          {error && <div className="mt-2 text-red-300" role="alert">{error}</div>}
+          <div className="mt-3 flex gap-2">
+            <button type="button" onClick={confirm} disabled={busy} className="btn-neon bg-neon-red text-void-950"><Trash2 size={13} /> {busy ? 'Borrando…' : 'Borrar definitivamente'}</button>
+            <button type="button" onClick={() => { setOpen(false); setPassword(''); setError(''); }} className="btn-neon text-slate-300">Cancelar</button>
+          </div>
+        </div>
+      )}
+      {policy && createPortal(
+        <div className="fixed inset-0 z-50 flex flex-col bg-void-950/95 p-0 backdrop-blur-sm sm:p-6" role="dialog" aria-label="Política de privacidad">
+          <div className="glass mx-auto flex h-full w-full max-w-3xl flex-col overflow-hidden sm:rounded-2xl">
+            <div className="flex items-center justify-between border-b border-void-600/50 px-4 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top))] sm:pt-3">
+              <span className="flex items-center gap-2 text-sm font-bold text-white"><ShieldCheck size={16} className="text-neon-lime" /> Política de privacidad</span>
+              <button type="button" onClick={() => setPolicy(false)} className="rounded p-2 text-slate-400 hover:text-white" aria-label="Cerrar"><X size={18} /></button>
+            </div>
+            <iframe title="Política de privacidad" src="./privacidad.html" className="min-h-0 w-full flex-1 bg-void-950" />
+          </div>
+        </div>,
+        document.body,
+      )}
     </section>
   );
 }
