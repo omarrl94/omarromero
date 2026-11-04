@@ -77,7 +77,7 @@ async function playMission(team, m, checkNotes) {
     await page.keyboard.press('Escape');
     await page.getByRole('dialog').waitFor({ state: 'detached' });
   }
-  const list = challengesOf(m, SEED);
+  const list = challengesOf(m, SEED, team);
   for (const [ci, c] of list.entries()) {
     // Espera a que el reto nuevo esté montado (hay una transición animada entre retos).
     await page.getByText(new RegExp(`^Reto ${ci + 1}/${list.length} ·`)).waitFor();

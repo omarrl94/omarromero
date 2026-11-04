@@ -51,7 +51,7 @@ export const MISSIONS = MODULES.flatMap((mod) => {
       teams: ALL_TEAMS,
       kind: 'exam',
       title: `Examen del tema ${mod.num}`,
-      story: `Examen del tema ${mod.num} (${mod.title}): 8 preguntas al azar del banco del tema y un reto práctico. Cuenta para tu nota como cualquier otra misión.`,
+      story: `Examen del tema ${mod.num} (${mod.title}): 8 preguntas al azar sobre lo que has estudiado en este tema (la lección común y tus misiones) y un reto práctico. Cuenta para tu nota como cualquier otra misión.`,
       lesson: common.lesson,
       generate: examFor(mod.id, own),
       learned: [`Demostrar lo aprendido en ${mod.title}`],
@@ -61,9 +61,9 @@ export const MISSIONS = MODULES.flatMap((mod) => {
   ];
 });
 
-/** Retos de una misión: fijos o generados con una semilla. */
-export function challengesOf(mission, seed = 1) {
-  return mission.generate ? mission.generate(mulberry32(seed)) : mission.challenges;
+/** Retos de una misión: fijos o generados con una semilla (los exámenes dependen del equipo). */
+export function challengesOf(mission, seed = 1, team = null) {
+  return mission.generate ? mission.generate(mulberry32(seed), team) : mission.challenges;
 }
 
 export const missionById = (id) => MISSIONS.find((m) => m.id === id);

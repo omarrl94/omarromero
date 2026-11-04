@@ -58,7 +58,9 @@ export default function Order({ challenge, color, onDone }) {
           );
         })}
       </ol>
-      {checked && !solved && <Feedback kind="bad">Las marcadas en rojo no están en su sitio. Muévelas y vuelve a comprobar.</Feedback>}
+      {checked && !solved && (mistakes >= 2
+        ? <Feedback kind="warn">Pista: {challenge.explain} Las marcadas en rojo no están en su sitio.</Feedback>
+        : <Feedback kind="bad">Las marcadas en rojo no están en su sitio. Muévelas y vuelve a comprobar.</Feedback>)}
       {solved ? (
         <>
           <Feedback kind="ok">✓ {challenge.explain}</Feedback>

@@ -358,4 +358,14 @@ const m5p = {
   tip: 'Lleva un registro de «días desde la publicación hasta el parche»: es una métrica excelente.',
 };
 
+// ── Pasos añadidos a las lecciones comunes ──
+m4c.lesson.splice(1, 0, { title: 'Servicios peligrosos', text: 'Algunos servicios no deberían estar expuestos nunca. Telnet (23) envía todo SIN CIFRAR, incluidas las contraseñas: se sustituye por SSH (22). Las bases de datos (3306 MySQL, 5432 PostgreSQL) y el escritorio remoto (3389 RDP) no deben ser accesibles desde Internet.' });
+m4c.lesson.push(
+  { title: 'Leer registros con grep', text: 'grep filtra las líneas que contienen un texto. Con -c las cuenta y con -i ignora mayúsculas. Con | (tubería) pasas la salida de una orden a la siguiente. Un escaneo de puertos se reconoce en el log del cortafuegos porque una misma IP prueba muchos puertos distintos en pocos segundos.', code: '$ cat /var/log/fw.log\n$ grep BLOCK /var/log/fw.log\n$ grep -c BLOCK /var/log/fw.log\n$ grep BLOCK /var/log/fw.log | head -n 3' },
+  { title: 'Cortar y apagar', text: 'iptables bloquea una IP en el cortafuegos, y systemctl para y deshabilita un servicio para que no vuelva a arrancar. Las dos órdenes cambian el sistema, así que necesitan sudo. Que una actividad quede registrada no significa que alguien reciba una alerta: telemetría sin alerta es un hueco que hay que cerrar.', code: '$ sudo iptables -A INPUT -s 198.51.100.77 -j DROP\n$ sudo iptables -L\n$ sudo systemctl stop telnet\n$ sudo systemctl disable telnet' },
+);
+m5c.lesson.push(
+  { title: 'Priorizar y mitigar', text: 'La prioridad real no la da solo el CVSS. Primero va lo que se está explotando activamente y lo que está expuesto a Internet. Si todavía no puedes parchear, MITIGA: restringe el acceso, desactiva la función afectada o pon un filtro delante, y aplica el parche en cuanto puedas.' },
+);
+
 export default [m4c, m4r, m4b, m4p, m5c, m5r, m5b, m5p];

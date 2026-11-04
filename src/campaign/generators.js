@@ -560,6 +560,8 @@ export const EXAM_EXTRA = {
     Q('En ATT&CK, una «táctica» es…', ['El objetivo del adversario (el «para qué»)', 'Un programa malicioso concreto', 'Una IP'], 'Las técnicas son el «cómo».'),
   ],
   m2: [
+    Q('¿Para qué sirve sudo?', ['Para ejecutar una orden con permisos de administrador', 'Para borrar usuarios', 'Para ver la hora'], 'Por eso chmod sobre un fichero de root necesita sudo.'),
+    Q('Quieres que solo tú puedas leer y escribir un fichero. ¿Qué permisos le pones?', ['600', '777', '644'], '6 = rw- para el dueño y 0 para el resto.'),
     Q('¿Qué permisos da 755?', ['Dueño todo; grupo y otros leer y ejecutar', 'Todos escribir', 'Solo el dueño lee'], '7 = rwx, 5 = r-x.'),
     Q('¿Qué significa el principio de mínimo privilegio?', ['Cada usuario o programa tiene solo los permisos imprescindibles', 'Todos son administradores', 'Nadie tiene contraseña'], 'Limita el daño si una cuenta cae.'),
     Q('¿Qué comando cambia los permisos?', ['chmod', 'chown', 'cat'], 'chown cambia el dueño.'),
@@ -656,15 +658,25 @@ export const TRAINING = {
   m10: (r) => [irLive(r), classifyFrom(r, { title: 'Fases del incidente', prompt: '¿En qué fase de NIST está cada acción?', categories: [{ id: 'prep', label: 'Preparación' }, { id: 'det', label: 'Detección' }, { id: 'cont', label: 'Contención' }, { id: 'erad', label: 'Erradicación' }, { id: 'rec', label: 'Recuperación' }, { id: 'post', label: 'Lecciones' }], pool: IR_PHASE_POOL, n: 6 })],
 };
 
-/** Examen del tema: 8 preguntas al azar del banco (test de las misiones + extra) y un reto práctico. */
-export function examFor(moduleId, staticMissions) {
+/**
+ * Banco de examen de un tema PARA UN EQUIPO: preguntas propias del tema (cubiertas por la lección común)
+ * + los test de las misiones que ese equipo ha jugado. Así nunca se pregunta algo que no se ha estudiado.
+ */
+export function examBank(moduleId, staticMissions, team) {
   const bank = [...EXAM_EXTRA[moduleId]];
-  for (const m of staticMissions) for (const c of m.challenges) if (c.type === 'quiz') bank.push(...c.questions);
-  return (r) => {
+  for (const m of staticMissions) {
+    if (team && !m.teams.includes(team)) continue;
+    for (const c of m.challenges) if (c.type === 'quiz') bank.push(...c.questions);
+  }
+  return bank;
+}
+
+/** Examen del tema: 8 preguntas al azar del banco del equipo y un reto práctico. */
+export function examFor(moduleId, staticMissions) {
+  return (r, team) => {
+    const bank = examBank(moduleId, staticMissions, team);
     const practice = TRAINING[moduleId](r).filter((c) => c.type !== 'terminal');
     return [quizFrom(r, 'Preguntas del examen', bank, 8), ...(practice.length ? [r.pick(practice)] : [])];
   };
 }
-
-export const examBankSize = (moduleId, staticMissions) => EXAM_EXTRA[moduleId].length + staticMissions.reduce((s, m) => s + m.challenges.filter((c) => c.type === 'quiz').reduce((a, c) => a + c.questions.length, 0), 0);
 export { plural };

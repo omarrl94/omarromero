@@ -6,6 +6,7 @@ import { Feedback, PrimaryButton } from '../ui.jsx';
 export default function Classify({ challenge, color, onDone }) {
   const [done, setDone] = useState({}); // índice → true
   const [fail, setFail] = useState({}); // índice → id de categoría fallada
+  const [fails, setFails] = useState({}); // índice → número de fallos
   const [mistakes, setMistakes] = useState(0);
   const all = challenge.items.every((_, i) => done[i]);
 
@@ -16,6 +17,7 @@ export default function Classify({ challenge, color, onDone }) {
       setFail((f) => ({ ...f, [i]: null }));
     } else {
       setFail((f) => ({ ...f, [i]: cat }));
+      setFails((f) => ({ ...f, [i]: (f[i] || 0) + 1 }));
       setMistakes((m) => m + 1);
     }
   };
@@ -33,16 +35,19 @@ export default function Classify({ challenge, color, onDone }) {
             {challenge.categories.map((c) => {
               const chosen = done[i] && it.cat === c.id;
               const failed = fail[i] === c.id;
+              const reveal = !done[i] && (fails[i] || 0) >= 2 && it.cat === c.id;
               return (
                 <button key={c.id} type="button" onClick={() => pick(i, c.id)} disabled={done[i]}
-                  className={`rounded-lg border px-2.5 py-1 text-xs font-semibold transition-colors ${chosen ? 'border-neon-green bg-neon-green/15 text-neon-green' : failed ? 'border-neon-red/60 bg-neon-red/10 text-red-200' : done[i] ? 'border-void-700 text-slate-600' : 'border-void-600 text-slate-300 hover:border-slate-400'}`}>
+                  className={`rounded-lg border px-2.5 py-1 text-xs font-semibold transition-colors ${chosen ? 'border-neon-green bg-neon-green/15 text-neon-green' : reveal ? 'border-neon-amber bg-neon-amber/15 text-amber-100' : failed ? 'border-neon-red/60 bg-neon-red/10 text-red-200' : done[i] ? 'border-void-700 text-slate-600' : 'border-void-600 text-slate-300 hover:border-slate-400'}`}>
                   {c.label}
                 </button>
               );
             })}
           </div>
           {done[i] && <p className="mt-2 text-xs text-green-200/90">{it.explain}</p>}
-          {!done[i] && fail[i] && <p className="mt-2 text-xs text-red-200">No encaja ahí. Vuelve a pensarlo.</p>}
+          {!done[i] && fail[i] && ((fails[i] || 0) >= 2
+            ? <p className="mt-2 text-xs text-amber-100">Te lo explico: {it.explain} (la categoría correcta está marcada en ámbar)</p>
+            : <p className="mt-2 text-xs text-red-200">No encaja ahí. Vuelve a pensarlo o repasa los Apuntes (tecla A).</p>)}
         </div>
       ))}
       {all && (

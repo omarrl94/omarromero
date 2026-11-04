@@ -46,7 +46,7 @@ export default function MissionView({ mission, team, previous, onExit, onComplet
   const [results, setResults] = useState([]);
   const [summary, setSummary] = useState(null);
   const [seed] = useState(newSeed);
-  const challenges = useMemo(() => challengesOf(mission, seed), [mission, seed]);
+  const challenges = useMemo(() => challengesOf(mission, seed, team), [mission, seed, team]);
 
   const finishChallenge = (r) => {
     const next = [...results, r];

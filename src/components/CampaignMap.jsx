@@ -147,7 +147,7 @@ export default function CampaignMap({ progress, onPlay }) {
                               <h3 className="mt-2 font-bold text-white">{m.title}</h3>
                               <p className="mt-1 line-clamp-3 text-xs text-slate-400">{persp(m.story, team)}</p>
                               <div className="mt-3 flex flex-wrap gap-1.5">
-                                {challengesOf(m, 1).map((c, k) => {
+                                {challengesOf(m, 1, team).map((c, k) => {
                                   const [Icon, label] = TYPE_ICON[c.type];
                                   return <span key={k} title={label} className="flex items-center gap-1 rounded-md bg-void-950 px-1.5 py-0.5 text-[10px] text-slate-400"><Icon size={11} /> {label}</span>;
                                 })}

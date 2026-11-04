@@ -36,16 +36,19 @@ export default function Code({ challenge, color, onDone }) {
         {challenge.code.map((l, k) => {
           const sel = lineOk && challenge.bad.includes(k);
           const bad = wrongLines.includes(k);
+          const hint = !lineOk && wrongLines.length >= 2 && challenge.bad.includes(k);
           return (
             <button key={k} type="button" onClick={() => pickLine(k)}
-              className={`flex w-full gap-3 px-3 text-left ${sel ? 'bg-neon-amber/15' : bad ? 'bg-neon-red/10' : 'hover:bg-white/5'}`}>
+              className={`flex w-full gap-3 px-3 text-left ${sel ? 'bg-neon-amber/15' : hint ? 'bg-neon-amber/10 ring-1 ring-inset ring-neon-amber/60' : bad ? 'bg-neon-red/10' : 'hover:bg-white/5'}`}>
               <span className="w-6 shrink-0 select-none text-right text-slate-600">{k + 1}</span>
               <span className={`whitespace-pre ${sel ? 'text-amber-100' : 'text-slate-200'}`}>{l || ' '}</span>
             </button>
           );
         })}
       </div>
-      {line !== null && !lineOk && <Feedback kind="bad">Esa línea no es el problema. Sigue el dato que introduce el usuario.</Feedback>}
+      {line !== null && !lineOk && (wrongLines.length >= 2
+        ? <Feedback kind="warn">Pista: sigue el dato que llega del usuario (req.body, req.query, req.params, $_GET, request.args…) hasta donde se usa sin control, o busca un secreto escrito en el código. La línea está marcada en ámbar.</Feedback>
+        : <Feedback kind="bad">Esa línea no es el problema. Sigue el dato que introduce el usuario.</Feedback>)}
       {lineOk && (
         <div className="space-y-2">
           <Feedback kind="ok">✓ Bien visto: el problema está ahí.</Feedback>

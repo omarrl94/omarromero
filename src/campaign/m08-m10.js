@@ -520,4 +520,16 @@ const m10p = {
   tip: 'Enhorabuena: así funciona un programa de seguridad maduro. Rojo, Azul y Morado, un solo equipo.',
 };
 
+// ── Pasos añadidos a las lecciones comunes ──
+m8c.lesson.push(
+  { title: 'Cabeceras e indicadores', text: 'El remitente que ves (From) se falsifica con facilidad. Para saber el origen real se miran Return-Path, Received y los resultados de SPF, DKIM y DMARC. Los dominios casi iguales (typosquatting, como nebu1a con un 1) son una señal clásica. Las IP, dominios y huellas del ataque son IOC (indicadores de compromiso) que se bloquean y se comparten.', code: '$ cat reporte.eml' },
+  { title: 'Concienciación que funciona', text: 'Ante el fraude del CEO, verifica SIEMPRE por otro canal (un teléfono conocido) antes de pagar. En los simulacros autorizados nunca se recogen contraseñas reales ni se señala a nadie: la métrica más valiosa es la tasa de reporte, es decir, cuánta gente avisa.' },
+);
+m9c.lesson.push(
+  { title: 'Procesos y persistencia', text: 'ps aux lista los procesos: un minero se delata por su %CPU. kill PID lo detiene, pero si el atacante dejó persistencia (táctica Persistencia de ATT&CK), como una tarea programada en cron, volverá a arrancar. Por eso primero se revisa y se elimina la tarea, después se mata el proceso, se borra el fichero con rm y se cambian las credenciales comprometidas.', code: '$ ps aux\n$ sudo crontab -u www-data -l\n$ sudo crontab -u www-data -r\n$ sudo kill 4242\n$ sudo rm /var/tmp/.cache/kworkerd' },
+);
+m10c.lesson.push(
+  { title: 'Señales y decisiones', text: 'Un implante suele «llamar a casa» a intervalos regulares (beaconing): en el proxy se ven peticiones iguales cada pocos minutos a un dominio recién creado. Un equipo infectado se AÍSLA de la red en lugar de apagarlo, para no perder la evidencia que está en memoria. Al final, el informe empieza por un resumen ejecutivo para dirección, sin jerga.', code: '$ grep PC-CONTA-07 /var/log/proxy.log\n$ dig actualizaciones-sistema.lab' },
+);
+
 export default [m8c, m8r, m8b, m8p, m9c, m9r, m9b, m9p, m10c, m10r, m10b, m10p];

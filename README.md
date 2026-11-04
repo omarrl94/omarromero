@@ -17,7 +17,7 @@ Ningún comando sale del navegador.
 | **Con la nube, sin tocar la nube** | `npm run emuladores` (Auth y Firestore de Firebase en local, requiere Java) y, en otra terminal, `npm run dev:emuladores`. |
 
 ```bash
-npm test            # verifica las 60 misiones; las generadas, con 40 semillas cada una (≈15 000 comprobaciones)
+npm test            # 60 misiones (las generadas, con 40 semillas y para cada equipo) + auditoría pedagógica (≈50 000 comprobaciones)
 npm run test:e2e    # juega las 120 partidas (40 misiones × 3 equipos) en Chromium sobre el HTML de preview
 npm run test:rules  # 24 pruebas de las reglas de Firestore en el emulador (requiere Java)
 ```
@@ -81,6 +81,18 @@ Cada misión: **expediente** → **lección paso a paso** → retos → **inform
 - **Traductor de puntos a nota en cada tema**: puntos ÷ máximo × 10 (por ejemplo, 351/400 → **8,8 Notable**), con la escala de colores, el marcador y cuántos puntos faltan para la siguiente calificación.
 - Escala: Insuficiente (<5) · Suficiente (5) · Bien (6) · Notable (7-8) · Sobresaliente (9-10) · **Matrícula de honor** (todas las misiones del tema a 100).
 - **Boletín de notas** en el perfil: nota por tema, media de los temas empezados y nota final del curso (los 10 temas). Se descarga en **CSV** para el profesorado.
+
+## Diseño pedagógico: se aprende de verdad
+
+| Principio | Cómo se aplica |
+|---|---|
+| **Nada se pide sin enseñarse antes** | `npm test` incluye una **auditoría pedagógica**: recorre la campaña de cada equipo en orden y comprueba que cada comando que pide un reto de terminal aparece antes en una lección que ese equipo ha visto. |
+| **Exámenes justos** | Cada equipo tiene su banco de examen: las preguntas del tema, cubiertas por la lección común, más los test de sus propias misiones. Nunca se pregunta lo que solo ha estudiado otro equipo. |
+| **Aprender haciendo** | Los objetivos de terminal obligan a leer la salida real (IPs, PIDs, dominios, contadores) para responder. Los datos de los entrenamientos cambian en cada partida, así que no se puede memorizar la respuesta. |
+| **Corrección que enseña** | Primer fallo: aviso y sugerencia de repasar los Apuntes. Segundo fallo: se explica por qué y se marca la respuesta correcta. Los errores restan puntos, pero nadie avanza sin entender la razón. |
+| **Andamiaje que se retira** | Lección → misión guiada (con «¿Cómo?» y pistas, que cuestan estrellas) → entrenamiento con datos nuevos → examen del tema. |
+| **Repaso y recuperación** | Apuntes y chuleta disponibles durante los retos; entrenamientos y exámenes repetibles. Para la nota cuenta la mejor marca. |
+| **Ataque y defensa unidos** | Cada informe final incluye «Lo que has aprendido» y un consejo desde la perspectiva de tu equipo. |
 
 ## Gamificación
 

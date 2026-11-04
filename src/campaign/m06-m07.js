@@ -400,4 +400,13 @@ const m7p = {
   tip: 'Automatiza la verificación de firmas en tu pipeline de despliegue.',
 };
 
+// ── Pasos añadidos a las lecciones comunes ──
+m6c.lesson.push(
+  { title: 'Cómo se corrige', text: 'Cada fallo tiene su corrección de raíz. Inyección SQL: consultas parametrizadas, con los datos aparte de la consulta. XSS: escapar la salida (htmlspecialchars en PHP, o una plantilla que escape sola). IDOR: comprobar en cada petición que el recurso pertenece al usuario. Secretos: nunca escritos en el código (CWE-798), sino en el servidor. Un WAF filtra patrones conocidos, pero no sustituye al código seguro.', code: "db.query('SELECT * FROM usuarios WHERE nombre = ?', [usuario])" },
+);
+m7c.lesson.push(
+  { title: 'Practicar en la terminal', text: 'base64 -d decodifica Base64. rot13 aplica ROT13, un cifrado César de 13 posiciones que se revierte aplicándolo otra vez. sha256sum calcula la huella de un fichero. Para reconocer un hash por su longitud: MD5 = 32 caracteres hexadecimales, SHA-1 = 40 y SHA-256 = 64.', code: '$ base64 -d nota.txt\n$ cat nota.txt | rot13\n$ sha256sum descarga.tar' },
+  { title: 'Contraseñas y firmas', text: 'Las contraseñas se guardan con algoritmos lentos y con sal, como Argon2id o bcrypt. La sal es un valor aleatorio por usuario que hace que dos contraseñas iguales den hashes distintos. MD5 o SHA-256 a secas son demasiado rápidos. Y para saber QUIÉN publicó un fichero no basta un hash: hace falta una firma digital.' },
+);
+
 export default [m6c, m6r, m6b, m6p, m7c, m7r, m7b, m7p];

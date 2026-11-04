@@ -502,4 +502,17 @@ const m3p = {
   tip: 'Lo que no se puede detectar, se previene; lo que no se puede prevenir, se detecta.',
 };
 
+// ── Pasos añadidos a las lecciones comunes: todo lo que luego se pide en retos y exámenes ──
+m1c.lesson.push(
+  { title: 'Ética y ley', text: 'Atacar un sistema sin permiso es delito aunque «no rompas nada». En España lo castiga el artículo 197 bis del Código Penal. Un profesional solo prueba sistemas con autorización POR ESCRITO, dentro de un alcance y unas fechas acordadas. Si descubre un fallo por su cuenta, hace divulgación responsable: avisa al responsable sin explotarlo ni publicarlo hasta que se corrija.' },
+  { title: 'El idioma común: MITRE ATT&CK', text: 'MITRE ATT&CK es un catálogo público de cómo atacan los adversarios reales. Se organiza en tácticas (el «para qué»: acceso inicial, persistencia, escalada de privilegios, exfiltración…) y técnicas (el «cómo»). Rojo, Azul y Morado lo usan para hablar de lo mismo con las mismas palabras.' },
+);
+m2c.lesson.push(
+  { title: 'Buscar ficheros con find', text: 'find recorre carpetas buscando ficheros que cumplan una condición. Con -name buscas por nombre y con -perm por permisos: find /opt -perm 777 encuentra lo que cualquiera puede leer, escribir y ejecutar, y find / -perm -o+w -type f encuentra los ficheros que cualquiera puede modificar.', code: '$ find /home -name "*.txt"\n$ find /opt -perm 777' },
+  { title: 'sudo: actuar como administrador', text: 'sudo ejecuta UNA orden con permisos de administrador (root). Si un fichero es de root, chmod te dirá «Operación no permitida» y tendrás que usar sudo. Quién puede usar sudo se decide en el fichero sudoers: una línea como «usuario ALL=(ALL) NOPASSWD: ALL» convierte esa cuenta en administradora total y sin contraseña, un hallazgo grave.', code: '$ sudo chmod 700 /opt/copias/backup.sh' },
+);
+m3c.lesson.push(
+  { title: 'Qué hacer con lo encontrado', text: 'Lo más valioso del OSINT suele ser: formatos de usuario, versiones de software y subdominios olvidados (pruebas, dev, staging), que suelen estar peor protegidos. La defensa es reducir la huella: limpiar metadatos, redactar ofertas de empleo sin versiones, sacar de Internet lo que no debe estar y publicar DMARC con p=reject para que se rechacen los correos que suplantan al dominio.' },
+);
+
 export default [m1c, m1r, m1b, m1p, m2c, m2r, m2b, m2p, m3c, m3r, m3b, m3p];
