@@ -22,29 +22,29 @@ export default function LessonPanel({ ch, lang, open, onClose }) {
   return (
     <AnimatePresence>
       {open && (
-        <motion.div className="fixed inset-0 z-50 grid place-items-center bg-void-950/80 p-3 backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+        <motion.div className="fixed inset-0 z-50 grid place-items-center bg-void-950/80 p-0 backdrop-blur-sm sm:p-3" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
           <motion.div
             initial={{ y: 24, scale: 0.97 }}
             animate={{ y: 0, scale: 1 }}
             exit={{ y: 24, opacity: 0 }}
-            className="glass flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl neon-border"
+            className="glass flex h-[100dvh] max-h-[100dvh] w-full max-w-3xl flex-col overflow-hidden neon-border sm:h-auto sm:max-h-[92vh] sm:rounded-2xl"
             role="dialog"
             aria-label={`Lección: ${ch.concept.title}`}
           >
-            <div className="flex items-center gap-3 border-b border-void-600/50 px-5 py-3">
+            <div className="flex items-center gap-3 border-b border-void-600/50 px-4 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top))] sm:px-5 sm:pt-3">
               <GraduationCap className="text-neon-lime" size={20} />
               <div className="min-w-0 flex-1">
                 <div className="text-[10px] font-bold uppercase tracking-[0.25em] text-neon-lime">Aprende primero · {ch.concept.title}</div>
                 <div className="truncate text-sm text-slate-300">Antes de «{ch.title}», lo que necesitas saber en {L.name}</div>
               </div>
-              <button type="button" onClick={onClose} className="rounded p-1 text-slate-400 hover:text-white" aria-label="Cerrar lección"><X size={18} /></button>
+              <button type="button" onClick={onClose} className="rounded p-2 text-slate-400 hover:text-white sm:p-1" aria-label="Cerrar lección"><X size={18} /></button>
             </div>
-            <div className="flex gap-1.5 px-5 pt-3">
+            <div className="flex gap-1.5 px-4 pt-3 sm:px-5">
               {Array.from({ length: total }).map((_, k) => (
                 <button key={k} type="button" onClick={() => go(k)} aria-label={`Paso ${k + 1}`} className="h-1.5 flex-1 rounded-full transition-colors" style={{ background: k <= i ? '#a3ff3d' : '#252c45' }} />
               ))}
             </div>
-            <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
+            <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-5">
               <AnimatePresence mode="wait">
                 <motion.div key={i} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}>
                   {!last ? (
@@ -82,7 +82,7 @@ export default function LessonPanel({ ch, lang, open, onClose }) {
                 </motion.div>
               </AnimatePresence>
             </div>
-            <div className="flex items-center justify-between border-t border-void-600/50 px-5 py-3">
+            <div className="flex items-center justify-between border-t border-void-600/50 px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 sm:px-5 sm:py-3">
               <button type="button" onClick={() => go(i - 1)} disabled={i === 0} className="btn-neon text-slate-300 hover:text-white">
                 <ChevronLeft size={14} /> Anterior
               </button>

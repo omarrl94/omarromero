@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { MotionConfig } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
-import TopBar from './components/TopBar.jsx';
+import TopBar, { MobileNav } from './components/TopBar.jsx';
 import Intro from './components/Intro.jsx';
 import AuthScreen from './components/AuthScreen.jsx';
 import WorldHub from './components/WorldHub.jsx';
@@ -160,13 +160,14 @@ function Game({ account, onAccountChange, startWorld }) {
       <MotionConfig reducedMotion="user">
         <div className="cyber-bg scanlines flex min-h-full flex-col">
           <TopBar view={current} onMap={() => setView('map')} onProfile={() => setView('profile')} onWorlds={() => setView('worlds')} onRanking={() => setView('ranking')} />
-          <main className={`flex-1 pt-3 ${current === 'arena' ? 'lg:h-[calc(100vh-58px)] lg:min-h-[640px]' : ''}`}>
+          <main className={`flex-1 pt-3 ${current === 'arena' ? 'lg:h-[calc(100vh-58px)] lg:min-h-[640px]' : 'pb-[calc(4rem+env(safe-area-inset-bottom))] sm:pb-0'}`}>
             {current === 'worlds' && view !== 'ranking' && view !== 'profile' && <WorldHub onEnter={enterWorld} intro={!state.lang} />}
             {view === 'ranking' && <Leaderboard account={account} refreshKey={state.completed} />}
             {view === 'profile' && state.lang && <Profile onOpen={open} />}
             {!inHub && view === 'map' && <EngineMap onOpen={open} />}
             {!inHub && view === 'arena' && ch && <Arena key={`${ch.id}-${state.lang}`} ch={ch} onBack={() => setView('map')} />}
           </main>
+          {current !== 'arena' && <MobileNav view={current} onMap={() => setView('map')} onProfile={() => setView('profile')} onWorlds={() => setView('worlds')} onRanking={() => setView('ranking')} />}
           <RewardOverlay
             reward={reward}
             onClose={() => setReward(null)}

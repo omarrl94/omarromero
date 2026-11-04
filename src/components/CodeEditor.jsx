@@ -12,7 +12,7 @@ const PAD = 12;
  * Autocompletado simulado (palabras clave, API, identificadores y snippets),
  * sangría inteligente, marcadores de error y de estilo en el margen.
  */
-export default function CodeEditor({ code, onChange, lang, errorLine, lintLines = [], focus, onRun }) {
+export default function CodeEditor({ code, onChange, lang, errorLine, lintLines = [], focus, onRun, keypad = false }) {
   const ta = useRef(null);
   const pre = useRef(null);
   const gutter = useRef(null);
@@ -94,6 +94,23 @@ export default function CodeEditor({ code, onChange, lang, errorLine, lintLines 
   };
   const replaceRange = (el, start, end, text, caretOffset = text.length) => {
     setValue(el, el.value.slice(0, start) + text + el.value.slice(end), start + caretOffset);
+  };
+
+  // Teclas del teclado de símbolos (móvil): escriben donde está el cursor sin cerrar el teclado.
+  const press = (k) => {
+    const el = ta.current;
+    if (!el) return;
+    if (document.activeElement !== el) el.focus({ preventScroll: true });
+    const { selectionStart: s, selectionEnd: en, value } = el;
+    if (k.move) {
+      const p = Math.max(0, Math.min(value.length, s + k.move));
+      el.selectionStart = el.selectionEnd = p;
+    } else if (k.pair) {
+      replaceRange(el, s, en, k.pair, 1);
+    } else replaceRange(el, s, en, k.text);
+    trackCaret(el);
+    setAc(null);
+    play('key');
   };
 
   const accept = (item) => {
@@ -232,10 +249,54 @@ export default function CodeEditor({ code, onChange, lang, errorLine, lintLines 
       </div>
     </div>
       {/* explicación en castellano de la línea donde está el cursor */}
+      {keypad && (
+        <div className="flex gap-1 overflow-x-auto border-t border-void-600/50 bg-void-950/80 px-1.5 py-1.5" role="toolbar" aria-label="Símbolos de programación">
+          {keysFor(lang).map((k) => (
+            <button
+              key={k.label}
+              type="button"
+              tabIndex={-1}
+              onPointerDown={(e) => e.preventDefault()}
+              onClick={() => press(k)}
+              aria-label={k.aria || k.label}
+              className="h-9 min-w-[2.25rem] shrink-0 rounded-md border border-void-600/70 bg-void-800 px-2 text-sm font-bold text-slate-200 active:border-neon-cyan active:bg-neon-cyan/15 active:text-neon-cyan"
+            >
+              {k.label}
+            </button>
+          ))}
+        </div>
+      )}
       <div className="flex items-start gap-2 border-t border-void-600/50 bg-void-950/70 px-3 py-2 text-[12px] leading-snug" aria-live="polite">
         <span className="shrink-0 rounded bg-neon-violet/15 px-1.5 py-0.5 text-[10px] font-bold text-neon-violet">L{caretLine}</span>
         <span className="text-slate-300">{explanation}</span>
       </div>
     </div>
   );
+}
+
+/** Teclas rápidas para el móvil: los símbolos que más cuesta encontrar en un teclado táctil. */
+function keysFor(lang) {
+  const base = [
+    { label: '⇥', text: '    ', aria: 'Tabulador' },
+    { label: '◀', move: -1, aria: 'Mover cursor a la izquierda' },
+    { label: '▶', move: 1, aria: 'Mover cursor a la derecha' },
+    { label: '( )', pair: '()', aria: 'Paréntesis' },
+  ];
+  const braces = lang === 'python' ? [] : [{ label: '{ }', pair: '{}', aria: 'Llaves' }];
+  const semi = ['java', 'c', 'cpp', 'js', 'rust', 'go', 'swift', 'kotlin'].includes(lang) ? [{ label: ';', text: ';' }] : [];
+  const extra = {
+    python: [':', '#'],
+    c: ['*', '&', '->', '#'],
+    cpp: ['::', '<<', '*', '&', '->'],
+    go: [':=', '&', '*'],
+    rust: ['::', '&', '->', '!', "'"],
+    swift: ['->', '?', '!', '\\('],
+    kotlin: ['->', '?', '$', '..'],
+    java: ['++', '//'],
+    js: ['=>', '`', '${'],
+  }[lang] || [];
+  const common = ['=', '[ ]', '" "', '.', ',', '+', '-', '<', '>', '_', '!', '/', '%', '|'];
+  const toKey = (t) => (t === '[ ]' ? { label: t, pair: '[]', aria: 'Corchetes' } : t === '" "' ? { label: t, pair: '""', aria: 'Comillas' } : { label: t, text: t });
+  const seen = new Set();
+  return [...base, ...braces, ...semi, ...[...extra, ...common].map(toKey)].filter((k) => (seen.has(k.label) ? false : seen.add(k.label)));
 }

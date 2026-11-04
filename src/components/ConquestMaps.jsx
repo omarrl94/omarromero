@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useMedia, PHONE } from '../core/useMedia.js';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, Coins } from 'lucide-react';
 import { LANGUAGES, LANG_ORDER } from '../core/languages.js';
@@ -33,6 +34,12 @@ const PLANETS = {
   python: [130, 170], js: [320, 105], java: [500, 195], kotlin: [690, 110], swift: [870, 185],
   c: [190, 410], cpp: [395, 450], go: [610, 395], rust: [830, 445],
 };
+// En el móvil: lienzo vertical con los planetas en tres columnas, para que se vean grandes.
+const PLANETS_NARROW = {
+  python: [78, 105], js: [210, 140], java: [342, 105],
+  kotlin: [342, 300], swift: [210, 335], c: [78, 300],
+  cpp: [78, 495], go: [210, 530], rust: [342, 495],
+};
 const LANES = [['python', 'js'], ['js', 'java'], ['java', 'kotlin'], ['kotlin', 'swift'], ['python', 'c'], ['c', 'cpp'], ['cpp', 'go'], ['go', 'rust'], ['java', 'cpp'], ['swift', 'rust'], ['java', 'go']];
 
 /**
@@ -45,11 +52,15 @@ export function GalaxyMap({ onEnter, avatar }) {
   const stars = useMemo(() => seeded(140, 11), []);
   const total = CHALLENGES.length;
   const selL = sel ? LANGUAGES[sel] : null;
+  const narrow = useMedia(PHONE);
+  const P = narrow ? PLANETS_NARROW : PLANETS;
+  const GW = narrow ? 420 : 1000;
+  const GH = narrow ? 620 : 560;
 
   return (
     <div className="relative">
       <div className="glass mx-auto max-w-6xl overflow-hidden rounded-2xl">
-        <svg viewBox="0 0 1000 560" className="block h-auto w-full" role="group" aria-label="Mapa galáctico de mundos">
+        <svg viewBox={`0 0 ${GW} ${GH}`} className="block h-auto w-full" role="group" aria-label="Mapa galáctico de mundos">
           <defs>
             <radialGradient id="nebula1" cx="25%" cy="30%" r="45%"><stop offset="0%" stopColor="#22e4ff" stopOpacity="0.14" /><stop offset="100%" stopColor="#22e4ff" stopOpacity="0" /></radialGradient>
             <radialGradient id="nebula2" cx="75%" cy="70%" r="45%"><stop offset="0%" stopColor="#ff3df0" stopOpacity="0.13" /><stop offset="100%" stopColor="#ff3df0" stopOpacity="0" /></radialGradient>
@@ -62,11 +73,11 @@ export function GalaxyMap({ onEnter, avatar }) {
               </radialGradient>
             ))}
           </defs>
-          <rect width="1000" height="560" fill="#060812" />
-          <rect width="1000" height="560" fill="url(#nebula1)" />
-          <rect width="1000" height="560" fill="url(#nebula2)" />
+          <rect width={GW} height={GH} fill="#060812" />
+          <rect width={GW} height={GH} fill="url(#nebula1)" />
+          <rect width={GW} height={GH} fill="url(#nebula2)" />
           {stars.map((s, i) => (
-            <circle key={i} cx={s.x * 1000} cy={s.y * 560} r={0.4 + s.r * 1.3} fill="#cfe0ff" opacity={0.25 + s.r * 0.6}>
+            <circle key={i} cx={s.x * GW} cy={s.y * GH} r={0.4 + s.r * 1.3} fill="#cfe0ff" opacity={0.25 + s.r * 0.6}>
               {i % 9 === 0 && <animate attributeName="opacity" values="0.2;0.9;0.2" dur={`${2 + s.r * 3}s`} repeatCount="indefinite" />}
             </circle>
           ))}
@@ -74,14 +85,14 @@ export function GalaxyMap({ onEnter, avatar }) {
           {LANES.map(([a, b]) => {
             const conquered = worldDone(state, a) === total && worldDone(state, b) === total;
             return (
-              <line key={`${a}-${b}`} x1={PLANETS[a][0]} y1={PLANETS[a][1]} x2={PLANETS[b][0]} y2={PLANETS[b][1]}
+              <line key={`${a}-${b}`} x1={P[a][0]} y1={P[a][1]} x2={P[b][0]} y2={P[b][1]}
                 stroke={conquered ? GOLD : '#2b3555'} strokeWidth={conquered ? 2.5 : 1.5} strokeDasharray="4 7" opacity="0.8">
                 <animate attributeName="stroke-dashoffset" values="0;-22" dur="2.4s" repeatCount="indefinite" />
               </line>
             );
           })}
           {LANG_ORDER.map((l) => {
-            const [x, y] = PLANETS[l];
+            const [x, y] = P[l];
             const L = LANGUAGES[l];
             const done = worldDone(state, l);
             const pct = done / total;
@@ -142,17 +153,17 @@ export function GalaxyMap({ onEnter, avatar }) {
         {selL && (
           <motion.div key={sel} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
             className="glass mt-3 flex flex-wrap items-center gap-4 rounded-2xl p-4" style={{ boxShadow: `0 0 0 1px ${selL.color}55` }}>
-            <div className="min-w-0 flex-1">
+            <div className="min-w-0 flex-1 basis-full sm:basis-0">
               <div className="text-[10px] font-bold uppercase tracking-[0.3em]" style={{ color: selL.color }}>Mundo {selL.name}</div>
               <p className="text-sm text-slate-200">{selL.tagline}</p>
               <p className="mt-1 text-xs text-slate-500">{selL.paradigm}</p>
             </div>
-            <div className="flex items-center gap-4 text-xs">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
               <span className="text-slate-400">{rankOf(worldXp(state, sel)).name}</span>
               <span className="flex items-center gap-1 font-bold text-amber-200"><Coins size={14} className="text-amber-300" /> {goldOf(state, sel)}</span>
               <span className="text-slate-400">{worldDone(state, sel)}/{total} conquistadas</span>
             </div>
-            <button type="button" onClick={() => onEnter(sel)} className="btn-neon text-void-950" style={{ background: selL.color, boxShadow: `0 0 18px -4px ${selL.color}` }}>
+            <button type="button" onClick={() => onEnter(sel)} className="btn-neon w-full justify-center py-3 text-void-950 sm:w-auto sm:py-1.5" style={{ background: selL.color, boxShadow: `0 0 18px -4px ${selL.color}` }}>
               {worldDone(state, sel) || state.lang === sel ? 'Entrar' : 'Empezar'} <ChevronRight size={14} />
             </button>
           </motion.div>
@@ -168,10 +179,12 @@ export function GalaxyMap({ onEnter, avatar }) {
  * Trazado automático del mapa de un mundo: islas en zigzag (3 por fila) y, dentro
  * de cada isla, los niveles en dos filas alternas para que el camino serpentee.
  */
-function layoutWorld(modules) {
-  const COLS = 3;
-  const colW = 1000 / COLS;
-  const rowH = 250;
+function layoutWorld(modules, narrow = false) {
+  // En el móvil: una isla por fila y un lienzo estrecho, para que cada nivel se pueda tocar con el dedo.
+  const COLS = narrow ? 1 : 3;
+  const width = narrow ? 420 : 1000;
+  const colW = width / COLS;
+  const rowH = narrow ? 235 : 250;
   const islands = {};
   const nodes = {};
   modules.forEach((m, mi) => {
@@ -181,11 +194,13 @@ function layoutWorld(modules) {
     const cx = col * colW + colW / 2;
     const cy = row * rowH + 145;
     const count = m.challenges.length;
-    const rx = count === 1 ? 70 : 148;
+    const rx = count === 1 ? 70 : narrow ? 178 : 148;
     const ry = count === 1 ? 62 : 92;
     islands[m.id] = { cx, cy, rx, ry };
     const cols = Math.ceil(count / 2);
-    const spacing = cols > 1 ? (2 * rx - 70) / (cols - 1) : 0;
+    // En el móvil el último nivel (desplazado media posición) también debe quedar dentro de la isla.
+    const span = narrow ? cols - 1 + (count % 2 === 0 ? 0.5 : 0) : cols - 1;
+    const spacing = cols > 1 ? (2 * rx - 70) / span : 0;
     const reverse = row % 2 === 1;
     m.challenges.forEach((c, k) => {
       if (count === 1) { nodes[c.id] = [cx, cy - 6]; return; }
@@ -197,7 +212,15 @@ function layoutWorld(modules) {
     });
   });
   const rows = Math.ceil(modules.length / COLS);
-  return { islands, nodes, height: rows * rowH + 40 };
+  return { islands, nodes, height: rows * rowH + 40, width };
+}
+
+/** Desplaza la etiqueta de un nivel para que no se salga por los bordes del mapa. */
+function tipShift(x, title, width) {
+  const half = title.length * 3.6 + 10;
+  if (x - half < 4) return 4 - (x - half);
+  if (x + half > width - 4) return width - 4 - (x + half);
+  return 0;
 }
 
 function smoothPath(pts) {
@@ -222,7 +245,8 @@ function smoothPath(pts) {
 export function WorldMap({ onOpen, avatar }) {
   const { state } = useProgress();
   const L = LANGUAGES[state.lang];
-  const { islands, nodes, height } = useMemo(() => layoutWorld(MODULES), []);
+  const narrow = useMedia(PHONE);
+  const { islands, nodes, height, width } = useMemo(() => layoutWorld(MODULES, narrow), [narrow]);
   const order = MODULES.flatMap((m) => m.challenges.map((c) => ({ c, m })));
   const pts = order.map(({ c }) => nodes[c.id]);
   let lastDone = -1;
@@ -234,16 +258,16 @@ export function WorldMap({ onOpen, avatar }) {
 
   return (
     <div className="glass mx-auto max-w-5xl overflow-hidden rounded-2xl">
-      <svg viewBox={`0 0 1000 ${height}`} className="block h-auto w-full" role="group" aria-label={`Mapa de conquista del mundo ${L.name}`}>
+      <svg viewBox={`0 0 ${width} ${height}`} className="block h-auto w-full" role="group" aria-label={`Mapa de conquista del mundo ${L.name}`}>
         <defs>
           <radialGradient id="seaGlow" cx="50%" cy="40%" r="70%"><stop offset="0%" stopColor={L.color} stopOpacity="0.10" /><stop offset="100%" stopColor="#05060a" stopOpacity="0" /></radialGradient>
           <linearGradient id="goldNode" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#fff2b0" /><stop offset="50%" stopColor={GOLD} /><stop offset="100%" stopColor="#b8860b" /></linearGradient>
           <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke={L.color} strokeOpacity="0.06" /></pattern>
         </defs>
-        <rect width="1000" height={height} fill="#070912" />
-        <rect width="1000" height={height} fill="url(#grid)" />
-        <rect width="1000" height={height} fill="url(#seaGlow)" />
-        {stars.map((st, i) => <circle key={i} cx={st.x * 1000} cy={st.y * height} r={0.5 + st.r} fill="#cfe0ff" opacity={0.15 + st.r * 0.35} />)}
+        <rect width={width} height={height} fill="#070912" />
+        <rect width={width} height={height} fill="url(#grid)" />
+        <rect width={width} height={height} fill="url(#seaGlow)" />
+        {stars.map((st, i) => <circle key={i} cx={st.x * width} cy={st.y * height} r={0.5 + st.r} fill="#cfe0ff" opacity={0.15 + st.r * 0.35} />)}
         {MODULES.map((m) => {
           const is = islands[m.id];
           const done = m.challenges.filter((c) => isDone(state, c.id)).length;
@@ -309,7 +333,7 @@ export function WorldMap({ onOpen, avatar }) {
               </g>
               {done && <Coin x={r - 3} y={-r + 3} r={6} />}
               {(hover === c.id || (isNext && !hover)) && (
-                <g transform={`translate(0 ${-r - (done ? 34 : 16)})`} style={{ pointerEvents: 'none' }}>
+                <g transform={`translate(${narrow ? tipShift(x, c.title, width) : 0} ${-r - (done ? 34 : 16)})`} style={{ pointerEvents: 'none' }}>
                   <rect x={-c.title.length * 3.6 - 10} y="-15" width={c.title.length * 7.2 + 20} height="22" rx="6" fill="#0d1019" stroke={done ? GOLD : L.color} strokeOpacity="0.8" />
                   <text y="1" textAnchor="middle" fontSize="12" fill={done ? GOLD : '#e6ebff'} style={{ fontFamily: 'JetBrains Mono, monospace' }}>{c.title}</text>
                 </g>

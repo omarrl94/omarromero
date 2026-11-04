@@ -5,6 +5,7 @@ import { highlight } from './highlight.js';
 import { LESSONS } from '../curriculum/lessons.js';
 import { LANGUAGES } from '../core/languages.js';
 import { play } from '../core/sound.js';
+import { useMedia, COMPACT } from '../core/useMedia.js';
 
 /** Barra de confirmación dentro de la página (los diálogos del navegador no siempre están disponibles). */
 export function ConfirmBar({ text, confirm, onConfirm, onCancel }) {
@@ -24,10 +25,20 @@ const TOUR = [
   { icon: Terminal, color: '#ff3df0', title: 'Consola y variables', text: 'Abajo a la derecha ves lo que imprime tu programa, los errores explicados en palabras sencillas y tus variables dibujadas como cajas.' },
 ];
 
+// Mismo tour para el móvil, donde la arena va en pestañas en lugar de en dos columnas.
+const TOUR_MOBILE = [
+  { ...TOUR[0], text: 'En la pestaña «Código» escribes. Las líneas con ✎ son las que tienes que cambiar. La fila de teclas bajo el editor tiene los símbolos difíciles de encontrar en el móvil: ( ) { } [ ] ; … y debajo una barra te explica la línea del cursor.' },
+  { ...TOUR[1], text: 'Pulsa «Desplegar» (abajo) o la pestaña «Motor» para ver tu código en acción. Si funciona, el mundo reacciona; si hay un fallo, se «rompe» (glitch). Toca los fragmentos rotos para saltar a la línea culpable.' },
+  { ...TOUR[2], text: 'Bajo el editor tienes la lista de objetivos, y la pestaña «Código» muestra cuántos llevas (por ejemplo 3/5). Cuando todos están en verde, superas la misión. Si uno falla, toca «¿Cómo?».' },
+  { ...TOUR[3], text: 'En la pestaña «Motor», debajo del mundo, ves lo que imprime tu programa, los errores explicados en palabras sencillas y tus variables dibujadas como cajas.' },
+];
+
 /** Tour de 4 pasos la primera vez que se entra en la arena. */
 export function ArenaTour({ open, onClose }) {
   const [i, setI] = useState(0);
-  const step = TOUR[i];
+  const compact = useMedia(COMPACT);
+  const steps = compact ? TOUR_MOBILE : TOUR;
+  const step = steps[i];
   const Icon = step.icon;
   return (
     <AnimatePresence>
@@ -35,7 +46,7 @@ export function ArenaTour({ open, onClose }) {
         <motion.div className="fixed inset-0 z-50 grid place-items-center bg-void-950/75 p-4 backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
           <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} className="glass w-full max-w-md rounded-2xl p-5" role="dialog" aria-label="Cómo funciona la arena">
             <div className="mb-3 flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-400">Cómo funciona · {i + 1}/{TOUR.length}</span>
+              <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-400">Cómo funciona · {i + 1}/{steps.length}</span>
               <button type="button" onClick={onClose} className="text-slate-400 hover:text-white" aria-label="Saltar tour"><X size={16} /></button>
             </div>
             <AnimatePresence mode="wait">
@@ -48,7 +59,7 @@ export function ArenaTour({ open, onClose }) {
               </motion.div>
             </AnimatePresence>
             <div className="mt-5 flex justify-end">
-              {i < TOUR.length - 1 ? (
+              {i < steps.length - 1 ? (
                 <button type="button" onClick={() => { setI(i + 1); play('click'); }} className="btn-neon bg-neon-cyan/20 text-neon-cyan">Siguiente <ChevronRight size={14} /></button>
               ) : (
                 <button type="button" onClick={() => { setI(0); onClose(); play('run'); }} className="btn-neon bg-neon-lime text-void-950">Entendido</button>

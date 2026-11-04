@@ -58,7 +58,7 @@ export default function DuckCompanion({ ch, lang, code, evaluation, stuck, onDee
   };
 
   return (
-    <div className="fixed bottom-4 right-4 z-40 flex flex-col items-end gap-3">
+    <div className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] right-3 z-40 flex flex-col items-end gap-3 lg:bottom-4 lg:right-4">
       <AnimatePresence>
         {open && (
           <motion.div

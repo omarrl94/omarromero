@@ -101,15 +101,15 @@ export default function ConsolePanel({ evaluation, lang, ch, solved, onJumpLine 
               key={t.id}
               type="button"
               onClick={() => setTab(t.id)}
-              className={`relative flex items-center gap-1.5 px-3 py-2 text-[11px] font-bold uppercase tracking-wider transition-colors ${tab === t.id ? 'text-neon-cyan' : 'text-slate-500 hover:text-slate-300'}`}
+              className={`relative flex items-center gap-1.5 px-2 py-2.5 text-[11px] font-bold uppercase tracking-wider transition-colors sm:px-3 sm:py-2 ${tab === t.id ? 'text-neon-cyan' : 'text-slate-500 hover:text-slate-300'}`}
             >
-              <Icon size={13} /> {t.label}
+              <Icon size={13} className="hidden sm:block" /> {t.label}
               {badge && <span className={`rounded px-1 text-[9px] ${t.id === 'out' ? 'bg-neon-red text-void-950' : 'bg-neon-amber text-void-950'}`}>{badge}</span>}
               {tab === t.id && <span className="absolute inset-x-2 -bottom-px h-px bg-neon-cyan shadow-neon" />}
             </button>
           );
         })}
-        {ev && <span className="ml-auto pr-2 text-[10px] text-slate-500">{ev.stats.ms.toFixed(1)} ms · {ev.stats.ticks.toLocaleString('es-ES')} ops</span>}
+        {ev && <span className="ml-auto hidden pr-2 text-[10px] text-slate-500 sm:inline">{ev.stats.ms.toFixed(1)} ms · {ev.stats.ticks.toLocaleString('es-ES')} ops</span>}
       </div>
       <div className="min-h-0 flex-1 overflow-auto p-3 text-xs leading-relaxed">
         {tab === 'out' && (

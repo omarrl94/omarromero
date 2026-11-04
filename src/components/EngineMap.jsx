@@ -1,23 +1,29 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ICONS as Icons } from './icons.js';
-import { Lock, Star, ChevronRight } from 'lucide-react';
+import { Lock, Star, ChevronRight, ChevronDown } from 'lucide-react';
 import { MODULES } from '../curriculum/index.js';
 import { LANGUAGES } from '../core/languages.js';
 import { useProgress, moduleUnlocked, starsOf, isDone, goldOf } from '../core/progress.js';
 import { WorldMap } from './ConquestMaps.jsx';
 import { Coins } from 'lucide-react';
 import { play } from '../core/sound.js';
+import { useMedia, PHONE } from '../core/useMedia.js';
 
 /** Mapa del motor: cada módulo es un subsistema del Engine Loop que vas construyendo. */
 export default function EngineMap({ onOpen }) {
   const { state, account } = useProgress();
   const L = LANGUAGES[state.lang];
   const next = MODULES.flatMap((m) => m.challenges.map((c) => ({ c, m }))).find(({ c, m }) => moduleUnlocked(state, m.id) && !isDone(state, c.id));
+  // En el móvil los módulos se pliegan: solo se abre el que estás jugando (y los que toques).
+  const phone = useMedia(PHONE);
+  const [openMods, setOpenMods] = useState(() => new Set([next ? next.m.id : MODULES[0].id]));
+  const toggleMod = (id) => setOpenMods((o) => { const n = new Set(o); if (n.has(id)) n.delete(id); else n.add(id); return n; });
   const builtPct = Math.round((MODULES.flatMap((m) => m.challenges).filter((c) => isDone(state, c.id)).length / MODULES.flatMap((m) => m.challenges).length) * 100);
 
   return (
     <div className="mx-auto w-full max-w-[1400px] px-3 pb-24 lg:px-4">
-      <section className="glass relative mb-5 overflow-hidden rounded-2xl p-5 md:p-7">
+      <section className="glass relative mb-5 overflow-hidden rounded-2xl p-4 sm:p-5 md:p-7">
         <div className="pointer-events-none absolute -right-10 -top-10 h-56 w-56 rounded-full bg-neon-magenta/10 blur-3xl" />
         <div className="relative flex flex-wrap items-end justify-between gap-4">
           <div>
@@ -26,9 +32,9 @@ export default function EngineMap({ onOpen }) {
             <p className="mt-2 max-w-2xl text-sm text-slate-400">
               Cada misión programa una parte real del mundo: la física, la IA de los drones, la memoria y las entidades. Antes de cada una tienes una lección que te enseña lo necesario en {L.name}, desde cero.
             </p>
-            <p className="mt-1 max-w-2xl text-xs text-slate-500">{L.paradigm}</p>
+            <p className="mt-1 hidden max-w-2xl text-xs text-slate-500 sm:block">{L.paradigm}</p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex w-full flex-wrap items-center gap-4 sm:w-auto">
             <div className="text-right">
               <div className="text-3xl font-extrabold text-neon-lime neon-text">{builtPct}%</div>
               <div className="text-[10px] uppercase tracking-widest text-slate-500">conquistado</div>
@@ -41,7 +47,7 @@ export default function EngineMap({ onOpen }) {
               <button
                 type="button"
                 onClick={() => { play('run'); onOpen(next.c.id); }}
-                className="btn-neon bg-neon-cyan text-void-950 shadow-neon hover:brightness-110"
+                className="btn-neon w-full justify-center bg-neon-cyan py-3 text-void-950 shadow-neon hover:brightness-110 sm:w-auto sm:py-1.5"
               >
                 Continuar: {next.c.title} <ChevronRight size={14} />
               </button>
@@ -58,6 +64,7 @@ export default function EngineMap({ onOpen }) {
           const unlocked = moduleUnlocked(state, m.id);
           const Icon = Icons[m.icon] || Icons.Box;
           const done = m.challenges.filter((c) => isDone(state, c.id)).length;
+          const expanded = !phone || openMods.has(m.id);
           return (
             <motion.section
               key={m.id}
@@ -67,7 +74,14 @@ export default function EngineMap({ onOpen }) {
               className={`glass relative overflow-hidden rounded-2xl p-4 ${m.boss ? 'md:col-span-2 xl:col-span-3' : ''} ${unlocked ? '' : 'opacity-60'}`}
               style={{ boxShadow: unlocked ? `0 0 0 1px ${m.color}33, 0 0 30px -12px ${m.color}` : undefined }}
             >
-              <div className="flex items-start gap-3">
+              <div
+                className={`flex items-start gap-3 ${phone ? 'cursor-pointer' : ''}`}
+                onClick={phone ? () => toggleMod(m.id) : undefined}
+                role={phone ? 'button' : undefined}
+                aria-expanded={phone ? expanded : undefined}
+                tabIndex={phone ? 0 : undefined}
+                onKeyDown={phone ? (e) => { if (e.key === 'Enter') toggleMod(m.id); } : undefined}
+              >
                 <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl" style={{ background: `${m.color}1a`, color: m.color, boxShadow: `inset 0 0 0 1px ${m.color}55` }}>
                   <Icon size={22} />
                 </div>
@@ -76,9 +90,12 @@ export default function EngineMap({ onOpen }) {
                   <h2 className="text-base font-extrabold text-white">{m.name}</h2>
                   <p className="text-xs text-slate-400">{m.subtitle}</p>
                 </div>
-                <div className="text-right text-xs text-slate-500">{done}/{m.challenges.length}</div>
+                <div className="flex items-center gap-1 text-right text-xs text-slate-500">
+                  {done}/{m.challenges.length}
+                  {phone && <ChevronDown size={16} className={`transition-transform ${expanded ? 'rotate-180' : ''}`} />}
+                </div>
               </div>
-              <div className="mt-3 space-y-2">
+              {expanded && <div className="mt-3 space-y-2">
                 {m.challenges.map((c) => {
                   const stars = starsOf(state, c.id);
                   return (
@@ -100,8 +117,8 @@ export default function EngineMap({ onOpen }) {
                     </button>
                   );
                 })}
-              </div>
-              {!unlocked && <div className="mt-3 flex items-center gap-1.5 text-[11px] text-slate-500"><Lock size={12} /> Completa el módulo anterior para desbloquear.</div>}
+              </div>}
+              {!unlocked && expanded && <div className="mt-3 flex items-center gap-1.5 text-[11px] text-slate-500"><Lock size={12} /> Completa el módulo anterior para desbloquear.</div>}
             </motion.section>
           );
         })}

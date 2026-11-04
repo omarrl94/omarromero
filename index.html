@@ -2,7 +2,18 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <script>
+      // iPhone/iPad amplían la página al tocar un campo con letra pequeña (el editor usa 13 px).
+      // Con maximum-scale=1 iOS deja de hacerlo, pero sigue permitiendo hacer zoom con dos dedos.
+      if (/iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) {
+        document.querySelector('meta[name=viewport]').setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover');
+      }
+    </script>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="CodeForge" />
     <meta name="theme-color" content="#05060a" />
     <meta name="description" content="CodeForge: The Living Engine — programar es construir las físicas, la IA y las reglas del propio mundo del juego." />
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />

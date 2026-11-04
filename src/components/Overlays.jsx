@@ -112,7 +112,7 @@ export function AchievementToasts({ items, onDone }) {
     return () => clearTimeout(t);
   }, [items, onDone]);
   return (
-    <div className="fixed bottom-4 left-4 z-50 space-y-2">
+    <div className="fixed bottom-24 left-3 right-3 z-50 space-y-2 sm:right-auto lg:bottom-4 lg:left-4">
       <AnimatePresence>
         {items.map((id) => {
           const a = ACHIEVEMENTS[id];
