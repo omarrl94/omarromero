@@ -68,26 +68,42 @@ jobs:
       - name: Copiar la web al proyecto Android
         run: npx cap sync android
 
+      # Con los secretos se usa tu llave de subida. Sin ellos se firma con una llave temporal
+      # (solo para comprobar que la compilación de publicación funciona; ese AAB no se guarda).
       - name: Preparar la llave de firma
-        if: env.HAS_SIGNING_KEY == 'true'
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
-          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/upload-key.jks"
-          echo "CF_KEYSTORE_PATH=$RUNNER_TEMP/upload-key.jks" >> "$GITHUB_ENV"
+          KS="$RUNNER_TEMP/upload-key.jks"
+          if [ "$HAS_SIGNING_KEY" = "true" ]; then
+            echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$KS"
+            { echo "CF_KEYSTORE_PASSWORD=$ANDROID_KEYSTORE_PASSWORD"; echo "CF_KEY_ALIAS=$ANDROID_KEY_ALIAS"; echo "CF_KEY_PASSWORD=$ANDROID_KEY_PASSWORD"; } >> "$GITHUB_ENV"
+          else
+            TMP_PASS="temporal-$(openssl rand -hex 12)"
+            echo "::add-mask::$TMP_PASS"
+            keytool -genkeypair -storetype PKCS12 -keystore "$KS" -alias temporal -keyalg RSA -keysize 2048 -validity 1 \
+              -storepass "$TMP_PASS" -keypass "$TMP_PASS" -dname "CN=Prueba" > /dev/null
+            { echo "CF_KEYSTORE_PASSWORD=$TMP_PASS"; echo "CF_KEY_ALIAS=temporal"; echo "CF_KEY_PASSWORD=$TMP_PASS"; } >> "$GITHUB_ENV"
+          fi
+          echo "CF_KEYSTORE_PATH=$KS" >> "$GITHUB_ENV"
 
       - name: Compilar APK de pruebas
         working-directory: android
         run: ./gradlew --no-daemon assembleDebug
 
       - name: Compilar AAB y APK firmados para Google Play
-        if: env.HAS_SIGNING_KEY == 'true'
         working-directory: android
-        env:
-          CF_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          CF_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          CF_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: ./gradlew --no-daemon bundleRelease assembleRelease
+
+      - name: Comprobar la firma
+        run: |
+          AAB=android/app/build/outputs/bundle/release/app-release.aab
+          test -f "$AAB"
+          jarsigner -verify "$AAB" > /dev/null && echo "AAB firmado correctamente"
+          keytool -printcert -jarfile "$AAB" | grep -E "Owner|SHA256:" | head -2
 
       - name: Renombrar los archivos
         run: |
@@ -101,7 +117,7 @@ jobs:
           ls -la out
 
       - name: Guardar APK de pruebas
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: CodeForge-apk-pruebas
           path: out/*-pruebas.apk
@@ -109,7 +125,7 @@ jobs:
 
       - name: Guardar AAB para Google Play
         if: env.HAS_SIGNING_KEY == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: CodeForge-google-play-aab
           path: |

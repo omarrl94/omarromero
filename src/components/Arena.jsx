@@ -168,14 +168,17 @@ export default function Arena({ ch, onBack }) {
               <button type="button" onClick={() => setConfirmReset(true)} className="rounded-md p-1.5 text-slate-500 hover:text-white" title="Restaurar código inicial" aria-label="Restaurar código inicial">
                 <RotateCcw size={14} />
               </button>
-              <button
-                type="button"
-                onClick={() => run(true)}
-                className="btn-neon hidden bg-neon-cyan/15 text-neon-cyan shadow-neon hover:bg-neon-cyan/25 lg:inline-flex"
-                title="Ctrl + Enter"
-              >
-                <Play size={13} className="fill-current" /> Desplegar
-              </button>
+              {/* En el móvil este botón vive en la barra inferior. */}
+              <span className="hidden lg:contents">
+                <button
+                  type="button"
+                  onClick={() => run(true)}
+                  className="btn-neon bg-neon-cyan/15 text-neon-cyan shadow-neon hover:bg-neon-cyan/25"
+                  title="Ctrl + Enter"
+                >
+                  <Play size={13} className="fill-current" /> Desplegar
+                </button>
+              </span>
             </div>
           </div>
           {confirmReset && <ConfirmBar text="¿Volver al código inicial? Perderás tus cambios en este lenguaje." confirm="Restaurar" onConfirm={reset} onCancel={() => setConfirmReset(false)} />}
