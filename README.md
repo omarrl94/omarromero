@@ -18,11 +18,15 @@ npm run test:rules  # reglas de Firestore contra el emulador (23 pruebas, requie
 ## Jugadores, oro y mapas de conquista
 
 - **Cuentas de piloto:** registro con **nick**, **correo**, contraseña y **avatar** (16 pilotos dibujados en SVG). Nick único, edición de nick y avatar en el perfil, recuperación de contraseña y cierre de sesión.
-- **Firebase:** Authentication + Firestore con perfil público (ranking) y progreso privado sincronizado entre dispositivos. Reglas de seguridad verificadas con 23 pruebas contra el emulador oficial. Sin configuración funciona en **modo local**. Guía completa en [FIREBASE.md](FIREBASE.md).
+- **Firebase:** Authentication + Firestore con perfil público (ranking) y progreso privado sincronizado entre dispositivos. Reglas de seguridad verificadas con 27 pruebas contra el emulador oficial. Sin configuración funciona en **modo local**. Guía completa en [FIREBASE.md](FIREBASE.md).
 - **Oro:** cada estrella vale 25 de oro y completar un mundo da una corona (+150). Se calcula a partir del progreso, así que siempre es coherente.
 - **Galaxia de mundos:** cada lenguaje es un planeta que se llena de oro al conquistar sus misiones; al completarlo luce una corona y tu avatar orbita el planeta en el que estás.
 - **Mapa de conquista de cada mundo:** islas por módulo unidas por un camino. Los territorios conquistados se vuelven de oro con tu bandera y tu avatar; el siguiente late con «¡Conquista!».
 - **Salón de la Fama:** ranking de pilotos por oro.
+
+## App de Android (Google Play)
+
+El mismo juego empaquetado como app nativa con **Capacitor 8** (Android 7.0+, compilada para Android 16): botón «atrás» nativo, vibración, icono adaptativo, pantalla de arranque, funcionamiento sin conexión y opción de **borrar la cuenta** desde el perfil. GitHub Actions compila el APK de pruebas y el `.aab` firmado en cada push. Textos, icono, gráfico destacado y capturas de la ficha en `store/google-play/`. Guía completa en [GOOGLE-PLAY.md](GOOGLE-PLAY.md).
 
 ## 44 niveles por mundo
 

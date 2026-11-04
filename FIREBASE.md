@@ -50,7 +50,7 @@ mismo proyecto. En ese caso **no despliegues este archivo tal cual**: añade est
 Necesitas Java 11 o superior.
 
 ```bash
-npm run test:rules        # 23 pruebas de seguridad de las reglas contra el emulador de Firestore
+npm run test:rules        # 27 pruebas de seguridad de las reglas contra el emulador de Firestore
 npm run emuladores        # Auth (9099) + Firestore (8080) en local
 npm run dev:emuladores    # la app conectada a los emuladores (en otra terminal)
 ```
