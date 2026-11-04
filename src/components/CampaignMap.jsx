@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lock, Play, RotateCcw, Terminal, ListChecks, Shapes, ArrowUpDown, Code2, ScrollText, CheckCircle2, GraduationCap, Dices, Calculator } from 'lucide-react';
+import { Lock, Play, RotateCcw, Terminal, ListChecks, Shapes, ArrowUpDown, Code2, ScrollText, CheckCircle2, GraduationCap, Dices, Calculator, Target, Download, Printer } from 'lucide-react';
 import { MODULES, missionsFor, challengesOf } from '../campaign/index.js';
 import { TEAMS, persp, rankOf } from '../core/teams.js';
-import { moduleUnlocked, moduleDone, teamXp, teamStars, completedCount, moduleGrade, missionScore, formatNota, GRADE_SCALE, courseGrade } from '../core/progress.js';
+import { moduleUnlocked, lockReason, moduleDone, teamXp, teamStars, completedCount, moduleGrade, missionScore, formatNota, GRADE_SCALE, courseGrade } from '../core/progress.js';
 import { MODULE_ICONS, Stars } from './ui.jsx';
 import { GlitchText } from './fx.jsx';
+import { downloadSummary, printSummary } from '../core/summary.js';
 
 const TYPE_ICON = { terminal: [Terminal, 'Terminal'], quiz: [ListChecks, 'Test'], classify: [Shapes, 'Clasificar'], order: [ArrowUpDown, 'Ordenar'], code: [Code2, 'Código'], logs: [ScrollText, 'Registros'] };
 
@@ -65,7 +66,7 @@ function GradeTranslator({ g, color }) {
 }
 
 /** Mapa de operaciones: línea vertical con los 10 módulos y sus misiones. */
-export default function CampaignMap({ progress, onPlay }) {
+export default function CampaignMap({ progress, account, onPlay }) {
   const team = progress.team;
   const T = TEAMS[team];
   const firstOpen = MODULES.findIndex((m, i) => moduleUnlocked(progress, team, i) && !moduleDone(progress, team, m.id));
@@ -81,7 +82,7 @@ export default function CampaignMap({ progress, onPlay }) {
         <div>
           <div className="text-[11px] font-bold uppercase tracking-[0.25em]" style={{ color: T.color }}>{T.name} · {T.role}</div>
           <GlitchText as="h1" text="Mapa de operaciones" className="mt-1 text-3xl font-extrabold text-white sm:text-4xl" />
-          <p className="mt-1 text-sm text-slate-400">De la ética a la operación final. Cada módulo se desbloquea al completar el anterior.</p>
+          <p className="mt-1 text-sm text-slate-400">De la ética a la operación final. Cada tema se desbloquea al completar el anterior y aprobar su examen (mínimo un 5).</p>
         </div>
         <div className="grid grid-cols-2 gap-3 text-center sm:grid-cols-4">
           {[['Rango', rank.name], ['Misiones', `${done}/${total}`], ['Estrellas', `${teamStars(progress, team)}/${total * 3}`], ['Nota media', `${formatNota(courseGrade(progress, team).media)} · ${courseGrade(progress, team).short}`]].map(([k, v]) => (
@@ -119,13 +120,23 @@ export default function CampaignMap({ progress, onPlay }) {
                       <span className={nDone > 0 && !locked ? 'text-slate-500' : 'ml-auto text-slate-500'}>{nDone}/{list.length}</span>
                     </div>
                     <div className="mt-0.5 text-lg font-extrabold text-white">{mod.title}</div>
-                    <div className="text-xs text-slate-400">{locked ? 'Completa el módulo anterior para desbloquearlo.' : mod.subtitle}</div>
+                    <div className="text-xs text-slate-400">{locked ? lockReason(progress, team, i) : mod.subtitle}</div>
                   </div>
                 </button>
                 <AnimatePresence initial={false}>
                   {isOpen && (
                     <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                      <div className="ml-6 mt-3 sm:ml-20"><GradeTranslator g={moduleGrade(progress, team, mod.id)} color={T.color} /></div>
+                      <div className="ml-6 mt-3 grid gap-3 sm:ml-20 lg:grid-cols-2">
+                        <div className="rounded-2xl border border-void-600 bg-void-950/70 p-4">
+                          <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-slate-300"><Target size={14} style={{ color: T.color }} /> Al terminar el tema sabrás</div>
+                          <ul className="mt-2 space-y-1.5 text-sm text-slate-200">{mod.objectives.map((o) => <li key={o} className="flex gap-2"><span style={{ color: T.color }}>▸</span>{o}</li>)}</ul>
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            <button type="button" onClick={() => downloadSummary({ moduleId: mod.id, team, nick: account?.nick, progress })} className="btn-neon text-void-950" style={{ background: T.color }}><Download size={13} /> Descargar resumen del tema</button>
+                            <button type="button" onClick={() => printSummary({ moduleId: mod.id, team, nick: account?.nick, progress })} className="btn-neon border border-void-600 text-slate-200 hover:border-slate-400"><Printer size={13} /> Imprimir / PDF</button>
+                          </div>
+                        </div>
+                        <GradeTranslator g={moduleGrade(progress, team, mod.id)} color={T.color} />
+                      </div>
                       <div className="ml-6 mt-3 grid gap-3 sm:ml-20 sm:grid-cols-2">
                         {list.map((m) => {
                           const rec = progress.teams[team]?.[m.id];

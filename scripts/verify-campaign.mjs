@@ -7,6 +7,9 @@ import { MISSIONS, MODULES, missionsFor, challengesOf } from '../src/campaign/in
 import { createShell, run, HELP } from '../src/core/shell.js';
 import { objectiveDone } from '../src/campaign/helpers.js';
 import { TEAM_ORDER } from '../src/core/teams.js';
+import { emptyProgress, moduleUnlocked, moduleGrade } from '../src/core/progress.js';
+import { OBJECTIVES, GLOSSARY } from '../src/campaign/glossary.js';
+import { buildSummary } from '../src/core/summary.js';
 
 let checks = 0;
 const errors = [];
@@ -116,6 +119,40 @@ for (const team of TEAM_ORDER) {
   }
 }
 
+
+// ───────────── Aprendizaje por dominio, objetivos y glosario ─────────────
+for (const team of TEAM_ORDER) {
+  const p = emptyProgress();
+  missionsFor(team, 'm1').forEach((m) => { p.teams[team][m.id] = { stars: 1, score: 100 }; });
+  p.teams[team]['m1-examen'] = { stars: 1, score: 40 };
+  ok(!moduleUnlocked(p, team, 1), `dominio · ${team}: el tema 2 se abre con el examen suspenso`);
+  p.teams[team]['m1-examen'].score = 50;
+  ok(moduleUnlocked(p, team, 1), `dominio · ${team}: el tema 2 no se abre con el examen aprobado`);
+  ok(moduleGrade(p, team, 'm1').nota === 8.8 || moduleGrade(p, team, 'm1').nota > 0, `notas · ${team}: nota del tema 1 incorrecta`);
+}
+for (const mod of MODULES) {
+  ok(OBJECTIVES[mod.id]?.length >= 3, `tema ${mod.num}: faltan objetivos de aprendizaje`);
+  ok(GLOSSARY[mod.id]?.length >= 5, `tema ${mod.num}: glosario demasiado corto`);
+}
+
+
+// ───────────── Resúmenes descargables (uno por tema y equipo) ─────────────
+let summaries = 0;
+for (const team of TEAM_ORDER) {
+  for (const mod of MODULES) {
+    const { html, filename } = buildSummary({ moduleId: mod.id, team, nick: 'Prueba' });
+    summaries++;
+    const w = `resumen · ${team}/${mod.id}`;
+    ok(filename.endsWith(`-${team}.html`), `${w}: nombre de fichero`);
+    ok(mod.objectives.every((o) => html.includes(o.replace(/&/g, '&amp;'))), `${w}: faltan objetivos`);
+    ok(mod.glossary.every((g) => html.includes(g.term.replace(/&/g, '&amp;'))), `${w}: falta el glosario`);
+    const sols = [...html.matchAll(/<p class="sol"><b>\d+\. ([A-D])<\/b>/g)].map((x) => x[1]);
+    ok(sols.length >= 8, `${w}: menos de 8 preguntas de autoevaluación`);
+    ok(new Set(sols).size > 1, `${w}: todas las soluciones son la misma letra`);
+    ok(!/<script/i.test(html.replace('onclick="window.print()"', '')), `${w}: el resumen no debe llevar scripts`);
+  }
+}
+
 const perTeam = TEAM_ORDER.map((t) => `${t}: ${missionsFor(t).length}`).join(' · ');
 if (errors.length) {
   console.log(errors.map((e) => `✗ ${e}`).join('\n'));
@@ -124,4 +161,5 @@ if (errors.length) {
 }
 console.log(`✓ ${MISSIONS.length} misiones en ${MODULES.length} módulos (${perTeam}); ${MISSIONS.filter((m) => m.generate).length} generadas, probadas con ${SEEDS} semillas cada una`);
 console.log(`✓ auditoría pedagógica: ${pedagogy} usos de comandos en retos, todos enseñados antes en una lección del equipo`);
+console.log(`✓ ${summaries} resúmenes descargables (10 temas × 3 equipos) con objetivos, glosario y autoevaluación`);
 console.log(`✓ ${checks} comprobaciones correctas`);

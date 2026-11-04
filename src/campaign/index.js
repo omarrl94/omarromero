@@ -3,7 +3,8 @@ import a from './m01-m03.js';
 import b from './m04-m05.js';
 import c from './m06-m07.js';
 import d from './m08-m10.js';
-import { TRAINING, examFor } from './generators.js';
+import { TRAINING, examFor, examBank } from './generators.js';
+import { OBJECTIVES, GLOSSARY } from './glossary.js';
 import { mulberry32 } from './random.js';
 
 export const MODULES = [
@@ -19,11 +20,17 @@ export const MODULES = [
   { id: 'm10', num: 10, title: 'Operación Otero', subtitle: 'Respuesta a incidentes y examen final', icon: 'Flame', level: 'Experto' },
 ];
 
+MODULES.forEach((m) => { m.objectives = OBJECTIVES[m.id]; m.glossary = GLOSSARY[m.id]; });
+
 const STATIC = [...a, ...b, ...c, ...d];
 const ALL_TEAMS = ['red', 'blue', 'purple'];
 
+/** Preguntas de los temas anteriores a uno dado, para el repaso intercalado de los exámenes. */
+const previousBank = (moduleIndex) => (team) => MODULES.slice(0, moduleIndex)
+  .flatMap((mod) => examBank(mod.id, STATIC.filter((m) => m.module === mod.id), team));
+
 /** Por tema: misiones de historia + Entrenamiento (retos aleatorios) + Examen del tema. */
-export const MISSIONS = MODULES.flatMap((mod) => {
+export const MISSIONS = MODULES.flatMap((mod, modIndex) => {
   const own = STATIC.filter((m) => m.module === mod.id);
   const common = own.find((m) => m.teams.length === 3) || own[0];
   return [
@@ -51,9 +58,9 @@ export const MISSIONS = MODULES.flatMap((mod) => {
       teams: ALL_TEAMS,
       kind: 'exam',
       title: `Examen del tema ${mod.num}`,
-      story: `Examen del tema ${mod.num} (${mod.title}): 8 preguntas al azar sobre lo que has estudiado en este tema (la lección común y tus misiones) y un reto práctico. Cuenta para tu nota como cualquier otra misión.`,
+      story: `Examen del tema ${mod.num} (${mod.title}): 8 preguntas al azar sobre lo que has estudiado en este tema (la lección común y tus misiones), 2 preguntas de repaso de temas anteriores y un reto práctico. Necesitas al menos un 5 para desbloquear el tema siguiente. Cuenta para tu nota como cualquier otra misión.`,
       lesson: common.lesson,
-      generate: examFor(mod.id, own),
+      generate: examFor(mod.id, own, previousBank(modIndex)),
       learned: [`Demostrar lo aprendido en ${mod.title}`],
       tip: 'Si sacas menos nota de la que querías, repite el examen: las preguntas cambian y se guarda tu mejor resultado.',
       xp: 150,

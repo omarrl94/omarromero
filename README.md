@@ -84,6 +84,8 @@ Cada misión: **expediente** → **lección paso a paso** → retos → **inform
 
 ## Diseño pedagógico: se aprende de verdad
 
+La auditoría completa, con hallazgos, correcciones y cómo se comprueba cada una, está en [AUDITORIA-PEDAGOGICA.md](AUDITORIA-PEDAGOGICA.md).
+
 | Principio | Cómo se aplica |
 |---|---|
 | **Nada se pide sin enseñarse antes** | `npm test` incluye una **auditoría pedagógica**: recorre la campaña de cada equipo en orden y comprueba que cada comando que pide un reto de terminal aparece antes en una lección que ese equipo ha visto. |
@@ -91,7 +93,13 @@ Cada misión: **expediente** → **lección paso a paso** → retos → **inform
 | **Aprender haciendo** | Los objetivos de terminal obligan a leer la salida real (IPs, PIDs, dominios, contadores) para responder. Los datos de los entrenamientos cambian en cada partida, así que no se puede memorizar la respuesta. |
 | **Corrección que enseña** | Primer fallo: aviso y sugerencia de repasar los Apuntes. Segundo fallo: se explica por qué y se marca la respuesta correcta. Los errores restan puntos, pero nadie avanza sin entender la razón. |
 | **Andamiaje que se retira** | Lección → misión guiada (con «¿Cómo?» y pistas, que cuestan estrellas) → entrenamiento con datos nuevos → examen del tema. |
-| **Repaso y recuperación** | Apuntes y chuleta disponibles durante los retos; entrenamientos y exámenes repetibles. Para la nota cuenta la mejor marca. |
+| **Objetivos claros** | Cada tema muestra qué serás capaz de hacer, y cada misión, «Al terminar esta misión sabrás». |
+| **Dominio antes de avanzar** | El tema siguiente se desbloquea al aprobar el examen con al menos un 5. Se puede repetir y las preguntas cambian. |
+| **Repaso intercalado** | Cada examen incluye 2 preguntas de temas anteriores. |
+| **Vocabulario** | Glosario por tema en los Apuntes y en el resumen. |
+| **Modelo experto** | Al terminar un reto de terminal: «Así lo resolvería un profesional», con cada comando explicado. |
+| **Material para estudiar** | **Resumen descargable de cada tema** (HTML imprimible o PDF) con objetivos, lecciones, chuleta, glosario, consejos de tu equipo y autoevaluación con soluciones. |
+| **Repaso y recuperación** | Apuntes (lección, comandos y glosario) disponibles durante los retos; entrenamientos y exámenes repetibles. Para la nota cuenta la mejor marca. |
 | **Ataque y defensa unidos** | Cada informe final incluye «Lo que has aprendido» y un consejo desde la perspectiva de tu equipo. |
 
 ## Gamificación

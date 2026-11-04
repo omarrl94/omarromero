@@ -117,7 +117,7 @@ for (const [ti, team] of TEAM_LIST.entries()) {
   }
   await page.getByRole('button', { name: new RegExp(`Unirme al ${TEAMS[team].name}`) }).click();
   // El módulo 2 debe estar bloqueado al empezar.
-  if (!(await page.getByText('Completa el módulo anterior para desbloquearlo.').first().isVisible())) fails.push(`${team}: el módulo 2 no aparece bloqueado`);
+  if (!(await page.getByText('Completa el tema 1 para desbloquearlo.').first().isVisible())) fails.push(`${team}: el módulo 2 no aparece bloqueado`);
   const start = Date.now();
   let list = missionsFor(team);
   if (process.env.E2E_ONLY) {
@@ -143,6 +143,15 @@ for (const [ti, team] of TEAM_LIST.entries()) {
     }
   }
   console.log(`${fails.length ? '…' : '✓'} ${TEAMS[team].name}: ${list.length} misiones jugadas en ${Math.round((Date.now() - start) / 1000)} s`);
+}
+
+// Descarga real del resumen de un tema desde el mapa.
+if (!process.env.E2E_ONLY) {
+  await page.getByRole('button', { name: /Operaciones/ }).first().click();
+  const [download] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: /Descargar resumen del tema/ }).first().click()]);
+  const name = download.suggestedFilename();
+  if (!/^resumen-tema-\d\d-.+\.html$/.test(name)) fails.push(`resumen: nombre de descarga inesperado (${name})`);
+  else console.log(`✓ resumen descargado: ${name}`);
 }
 
 // Perfil y ranking al final.

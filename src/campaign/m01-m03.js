@@ -265,7 +265,7 @@ const m2r = {
         { text: 'Script que ejecuta root cada noche con permisos 777', cat: 'alta', explain: 'Cualquier usuario puede hacer que root ejecute lo que quiera.' },
         { text: 'Clave SSH privada con permisos 644 en el /home de un administrador', cat: 'alta', explain: 'Cualquier usuario local puede copiarla y suplantar al administrador.' },
         { text: 'El banner de SSH muestra la versión exacta del software', cat: 'baja', explain: 'Facilita el reconocimiento, pero por sí solo no da acceso.' },
-        { text: 'Las contraseñas caducan cada 5 años', cat: 'media', explain: 'Mejor una política basada en contraseñas robustas + MFA y cambio si hay sospecha.' },
+        { text: 'Un usuario normal pertenece al grupo sudo sin necesitarlo para su trabajo', cat: 'media', explain: 'Rompe el mínimo privilegio: si roban esa cuenta, el atacante podrá actuar como administrador (aunque necesite la contraseña).' },
       ],
     },
   ],
@@ -504,6 +504,7 @@ const m3p = {
 
 // ── Pasos añadidos a las lecciones comunes: todo lo que luego se pide en retos y exámenes ──
 m1c.lesson.push(
+  { title: 'Capas de defensa', text: 'Ninguna medida protege sola, así que se combinan varias capas (defensa en profundidad). La MFA hace que una contraseña robada no baste. Los parches cierran fallos conocidos. La formación enseña a desconfiar de los engaños. Las copias de seguridad desconectadas permiten recuperarse de un ransomware. Y la monitorización detecta lo que se cuela.' },
   { title: 'Ética y ley', text: 'Atacar un sistema sin permiso es delito aunque «no rompas nada». En España lo castiga el artículo 197 bis del Código Penal. Un profesional solo prueba sistemas con autorización POR ESCRITO, dentro de un alcance y unas fechas acordadas. Si descubre un fallo por su cuenta, hace divulgación responsable: avisa al responsable sin explotarlo ni publicarlo hasta que se corrija.' },
   { title: 'El idioma común: MITRE ATT&CK', text: 'MITRE ATT&CK es un catálogo público de cómo atacan los adversarios reales. Se organiza en tácticas (el «para qué»: acceso inicial, persistencia, escalada de privilegios, exfiltración…) y técnicas (el «cómo»). Rojo, Azul y Morado lo usan para hablar de lo mismo con las mismas palabras.' },
 );

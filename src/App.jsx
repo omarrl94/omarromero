@@ -91,7 +91,7 @@ export default function App() {
       <>
         <TopBar account={account} progress={progress} view={view} onNav={(v) => { setView(v); setMissionId(null); }} onLogout={() => logout()} />
         {view === 'mission' && mission ? (
-          <MissionView key={mission.id} mission={mission} team={team} previous={progress.teams[team]?.[mission.id]}
+          <MissionView key={mission.id} mission={mission} team={team} account={account} progress={progress} previous={progress.teams[team]?.[mission.id]}
             onExit={() => { setView('map'); setMissionId(null); }} onComplete={complete}
             onNext={next ? () => setMissionId(next.id) : null} />
         ) : view === 'profile' ? (
@@ -99,7 +99,7 @@ export default function App() {
         ) : view === 'ranking' ? (
           <Leaderboard account={account} />
         ) : (
-          <CampaignMap progress={progress} onPlay={(id) => { setMissionId(id); setView('mission'); window.scrollTo({ top: 0 }); }} />
+          <CampaignMap progress={progress} account={account} onPlay={(id) => { setMissionId(id); setView('mission'); window.scrollTo({ top: 0 }); }} />
         )}
         <footer className="relative z-10 px-4 py-8 text-center text-[11px] text-slate-600">
           CyberOps: Operación Otero · Laboratorio 100 % simulado con fines formativos. Empresas, dominios e IPs ficticios.

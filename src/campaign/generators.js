@@ -671,12 +671,20 @@ export function examBank(moduleId, staticMissions, team) {
   return bank;
 }
 
-/** Examen del tema: 8 preguntas al azar del banco del equipo y un reto práctico. */
-export function examFor(moduleId, staticMissions) {
+/**
+ * Examen del tema: 8 preguntas al azar del banco del equipo, 2 preguntas de REPASO de temas anteriores
+ * (práctica intercalada: lo aprendido vuelve a aparecer para que no se olvide) y un reto práctico.
+ */
+export function examFor(moduleId, staticMissions, previousBank = () => []) {
   return (r, team) => {
     const bank = examBank(moduleId, staticMissions, team);
+    const review = previousBank(team);
     const practice = TRAINING[moduleId](r).filter((c) => c.type !== 'terminal');
-    return [quizFrom(r, 'Preguntas del examen', bank, 8), ...(practice.length ? [r.pick(practice)] : [])];
+    return [
+      quizFrom(r, 'Preguntas del examen', bank, 8),
+      ...(review.length ? [quizFrom(r, 'Repaso de temas anteriores', review, 2)] : []),
+      ...(practice.length ? [r.pick(practice)] : []),
+    ];
   };
 }
 export { plural };

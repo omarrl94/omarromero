@@ -40,12 +40,23 @@ export function completedCount(p, team) {
   return missionsFor(team).filter((m) => done[m.id]).length;
 }
 
-/** Un módulo se desbloquea cuando el anterior está completo para ese equipo. */
+/** Nota mínima del examen (sobre 100 puntos) para pasar al tema siguiente: aprendizaje por dominio. */
+export const PASS_MARK = 50;
+
+/** Un tema se desbloquea cuando el anterior está completo y su examen está aprobado (≥ 5). */
 export function moduleUnlocked(p, team, moduleIndex) {
-  if (moduleIndex === 0) return true;
+  return !lockReason(p, team, moduleIndex);
+}
+
+/** Por qué está bloqueado un tema (null si está abierto). */
+export function lockReason(p, team, moduleIndex) {
+  if (moduleIndex === 0) return null;
   const prev = MODULES[moduleIndex - 1];
   const done = p.teams[team] || {};
-  return missionsFor(team, prev.id).every((m) => done[m.id]);
+  if (!missionsFor(team, prev.id).every((m) => done[m.id])) return `Completa el tema ${prev.num} para desbloquearlo.`;
+  const exam = done[`${prev.id}-examen`];
+  if (exam && missionScore(exam) < PASS_MARK) return `Aprueba el examen del tema ${prev.num} con al menos un 5 (tu mejor nota: ${(missionScore(exam) / 10).toFixed(1).replace('.', ',')}). Repásalo y vuelve a intentarlo: las preguntas cambian.`;
+  return null;
 }
 
 export function moduleDone(p, team, moduleId) {

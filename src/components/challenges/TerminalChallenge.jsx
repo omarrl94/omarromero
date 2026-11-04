@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, Circle, Lightbulb, ArrowRight, CornerDownLeft, Target } from 'lucide-react';
-import { createShell, run, commandNames } from '../../core/shell.js';
+import { createShell, run, commandNames, HELP } from '../../core/shell.js';
 import { objectiveDone, answerOk } from '../../campaign/helpers.js';
 import { Feedback, PrimaryButton } from '../ui.jsx';
 
@@ -154,6 +154,22 @@ export default function TerminalChallenge({ challenge, color, onDone }) {
         {allDone && (
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="space-y-2">
             <Feedback kind="ok">Todos los objetivos cumplidos.</Feedback>
+            <div className="glass rounded-2xl p-4">
+              <div className="text-[11px] font-bold uppercase tracking-widest" style={{ color }}>Así lo resolvería un profesional</div>
+              <p className="mt-1 text-[11px] text-slate-400">Compáralo con lo que has hecho tú: hay muchas formas, esta es una de las más directas.</p>
+              <ol className="mt-2 space-y-2">
+                {challenge.solution.map((line) => {
+                  const t = line.trim().split(/\s+/);
+                  const name = t[0] === 'sudo' ? t[1] : t[0];
+                  return (
+                    <li key={line} className="text-xs">
+                      <code className="block break-all rounded-md bg-[#020604] px-2 py-1 font-mono text-[11px] text-green-200">$ {line}</code>
+                      {HELP[name] && <span className="mt-0.5 block text-slate-400">{t[0] === 'sudo' ? 'Con sudo (como administrador). ' : ''}{HELP[name]}</span>}
+                    </li>
+                  );
+                })}
+              </ol>
+            </div>
             <PrimaryButton color={color} className="w-full" onClick={() => onDone({ mistakes, hints: hintLevel + Object.keys(howOpen).length })}>Completar reto <ArrowRight size={14} /></PrimaryButton>
           </motion.div>
         )}

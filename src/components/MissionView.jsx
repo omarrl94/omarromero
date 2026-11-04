@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowRight, FileText, Star, Lightbulb, Sparkles, Map } from 'lucide-react';
+import { ArrowLeft, ArrowRight, FileText, Star, Lightbulb, Sparkles, Map, Target, Download } from 'lucide-react';
+import { downloadSummary } from '../core/summary.js';
 import { TEAMS, persp } from '../core/teams.js';
 import { moduleById, challengesOf } from '../campaign/index.js';
 import { xpFor, gradeLabel, formatNota } from '../core/progress.js';
@@ -38,7 +39,7 @@ export function starsFor(results) {
   return { stars: 1 + (hints === 0 ? 1 : 0) + (mistakes <= 1 ? 1 : 0), hints, mistakes, score };
 }
 
-export default function MissionView({ mission, team, previous, onExit, onComplete, onNext }) {
+export default function MissionView({ mission, team, account, progress, previous, onExit, onComplete, onNext }) {
   const T = TEAMS[team];
   const mod = moduleById(mission.module);
   const [phase, setPhase] = useState('brief'); // brief | lesson | ch | done
@@ -96,7 +97,11 @@ export default function MissionView({ mission, team, previous, onExit, onComplet
               <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest" style={{ color: T.color }}><FileText size={14} /> Expediente de la misión</div>
               {mission.kind && <span className="mt-3 inline-block rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-void-950" style={{ background: mission.kind === 'exam' ? '#ffb534' : T.color }}>{mission.kind === 'exam' ? 'Examen · preguntas al azar' : 'Entrenamiento · datos nuevos en cada partida'}</span>}
               <p className="mt-4 max-w-3xl text-lg leading-relaxed text-slate-100">{persp(mission.story, team)}</p>
-              <div className="mt-5 flex flex-wrap gap-2">
+              <div className="mt-5 rounded-xl border border-void-600 bg-void-950/50 p-3">
+                <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest" style={{ color: T.color }}><Target size={13} /> Al terminar esta misión sabrás</div>
+                <ul className="mt-1.5 space-y-1 text-sm text-slate-200">{mission.learned.map((l) => <li key={l} className="flex gap-2"><span style={{ color: T.color }}>▸</span>{l}</li>)}</ul>
+              </div>
+              <div className="mt-4 flex flex-wrap gap-2">
                 {challenges.map((c, k) => <span key={k} className="rounded-lg border border-void-600 bg-void-950/70 px-2.5 py-1 text-xs text-slate-300">Reto {k + 1}: <span className="font-bold text-white">{c.title}</span> <span className="text-slate-500">· {TYPE_LABEL[c.type]}</span></span>)}
               </div>
               {previous && <p className="mt-4 text-xs text-slate-500">Ya la superaste con <Stars n={previous.stars} size={11} />. Rejuega para mejorar tu marca.</p>}
@@ -159,13 +164,14 @@ export default function MissionView({ mission, team, previous, onExit, onComplet
               </div>
               <div className="relative mt-6 flex flex-wrap justify-center gap-2">
                 <button type="button" onClick={onExit} className="btn-neon border border-void-600 text-slate-300"><Map size={14} /> Volver al mapa</button>
+                <button type="button" onClick={() => downloadSummary({ moduleId: mission.module, team, nick: account?.nick, progress })} className="btn-neon border border-void-600 text-slate-300 hover:border-slate-400"><Download size={14} /> Resumen del tema</button>
                 {onNext && <PrimaryButton color={T.color} onClick={onNext}>Siguiente misión <ArrowRight size={14} /></PrimaryButton>}
               </div>
             </div>
           )}
         </motion.div>
       </AnimatePresence>
-      {phase === 'ch' && <NotesDrawer mission={mission} team={team} color={T.color} />}
+      {phase === 'ch' && <NotesDrawer mission={mission} team={team} color={T.color} account={account} progress={progress} />}
     </div>
   );
 }

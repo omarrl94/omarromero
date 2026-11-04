@@ -3,7 +3,9 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowRight, BookOpen, KeyRound, TerminalSquare, X, NotebookPen, ChevronDown, ListChecks, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpen, KeyRound, TerminalSquare, X, NotebookPen, ChevronDown, ListChecks, Sparkles, BookA, Download } from 'lucide-react';
+import { moduleById } from '../campaign/index.js';
+import { downloadSummary } from '../core/summary.js';
 import { persp } from '../core/teams.js';
 import { HELP } from '../core/shell.js';
 import { LessonVisual } from './fx.jsx';
@@ -165,7 +167,8 @@ function cheatsheet(lesson) {
 }
 
 /** Botón flotante + panel lateral con la lección completa y la chuleta. */
-export function NotesDrawer({ mission, team, color }) {
+export function NotesDrawer({ mission, team, color, account, progress }) {
+  const glossary = moduleById(mission.module)?.glossary || [];
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState('lesson');
   const [expanded, setExpanded] = useState(() => new Set(mission.lesson.map((_, k) => k)));
@@ -202,10 +205,11 @@ export function NotesDrawer({ mission, team, color }) {
                   <div className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Apuntes · sin coste de estrellas</div>
                   <div className="truncate font-bold text-white">{mission.title}</div>
                 </div>
+                <button type="button" onClick={() => downloadSummary({ moduleId: mission.module, team, nick: account?.nick, progress })} className="mr-1 text-slate-400 hover:text-white" aria-label="Descargar el resumen del tema" title="Descargar el resumen del tema"><Download size={17} /></button>
                 <button type="button" onClick={() => setOpen(false)} className="text-slate-400 hover:text-white" aria-label="Cerrar apuntes"><X size={18} /></button>
               </div>
               <div className="flex gap-1 p-2">
-                {[['lesson', 'Lección', BookOpen], ...(sheet.length ? [['sheet', 'Chuleta de comandos', TerminalSquare]] : [])].map(([id, label, Icon]) => (
+                {[['lesson', 'Lección', BookOpen], ...(sheet.length ? [['sheet', 'Comandos', TerminalSquare]] : []), ['glossary', 'Glosario', BookA]].map(([id, label, Icon]) => (
                   <button key={id} type="button" onClick={() => setTab(id)} className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-bold uppercase tracking-wider ${tab === id ? 'text-void-950' : 'text-slate-400 hover:text-white'}`} style={tab === id ? { background: color } : {}}>
                     <Icon size={13} /> {label}
                   </button>
@@ -219,6 +223,12 @@ export function NotesDrawer({ mission, team, color }) {
                       <ChevronDown size={14} className={`ml-auto transition-transform ${expanded.has(k) ? 'rotate-180' : ''}`} />
                     </button>
                     {expanded.has(k) && <div className="px-3 pb-3"><LessonStep step={l} team={team} color={color} compact /></div>}
+                  </div>
+                ))}
+                {tab === 'glossary' && glossary.map((g) => (
+                  <div key={g.term} className="rounded-xl border border-void-600 bg-void-950/60 p-3">
+                    <div className="text-sm font-bold" style={{ color }}>{g.term}</div>
+                    <p className="mt-1 text-xs leading-relaxed text-slate-300">{g.def}</p>
                   </div>
                 ))}
                 {tab === 'sheet' && (
