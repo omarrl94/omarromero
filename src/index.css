@@ -1,0 +1,140 @@
+@import '@fontsource/jetbrains-mono/400.css';
+@import '@fontsource/jetbrains-mono/500.css';
+@import '@fontsource/jetbrains-mono/700.css';
+@import '@fontsource/jetbrains-mono/800.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  --cyan: #22e4ff;
+  --magenta: #ff3df0;
+  --lime: #a3ff3d;
+  --amber: #ffb534;
+  --red: #ff4767;
+  --violet: #9d7bff;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #05060a;
+  color: #d6dcff;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Fondo vivo: rejilla + viñeta + scanlines muy sutiles */
+.cyber-bg {
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(34, 228, 255, 0.08), transparent 60%),
+    radial-gradient(900px 500px at 110% 10%, rgba(255, 61, 240, 0.07), transparent 60%),
+    linear-gradient(rgba(34, 228, 255, 0.035) 1px, transparent 1px) 0 0 / 32px 32px,
+    linear-gradient(90deg, rgba(34, 228, 255, 0.035) 1px, transparent 1px) 0 0 / 32px 32px,
+    #05060a;
+}
+.scanlines::after {
+  content: '';
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.12) 0 1px, transparent 1px 3px);
+  mix-blend-mode: multiply;
+  z-index: 60;
+}
+
+.glass {
+  background: linear-gradient(180deg, rgba(18, 22, 36, 0.86), rgba(9, 11, 18, 0.9));
+  border: 1px solid rgba(122, 131, 173, 0.18);
+  backdrop-filter: blur(8px);
+}
+.neon-text {
+  text-shadow: 0 0 12px currentColor;
+}
+.neon-border {
+  box-shadow: 0 0 0 1px rgba(34, 228, 255, 0.4), 0 0 24px -6px rgba(34, 228, 255, 0.6);
+}
+
+/* Terminal */
+.term {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 13px;
+  line-height: 1.55;
+}
+.term pre { white-space: pre-wrap; word-break: break-word; margin: 0; font: inherit; }
+.term-input { caret-color: #2bff88; background: transparent; outline: none; border: 0; color: #e6ffe9; font: inherit; width: 100%; }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: rgba(122, 131, 173, 0.25); border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-track { background: transparent; }
+
+.btn-neon {
+  @apply inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-bold uppercase tracking-wider transition-all duration-150 active:scale-95 disabled:opacity-40;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+}
+
+
+/* CRT: líneas de barrido y viñeta sobre la terminal */
+.crt::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 20;
+  background: repeating-linear-gradient(to bottom, rgba(43, 255, 136, 0.035) 0 1px, transparent 1px 3px);
+}
+.crt::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 21;
+  background: radial-gradient(ellipse at center, transparent 60%, rgba(0, 0, 0, 0.55));
+}
+.term pre, .term-input { text-shadow: 0 0 6px rgba(43, 255, 136, 0.35); }
+
+/* Glitch */
+.glitch { position: relative; }
+.glitch::before, .glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  opacity: 0.7;
+  pointer-events: none;
+}
+.glitch::before { color: #ff3df0; transform: translate(2px, 0); clip-path: inset(0 0 55% 0); animation: glitch-a 3.5s infinite steps(1); }
+.glitch::after { color: #22e4ff; transform: translate(-2px, 0); clip-path: inset(55% 0 0 0); animation: glitch-b 4.2s infinite steps(1); }
+@keyframes glitch-a { 0%, 92%, 100% { transform: translate(0); opacity: 0; } 93% { transform: translate(3px, -1px); opacity: .8; } 96% { transform: translate(-2px, 1px); opacity: .8; } }
+@keyframes glitch-b { 0%, 88%, 100% { transform: translate(0); opacity: 0; } 89% { transform: translate(-3px, 1px); opacity: .8; } 94% { transform: translate(2px, -1px); opacity: .8; } }
+
+/* Radar */
+.radar-sweep { animation: radar 3s linear infinite; }
+@keyframes radar { to { transform: rotate(360deg); } }
+
+/* Tema por equipo: la variable --team la fija App según el equipo elegido */
+.team-glow { box-shadow: 0 0 0 1px color-mix(in srgb, var(--team) 45%, transparent), 0 0 32px -8px var(--team); }
+.team-text { color: var(--team); }
+.hud-corner { position: relative; }
+.hud-corner::before, .hud-corner::after {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: var(--team);
+  pointer-events: none;
+}
+.hud-corner::before { top: -1px; left: -1px; border-top: 2px solid; border-left: 2px solid; border-top-left-radius: 14px; }
+.hud-corner::after { bottom: -1px; right: -1px; border-bottom: 2px solid; border-right: 2px solid; border-bottom-right-radius: 14px; }
+
+@keyframes dash { to { stroke-dashoffset: -24; } }
+.flow { stroke-dasharray: 6 6; animation: dash 1.2s linear infinite; }

@@ -1,0 +1,77 @@
+rules_version = '2';
+
+// Reglas de CyberOps: Operación Fénix.
+// Todas las colecciones llevan el prefijo «cyberops_», así que estas reglas pueden
+// convivir con las de otra app del mismo proyecto (añade estos bloques a tus reglas).
+//
+//   cyberops_nicks/{nickEnMinúsculas}          → { uid }   reserva única del nick
+//   cyberops_players/{uid}                     → perfil público (ranking)
+//   cyberops_players/{uid}/private/progress    → progreso y correo (solo su dueño)
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function validNick(nick) {
+      return nick is string && nick.matches('^[A-Za-z0-9_-]{3,16}$');
+    }
+
+    // El nick debe estar reservado por este mismo usuario (también dentro de la transacción).
+    function ownsNick(uid, lower) {
+      return existsAfter(/databases/$(database)/documents/cyberops_nicks/$(lower))
+        && getAfter(/databases/$(database)/documents/cyberops_nicks/$(lower)).data.uid == uid;
+    }
+
+    function validStats(d) {
+      return d.team in ['red', 'blue', 'purple']
+        && d.xp is int && d.xp >= 0 && d.xp <= 30000
+        && d.stars is int && d.stars >= 0 && d.stars <= 400
+        && d.missions is int && d.missions >= 0 && d.missions <= 150;
+    }
+
+    function validPlayer(uid, d) {
+      return d.keys().hasOnly(['nick', 'nickLower', 'avatar', 'team', 'xp', 'stars', 'missions', 'createdAt', 'updatedAt'])
+        && validNick(d.nick)
+        && d.nickLower == d.nick.lower()
+        && d.avatar is string && d.avatar.size() <= 24
+        && validStats(d)
+        && ownsNick(uid, d.nickLower);
+    }
+
+    match /cyberops_nicks/{nick} {
+      // Lectura pública: el formulario de registro comprueba si un nick está libre.
+      allow get: if true;
+      allow list: if false;
+      allow create: if signedIn()
+        && nick.matches('^[a-z0-9_-]{3,16}$')
+        && request.resource.data.keys().hasOnly(['uid'])
+        && request.resource.data.uid == request.auth.uid;
+      allow delete: if signedIn() && resource.data.uid == request.auth.uid;
+      allow update: if false;
+    }
+
+    match /cyberops_players/{uid} {
+      // Cualquier agente con sesión puede ver el ranking (nick, avatar y estadísticas).
+      allow read: if signedIn();
+      allow create: if isOwner(uid) && validPlayer(uid, request.resource.data);
+      allow update: if isOwner(uid) && validPlayer(uid, request.resource.data);
+      allow delete: if false;
+
+      // Progreso y correo: privados.
+      match /private/{docId} {
+        allow read: if isOwner(uid);
+        allow write: if isOwner(uid) && docId == 'progress'
+          && request.resource.data.keys().hasOnly(['email', 'state', 'updatedAt'])
+          && request.resource.data.state is string
+          && request.resource.data.state.size() < 900000;
+      }
+    }
+  }
+}
