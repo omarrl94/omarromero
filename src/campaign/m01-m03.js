@@ -10,11 +10,11 @@ const m1c = {
   id: 'm1-terminal',
   module: 'm1',
   teams: ALL,
-  title: 'Primer día en Fénix',
+  title: 'Primer día en JROTERO',
   story: {
-    red: 'Bienvenido a Fénix Ciberseguridad. Te incorporas al equipo de auditoría. Antes de tocar un solo sistema de un cliente necesitas dominar tu herramienta principal: la terminal.',
-    blue: 'Bienvenido al SOC de Fénix Ciberseguridad. Aquí los incidentes se investigan desde la terminal: si no te mueves con soltura por ella, el atacante siempre irá un paso por delante.',
-    purple: 'Bienvenido a Fénix. Vas a trabajar con los dos equipos, y los dos hablan el mismo idioma: la terminal de Linux. Empieza por ahí.',
+    red: 'Bienvenido a JROTERO Ciberseguridad. Te incorporas al equipo de auditoría. Antes de tocar un solo sistema de un cliente necesitas dominar tu herramienta principal: la terminal.',
+    blue: 'Bienvenido al SOC de JROTERO Ciberseguridad. Aquí los incidentes se investigan desde la terminal: si no te mueves con soltura por ella, el atacante siempre irá un paso por delante.',
+    purple: 'Bienvenido a JROTERO. Vas a trabajar con los dos equipos, y los dos hablan el mismo idioma: la terminal de Linux. Empieza por ahí.',
   },
   lesson: [
     { title: 'La terminal', text: 'Una terminal es una conversación con el sistema: escribes una orden, pulsas Intro y te responde. Los profesionales de ciberseguridad la usan porque es rápida, precisa y se puede automatizar.' },
@@ -28,9 +28,9 @@ const m1c = {
       prompt: 'Tu responsable te ha dejado instrucciones en tu carpeta personal. Encuéntralas y sigue la pista hasta el código de acceso.',
       scenario: {
         files: {
-          '/home/analista/LEEME.txt': 'Bienvenida/o a Fénix.\nTus primeras instrucciones están en la carpeta «documentos».\nPista: no todo lo que hay en una carpeta se ve con un simple ls.',
+          '/home/analista/LEEME.txt': 'Bienvenida/o a JROTERO.\nTus primeras instrucciones están en la carpeta «documentos».\nPista: no todo lo que hay en una carpeta se ve con un simple ls.',
           '/home/analista/documentos/bienvenida.txt': 'Paso 1 completado.\nEl código de acceso está en un fichero OCULTO dentro de documentos.',
-          '/home/analista/documentos/.codigo_acceso': 'Código de acceso: FENIX-2026\nGuárdalo bien: nunca compartas credenciales por chat ni correo.',
+          '/home/analista/documentos/.codigo_acceso': 'Código de acceso: OTERO-2026\nGuárdalo bien: nunca compartas credenciales por chat ni correo.',
           '/home/analista/.bashrc': '# configuración de la shell',
         },
       },
@@ -38,7 +38,7 @@ const m1c = {
         { id: 'leeme', text: 'Lee el fichero LEEME.txt de tu carpeta personal', how: 'Escribe: cat LEEME.txt', check: read('/home/analista/LEEME.txt') },
         { id: 'docs', text: 'Entra en la carpeta documentos y lee la bienvenida', how: 'cd documentos y después cat bienvenida.txt', check: read('/home/analista/documentos/bienvenida.txt') },
         { id: 'ocultos', text: 'Lista los ficheros ocultos de documentos', how: 'ls -a muestra los ficheros que empiezan por punto', check: ev('ls', (e) => e.path === '/home/analista/documentos' && e.flags.includes('a')) },
-        { id: 'codigo', text: '¿Cuál es el código de acceso?', answer: ['FENIX-2026'], placeholder: 'XXXXX-0000' },
+        { id: 'codigo', text: '¿Cuál es el código de acceso?', answer: ['OTERO-2026'], placeholder: 'XXXXX-0000' },
       ],
       solution: ['cat LEEME.txt', 'cd documentos', 'cat bienvenida.txt', 'ls -a', 'cat .codigo_acceso'],
       hints: ['Empieza por «ls» y «cat LEEME.txt».', 'Los ficheros ocultos empiezan por un punto. Prueba «ls -a» dentro de documentos.'],
@@ -62,7 +62,7 @@ const m1r = {
   module: 'm1',
   teams: ['red'],
   title: 'Las reglas del juego',
-  story: 'Nébula Logística ha contratado a Fénix para una auditoría. Antes de empezar, el jefe de equipo te entrega el contrato y las reglas de enfrentamiento. Un auditor sin permiso por escrito no es un auditor: es un delincuente.',
+  story: 'Nébula Logística ha contratado a JROTERO para una auditoría. Antes de empezar, el jefe de equipo te entrega el contrato y las reglas de enfrentamiento. Un auditor sin permiso por escrito no es un auditor: es un delincuente.',
   lesson: [
     { title: 'Hacking ético = permiso', text: 'La diferencia entre un auditor y un atacante no está en las técnicas, sino en la AUTORIZACIÓN. En España, acceder sin permiso a un sistema es delito (art. 197 bis del Código Penal), aunque «no rompas nada».' },
     { title: 'Reglas de enfrentamiento (RoE)', text: 'Documento que fija el alcance (qué sistemas sí y cuáles no), las fechas y horas, las técnicas permitidas, los contactos de emergencia y qué hacer si encuentras datos personales. Todo lo que esté fuera del alcance, NO se toca.' },

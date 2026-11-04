@@ -414,7 +414,7 @@ const PHISH_POOL = [
 ].map(([text, cat, explain]) => ({ text, cat, explain }));
 
 function lookalike(r) {
-  const base = r.pick(['nebula-logistica', 'fenix-seguridad', 'banco-ficticio', 'correos-lab']);
+  const base = r.pick(['nebula-logistica', 'jrotero-seguridad', 'banco-ficticio', 'correos-lab']);
   const variants = [base.replace('l', '1'), base.replace('i', 'l'), base.replace('o', '0'), `${base}-soporte`, base.replace('-', '')].filter((v) => v !== base);
   const fake = `${r.pick(variants)}.lab`;
   const ip = docIp(r);

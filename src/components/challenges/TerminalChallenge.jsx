@@ -6,7 +6,7 @@ import { objectiveDone, answerOk } from '../../campaign/helpers.js';
 import { Feedback, PrimaryButton } from '../ui.jsx';
 
 const BANNER = (st) => [
-  { text: `Conectado a ${st.host} · laboratorio simulado de Fénix (nada de esto toca sistemas reales)`, dim: true },
+  { text: `Conectado a ${st.host} · laboratorio simulado de JROTERO (nada de esto toca sistemas reales)`, dim: true },
   { text: 'Escribe «help» para ver los comandos. Tab autocompleta, ↑ recupera órdenes.', dim: true },
 ];
 

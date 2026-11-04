@@ -3,7 +3,7 @@
 > Aprende ciberseguridad desde cero hasta nivel avanzado **jugando**: elige equipo (Rojo, Azul o Morado) y vive el temario desde tu perspectiva.
 
 SPA gamificada (React + Vite + Tailwind + Framer Motion + Lucide) para alumnado de FP y cualquier
-persona que empiece en ciberseguridad. Todo ocurre en un **laboratorio simulado**: la empresa cliente
+persona que empiece en ciberseguridad. Todo ocurre en un **laboratorio simulado**: trabajas en la empresa ficticia **JROTERO Ciberseguridad** y la empresa cliente
 (Nébula Logística), sus dominios `.lab` y sus IPs (rangos de documentación RFC 5737) son ficticios.
 Ningún comando sale del navegador.
 

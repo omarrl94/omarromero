@@ -53,7 +53,7 @@ export default function Intro({ onStart }) {
                 </span>
                 <GlitchText text="Operación Otero" className="text-5xl font-extrabold leading-none tracking-tight text-white sm:text-7xl" />
                 <p className="mt-5 max-w-xl text-base text-slate-300">
-                  Entras en una empresa de ciberseguridad y te asignan a un equipo. Diez módulos, desde la ética y la terminal hasta la respuesta a un incidente en vivo.
+                  Entras en JROTERO Ciberseguridad y te asignan a un equipo. Diez módulos, desde la ética y la terminal hasta la respuesta a un incidente en vivo.
                   Todo pasa en un laboratorio simulado: aprendes haciendo, sin riesgo.
                 </p>
                 <div className="mt-7 flex flex-wrap items-center gap-3">

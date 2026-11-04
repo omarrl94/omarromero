@@ -18,7 +18,7 @@ const SERVICES = [
 ];
 
 const SCAN_REPORT = `INFORME DE INVENTARIO EXTERNO · Nébula Logística
-Realizado por: Fénix Ciberseguridad (autorización NL-2026-11, alcance 203.0.113.0/24)
+Realizado por: JROTERO Ciberseguridad (autorización NL-2026-11, alcance 203.0.113.0/24)
 Fecha: 04/11/2026
 
 HOST 203.0.113.10 (www.nebula-logistica.lab)
