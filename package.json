@@ -14,7 +14,8 @@
     "dev:emuladores": "VITE_FIREBASE_EMULATORS=1 VITE_FIREBASE_API_KEY=demo-key VITE_FIREBASE_PROJECT_ID=demo-cyberops VITE_FIREBASE_AUTH_DOMAIN=demo-cyberops.firebaseapp.com VITE_FIREBASE_APP_ID=demo vite",
     "desplegar:reglas": "firebase deploy --only firestore",
     "desplegar:hosting": "npm run build && firebase deploy --only hosting",
-    "preview:html": "node scripts/build-preview.mjs"
+    "preview:html": "node scripts/build-preview.mjs",
+    "test:e2e": "node scripts/e2e-playthrough.mjs"
   },
   "dependencies": {
     "@fontsource/jetbrains-mono": "5.1.1",

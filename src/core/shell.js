@@ -28,7 +28,7 @@ export function createShell(scn = {}) {
   };
 }
 
-const HELP = {
+export const HELP = {
   help: 'Muestra esta ayuda. «help <comando>» explica uno en detalle.',
   pwd: 'Muestra la carpeta en la que estás.',
   ls: 'Lista ficheros. -l detalle y permisos · -a incluye ocultos.',

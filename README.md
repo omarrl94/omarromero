@@ -17,14 +17,19 @@ Ningún comando sale del navegador.
 | **Con la nube, sin tocar la nube** | `npm run emuladores` (Auth y Firestore de Firebase en local, requiere Java) y, en otra terminal, `npm run dev:emuladores`. |
 
 ```bash
-npm test            # verifica las 40 misiones (571 comprobaciones)
+npm test            # verifica las 60 misiones; las generadas, con 40 semillas cada una (≈15 000 comprobaciones)
+npm run test:e2e    # juega las 120 partidas (40 misiones × 3 equipos) en Chromium sobre el HTML de preview
 npm run test:rules  # 24 pruebas de las reglas de Firestore en el emulador (requiere Java)
 ```
+
+`test:e2e` necesita Playwright con Chromium y el HTML generado (`npm run preview:html`). Con
+`E2E_TEAMS=red` juega un solo equipo y con `E2E_ONLY=m4-puertos` una sola misión.
 
 ## Tres equipos, un temario
 
 Al empezar eliges equipo y haces el **juramento del agente** (permiso, alcance, divulgación responsable).
-Los 10 módulos son comunes, pero cada uno tiene una **misión común** contada desde tu perspectiva y una **misión propia de tu equipo**.
+Los 10 módulos son comunes. Cada uno tiene una **misión común** contada desde tu perspectiva, una **misión propia de tu equipo**,
+un **Entrenamiento** con retos generados al azar (datos nuevos en cada partida) y un **Examen del tema**.
 Cada equipo guarda su progreso, su XP y su rango por separado: puedes jugar los tres.
 
 | Equipo | Perspectiva | Rangos |
@@ -48,7 +53,7 @@ Cada equipo guarda su progreso, su XP y su rango por separado: puedes jugar los 
 | 9 | Detección (SOC) | Avanzado | `auth.log`, fuerza bruta, procesos, persistencia en cron, mapa ATT&CK |
 | 10 | Operación Fénix | Experto | Ciclo NIST, evidencias, RGPD 72 h, informe final, incidente en vivo y ejercicio morado |
 
-**40 misiones** en total (20 por equipo), con 6 tipos de reto:
+**60 misiones** en total (**40 por equipo**): 40 de historia + 10 entrenamientos + 10 exámenes, con 6 tipos de reto:
 
 - **Terminal simulada**: shell con sistema de ficheros virtual, tuberías (`|`), `;`, `&&`, redirecciones, autocompletado con Tab e historial. Comandos: `ls cd cat grep wc sort uniq cut awk find chmod ps kill ss systemctl crontab iptables whois dig base64 sha256sum exiftool`…
 - **Test** con explicación de cada respuesta.
@@ -57,11 +62,29 @@ Cada equipo guarda su progreso, su XP y su rango por separado: puedes jugar los 
 - **Revisión de código**: localizar la línea y elegir el impacto o la corrección.
 - **Análisis de registros**: marcar las líneas sospechosas, con falsos positivos y negativos.
 
-Cada misión: **expediente** → **lección paso a paso** (con visuales animados) → retos → **informe** con lo aprendido y un consejo de tu equipo.
+Cada misión: **expediente** → **lección paso a paso** → retos → **informe** con puntos, nota, lo aprendido y un consejo de tu equipo.
+
+### Aprende y Apuntes
+
+- La lección va en diapositivas, cada una con su **idea clave** destacada, comandos y conceptos resaltados, ejemplos «así se ve en la terminal» y visuales animados. Al final hay un **resumen** de la lección y la lista de retos. Se navega con ← y →.
+- Durante los retos, el botón **Apuntes** (o la tecla **A**) abre la lección completa y una **chuleta de comandos**. Consultarlos no cuesta estrellas.
+
+### Retos generados
+
+- **Entrenamiento**: escenarios con datos aleatorios en cada partida. Incluyen terminal (código oculto, permisos, ficha OSINT, escaneo en el cortafuegos, triaje de parches, Base64, integridad, cabeceras de correo, fuerza bruta, persistencia, incidente en vivo), test (permisos en octal, puertos, tipo de hash), clasificación, ordenación por CVSS, revisión de código y registros web.
+- **Examen del tema**: 8 preguntas al azar de un banco de 8-11 por tema (los test de las misiones más preguntas propias), con las opciones barajadas, y un reto práctico.
+- Todo usa dominios `.lab` e IPs de documentación (RFC 5737).
+
+## Notas académicas
+
+- Cada misión vale **100 puntos**: cada reto pesa lo mismo, y cada error resta un 10 % y cada pista un 15 % de su valor (mínimo 40 %). Se guarda la **mejor marca**.
+- **Traductor de puntos a nota en cada tema**: puntos ÷ máximo × 10 (por ejemplo, 351/400 → **8,8 Notable**), con la escala de colores, el marcador y cuántos puntos faltan para la siguiente calificación.
+- Escala: Insuficiente (<5) · Suficiente (5) · Bien (6) · Notable (7-8) · Sobresaliente (9-10) · **Matrícula de honor** (todas las misiones del tema a 100).
+- **Boletín de notas** en el perfil: nota por tema, media de los temas empezados y nota final del curso (los 10 temas). Se descarga en **CSV** para el profesorado.
 
 ## Gamificación
 
-- **3 estrellas por misión**: superada · sin pistas · precisión (como mucho un error).
+- **3 estrellas por misión**: superada · sin pistas · precisión (como mucho un error). Además, **puntos y nota** (ver abajo).
 - **XP** (100 + 50 por estrella extra), **8 rangos por equipo**, **insignias** por módulo y **rachas** diarias.
 - **Ranking** de agentes y «guerra de equipos» por XP acumulada.
 - Módulos que se desbloquean en orden.
@@ -85,10 +108,11 @@ progreso se sincronizan en la nube. Sin ellas, funciona en **modo local**. Ver [
 src/
   core/        shell.js (terminal simulada) · vfs.js · crypto.js (MD5, SHA-1/256, Base64…) · teams.js · progress.js
   campaign/    index.js (módulos) · m01-m03 · m04-m05 · m06-m07 · m08-m10 · helpers.js (objetivos)
+               generators.js (entrenamientos y bancos de examen) · random.js (aleatoriedad con semilla)
   world/       nebula.js (escenario ficticio: WHOIS, DNS, IPs)
-  components/  Intro · AuthScreen · TeamSelect · CampaignMap · MissionView · challenges/* · Profile · Leaderboard · fx
+  components/  Intro · AuthScreen · TeamSelect · CampaignMap · MissionView · Lesson (Aprende y Apuntes) · challenges/* · Profile · Leaderboard · fx
   services/    accounts.js · firebase.js
-scripts/       verify-campaign.mjs · build-preview.mjs · test-firestore-rules.mjs
+scripts/       verify-campaign.mjs · e2e-playthrough.mjs · build-preview.mjs · test-firestore-rules.mjs
 preview/       cyberops-preview.html (juego en un solo fichero)
 ```
 

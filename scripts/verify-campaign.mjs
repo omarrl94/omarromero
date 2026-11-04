@@ -3,7 +3,7 @@
 //  · en los retos de terminal, que al empezar NO hay objetivos cumplidos y que la
 //    solución de referencia (comandos + respuestas) los cumple TODOS;
 //  · que cada equipo tiene un camino completo por los 10 módulos.
-import { MISSIONS, MODULES, missionsFor } from '../src/campaign/index.js';
+import { MISSIONS, MODULES, missionsFor, challengesOf } from '../src/campaign/index.js';
 import { createShell, run } from '../src/core/shell.js';
 import { objectiveDone } from '../src/campaign/helpers.js';
 import { TEAM_ORDER } from '../src/core/teams.js';
@@ -12,6 +12,7 @@ let checks = 0;
 const errors = [];
 const ok = (cond, msg) => { checks++; if (!cond) errors.push(msg); };
 
+const SEEDS = 40;
 const ids = new Set();
 for (const m of MISSIONS) {
   const where = `[${m.id}]`;
@@ -19,9 +20,26 @@ for (const m of MISSIONS) {
   ids.add(m.id);
   ok(MODULES.some((x) => x.id === m.module), `${where} módulo desconocido`);
   ok(m.teams.length && m.teams.every((t) => TEAM_ORDER.includes(t)), `${where} equipos no válidos`);
-  ok(m.title && m.story && m.lesson?.length && m.challenges?.length && m.learned?.length && m.tip, `${where} faltan campos`);
-  m.challenges.forEach((c, ci) => {
-    const w = `${where} reto ${ci + 1} (${c.type})`;
+  ok(m.title && m.story && m.lesson?.length && (m.challenges?.length || m.generate) && m.learned?.length && m.tip, `${where} faltan campos`);
+  if (m.generate) {
+    ok(['training', 'exam'].includes(m.kind), `${where} misión generada sin tipo`);
+    const sig = (seed) => JSON.stringify(challengesOf(m, seed), (k, v) => (typeof v === 'function' ? 'fn' : v));
+    ok(sig(5) === sig(5), `${where} la generación no es reproducible con la misma semilla`);
+    const variants = new Set();
+    for (let seed = 1; seed <= SEEDS; seed++) {
+      const list = challengesOf(m, seed);
+      variants.add(sig(seed));
+      ok(list.length >= 2, `${where} semilla ${seed}: menos de 2 retos`);
+      if (m.kind === 'exam') ok(list[0].type === 'quiz' && list[0].questions.length === 8, `${where} semilla ${seed}: el examen debe tener 8 preguntas`);
+      list.forEach((c, ci) => validateChallenge(c, `${where} semilla ${seed} reto ${ci + 1} (${c.type})`));
+    }
+    ok(variants.size > SEEDS / 2, `${where} genera muy pocas variantes (${variants.size})`);
+  } else {
+    m.challenges.forEach((c, ci) => validateChallenge(c, `${where} reto ${ci + 1} (${c.type})`));
+  }
+}
+
+function validateChallenge(c, w) {
     if (c.type === 'quiz') {
       ok(c.questions.length > 0, `${w} sin preguntas`);
       c.questions.forEach((q, qi) => ok(q.correct >= 0 && q.correct < q.options.length && q.explain, `${w} pregunta ${qi + 1} mal definida`));
@@ -53,13 +71,12 @@ for (const m of MISSIONS) {
     } else {
       ok(false, `${w} tipo desconocido`);
     }
-  });
 }
 
 for (const team of TEAM_ORDER) {
   for (const mod of MODULES) {
     const list = missionsFor(team, mod.id);
-    ok(list.length >= 2, `equipo ${team}: el módulo ${mod.id} tiene ${list.length} misiones`);
+    ok(list.length >= 4, `equipo ${team}: el módulo ${mod.id} tiene ${list.length} misiones`);
   }
 }
 
@@ -69,5 +86,5 @@ if (errors.length) {
   console.log(`\n${checks - errors.length}/${checks} comprobaciones correctas`);
   process.exit(1);
 }
-console.log(`✓ ${MISSIONS.length} misiones en ${MODULES.length} módulos (${perTeam})`);
+console.log(`✓ ${MISSIONS.length} misiones en ${MODULES.length} módulos (${perTeam}); ${MISSIONS.filter((m) => m.generate).length} generadas, probadas con ${SEEDS} semillas cada una`);
 console.log(`✓ ${checks} comprobaciones correctas`);

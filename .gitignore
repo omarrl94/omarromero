@@ -9,3 +9,4 @@ dist
 firebase-debug.log
 firestore-debug.log
 dist-preview
+e2e-fallo-*.png

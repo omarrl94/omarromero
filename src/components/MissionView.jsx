@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowRight, BookOpen, FileText, Star, Lightbulb, Sparkles, Map } from 'lucide-react';
+import { ArrowLeft, ArrowRight, FileText, Star, Lightbulb, Sparkles, Map } from 'lucide-react';
 import { TEAMS, persp } from '../core/teams.js';
-import { moduleById } from '../campaign/index.js';
-import { xpFor } from '../core/progress.js';
+import { moduleById, challengesOf } from '../campaign/index.js';
+import { xpFor, gradeLabel, formatNota } from '../core/progress.js';
 import { PrimaryButton, Stars, TeamBadge } from './ui.jsx';
-import { Confetti, GlitchText, LessonVisual } from './fx.jsx';
+import { Confetti, GlitchText } from './fx.jsx';
+import { LessonDeck, NotesDrawer } from './Lesson.jsx';
 import Quiz from './challenges/Quiz.jsx';
 import Classify from './challenges/Classify.jsx';
 import Order from './challenges/Order.jsx';
@@ -16,43 +17,57 @@ import TerminalChallenge from './challenges/TerminalChallenge.jsx';
 const COMPONENTS = { quiz: Quiz, classify: Classify, order: Order, code: Code, logs: Logs, terminal: TerminalChallenge };
 const TYPE_LABEL = { quiz: 'Test', classify: 'Clasificar', order: 'Ordenar', code: 'Revisión de código', logs: 'Análisis de registros', terminal: 'Terminal' };
 
-/** Calcula las estrellas: superada · sin pistas · como mucho un error. */
+/** Semilla de los retos generados (fija si se define cyberops.seed, útil para pruebas). */
+function newSeed() {
+  try {
+    const fixed = Number(localStorage.getItem('cyberops.seed'));
+    if (fixed) return fixed;
+  } catch { /* sin almacenamiento */ }
+  return Math.floor(Math.random() * 2 ** 31);
+}
+
+/**
+ * Estrellas (superada · sin pistas · como mucho un error) y puntos sobre 100:
+ * cada reto vale lo mismo; cada error resta un 10 % y cada pista un 15 % de su valor (mínimo 40 %).
+ */
 export function starsFor(results) {
   const hints = results.reduce((s, r) => s + r.hints, 0);
   const mistakes = results.reduce((s, r) => s + r.mistakes, 0);
-  return { stars: 1 + (hints === 0 ? 1 : 0) + (mistakes <= 1 ? 1 : 0), hints, mistakes };
+  const share = 100 / results.length;
+  const score = Math.round(results.reduce((s, r) => s + share * Math.max(0.4, 1 - 0.1 * r.mistakes - 0.15 * r.hints), 0));
+  return { stars: 1 + (hints === 0 ? 1 : 0) + (mistakes <= 1 ? 1 : 0), hints, mistakes, score };
 }
 
 export default function MissionView({ mission, team, previous, onExit, onComplete, onNext }) {
   const T = TEAMS[team];
   const mod = moduleById(mission.module);
   const [phase, setPhase] = useState('brief'); // brief | lesson | ch | done
-  const [step, setStep] = useState(0);
   const [ci, setCi] = useState(0);
   const [results, setResults] = useState([]);
   const [summary, setSummary] = useState(null);
+  const [seed] = useState(newSeed);
+  const challenges = useMemo(() => challengesOf(mission, seed), [mission, seed]);
 
   const finishChallenge = (r) => {
     const next = [...results, r];
     setResults(next);
-    if (ci + 1 < mission.challenges.length) setCi(ci + 1);
+    if (ci + 1 < challenges.length) setCi(ci + 1);
     else {
       const s = starsFor(next);
       setSummary(s);
       setPhase('done');
-      onComplete(s.stars);
+      onComplete(s.stars, s.score);
     }
   };
 
-  const steps = [{ id: 'brief', label: 'Briefing' }, { id: 'lesson', label: 'Aprende' }, ...mission.challenges.map((c, k) => ({ id: `ch${k}`, label: `Reto ${k + 1}` })), { id: 'done', label: 'Informe' }];
+  const steps = [{ id: 'brief', label: 'Briefing' }, { id: 'lesson', label: 'Aprende' }, ...challenges.map((c, k) => ({ id: `ch${k}`, label: `Reto ${k + 1}` })), { id: 'done', label: 'Informe' }];
   const activeId = phase === 'ch' ? `ch${ci}` : phase;
   const activeIdx = steps.findIndex((s) => s.id === activeId);
-  const lesson = mission.lesson;
-  const ch = mission.challenges[ci];
+  const ch = challenges[ci];
   const Comp = ch && COMPONENTS[ch.type];
 
   return (
-    <div className="relative z-10 mx-auto max-w-6xl px-4 py-5" style={{ '--team': T.color }}>
+    <div className="relative z-10 mx-auto max-w-6xl px-4 pb-24 pt-5" style={{ '--team': T.color }}>
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <button type="button" onClick={onExit} className="flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-white"><ArrowLeft size={14} /> Operaciones</button>
         <span className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Módulo {mod.num} · {mod.title}</span>
@@ -74,51 +89,27 @@ export default function MissionView({ mission, team, previous, onExit, onComplet
       </div>
 
       <AnimatePresence mode="wait">
-        <motion.div key={`${phase}-${step}-${ci}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.22 }} className="mt-5">
+        <motion.div key={`${phase}-${ci}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.22 }} className="mt-5">
           {phase === 'brief' && (
             <div className="glass hud-corner relative overflow-hidden rounded-2xl p-6">
               <div className="absolute right-4 top-4 font-mono text-[10px] uppercase tracking-widest text-slate-600">Clasificación: uso formativo</div>
               <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest" style={{ color: T.color }}><FileText size={14} /> Expediente de la misión</div>
+              {mission.kind && <span className="mt-3 inline-block rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-void-950" style={{ background: mission.kind === 'exam' ? '#ffb534' : T.color }}>{mission.kind === 'exam' ? 'Examen · preguntas al azar' : 'Entrenamiento · datos nuevos en cada partida'}</span>}
               <p className="mt-4 max-w-3xl text-lg leading-relaxed text-slate-100">{persp(mission.story, team)}</p>
               <div className="mt-5 flex flex-wrap gap-2">
-                {mission.challenges.map((c, k) => <span key={k} className="rounded-lg border border-void-600 bg-void-950/70 px-2.5 py-1 text-xs text-slate-300">Reto {k + 1}: <span className="font-bold text-white">{c.title}</span> <span className="text-slate-500">· {TYPE_LABEL[c.type]}</span></span>)}
+                {challenges.map((c, k) => <span key={k} className="rounded-lg border border-void-600 bg-void-950/70 px-2.5 py-1 text-xs text-slate-300">Reto {k + 1}: <span className="font-bold text-white">{c.title}</span> <span className="text-slate-500">· {TYPE_LABEL[c.type]}</span></span>)}
               </div>
               {previous && <p className="mt-4 text-xs text-slate-500">Ya la superaste con <Stars n={previous.stars} size={11} />. Rejuega para mejorar tu marca.</p>}
               <PrimaryButton color={T.color} className="mt-6 px-5" onClick={() => setPhase('lesson')}>Abrir la lección <ArrowRight size={14} /></PrimaryButton>
             </div>
           )}
 
-          {phase === 'lesson' && (
-            <div className="grid gap-4 md:grid-cols-[220px_1fr]">
-              <ol className="space-y-1.5">
-                {lesson.map((l, k) => (
-                  <li key={l.title}>
-                    <button type="button" onClick={() => setStep(k)} className={`w-full rounded-xl px-3 py-2 text-left text-sm ${k === step ? 'bg-white/10 font-bold text-white' : 'text-slate-400 hover:text-white'}`}>
-                      <span className="mr-2 font-mono text-xs" style={{ color: T.color }}>{String(k + 1).padStart(2, '0')}</span>{l.title}
-                    </button>
-                  </li>
-                ))}
-              </ol>
-              <div className="glass rounded-2xl p-6">
-                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest" style={{ color: T.color }}><BookOpen size={14} /> Aprende · {step + 1}/{lesson.length}</div>
-                <GlitchText as="h2" text={lesson[step].title} className="mt-2 text-2xl font-extrabold text-white" />
-                <p className="mt-3 max-w-3xl leading-relaxed text-slate-200">{persp(lesson[step].text, team)}</p>
-                {lesson[step].code && <pre className="mt-4 overflow-x-auto rounded-xl border border-neon-green/20 bg-[#020604] p-4 font-mono text-[13px] text-green-200">{lesson[step].code}</pre>}
-                {lesson[step].visual && <LessonVisual kind={lesson[step].visual} color={T.color} />}
-                <div className="mt-6 flex gap-2">
-                  {step > 0 && <button type="button" onClick={() => setStep(step - 1)} className="btn-neon border border-void-600 text-slate-300"><ArrowLeft size={14} /> Anterior</button>}
-                  {step + 1 < lesson.length
-                    ? <PrimaryButton color={T.color} onClick={() => setStep(step + 1)}>Siguiente <ArrowRight size={14} /></PrimaryButton>
-                    : <PrimaryButton color={T.color} onClick={() => setPhase('ch')}>¡A por los retos! <ArrowRight size={14} /></PrimaryButton>}
-                </div>
-              </div>
-            </div>
-          )}
+          {phase === 'lesson' && <LessonDeck mission={mission} challenges={challenges} team={team} color={T.color} onFinish={() => setPhase('ch')} />}
 
           {phase === 'ch' && Comp && (
             <div>
               <div className="mb-4 flex flex-wrap items-baseline gap-3">
-                <span className="text-xs font-bold uppercase tracking-widest" style={{ color: T.color }}>Reto {ci + 1}/{mission.challenges.length} · {TYPE_LABEL[ch.type]}</span>
+                <span className="text-xs font-bold uppercase tracking-widest" style={{ color: T.color }}>Reto {ci + 1}/{challenges.length} · {TYPE_LABEL[ch.type]}</span>
                 <h2 className="text-xl font-extrabold text-white">{ch.title}</h2>
               </div>
               {ch.type === 'terminal' && <p className="mb-4 max-w-3xl text-sm text-slate-300">{ch.prompt}</p>}
@@ -146,7 +137,15 @@ export default function MissionView({ mission, team, previous, onExit, onComplet
                   <div className={`rounded-lg bg-void-950/70 p-2 ${summary.hints === 0 ? 'text-neon-green' : 'text-slate-500'}`}>★ Sin pistas{summary.hints ? ` (${summary.hints})` : ''}</div>
                   <div className={`rounded-lg bg-void-950/70 p-2 ${summary.mistakes <= 1 ? 'text-neon-green' : 'text-slate-500'}`}>★ Precisión ({summary.mistakes} err.)</div>
                 </div>
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} className="mt-4 text-3xl font-extrabold" style={{ color: T.color }}>+{xpFor(mission, summary.stars)} XP</motion.div>
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} className="mt-4 flex flex-wrap items-center justify-center gap-3">
+                  <span className="text-3xl font-extrabold" style={{ color: T.color }}>+{xpFor(mission, summary.stars)} XP</span>
+                  <span className="rounded-xl border border-void-600 bg-void-950/70 px-3 py-1.5 text-sm">
+                    <span className="font-extrabold text-white">{summary.score}</span><span className="text-slate-500">/100 puntos</span>
+                    <span className="mx-2 text-slate-600">→</span>
+                    <span className="font-extrabold" style={{ color: gradeLabel(summary.score / 10).color }}>{formatNota(summary.score / 10)} · {gradeLabel(summary.score / 10).label}</span>
+                  </span>
+                </motion.div>
+                {previous && previous.score > summary.score && <p className="mt-2 text-xs text-slate-500">Para la nota del tema se guarda tu mejor marca ({previous.score} puntos).</p>}
               </div>
               <div className="relative mt-6 grid gap-4 md:grid-cols-2">
                 <div className="rounded-2xl border border-void-600 bg-void-950/60 p-4">
@@ -166,6 +165,7 @@ export default function MissionView({ mission, team, previous, onExit, onComplet
           )}
         </motion.div>
       </AnimatePresence>
+      {phase === 'ch' && <NotesDrawer mission={mission} team={team} color={T.color} />}
     </div>
   );
 }

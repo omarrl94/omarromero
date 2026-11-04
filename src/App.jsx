@@ -62,8 +62,8 @@ export default function App() {
     setView('map');
   };
 
-  const complete = useCallback((stars) => {
-    setProgress((p) => recordMission(p, p.team, missionId, stars));
+  const complete = useCallback((stars, score) => {
+    setProgress((p) => recordMission(p, p.team, missionId, stars, score));
   }, [missionId]);
 
   const nextMission = () => {

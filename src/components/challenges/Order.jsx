@@ -21,11 +21,14 @@ export default function Order({ challenge, color, onDone }) {
   const solved = checked && list.every((x, k) => x.i === k);
 
   const move = (k, d) => {
-    const j = k + d;
-    if (j < 0 || j >= list.length) return;
-    const n = [...list];
-    [n[k], n[j]] = [n[j], n[k]];
-    setList(n);
+    // Actualización funcional: con clics rápidos cada movimiento parte del estado más reciente.
+    setList((cur) => {
+      const j = k + d;
+      if (j < 0 || j >= cur.length) return cur;
+      const n = [...cur];
+      [n[k], n[j]] = [n[j], n[k]];
+      return n;
+    });
     setChecked(false);
   };
   const check = () => {
