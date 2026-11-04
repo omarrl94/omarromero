@@ -23,7 +23,7 @@ mismo proyecto. En ese caso **no despliegues este archivo tal cual**: añade est
 
 ## Puesta en marcha (proyecto nuevo, recomendado)
 
-1. En <https://console.firebase.google.com> crea un proyecto (por ejemplo `cyberops-fenix`).
+1. En <https://console.firebase.google.com> crea un proyecto (por ejemplo `cyberops-otero`).
 2. **Authentication → Sign-in method →** activa **Correo electrónico/contraseña**.
    En **Templates** puedes poner los correos (verificación y contraseña olvidada) en español.
 3. **Firestore Database → Crear base de datos** (modo producción, región `eur3` o la que prefieras).

@@ -13,7 +13,7 @@ export function Logo({ small = false }) {
       </div>
       <div className="leading-none">
         <div className={`font-extrabold tracking-tight text-white ${small ? 'text-sm' : 'text-lg'}`}>Cyber<span className="text-neon-green">Ops</span></div>
-        {!small && <div className="text-[10px] uppercase tracking-[0.25em] text-slate-500">Operación Fénix</div>}
+        {!small && <div className="text-[10px] uppercase tracking-[0.25em] text-slate-500">Operación Otero</div>}
       </div>
     </div>
   );

@@ -102,7 +102,7 @@ export default function App() {
           <CampaignMap progress={progress} onPlay={(id) => { setMissionId(id); setView('mission'); window.scrollTo({ top: 0 }); }} />
         )}
         <footer className="relative z-10 px-4 py-8 text-center text-[11px] text-slate-600">
-          CyberOps: Operación Fénix · Laboratorio 100 % simulado con fines formativos. Empresas, dominios e IPs ficticios.
+          CyberOps: Operación Otero · Laboratorio 100 % simulado con fines formativos. Empresas, dominios e IPs ficticios.
         </footer>
       </>
     );

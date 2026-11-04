@@ -1,4 +1,4 @@
-# Netlify: CyberOps: Operación Fénix (SPA con Vite + React).
+# Netlify: CyberOps: Operación Otero (SPA con Vite + React).
 # Build: Netlify ejecuta `npm ci` y luego `npm run build`, y publica dist/.
 
 [build]

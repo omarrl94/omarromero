@@ -439,7 +439,7 @@ const m10b = {
   id: 'm10-operacion',
   module: 'm10',
   teams: ['blue'],
-  title: 'Operación Fénix: incidente en vivo',
+  title: 'Operación Otero: incidente en vivo',
   story: 'Examen final del SOC. Salta una alerta en PC-CONTA-07: conexiones periódicas a un dominio desconocido. Estás conectado al equipo. Investiga, contén, conserva evidencias y erradica. El reloj corre.',
   lesson: [
     { title: 'Beaconing', text: 'Un implante suele «llamar a casa» (a su servidor de mando y control, C2) a intervalos regulares. En el proxy se ve como peticiones idénticas cada pocos minutos, con muy pocos bytes, a un dominio recién creado.' },

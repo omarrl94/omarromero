@@ -7,7 +7,7 @@ import { TEAMS } from '../core/teams.js';
 import { MODULES } from '../campaign/index.js';
 
 const BOOT = [
-  '[ OK ] Iniciando núcleo de Fénix OS 10.0',
+  '[ OK ] Iniciando núcleo de Otero OS 10.0',
   '[ OK ] Montando laboratorio aislado (sin conexión a sistemas reales)',
   '[ OK ] Cargando escenario: Nébula Logística S.L. (empresa ficticia)',
   '[ OK ] 10 módulos · 40 misiones · 3 equipos',
@@ -51,7 +51,7 @@ export default function Intro({ onStart }) {
                 <span className="mb-3 inline-flex items-center gap-2 rounded-full border border-neon-green/30 bg-neon-green/5 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-neon-green">
                   <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-neon-green" /> De cero a experto, jugando
                 </span>
-                <GlitchText text="Operación Fénix" className="text-5xl font-extrabold leading-none tracking-tight text-white sm:text-7xl" />
+                <GlitchText text="Operación Otero" className="text-5xl font-extrabold leading-none tracking-tight text-white sm:text-7xl" />
                 <p className="mt-5 max-w-xl text-base text-slate-300">
                   Entras en una empresa de ciberseguridad y te asignan a un equipo. Diez módulos, desde la ética y la terminal hasta la respuesta a un incidente en vivo.
                   Todo pasa en un laboratorio simulado: aprendes haciendo, sin riesgo.

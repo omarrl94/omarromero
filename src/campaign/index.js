@@ -16,7 +16,7 @@ export const MODULES = [
   { id: 'm7', num: 7, title: 'Criptografía', subtitle: 'Codificar, cifrar, hash y contraseñas', icon: 'KeyRound', level: 'Intermedio' },
   { id: 'm8', num: 8, title: 'Ingeniería social', subtitle: 'Phishing, cabeceras y concienciación', icon: 'Mail', level: 'Avanzado' },
   { id: 'm9', num: 9, title: 'Detección (SOC)', subtitle: 'Logs, caza de amenazas y ATT&CK', icon: 'Radar', level: 'Avanzado' },
-  { id: 'm10', num: 10, title: 'Operación Fénix', subtitle: 'Respuesta a incidentes y examen final', icon: 'Flame', level: 'Experto' },
+  { id: 'm10', num: 10, title: 'Operación Otero', subtitle: 'Respuesta a incidentes y examen final', icon: 'Flame', level: 'Experto' },
 ];
 
 const STATIC = [...a, ...b, ...c, ...d];

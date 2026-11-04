@@ -14,11 +14,11 @@ redirección SPA, caché de assets y exclusión de las claves públicas de Fireb
    - Publish directory: `dist`
 5. Pulsa **Deploy**. En 1-2 minutos tendrás una URL `https://<nombre>.netlify.app`.
    Sin variables de Firebase, la app funciona en **modo local** (cuentas en el navegador).
-6. Opcional: **Site configuration → Site details → Change site name** (p. ej. `cyberops-fenix`).
+6. Opcional: **Site configuration → Site details → Change site name** (p. ej. `cyberops-otero`).
 
 ## 2. Activar la nube con Firebase
 
-1. <https://console.firebase.google.com> → **Añadir proyecto** (p. ej. `cyberops-fenix`).
+1. <https://console.firebase.google.com> → **Añadir proyecto** (p. ej. `cyberops-otero`).
 2. **Authentication → Comenzar → Sign-in method → Correo electrónico/contraseña → Habilitar**.
 3. **Authentication → Settings → Dominios autorizados → Agregar dominio** → `<nombre>.netlify.app`
    (y tu dominio propio si lo usas).

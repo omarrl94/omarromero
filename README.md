@@ -1,4 +1,4 @@
-# CyberOps: Operación Fénix
+# CyberOps: Operación Otero
 
 > Aprende ciberseguridad desde cero hasta nivel avanzado **jugando**: elige equipo (Rojo, Azul o Morado) y vive el temario desde tu perspectiva.
 
@@ -51,7 +51,7 @@ Cada equipo guarda su progreso, su XP y su rango por separado: puedes jugar los 
 | 7 | Criptografía | Intermedio | Codificar vs cifrar vs hash, Base64, ROT13, `sha256sum`, Argon2/bcrypt, MFA, cadena de suministro |
 | 8 | Ingeniería social | Avanzado | Phishing, cabeceras de correo, IOC, simulacros éticos, métricas |
 | 9 | Detección (SOC) | Avanzado | `auth.log`, fuerza bruta, procesos, persistencia en cron, mapa ATT&CK |
-| 10 | Operación Fénix | Experto | Ciclo NIST, evidencias, RGPD 72 h, informe final, incidente en vivo y ejercicio morado |
+| 10 | Operación Otero | Experto | Ciclo NIST, evidencias, RGPD 72 h, informe final, incidente en vivo y ejercicio morado |
 
 **60 misiones** en total (**40 por equipo**): 40 de historia + 10 entrenamientos + 10 exámenes, con 6 tipos de reto:
 

@@ -1,6 +1,6 @@
 rules_version = '2';
 
-// Reglas de CyberOps: Operación Fénix.
+// Reglas de CyberOps: Operación Otero.
 // Todas las colecciones llevan el prefijo «cyberops_», así que estas reglas pueden
 // convivir con las de otra app del mismo proyecto (añade estos bloques a tus reglas).
 //

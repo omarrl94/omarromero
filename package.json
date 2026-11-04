@@ -2,7 +2,7 @@
   "name": "cyberops-academia",
   "version": "1.0.0",
   "private": true,
-  "description": "CyberOps: Operación Fénix — aprende ciberseguridad desde cero hasta nivel avanzado jugando en un laboratorio simulado: OSINT, escaneo, enumeración, web, criptografía, explotación, escalada y Blue Team.",
+  "description": "CyberOps: Operación Otero — aprende ciberseguridad desde cero hasta nivel avanzado jugando en un laboratorio simulado: OSINT, escaneo, enumeración, web, criptografía, explotación, escalada y Blue Team.",
   "type": "module",
   "scripts": {
     "dev": "vite",
