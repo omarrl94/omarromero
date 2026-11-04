@@ -1,6 +1,6 @@
 import LegalLayout, { Dato, List, Section } from '../../components/LegalLayout';
 import { CENTRO } from '../../config/centro';
-import { MAX_RETENTION_DAYS, RETENTION_DAYS, ROOM_OPEN_HOURS } from '../../utils/constants';
+import { MAX_RETENTION_DAYS, RETENTION_DAYS } from '../../utils/constants';
 
 export default function Privacidad() {
   return (
@@ -38,7 +38,7 @@ export default function Privacidad() {
       <Section id="plazos" title="4. Plazos de conservación">
         <List
           items={[
-            <>Cada sala se <strong>cierra automáticamente a las {ROOM_OPEN_HOURS} horas</strong> de abrirse (el profesor puede reabrirla).</>,
+            <>Cada sala admite alumnado y aportaciones mientras el profesor la mantiene <strong>abierta</strong>; él la cierra y la reabre cuando quiere. Nunca sigue abierta más allá de su fecha de borrado.</>,
             <>La sala y <strong>todo su contenido</strong> (recursos, archivos, aportaciones y notificaciones) <strong>se eliminan automáticamente en la fecha que elige el profesor</strong> al crear la sala (por defecto, {RETENTION_DAYS} días; como máximo, {MAX_RETENTION_DAYS} días desde que se fija). El profesorado puede cambiar esa fecha o borrarlo todo antes en cualquier momento.</>,
             <>Los <strong>calendarios de clase</strong> contienen solo fechas y avisos del profesorado (no datos del alumnado) y se eliminan automáticamente el <strong>31 de julio</strong> al terminar su curso.</>,
             <><strong>Copias de sala.</strong> El profesor puede descargar una copia de una sala (archivo «.colaborafp») para reutilizarla otro curso. Incluye lo que él publicó y, solo si lo marca, las aportaciones aprobadas del alumnado con su alias; lo pendiente nunca se copia. La copia queda bajo la responsabilidad del profesor, que debe guardarla en el almacenamiento del centro y borrarla cuando ya no la necesite.</>,

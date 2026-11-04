@@ -44,8 +44,6 @@ export const MAX_ALIAS_LENGTH = 30;
 // ---------- Seguridad y protección de datos ----------
 /** Alfabeto del PIN: sin caracteres que se confunden (0/O, 1/I/L). 31^6 ≈ 887 millones de combinaciones. */
 export const PIN_ALPHABET = '23456789ABCDEFGHJKMNPQRSTUVWXYZ';
-/** Una sala abierta se cierra sola pasadas estas horas (el profesor puede reabrirla). */
-export const ROOM_OPEN_HOURS = 12;
 /** Plazo de conservación por defecto: la sala y TODO su contenido se borran a los N días. */
 export const RETENTION_DAYS = 60;
 /** Plazo máximo que puede elegir el profesor (debe coincidir con firebase/firestore.rules). */

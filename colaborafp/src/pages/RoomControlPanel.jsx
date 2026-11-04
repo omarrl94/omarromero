@@ -19,7 +19,7 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useRoomFeed } from '../hooks/useRoomFeed';
 import { backend } from '../services/backend';
 import { formatPin } from '../utils/ids';
-import { formatDay, formatTime, isRoomOpen } from '../utils/format';
+import { formatDay, isRoomOpen } from '../utils/format';
 import { useNow } from '../hooks/useNow';
 
 /** Ruta privada /profesor/sala/:roomId — carga la sala y verifica la propiedad. */
@@ -136,7 +136,7 @@ function ControlPanel({ onRoomChange }) {
 
             {open ? (
         <p className="mb-4 text-sm text-stone-600 dark:text-stone-400">
-          Abierta hasta las <strong>{formatTime(room.closes_at)}</strong> (cierre automático) · Todo su contenido se borrará el{' '}
+          Abierta hasta que la cierres · Todo su contenido se borrará el{' '}
           <strong>{formatDay(room.expire_at)}</strong>.{' '}
           <button type="button" className="font-semibold text-brand-700 underline underline-offset-2 hover:text-brand-800 dark:text-brand-300" onClick={() => setExpiryOpen(true)}>
             Cambiar fecha de borrado
@@ -144,7 +144,7 @@ function ControlPanel({ onRoomChange }) {
         </p>
       ) : (
         <p className="mb-4 rounded-xl bg-sun-100 px-4 py-3 text-sm font-medium text-sun-900 dark:bg-sun-400/15 dark:text-sun-200">
-          La sala está cerrada: el PIN no admite nuevos alumnos ni aportaciones. Puedes reabrirla durante 12 horas más. Su contenido se
+          La sala está cerrada: el PIN no admite nuevos alumnos ni aportaciones. Puedes reabrirla cuando quieras. Su contenido se
           borrará el {formatDay(room.expire_at)}.{' '}
           <button type="button" className="font-semibold underline underline-offset-2" onClick={() => setExpiryOpen(true)}>
             Cambiar fecha de borrado

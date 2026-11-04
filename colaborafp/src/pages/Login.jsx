@@ -1,5 +1,5 @@
 import { LogIn, MailCheck } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import AuthCard from '../components/AuthCard';
 import { useAuth } from '../hooks/useAuth';
@@ -17,6 +17,11 @@ export default function Login() {
   const [resent, setResent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const redirectTo = location.state?.from?.pathname || '/profesor';
+  // Si la sesión ya ha entrado (y el profesor ha navegado a otra página), no se le vuelve a redirigir
+  const mounted = useRef(true);
+  useEffect(() => () => {
+    mounted.current = false;
+  }, []);
 
   if (user) return <Navigate to={redirectTo} replace />;
 
@@ -28,7 +33,7 @@ export default function Login() {
     setResent(false);
     try {
       await signIn(form);
-      navigate(redirectTo, { replace: true });
+      if (mounted.current) navigate(redirectTo, { replace: true });
     } catch (err) {
       setError(err.message);
       setUnverified(err.code === 'unverified');

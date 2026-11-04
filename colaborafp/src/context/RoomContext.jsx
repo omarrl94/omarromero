@@ -284,11 +284,13 @@ export function RoomProvider({ room, role, children }) {
 
   const isFresh = useCallback((id) => freshRef.current.has(id), []);
 
-  // Cierre automático: la sala deja de admitir aportaciones al llegar a closes_at
+  // La sala deja de admitir aportaciones al llegar a closes_at (su fecha de borrado, si el profesor no la cierra antes)
   useEffect(() => {
     setRoomClosed(!isRoomOpen(room));
-    if (!isRoomOpen(room)) return undefined;
-    const id = setTimeout(() => setRoomClosed(true), Math.min(room.closes_at - Date.now() + 500, 2 ** 31 - 1));
+    const wait = room?.closes_at - Date.now() + 500;
+    // setTimeout no admite esperas de más de ~24 días: en ese caso no hace falta temporizador
+    if (!isRoomOpen(room) || !(wait < 2 ** 31 - 1)) return undefined;
+    const id = setTimeout(() => setRoomClosed(true), wait);
     return () => clearTimeout(id);
   }, [room]);
 

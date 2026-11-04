@@ -11,8 +11,9 @@ rules_version = '2';
 //    envía peticiones pendientes mientras la sala está abierta.
 //  · Calendarios de clase: el profesor y los profesores colaboradores publican fechas; el alumnado
 //    solo las ve con el código.
-//  · Las salas se cierran solas a las 12 h y todo su contenido caduca en la fecha que elige el
-//    profesor, como máximo 1 año (campo expire_at, preparado para una política TTL de Firestore).
+//  · Las salas siguen abiertas hasta que el profesor las cierra, y nunca más allá de su fecha de
+//    borrado: todo su contenido caduca en la fecha que elige el profesor, como máximo 1 año
+//    (campo expire_at, preparado para una política TTL de Firestore).
 // =====================================================================
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -40,8 +41,9 @@ service cloud.firestore {
     function nowMs() {
       return request.time.toMillis();
     }
-    function maxClose() {
-      return nowMs() + 12 * 3600 * 1000 + 300000; // 12 h (+5 min de margen de reloj)
+    // Una sala puede estar abierta como mucho hasta su fecha de borrado (+5 min de margen de reloj)
+    function maxClose(d) {
+      return d.expire_at.toMillis() + 300000;
     }
     function roomPath(roomId) {
       return /databases/$(database)/documents/rooms/$(roomId);
@@ -89,7 +91,7 @@ service cloud.firestore {
         && (request.resource.data.module == null || (request.resource.data.module is string && request.resource.data.module.size() <= 60))
         && request.resource.data.is_active is bool
         && request.resource.data.created_at is int
-        && request.resource.data.closes_at is int && request.resource.data.closes_at <= maxClose()
+        && request.resource.data.closes_at is int && request.resource.data.expire_at is timestamp && request.resource.data.closes_at <= maxClose(request.resource.data)
         && request.resource.data.expire_at is timestamp
         && request.resource.data.expire_at > request.time
         && request.resource.data.expire_at <= request.time + duration.value(366, 'd');
@@ -99,7 +101,7 @@ service cloud.firestore {
         && ('expire_at' in resource.data)
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['is_active', 'closes_at', 'expire_at'])
         && request.resource.data.is_active is bool
-        && request.resource.data.closes_at is int && request.resource.data.closes_at <= maxClose()
+        && request.resource.data.closes_at is int && request.resource.data.expire_at is timestamp && request.resource.data.closes_at <= maxClose(request.resource.data)
         && request.resource.data.expire_at is timestamp
         && request.resource.data.expire_at > request.time
         && request.resource.data.expire_at <= request.time + duration.value(366, 'd');
@@ -110,7 +112,7 @@ service cloud.firestore {
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['pin', 'is_active', 'closes_at', 'expire_at'])
         && request.resource.data.pin is string && request.resource.data.pin.matches('^[2-9A-HJKMNP-Z]{6}$')
         && request.resource.data.is_active is bool
-        && request.resource.data.closes_at is int && request.resource.data.closes_at <= maxClose()
+        && request.resource.data.closes_at is int && request.resource.data.expire_at is timestamp && request.resource.data.closes_at <= maxClose(request.resource.data)
         && request.resource.data.expire_at is timestamp
         && request.resource.data.expire_at > request.time
         && request.resource.data.expire_at <= request.time + duration.value(366, 'd');
@@ -122,7 +124,7 @@ service cloud.firestore {
       allow create, update: if isTeacher()
         && request.resource.data.keys().hasOnly(['room_id', 'name', 'module', 'teacher_id', 'active', 'closes_at', 'expire_at'])
         && request.resource.data.teacher_id == request.auth.uid
-        && request.resource.data.closes_at is int && request.resource.data.closes_at <= maxClose()
+        && request.resource.data.closes_at is int && request.resource.data.expire_at is timestamp && request.resource.data.closes_at <= maxClose(request.resource.data)
         && request.resource.data.expire_at is timestamp
         && ownsRoomAfter(request.resource.data.room_id, pin)
         && request.resource.data.expire_at == getAfter(roomPath(request.resource.data.room_id)).data.expire_at

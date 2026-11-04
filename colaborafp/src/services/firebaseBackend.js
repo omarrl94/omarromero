@@ -12,7 +12,8 @@
  *   rooms/{roomId}/reports/{reportId}           { resource_id, reason, details, created_at, expire_at }
  *   pins/{pin}                                  { room_id, name, module, teacher_id, active, closes_at, expire_at }
  *
- * Plazos (ver utils/constants): una sala se cierra sola a las ROOM_OPEN_HOURS horas y TODO su contenido
+ * Plazos (ver utils/constants): una sala sigue abierta hasta que el profesor la cierra (como mucho, hasta su
+ * fecha de borrado) y TODO su contenido
  * se borra en la fecha que elige el profesor (por defecto RETENTION_DAYS días; máximo MAX_RETENTION_DAYS) (expire_at: apto para una política TTL de Firestore).
  */
 import { initializeApp } from 'firebase/app';
@@ -57,7 +58,7 @@ import {
   where,
   writeBatch,
 } from 'firebase/firestore';
-import { isAdminEmail, isTeacherEmail, ROOM_OPEN_HOURS, RETENTION_DAYS, TEACHER_EMAIL_DOMAINS } from '../utils/constants';
+import { isAdminEmail, isTeacherEmail, RETENTION_DAYS, TEACHER_EMAIL_DOMAINS } from '../utils/constants';
 import { clampExpiry, defaultExpiry } from '../utils/retention';
 import { generatePin, uuid } from '../utils/ids';
 import { courseExpiry, sortEvents } from '../utils/calendar';
@@ -460,7 +461,7 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
             teacher_id: teacherId,
             is_active: true,
             created_at: now,
-            closes_at: now + ROOM_OPEN_HOURS * HOUR,
+            closes_at: expire_at, // abierta hasta que el profesor la cierre
             expire_at,
           };
           const created = await runTransaction(db, async (tx) => {
@@ -520,7 +521,7 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
       }
     },
 
-    /** Abrir (otras ROOM_OPEN_HOURS horas) o cerrar una sala. */
+    /** Abrir (hasta que el profesor la cierre o llegue su fecha de borrado) o cerrar una sala. */
     setActive: (id, isActive) =>
       wrap(async () =>
         runTransaction(db, async (tx) => {
@@ -532,7 +533,7 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
           const pinIsMine = p.exists() && p.data().room_id === id;
           const pinBusy = p.exists() && !pinIsMine && p.data().active && p.data().closes_at > Date.now();
           if (isActive && pinBusy) throw new Error(PIN_TAKEN);
-          const closes_at = isActive ? Date.now() + ROOM_OPEN_HOURS * HOUR : Math.min(room.closes_at, Date.now());
+          const closes_at = isActive ? room.expire_at : Math.min(room.closes_at, Date.now());
           tx.update(roomRef(id), { is_active: isActive, closes_at });
           const next = { ...room, is_active: isActive, closes_at };
           if (isActive || pinIsMine) tx.set(pinRef(room.pin), pinDoc(id, next));
@@ -547,11 +548,15 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
         const snap = await getDoc(roomRef(id));
         if (!snap.exists()) throw new Error('Sala no encontrada.');
         const room = toRoom(id, snap.data());
-        await updateDoc(roomRef(id), { expire_at });
-        const next = { ...room, expire_at: expire_at.toMillis() };
+        // Abierta: sigue abierta hasta la nueva fecha de borrado
+        const open = room.is_active && room.closes_at > Date.now();
+        const patch = open ? { expire_at, closes_at: expire_at.toMillis() } : { expire_at };
+        await updateDoc(roomRef(id), patch);
+        const next = { ...room, ...patch, expire_at: expire_at.toMillis() };
         // El PIN, los recursos, sus trozos y las notificaciones llevan el mismo plazo (TTL de Firestore)
         const p = await getDoc(pinRef(room.pin)).catch(() => null);
-        const refs = p?.exists() && p.data().room_id === id ? [p.ref] : [];
+        const ownPin = p?.exists() && p.data().room_id === id ? p.ref : null;
+        const refs = ownPin ? [ownPin] : [];
         const [res, reps] = await Promise.all([getDocs(resCol(id)), getDocs(reportsCol(id))]);
         res.docs.forEach((d) => {
           refs.push(d.ref);
@@ -560,7 +565,7 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
         reps.docs.forEach((d) => refs.push(d.ref));
         for (let i = 0; i < refs.length; i += 400) {
           const batch = writeBatch(db);
-          refs.slice(i, i + 400).forEach((ref) => batch.update(ref, { expire_at }));
+          refs.slice(i, i + 400).forEach((ref) => batch.update(ref, ref === ownPin ? patch : { expire_at }));
           await batch.commit();
         }
         return next;

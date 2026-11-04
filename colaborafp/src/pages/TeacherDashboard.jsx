@@ -114,7 +114,7 @@ export default function TeacherDashboard() {
               {creating ? 'Creando…' : 'Crear sala y generar QR'}
             </button>
             <p className="text-xs leading-relaxed text-stone-600 dark:text-stone-400">
-              La sala se cierra sola a las 12 horas (puedes reabrirla) y se borra con todo su contenido en la fecha elegida.
+              La sala sigue abierta hasta que la cierres y se borra con todo su contenido en la fecha elegida.
             </p>
           </form>
           <button type="button" className="btn-secondary mt-3 w-full" onClick={() => setRestoring(true)}>

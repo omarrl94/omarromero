@@ -38,7 +38,7 @@ npm run build
 | Solo profesorado con correo `@jrotero.es` **verificado** (y la cuenta del administrador como única excepción) gestiona salas | `firestore.rules` (`isTeacher`) + registro |
 | Todo el contenido vive **dentro de su sala** (`rooms/{id}/resources`, `/chunks`, `/reports`): no se puede listar entre salas | modelo de datos + reglas |
 | PIN alfanumérico de 6 caracteres (31⁶ ≈ 887 M), generado con `crypto.getRandomValues`; los PIN no se pueden listar | `utils/ids.js` + reglas |
-| La sala se **cierra sola a las 12 h**; el alumnado solo aporta con la sala abierta | `closes_at` + reglas |
+| La sala está abierta **hasta que el profesor la cierra** (nunca más allá de su fecha de borrado); el alumnado solo aporta con la sala abierta | `closes_at` ≤ `expire_at` + reglas |
 | **Borrado automático** de toda sala y su contenido en la fecha que elige el profesor (60 días por defecto, máx. 1 año; `expire_at`, apto para TTL) | panel del profesor + reglas + TTL |
 | Supresión: «Eliminar mi cuenta y mis datos» | `AccountPanel` |
 | Copias de seguridad de una sala (archivo `.colaborafp` en el equipo del profesor) y restauración en una sala nueva | `utils/backup.js` |
