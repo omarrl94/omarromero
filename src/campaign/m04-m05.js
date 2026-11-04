@@ -368,4 +368,8 @@ m5c.lesson.push(
   { title: 'Priorizar y mitigar', text: 'La prioridad real no la da solo el CVSS. Primero va lo que se está explotando activamente y lo que está expuesto a Internet. Si todavía no puedes parchear, MITIGA: restringe el acceso, desactiva la función afectada o pon un filtro delante, y aplica el parche en cuanto puedas.' },
 );
 
+// ── Herramientas profesionales (Arsenal) ──
+m4c.lesson.push({ title: 'Herramientas profesionales: Nmap, Wireshark y Zeek', text: 'Tres herramientas que todo profesional conoce. NMAP descubre equipos, puertos y versiones de servicios; con ella se hacen los inventarios de red, siempre dentro de un alcance autorizado. WIRESHARK captura e inspecciona paquetes: con ella se ve que Telnet o HTTP envían las contraseñas en claro. ZEEK convierte el tráfico en registros (conn.log, dns.log) que el SOC analiza con grep, igual que los demás logs.' });
+m5c.lesson.push({ title: 'Herramienta profesional: OpenVAS', text: 'OpenVAS es un escáner de vulnerabilidades: compara tus servicios con miles de pruebas conocidas y genera un informe con la gravedad CVSS de cada hallazgo. Es el punto de partida, no el final: cada hallazgo se valida y se prioriza (gravedad, exposición y explotación activa) antes de parchear. Se usa sobre tus propios activos o con autorización.' });
+
 export default [m4c, m4r, m4b, m4p, m5c, m5r, m5b, m5p];

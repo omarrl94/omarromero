@@ -2,6 +2,7 @@
 import { MODULES, MISSIONS } from '../campaign/index.js';
 import { examBank } from '../campaign/generators.js';
 import { mulberry32, shuffleQuestion } from '../campaign/random.js';
+import { toolsOfModule } from '../campaign/tools.js';
 import { TEAMS, persp } from './teams.js';
 import { HELP } from './shell.js';
 import { moduleGrade, formatNota } from './progress.js';
@@ -111,6 +112,10 @@ ${b.steps.map((st) => { const { key, rest } = splitKey(persp(st.text, team)); re
 
 ${cmds.length ? `<h2>3. Chuleta de comandos</h2>
 <table><tr><th>Comando</th><th>Para qué sirve</th></tr>${cmds.map(([c, d]) => `<tr><td><code>${esc(c)}</code></td><td>${esc(d)}</td></tr>`).join('')}</table>` : ''}
+
+${toolsOfModule(moduleId).length ? `<h2>Herramientas profesionales del tema</h2>
+<table><tr><th>Herramienta</th><th>Para qué sirve</th><th>Cómo la usa el ${esc(T.name)}</th></tr>${toolsOfModule(moduleId).map((t) => `<tr><td><b>${esc(t.name)}</b><br><small>${esc(t.category)}</small></td><td>${esc(t.what)}</td><td>${esc(t[team])}</td></tr>`).join('')}</table>
+<p><small>Gratuitas y de código abierto. Úsalas solo en sistemas propios o con autorización por escrito.</small></p>` : ''}
 
 <h2>${cmds.length ? 4 : 3}. Glosario</h2>
 <table><tr><th>Término</th><th>Definición</th></tr>${mod.glossary.map((x) => `<tr><td><b>${esc(x.term)}</b></td><td>${esc(x.def)}</td></tr>`).join('')}</table>

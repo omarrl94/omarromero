@@ -82,6 +82,25 @@ Cada misión: **expediente** → **lección paso a paso** → retos → **inform
 - Escala: Insuficiente (<5) · Suficiente (5) · Bien (6) · Notable (7-8) · Sobresaliente (9-10) · **Matrícula de honor** (todas las misiones del tema a 100).
 - **Boletín de notas** en el perfil: nota por tema, media de los temas empezados y nota final del curso (los 10 temas). Se descarga en **CSV** para el profesorado.
 
+## Arsenal: 15 herramientas profesionales
+
+Las 15 herramientas gratuitas y de código abierto que todo profesional debe conocer. Cada una se **presenta en la lección
+común de su tema**, aparece en el **resumen descargable** y se **practica analizando su salida** en el laboratorio simulado.
+La sección **Arsenal** las desbloquea al llegar a su tema y explica cómo las usa tu equipo.
+
+| Tema | Herramientas | Cómo se practica |
+|---|---|---|
+| 2 · Linux y permisos | **Lynis** | `sudo lynis audit system`: leer avisos e índice, y corregir el fichero señalado |
+| 4 · Redes y servicios | **Nmap**, **Wireshark**, **Zeek** | Analizar un inventario de Nmap, una captura de Wireshark (protocolos en claro) y un `conn.log` de Zeek |
+| 5 · Vulnerabilidades | **OpenVAS** | Priorizar un informe por CVSS |
+| 6 · Seguridad web | **OWASP ZAP** | Leer un informe de alertas por riesgo y elegir la corrección |
+| 7 · Criptografía | **KeePassXC**, **VeraCrypt**, **GnuPG** | `gpg --verify` para detectar el paquete manipulado; elegir la herramienta adecuada |
+| 8 · Ingeniería social | **ClamAV** | `clamscan -r adjuntos` sobre los adjuntos reportados |
+| 9 · Detección (SOC) | **Wazuh**, **Suricata**, **Snort**, **Fail2ban** | Alertas por nivel en Wazuh, `fast.log` de Suricata o Snort y `fail2ban-client` |
+| 10 · Operación Otero | **Autopsy** | Reconstruir el incidente desde una línea de tiempo forense |
+
+Además, «¿Qué herramienta usarías?» en entrenamientos y exámenes. Siempre con la misma regla: solo en sistemas propios o autorizados.
+
 ## Diseño pedagógico: se aprende de verdad
 
 La auditoría completa, con hallazgos, correcciones y cómo se comprueba cada una, está en [AUDITORIA-PEDAGOGICA.md](AUDITORIA-PEDAGOGICA.md).
@@ -127,7 +146,8 @@ progreso se sincronizan en la nube. Sin ellas, funciona en **modo local**. Ver [
 ```
 src/
   core/        shell.js (terminal simulada) · vfs.js · crypto.js (MD5, SHA-1/256, Base64…) · teams.js · progress.js
-  campaign/    index.js (módulos) · m01-m03 · m04-m05 · m06-m07 · m08-m10 · helpers.js (objetivos)
+  campaign/    tools.js (Arsenal) · glossary.js (objetivos y glosario)
+               index.js (módulos) · m01-m03 · m04-m05 · m06-m07 · m08-m10 · helpers.js (objetivos)
                generators.js (entrenamientos y bancos de examen) · random.js (aleatoriedad con semilla)
   world/       nebula.js (escenario ficticio: WHOIS, DNS, IPs)
   components/  Intro · AuthScreen · TeamSelect · CampaignMap · MissionView · Lesson (Aprende y Apuntes) · challenges/* · Profile · Leaderboard · fx

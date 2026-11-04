@@ -516,4 +516,7 @@ m3c.lesson.push(
   { title: 'Qué hacer con lo encontrado', text: 'Lo más valioso del OSINT suele ser: formatos de usuario, versiones de software y subdominios olvidados (pruebas, dev, staging), que suelen estar peor protegidos. La defensa es reducir la huella: limpiar metadatos, redactar ofertas de empleo sin versiones, sacar de Internet lo que no debe estar y publicar DMARC con p=reject para que se rechacen los correos que suplantan al dominio.' },
 );
 
+// ── Herramientas profesionales (Arsenal) ──
+m2c.lesson.push({ title: 'Herramienta profesional: Lynis', text: 'Lynis audita la configuración de un sistema Linux y propone cómo endurecerlo. Muestra avisos (warnings) que hay que corregir, sugerencias de mejora y un índice de bastionado de 0 a 100. Se ejecuta con sudo en tus propios servidores y se repite tras cada corrección para ver cómo sube el índice.', code: '$ sudo lynis audit system' });
+
 export default [m1c, m1r, m1b, m1p, m2c, m2r, m2b, m2p, m3c, m3r, m3b, m3p];

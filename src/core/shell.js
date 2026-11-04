@@ -22,6 +22,10 @@ export function createShell(scn = {}) {
     listening: (scn.listening || []).map((l) => ({ ...l })),
     dns: scn.dns || {},
     whois: scn.whois || {},
+    malware: scn.malware || {},
+    f2b: JSON.parse(JSON.stringify(scn.f2b || {})),
+    lynis: scn.lynis || null,
+    gpg: scn.gpg || {},
     history: [],
     log: [],
     answers: {},
@@ -62,6 +66,10 @@ export const HELP = {
   rot13: 'Aplica ROT13 a un texto (cifrado César de 13 posiciones).',
   hashtext: 'hashtext <md5|sha1|sha256> <texto> · hash de un texto (didáctico).',
   history: 'Comandos que has escrito.',
+  clamscan: 'ClamAV: analiza ficheros en busca de malware. clamscan fichero · clamscan -r carpeta',
+  'fail2ban-client': 'Fail2ban: fail2ban-client status sshd (ver baneos) · fail2ban-client set sshd banip <IP>',
+  lynis: 'Lynis: lynis audit system → auditoría de bastionado con avisos, sugerencias e índice.',
+  gpg: 'GnuPG: gpg --verify fichero.sig fichero → comprueba la firma digital de un fichero.',
   clear: 'Limpia la pantalla.',
 };
 
@@ -473,6 +481,61 @@ const COMMANDS = {
     const meta = r.content.match(/%%META([\s\S]*?)%%/);
     st.log.push({ type: 'exif', path: r.abs });
     return meta ? meta[1].trim() : 'Sin metadatos.';
+  },
+  clamscan(st, args) {
+    const { flags, rest } = flagsOf(args);
+    if (!rest.length) return { err: 'uso: clamscan [-r] fichero|carpeta' };
+    const targets = [];
+    for (const t of rest) {
+      const abs = normalize(st.cwd, t, st.home);
+      const node = lookup(st.fs, abs);
+      if (!node) return { err: `clamscan: ${t}: No existe el fichero o el directorio` };
+      if (node.type === 'dir') {
+        if (!flags.has('r')) return { err: `clamscan: ${t} es una carpeta: usa -r para analizarla entera` };
+        walk(st.fs, abs).filter((x) => x.node.type === 'file').forEach((x) => targets.push(x.path));
+      } else targets.push(abs);
+    }
+    const lines = targets.map((f) => `${f}: ${st.malware[f] ? `${st.malware[f]} FOUND` : 'OK'}`);
+    const infected = targets.filter((f) => st.malware[f]).length;
+    st.log.push({ type: 'clamscan', files: targets, infected });
+    return `${lines.join('\n')}\n\n----------- SCAN SUMMARY -----------\nScanned files: ${targets.length}\nInfected files: ${infected}`;
+  },
+  'fail2ban-client'(st, args) {
+    const [a, jail, sub, ip] = args;
+    const j = st.f2b[jail || ''];
+    if (a === 'status' && !jail) return `Status\n|- Number of jail:\t${Object.keys(st.f2b).length}\n\`- Jail list:\t${Object.keys(st.f2b).join(', ')}`;
+    if (!j) return { err: `fail2ban-client: la jaula «${jail || ''}» no existe` };
+    if (a === 'status') {
+      st.log.push({ type: 'f2b-status', jail });
+      return `Status for the jail: ${jail}\n|- Filter\n|  |- Currently failed:\t${j.failed || 0}\n|  \`- File list:\t/var/log/auth.log\n\`- Actions\n   |- Currently banned:\t${j.banned.length}\n   \`- Banned IP list:\t${j.banned.join(' ')}`;
+    }
+    if (a === 'set' && sub === 'banip' && ip) {
+      if (st.user !== 'root') return { err: 'fail2ban-client: Permiso denegado (necesitas root).' };
+      if (!j.banned.includes(ip)) j.banned.push(ip);
+      st.log.push({ type: 'f2b-ban', jail, ip });
+      return '1';
+    }
+    return { err: 'uso: fail2ban-client status <jaula> | set <jaula> banip <IP>' };
+  },
+  lynis(st, args) {
+    if (args[0] !== 'audit' || args[1] !== 'system') return { err: 'uso: lynis audit system' };
+    if (st.user !== 'root') return { err: 'lynis: para una auditoría completa ejecútalo con sudo.' };
+    const L = st.lynis;
+    if (!L) return 'Lynis: sin datos en este laboratorio.';
+    st.log.push({ type: 'lynis' });
+    const warn = L.warnings.map((w) => `  ! ${w}`).join('\n');
+    const sug = L.suggestions.map((w) => `  * ${w}`).join('\n');
+    return `[ Lynis 3.x · auditoría de ${st.host} ]\n\n  Warnings (${L.warnings.length}):\n${warn || '  ninguno'}\n\n  Suggestions (${L.suggestions.length}):\n${sug}\n\n  Hardening index : ${L.index} [${'#'.repeat(Math.round(L.index / 5)).padEnd(20, ' ')}]\n  Informe completo: /var/log/lynis-report.dat`;
+  },
+  gpg(st, args) {
+    if (args[0] !== '--verify' || !args[1]) return { err: 'uso: gpg --verify fichero.sig [fichero]' };
+    const sigAbs = normalize(st.cwd, args[1], st.home);
+    if (!lookup(st.fs, sigAbs)) return { err: `gpg: no se puede abrir '${args[1]}': No existe el fichero` };
+    const info = st.gpg[sigAbs];
+    st.log.push({ type: 'gpg-verify', sig: sigAbs, good: !!info?.good });
+    if (!info) return { err: 'gpg: no se ha encontrado ninguna firma válida' };
+    if (info.good) return `gpg: Firmado el mié 04 nov 2026 09:00:00 CET\ngpg:                usando clave EDDSA ${info.key}\ngpg: Firma correcta de "${info.signer}" [total]`;
+    return `gpg: Firmado el mié 04 nov 2026 09:00:00 CET\ngpg:                usando clave EDDSA ${info.key}\ngpg: FIRMA INCORRECTA de "${info.signer}" [total]\ngpg: ¡ATENCIÓN! El fichero no coincide con la firma: no lo instales.`;
   },
 };
 

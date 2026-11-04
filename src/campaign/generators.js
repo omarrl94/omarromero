@@ -4,6 +4,7 @@ import { read, ev, blocked, modeIs, noProc, cronClean, gone, all } from './helpe
 import { docIp, shuffleQuestion } from './random.js';
 import { sha256, b64encode, md5, sha1 } from '../core/crypto.js';
 import { octalToMode } from '../core/vfs.js';
+import { TOOLS } from './tools.js';
 
 const classifyFrom = (r, { title, prompt, categories, pool, n = 5 }) => ({ type: 'classify', title, prompt, categories, items: r.pickN(pool, Math.min(n, pool.length)) });
 const quizFrom = (r, title, pool, n) => ({ type: 'quiz', title, questions: r.pickN(pool, Math.min(n, pool.length)).map((q) => shuffleQuestion(r, q)) });
@@ -549,6 +550,341 @@ const IR_PHASE_POOL = [
   ['Revisar los logs para saber el alcance', 'det', 'Detección y análisis.'],
 ].map(([text, cat, explain]) => ({ text, cat, explain }));
 
+
+// ───────────────────────────── Herramientas profesionales (Arsenal) ─────────────────────────────
+const MOD_ORDER = ['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7', 'm8', 'm9', 'm10'];
+const TOOL_USES = {
+  lynis: ['Revisar cómo de bien bastionado está un servidor Linux', 'Obtener un índice de endurecimiento y una lista de mejoras de configuración'],
+  nmap: ['Hacer inventario de qué puertos y servicios tiene abiertos tu red', 'Descubrir qué equipos responden en una subred autorizada'],
+  wireshark: ['Inspeccionar paquete a paquete una conversación de red', 'Demostrar que un protocolo envía las contraseñas en claro'],
+  zeek: ['Convertir el tráfico de red en registros de conexiones para cazar amenazas', 'Obtener un conn.log con todas las conexiones de la red'],
+  openvas: ['Escanear tus servidores en busca de vulnerabilidades conocidas con su CVSS', 'Generar un informe periódico de vulnerabilidades de la infraestructura'],
+  zap: ['Buscar fallos como XSS o cabeceras ausentes en tu propia aplicación web', 'Revisar la seguridad de una web antes de publicarla'],
+  keepassxc: ['Guardar una contraseña larga y distinta para cada servicio', 'Dejar de reutilizar contraseñas en la plantilla'],
+  veracrypt: ['Cifrar el disco de un portátil con datos personales', 'Crear una unidad cifrada para llevar datos en un USB'],
+  gnupg: ['Comprobar que un instalador lo firmó su autor y no se ha alterado', 'Firmar un informe para que se pueda verificar su autoría'],
+  clamav: ['Analizar un adjunto sospechoso en busca de malware', 'Escanear los ficheros subidos a un servidor'],
+  wazuh: ['Centralizar los logs de todos los equipos y generar alertas', 'Tener un panel del SOC con alertas por nivel de gravedad'],
+  suricata: ['Detectar o bloquear tráfico malicioso en la red con firmas (IDS/IPS)', 'Recibir alertas con prioridad cuando pasa tráfico de un ataque conocido'],
+  snort: ['Detectar intrusiones en tiempo real en el perímetro con reglas', 'Usar el IDS/IPS clásico de código abierto'],
+  fail2ban: ['Banear automáticamente las IP que fallan muchas contraseñas', 'Cortar una fuerza bruta contra SSH sin intervenir a mano'],
+  autopsy: ['Reconstruir la línea de tiempo de un disco comprometido', 'Analizar la imagen forense de un equipo conservando las evidencias'],
+};
+
+/** «¿Qué herramienta usarías?» con herramientas ya presentadas hasta este tema. */
+function toolPick(r, moduleId, n = 4) {
+  const upTo = MOD_ORDER.indexOf(moduleId);
+  const available = TOOLS.filter((t) => MOD_ORDER.indexOf(t.module) <= upTo);
+  const chosen = r.pickN(available, Math.min(n, available.length));
+  const items = chosen.map((t) => ({ text: r.pick(TOOL_USES[t.id]), cat: t.id, explain: `${t.name}: ${t.what}` }));
+  return { type: 'classify', title: '¿Qué herramienta usarías?', prompt: 'Elige la herramienta profesional adecuada para cada tarea.', categories: chosen.map((t) => ({ id: t.id, label: t.name })), items: r.shuffle(items) };
+}
+
+function lynisAudit(r) {
+  const file = r.pick(['/etc/backup.key', '/etc/app/db.conf', '/opt/api/token.txt', '/etc/vpn/secreto.psk']);
+  const index = r.int(48, 66);
+  return {
+    type: 'terminal',
+    title: 'Auditoría con Lynis',
+    prompt: 'Audita el servidor con Lynis y corrige el aviso sobre un fichero sensible legible por todos (déjalo en 600). Tienes sudo.',
+    scenario: {
+      host: 'srv-app01',
+      files: { [file]: { content: 'secreto de laboratorio', mode: 'rw-r--r--', owner: 'root' } },
+      lynis: {
+        index,
+        warnings: [`El fichero ${file} tiene permisos 644: lo puede leer cualquier usuario [FILE-7524]`, r.pick(['SSH permite iniciar sesión como root [SSH-7412]', 'Hay paquetes con actualizaciones de seguridad pendientes [PKGS-7392]'])],
+        suggestions: ['Instala Fail2ban para frenar la fuerza bruta [DEB-0880]', 'Activa la auditoría de ficheros críticos (FIM) [FINT-4350]', 'Revisa los servicios que escuchan en todas las interfaces [NETW-3012]'],
+      },
+    },
+    objectives: [
+      { id: 'audit', text: 'Ejecuta la auditoría de Lynis', how: 'sudo lynis audit system', check: ev('lynis') },
+      { id: 'index', text: '¿Qué índice de bastionado obtiene el servidor?', answer: [String(index)], placeholder: '0-100' },
+      { id: 'file', text: '¿Qué fichero sensible señala el aviso?', answer: [file], placeholder: '/ruta' },
+      { id: 'fix', text: 'Corrige sus permisos a 600', how: `sudo chmod 600 ${file}`, check: modeIs(file, '600') },
+    ],
+    solution: ['sudo lynis audit system', `sudo chmod 600 ${file}`],
+    hints: ['Lynis necesita sudo para auditar todo el sistema.', 'El aviso FILE-7524 dice qué fichero es.'],
+  };
+}
+
+function nmapReport(r) {
+  const n = r.int(3, 5);
+  const telnetIdx = r.int(0, n - 1);
+  const hosts = Array.from({ length: n }, (_, i) => ({ ip: `10.20.0.${10 + i * 10 + r.int(0, 8)}`, name: ['web', 'correo', 'ficheros', 'impresora', 'backup'][i] }));
+  const blocks = hosts.map((h, i) => {
+    const ports = [['22/tcp', 'open', 'ssh', 'OpenSSH 9.6'], ...(i === telnetIdx ? [['23/tcp', 'open', 'telnet', 'Linux telnetd']] : []), ...(h.name === 'web' ? [['443/tcp', 'open', 'https', 'nginx 1.24']] : []), ...(h.name === 'impresora' ? [['9100/tcp', 'open', 'jetdirect', '']] : [])];
+    return `Nmap scan report for ${h.name}.nebula-logistica.lab (${h.ip})\nHost is up (0.0021s latency).\nPORT     STATE SERVICE VERSION\n${ports.map(([a, b, c, d]) => `${a.padEnd(9)}${b.padEnd(6)}${c.padEnd(8)}${d}`).join('\n')}`;
+  });
+  const report = `# Inventario interno autorizado (orden NL-2026-11) generado con Nmap\n\n${blocks.join('\n\n')}\n\nNmap done: 256 IP addresses (${n} hosts up) scanned in 12.40 seconds`;
+  return {
+    type: 'terminal',
+    title: 'Informe de Nmap',
+    prompt: 'El inventario autorizado de la red interna se generó con Nmap y está en ~/informes/nmap.txt. Analízalo.',
+    scenario: { files: { '/home/analista/informes/nmap.txt': report } },
+    objectives: [
+      { id: 'read', text: 'Lee el informe', how: 'cat informes/nmap.txt', check: read('/home/analista/informes/nmap.txt') },
+      { id: 'up', text: '¿Cuántos equipos están activos (hosts up)?', answer: [String(n)], placeholder: 'número' },
+      { id: 'telnet', text: 'Filtra las líneas de telnet', how: 'grep telnet informes/nmap.txt', check: ev('grep', (e) => /telnet/i.test(e.pattern)) },
+      { id: 'ip', text: '¿Qué IP tiene Telnet abierto (sin cifrar)?', answer: [hosts[telnetIdx].ip], placeholder: '0.0.0.0' },
+    ],
+    solution: ['cat informes/nmap.txt', 'grep telnet informes/nmap.txt'],
+    hints: ['El resumen final de Nmap dice cuántos equipos respondieron.', 'Cada bloque empieza por «Nmap scan report for» con la IP entre paréntesis.'],
+  };
+}
+
+function captureRead(r) {
+  const client = `10.20.0.${r.int(50, 99)}`;
+  const server = `10.20.0.${r.int(5, 9)}`;
+  const user = r.pick(['jmartin', 'operador', 'lsanz', 'soporte2']);
+  const proto = r.pick([['TELNET', 23], ['FTP', 21]]);
+  const cap = [
+    `No. Time     Source        Destination   Protocol Info`,
+    `1   0.000    ${client}  ${server}   TCP      51544 → ${proto[1]} [SYN]`,
+    `2   0.001    ${server}   ${client}  TCP      ${proto[1]} → 51544 [SYN, ACK]`,
+    `3   0.001    ${client}  ${server}   TCP      51544 → ${proto[1]} [ACK]`,
+    proto[0] === 'TELNET' ? `4   0.210    ${server}   ${client}  TELNET   Data: login:` : `4   0.210    ${server}   ${client}  FTP      Response: 220 Servidor FTP listo`,
+    proto[0] === 'TELNET' ? `5   1.402    ${client}  ${server}   TELNET   Data: ${user}` : `5   1.402    ${client}  ${server}   FTP      Request: USER ${user}`,
+    proto[0] === 'TELNET' ? `6   1.405    ${server}   ${client}  TELNET   Data: Password:` : `6   1.405    ${server}   ${client}  FTP      Response: 331 Password required`,
+    proto[0] === 'TELNET' ? `7   3.120    ${client}  ${server}   TELNET   Data: Laboratorio2026!` : `7   3.120    ${client}  ${server}   FTP      Request: PASS Laboratorio2026!`,
+  ].join('\n');
+  return {
+    type: 'terminal',
+    title: 'Captura de Wireshark',
+    prompt: 'Un compañero exportó a texto una captura de Wireshark de la red de pruebas (~/capturas/sesion.txt). Demuestra por qué ese protocolo es peligroso.',
+    scenario: { files: { '/home/analista/capturas/sesion.txt': cap } },
+    objectives: [
+      { id: 'read', text: 'Lee la captura', how: 'cat capturas/sesion.txt', check: read('/home/analista/capturas/sesion.txt') },
+      { id: 'proto', text: '¿Qué protocolo sin cifrar se ve?', answer: [proto[0].toLowerCase(), proto[0]], placeholder: 'protocolo' },
+      { id: 'user', text: '¿Qué usuario viaja en claro?', answer: [user], placeholder: 'usuario' },
+      { id: 'fix', text: '¿Con qué protocolo cifrado lo sustituirías? (SSH, SFTP…)', answer: proto[0] === 'TELNET' ? ['ssh'] : ['sftp', 'ftps', 'scp'], placeholder: 'protocolo' },
+    ],
+    solution: ['cat capturas/sesion.txt'],
+    hints: ['Mira la columna Protocol.', 'Telnet se sustituye por SSH; FTP, por SFTP.'],
+  };
+}
+
+function zeekScan(r) {
+  const scanner = `10.20.0.${r.int(100, 199)}`;
+  const n = r.int(8, 14);
+  const rows = [];
+  for (let i = 0; i < n; i++) rows.push(`1730710${200 + i}.11\tC${i}x\t${scanner}\t4${1000 + i}\t10.20.0.10\t${r.pick([21, 22, 23, 25, 53, 80, 110, 139, 143, 443, 445, 3306, 3389, 8080])}\ttcp\t-\tS0`);
+  for (let k = 0; k < 5; k++) rows.splice(r.int(0, rows.length), 0, `1730710${100 + k}.42\tN${k}y\t10.20.0.${r.int(20, 40)}\t5${2000 + k}\t10.20.0.10\t443\ttcp\tssl\tSF`);
+  const log = `#fields\tts\tuid\tid.orig_h\tid.orig_p\tid.resp_h\tid.resp_p\tproto\tservice\tconn_state\n${rows.join('\n')}`;
+  return {
+    type: 'terminal',
+    title: 'conn.log de Zeek',
+    prompt: 'Zeek ha registrado las conexiones al servidor 10.20.0.10 en /var/log/zeek/conn.log. Una IP interna intenta conectar a muchos puertos sin completar la conexión (estado S0). Encuéntrala y bloquéala (tienes sudo).',
+    scenario: { files: { '/var/log/zeek/conn.log': log } },
+    objectives: [
+      { id: 'grep', text: 'Filtra las conexiones con estado S0 (sin respuesta)', how: 'grep S0 /var/log/zeek/conn.log', check: ev('grep', (e) => /S0/.test(e.pattern)) },
+      { id: 'ip', text: '¿Qué IP origina esas conexiones?', answer: [scanner], placeholder: '0.0.0.0' },
+      { id: 'n', text: '¿Cuántos intentos S0 hay?', answer: [String(n)], placeholder: 'número' },
+      { id: 'block', text: 'Bloquea esa IP', how: `sudo iptables -A INPUT -s ${scanner} -j DROP`, check: blocked(scanner) },
+    ],
+    solution: ['grep S0 /var/log/zeek/conn.log', 'grep -c S0 /var/log/zeek/conn.log', `sudo iptables -A INPUT -s ${scanner} -j DROP`],
+    hints: ['La tercera columna (id.orig_h) es la IP de origen.', 'grep -c cuenta líneas.'],
+  };
+}
+
+function openvasReport(r) {
+  const findings = r.shuffle([
+    { host: '10.20.0.11', nvt: 'MySQL sin soporte (fin de vida)', cvss: 10.0 },
+    { host: '10.20.0.12', nvt: 'Servicio Telnet sin cifrar', cvss: 4.8 },
+    { host: '10.20.0.13', nvt: 'Certificado TLS caducado', cvss: 5.0 },
+    { host: '10.20.0.14', nvt: 'Ejecución remota en el panel de copias', cvss: r.int(90, 98) / 10 },
+    { host: '10.20.0.15', nvt: 'Banner de versión del servidor web', cvss: 2.6 },
+  ]).slice(0, 4);
+  const top = [...findings].sort((a, b) => b.cvss - a.cvss)[0];
+  const high = findings.filter((f) => f.cvss >= 7).length;
+  const report = `Informe OpenVAS · escaneo autorizado de la red interna\nHOST         SEVERIDAD  CVSS  NVT\n${findings.map((f) => `${f.host.padEnd(13)}${(f.cvss >= 7 ? 'High' : f.cvss >= 4 ? 'Medium' : 'Low').padEnd(11)}${f.cvss.toFixed(1).padEnd(6)}${f.nvt}`).join('\n')}`;
+  return {
+    type: 'terminal',
+    title: 'Informe de OpenVAS',
+    prompt: 'Prioriza el informe de OpenVAS de ~/informes/openvas.txt.',
+    scenario: { files: { '/home/analista/informes/openvas.txt': report } },
+    objectives: [
+      { id: 'read', text: 'Lee el informe', how: 'cat informes/openvas.txt', check: read('/home/analista/informes/openvas.txt') },
+      { id: 'high', text: '¿Cuántos hallazgos son High?', answer: [String(high)], placeholder: 'número' },
+      { id: 'top', text: '¿Qué equipo tiene el hallazgo más grave? (IP)', answer: [top.host], placeholder: '0.0.0.0' },
+    ],
+    solution: ['cat informes/openvas.txt', 'grep -c High informes/openvas.txt'],
+    hints: ['High = CVSS 7 o más.', 'Busca la puntuación CVSS más alta.'],
+  };
+}
+
+function zapReport(r) {
+  const alerts = r.shuffle([
+    ['High', 'Cross Site Scripting (Reflected)', '/buscar?q='],
+    ['Medium', 'Content Security Policy (CSP) Header Not Set', '/'],
+    ['Medium', 'Missing Anti-clickjacking Header', '/'],
+    ['Low', 'Cookie No HttpOnly Flag', '/login'],
+    ['Low', 'Server Leaks Version Information', '/'],
+    ['Informational', 'Information Disclosure - Suspicious Comments', '/js/app.js'],
+  ]).slice(0, 5);
+  if (!alerts.some((a) => a[0] === 'High')) alerts[0] = ['High', 'Cross Site Scripting (Reflected)', '/buscar?q='];
+  const highAlert = alerts.find((a) => a[0] === 'High');
+  const rep = `OWASP ZAP · Informe de la web de pruebas (autorizado)\nRIESGO         ALERTA                                              URL\n${alerts.map((a) => `${a[0].padEnd(15)}${a[1].padEnd(52)}${a[2]}`).join('\n')}`;
+  return {
+    type: 'terminal',
+    title: 'Informe de OWASP ZAP',
+    prompt: 'Revisa el informe de ZAP (~/informes/zap.txt) de la web de pruebas y decide qué se corrige primero.',
+    scenario: { files: { '/home/analista/informes/zap.txt': rep } },
+    objectives: [
+      { id: 'read', text: 'Lee el informe', how: 'cat informes/zap.txt', check: read('/home/analista/informes/zap.txt') },
+      { id: 'high', text: 'Filtra las alertas High', how: 'grep High informes/zap.txt', check: ev('grep', (e) => /high/i.test(e.pattern)) },
+      { id: 'which', text: '¿En qué URL está la alerta High?', answer: [highAlert[2]], placeholder: '/ruta' },
+      { id: 'cwe', text: 'Esa alerta es un XSS. ¿Cuál es su corrección de raíz? (escapar la salida / consultas parametrizadas)', answer: ['escapar la salida', 'escapar salida', 'escapar'], placeholder: 'corrección' },
+    ],
+    solution: ['cat informes/zap.txt', 'grep High informes/zap.txt'],
+    hints: ['XSS: lo que escribe el usuario se pinta sin escapar.'],
+  };
+}
+
+function gpgVerify(r) {
+  const names = ['agente-2.1.tar', 'agente-2.2.tar', 'agente-2.3.tar'];
+  const bad = r.int(0, 2);
+  const files = {};
+  const gpg = {};
+  names.forEach((n, i) => {
+    files[`/home/analista/release/${n}`] = `paquete ${n}`;
+    files[`/home/analista/release/${n}.sig`] = '-----BEGIN PGP SIGNATURE-----\n(firma de laboratorio)\n-----END PGP SIGNATURE-----';
+    gpg[`/home/analista/release/${n}.sig`] = { good: i !== bad, key: '7A3F91C2E0D4B6A8', signer: 'Equipo de Publicación JROTERO <release@jrotero-seguridad.lab>' };
+  });
+  return {
+    type: 'terminal',
+    title: 'Verificar firmas con GnuPG',
+    prompt: 'Antes de instalar, verifica con gpg la firma de cada versión de ~/release. Una ha sido manipulada.',
+    scenario: { files, gpg },
+    objectives: [
+      { id: 'ls', text: 'Lista la carpeta release', how: 'ls release', check: ev('ls', (e) => e.path === '/home/analista/release') },
+      { id: 'verify', text: 'Verifica las tres firmas', how: 'gpg --verify release/agente-2.1.tar.sig release/agente-2.1.tar (y las otras dos)', check: (st) => names.every((n) => st.log.some((e) => e.type === 'gpg-verify' && e.sig === `/home/analista/release/${n}.sig`)) },
+      { id: 'bad', text: '¿Qué fichero NO debes instalar?', answer: [names[bad]], placeholder: 'agente-x.y.tar' },
+    ],
+    solution: ['ls release', ...names.map((n) => `gpg --verify release/${n}.sig release/${n}`)],
+    hints: ['«Firma correcta» frente a «FIRMA INCORRECTA».'],
+  };
+}
+
+function clamscanAttach(r) {
+  const files = r.shuffle(['factura_oct.pdf', 'nominas.xlsx', 'presupuesto.docx', 'foto_evento.jpg', 'albaran.pdf.exe', 'actualizar.js']).slice(0, 5);
+  const infected = files.filter((f) => /\.exe$|\.js$/.test(f));
+  if (!infected.length) { files[0] = 'albaran.pdf.exe'; infected.push('albaran.pdf.exe'); }
+  const malware = {};
+  infected.forEach((f) => { malware[`/home/analista/adjuntos/${f}`] = r.pick(['Win.Trojan.Agent-LAB', 'Doc.Dropper.Lab-77', 'Js.Downloader.Lab-12']); });
+  const fs = {};
+  files.forEach((f) => { fs[`/home/analista/adjuntos/${f}`] = `contenido simulado de ${f}`; });
+  return {
+    type: 'terminal',
+    title: 'Adjuntos con ClamAV',
+    prompt: 'Varios correos reportados traían adjuntos, guardados en ~/adjuntos. Analízalos con ClamAV antes de que nadie los abra.',
+    scenario: { files: fs, malware },
+    objectives: [
+      { id: 'scan', text: 'Analiza la carpeta entera', how: 'clamscan -r adjuntos', check: ev('clamscan', (e) => e.files.length >= files.length) },
+      { id: 'n', text: '¿Cuántos ficheros están infectados?', answer: [String(infected.length)], placeholder: 'número' },
+      { id: 'which', text: infected.length === 1 ? '¿Cuál es el fichero infectado?' : 'Escribe uno de los ficheros infectados', answer: infected, placeholder: 'fichero' },
+    ],
+    solution: ['clamscan -r adjuntos'],
+    hints: ['clamscan necesita -r para una carpeta.', 'Mira las líneas con FOUND.'],
+  };
+}
+
+function fail2banHunt(r) {
+  const attacker = docIp(r);
+  const banned = [docIp(r), docIp(r)];
+  const n = r.int(6, 12);
+  const lines = [];
+  for (let i = 0; i < n; i++) lines.push(`Nov  4 04:0${Math.floor(i / 10)}:${String(i * 5).padStart(2, '0')} srv01 sshd[${700 + i}]: Failed password for ${r.pick(['root', 'admin', 'test'])} from ${attacker} port ${43000 + i}`);
+  lines.unshift(`Nov  4 03:58:00 srv01 sshd[690]: Accepted publickey for analista from 192.0.2.15 port 50100`);
+  return {
+    type: 'terminal',
+    title: 'Fail2ban contra la fuerza bruta',
+    prompt: 'Alguien está probando contraseñas por SSH. Revisa qué tiene baneado Fail2ban y banea a mano al atacante actual (tienes sudo).',
+    scenario: { files: { '/var/log/auth.log': lines.join('\n') }, f2b: { sshd: { failed: n, banned } } },
+    objectives: [
+      { id: 'status', text: 'Consulta el estado de la jaula sshd', how: 'sudo fail2ban-client status sshd', check: ev('f2b-status', (e) => e.jail === 'sshd') },
+      { id: 'nb', text: '¿Cuántas IP hay baneadas ahora mismo?', answer: [String(banned.length)], placeholder: 'número' },
+      { id: 'ip', text: 'Busca en auth.log la IP que está fallando ahora', how: "grep 'Failed password' /var/log/auth.log", check: ev('grep', (e) => /failed/i.test(e.pattern)) },
+      { id: 'ban', text: 'Banéala con Fail2ban', how: `sudo fail2ban-client set sshd banip ${attacker}`, check: (st) => st.f2b.sshd.banned.includes(attacker) },
+    ],
+    solution: ['sudo fail2ban-client status sshd', "grep 'Failed password' /var/log/auth.log", `sudo fail2ban-client set sshd banip ${attacker}`],
+    hints: ['«Currently banned» dice cuántas hay.', 'fail2ban-client set sshd banip <IP>'],
+  };
+}
+
+function idsAlerts(r) {
+  const tool = r.pick(['suricata', 'snort']);
+  const attacker = docIp(r);
+  const sig = r.pick(['ET SCAN Escaneo de puertos SYN detectado', 'ET WEB_SERVER Intento de inyección SQL', 'ET POLICY Inicio de sesión Telnet en claro']);
+  const lines = [];
+  const nHigh = r.int(2, 4);
+  for (let i = 0; i < nHigh; i++) lines.push(`11/04-10:1${i}:0${i}  [**] [1:20${r.int(10000, 99999)}:1] ${sig} [**] [Priority: 1] {TCP} ${attacker}:${40000 + i} -> 10.20.0.10:${r.pick([22, 80, 443])}`);
+  for (let k = 0; k < 4; k++) lines.splice(r.int(0, lines.length), 0, `11/04-10:2${k}:3${k}  [**] [1:22000${k}:1] ET INFO Consulta DNS a dominio poco común [**] [Priority: 3] {UDP} 10.20.0.${r.int(30, 60)}:5353 -> 10.20.0.2:53`);
+  const path = tool === 'suricata' ? '/var/log/suricata/fast.log' : '/var/log/snort/alert';
+  return {
+    type: 'terminal',
+    title: `Alertas de ${tool === 'suricata' ? 'Suricata' : 'Snort'}`,
+    prompt: `Revisa las alertas del IDS en ${path}: céntrate en las de prioridad 1 y bloquea su origen (tienes sudo).`,
+    scenario: { files: { [path]: lines.join('\n') } },
+    objectives: [
+      { id: 'grep', text: 'Filtra las alertas de prioridad 1', how: `grep "Priority: 1" ${path}`, check: ev('grep', (e) => /priority: 1/i.test(e.pattern)) },
+      { id: 'n', text: '¿Cuántas alertas de prioridad 1 hay?', answer: [String(nHigh)], placeholder: 'número' },
+      { id: 'ip', text: '¿Qué IP las origina?', answer: [attacker], placeholder: '0.0.0.0' },
+      { id: 'block', text: 'Bloquéala en el cortafuegos', how: `sudo iptables -A INPUT -s ${attacker} -j DROP`, check: blocked(attacker) },
+    ],
+    solution: [`grep "Priority: 1" ${path}`, `grep -c "Priority: 1" ${path}`, `sudo iptables -A INPUT -s ${attacker} -j DROP`],
+    hints: ['Pon el patrón entre comillas: tiene un espacio.', 'La IP de origen va antes de «->».'],
+  };
+}
+
+function wazuhLogs(r) {
+  const rows = r.shuffle([
+    ['3', 'Inicio de sesión correcto por SSH (analista)', false],
+    ['5', 'Fallo de autenticación SSH aislado', false],
+    ['10', 'Múltiples fallos de autenticación SSH desde la misma IP', true],
+    ['12', 'Acceso SSH aceptado tras múltiples fallos (posible cuenta comprometida)', true],
+    ['7', 'Integridad de ficheros: /etc/passwd modificado por useradd', false],
+    ['13', 'Integridad de ficheros: binario de sistema modificado en /usr/bin', true],
+    ['4', 'Servicio reiniciado: nginx', false],
+  ]).slice(0, 6);
+  if (!rows.some((x) => x[2])) rows[0] = ['12', 'Acceso SSH aceptado tras múltiples fallos (posible cuenta comprometida)', true];
+  if (rows.every((x) => x[2])) rows[0] = ['3', 'Inicio de sesión correcto por SSH (analista)', false];
+  return {
+    type: 'logs',
+    title: 'Panel de Wazuh',
+    prompt: 'Wazuh puntúa cada alerta de 0 a 15. Marca las que el SOC debe atender YA (nivel 10 o más).',
+    lines: rows.map(([lvl, d]) => `rule.level=${lvl.padStart(2)}  agent=srv-web01  ${d}`),
+    bad: rows.map((x, i) => (x[2] ? i : -1)).filter((i) => i >= 0),
+    explain: 'Los niveles altos (≥ 10) indican ataques probables: fuerza bruta, acceso tras fallos o cambios en binarios del sistema. El resto es actividad normal o de baja prioridad.',
+  };
+}
+
+function autopsyTimeline(r) {
+  const h = r.int(8, 11);
+  const exe = r.pick(['factura_nov.pdf.exe', 'pedido_urgente.zip', 'actualizacion_flash.exe']);
+  const rows = [
+    [`2026-11-04 0${h - 1}:55:10`, 'Web', 'Visita a https://www.nebula-logistica.lab/catalogo'],
+    [`2026-11-04 0${h - 1}:58:41`, 'Correo', 'Correo recibido: «URGENTE: factura pendiente»'],
+    [`2026-11-04 ${String(h).padStart(2, '0')}:02:13`, 'Descarga', `C:/Users/conta/Downloads/${exe}`],
+    [`2026-11-04 ${String(h).padStart(2, '0')}:02:40`, 'Ejecución', `${exe} (prefetch)`],
+    [`2026-11-04 ${String(h).padStart(2, '0')}:03:05`, 'Fichero creado', 'C:/Users/conta/AppData/Roaming/actualizador.exe'],
+    [`2026-11-04 ${String(h).padStart(2, '0')}:03:06`, 'Registro', 'Run\\Actualizador → actualizador.exe (persistencia)'],
+  ].map((x) => x.join(' | '));
+  return {
+    type: 'terminal',
+    title: 'Línea de tiempo de Autopsy',
+    prompt: 'Autopsy ha generado la línea de tiempo del portátil comprometido (~/forense/timeline.txt), a partir de una copia verificada del disco. Reconstruye cómo entró.',
+    scenario: { files: { '/home/analista/forense/timeline.txt': `FECHA | TIPO | DETALLE\n${rows.join('\n')}` } },
+    objectives: [
+      { id: 'read', text: 'Lee la línea de tiempo', how: 'cat forense/timeline.txt', check: read('/home/analista/forense/timeline.txt') },
+      { id: 'file', text: '¿Qué fichero descargado fue el vector de entrada?', answer: [exe], placeholder: 'fichero' },
+      { id: 'hour', text: '¿A qué hora se descargó? (HH:MM)', answer: [`${String(h).padStart(2, '0')}:02`], placeholder: 'HH:MM' },
+      { id: 'persist', text: '¿Qué mecanismo de persistencia dejó? (registro / cron / servicio)', answer: ['registro', 'clave run', 'run'], placeholder: 'mecanismo' },
+    ],
+    solution: ['cat forense/timeline.txt', 'grep Descarga forense/timeline.txt'],
+    hints: ['Busca la línea de tipo Descarga.', 'La última línea muestra la persistencia.'],
+  };
+}
+
 // ───────────────────────────── Bancos de examen (además de los test de las misiones) ─────────────────────────────
 const Q = (q, options, explain) => ({ q, options, correct: 0, explain });
 export const EXAM_EXTRA = {
@@ -560,6 +896,7 @@ export const EXAM_EXTRA = {
     Q('En ATT&CK, una «táctica» es…', ['El objetivo del adversario (el «para qué»)', 'Un programa malicioso concreto', 'Una IP'], 'Las técnicas son el «cómo».'),
   ],
   m2: [
+    Q('¿Para qué sirve Lynis?', ['Para auditar el bastionado de un sistema Linux y proponer mejoras', 'Para cifrar discos', 'Para capturar paquetes'], 'Da avisos, sugerencias y un índice de bastionado.'),
     Q('¿Para qué sirve sudo?', ['Para ejecutar una orden con permisos de administrador', 'Para borrar usuarios', 'Para ver la hora'], 'Por eso chmod sobre un fichero de root necesita sudo.'),
     Q('Quieres que solo tú puedas leer y escribir un fichero. ¿Qué permisos le pones?', ['600', '777', '644'], '6 = rw- para el dueño y 0 para el resto.'),
     Q('¿Qué permisos da 755?', ['Dueño todo; grupo y otros leer y ejecutar', 'Todos escribir', 'Solo el dueño lee'], '7 = rwx, 5 = r-x.'),
@@ -579,6 +916,9 @@ export const EXAM_EXTRA = {
     Q('¿Por qué limpiar los metadatos antes de publicar?', ['Pueden revelar usuarios internos y versiones de software', 'Ocupan mucho', 'Por estética'], 'Información útil para un atacante.'),
   ],
   m4: [
+    Q('¿Qué herramienta usarías para inventariar los puertos abiertos de tu red (con autorización)?', ['Nmap', 'KeePassXC', 'Autopsy'], 'Nmap descubre equipos, puertos y versiones.'),
+    Q('Con Wireshark ves «PASS Verano2026» en una captura. ¿Qué demuestra?', ['Que el protocolo (FTP) envía las contraseñas sin cifrar', 'Que la contraseña es robusta', 'Que hay un virus'], 'Se sustituye por un protocolo cifrado: SFTP.'),
+    Q('¿Qué genera Zeek a partir del tráfico?', ['Registros estructurados como conn.log o dns.log', 'Contraseñas', 'Parches'], 'Telemetría de red para cazar amenazas.'),
     Q('El saludo TCP en orden es…', ['SYN → SYN-ACK → ACK', 'ACK → SYN → FIN', 'SYN → RST → ACK'], 'Three-way handshake.'),
     Q('Un puerto «filtrado» significa que…', ['Un cortafuegos impide saber si hay servicio', 'Hay un servicio seguro', 'La máquina está apagada seguro'], 'No llega respuesta.'),
     Q('¿Qué puerto usa el escritorio remoto de Windows (RDP)?', ['3389', '22', '25'], 'Nunca debería estar expuesto a Internet sin protección.'),
@@ -589,6 +929,7 @@ export const EXAM_EXTRA = {
     Q('¿Cómo se reconoce un escaneo en el cortafuegos?', ['Una IP prueba muchos puertos distintos en poco tiempo', 'Un usuario entra con su contraseña', 'Una web carga lento'], 'Patrón típico.'),
   ],
   m5: [
+    Q('OpenVAS te da un informe con 40 hallazgos. ¿Qué haces?', ['Validarlos y priorizarlos por gravedad, exposición y explotación activa', 'Parchear en orden alfabético', 'Ignorar los Medium y Low para siempre'], 'Un escáner es el punto de partida, no el final.'),
     Q('¿Qué identifica un CVE?', ['Una vulnerabilidad concreta de un producto concreto', 'Un tipo genérico de fallo', 'Una empresa'], 'El tipo es el CWE.'),
     Q('CVSS 7,5 es…', ['Alta', 'Media', 'Crítica'], '7-8,9 = alta.'),
     Q('En CVSS, AV:N significa…', ['Vector de ataque por red', 'Sin vulnerabilidad', 'Ataque físico'], 'Lo más peligroso: alcanzable remotamente.'),
@@ -596,6 +937,7 @@ export const EXAM_EXTRA = {
     Q('¿Qué pesa más al priorizar?', ['Que se esté explotando activamente y esté expuesto', 'El nombre del CVE', 'La fecha de compra del servidor'], 'Contexto > décimas de CVSS.'),
   ],
   m6: [
+    Q('¿Qué es OWASP ZAP?', ['Un escáner y proxy gratuito para encontrar fallos en aplicaciones web', 'Un antivirus', 'Un gestor de contraseñas'], 'Clasifica sus alertas por riesgo: High, Medium, Low e Informational.'),
     Q('IDOR significa que…', ['Se accede a objetos de otros usuarios cambiando un identificador', 'El servidor va lento', 'La web no tiene HTTPS'], 'Falta autorización por objeto.'),
     Q('¿Qué hace htmlspecialchars en PHP?', ['Escapa caracteres especiales para que el navegador los muestre como texto', 'Cifra la contraseña', 'Conecta con la base de datos'], 'Defensa contra XSS.'),
     Q('Una clave de API escrita en el código del navegador…', ['La puede ver cualquiera que abra la web', 'Está protegida por HTTPS', 'Caduca sola'], 'Los secretos van en el servidor.'),
@@ -606,6 +948,9 @@ export const EXAM_EXTRA = {
     Q('Un WAF…', ['Filtra patrones de ataque delante de la web, pero no sustituye al código seguro', 'Arregla el código solo', 'Cifra la base de datos'], 'Es una capa más.'),
   ],
   m7: [
+    Q('¿Qué herramienta usarías para tener una contraseña distinta y larga en cada servicio?', ['KeePassXC', 'Nmap', 'Snort'], 'Un gestor de contraseñas local y cifrado.'),
+    Q('Quieres que, si pierdes el portátil, nadie pueda leer sus datos. ¿Qué usas?', ['VeraCrypt (cifrado de disco)', 'Wireshark', 'Fail2ban'], 'Cifrado de disco completo.'),
+    Q('«gpg --verify» devuelve FIRMA INCORRECTA. ¿Qué haces?', ['No instalarlo: el fichero no es el que firmó su autor o se ha alterado', 'Instalarlo igualmente', 'Volver a comprimirlo'], 'La firma protege la cadena de suministro.'),
     Q('Base64 es…', ['Codificación reversible sin clave', 'Cifrado fuerte', 'Un hash'], 'No protege nada.'),
     Q('Un SHA-256 tiene…', ['64 caracteres hexadecimales', '32', '40'], 'MD5 = 32, SHA-1 = 40.'),
     Q('La «sal» en contraseñas sirve para…', ['Que contraseñas iguales den hashes distintos', 'Que sea más corta', 'Cifrar el disco'], 'Frena los ataques con tablas precalculadas.'),
@@ -613,6 +958,7 @@ export const EXAM_EXTRA = {
     Q('Para saber QUIÉN publicó un fichero hace falta…', ['Una firma digital', 'Un MD5', 'Comprimirlo'], 'El hash solo prueba que no cambió.'),
   ],
   m8: [
+    Q('Un compañero reporta un adjunto sospechoso. ¿Qué haces antes de abrirlo?', ['Analizarlo con un antivirus como ClamAV (y con cuidado, en un entorno aislado)', 'Abrirlo para ver qué es', 'Reenviarlo a toda la empresa'], 'Nunca se abre un adjunto sospechoso en el equipo de trabajo.'),
     Q('«nebu1a-logistica.lab» frente a «nebula-logistica.lab» es un ejemplo de…', ['Typosquatting (dominio parecido)', 'Cifrado', 'DNSSEC'], 'Un 1 en lugar de una l.'),
     Q('La métrica más valiosa de un simulacro es…', ['La tasa de reporte', 'La lista de quién pulsó', 'El número de correos enviados'], 'Mide la cultura de seguridad.'),
     Q('El fraude del CEO se combate sobre todo con…', ['Verificar por otro canal antes de pagar', 'Un antivirus', 'Cambiar de navegador'], 'Llamar a un número conocido.'),
@@ -623,6 +969,9 @@ export const EXAM_EXTRA = {
     Q('Un IOC es…', ['Un indicador de compromiso: IP, dominio, hash…', 'Un tipo de firewall', 'Una ley europea'], 'Se comparten y se bloquean.'),
   ],
   m9: [
+    Q('¿Qué hace Fail2ban?', ['Banea automáticamente las IP con demasiados intentos fallidos', 'Cifra ficheros', 'Escanea puertos'], 'Defensa directa frente a la fuerza bruta.'),
+    Q('Suricata y Snort son…', ['IDS/IPS: detectan (y pueden bloquear) tráfico malicioso con reglas', 'Gestores de contraseñas', 'Herramientas forenses'], 'IDS alerta; IPS además bloquea.'),
+    Q('En Wazuh, una alerta de nivel 12…', ['Es grave: hay que atenderla ya', 'No importa', 'Es un error del sistema'], 'Los niveles van de 0 a 15.'),
     Q('¿Qué columna de ps aux delata a un minero?', ['%CPU', 'USER', 'PID'], 'Consume casi toda la CPU.'),
     Q('¿Dónde se registran los usos de sudo?', ['En auth.log', 'En el log del servidor web', 'En ningún sitio'], 'Cada sudo deja rastro.'),
     Q('Tras una intrusión confirmada en una cuenta, además de echar al atacante hay que…', ['Cambiar las credenciales comprometidas', 'Reiniciar el router', 'Nada más'], 'Si no, puede volver a entrar.'),
@@ -633,6 +982,7 @@ export const EXAM_EXTRA = {
     Q('Telemetría sin alerta significa…', ['Se registró pero nadie fue avisado', 'Detección perfecta', 'No hay logs'], 'Hay que crear la regla.'),
   ],
   m10: [
+    Q('¿Sobre qué se analiza un disco con Autopsy?', ['Sobre una copia verificada con su hash, nunca sobre el original', 'Sobre el disco original encendido', 'Sobre una captura de pantalla'], 'Así se conserva la evidencia.'),
     Q('¿Qué es una cadena de custodia?', ['El registro de quién manipuló la evidencia y cuándo', 'Un tipo de cifrado', 'Una copia de seguridad'], 'Da validez legal a la evidencia.'),
     Q('Ante un equipo infectado, ¿por qué no apagarlo de inmediato?', ['Se perdería la evidencia en memoria: mejor aislarlo de la red', 'Porque gasta luz', 'Porque es ilegal'], 'Aislar conserva el estado.'),
     Q('¿Qué fase cierra el ciclo de respuesta a incidentes?', ['Lecciones aprendidas', 'Contención', 'Detección'], 'Para mejorar la preparación.'),
@@ -647,15 +997,15 @@ export const EXAM_EXTRA = {
 // ───────────────────────────── Entrenamientos por tema ─────────────────────────────
 export const TRAINING = {
   m1: (r) => [hiddenHunt(r), classifyFrom(r, { title: 'Tríada CIA', prompt: '¿Qué principio se rompe en cada caso?', categories: [{ id: 'c', label: 'Confidencialidad' }, { id: 'i', label: 'Integridad' }, { id: 'a', label: 'Disponibilidad' }], pool: CIA_POOL }), classifyFrom(r, { title: 'Reglas de enfrentamiento', prompt: '¿Está permitido?', categories: [{ id: 'ok', label: 'Permitido' }, { id: 'no', label: 'Prohibido' }], pool: ROE_POOL })],
-  m2: (r) => [octalQuiz(r), permFix(r), worldWritable(r)],
+  m2: (r) => [octalQuiz(r), permFix(r), worldWritable(r), lynisAudit(r)],
   m3: (r) => [osintDomain(r), classifyFrom(r, { title: '¿Pasivo o activo?', prompt: 'Clasifica cada técnica de reconocimiento.', categories: [{ id: 'p', label: 'Pasivo' }, { id: 'a', label: 'Activo' }], pool: PASSIVE_POOL, n: 6 })],
-  m4: (r) => [portQuiz(r), scanHunt(r), classifyFrom(r, { title: 'Estados de un puerto', prompt: '¿Qué estado indica cada respuesta?', categories: [{ id: 'open', label: 'Abierto' }, { id: 'closed', label: 'Cerrado' }, { id: 'filtered', label: 'Filtrado' }], pool: PORTSTATE_POOL, n: 4 })],
-  m5: (r) => [cvssBands(r), cvssOrder(r), patchTriage(r)],
-  m6: (r) => [classifyFrom(r, { title: 'Categorías OWASP', prompt: 'Clasifica cada fallo.', categories: OWASP_CATS, pool: OWASP_POOL }), codeReview(r), codeReview(r), webLogs(r)],
-  m7: (r) => [b64Note(r), hashKind(r), tamperHunt(r), classifyFrom(r, { title: 'Robustez de contraseñas', prompt: 'Clasifica estas contraseñas de ejemplo.', categories: [{ id: 'debil', label: 'Débil' }, { id: 'media', label: 'Mejorable' }, { id: 'fuerte', label: 'Robusta' }], pool: PASS_POOL })],
-  m8: (r) => [classifyFrom(r, { title: '¿Phishing o legítimo?', prompt: 'Clasifica los mensajes.', categories: [{ id: 'ok', label: 'Legítimo' }, { id: 'phish', label: 'Phishing' }], pool: PHISH_POOL }), lookalike(r)],
-  m9: (r) => [bruteForce(r), persistenceHunt(r), classifyFrom(r, { title: 'Tácticas ATT&CK', prompt: 'Asigna la táctica.', categories: [{ id: 'init', label: 'Acceso inicial' }, { id: 'cred', label: 'Credenciales' }, { id: 'priv', label: 'Escalada' }, { id: 'pers', label: 'Persistencia' }, { id: 'exfil', label: 'Exfiltración' }], pool: TACTIC_POOL })],
-  m10: (r) => [irLive(r), classifyFrom(r, { title: 'Fases del incidente', prompt: '¿En qué fase de NIST está cada acción?', categories: [{ id: 'prep', label: 'Preparación' }, { id: 'det', label: 'Detección' }, { id: 'cont', label: 'Contención' }, { id: 'erad', label: 'Erradicación' }, { id: 'rec', label: 'Recuperación' }, { id: 'post', label: 'Lecciones' }], pool: IR_PHASE_POOL, n: 6 })],
+  m4: (r) => [portQuiz(r), scanHunt(r), r.pick([nmapReport, captureRead, zeekScan])(r), toolPick(r, 'm4'), classifyFrom(r, { title: 'Estados de un puerto', prompt: '¿Qué estado indica cada respuesta?', categories: [{ id: 'open', label: 'Abierto' }, { id: 'closed', label: 'Cerrado' }, { id: 'filtered', label: 'Filtrado' }], pool: PORTSTATE_POOL, n: 4 })],
+  m5: (r) => [cvssBands(r), cvssOrder(r), patchTriage(r), openvasReport(r)],
+  m6: (r) => [zapReport(r), classifyFrom(r, { title: 'Categorías OWASP', prompt: 'Clasifica cada fallo.', categories: OWASP_CATS, pool: OWASP_POOL }), codeReview(r), codeReview(r), webLogs(r)],
+  m7: (r) => [b64Note(r), hashKind(r), r.pick([tamperHunt, gpgVerify])(r), toolPick(r, 'm7'), classifyFrom(r, { title: 'Robustez de contraseñas', prompt: 'Clasifica estas contraseñas de ejemplo.', categories: [{ id: 'debil', label: 'Débil' }, { id: 'media', label: 'Mejorable' }, { id: 'fuerte', label: 'Robusta' }], pool: PASS_POOL })],
+  m8: (r) => [clamscanAttach(r), classifyFrom(r, { title: '¿Phishing o legítimo?', prompt: 'Clasifica los mensajes.', categories: [{ id: 'ok', label: 'Legítimo' }, { id: 'phish', label: 'Phishing' }], pool: PHISH_POOL }), lookalike(r)],
+  m9: (r) => [r.pick([bruteForce, fail2banHunt])(r), persistenceHunt(r), idsAlerts(r), wazuhLogs(r), classifyFrom(r, { title: 'Tácticas ATT&CK', prompt: 'Asigna la táctica.', categories: [{ id: 'init', label: 'Acceso inicial' }, { id: 'cred', label: 'Credenciales' }, { id: 'priv', label: 'Escalada' }, { id: 'pers', label: 'Persistencia' }, { id: 'exfil', label: 'Exfiltración' }], pool: TACTIC_POOL })],
+  m10: (r) => [irLive(r), autopsyTimeline(r), toolPick(r, 'm10', 5), classifyFrom(r, { title: 'Fases del incidente', prompt: '¿En qué fase de NIST está cada acción?', categories: [{ id: 'prep', label: 'Preparación' }, { id: 'det', label: 'Detección' }, { id: 'cont', label: 'Contención' }, { id: 'erad', label: 'Erradicación' }, { id: 'rec', label: 'Recuperación' }, { id: 'post', label: 'Lecciones' }], pool: IR_PHASE_POOL, n: 6 })],
 };
 
 /**

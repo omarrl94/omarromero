@@ -1,4 +1,4 @@
-import { Map, Trophy, User, LogOut, Flame } from 'lucide-react';
+import { Map, Trophy, User, LogOut, Flame, Wrench } from 'lucide-react';
 import { Logo, TeamBadge } from './ui.jsx';
 import Avatar from './Avatar.jsx';
 import { rankOf, TEAMS } from '../core/teams.js';
@@ -9,7 +9,7 @@ export default function TopBar({ account, progress, view, onNav, onLogout }) {
   const T = TEAMS[team];
   const xp = teamXp(progress, team);
   const rank = rankOf(team, xp);
-  const NAV = [['map', 'Operaciones', Map], ['ranking', 'Ranking', Trophy], ['profile', 'Perfil', User]];
+  const NAV = [['map', 'Operaciones', Map], ['arsenal', 'Arsenal', Wrench], ['ranking', 'Ranking', Trophy], ['profile', 'Perfil', User]];
   return (
     <header className="sticky top-0 z-40 border-b border-white/5 bg-void-950/75 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-2.5">

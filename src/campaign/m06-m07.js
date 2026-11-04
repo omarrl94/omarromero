@@ -409,4 +409,8 @@ m7c.lesson.push(
   { title: 'Contraseñas y firmas', text: 'Las contraseñas se guardan con algoritmos lentos y con sal, como Argon2id o bcrypt. La sal es un valor aleatorio por usuario que hace que dos contraseñas iguales den hashes distintos. MD5 o SHA-256 a secas son demasiado rápidos. Y para saber QUIÉN publicó un fichero no basta un hash: hace falta una firma digital.' },
 );
 
+// ── Herramientas profesionales (Arsenal) ──
+m6c.lesson.push({ title: 'Herramienta profesional: OWASP ZAP', text: 'OWASP ZAP es el escáner web gratuito del proyecto OWASP. Hace de proxy entre el navegador y la web, y avisa de fallos como XSS, cabeceras de seguridad ausentes o cookies sin HttpOnly. Clasifica cada alerta por riesgo (High, Medium, Low, Informational). Los equipos de desarrollo lo integran para encontrar fallos antes de publicar.' });
+m7c.lesson.push({ title: 'Herramientas profesionales: KeePassXC, VeraCrypt y GnuPG', text: 'Tres herramientas de cifrado para el día a día. KEEPASSXC es un gestor de contraseñas local y cifrado: una contraseña larga y única por servicio, sin memorizarlas. VERACRYPT cifra discos y unidades: si pierdes el portátil, nadie lee los datos. GNUPG cifra y FIRMA ficheros: «gpg --verify» comprueba que un fichero lo publicó quien dice y que nadie lo ha alterado.', code: '$ gpg --verify instalador.tar.sig instalador.tar' });
+
 export default [m6c, m6r, m6b, m6p, m7c, m7r, m7b, m7p];

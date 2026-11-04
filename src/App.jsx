@@ -8,6 +8,7 @@ import CampaignMap from './components/CampaignMap.jsx';
 import MissionView from './components/MissionView.jsx';
 import Profile from './components/Profile.jsx';
 import Leaderboard from './components/Leaderboard.jsx';
+import Arsenal from './components/Arsenal.jsx';
 import { CyberBackground } from './components/fx.jsx';
 import { watchSession, logout, loadCloudProgress, saveCloudProgress } from './services/accounts.js';
 import { loadProgress, saveProgress, recordMission, publicStatsOf, completedCount, moduleUnlocked } from './core/progress.js';
@@ -96,6 +97,8 @@ export default function App() {
             onNext={next ? () => setMissionId(next.id) : null} />
         ) : view === 'profile' ? (
           <Profile account={account} progress={progress} onAccount={setAccount} onSwitchTeam={() => setChangingTeam(true)} />
+        ) : view === 'arsenal' ? (
+          <Arsenal progress={progress} />
         ) : view === 'ranking' ? (
           <Leaderboard account={account} />
         ) : (

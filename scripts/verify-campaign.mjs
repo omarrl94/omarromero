@@ -10,6 +10,7 @@ import { TEAM_ORDER } from '../src/core/teams.js';
 import { emptyProgress, moduleUnlocked, moduleGrade } from '../src/core/progress.js';
 import { OBJECTIVES, GLOSSARY } from '../src/campaign/glossary.js';
 import { buildSummary } from '../src/core/summary.js';
+import { TOOLS } from '../src/campaign/tools.js';
 
 let checks = 0;
 const errors = [];
@@ -153,6 +154,17 @@ for (const team of TEAM_ORDER) {
   }
 }
 
+
+// ───────────── Arsenal: cada herramienta se presenta en la lección común de su tema ─────────────
+ok(TOOLS.length === 15 && new Set(TOOLS.map((t) => t.id)).size === 15, 'arsenal: deben ser 15 herramientas distintas');
+for (const t of TOOLS) {
+  const common = MISSIONS.find((m) => m.module === t.module && m.teams.length === 3 && !m.generate);
+  const text = common.lesson.map((st) => (typeof st.text === 'string' ? st.text : Object.values(st.text).join(' '))).join(' ').toUpperCase();
+  ok(text.includes(t.name.toUpperCase()), `arsenal: ${t.name} no se presenta en la lección común del tema ${t.module}`);
+  ok(t.what && t.red && t.blue && t.purple && /^https:\/\//.test(t.url), `arsenal: ficha incompleta de ${t.name}`);
+  for (const team of TEAM_ORDER) ok(buildSummary({ moduleId: t.module, team }).html.includes(t.name), `arsenal: ${t.name} no aparece en el resumen del tema`);
+}
+
 const perTeam = TEAM_ORDER.map((t) => `${t}: ${missionsFor(t).length}`).join(' · ');
 if (errors.length) {
   console.log(errors.map((e) => `✗ ${e}`).join('\n'));
@@ -162,4 +174,5 @@ if (errors.length) {
 console.log(`✓ ${MISSIONS.length} misiones en ${MODULES.length} módulos (${perTeam}); ${MISSIONS.filter((m) => m.generate).length} generadas, probadas con ${SEEDS} semillas cada una`);
 console.log(`✓ auditoría pedagógica: ${pedagogy} usos de comandos en retos, todos enseñados antes en una lección del equipo`);
 console.log(`✓ ${summaries} resúmenes descargables (10 temas × 3 equipos) con objetivos, glosario y autoevaluación`);
+console.log(`✓ arsenal: ${TOOLS.length} herramientas presentadas en su lección y en su resumen`);
 console.log(`✓ ${checks} comprobaciones correctas`);
