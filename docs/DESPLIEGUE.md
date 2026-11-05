@@ -40,7 +40,7 @@ En **Project configuration → Environment variables → Add a variable** (ámbi
 | Variable | Valor |
 |---|---|
 | `ACCESS_CODE` | El código del alumnado |
-| `SESSION_SECRET` | 32 o más caracteres aleatorios. Genera uno en https://www.random.org/strings/ (2 cadenas de 20 caracteres y únelas) o con `node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"` |
+| `SESSION_SECRET` | **Opcional.** Si no la pones, o si es corta, el servidor genera y guarda su propia clave aleatoria |
 | `ADZUNA_APP_ID` y `ADZUNA_APP_KEY` | Opcional (ver paso 7) |
 | `INFOJOBS_CLIENT_ID` y `INFOJOBS_CLIENT_SECRET` | Opcional (ver paso 7) |
 
@@ -108,8 +108,8 @@ Para añadir empresas: `docs/GUIA-EMPRESAS.md`. Al hacer commit de nuevas candid
 
 | Lo que ves | Causa | Solución |
 |---|---|---|
-| «El acceso no está configurado en el servidor» | A las funciones les falta `ACCESS_CODE` o `SESSION_SECRET` | Comprueba los nombres exactos y que el ámbito incluye *Functions*. Después: **Deploys → Trigger deploy → Clear cache and deploy project** |
+| «El acceso no está configurado en el servidor (falta ACCESS_CODE)» | A las funciones les falta `ACCESS_CODE` | Comprueba los nombres exactos y que el ámbito incluye *Functions*. Después: **Deploys → Trigger deploy → Clear cache and deploy project** |
 | «Código incorrecto» | El código no coincide con `ACCESS_CODE` | Revisa el valor (sin espacios al principio ni al final) |
 | «Demasiados intentos» | 5 fallos en 15 minutos desde la misma conexión | Espera 15 minutos o prueba desde otra red |
-| «Algo ha fallado» / error 500 al entrar | `SESSION_SECRET` tiene menos de 32 caracteres | Pon uno más largo y vuelve a desplegar |
+| Error 502 o «SESSION_SECRET demasiado corto» | Versión anterior de la app | Despliega la última versión de `conecta-ffe`: ahora `SESSION_SECRET` es opcional |
 | `/api/empresas` responde «Necesitas el código de acceso del centro.» | Es lo correcto: las funciones responden y protegen el directorio | Entra con el código desde la web |

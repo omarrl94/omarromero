@@ -51,11 +51,11 @@ nunca uses el prefijo `VITE_` para ellas. La plantilla está en [.env.example](.
 | Variable | Obligatoria | Uso |
 |---|---|---|
 | `ACCESS_CODE` | Sí | Código que se da al alumnado para entrar al directorio |
-| `SESSION_SECRET` | Sí | 32 o más caracteres aleatorios para firmar la cookie de sesión |
+| `SESSION_SECRET` | No | 32 o más caracteres para firmar la cookie de sesión. Si falta o es corto, el servidor genera y guarda una clave aleatoria en Netlify Blobs |
 | `ADZUNA_APP_ID`, `ADZUNA_APP_KEY` | No | Activan la fuente Adzuna |
 | `INFOJOBS_CLIENT_ID`, `INFOJOBS_CLIENT_SECRET` | No | Activan la fuente InfoJobs |
 
-Sin `ACCESS_CODE` o `SESSION_SECRET`, nadie puede entrar al directorio: la API responde 503. Sin claves de una fuente, la fuente aparece como «sin configurar».
+Sin `ACCESS_CODE`, nadie puede entrar al directorio: la API responde 503. Sin claves de una fuente, la fuente aparece como «sin configurar».
 
 ## Configuración editable
 

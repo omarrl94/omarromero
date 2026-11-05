@@ -2,7 +2,7 @@ import { rm } from 'node:fs/promises';
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import acceso from '../../netlify/functions/acceso.mts';
 import empresas from '../../netlify/functions/empresas.mts';
-import { crearToken, tokenValido } from '../../server/sesion';
+import { crearToken, olvidarClaveEnMemoria, tokenValido } from '../../server/sesion';
 
 process.env.SESSION_SECRET = 'x'.repeat(40);
 process.env.ACCESS_CODE = 'codigo-de-prueba';
@@ -13,16 +13,19 @@ for (const v of ["NETLIFY", "SITE_ID", "NETLIFY_BLOBS_CONTEXT"]) delete process.
 const ctx = (ip: string) => ({ ip }) as never;
 const post = (codigo: string) => new Request('https://conecta.test/api/acceso', { method: 'POST', body: JSON.stringify({ codigo }) });
 
-beforeEach(async () => rm('.blobs-local/limites', { recursive: true, force: true }));
+beforeEach(async () => {
+  await rm('.blobs-local/limites', { recursive: true, force: true });
+  await rm('.blobs-local/sistema', { recursive: true, force: true });
+});
 afterAll(async () => rm('.blobs-local/limites', { recursive: true, force: true }));
 
 describe('sesión', () => {
-  it('firma y caduca tokens', () => {
-    const t = crearToken(Date.now());
-    expect(tokenValido(t)).toBe(true);
-    expect(tokenValido(t, Date.now() + 13 * 3600_000)).toBe(false);
-    expect(tokenValido(t.slice(0, -2) + 'xx')).toBe(false);
-    expect(tokenValido(undefined)).toBe(false);
+  it('firma y caduca tokens', async () => {
+    const t = await crearToken(Date.now());
+    expect(await tokenValido(t)).toBe(true);
+    expect(await tokenValido(t, Date.now() + 13 * 3600_000)).toBe(false);
+    expect(await tokenValido(t.slice(0, -2) + 'xx')).toBe(false);
+    expect(await tokenValido(undefined)).toBe(false);
   });
 });
 
@@ -63,13 +66,21 @@ describe('API de acceso y empresas', () => {
     process.env.ACCESS_CODE = antes;
   });
 
-  it('explica el error si SESSION_SECRET es demasiado corto (en vez de un 502)', async () => {
+  it('funciona sin SESSION_SECRET o con uno corto: genera y guarda una clave propia', async () => {
     const antes = process.env.SESSION_SECRET;
-    process.env.SESSION_SECRET = 'corto';
-    const r = await acceso(post('codigo-de-prueba'), ctx('5.5.5.5'));
-    expect(r.status).toBe(503);
-    expect(((await r.json()) as { error: string }).error).toMatch(/SESSION_SECRET demasiado corto/);
+    for (const valor of [undefined, 'corto']) {
+      if (valor === undefined) delete process.env.SESSION_SECRET;
+      else process.env.SESSION_SECRET = valor;
+      olvidarClaveEnMemoria();
+      const r = await acceso(post('codigo-de-prueba'), ctx('5.5.5.5'));
+      expect(r.status).toBe(200);
+      const cookie = r.headers.get('set-cookie')!.split(';')[0];
+      olvidarClaveEnMemoria(); // otra instancia de la función: lee la clave guardada
+      const d = await empresas(new Request('https://conecta.test/api/empresas', { headers: { cookie } }));
+      expect(d.status).toBe(200);
+    }
     process.env.SESSION_SECRET = antes;
+    olvidarClaveEnMemoria();
   });
 
   it('no usa datos ficticios si corre en Netlify', async () => {

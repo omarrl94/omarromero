@@ -16,16 +16,12 @@ export default async (req: Request, context: Context) => {
 async function manejar(req: Request, context: Context): Promise<Response> {
   const seguro = esHttps(req);
 
-  if (req.method === 'GET') return json({ autenticado: sesionActiva(req) });
+  if (req.method === 'GET') return json({ autenticado: await sesionActiva(req) });
   if (req.method === 'DELETE') return json({ autenticado: false }, 200, { 'Set-Cookie': cookieBorrada(seguro) });
   if (req.method !== 'POST') return error('Método no permitido', 405, { Allow: 'GET, POST, DELETE' });
 
-  if (!variable('ACCESS_CODE') || !variable('SESSION_SECRET')) {
-    return error('El acceso no está configurado en el servidor. Avisa a tu tutor/a.', 503);
-  }
-  if ((variable('SESSION_SECRET') ?? '').length < 32) {
-    console.error('SESSION_SECRET tiene menos de 32 caracteres');
-    return error('El acceso está mal configurado en el servidor (SESSION_SECRET demasiado corto). Avisa a tu tutor/a.', 503);
+  if (!variable('ACCESS_CODE')) {
+    return error('El acceso no está configurado en el servidor (falta ACCESS_CODE). Avisa a tu tutor/a.', 503);
   }
 
   const ip = ipDe(req, context?.ip);
@@ -51,7 +47,7 @@ async function manejar(req: Request, context: Context): Promise<Response> {
   }
 
   await limpiarFallos(ip);
-  return json({ autenticado: true }, 200, { 'Set-Cookie': cookieSesion(crearToken(), seguro) });
+  return json({ autenticado: true }, 200, { 'Set-Cookie': cookieSesion(await crearToken(), seguro) });
 }
 
 export const config: Config = { path: '/api/acceso' };

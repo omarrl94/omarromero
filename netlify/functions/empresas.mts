@@ -5,7 +5,7 @@ import { sesionActiva } from '../../server/sesion';
 
 export default async (req: Request) => {
   if (req.method !== 'GET') return error('Método no permitido', 405, { Allow: 'GET' });
-  if (!sesionActiva(req)) return error('Necesitas el código de acceso del centro.', 401);
+  if (!(await sesionActiva(req))) return error('Necesitas el código de acceso del centro.', 401);
   try {
     const empresas = await cargarEmpresas();
     return json({ empresas, total: empresas.length });

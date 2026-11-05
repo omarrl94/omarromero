@@ -1,13 +1,38 @@
-import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
+import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 import { config } from '../config/ffe.config';
+import { almacen } from './almacen';
 import { variable } from './entorno';
 
 export const COOKIE_SESION = 'cffe_sesion';
 
-function secreto(): string {
+let claveEnMemoria: string | null = null;
+
+/**
+ * Clave para firmar las sesiones.
+ * - Si SESSION_SECRET tiene 32 caracteres o más, se usa.
+ * - Si no (falta o es corto), se genera una clave aleatoria de 256 bits la primera vez y se guarda
+ *   en el almacén privado del proyecto (Netlify Blobs), así no depende de configurarla bien a mano.
+ */
+export async function secreto(): Promise<string> {
   const s = variable('SESSION_SECRET');
-  if (!s || s.length < 32) throw new Error('SESSION_SECRET no configurado o demasiado corto (mínimo 32 caracteres)');
-  return s;
+  if (s && s.length >= 32) return s;
+  if (claveEnMemoria) return claveEnMemoria;
+  const a = almacen('sistema');
+  const guardada = await a.leer<{ clave: string }>('clave-sesion');
+  if (guardada?.clave && guardada.clave.length >= 32) {
+    claveEnMemoria = guardada.clave;
+    return claveEnMemoria;
+  }
+  const nueva = randomBytes(32).toString('base64url');
+  await a.guardar('clave-sesion', { clave: nueva, creada: new Date().toISOString() });
+  // Si dos funciones la crearon a la vez, se queda la que quedó guardada.
+  claveEnMemoria = (await a.leer<{ clave: string }>('clave-sesion'))?.clave ?? nueva;
+  return claveEnMemoria;
+}
+
+/** Solo para pruebas. */
+export function olvidarClaveEnMemoria() {
+  claveEnMemoria = null;
 }
 
 const b64url = (b: Buffer | string) => Buffer.from(b).toString('base64url');
@@ -26,19 +51,19 @@ export function codigoValido(codigo: string): boolean {
   return iguales(codigo.trim(), esperado);
 }
 
-export function crearToken(ahora = Date.now()): string {
+export async function crearToken(ahora = Date.now()): Promise<string> {
   const carga = b64url(JSON.stringify({ exp: ahora + config.acceso.sesionHoras * 3600_000, v: 1 }));
-  const firma = createHmac('sha256', secreto()).update(carga).digest('base64url');
+  const firma = createHmac('sha256', await secreto()).update(carga).digest('base64url');
   return `${carga}.${firma}`;
 }
 
-export function tokenValido(token: string | undefined, ahora = Date.now()): boolean {
+export async function tokenValido(token: string | undefined, ahora = Date.now()): Promise<boolean> {
   if (!token) return false;
   const [carga, firma] = token.split('.');
   if (!carga || !firma) return false;
   let esperada: string;
   try {
-    esperada = createHmac('sha256', secreto()).update(carga).digest('base64url');
+    esperada = createHmac('sha256', await secreto()).update(carga).digest('base64url');
   } catch {
     return false;
   }
@@ -75,6 +100,6 @@ export function cookieBorrada(seguro: boolean): string {
   return [`${COOKIE_SESION}=`, 'Path=/api', 'HttpOnly', 'SameSite=Strict', 'Max-Age=0', seguro ? 'Secure' : ''].filter(Boolean).join('; ');
 }
 
-export function sesionActiva(req: Request): boolean {
+export async function sesionActiva(req: Request): Promise<boolean> {
   return tokenValido(leerCookie(req, COOKIE_SESION));
 }
