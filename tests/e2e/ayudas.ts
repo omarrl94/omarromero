@@ -33,3 +33,9 @@ export async function sinViolacionesGraves(page: Page) {
   const graves = r.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
   expect(graves.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).slice(0, 3).join(', ')}`)).toEqual([]);
 }
+
+/** En móvil los filtros están plegados: los despliega si hace falta. */
+export async function abrirFiltros(page: Page) {
+  const boton = page.getByRole('button', { name: /^Filtros/ });
+  if ((await boton.isVisible()) && (await boton.getAttribute('aria-expanded')) === 'false') await boton.click();
+}

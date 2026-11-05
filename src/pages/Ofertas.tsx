@@ -4,6 +4,7 @@ import { enlacesParaPerfil } from '../../shared/enlaces';
 import type { CacheOfertas, Oferta } from '../../shared/schemas';
 import { normalizar } from '../../shared/texto';
 import { Aviso, ErrorCaja, Esqueleto, Vacio } from '../components/Estados';
+import { BarraFiltros, ChipOpcion } from '../components/BarraFiltros';
 import { coincidePerfil, FiltroPerfil, valorInicial } from '../components/FiltroPerfil';
 import { useAlumno } from '../lib/alumno';
 import { api } from '../lib/api';
@@ -98,11 +99,26 @@ function ListaOfertas({ datos }: { datos: CacheOfertas }) {
   return (
     <div className="grid gap-4">
       <EstadoFuentes datos={datos} />
-      <form role="search" aria-label="Filtrar ofertas" className="tarjeta grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-4" onSubmit={(e) => e.preventDefault()}>
-        <div className="sm:col-span-2 lg:col-span-1">
-          <label htmlFor="o-buscar" className="etiqueta">Buscar</label>
-          <input id="o-buscar" type="search" className="campo" value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="Puesto, empresa…" />
-        </div>
+      <BarraFiltros
+        etiqueta="Filtrar ofertas"
+        verResultados={`Ver ${lista.length} ${lista.length === 1 ? 'oferta' : 'ofertas'}`}
+        idResultados="titulo-ofertas"
+        activos={[perfil !== valorInicial(alumno), tipo, jornada, soloRemoto, texto].filter(Boolean).length}
+        limpiar={() => {
+          setTexto('');
+          setPerfil('todos');
+          setTipo('');
+          setJornada('');
+          setSoloRemoto(false);
+        }}
+        busqueda={
+          <>
+            <label htmlFor="o-buscar" className="etiqueta">Buscar</label>
+            <input id="o-buscar" type="search" className="campo" value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="Puesto, empresa…" />
+          </>
+        }
+        opciones={<ChipOpcion marcado={soloRemoto} cambiar={setSoloRemoto}>Solo remoto o híbrido</ChipOpcion>}
+      >
         <FiltroPerfil id="o-perfil" valor={perfil} cambiar={setPerfil} alumno={alumno} />
         <div>
           <label htmlFor="o-tipo" className="etiqueta">Tipo</label>
@@ -119,13 +135,9 @@ function ListaOfertas({ datos }: { datos: CacheOfertas }) {
             <option value="parcial">Parcial</option>
           </select>
         </div>
-        <label className="flex min-h-11 items-center gap-2">
-          <input type="checkbox" className="size-5 accent-tinta" checked={soloRemoto} onChange={(e) => setSoloRemoto(e.target.checked)} />
-          Solo remoto o híbrido
-        </label>
-      </form>
+      </BarraFiltros>
 
-      <h2 className="text-lg font-bold" aria-live="polite">{lista.length} {lista.length === 1 ? 'oferta' : 'ofertas'}</h2>
+      <h2 id="titulo-ofertas" tabIndex={-1} className="scroll-mt-20 text-lg font-bold outline-none" aria-live="polite">{lista.length} {lista.length === 1 ? 'oferta' : 'ofertas'}</h2>
       {datos.ofertas.length === 0 ? (
         <Vacio titulo="Todavía no hay ofertas descargadas">
           Las ofertas se actualizan una vez al día desde las fuentes configuradas. Mientras tanto, usa las búsquedas en portales de abajo.

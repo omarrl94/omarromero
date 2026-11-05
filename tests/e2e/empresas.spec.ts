@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { CODIGO, elegirPerfil, entrar, ipUnica, rellenarNombre, sinViolacionesGraves } from './ayudas';
+import { abrirFiltros, CODIGO, elegirPerfil, entrar, ipUnica, rellenarNombre, sinViolacionesGraves } from './ayudas';
 
 test.beforeEach(async ({ page }) => ipUnica(page));
 
@@ -43,7 +43,9 @@ test('filtra, busca y ordena por encaje con el perfil', async ({ page }) => {
   await page.getByLabel('Buscar').fill('zzzz');
   await expect(page.getByText('Ninguna empresa con estos filtros')).toBeVisible();
   await page.getByRole('button', { name: 'Quitar filtros' }).first().click();
-  await page.getByLabel('Solo con programa de prácticas publicado').check();
+  await abrirFiltros(page);
+  await page.locator('label').filter({ hasText: 'Con programa de prácticas' }).click();
+  await expect(page.getByLabel('Con programa de prácticas')).toBeChecked();
   await expect(tarjetas).toHaveCount(1);
   await sinViolacionesGraves(page);
 });
@@ -125,6 +127,7 @@ test('filtra por tipo de contacto y por cualquier rama de DAM o ASIR, y escribe 
   await expect(page.getByRole('heading', { name: 'Ficticia Ciberdefensa', level: 3 })).toHaveCount(0);
 
   // Todos: las 4 empresas, de DAM y de ASIR.
+  await abrirFiltros(page);
   await page.getByLabel('Perfil o rama').selectOption('todos');
   await expect(tarjetas).toHaveCount(4);
 
@@ -145,6 +148,10 @@ test('filtra por tipo de contacto y por cualquier rama de DAM o ASIR, y escribe 
   await expect(tarjetas.first().getByRole('link', { name: /Abrir formulario/ })).toHaveAttribute('href', 'https://www.ficticia-nube.test/empleo/candidatura');
   await page.getByLabel('Contacto').selectOption('email');
   await expect(tarjetas).toHaveCount(3);
+  await page.getByLabel('Contacto').selectOption('rrhh');
+  await expect(tarjetas).toHaveCount(3); // talento@, rrhh@ y empleo@ (todos de RR. HH. o talento)
+  await expect(tarjetas.first()).toContainText('Correo de');
+  await page.getByLabel('Contacto').selectOption('email');
 
   // «Escribir correo» lleva directamente al generador de la empresa.
   await tarjetas.filter({ hasText: 'Ficticia ERP Consulting' }).getByRole('link', { name: /Escribir correo/ }).click();

@@ -4,15 +4,21 @@ import { etiquetaEncaje, puntuarEncaje } from '../../shared/encaje';
 import type { Empresa } from '../../shared/schemas';
 import { normalizar } from '../../shared/texto';
 import { Acceso } from '../components/Acceso';
+import { BarraFiltros, ChipOpcion } from '../components/BarraFiltros';
 import { coincidePerfil, FiltroPerfil, perfilesParaEncaje, valorInicial } from '../components/FiltroPerfil';
 import { Aviso, ErrorCaja, Esqueleto, Vacio } from '../components/Estados';
 import { useAlumno } from '../lib/alumno';
-import { NOMBRE_TAMANO, fecha } from '../lib/formato';
+import { NOMBRE_TAMANO, NOMBRE_TIPO_CONTACTO, fecha } from '../lib/formato';
 import { COLOR_ESTADO, NOMBRE_ESTADO, useSeguimiento, type Seguimiento } from '../lib/seguimiento';
 import { useEmpresas } from '../lib/useEmpresas';
 
 type Orden = 'encaje' | 'nombre' | 'verificacion';
-type Contacto = '' | 'email' | 'formulario';
+type Contacto = '' | 'rrhh' | 'email' | 'formulario';
+
+/** Correo de RR. HH., talento o prácticas: el mejor canal para una candidatura. */
+const esCorreoRrhh = (e: Empresa) => e.contacto.tipo === 'email' && e.contacto.tipoContacto !== 'general';
+/** Prioridad al ordenar: correo de RR. HH. > correo general > formulario. */
+const bonusContacto = (e: Empresa) => (esCorreoRrhh(e) ? 15 : e.contacto.tipo === 'email' ? 5 : 0);
 
 export function Empresas() {
   const { estado, recargar } = useEmpresas();
@@ -59,7 +65,7 @@ function ListaEmpresas({ empresas }: { empresas: Empresa[] }) {
       .map((e) => ({ e, puntos: cicloEncaje ? puntuarEncaje(e, { ciclo: cicloEncaje, perfiles: perfilesFiltro, zona: zona || alumno.zona }) : 0 }))
       .filter(({ e }) => {
         if (!coincidePerfil(e.perfiles, perfil, alumno, true)) return false;
-        if (contacto && e.contacto.tipo !== contacto) return false;
+        if (contacto === 'rrhh' ? !esCorreoRrhh(e) : contacto && e.contacto.tipo !== contacto) return false;
         if (tamano && e.tamano !== tamano) return false;
         if (zona && e.zona !== zona) return false;
         if (soloPracticas && !e.programaPracticas) return false;
@@ -70,7 +76,7 @@ function ListaEmpresas({ empresas }: { empresas: Empresa[] }) {
     lista.sort((a, b) => {
       if (orden === 'nombre') return a.e.nombre.localeCompare(b.e.nombre, 'es');
       if (orden === 'verificacion') return b.e.verificacion.fecha.localeCompare(a.e.verificacion.fecha);
-      return b.puntos - a.puntos || a.e.nombre.localeCompare(b.e.nombre, 'es');
+      return b.puntos + bonusContacto(b.e) - (a.puntos + bonusContacto(a.e)) || a.e.nombre.localeCompare(b.e.nombre, 'es');
     });
     return lista;
   }, [empresas, ciclo, perfil, contacto, tamano, zona, soloPracticas, ocultarContactadas, texto, orden, seguimiento, alumno]);
@@ -93,70 +99,74 @@ function ListaEmpresas({ empresas }: { empresas: Empresa[] }) {
     setOcultarContactadas(false);
   };
 
+  const activos = [perfil !== valorInicial(alumno), contacto, tamano, zona, soloPracticas, ocultarContactadas, texto].filter(Boolean).length;
+
   return (
-    <div className="grid gap-6 lg:grid-cols-[18rem_1fr] lg:items-start">
+    <div className="grid gap-6">
       {!ciclo && (
-        <div className="lg:col-span-2">
-          <Aviso tono="atencion" titulo="Elige tu ciclo y tu perfil">
-            Así podremos ordenar las empresas por encaje contigo. <a className="enlace" href="#/">Elegir perfil</a>
-          </Aviso>
-        </div>
+        <Aviso tono="atencion" titulo="Elige tu ciclo y tu perfil">
+          Así podremos ordenar las empresas por encaje contigo. <a className="enlace" href="#/">Elegir perfil</a>
+        </Aviso>
       )}
-      <form className="tarjeta grid gap-4 p-4 lg:sticky lg:top-20" role="search" aria-label="Filtrar empresas" onSubmit={(e) => e.preventDefault()}>
-        <div>
-          <label htmlFor="buscar" className="etiqueta">Buscar</label>
-          <input id="buscar" type="search" className="campo" placeholder="Nombre, sector, tecnología…" value={texto} onChange={(e) => setTexto(e.target.value)} />
-        </div>
+      <BarraFiltros
+        etiqueta="Filtrar empresas"
+        activos={activos}
+        verResultados={`Ver ${resultado.length} ${resultado.length === 1 ? 'empresa' : 'empresas'}`}
+        idResultados="titulo-resultados"
+        limpiar={limpiar}
+        busqueda={
+          <>
+            <label htmlFor="buscar" className="etiqueta">Buscar</label>
+            <input id="buscar" type="search" className="campo" placeholder="Nombre, sector, tecnología…" value={texto} onChange={(e) => setTexto(e.target.value)} />
+          </>
+        }
+        opciones={
+          <>
+            <ChipOpcion marcado={soloPracticas} cambiar={setSoloPracticas}>Con programa de prácticas</ChipOpcion>
+            <ChipOpcion marcado={ocultarContactadas} cambiar={setOcultarContactadas}>Ocultar las ya contactadas</ChipOpcion>
+          </>
+        }
+      >
         <FiltroPerfil id="f-perfil" valor={perfil} cambiar={setPerfil} alumno={alumno} />
-        <div>
+        <div className="col-span-2 lg:col-span-1">
           <label htmlFor="f-contacto" className="etiqueta">Contacto</label>
           <select id="f-contacto" className="campo" value={contacto} onChange={(e) => setContacto(e.target.value as Contacto)}>
             <option value="">Correo o formulario</option>
-            <option value="email">Con correo</option>
-            <option value="formulario">Con formulario</option>
+            <option value="rrhh">Correo de RR. HH.</option>
+            <option value="email">Cualquier correo</option>
+            <option value="formulario">Solo formulario</option>
           </select>
         </div>
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-1">
-          <div>
-            <label htmlFor="f-tamano" className="etiqueta">Tipo</label>
-            <select id="f-tamano" className="campo" value={tamano} onChange={(e) => setTamano(e.target.value)}>
-              <option value="">Todos</option>
-              {Object.entries(NOMBRE_TAMANO).map(([k, v]) => (
-                <option key={k} value={k}>{v}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label htmlFor="f-zona" className="etiqueta">Zona</label>
-            <select id="f-zona" className="campo" value={zona} onChange={(e) => setZona(e.target.value)}>
-              <option value="">Todas</option>
-              {config.zonas.map((z) => (
-                <option key={z.id} value={z.id}>{z.nombre}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-        <label className="flex min-h-11 items-center gap-2">
-          <input type="checkbox" className="size-5 accent-tinta" checked={soloPracticas} onChange={(e) => setSoloPracticas(e.target.checked)} />
-          Solo con programa de prácticas publicado
-        </label>
-        <label className="flex min-h-11 items-center gap-2">
-          <input type="checkbox" className="size-5 accent-tinta" checked={ocultarContactadas} onChange={(e) => setOcultarContactadas(e.target.checked)} />
-          Ocultar las que ya he contactado
-        </label>
         <div>
+          <label htmlFor="f-tamano" className="etiqueta">Tipo</label>
+          <select id="f-tamano" className="campo" value={tamano} onChange={(e) => setTamano(e.target.value)}>
+            <option value="">Todos</option>
+            {Object.entries(NOMBRE_TAMANO).map(([k, v]) => (
+              <option key={k} value={k}>{v}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label htmlFor="f-zona" className="etiqueta">Zona</label>
+          <select id="f-zona" className="campo" value={zona} onChange={(e) => setZona(e.target.value)}>
+            <option value="">Todas</option>
+            {config.zonas.map((z) => (
+              <option key={z.id} value={z.id}>{z.nombre}</option>
+            ))}
+          </select>
+        </div>
+        <div className="col-span-2 lg:col-span-1">
           <label htmlFor="orden" className="etiqueta">Ordenar por</label>
           <select id="orden" className="campo" value={orden} onChange={(e) => setOrden(e.target.value as Orden)}>
-            <option value="encaje">Encaje con mi perfil</option>
+            <option value="encaje">Recomendadas</option>
             <option value="nombre">Nombre</option>
             <option value="verificacion">Verificación más reciente</option>
           </select>
         </div>
-        <button type="button" className="btn-secundario" onClick={limpiar}>Quitar filtros</button>
-      </form>
+      </BarraFiltros>
 
       <section aria-labelledby="titulo-resultados">
-        <h2 id="titulo-resultados" className="mb-3 text-lg font-bold" aria-live="polite">
+        <h2 id="titulo-resultados" tabIndex={-1} className="mb-3 scroll-mt-20 text-lg font-bold outline-none" aria-live="polite">
           {resultado.length} {resultado.length === 1 ? 'empresa' : 'empresas'}
         </h2>
         {resultado.length === 0 ? (
@@ -205,7 +215,11 @@ function TarjetaEmpresa({ empresa: e, puntos, seguimiento }: { empresa: Empresa;
         ) : (
           <span className="chip bg-hueso">Candidatura espontánea</span>
         )}
-        <span className="chip">{e.contacto.tipo === 'email' ? 'Correo verificado' : 'Formulario oficial'}</span>
+        {esCorreoRrhh(e) ? (
+          <span className="chip border-tinta bg-salvia">Correo de {NOMBRE_TIPO_CONTACTO[e.contacto.tipoContacto]}</span>
+        ) : (
+          <span className="chip">{e.contacto.tipo === 'email' ? 'Correo general' : 'Formulario oficial'}</span>
+        )}
         {e.perfiles.slice(0, 3).map((p) => (
           <span key={p} className={`chip ${p.startsWith('dam') ? 'bg-salvia-claro' : 'bg-terracota-claro'}`}>{perfilPorId(p)?.nombre}</span>
         ))}

@@ -41,7 +41,7 @@ export function perfilesParaEncaje(valor: ValorPerfil, alumno: Alumno): string[]
 
 export function FiltroPerfil({ id, valor, cambiar, alumno }: { id: string; valor: ValorPerfil; cambiar: (v: ValorPerfil) => void; alumno: Alumno }) {
   return (
-    <div>
+    <div className="col-span-2 lg:col-span-1">
       <label htmlFor={id} className="etiqueta">Perfil o rama</label>
       <select id={id} className="campo" value={valor} onChange={(e) => cambiar(e.target.value)}>
         {(alumno.perfiles.length > 0 || alumno.ciclo) && <option value="mis">{alumno.perfiles.length ? 'Mis perfiles' : `Mi ciclo (${alumno.ciclo})`}</option>}
