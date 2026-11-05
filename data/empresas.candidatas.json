@@ -1975,5 +1975,117 @@
       "https://www.sothis.tech"
     ],
     "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "vector-itc",
+    "nombre": "Vector ITC",
+    "web": "https://www.vectoritcgroup.com",
+    "sector": "Consultoría tecnológica",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "asir-sistemas",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Consultora tecnológica con desarrollo, sistemas y cloud.",
+    "paginasContacto": [
+      "https://www.vectoritcgroup.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "serikat",
+    "nombre": "Serikat",
+    "web": "https://www.serikat.es",
+    "sector": "Consultoría y desarrollo de software",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-bbdd"
+    ],
+    "motivoEncaje": "Consultora de desarrollo con oficina en Madrid.",
+    "paginasContacto": [
+      "https://www.serikat.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "logicalis-espana",
+    "nombre": "Logicalis España",
+    "web": "https://www.logicalis.com/es",
+    "sector": "Integración de redes y comunicaciones",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-redes",
+      "asir-sistemas",
+      "asir-ciberseguridad",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Integrador de redes y comunicaciones: perfil de redes de ASIR.",
+    "paginasContacto": [
+      "https://www.logicalis.com/es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "axians-espana",
+    "nombre": "Axians España",
+    "web": "https://www.axians.es",
+    "sector": "Redes, ciberseguridad y cloud",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-redes",
+      "asir-ciberseguridad",
+      "asir-cloud",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Integrador de redes, ciberseguridad y cloud del grupo Vinci.",
+    "paginasContacto": [
+      "https://www.axians.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "inycom",
+    "nombre": "Inycom",
+    "web": "https://www.inycom.es",
+    "sector": "Consultoría TI y sistemas",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-sistemas",
+      "asir-redes",
+      "dam-web",
+      "dam-erp"
+    ],
+    "motivoEncaje": "Grupo tecnológico con oficina en Madrid: sistemas, redes y desarrollo.",
+    "paginasContacto": [
+      "https://www.inycom.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "ingenia",
+    "nombre": "Ingenia",
+    "web": "https://www.ingenia.es",
+    "sector": "Ciberseguridad y desarrollo",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "dam-web",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Tecnológica con ciberseguridad y desarrollo; oficina en Madrid.",
+    "paginasContacto": [
+      "https://www.ingenia.es"
+    ],
+    "tipoContactoEsperado": "general"
   }
 ]

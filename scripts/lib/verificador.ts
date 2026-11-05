@@ -70,6 +70,9 @@ const OTROS_NO_CANDIDATURAS = ['comercial', 'commercial', 'clientes', 'cliente',
 /** Códigos de país distintos de España en el buzón (p. ej. careers.au@): buzones de otras filiales. */
 const PAISES_EXTRANJEROS = ['au', 'uk', 'us', 'de', 'fr', 'it', 'pt', 'nl', 'be', 'mx', 'br', 'ar', 'cl', 'co', 'pe', 'in', 'ca', 'ie', 'pl', 'ch', 'at', 'se', 'no', 'dk', 'fi', 'emea', 'latam', 'apac', 'usa'];
 
+/** Siglas de dos letras que sí pueden aparecer en un buzón español. */
+const DOS_LETRAS_PERMITIDAS = ['es', 'rh', 'hr', 'it', 'ti', 'cv', 'fp', 'rr', 'hh'];
+
 export function esParaCandidaturas(email: string): boolean {
   const local = email.split('@')[0].toLowerCase();
   const trozos = local.split(/[._+-]/);
@@ -77,6 +80,8 @@ export function esParaCandidaturas(email: string): boolean {
   if (FRAGMENTOS_NO_CANDIDATURAS.some((f) => local.includes(f))) return false;
   if (OTROS_NO_CANDIDATURAS.some((n) => trozos.includes(n))) return false;
   if (trozos.length > 1 && trozos.some((t) => PAISES_EXTRANJEROS.includes(t))) return false;
+  // Cualquier otro código de dos letras junto al buzón (careers.hk@, jobs.sg@…) también es de otra filial.
+  if (trozos.length > 1 && trozos.some((t) => /^[a-z]{2}$/.test(t) && !DOS_LETRAS_PERMITIDAS.includes(t))) return false;
   return true;
 }
 

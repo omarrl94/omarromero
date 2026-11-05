@@ -45,9 +45,9 @@ describe('valoración y elección', () => {
     expect(motivo('talento@acme.test')).toBeUndefined();
   });
   it('rechaza buzones de privacidad, clientes, ventas, administración y de otros países', () => {
-    const r = valorarCorreos(['contacto.dpd@acme.test', 'careers.au@acme.test', 'contact_eahelp@acme.test', 'comercial@acme.test', 'administracion@acme.test', 'atencion.clientes@acme.test', 'careers.es@acme.test', 'talento@acme.test'], WEB);
+    const r = valorarCorreos(['contacto.dpd@acme.test', 'careers.au@acme.test', 'careers.hk@acme.test', 'it.jobs@acme.test', 'contact_eahelp@acme.test', 'comercial@acme.test', 'administracion@acme.test', 'atencion.clientes@acme.test', 'careers.es@acme.test', 'talento@acme.test'], WEB);
     const aceptados = r.filter((x) => !x.motivoRechazo).map((x) => x.email);
-    expect(aceptados).toEqual(['careers.es@acme.test', 'talento@acme.test']);
+    expect(aceptados).toEqual(['careers.es@acme.test', 'it.jobs@acme.test', 'talento@acme.test']);
   });
   it('prioriza prácticas > talento > RR. HH. > general', () => {
     expect(elegirCorreo(v)?.email).toBe('practicas@acme.test');
