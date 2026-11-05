@@ -1,6 +1,7 @@
 import { promises as dns } from 'node:dns';
 
-export const AGENTE = 'ConectaFFE-verificador/1.0 (+https://www.jrotero.es; verificación de datos de contacto públicos para FP)';
+/** Formato estándar de robot («compatible; …»), identificándose siempre como verificador del centro. */
+export const AGENTE = 'Mozilla/5.0 (compatible; ConectaFFE-verificador/1.1; +https://www.jrotero.es)';
 
 export interface Pagina {
   url: string;
@@ -17,7 +18,7 @@ export async function descargar(url: string, timeoutMs = 20_000): Promise<Pagina
     const res = await fetch(url, {
       redirect: 'follow',
       signal: ctrl.signal,
-      headers: { 'User-Agent': AGENTE, Accept: 'text/html,application/xhtml+xml', 'Accept-Language': 'es-ES,es;q=0.9' },
+      headers: { 'User-Agent': AGENTE, Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8', 'Accept-Language': 'es-ES,es;q=0.9,en;q=0.5' },
     });
     const tipo = res.headers.get('content-type') ?? '';
     const html = /html|xml|text/.test(tipo) ? (await res.text()).slice(0, 3_000_000) : '';

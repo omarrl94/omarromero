@@ -179,3 +179,17 @@ export function tituloDe(html: string): string | null {
   const m = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
   return m ? decodificarEntidades(m[1]).replace(/\s+/g, ' ').trim().slice(0, 120) : null;
 }
+
+/** Rutas habituales de empleo y contacto en webs españolas (se prueban en el propio dominio; si no existen, 404). */
+export const RUTAS_HABITUALES = [
+  '/trabaja-con-nosotros', '/trabaja-con-nosotros/', '/empleo', '/talento', '/careers', '/unete', '/unete-al-equipo',
+  '/rrhh', '/recursos-humanos', '/es/trabaja-con-nosotros', '/es/empleo', '/es/talento', '/es/careers', '/contacto', '/es/contacto', '/aviso-legal',
+];
+
+const RE_EMPLEO = /(trabaja|empleo|talent|career|jobs|unete|join|rrhh|recursos-humanos|seleccion|practicas|becas|people|personas)/i;
+
+/** Ordena las URL para revisar primero las de empleo y RR. HH. (donde suele estar el correo de candidaturas). */
+export function priorizarUrls(urls: string[]): string[] {
+  const puntos = (u: string) => (RE_EMPLEO.test(u) ? 0 : /contact/i.test(u) ? 1 : 2);
+  return [...urls].sort((a, b) => puntos(a) - puntos(b));
+}

@@ -78,3 +78,14 @@ describe('páginas', () => {
     expect(mencionaPracticas('<p>Sobre nosotros</p>')).toBe(false);
   });
 });
+
+describe('priorizarUrls', () => {
+  it('revisa primero empleo y RR. HH., luego contacto y por último el resto', async () => {
+    const { priorizarUrls } = await import('../../scripts/lib/verificador');
+    expect(priorizarUrls(['https://a.test/aviso-legal', 'https://a.test/contacto', 'https://a.test/trabaja-con-nosotros'])).toEqual([
+      'https://a.test/trabaja-con-nosotros',
+      'https://a.test/contacto',
+      'https://a.test/aviso-legal',
+    ]);
+  });
+});

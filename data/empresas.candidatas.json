@@ -2087,5 +2087,1691 @@
       "https://www.ingenia.es"
     ],
     "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "hard2bit",
+    "nombre": "Hard2bit",
+    "web": "https://hard2bit.com",
+    "sector": "Ciberseguridad",
+    "tamano": "pyme",
+    "zona": "sur",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-sistemas",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Empresa de ciberseguridad con sedes en Leganés y Las Rozas.",
+    "paginasContacto": [
+      "https://hard2bit.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "taquion",
+    "nombre": "Taquion",
+    "web": "https://taquion.es",
+    "sector": "Ciberseguridad gestionada (SOC)",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-sistemas",
+      "asir-datos-ia-seguridad"
+    ],
+    "motivoEncaje": "MSSP madrileño con SOC 24/7 y SIEM Wazuh: perfil SOC de ASIR.",
+    "paginasContacto": [
+      "https://taquion.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "tecnek",
+    "nombre": "Tecnek",
+    "web": "https://www.tecnek.com",
+    "sector": "Ciberseguridad y sistemas",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-sistemas",
+      "asir-soporte"
+    ],
+    "motivoEncaje": "Consultoría de ciberseguridad, SOC y pentesting.",
+    "paginasContacto": [
+      "https://www.tecnek.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "grupo-linka",
+    "nombre": "Grupo Linka",
+    "web": "https://www.grupolinka.com",
+    "sector": "Ciberseguridad, sistemas y comunicaciones",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-redes",
+      "asir-sistemas",
+      "asir-soporte"
+    ],
+    "motivoEncaje": "Integrador con SOC propio y partner de Fortinet.",
+    "paginasContacto": [
+      "https://www.grupolinka.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "auditech",
+    "nombre": "Auditech",
+    "web": "https://auditech.es",
+    "sector": "Ciberseguridad y auditoría",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Auditorías, pentesting y SOC.",
+    "paginasContacto": [
+      "https://auditech.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "cibersafety",
+    "nombre": "Cibersafety",
+    "web": "https://cibersafety.com",
+    "sector": "Ciberseguridad para pymes",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-soporte"
+    ],
+    "motivoEncaje": "Ciberseguridad para pequeñas y medianas empresas.",
+    "paginasContacto": [
+      "https://cibersafety.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "seintec",
+    "nombre": "Seintec",
+    "web": "https://seintec.net",
+    "sector": "Mantenimiento informático para empresas",
+    "tamano": "pyme",
+    "zona": "oeste",
+    "perfiles": [
+      "asir-soporte",
+      "asir-sistemas",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Soporte y mantenimiento TI en Las Rozas: perfil de soporte y sistemas.",
+    "paginasContacto": [
+      "https://seintec.net"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "sermicro",
+    "nombre": "Sermicro",
+    "web": "https://www.sermicro.com",
+    "sector": "Servicios TI y soporte",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-soporte",
+      "asir-sistemas",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Servicios de soporte, puesto de trabajo y sistemas.",
+    "paginasContacto": [
+      "https://www.sermicro.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "serbatic",
+    "nombre": "Serbatic",
+    "web": "https://www.serbatic.es",
+    "sector": "Consultoría y desarrollo de software",
+    "tamano": "pyme",
+    "zona": "norte",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Consultoría y desarrollo con sede en Alcobendas.",
+    "paginasContacto": [
+      "https://www.serbatic.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "tecnimatica",
+    "nombre": "Tecnimatica",
+    "web": "https://www.tecnimatica.es",
+    "sector": "Desarrollo de software",
+    "tamano": "pyme",
+    "zona": "sur",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-bbdd"
+    ],
+    "motivoEncaje": "Desarrollo de software en Getafe desde 1996.",
+    "paginasContacto": [
+      "https://www.tecnimatica.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "it-oeste",
+    "nombre": "IT Oeste",
+    "web": "https://itoeste.com",
+    "sector": "Servicios informáticos y consultoría",
+    "tamano": "pyme",
+    "zona": "oeste",
+    "perfiles": [
+      "asir-soporte",
+      "asir-sistemas",
+      "dam-web"
+    ],
+    "motivoEncaje": "Servicios informáticos en la zona oeste de Madrid.",
+    "paginasContacto": [
+      "https://itoeste.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "neoris",
+    "nombre": "Neoris",
+    "web": "https://neoris.com",
+    "sector": "Consultoría tecnológica",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-datos-ia",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Consultora que publica FCT para DAM, DAW y ASIR en su sede de Sanchinarro (Madrid).",
+    "paginasContacto": [
+      "https://neoris.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "product-hackers",
+    "nombre": "Product Hackers",
+    "web": "https://producthackers.com",
+    "sector": "Growth y producto digital",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-datos-ia"
+    ],
+    "motivoEncaje": "Firma madrileña de producto digital y datos.",
+    "paginasContacto": [
+      "https://producthackers.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "solusoft",
+    "nombre": "Solusoft",
+    "web": "https://www.solusoft.es",
+    "sector": "Consultoría y servicios TI",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Consultoría y servicios TI ubicada en Madrid.",
+    "paginasContacto": [
+      "https://www.solusoft.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "krell-consulting",
+    "nombre": "Krell Consulting",
+    "web": "https://www.krellconsulting.com",
+    "sector": "Consultoría tecnológica",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "dam-web",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Consultora tecnológica con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.krellconsulting.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "atmira",
+    "nombre": "Atmira",
+    "web": "https://www.atmira.com",
+    "sector": "Consultoría tecnológica y desarrollo",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-datos-ia"
+    ],
+    "motivoEncaje": "Consultora madrileña de desarrollo y datos.",
+    "paginasContacto": [
+      "https://www.atmira.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "opensistemas",
+    "nombre": "OpenSistemas",
+    "web": "https://opensistemas.com",
+    "sector": "Datos, IA y cloud",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-datos-ia",
+      "asir-cloud",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Consultora de datos, IA y open source en Madrid.",
+    "paginasContacto": [
+      "https://opensistemas.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "cgi-espana",
+    "nombre": "CGI España",
+    "web": "https://www.cgi.com/es/es",
+    "sector": "Consultoría y servicios TI",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "dam-web",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Consultora internacional con oficina en Madrid.",
+    "paginasContacto": [
+      "https://www.cgi.com/es/es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "globant-espana",
+    "nombre": "Globant España",
+    "web": "https://www.globant.com",
+    "sector": "Desarrollo de software",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-android",
+      "dam-datos-ia"
+    ],
+    "motivoEncaje": "Desarrollo de software con oficina en Madrid.",
+    "paginasContacto": [
+      "https://www.globant.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "nfq",
+    "nombre": "NFQ",
+    "web": "https://www.nfq.es",
+    "sector": "Consultoría tecnológica para banca",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "dam-datos-ia",
+      "dam-bbdd"
+    ],
+    "motivoEncaje": "Consultora madrileña de tecnología y datos.",
+    "paginasContacto": [
+      "https://www.nfq.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "vass",
+    "nombre": "VASS",
+    "web": "https://vasscompany.com",
+    "sector": "Consultoría digital",
+    "tamano": "consultora",
+    "zona": "norte",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-erp",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Consultora digital con sede en Alcobendas.",
+    "paginasContacto": [
+      "https://vasscompany.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "t-systems-iberia",
+    "nombre": "T-Systems Iberia",
+    "web": "https://www.t-systems.com/es",
+    "sector": "Servicios TI y cloud",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-cloud",
+      "asir-sistemas",
+      "asir-ciberseguridad"
+    ],
+    "motivoEncaje": "Servicios cloud y de infraestructura con oficina en Madrid.",
+    "paginasContacto": [
+      "https://www.t-systems.com/es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "dxc-technology-espana",
+    "nombre": "DXC Technology España",
+    "web": "https://dxc.com/es/es",
+    "sector": "Servicios TI",
+    "tamano": "gran-empresa",
+    "zona": "oeste",
+    "perfiles": [
+      "asir-sistemas",
+      "asir-ciberseguridad",
+      "asir-soporte",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Servicios de infraestructura y aplicaciones; presente en el foro de ciberseguridad de Las Rozas.",
+    "paginasContacto": [
+      "https://dxc.com/es/es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "fujitsu-espana",
+    "nombre": "Fujitsu España",
+    "web": "https://www.fujitsu.com/es",
+    "sector": "Servicios TI",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-sistemas",
+      "asir-soporte",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Servicios de infraestructura y soporte.",
+    "paginasContacto": [
+      "https://www.fujitsu.com/es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "atos-espana",
+    "nombre": "Atos España",
+    "web": "https://atos.net/es",
+    "sector": "Servicios TI y ciberseguridad",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-sistemas",
+      "asir-ciberseguridad",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Servicios gestionados, cloud y ciberseguridad.",
+    "paginasContacto": [
+      "https://atos.net/es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "equinix-espana",
+    "nombre": "Equinix España",
+    "web": "https://www.equinix.es",
+    "sector": "Centros de datos",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-redes",
+      "asir-sistemas",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Centros de datos en Madrid: redes e infraestructura.",
+    "paginasContacto": [
+      "https://www.equinix.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "ingetive",
+    "nombre": "Ingetive",
+    "web": "https://www.ingetive.com",
+    "sector": "Implantación de Odoo",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-erp",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Partner de Odoo con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.ingetive.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "nanobytes",
+    "nombre": "Nanobytes",
+    "web": "https://nanobytes.es",
+    "sector": "Implantación de Odoo",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-erp",
+      "dam-backend",
+      "dam-web"
+    ],
+    "motivoEncaje": "Partner de Odoo con oficina en Madrid.",
+    "paginasContacto": [
+      "https://nanobytes.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "domatix",
+    "nombre": "Domatix",
+    "web": "https://www.domatix.com",
+    "sector": "Implantación de Odoo",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-erp",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Partner de Odoo en Madrid y Vigo.",
+    "paginasContacto": [
+      "https://www.domatix.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "trey",
+    "nombre": "Trey",
+    "web": "https://www.trey.es",
+    "sector": "Implantación de Odoo",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-erp",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Partner de Odoo en Madrid.",
+    "paginasContacto": [
+      "https://www.trey.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "factor-libre",
+    "nombre": "Factor Libre",
+    "web": "https://factorlibre.com",
+    "sector": "Implantación de Odoo y desarrollo",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-erp",
+      "dam-backend",
+      "dam-web"
+    ],
+    "motivoEncaje": "Partner de Odoo con sede en Madrid.",
+    "paginasContacto": [
+      "https://factorlibre.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "pendulo-studios",
+    "nombre": "Pendulo Studios",
+    "web": "https://www.pendulostudios.com",
+    "sector": "Desarrollo de videojuegos",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-videojuegos",
+      "dam-escritorio"
+    ],
+    "motivoEncaje": "Estudio madrileño de aventuras gráficas.",
+    "paginasContacto": [
+      "https://www.pendulostudios.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "fictiorama-studios",
+    "nombre": "Fictiorama Studios",
+    "web": "https://fictiorama.com",
+    "sector": "Desarrollo de videojuegos",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-videojuegos"
+    ],
+    "motivoEncaje": "Estudio independiente madrileño.",
+    "paginasContacto": [
+      "https://fictiorama.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "raiser-games",
+    "nombre": "Raiser Games",
+    "web": "https://raisergames.com",
+    "sector": "Edición de videojuegos",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-videojuegos",
+      "asir-soporte"
+    ],
+    "motivoEncaje": "Editora de videojuegos con sede en Madrid.",
+    "paginasContacto": [
+      "https://raisergames.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "gammera-nest",
+    "nombre": "Gammera Nest",
+    "web": "https://www.gammeranest.com",
+    "sector": "Videojuegos y gamificación",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-videojuegos",
+      "dam-android"
+    ],
+    "motivoEncaje": "Estudio madrileño de juegos y gamificación.",
+    "paginasContacto": [
+      "https://www.gammeranest.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "bandai-namco-entertainment-iberia",
+    "nombre": "Bandai Namco Entertainment Iberia",
+    "web": "https://www.bandainamcoent.es",
+    "sector": "Distribución de videojuegos",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-videojuegos",
+      "asir-soporte"
+    ],
+    "motivoEncaje": "Sede ibérica de una gran editora en Madrid.",
+    "paginasContacto": [
+      "https://www.bandainamcoent.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "tinybird",
+    "nombre": "Tinybird",
+    "web": "https://www.tinybird.co",
+    "sector": "Datos en tiempo real (SaaS)",
+    "tamano": "startup",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-datos-ia",
+      "dam-backend",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Startup madrileña de datos en tiempo real.",
+    "paginasContacto": [
+      "https://www.tinybird.co"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "playtomic",
+    "nombre": "Playtomic",
+    "web": "https://playtomic.io",
+    "sector": "Deporte (app)",
+    "tamano": "startup",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-android",
+      "dam-backend",
+      "dam-web"
+    ],
+    "motivoEncaje": "App madrileña con equipos móvil y backend.",
+    "paginasContacto": [
+      "https://playtomic.io"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "shakers",
+    "nombre": "Shakers",
+    "web": "https://www.shakersworks.com",
+    "sector": "Talento freelance (plataforma)",
+    "tamano": "startup",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Startup madrileña de talento, destacada por LinkedIn en 2026.",
+    "paginasContacto": [
+      "https://www.shakersworks.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "civitatis",
+    "nombre": "Civitatis",
+    "web": "https://www.civitatis.com",
+    "sector": "Turismo (plataforma web)",
+    "tamano": "startup",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-datos-ia"
+    ],
+    "motivoEncaje": "Plataforma madrileña de actividades con equipos de desarrollo.",
+    "paginasContacto": [
+      "https://www.civitatis.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "savana",
+    "nombre": "Savana",
+    "web": "https://savanamed.com",
+    "sector": "IA aplicada a la salud",
+    "tamano": "startup",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-datos-ia",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Healthtech madrileña de IA sobre historia clínica.",
+    "paginasContacto": [
+      "https://savanamed.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "tucuvi",
+    "nombre": "Tucuvi",
+    "web": "https://www.tucuvi.com",
+    "sector": "IA para el cuidado de la salud",
+    "tamano": "startup",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-datos-ia",
+      "dam-backend",
+      "dam-web"
+    ],
+    "motivoEncaje": "Healthtech madrileña con IA conversacional.",
+    "paginasContacto": [
+      "https://www.tucuvi.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "telefonica",
+    "nombre": "Telefónica",
+    "web": "https://www.telefonica.com",
+    "sector": "Telecomunicaciones",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-redes",
+      "asir-ciberseguridad",
+      "asir-cloud",
+      "dam-backend",
+      "dam-datos-ia"
+    ],
+    "motivoEncaje": "Gran empleador TIC en Distrito Telefónica (Las Tablas).",
+    "paginasContacto": [
+      "https://www.telefonica.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "masorange",
+    "nombre": "MasOrange",
+    "web": "https://www.masorange.es",
+    "sector": "Telecomunicaciones",
+    "tamano": "gran-empresa",
+    "zona": "oeste",
+    "perfiles": [
+      "asir-redes",
+      "asir-sistemas",
+      "asir-ciberseguridad",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Operador con grandes equipos de red y sistemas.",
+    "paginasContacto": [
+      "https://www.masorange.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "digi-spain",
+    "nombre": "Digi Spain",
+    "web": "https://www.digimobil.es",
+    "sector": "Telecomunicaciones",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-redes",
+      "asir-soporte",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Operador con fuerte despliegue de red en Madrid.",
+    "paginasContacto": [
+      "https://www.digimobil.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "redeia",
+    "nombre": "Redeia",
+    "web": "https://www.redeia.com",
+    "sector": "Energía e infraestructuras",
+    "tamano": "gran-empresa",
+    "zona": "norte",
+    "perfiles": [
+      "asir-sistemas",
+      "asir-redes",
+      "asir-ciberseguridad"
+    ],
+    "motivoEncaje": "Grupo de Red Eléctrica con sede en Alcobendas y áreas TIC.",
+    "paginasContacto": [
+      "https://www.redeia.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "iberdrola",
+    "nombre": "Iberdrola",
+    "web": "https://www.iberdrola.com",
+    "sector": "Energía",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-sistemas",
+      "asir-ciberseguridad",
+      "dam-datos-ia"
+    ],
+    "motivoEncaje": "Gran empresa con área digital y programas de talento.",
+    "paginasContacto": [
+      "https://www.iberdrola.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "repsol",
+    "nombre": "Repsol",
+    "web": "https://www.repsol.com",
+    "sector": "Energía",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-sistemas",
+      "asir-ciberseguridad",
+      "dam-datos-ia",
+      "dam-web"
+    ],
+    "motivoEncaje": "Gran empresa madrileña con área digital.",
+    "paginasContacto": [
+      "https://www.repsol.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "ferrovial",
+    "nombre": "Ferrovial",
+    "web": "https://www.ferrovial.com",
+    "sector": "Infraestructuras",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-datos-ia",
+      "asir-sistemas",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Grupo con sede en Madrid y área digital.",
+    "paginasContacto": [
+      "https://www.ferrovial.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "acciona",
+    "nombre": "Acciona",
+    "web": "https://www.acciona.com",
+    "sector": "Infraestructuras y energía",
+    "tamano": "gran-empresa",
+    "zona": "norte",
+    "perfiles": [
+      "asir-sistemas",
+      "dam-datos-ia",
+      "dam-web"
+    ],
+    "motivoEncaje": "Grupo con sede en Alcobendas y área digital.",
+    "paginasContacto": [
+      "https://www.acciona.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "el-corte-ingles",
+    "nombre": "El Corte Inglés",
+    "web": "https://www.elcorteingles.es",
+    "sector": "Distribución",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "asir-sistemas",
+      "asir-soporte"
+    ],
+    "motivoEncaje": "Gran empresa madrileña con área de sistemas y comercio electrónico.",
+    "paginasContacto": [
+      "https://www.elcorteingles.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "leroy-merlin-espana",
+    "nombre": "Leroy Merlin España",
+    "web": "https://www.leroymerlin.es",
+    "sector": "Distribución",
+    "tamano": "gran-empresa",
+    "zona": "norte",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-datos-ia"
+    ],
+    "motivoEncaje": "Sede en Alcobendas con equipos digitales.",
+    "paginasContacto": [
+      "https://www.leroymerlin.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "carrefour-espana",
+    "nombre": "Carrefour España",
+    "web": "https://www.carrefour.es",
+    "sector": "Distribución",
+    "tamano": "gran-empresa",
+    "zona": "norte",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Sede en Alcobendas con área tecnológica.",
+    "paginasContacto": [
+      "https://www.carrefour.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "dia",
+    "nombre": "DIA",
+    "web": "https://www.dia.es",
+    "sector": "Distribución",
+    "tamano": "gran-empresa",
+    "zona": "oeste",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "asir-sistemas",
+      "asir-soporte"
+    ],
+    "motivoEncaje": "Sede en Las Rozas con área de sistemas.",
+    "paginasContacto": [
+      "https://www.dia.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "verisure-espana",
+    "nombre": "Verisure España",
+    "web": "https://www.verisure.es",
+    "sector": "Seguridad (tecnología)",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-redes",
+      "asir-soporte",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Empresa de alarmas con fuerte componente tecnológico.",
+    "paginasContacto": [
+      "https://www.verisure.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "mutua-madrilena",
+    "nombre": "Mutua Madrileña",
+    "web": "https://www.mutua.es",
+    "sector": "Seguros",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Aseguradora madrileña con área de tecnología.",
+    "paginasContacto": [
+      "https://www.mutua.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "linea-directa",
+    "nombre": "Línea Directa",
+    "web": "https://www.lineadirecta.com",
+    "sector": "Seguros",
+    "tamano": "gran-empresa",
+    "zona": "norte",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-datos-ia",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Aseguradora con sede en Tres Cantos y área tecnológica.",
+    "paginasContacto": [
+      "https://www.lineadirecta.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "bankinter",
+    "nombre": "Bankinter",
+    "web": "https://www.bankinter.com",
+    "sector": "Banca",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "asir-ciberseguridad"
+    ],
+    "motivoEncaje": "Banco madrileño con área tecnológica.",
+    "paginasContacto": [
+      "https://www.bankinter.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "ing-espana",
+    "nombre": "ING España",
+    "web": "https://www.ing.es",
+    "sector": "Banca digital",
+    "tamano": "gran-empresa",
+    "zona": "oeste",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-android",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Banco digital con sede en Las Rozas.",
+    "paginasContacto": [
+      "https://www.ing.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "red-es",
+    "nombre": "Red.es",
+    "web": "https://www.red.es",
+    "sector": "Entidad pública de transformación digital",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-sistemas",
+      "asir-ciberseguridad",
+      "dam-web"
+    ],
+    "motivoEncaje": "Entidad pública con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.red.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "tragsatec",
+    "nombre": "Tragsatec",
+    "web": "https://www.tragsa.es",
+    "sector": "Empresa pública de servicios técnicos",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-bbdd",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Grupo público con grandes equipos de desarrollo y sistemas.",
+    "paginasContacto": [
+      "https://www.tragsa.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "fnmt-rcm",
+    "nombre": "FNMT-RCM",
+    "web": "https://www.fnmt.es",
+    "sector": "Organismo público (certificación digital)",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-sistemas",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Certificación electrónica y seguridad, con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.fnmt.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "intelygenz",
+    "nombre": "Intelygenz",
+    "web": "https://intelygenz.com",
+    "sector": "IA y desarrollo de software",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-datos-ia",
+      "dam-backend",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Empresa madrileña de IA y desarrollo.",
+    "paginasContacto": [
+      "https://intelygenz.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "evolutio",
+    "nombre": "Evolutio",
+    "web": "https://www.evolutio.com",
+    "sector": "Cloud y comunicaciones para empresas",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-cloud",
+      "asir-redes",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Proveedor de cloud y comunicaciones con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.evolutio.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "ufinet",
+    "nombre": "Ufinet",
+    "web": "https://www.ufinet.com",
+    "sector": "Redes de fibra",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-redes",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Operador de fibra con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.ufinet.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "prisa-media",
+    "nombre": "Prisa Media",
+    "web": "https://www.prisamedia.com",
+    "sector": "Medios de comunicación (área digital)",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Grupo de medios con grandes equipos digitales en Madrid.",
+    "paginasContacto": [
+      "https://www.prisamedia.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "atresmedia",
+    "nombre": "Atresmedia",
+    "web": "https://www.atresmediacorporacion.com",
+    "sector": "Medios audiovisuales",
+    "tamano": "gran-empresa",
+    "zona": "norte",
+    "perfiles": [
+      "dam-web",
+      "asir-sistemas",
+      "asir-redes",
+      "asir-soporte"
+    ],
+    "motivoEncaje": "Grupo audiovisual con sede en San Sebastián de los Reyes y áreas técnicas.",
+    "paginasContacto": [
+      "https://www.atresmediacorporacion.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "mediaset-espana",
+    "nombre": "Mediaset España",
+    "web": "https://www.mediaset.es",
+    "sector": "Medios audiovisuales",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "asir-sistemas",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Grupo audiovisual madrileño con área de sistemas.",
+    "paginasContacto": [
+      "https://www.mediaset.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "rtve",
+    "nombre": "RTVE",
+    "web": "https://www.rtve.es",
+    "sector": "Medios audiovisuales (público)",
+    "tamano": "gran-empresa",
+    "zona": "oeste",
+    "perfiles": [
+      "dam-web",
+      "asir-sistemas",
+      "asir-redes",
+      "asir-soporte"
+    ],
+    "motivoEncaje": "Corporación pública con grandes áreas técnicas en Madrid.",
+    "paginasContacto": [
+      "https://www.rtve.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "aena",
+    "nombre": "Aena",
+    "web": "https://www.aena.es",
+    "sector": "Gestión aeroportuaria",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-sistemas",
+      "asir-redes",
+      "asir-ciberseguridad"
+    ],
+    "motivoEncaje": "Gestor aeroportuario con sede en Madrid y área TIC.",
+    "paginasContacto": [
+      "https://www.aena.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "metro-de-madrid",
+    "nombre": "Metro de Madrid",
+    "web": "https://www.metromadrid.es",
+    "sector": "Transporte público",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-sistemas",
+      "asir-redes",
+      "dam-web"
+    ],
+    "motivoEncaje": "Empresa pública con sistemas y comunicaciones.",
+    "paginasContacto": [
+      "https://www.metromadrid.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "canal-de-isabel-ii",
+    "nombre": "Canal de Isabel II",
+    "web": "https://www.canaldeisabelsegunda.es",
+    "sector": "Agua (empresa pública)",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-sistemas",
+      "asir-redes",
+      "dam-datos-ia"
+    ],
+    "motivoEncaje": "Empresa pública madrileña con área de sistemas.",
+    "paginasContacto": [
+      "https://www.canaldeisabelsegunda.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "emt-madrid",
+    "nombre": "EMT Madrid",
+    "web": "https://www.emtmadrid.es",
+    "sector": "Transporte público",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-sistemas",
+      "dam-web",
+      "dam-android"
+    ],
+    "motivoEncaje": "Empresa municipal con apps y sistemas propios.",
+    "paginasContacto": [
+      "https://www.emtmadrid.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "iberia",
+    "nombre": "Iberia",
+    "web": "https://www.iberia.com",
+    "sector": "Aerolínea (área digital)",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Aerolínea con sede y equipos digitales en Madrid.",
+    "paginasContacto": [
+      "https://www.iberia.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "moeve",
+    "nombre": "Moeve",
+    "web": "https://www.moeveglobal.com",
+    "sector": "Energía",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-sistemas",
+      "dam-datos-ia",
+      "asir-ciberseguridad"
+    ],
+    "motivoEncaje": "Energética con sede en Madrid y área digital.",
+    "paginasContacto": [
+      "https://www.moeveglobal.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "naturgy",
+    "nombre": "Naturgy",
+    "web": "https://www.naturgy.com",
+    "sector": "Energía",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-sistemas",
+      "dam-datos-ia",
+      "asir-ciberseguridad"
+    ],
+    "motivoEncaje": "Energética con sede en Madrid y área digital.",
+    "paginasContacto": [
+      "https://www.naturgy.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "endesa",
+    "nombre": "Endesa",
+    "web": "https://www.endesa.com",
+    "sector": "Energía",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-sistemas",
+      "dam-datos-ia",
+      "asir-ciberseguridad"
+    ],
+    "motivoEncaje": "Energética con sede en Madrid y área digital.",
+    "paginasContacto": [
+      "https://www.endesa.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "siemens-espana",
+    "nombre": "Siemens España",
+    "web": "https://www.siemens.com/es/es.html",
+    "sector": "Industria y tecnología",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-redes",
+      "asir-sistemas",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Multinacional tecnológica con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.siemens.com/es/es.html"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "airbus-espana",
+    "nombre": "Airbus España",
+    "web": "https://www.airbus.com/es",
+    "sector": "Aeroespacial",
+    "tamano": "gran-empresa",
+    "zona": "sur",
+    "perfiles": [
+      "asir-sistemas",
+      "asir-ciberseguridad",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Centro de Getafe con áreas de sistemas y software.",
+    "paginasContacto": [
+      "https://www.airbus.com/es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "hispasat",
+    "nombre": "Hispasat",
+    "web": "https://www.hispasat.com",
+    "sector": "Satélites y comunicaciones",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-redes",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Operador de satélites con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.hispasat.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "sener",
+    "nombre": "Sener",
+    "web": "https://www.group.sener",
+    "sector": "Ingeniería y tecnología",
+    "tamano": "gran-empresa",
+    "zona": "norte",
+    "perfiles": [
+      "dam-backend",
+      "dam-escritorio",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Ingeniería con oficinas en Tres Cantos y software propio.",
+    "paginasContacto": [
+      "https://www.group.sener"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "tecnatom",
+    "nombre": "Tecnatom",
+    "web": "https://www.tecnatom.es",
+    "sector": "Ingeniería y simulación",
+    "tamano": "gran-empresa",
+    "zona": "norte",
+    "perfiles": [
+      "dam-escritorio",
+      "dam-videojuegos",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Simuladores y software con sede en San Sebastián de los Reyes.",
+    "paginasContacto": [
+      "https://www.tecnatom.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "ericsson-espana",
+    "nombre": "Ericsson España",
+    "web": "https://www.ericsson.com/es",
+    "sector": "Telecomunicaciones",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-redes",
+      "asir-sistemas",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Fabricante de redes con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.ericsson.com/es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "hp-espana",
+    "nombre": "HP España",
+    "web": "https://www.hp.com/es-es",
+    "sector": "Tecnología (hardware y servicios)",
+    "tamano": "gran-empresa",
+    "zona": "oeste",
+    "perfiles": [
+      "asir-soporte",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Sede en Las Rozas con soporte y servicios.",
+    "paginasContacto": [
+      "https://www.hp.com/es-es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "canon-espana",
+    "nombre": "Canon España",
+    "web": "https://www.canon.es",
+    "sector": "Impresión y servicios TI",
+    "tamano": "gran-empresa",
+    "zona": "norte",
+    "perfiles": [
+      "asir-soporte",
+      "asir-sistemas",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Sede en Alcobendas con servicios técnicos.",
+    "paginasContacto": [
+      "https://www.canon.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "kyocera-document-solutions-espana",
+    "nombre": "Kyocera Document Solutions España",
+    "web": "https://www.kyoceradocumentsolutions.es",
+    "sector": "Impresión y gestión documental",
+    "tamano": "gran-empresa",
+    "zona": "norte",
+    "perfiles": [
+      "asir-soporte",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Sede en Alcobendas con soporte técnico.",
+    "paginasContacto": [
+      "https://www.kyoceradocumentsolutions.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "mcr",
+    "nombre": "MCR",
+    "web": "https://www.mcr.com.es",
+    "sector": "Distribución de informática",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-soporte",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Mayorista de informática con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.mcr.com.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "qindel",
+    "nombre": "Qindel",
+    "web": "https://www.qindel.com",
+    "sector": "Consultoría tecnológica",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Consultora tecnológica con oficina en Madrid.",
+    "paginasContacto": [
+      "https://www.qindel.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "the-cocktail",
+    "nombre": "The Cocktail",
+    "web": "https://www.the-cocktail.com",
+    "sector": "Consultoría digital y desarrollo",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-android",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Agencia digital madrileña con desarrollo web y apps.",
+    "paginasContacto": [
+      "https://www.the-cocktail.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "good-rebels",
+    "nombre": "Good Rebels",
+    "web": "https://www.goodrebels.com",
+    "sector": "Consultoría digital y datos",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-datos-ia"
+    ],
+    "motivoEncaje": "Consultora digital madrileña con datos y desarrollo.",
+    "paginasContacto": [
+      "https://www.goodrebels.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "redsys",
+    "nombre": "Redsys",
+    "web": "https://redsys.es",
+    "sector": "Medios de pago",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "asir-ciberseguridad",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Procesador de pagos con sede en Madrid.",
+    "paginasContacto": [
+      "https://redsys.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "iberpay",
+    "nombre": "Iberpay",
+    "web": "https://www.iberpay.es",
+    "sector": "Medios de pago",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "asir-sistemas",
+      "asir-ciberseguridad"
+    ],
+    "motivoEncaje": "Infraestructura de pagos con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.iberpay.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "bizum",
+    "nombre": "Bizum",
+    "web": "https://bizum.es",
+    "sector": "Pagos móviles",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "dam-android"
+    ],
+    "motivoEncaje": "Plataforma de pagos con sede en Madrid.",
+    "paginasContacto": [
+      "https://bizum.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "bme",
+    "nombre": "BME",
+    "web": "https://www.bolsasymercados.es",
+    "sector": "Mercados financieros (tecnología)",
+    "tamano": "gran-empresa",
+    "zona": "oeste",
+    "perfiles": [
+      "dam-backend",
+      "asir-sistemas",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Bolsas y Mercados Españoles, con área tecnológica en Las Rozas.",
+    "paginasContacto": [
+      "https://www.bolsasymercados.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
   }
 ]

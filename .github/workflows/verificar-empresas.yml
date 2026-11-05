@@ -26,7 +26,7 @@ concurrency:
 jobs:
   verificar:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 75
     steps:
       - uses: actions/checkout@v4
         with:
@@ -40,7 +40,7 @@ jobs:
       - run: npm ci
 
       - name: Verificar empresas (web, correo en la fuente, MX, formulario)
-        run: npm run verificar:empresas
+        run: npm run verificar:empresas -- --concurrencia=8
 
       - name: Validar datos
         run: npm run validar:datos

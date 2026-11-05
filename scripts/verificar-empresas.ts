@@ -12,7 +12,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { CandidatasSchema, EmpresaSchema, EmpresasSchema, type Candidata, type Empresa } from '../shared/schemas';
 import { descargar as descargarRed, enSerie, hayRed, tieneMx as tieneMxRed, type Pagina } from './lib/red';
 import { pathToFileURL } from 'node:url';
-import { detectarAts, elegirCorreo, enlacesDeInteres, esPaginaFormulario, extraerCorreos, mencionaPracticas, tituloDe, valorarCorreos, type CorreoValorado } from './lib/verificador';
+import { detectarAts, elegirCorreo, enlacesDeInteres, esPaginaFormulario, extraerCorreos, mencionaPracticas, priorizarUrls, RUTAS_HABITUALES, tituloDe, valorarCorreos, type CorreoValorado } from './lib/verificador';
 
 interface Retirada { id?: string; dominio?: string; fecha: string }
 
@@ -63,15 +63,30 @@ export async function verificar(c: Candidata, retiradas: Retirada[], deps: Depen
     return { r };
   }
 
-  // 2. Páginas a revisar: las indicadas en la investigación + enlaces de contacto/empleo/legal de la portada.
-  const urls = [...new Set([...c.paginasContacto, ...(c.formularioUrl ? [c.formularioUrl] : []), ...(c.empleoUrl ? [c.empleoUrl] : []), ...enlacesDeInteres(raiz.html, raiz.urlFinal)])]
-    .filter((u) => u !== c.web)
-    .slice(0, 14);
+  // 2. Páginas a revisar: las indicadas en la investigación, los enlaces de empleo/contacto/legal de la portada
+  //    y las rutas habituales de empleo, empezando por las de empleo y RR. HH.
+  const origen = new URL(raiz.urlFinal).origin;
+  const revisadas = new Set<string>([c.web, raiz.urlFinal]);
   const paginas: Pagina[] = [raiz];
-  for (const u of urls) {
-    const p = await descargar(u);
-    r.paginasRevisadas.push({ url: u, estado: p.estado || p.error || 'error' });
-    if (p.estado >= 200 && p.estado < 400) paginas.push(p);
+  const revisar = async (lista: string[], max: number) => {
+    for (const u of priorizarUrls([...new Set(lista)]).filter((x) => !revisadas.has(x)).slice(0, max)) {
+      revisadas.add(u);
+      const p = await descargar(u);
+      r.paginasRevisadas.push({ url: u, estado: p.estado || p.error || 'error' });
+      if (p.estado >= 200 && p.estado < 400 && !revisadas.has(p.urlFinal + '#ok')) {
+        revisadas.add(p.urlFinal + '#ok');
+        paginas.push(p);
+      }
+    }
+  };
+  await revisar([...c.paginasContacto, ...(c.formularioUrl ? [c.formularioUrl] : []), ...(c.empleoUrl ? [c.empleoUrl] : []), ...enlacesDeInteres(raiz.html, raiz.urlFinal, 14)], 14);
+  // Rutas habituales solo si en lo revisado no hay ya un buzón de RR. HH./talento.
+  const hayRrhh = () => valorarCorreos(paginas.flatMap((p) => extraerCorreos(p.html)), c.web).some((v) => !v.motivoRechazo && v.tipo !== 'general');
+  if (!hayRrhh()) await revisar(RUTAS_HABITUALES.map((ruta) => origen + ruta), 8);
+  // Segundo nivel: enlaces que salen de las páginas de empleo encontradas.
+  if (!hayRrhh()) {
+    const deEmpleo = paginas.filter((p) => p !== raiz && /(trabaja|empleo|talent|career|jobs|unete|join|rrhh)/i.test(p.urlFinal));
+    await revisar(deEmpleo.flatMap((p) => enlacesDeInteres(p.html, p.urlFinal, 8)), 6);
   }
 
   // 3. Correos publicados en esas páginas (con la URL exacta donde aparecen).
