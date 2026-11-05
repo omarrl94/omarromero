@@ -72,5 +72,10 @@ jobs:
             echo "Sin cambios en el directorio."
           else
             git commit -m "Verificación automática de empresas ($(date -u +%F))"
-            git push origin HEAD:conecta-ffe
+            # Si la rama ha avanzado mientras se verificaba, se integra antes de subir.
+            for intento in 1 2 3; do
+              git pull --rebase origin conecta-ffe && git push origin HEAD:conecta-ffe && exit 0
+              sleep $((intento * 5))
+            done
+            exit 1
           fi
