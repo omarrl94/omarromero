@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { SelectorPerfil } from '../components/SelectorPerfil';
 import { Aviso } from '../components/Estados';
 import { borrarTodo } from '../lib/almacen-local';
+import { borrarEstadoSesion } from '../lib/estado-sesion';
 import { useAlumno, type Alumno } from '../lib/alumno';
 import { api } from '../lib/api';
 import { olvidarEmpresas } from '../lib/useEmpresas';
@@ -26,6 +27,7 @@ export function Perfil() {
   async function borrar() {
     setConfirmando(false);
     borrarTodo();
+    borrarEstadoSesion();
     olvidarEmpresas();
     try {
       await api.salir();

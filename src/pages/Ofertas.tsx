@@ -8,6 +8,7 @@ import { BarraFiltros, ChipOpcion } from '../components/BarraFiltros';
 import { coincidePerfil, FiltroPerfil, valorInicial } from '../components/FiltroPerfil';
 import { useAlumno } from '../lib/alumno';
 import { api } from '../lib/api';
+import { useEstadoSesion } from '../lib/estado-sesion';
 import { NOMBRE_FUENTE, NOMBRE_JORNADA, NOMBRE_TIPO_OFERTA, fecha, fechaHora, haceDias } from '../lib/formato';
 
 type Estado = { tipo: 'cargando' } | { tipo: 'error'; mensaje: string } | { tipo: 'listo'; datos: CacheOfertas };
@@ -78,11 +79,11 @@ function EstadoFuentes({ datos }: { datos: CacheOfertas }) {
 
 function ListaOfertas({ datos }: { datos: CacheOfertas }) {
   const [alumno] = useAlumno();
-  const [texto, setTexto] = useState('');
-  const [perfil, setPerfil] = useState(() => valorInicial(alumno));
-  const [tipo, setTipo] = useState('');
-  const [jornada, setJornada] = useState('');
-  const [soloRemoto, setSoloRemoto] = useState(false);
+  const [texto, setTexto] = useEstadoSesion('ofertas.texto', '');
+  const [perfil, setPerfil] = useEstadoSesion('ofertas.perfil', () => valorInicial(alumno));
+  const [tipo, setTipo] = useEstadoSesion('ofertas.tipo', '');
+  const [jornada, setJornada] = useEstadoSesion('ofertas.jornada', '');
+  const [soloRemoto, setSoloRemoto] = useEstadoSesion('ofertas.remoto', false);
 
   const lista = useMemo(() => {
     const q = normalizar(texto);

@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
+import { useEstadoSesion, useRecordarScroll } from '../lib/estado-sesion';
 import { config, perfilPorId, zonaPorId } from '../../config/ffe.config';
 import { etiquetaEncaje, puntuarEncaje } from '../../shared/encaje';
 import type { Empresa } from '../../shared/schemas';
@@ -46,14 +47,15 @@ export function Empresas() {
 function ListaEmpresas({ empresas }: { empresas: Empresa[] }) {
   const [alumno] = useAlumno();
   const { seguimiento } = useSeguimiento();
-  const [texto, setTexto] = useState('');
-  const [perfil, setPerfil] = useState(() => valorInicial(alumno));
-  const [contacto, setContacto] = useState<Contacto>('');
-  const [tamano, setTamano] = useState('');
-  const [zona, setZona] = useState('');
-  const [soloPracticas, setSoloPracticas] = useState(false);
-  const [ocultarContactadas, setOcultarContactadas] = useState(false);
-  const [orden, setOrden] = useState<Orden>('encaje');
+  const [texto, setTexto] = useEstadoSesion('empresas.texto', '');
+  const [perfil, setPerfil] = useEstadoSesion('empresas.perfil', () => valorInicial(alumno));
+  useRecordarScroll('empresas', empresas.length > 0);
+  const [contacto, setContacto] = useEstadoSesion<Contacto>('empresas.contacto', '');
+  const [tamano, setTamano] = useEstadoSesion('empresas.tamano', '');
+  const [zona, setZona] = useEstadoSesion('empresas.zona', '');
+  const [soloPracticas, setSoloPracticas] = useEstadoSesion('empresas.practicas', false);
+  const [ocultarContactadas, setOcultarContactadas] = useEstadoSesion('empresas.ocultar', false);
+  const [orden, setOrden] = useEstadoSesion<Orden>('empresas.orden', 'encaje');
 
   const ciclo = alumno.ciclo;
 

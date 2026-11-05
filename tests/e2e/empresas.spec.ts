@@ -160,3 +160,28 @@ test('filtra por tipo de contacto y por cualquier rama de DAM o ASIR, y escribe 
   await expect(page.getByLabel('Para', { exact: true })).toHaveValue('empleo@ficticia-erp.test');
   await sinViolacionesGraves(page);
 });
+
+test('los filtros se mantienen al abrir una empresa y volver atrás', async ({ page }) => {
+  await elegirPerfil(page, 'DAM', 'Desarrollo web');
+  await entrar(page);
+  await abrirFiltros(page);
+  await page.getByLabel('Perfil o rama').selectOption('ciclo:ASIR');
+  await page.getByLabel('Contacto').selectOption('email');
+  await page.getByLabel('Buscar').fill('ciber');
+  const tarjetas = page.getByRole('main').getByRole('listitem').filter({ has: page.getByRole('heading', { level: 3 }) });
+  await expect(tarjetas).toHaveCount(1);
+
+  await page.getByRole('link', { name: 'Ficticia Ciberdefensa', exact: true }).click();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Ficticia Ciberdefensa');
+  await page.goBack();
+
+  await expect(page.getByLabel('Buscar')).toHaveValue('ciber');
+  await abrirFiltros(page);
+  await expect(page.getByLabel('Perfil o rama')).toHaveValue('ciclo:ASIR');
+  await expect(page.getByLabel('Contacto')).toHaveValue('email');
+  await expect(tarjetas).toHaveCount(1);
+
+  // También tras recargar la página dentro de la misma sesión.
+  await page.reload();
+  await expect(page.getByLabel('Buscar')).toHaveValue('ciber');
+});
