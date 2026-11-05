@@ -103,3 +103,13 @@ En la URL de producción, desde el móvil y desde el ordenador:
 | Cada trimestre | Revisar el estado de las fuentes en `#/ofertas` y las alertas de dependencias de GitHub |
 
 Para añadir empresas: `docs/GUIA-EMPRESAS.md`. Al hacer commit de nuevas candidatas, la verificación se lanza sola.
+
+## Solución de problemas
+
+| Lo que ves | Causa | Solución |
+|---|---|---|
+| «El acceso no está configurado en el servidor» | A las funciones les falta `ACCESS_CODE` o `SESSION_SECRET` | Comprueba los nombres exactos y que el ámbito incluye *Functions*. Después: **Deploys → Trigger deploy → Clear cache and deploy project** |
+| «Código incorrecto» | El código no coincide con `ACCESS_CODE` | Revisa el valor (sin espacios al principio ni al final) |
+| «Demasiados intentos» | 5 fallos en 15 minutos desde la misma conexión | Espera 15 minutos o prueba desde otra red |
+| «Algo ha fallado» / error 500 al entrar | `SESSION_SECRET` tiene menos de 32 caracteres | Pon uno más largo y vuelve a desplegar |
+| `/api/empresas` responde «Necesitas el código de acceso del centro.» | Es lo correcto: las funciones responden y protegen el directorio | Entra con el código desde la web |
