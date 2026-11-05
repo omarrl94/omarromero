@@ -1,18 +1,18 @@
 # Auditoría de una muestra al azar
 
-Fecha: 2026-11-05T21:43:25.497Z · Muestra: 10 de 130 · Con problemas: 0
+Fecha: 2026-11-05T21:51:34.820Z · Muestra: 10 de 128 · Con problemas: 0
 
 | Empresa | Contacto | Fuente | Resultado |
 |---|---|---|---|
-| Spotahome | formulario | https://www.spotahome.com/careers | ✔ OK |
-| Logicalis España | info@logicalis.com | https://www.logicalis.com/contact-us | ✔ OK |
-| Redsys | cv@redsys.es | https://redsys.es/empleo | ✔ OK |
-| MercurySteam | info@mercurysteam.com | https://www.mercurysteam.com/aviso-legal-y-politica-de-privacidad/ | ✔ OK |
-| Paradigma Digital | people@paradigmadigital.com | https://www.paradigmadigital.com/legal/ | ✔ OK |
-| Fictiorama Studios | hello@fictiorama.com | https://www.fictiorama.com/ | ✔ OK |
-| Entelgy | hola@entelgy.com | https://entelgy.com/aviso-legal/ | ✔ OK |
-| Intelequia | formulario | https://talento.intelequia.com/es/ | ✔ OK |
-| Plain Concepts | formulario | https://www.plainconcepts.com/careers/ | ✔ OK |
-| Ferrovial | formulario | https://www.ferrovial.com/en/careers/ | ✔ OK |
+| Ingetive | formulario | https://www.ingetive.com/contactus | ✔ OK |
+| Telefónica | formulario | https://www.telefonica.com/es/sostenibilidad-innovacion/como-trabajamos/ | ✔ OK |
+| Amadeus | formulario | https://amadeus.com/en/careers/overview | ✔ OK |
+| Cobee | hola@cobee.io | https://cobee.io/equipos-informaticos/ | ✔ OK |
+| Accenture España | formulario | https://www.accenture.com/es-es/services/talent-organization | ✔ OK |
+| Moeve | formulario | https://www.moeveglobal.com/es/empleo | ✔ OK |
+| Lyntia | seleccion@lyntia.com | https://www.lyntia.com/contacto/ | ✔ OK |
+| Panel Sistemas | seleccion@panel.es | https://www.panel.es/talento-aprendizaje-continuo-desarrollo/ | ✔ OK |
+| Bit2Me | info@bit2me.com | https://empleo.bit2me.com/legal-notice?company=bit2me&locale=es&site_id=604 | ✔ OK |
+| BBVA | formulario | https://www.bbva.com/en/careers/ | ✔ OK |
 
 Si alguna falla: vuelve a ejecutar `npm run verificar:empresas -- --solo=<id>` o retírala.

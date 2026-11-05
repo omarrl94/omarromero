@@ -99,7 +99,7 @@
     "contacto": {
       "tipo": "email",
       "email": "seleccion@aena.es",
-      "fuenteUrl": "https://empleo.aena.es/empleo/MDSrv?accion=inicio&amp;SEDE=0",
+      "fuenteUrl": "https://empleo.aena.es/empleo/MDSrv?accion=inicio&SEDE=0",
       "tipoContacto": "rrhh"
     },
     "empleoUrl": "https://empleo.aena.es/empleo/",
@@ -190,7 +190,7 @@
       "fecha": "2026-11-05",
       "confianza": "media",
       "mx": null,
-      "notas": "Verificación automática: 19 páginas revisadas; sin correo de candidaturas publicado, se usa el formulario oficial."
+      "notas": "Verificación automática: 18 páginas revisadas; sin correo de candidaturas publicado, se usa el formulario oficial."
     }
   },
   {
@@ -490,7 +490,7 @@
     "contacto": {
       "tipo": "email",
       "email": "info@bit2me.com",
-      "fuenteUrl": "https://empleo.bit2me.com/legal-notice?company=bit2me&amp;locale=es&amp;site_id=604",
+      "fuenteUrl": "https://empleo.bit2me.com/legal-notice?company=bit2me&locale=es&site_id=604",
       "tipoContacto": "general"
     },
     "empleoUrl": "https://empleo.bit2me.com/jobs",
@@ -634,7 +634,7 @@
       "fecha": "2026-11-05",
       "confianza": "media",
       "mx": null,
-      "notas": "Verificación automática: 8 páginas revisadas; sin correo de candidaturas publicado, se usa el formulario oficial."
+      "notas": "Verificación automática: 9 páginas revisadas; sin correo de candidaturas publicado, se usa el formulario oficial."
     }
   },
   {
@@ -771,34 +771,6 @@
       "confianza": "media",
       "mx": true,
       "notas": "Verificación automática: 12 páginas revisadas; correo extraído literalmente de la fuente."
-    }
-  },
-  {
-    "id": "computacenter-espana",
-    "nombre": "Computacenter España",
-    "web": "https://www.computacenter.com/es-es",
-    "sector": "Servicios de infraestructura TI",
-    "tamano": "gran-empresa",
-    "zona": "madrid",
-    "perfiles": [
-      "asir-soporte",
-      "asir-sistemas",
-      "asir-redes",
-      "asir-cloud"
-    ],
-    "motivoEncaje": "Proveedor de infraestructura y puesto de trabajo: soporte, sistemas y redes.",
-    "contacto": {
-      "tipo": "formulario",
-      "fuenteUrl": "https://www.computacenter.com/es-es/careers",
-      "formularioUrl": "https://www.computacenter.com/es-es/careers",
-      "tipoContacto": "talento"
-    },
-    "empleoUrl": "https://www.computacenter.com/es-es/careers",
-    "verificacion": {
-      "fecha": "2026-11-05",
-      "confianza": "media",
-      "mx": null,
-      "notas": "Verificación automática: 13 páginas revisadas; sin correo de candidaturas publicado, se usa el formulario oficial."
     }
   },
   {
@@ -1002,17 +974,17 @@
     ],
     "motivoEncaje": "Empresa municipal con apps y sistemas propios.",
     "contacto": {
-      "tipo": "email",
-      "email": "secretaria@emtmadrid.es",
-      "fuenteUrl": "https://www.emtmadrid.es/Servicios/AvisoLegal",
-      "tipoContacto": "general"
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.emtmadrid.es/Empresa/Empleo?lang=es-ES",
+      "formularioUrl": "https://www.emtmadrid.es/Empresa/Empleo?lang=es-ES",
+      "tipoContacto": "talento"
     },
     "empleoUrl": "https://www.emtmadrid.es/Empresa/Empleo?lang=es-ES",
     "verificacion": {
       "fecha": "2026-11-05",
       "confianza": "media",
-      "mx": true,
-      "notas": "Verificación automática: 10 páginas revisadas; correo extraído literalmente de la fuente."
+      "mx": null,
+      "notas": "Verificación automática: 10 páginas revisadas; sin correo de candidaturas publicado, se usa el formulario oficial."
     }
   },
   {
@@ -1244,16 +1216,16 @@
     "motivoEncaje": "Certificación electrónica y seguridad, con sede en Madrid.",
     "contacto": {
       "tipo": "formulario",
-      "fuenteUrl": "https://www.fnmt.es/ofertas-de-empleo",
-      "formularioUrl": "https://www.fnmt.es/ofertas-de-empleo",
+      "fuenteUrl": "https://www.fnmt.es/ofertas-de-empleo/informacion-general",
+      "formularioUrl": "https://www.fnmt.es/ofertas-de-empleo/informacion-general",
       "tipoContacto": "talento"
     },
-    "empleoUrl": "https://www.fnmt.es/ofertas-de-empleo",
+    "empleoUrl": "https://www.fnmt.es/ofertas-de-empleo/informacion-general",
     "verificacion": {
       "fecha": "2026-11-05",
       "confianza": "media",
       "mx": null,
-      "notas": "Verificación automática: 14 páginas revisadas; sin correo de candidaturas publicado, se usa el formulario oficial."
+      "notas": "Verificación automática: 15 páginas revisadas; sin correo de candidaturas publicado, se usa el formulario oficial."
     }
   },
   {
@@ -1555,7 +1527,7 @@
       "fecha": "2026-11-05",
       "confianza": "media",
       "mx": null,
-      "notas": "Verificación automática: 9 páginas revisadas; sin correo de candidaturas publicado, se usa el formulario oficial."
+      "notas": "Verificación automática: 8 páginas revisadas; sin correo de candidaturas publicado, se usa el formulario oficial."
     }
   },
   {
@@ -1859,7 +1831,7 @@
       "fecha": "2026-11-05",
       "confianza": "media",
       "mx": null,
-      "notas": "Verificación automática: 11 páginas revisadas; sin correo de candidaturas publicado, se usa el formulario oficial."
+      "notas": "Verificación automática: 10 páginas revisadas; sin correo de candidaturas publicado, se usa el formulario oficial."
     }
   },
   {
@@ -1912,7 +1884,7 @@
       "fecha": "2026-11-05",
       "confianza": "media",
       "mx": null,
-      "notas": "Verificación automática: 8 páginas revisadas; sin correo de candidaturas publicado, se usa el formulario oficial."
+      "notas": "Verificación automática: 9 páginas revisadas; sin correo de candidaturas publicado, se usa el formulario oficial."
     }
   },
   {
@@ -2186,33 +2158,6 @@
     }
   },
   {
-    "id": "mutua-madrilena",
-    "nombre": "Mutua Madrileña",
-    "web": "https://www.mutua.es",
-    "sector": "Seguros",
-    "tamano": "gran-empresa",
-    "zona": "madrid",
-    "perfiles": [
-      "dam-web",
-      "dam-backend",
-      "asir-sistemas"
-    ],
-    "motivoEncaje": "Aseguradora madrileña con área de tecnología.",
-    "contacto": {
-      "tipo": "formulario",
-      "fuenteUrl": "https://www.mutua.es/contacto/",
-      "formularioUrl": "https://www.mutua.es/contacto/",
-      "tipoContacto": "general"
-    },
-    "empleoUrl": "https://www.mutua.es/trabaja-con-nosotros",
-    "verificacion": {
-      "fecha": "2026-11-05",
-      "confianza": "media",
-      "mx": null,
-      "notas": "Verificación automática: 12 páginas revisadas; sin correo de candidaturas publicado, se usa el formulario oficial."
-    }
-  },
-  {
     "id": "nanobytes",
     "nombre": "Nanobytes",
     "web": "https://nanobytes.es",
@@ -2283,17 +2228,17 @@
     ],
     "motivoEncaje": "Consultora con muchos proyectos de desarrollo y ciberseguridad; publica becas y prácticas para estudiantes.",
     "contacto": {
-      "tipo": "email",
-      "email": "global.careers@nttdata.com",
-      "fuenteUrl": "https://careers.nttdata.com/global/en?category=see-job",
+      "tipo": "formulario",
+      "fuenteUrl": "https://careers.emeal.nttdata.com/s/careers?language=es",
+      "formularioUrl": "https://careers.emeal.nttdata.com/s/careers?language=es",
       "tipoContacto": "talento"
     },
     "empleoUrl": "https://careers.emeal.nttdata.com/s/careers?language=es",
     "verificacion": {
       "fecha": "2026-11-05",
-      "confianza": "alta",
-      "mx": true,
-      "notas": "Verificación automática: 7 páginas revisadas; correo extraído literalmente de la fuente."
+      "confianza": "media",
+      "mx": null,
+      "notas": "Verificación automática: 13 páginas revisadas; sin correo de candidaturas publicado, se usa el formulario oficial."
     }
   },
   {
@@ -2555,16 +2500,16 @@
     "motivoEncaje": "Entidad pública con sede en Madrid.",
     "contacto": {
       "tipo": "formulario",
-      "fuenteUrl": "https://www.red.es/es/sobre-nosotros/trabaja-con-nosotros",
-      "formularioUrl": "https://www.red.es/es/sobre-nosotros/trabaja-con-nosotros",
+      "fuenteUrl": "https://www.red.es/es/iniciativas/talento-digital",
+      "formularioUrl": "https://www.red.es/es/iniciativas/talento-digital",
       "tipoContacto": "talento"
     },
-    "empleoUrl": "https://www.red.es/es/sobre-nosotros/trabaja-con-nosotros",
+    "empleoUrl": "https://www.red.es/es/iniciativas/talento-digital",
     "verificacion": {
       "fecha": "2026-11-05",
       "confianza": "media",
       "mx": null,
-      "notas": "Verificación automática: 12 páginas revisadas; sin correo de candidaturas publicado, se usa el formulario oficial."
+      "notas": "Verificación automática: 7 páginas revisadas; sin correo de candidaturas publicado, se usa el formulario oficial."
     }
   },
   {
@@ -2590,7 +2535,7 @@
       "fecha": "2026-11-05",
       "confianza": "media",
       "mx": true,
-      "notas": "Verificación automática: 11 páginas revisadas; correo extraído literalmente de la fuente."
+      "notas": "Verificación automática: 14 páginas revisadas; correo extraído literalmente de la fuente."
     }
   },
   {
@@ -2645,7 +2590,7 @@
       "fecha": "2026-11-05",
       "confianza": "media",
       "mx": null,
-      "notas": "Verificación automática: 15 páginas revisadas; sin correo de candidaturas publicado, se usa el formulario oficial."
+      "notas": "Verificación automática: 14 páginas revisadas; sin correo de candidaturas publicado, se usa el formulario oficial."
     }
   },
   {
@@ -2972,7 +2917,7 @@
       "fecha": "2026-11-05",
       "confianza": "media",
       "mx": true,
-      "notas": "Verificación automática: 8 páginas revisadas; correo extraído literalmente de la fuente."
+      "notas": "Verificación automática: 9 páginas revisadas; correo extraído literalmente de la fuente."
     }
   },
   {

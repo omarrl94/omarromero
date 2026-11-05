@@ -1,5 +1,5 @@
 {
-  "fecha": "2026-11-05T21:43:12.853Z",
+  "fecha": "2026-11-05T21:51:26.912Z",
   "resultados": [
     {
       "id": "indra-group",
@@ -328,7 +328,7 @@
           "estado": 200
         },
         {
-          "url": "https://careers.emeal.nttdata.com/s/jobs?language=es&amp;pcountry=Espana",
+          "url": "https://careers.emeal.nttdata.com/s/jobs?language=es&pcountry=Espana",
           "estado": 200
         },
         {
@@ -346,12 +346,69 @@
         {
           "url": "https://es.nttdata.com/legal-notice",
           "estado": 200
+        },
+        {
+          "url": "https://es.nttdata.com/trabaja-con-nosotros",
+          "estado": 404
+        },
+        {
+          "url": "https://es.nttdata.com/trabaja-con-nosotros/",
+          "estado": 404
+        },
+        {
+          "url": "https://es.nttdata.com/empleo",
+          "estado": 404
+        },
+        {
+          "url": "https://es.nttdata.com/talento",
+          "estado": 404
+        },
+        {
+          "url": "https://es.nttdata.com/careers",
+          "estado": 200
+        },
+        {
+          "url": "https://es.nttdata.com/unete",
+          "estado": 404
+        },
+        {
+          "url": "https://es.nttdata.com/unete-al-equipo",
+          "estado": 404
+        },
+        {
+          "url": "https://es.nttdata.com/rrhh",
+          "estado": 404
+        },
+        {
+          "url": "https://careers.emeal.nttdata.com/s/careers?",
+          "estado": 200
+        },
+        {
+          "url": "https://careers.emeal.nttdata.com/s/jobs?",
+          "estado": 200
+        },
+        {
+          "url": "https://careers.nttdata.com/global/en/sales-careers",
+          "estado": 200
+        },
+        {
+          "url": "https://careers.nttdata.com/global/en/NTT_DATA_Consulting_Careers",
+          "estado": 200
+        },
+        {
+          "url": "https://careers.nttdata.com/global/en/careers-in-tech",
+          "estado": 200
+        },
+        {
+          "url": "https://careers.nttdata.com/global/en/ntt-data-cybersecurity-careers",
+          "estado": 200
         }
       ],
       "correosEncontrados": [
         {
           "email": "global.careers@nttdata.com",
-          "tipo": "talento"
+          "tipo": "talento",
+          "motivoRechazo": "buzón no destinado a candidaturas"
         },
         {
           "email": "infoweb@nttdata.com",
@@ -359,8 +416,8 @@
           "motivoRechazo": "posible correo personal"
         }
       ],
-      "contacto": "global.careers@nttdata.com (https://careers.nttdata.com/global/en?category=see-job)",
-      "confianza": "alta"
+      "contacto": "formulario: https://careers.emeal.nttdata.com/s/careers?language=es",
+      "confianza": "media"
     },
     {
       "id": "capgemini-espana",
@@ -1840,133 +1897,15 @@
       "id": "computacenter-espana",
       "nombre": "Computacenter España",
       "web": "https://www.computacenter.com/es-es",
-      "estado": "valida",
+      "estado": "descartada",
       "paginasRevisadas": [
         {
           "url": "https://www.computacenter.com/es-es",
-          "estado": 200
-        },
-        {
-          "url": "https://www.computacenter.com/es-es/careers",
-          "estado": 200
-        },
-        {
-          "url": "https://www.computacenter.com/sustainability/people/people-vision",
-          "estado": 200
-        },
-        {
-          "url": "https://www.computacenter.com/es-es/sustainability/people",
-          "estado": 200
-        },
-        {
-          "url": "https://www.computacenter.com/es-es/information/contact-us",
-          "estado": 200
-        },
-        {
-          "url": "https://www.computacenter.com/es-es/information/legal",
-          "estado": 200
-        },
-        {
-          "url": "https://www.computacenter.com/trabaja-con-nosotros",
-          "estado": 404
-        },
-        {
-          "url": "https://www.computacenter.com/trabaja-con-nosotros/",
-          "estado": 404
-        },
-        {
-          "url": "https://www.computacenter.com/empleo",
-          "estado": 404
-        },
-        {
-          "url": "https://www.computacenter.com/talento",
-          "estado": 404
-        },
-        {
-          "url": "https://www.computacenter.com/careers",
-          "estado": 200
-        },
-        {
-          "url": "https://www.computacenter.com/unete",
-          "estado": 404
-        },
-        {
-          "url": "https://www.computacenter.com/unete-al-equipo",
-          "estado": 404
-        },
-        {
-          "url": "https://www.computacenter.com/rrhh",
-          "estado": 404
-        },
-        {
-          "url": "https://www.computacenter.com/es-es/careers/job-offers",
-          "estado": 200
-        },
-        {
-          "url": "https://careers.computacenter.com/?utm_source=site_corporate&utm_medium=careers_hp_bottom&utm_campaign=perma_link&utm_content=link",
-          "estado": 200
-        },
-        {
-          "url": "https://careers.computacenter.com/uk?utm_source=site_corporate&utm_medium=careers_hp_bottom&utm_campaign=perma_link&utm_content=link",
-          "estado": 200
-        },
-        {
-          "url": "https://careers.computacenter.com/be?utm_source=site_corporate&utm_medium=careers_hp_bottom&utm_campaign=perma_link&utm_content=link",
-          "estado": 200
-        },
-        {
-          "url": "https://careers.computacenter.com/hu?utm_source=site_corporate&utm_medium=careers_hp_bottom&utm_campaign=perma_link&utm_content=link",
-          "estado": 200
-        },
-        {
-          "url": "https://careers.computacenter.com/ro?utm_source=site_corporate&utm_medium=careers_hp_bottom&utm_campaign=perma_link&utm_content=link",
-          "estado": 200
+          "estado": 503
         }
       ],
-      "correosEncontrados": [
-        {
-          "email": "careers.sg@computacenter.com",
-          "tipo": "talento",
-          "motivoRechazo": "buzón no destinado a candidaturas"
-        },
-        {
-          "email": "careers.au@computacenter.com",
-          "tipo": "talento",
-          "motivoRechazo": "buzón no destinado a candidaturas"
-        },
-        {
-          "email": "careers.hk@computacenter.com",
-          "tipo": "talento",
-          "motivoRechazo": "buzón no destinado a candidaturas"
-        },
-        {
-          "email": "bianca.garrido@computacenter.com",
-          "tipo": "general",
-          "motivoRechazo": "posible correo personal"
-        },
-        {
-          "email": "tell.us@computacenter.com",
-          "tipo": "general",
-          "motivoRechazo": "buzón no destinado a candidaturas"
-        },
-        {
-          "email": "contacts@computacenter.fr",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "webmaster@computacenter.fr",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "0de46f6c6328f41f9ec33b0c5ca06a7b@sentry02.int.jobshop.services",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        }
-      ],
-      "contacto": "formulario: https://www.computacenter.com/es-es/careers",
-      "confianza": "media"
+      "correosEncontrados": [],
+      "motivo": "La web no responde (503)"
     },
     {
       "id": "econocom-espana",
@@ -3310,7 +3249,7 @@
         },
         {
           "url": "https://cabify.com/es/flotas/contacto",
-          "estado": "tiempo agotado"
+          "estado": 200
         },
         {
           "url": "https://cabify.com/es/empresas/contactanos",
@@ -4284,7 +4223,7 @@
           "estado": 200
         },
         {
-          "url": "https://empleo.bit2me.com/legal-notice?company=bit2me&amp;locale=es&amp;site_id=604",
+          "url": "https://empleo.bit2me.com/legal-notice?company=bit2me&locale=es&site_id=604",
           "estado": 200
         }
       ],
@@ -4309,7 +4248,7 @@
           "motivoRechazo": "buzón no destinado a candidaturas"
         }
       ],
-      "contacto": "info@bit2me.com (https://empleo.bit2me.com/legal-notice?company=bit2me&amp;locale=es&amp;site_id=604)",
+      "contacto": "info@bit2me.com (https://empleo.bit2me.com/legal-notice?company=bit2me&locale=es&site_id=604)",
       "confianza": "media"
     },
     {
@@ -4603,7 +4542,7 @@
           "estado": 200
         },
         {
-          "url": "https://empleo.integratecnologia.es/?blackhole=10b8b4c430",
+          "url": "https://empleo.integratecnologia.es/?blackhole=b225f6d87b",
           "estado": 200
         },
         {
@@ -4988,11 +4927,11 @@
         },
         {
           "url": "https://mobivery.com/trabaja-con-nosotros",
-          "estado": "tiempo agotado"
+          "estado": 404
         },
         {
           "url": "https://mobivery.com/trabaja-con-nosotros/",
-          "estado": 404
+          "estado": "tiempo agotado"
         },
         {
           "url": "https://mobivery.com/empleo",
@@ -5368,11 +5307,11 @@
         },
         {
           "url": "https://www.ea.com/commitments/people-and-culture",
-          "estado": "tiempo agotado"
+          "estado": 200
         },
         {
           "url": "https://www.ea.com/careers/teams",
-          "estado": 200
+          "estado": "tiempo agotado"
         },
         {
           "url": "https://www.ea.com/careers/locations",
@@ -5440,7 +5379,7 @@
         },
         {
           "url": "https://amadeus.com/en/careers/life-at-amadeus",
-          "estado": 200
+          "estado": "UND_ERR_SOCKET"
         },
         {
           "url": "https://amadeus.com/en/careers/how-we-hire",
@@ -5565,7 +5504,7 @@
         },
         {
           "url": "https://ayudacliente.vodafone.es/particulares/contacta/",
-          "estado": 200
+          "estado": "tiempo agotado"
         },
         {
           "url": "https://www.vodafone.es/c/conocenos/es/vodafone-espana/contacto/informacion-al-consumidor/",
@@ -5581,7 +5520,7 @@
         },
         {
           "url": "https://www.vodafone.es/c/conocenos/es/vodafone-espana/quienes-somos/legal-y-regulatorio/otra-informacion-legal/distribuidores/",
-          "estado": "tiempo agotado"
+          "estado": 200
         },
         {
           "url": "https://www.vodafone.es/c/conocenos/es/aviso-legal/",
@@ -5696,7 +5635,7 @@
         },
         {
           "url": "https://www.ibm.com/unete",
-          "estado": "tiempo agotado"
+          "estado": 404
         },
         {
           "url": "https://www.ibm.com/unete-al-equipo",
@@ -5716,7 +5655,7 @@
         },
         {
           "url": "https://www.ibm.com/careers/career-opportunities",
-          "estado": 200
+          "estado": "tiempo agotado"
         },
         {
           "url": "https://www.ibm.com/careers/application-process",
@@ -5769,7 +5708,7 @@
         },
         {
           "url": "https://www.kyndryl.com/trabaja-con-nosotros/",
-          "estado": "tiempo agotado"
+          "estado": 404
         },
         {
           "url": "https://www.kyndryl.com/empleo",
@@ -5781,7 +5720,7 @@
         },
         {
           "url": "https://www.kyndryl.com/careers",
-          "estado": 200
+          "estado": "tiempo agotado"
         },
         {
           "url": "https://www.kyndryl.com/unete",
@@ -6491,7 +6430,7 @@
           "estado": 404
         },
         {
-          "url": "https://empleo.es.deloitte.com/go/Tax&amp;Legal_ES/3617601/",
+          "url": "https://empleo.es.deloitte.com/go/Tax&Legal_ES/3617601/",
           "estado": 200
         }
       ],
@@ -8125,7 +8064,7 @@
         },
         {
           "url": "https://www.solusoft.es/category/empresa/trabaja-con-nosotros/oferta-de-empleo/",
-          "estado": "tiempo agotado"
+          "estado": 200
         }
       ],
       "correosEncontrados": [
@@ -8988,11 +8927,11 @@
       "paginasRevisadas": [
         {
           "url": "https://www.pendulostudios.com",
-          "estado": "UND_ERR_CONNECT_TIMEOUT"
+          "estado": "tiempo agotado"
         }
       ],
       "correosEncontrados": [],
-      "motivo": "La web no responde (UND_ERR_CONNECT_TIMEOUT)"
+      "motivo": "La web no responde (tiempo agotado)"
     },
     {
       "id": "fictiorama-studios",
@@ -9529,7 +9468,7 @@
         },
         {
           "url": "https://www.telefonica.com/talento",
-          "estado": 200
+          "estado": "tiempo agotado"
         },
         {
           "url": "https://www.telefonica.com/careers",
@@ -9537,7 +9476,7 @@
         },
         {
           "url": "https://www.telefonica.com/unete",
-          "estado": 404
+          "estado": "tiempo agotado"
         },
         {
           "url": "https://www.telefonica.com/unete-al-equipo",
@@ -9741,7 +9680,7 @@
         },
         {
           "url": "https://www.redeia.com/es/sostenibilidad/personas/dialogo-transparencia",
-          "estado": "tiempo agotado"
+          "estado": 200
         },
         {
           "url": "https://www.redeia.com/es/sostenibilidad/personas/conciliacion-laboral-personal",
@@ -9749,7 +9688,7 @@
         },
         {
           "url": "https://www.redeia.com/es/sostenibilidad/personas/organizacion-saludable",
-          "estado": "tiempo agotado"
+          "estado": 200
         },
         {
           "url": "https://www.redeia.com/es/sostenibilidad/transparencia-fiscal/buenas-practicas",
@@ -9761,7 +9700,7 @@
         },
         {
           "url": "https://www.redeia.com/es/sala-de-prensa/actualidad/nota-de-prensa/2026/10/redeia-refuerza-su-ambicion-impulsar-transicion-energetica-creando-impacto-positivo-en-personas-ecosistemas-y-territorios",
-          "estado": "tiempo agotado"
+          "estado": 200
         },
         {
           "url": "https://www.redeia.com/es/sala-de-prensa/contacta-medios",
@@ -9793,7 +9732,7 @@
         },
         {
           "url": "https://www.redeia.com/talento",
-          "estado": 404
+          "estado": "tiempo agotado"
         },
         {
           "url": "https://www.redeia.com/careers",
@@ -9801,7 +9740,7 @@
         },
         {
           "url": "https://www.redeia.com/unete",
-          "estado": 404
+          "estado": "tiempo agotado"
         },
         {
           "url": "https://www.redeia.com/unete-al-equipo",
@@ -9929,7 +9868,7 @@
         },
         {
           "url": "https://www.repsol.com/es/conocenos/nuestra-compania/nuestro-equipo/organigrama/index.cshtml",
-          "estado": 200
+          "estado": "tiempo agotado"
         },
         {
           "url": "https://www.repsol.com/trabaja-con-nosotros",
@@ -9953,7 +9892,7 @@
         },
         {
           "url": "https://www.repsol.com/unete",
-          "estado": 404
+          "estado": "tiempo agotado"
         },
         {
           "url": "https://www.repsol.com/unete-al-equipo",
@@ -10050,11 +9989,11 @@
         },
         {
           "url": "https://www.ferrovial.com/talento",
-          "estado": 404
+          "estado": "tiempo agotado"
         },
         {
           "url": "https://www.ferrovial.com/careers",
-          "estado": "tiempo agotado"
+          "estado": 200
         },
         {
           "url": "https://www.ferrovial.com/unete",
@@ -10115,7 +10054,7 @@
         },
         {
           "url": "https://www.acciona.com/contact",
-          "estado": 200
+          "estado": "tiempo agotado"
         },
         {
           "url": "https://www.acciona.com/our-purpose",
@@ -10127,7 +10066,7 @@
         },
         {
           "url": "https://www.acciona.com/trabaja-con-nosotros/",
-          "estado": "tiempo agotado"
+          "estado": 404
         },
         {
           "url": "https://www.acciona.com/empleo",
@@ -10135,7 +10074,7 @@
         },
         {
           "url": "https://www.acciona.com/talento",
-          "estado": 404
+          "estado": "tiempo agotado"
         },
         {
           "url": "https://www.acciona.com/careers",
@@ -10147,71 +10086,15 @@
         },
         {
           "url": "https://www.acciona.com/unete-al-equipo",
-          "estado": "tiempo agotado"
+          "estado": 404
         },
         {
           "url": "https://www.acciona.com/rrhh",
           "estado": 404
         }
       ],
-      "correosEncontrados": [
-        {
-          "email": "gabinetedeprensa@acciona.es",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "prensa@acciona.com",
-          "tipo": "general",
-          "motivoRechazo": "buzón no destinado a candidaturas"
-        },
-        {
-          "email": "responsabilidadcorporativa@acciona.com",
-          "tipo": "general",
-          "motivoRechazo": "posible correo personal"
-        },
-        {
-          "email": "acciona.corp@acciona.com",
-          "tipo": "general",
-          "motivoRechazo": "posible correo personal"
-        },
-        {
-          "email": "protecciondedatos@acciona.com",
-          "tipo": "general",
-          "motivoRechazo": "buzón no destinado a candidaturas"
-        },
-        {
-          "email": "inversores@acciona.es",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "inversores@acciona.com",
-          "tipo": "general",
-          "motivoRechazo": "buzón no destinado a candidaturas"
-        },
-        {
-          "email": "protecciondedatosenergia@acciona.com",
-          "tipo": "general",
-          "motivoRechazo": "buzón no destinado a candidaturas"
-        },
-        {
-          "email": "protecciondedatosinfraestructuras@acciona.com",
-          "tipo": "general",
-          "motivoRechazo": "buzón no destinado a candidaturas"
-        },
-        {
-          "email": "protecciondedatosagua@acciona.com",
-          "tipo": "general",
-          "motivoRechazo": "buzón no destinado a candidaturas"
-        },
-        {
-          "email": "protecciondedatos.accionaservice@acciona.com",
-          "tipo": "general",
-          "motivoRechazo": "buzón no destinado a candidaturas"
-        }
-      ],
-      "motivo": "Sin correo válido (gabinetedeprensa@acciona.es: dominio distinto al de la web; prensa@acciona.com: buzón no destinado a candidaturas; responsabilidadcorporativa@acciona.com: posible correo personal; acciona.corp@acciona.com: posible correo personal; protecciondedatos@acciona.com: buzón no destinado a candidaturas; inversores@acciona.es: dominio distinto al de la web; inversores@acciona.com: buzón no destinado a candidaturas; protecciondedatosenergia@acciona.com: buzón no destinado a candidaturas; protecciondedatosinfraestructuras@acciona.com: buzón no destinado a candidaturas; protecciondedatosagua@acciona.com: buzón no destinado a candidaturas; protecciondedatos.accionaservice@acciona.com: buzón no destinado a candidaturas) ni formulario oficial"
+      "correosEncontrados": [],
+      "motivo": "Sin correo publicado ni formulario oficial en las páginas revisadas"
     },
     {
       "id": "el-corte-ingles",
@@ -10221,11 +10104,11 @@
       "paginasRevisadas": [
         {
           "url": "https://www.elcorteingles.es",
-          "estado": "tiempo agotado"
+          "estado": 403
         }
       ],
       "correosEncontrados": [],
-      "motivo": "La web no responde (tiempo agotado)"
+      "motivo": "La web no responde (403)"
     },
     {
       "id": "leroy-merlin-espana",
@@ -10305,7 +10188,7 @@
         },
         {
           "url": "https://www.verisure.es/talento",
-          "estado": "tiempo agotado"
+          "estado": 404
         },
         {
           "url": "https://www.verisure.es/careers",
@@ -10313,7 +10196,7 @@
         },
         {
           "url": "https://www.verisure.es/unete",
-          "estado": 404
+          "estado": "tiempo agotado"
         },
         {
           "url": "https://www.verisure.es/unete-al-equipo",
@@ -10352,7 +10235,7 @@
       "id": "mutua-madrilena",
       "nombre": "Mutua Madrileña",
       "web": "https://www.mutua.es",
-      "estado": "valida",
+      "estado": "descartada",
       "paginasRevisadas": [
         {
           "url": "https://www.mutua.es",
@@ -10364,11 +10247,11 @@
         },
         {
           "url": "http://www.mutua.es/blog/personas-que-suman/la-voz-que-conecta-a-mutua-con-sus-clientes_post",
-          "estado": "tiempo agotado"
+          "estado": 404
         },
         {
           "url": "https://www.mutua.es/contacto/",
-          "estado": 200
+          "estado": "tiempo agotado"
         },
         {
           "url": "https://www.mutua.es/aviso-legal/",
@@ -10419,8 +10302,7 @@
           "motivoRechazo": "buzón no destinado a candidaturas"
         }
       ],
-      "contacto": "formulario: https://www.mutua.es/contacto/",
-      "confianza": "media"
+      "motivo": "Sin correo válido (dpo@mutua.es: buzón no destinado a candidaturas; protecciondatos@mutua.es: buzón no destinado a candidaturas) ni formulario oficial"
     },
     {
       "id": "linea-directa",
@@ -10454,7 +10336,7 @@
         },
         {
           "url": "https://www.lineadirecta.com/seguro-ocupacion/comparar.html",
-          "estado": "tiempo agotado"
+          "estado": 200
         },
         {
           "url": "https://www.lineadirecta.com/seguro-ocupacion/preguntas-frecuentes.html",
@@ -10541,7 +10423,7 @@
         },
         {
           "url": "https://www.ing.es/trabaja-con-nosotros/",
-          "estado": "tiempo agotado"
+          "estado": 404
         },
         {
           "url": "https://www.ing.es/empleo",
@@ -10561,7 +10443,7 @@
         },
         {
           "url": "https://www.ing.es/unete-al-equipo",
-          "estado": 404
+          "estado": "tiempo agotado"
         },
         {
           "url": "https://www.ing.es/rrhh",
@@ -10589,7 +10471,7 @@
         },
         {
           "url": "https://www.red.es/es/sobre-nosotros/trabaja-con-nosotros",
-          "estado": 200
+          "estado": "tiempo agotado"
         },
         {
           "url": "https://www.red.es/es/area-prensa/notas-prensa/186000-personas-formadas-competencias-digitales-basicas",
@@ -10609,7 +10491,7 @@
         },
         {
           "url": "https://www.red.es/es/aviso-legal",
-          "estado": "tiempo agotado"
+          "estado": 200
         },
         {
           "url": "https://www.red.es/trabaja-con-nosotros",
@@ -10644,63 +10526,18 @@
           "estado": 404
         },
         {
-          "url": "https://www.red.es/es/area-prensa/multimedia/manual-de-usuario-reclamacion-sede-empleo-1",
-          "estado": 200
-        },
-        {
-          "url": "https://www.red.es/es/area-prensa/multimedia/manual-usuarioreclamacionsede-empleo",
-          "estado": 200
-        },
-        {
-          "url": "https://www.red.es/area-prensa/multimedia/manual-de-usuario-reclamacion-sede-empleo-2",
-          "estado": 200
-        },
-        {
-          "url": "https://www.red.es/area-prensa/multimedia/manual-de-usuario-reclamacion-sede-empleo-0",
-          "estado": 200
-        },
-        {
           "url": "https://www.red.es/es/iniciativas/proyectos/programas-de-atraccion-y-retencion-del-talento",
-          "estado": 200
-        },
-        {
-          "url": "https://www.red.es/area-prensa/multimedia/bases-de-convocatoria-indefinido-3-marzo-de-2026",
           "estado": 200
         }
       ],
       "correosEncontrados": [
-        {
-          "email": "empleo2026@red.es",
-          "tipo": "general",
-          "motivoRechazo": "posible correo personal"
-        },
-        {
-          "email": "empleo2024@red.es",
-          "tipo": "general",
-          "motivoRechazo": "posible correo personal"
-        },
-        {
-          "email": "empleo2023@red.es",
-          "tipo": "general",
-          "motivoRechazo": "posible correo personal"
-        },
-        {
-          "email": "empleo2021@red.es",
-          "tipo": "general",
-          "motivoRechazo": "posible correo personal"
-        },
-        {
-          "email": "soporte.sede@red.es",
-          "tipo": "general",
-          "motivoRechazo": "buzón no destinado a candidaturas"
-        },
         {
           "email": "prensa@red.es",
           "tipo": "general",
           "motivoRechazo": "buzón no destinado a candidaturas"
         }
       ],
-      "contacto": "formulario: https://www.red.es/es/sobre-nosotros/trabaja-con-nosotros",
+      "contacto": "formulario: https://www.red.es/es/iniciativas/talento-digital",
       "confianza": "media"
     },
     {
@@ -10729,7 +10566,7 @@
         },
         {
           "url": "https://www.fnmt.es/ofertas-de-empleo",
-          "estado": 200
+          "estado": "tiempo agotado"
         },
         {
           "url": "https://www.fnmt.es/ofertas-de-empleo/informacion-general",
@@ -10745,7 +10582,7 @@
         },
         {
           "url": "https://www.fnmt.es/ofertas-de-empleo/convocatoria-plazas-temporales",
-          "estado": "tiempo agotado"
+          "estado": 200
         },
         {
           "url": "https://www.fnmt.es/ofertas-de-empleo/bolsa-de-empleo",
@@ -10808,11 +10645,11 @@
           "estado": 200
         },
         {
-          "url": "https://www.fnmt.es/ofertas-de-empleo/bolsa-de-empleo/-/asset_publisher/KJP3yjdsac9t/content/grabador-art%C3%ADstico-auxiliar-de-originales?p_r_p_assetEntryId=11941912&_com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_KJP3yjdsac9t_redirect=https%3A%2F%2Fwww.fnmt.es%2Fofertas-de-empleo%2Fbolsa-de-empleo%3Fp_p_id%3Dcom_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_KJP3yjdsac9t%26p_p_lifecycle%3D0%26p_p_state%3Dnormal%26p_p_mode%3Dview%26p_r_p_assetEntryId%3D11941912%26_com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_KJP3yjdsac9t_cur%3D0%26p_r_p_resetCur%3Dfalse",
+          "url": "https://www.fnmt.es/ofertas-de-empleo/convocatoria-plazas-temporales/-/asset_publisher/BnJt6LVY0l7k/content/1-plaza-de-ingeniero-de-proyectos-burgos-nivel-14?p_r_p_assetEntryId=120053&_com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_BnJt6LVY0l7k_redirect=https%3A%2F%2Fwww.fnmt.es%2Fofertas-de-empleo%2Fconvocatoria-plazas-temporales%3Fp_p_id%3Dcom_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_BnJt6LVY0l7k%26p_p_lifecycle%3D0%26p_p_state%3Dnormal%26p_p_mode%3Dview%26p_r_p_assetEntryId%3D120053%26_com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_BnJt6LVY0l7k_cur%3D0%26p_r_p_resetCur%3Dfalse",
           "estado": 200
         },
         {
-          "url": "https://www.fnmt.es/ofertas-de-empleo/bolsa-de-empleo/-/asset_publisher/KJP3yjdsac9t/content/oficial-1%C2%BA-calefactor-frigorista.-f%C3%A1brica-de-papel.?p_r_p_assetEntryId=12331518&_com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_KJP3yjdsac9t_redirect=https%3A%2F%2Fwww.fnmt.es%2Fofertas-de-empleo%2Fbolsa-de-empleo%3Fp_p_id%3Dcom_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_KJP3yjdsac9t%26p_p_lifecycle%3D0%26p_p_state%3Dnormal%26p_p_mode%3Dview%26p_r_p_assetEntryId%3D12331518%26_com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_KJP3yjdsac9t_cur%3D0%26p_r_p_resetCur%3Dfalse",
+          "url": "https://www.fnmt.es/ofertas-de-empleo/bolsa-de-empleo/-/asset_publisher/KJP3yjdsac9t/content/grabador-art%C3%ADstico-auxiliar-de-originales?p_r_p_assetEntryId=11941912&_com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_KJP3yjdsac9t_redirect=https%3A%2F%2Fwww.fnmt.es%2Fofertas-de-empleo%2Fbolsa-de-empleo%3Fp_p_id%3Dcom_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_KJP3yjdsac9t%26p_p_lifecycle%3D0%26p_p_state%3Dnormal%26p_p_mode%3Dview%26p_r_p_assetEntryId%3D11941912%26_com_liferay_asset_publisher_web_portlet_AssetPublisherPortlet_INSTANCE_KJP3yjdsac9t_cur%3D0%26p_r_p_resetCur%3Dfalse",
           "estado": 200
         }
       ],
@@ -10833,7 +10670,7 @@
           "motivoRechazo": "posible correo personal"
         }
       ],
-      "contacto": "formulario: https://www.fnmt.es/ofertas-de-empleo",
+      "contacto": "formulario: https://www.fnmt.es/ofertas-de-empleo/informacion-general",
       "confianza": "media"
     },
     {
@@ -11373,7 +11210,7 @@
           "estado": 400
         },
         {
-          "url": "https://empleo.aena.es/empleo/MDSrv?accion=inicio&amp;SEDE=0",
+          "url": "https://empleo.aena.es/empleo/MDSrv?accion=inicio&SEDE=0",
           "estado": 200
         },
         {
@@ -11417,7 +11254,7 @@
           "motivoRechazo": "posible correo personal"
         }
       ],
-      "contacto": "seleccion@aena.es (https://empleo.aena.es/empleo/MDSrv?accion=inicio&amp;SEDE=0)",
+      "contacto": "seleccion@aena.es (https://empleo.aena.es/empleo/MDSrv?accion=inicio&SEDE=0)",
       "confianza": "alta"
     },
     {
@@ -11570,7 +11407,8 @@
       "correosEncontrados": [
         {
           "email": "secretaria@emtmadrid.es",
-          "tipo": "general"
+          "tipo": "general",
+          "motivoRechazo": "buzón no destinado a candidaturas"
         },
         {
           "email": "prensa@emtmadrid.es",
@@ -11578,7 +11416,7 @@
           "motivoRechazo": "buzón no destinado a candidaturas"
         }
       ],
-      "contacto": "secretaria@emtmadrid.es (https://www.emtmadrid.es/Servicios/AvisoLegal)",
+      "contacto": "formulario: https://www.emtmadrid.es/Empresa/Empleo?lang=es-ES",
       "confianza": "media"
     },
     {
@@ -12003,7 +11841,7 @@
           "estado": 200
         },
         {
-          "url": "https://jobs.siemens.com/es_ES/externaljobs/SearchJobs/?42392=%5B67940248%5D&amp;42392_format=17551&amp;listFilterMode=1&amp;folderRecordsPerPage=6",
+          "url": "https://jobs.siemens.com/es_ES/externaljobs/SearchJobs/?42392=%5B67940248%5D&42392_format=17551&listFilterMode=1&folderRecordsPerPage=6",
           "estado": 200
         }
       ],

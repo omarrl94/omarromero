@@ -1,6 +1,6 @@
 # Comprobación de enlaces
 
-Fecha: 2026-11-05T21:44:04.394Z · Enlaces de empresas: 300 · rotos: 0
+Fecha: 2026-11-05T21:52:15.053Z · Enlaces de empresas: 293 · rotos: 0
 
 ## Enlaces rotos del directorio
 

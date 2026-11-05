@@ -1,6 +1,6 @@
 # Informe de verificación de empresas
 
-Generado el 2026-11-05T21:43:12.853Z con `npm run verificar:empresas`. Candidatas: 206 · **válidas: 130** · descartadas: 76.
+Generado el 2026-11-05T21:51:26.912Z con `npm run verificar:empresas`. Candidatas: 206 · **válidas: 128** · descartadas: 78.
 
 Criterios: la web responde; el correo aparece literalmente en la URL indicada, es corporativo (mismo dominio), genérico (no personal), destinado a candidaturas o contacto general y su dominio tiene registros MX. Sin correo válido se acepta el formulario oficial de empleo o contacto. Sin ninguno, se descarta.
 
@@ -11,7 +11,7 @@ Criterios: la web responde; el correo aparece literalmente en la URL indicada, e
 | Indra Group | formulario: https://careers.indragroup.com/ | media | — |
 | Telefónica Tech | formulario: https://telefonicatech.com/somostech/equipo/talento | media | — |
 | Accenture España | formulario: https://www.accenture.com/es-es/services/talent-organization | media | — |
-| NTT DATA España | global.careers@nttdata.com (https://careers.nttdata.com/global/en?category=see-job) | alta | — |
+| NTT DATA España | formulario: https://careers.emeal.nttdata.com/s/careers?language=es | media | — |
 | Capgemini España | formulario: https://www.capgemini.com/es-es/talento/ | media | — |
 | Sopra Steria España | formulario: https://careers.soprasteria.es/ | media | — |
 | GMV | formulario: https://www.gmv.com/es/talento | media | — |
@@ -29,7 +29,6 @@ Criterios: la web responde; el correo aparece literalmente en la URL indicada, e
 | Panel Sistemas | seleccion@panel.es (https://www.panel.es/talento-aprendizaje-continuo-desarrollo/) | alta | — |
 | Kairós Digital Solutions | formulario: https://www.kairosds.com/talento/que-nos-hace-unicos | media | — |
 | Ackstorm | info@ackstorm.com (https://www.ackstorm.com/) | media | — |
-| Computacenter España | formulario: https://www.computacenter.com/es-es/careers | media | — |
 | Econocom España | formulario: https://www.econocom.es/trabaja-en-econocom/candidatura-espontanea | media | — |
 | Bechtle España | formulario: https://www.bechtle.com/es/empleo | media | — |
 | Lyntia | seleccion@lyntia.com (https://www.lyntia.com/contacto/) | alta | — |
@@ -52,7 +51,7 @@ Criterios: la web responde; el correo aparece literalmente en la URL indicada, e
 | Kenjo | formulario: https://www.kenjo.io/contact | media | — |
 | Cobee | hola@cobee.io (https://cobee.io/equipos-informaticos/) | media | — |
 | Spotahome | formulario: https://www.spotahome.com/careers | media | — |
-| Bit2Me | info@bit2me.com (https://empleo.bit2me.com/legal-notice?company=bit2me&amp;locale=es&amp;site_id=604) | media | — |
+| Bit2Me | info@bit2me.com (https://empleo.bit2me.com/legal-notice?company=bit2me&locale=es&site_id=604) | media | — |
 | Binhex | info@binhex.cloud (https://www.binhex.cloud/es_ES) | media | — |
 | Aitana | formulario: https://www.aitana.es/aitana/trabaja-en-aitana/ | media | — |
 | Grupo Efor | info@efor.es (https://www.efor.es/aviso-legal.html) | media | — |
@@ -113,17 +112,16 @@ Criterios: la web responde; el correo aparece literalmente en la URL indicada, e
 | Repsol | formulario: https://www.repsol.com/es/empleo/index.cshtml | media | — |
 | Ferrovial | formulario: https://www.ferrovial.com/en/careers/ | media | — |
 | Verisure España | info@verisure.es (https://www.verisure.es/aviso-legal) | media | — |
-| Mutua Madrileña | formulario: https://www.mutua.es/contacto/ | media | — |
 | Línea Directa | formulario: https://www.lineadirecta.com/contactar/ | media | — |
-| Red.es | formulario: https://www.red.es/es/sobre-nosotros/trabaja-con-nosotros | media | — |
-| FNMT-RCM | formulario: https://www.fnmt.es/ofertas-de-empleo | media | — |
+| Red.es | formulario: https://www.red.es/es/iniciativas/talento-digital | media | — |
+| FNMT-RCM | formulario: https://www.fnmt.es/ofertas-de-empleo/informacion-general | media | — |
 | Intelygenz | info@intelygenz.com (https://intelygenz.com/) | media | — |
 | Evolutio | info@evolutio.com (https://www.evolutio.com/) | media | — |
 | Ufinet | formulario: https://www.ufinet.com/contactanos/ | media | — |
 | Mediaset España | formulario: https://jobs.mediaset.es/ | media | — |
 | RTVE | formulario: https://www.rtve.es/corporacion/ofertas-empleo/ | media | — |
-| Aena | seleccion@aena.es (https://empleo.aena.es/empleo/MDSrv?accion=inicio&amp;SEDE=0) | alta | — |
-| EMT Madrid | secretaria@emtmadrid.es (https://www.emtmadrid.es/Servicios/AvisoLegal) | media | — |
+| Aena | seleccion@aena.es (https://empleo.aena.es/empleo/MDSrv?accion=inicio&SEDE=0) | alta | — |
+| EMT Madrid | formulario: https://www.emtmadrid.es/Empresa/Empleo?lang=es-ES | media | — |
 | Moeve | formulario: https://www.moeveglobal.com/es/empleo | media | — |
 | Naturgy | formulario: https://www.naturgy.com/trabaja-con-nosotros/ | media | — |
 | Endesa | formulario: https://www.endesa.com/content/endesa-com/es/talento/cultura-empresarial | media | — |
@@ -148,6 +146,7 @@ Criterios: la web responde; el correo aparece literalmente en la URL indicada, e
 | Seidor | https://www.seidor.com | La web no responde (403) |
 | Grupo Oesía | https://grupooesia.com | La web no responde (403) |
 | Altia | https://www.altia.es | La web redirige a otro dominio (www.altiacompany.com): posible empresa absorbida o cambio de marca, revisar a mano |
+| Computacenter España | https://www.computacenter.com/es-es | La web no responde (503) |
 | Digital Realty España (Interxion) | https://www.digitalrealty.es | La web redirige a otro dominio (www.digitalrealty.com): posible empresa absorbida o cambio de marca, revisar a mano |
 | Openbank | https://www.openbank.es | Sin correo válido (ayuda@openbank.es: buzón no destinado a candidaturas; incidencias@openbank.es: buzón no destinado a candidaturas; santander_reclamaciones@gruposantander.es: dominio distinto al de la web; investor@gruposantander.com: dominio distinto al de la web; psd2.sandbox.soporte@redsys.es: dominio distinto al de la web) ni formulario oficial |
 | CIEMAT | https://www.ciemat.es | La web no responde (UNABLE_TO_VERIFY_LEAF_SIGNATURE) |
@@ -192,7 +191,7 @@ Criterios: la web responde; el correo aparece literalmente en la URL indicada, e
 | Fujitsu España | https://www.fujitsu.com/es | La web no responde (429) |
 | Atos España | https://atos.net/es | La web redirige a otro dominio (www.atos.ai): posible empresa absorbida o cambio de marca, revisar a mano |
 | Equinix España | https://www.equinix.es | La web no responde (403) |
-| Pendulo Studios | https://www.pendulostudios.com | La web no responde (UND_ERR_CONNECT_TIMEOUT) |
+| Pendulo Studios | https://www.pendulostudios.com | La web no responde (tiempo agotado) |
 | Raiser Games | https://raisergames.com | La web redirige a otro dominio (es.webedia-group.com): posible empresa absorbida o cambio de marca, revisar a mano |
 | Gammera Nest | https://www.gammeranest.com | La web no responde (ENOTFOUND) |
 | Bandai Namco Entertainment Iberia | https://www.bandainamcoent.es | La web redirige a otro dominio (es.bandainamcoent.eu): posible empresa absorbida o cambio de marca, revisar a mano |
@@ -200,11 +199,12 @@ Criterios: la web responde; el correo aparece literalmente en la URL indicada, e
 | Savana | https://savanamed.com | La web no responde (UND_ERR_SOCKET) |
 | MasOrange | https://www.masorange.es | La web no responde (tiempo agotado) |
 | Iberdrola | https://www.iberdrola.com | La web no responde (403) |
-| Acciona | https://www.acciona.com | Sin correo válido (gabinetedeprensa@acciona.es: dominio distinto al de la web; prensa@acciona.com: buzón no destinado a candidaturas; responsabilidadcorporativa@acciona.com: posible correo personal; acciona.corp@acciona.com: posible correo personal; protecciondedatos@acciona.com: buzón no destinado a candidaturas; inversores@acciona.es: dominio distinto al de la web; inversores@acciona.com: buzón no destinado a candidaturas; protecciondedatosenergia@acciona.com: buzón no destinado a candidaturas; protecciondedatosinfraestructuras@acciona.com: buzón no destinado a candidaturas; protecciondedatosagua@acciona.com: buzón no destinado a candidaturas; protecciondedatos.accionaservice@acciona.com: buzón no destinado a candidaturas) ni formulario oficial |
-| El Corte Inglés | https://www.elcorteingles.es | La web no responde (tiempo agotado) |
+| Acciona | https://www.acciona.com | Sin correo publicado ni formulario oficial en las páginas revisadas |
+| El Corte Inglés | https://www.elcorteingles.es | La web no responde (403) |
 | Leroy Merlin España | https://www.leroymerlin.es | La web no responde (403) |
 | Carrefour España | https://www.carrefour.es | La web no responde (403) |
 | DIA | https://www.dia.es | La web no responde (403) |
+| Mutua Madrileña | https://www.mutua.es | Sin correo válido (dpo@mutua.es: buzón no destinado a candidaturas; protecciondatos@mutua.es: buzón no destinado a candidaturas) ni formulario oficial |
 | Bankinter | https://www.bankinter.com | La web no responde (403) |
 | ING España | https://www.ing.es | Sin correo válido (atencioncliente@ing.es: posible correo personal) ni formulario oficial |
 | Tragsatec | https://www.tragsa.es | La web no responde (tiempo agotado) |
