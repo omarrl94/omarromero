@@ -1,13 +1,111 @@
 # Informe de verificación de empresas
 
-**Todavía no se ha ejecutado.** El entorno de desarrollo no tenía acceso a las webs de las empresas ni a DNS,
-y el verificador se negó a ejecutarse para no descartar empresas por un fallo de red:
+Generado el 2026-11-05T17:17:15.573Z con `npm run verificar:empresas`. Candidatas: 96 · **válidas: 61** · descartadas: 35.
 
-```
-✖ Sin acceso a Internet o DNS (HTTP boe.es: ENOTFOUND; MX gmail.com: null).
-  No se ha modificado ningún archivo: verificar sin red descartaría empresas válidas.
-```
+Criterios: la web responde; el correo aparece literalmente en la URL indicada, es corporativo (mismo dominio), genérico (no personal), destinado a candidaturas o contacto general y su dominio tiene registros MX. Sin correo válido se acepta el formulario oficial de empleo o contacto. Sin ninguno, se descarta.
 
-Candidatas pendientes: 68 (`data/empresas.candidatas.json`). Empresas publicadas: 0.
+## Válidas
 
-Para generar este informe: `npm run verificar:empresas` en un equipo con Internet (ver `docs/PENDIENTES.md`).
+| Empresa | Contacto (fuente) | Confianza | Feed ATS |
+|---|---|---|---|
+| Indra Group | formulario: https://careers.indragroup.com/ | media | — |
+| Accenture España | formulario: https://www.accenture.com/es-es/services/talent-organization | media | — |
+| NTT DATA España | formulario: https://careers.emeal.nttdata.com/s/careers?language=es | media | — |
+| Capgemini España | formulario: https://www.capgemini.com/es-es/talento/ | media | — |
+| Viewnext | formulario: https://www.viewnext.com/contacto/ | media | — |
+| Ayesa | info@ayesa.com (https://www.ayesa.com/aviso-legal/) | media | — |
+| Hiberus | info@hiberus.com (https://www.hiberus.com/aviso-legal) | media | — |
+| Paradigma Digital | people@paradigmadigital.com (https://www.paradigmadigital.com/legal/) | alta | — |
+| Plain Concepts | formulario: https://www.plainconcepts.com/careers/ | media | — |
+| Izertis | formulario: https://www.izertis.com/es/talento | media | — |
+| Sngular | formulario: https://www.sngular.com/talent-and-culture/talent | media | — |
+| Bosonit | hola@bosonit.com (https://bosonit.com/aviso-legal/) | media | — |
+| Stratio | formulario: https://stratio.ai/talent/ | media | — |
+| Bluetab | formulario: https://www.bluetab.net/unete-a-bluetab/ | media | — |
+| Altia | contacto.dpd@altia.es (https://www.altiacompany.com/es/aviso-legal) | media | — |
+| Panel Sistemas | contacto@panel.es (https://www.panel.es/aviso-legal/) | media | — |
+| Kairós Digital Solutions | formulario: https://www.kairosds.com/talento/que-nos-hace-unicos | media | — |
+| Ackstorm | info@ackstorm.com (https://www.ackstorm.com/) | media | — |
+| Computacenter España | careers.au@computacenter.com (https://www.computacenter.com/es-es/careers) | alta | — |
+| Econocom España | formulario: https://www.econocom.es/trabaja-en-econocom/candidatura-espontanea | media | — |
+| Digital Realty España (Interxion) | formulario: https://www.digitalrealty.com/es/contact | media | — |
+| BBVA | formulario: https://www.bbva.com/en/careers/ | media | — |
+| Banco Santander | formulario: https://www.santander.com/es/trabaja-con-nosotros | media | — |
+| Mapfre | formulario: https://www.mapfre.com/talento/ | media | — |
+| Entelgy | hola@entelgy.com (https://entelgy.com/aviso-legal/) | media | — |
+| Zerolynx | info@zerolynx.com (https://zerolynx.com/) | media | — |
+| Mnemo | rrhh@mnemo.com (https://mnemo.com/talento-y-cultura/) | alta | — |
+| Grupo ICA | talento@grupoica.com (https://www.grupoica.com/talento/tu-carrera) | alta | — |
+| Prosegur Cipher | formulario: https://www.prosegur.es/trabaja-con-nosotros | media | — |
+| Fever | hello@feverup.com (https://feverup.com/legal/terms_en.html) | media | — |
+| Clarity AI | formulario: https://clarity.ai/careers/ | media | — |
+| Lingokids | formulario: https://jobs.lingokids.com/ | media | — |
+| Kenjo | formulario: https://www.kenjo.io/contact | media | — |
+| Cobee | hola@cobee.io (https://cobee.io/equipos-informaticos/) | media | — |
+| Binhex | info@binhex.cloud (https://www.binhex.cloud/es_ES) | media | — |
+| Aitana | formulario: https://www.aitana.es/aitana/trabaja-en-aitana/ | media | — |
+| Grupo Efor | info@efor.es (https://www.efor.es/aviso-legal.html) | media | — |
+| Devaim | comercial@devaim.com (https://www.devaim.com/aviso-legal/) | media | — |
+| MercurySteam | info@mercurysteam.com (https://www.mercurysteam.com/aviso-legal-y-politica-de-privacidad/) | media | — |
+| U-Play Studios | info@uplaystudios.com (https://www.uplaystudios.com/contacto.php) | media | — |
+| Mobivery | formulario: https://mobivery.com/talento/ | media | — |
+| Bluumi | formulario: https://bluumi.net/contacto/ | media | — |
+| Duonet | formulario: https://www.izertis.com/es/talento | media | — |
+| Witrey | hello@witrey.com (https://witrey.com/) | media | — |
+| Tecnozero | administracion@tecnozero.com (https://www.tecnozero.com/contacto/) | media | — |
+| Intelequia | formulario: https://talento.intelequia.com/es/ | media | — |
+| Electronic Arts Madrid | contact_eahelp@ea.com (https://www.ea.com/) | media | — |
+| Amadeus | formulario: https://amadeus.com/en/careers/overview | media | — |
+| Vodafone España | formulario: https://www.vodafone.es/c/conocenos/es/vodafone-espana/trabaja-con-nosotros/ | media | — |
+| IBM España | formulario: https://www.ibm.com/careers?lnk=hpii5es | media | — |
+| Aiuken | info@aiuken.com (https://www.aiuken.com/) | media | — |
+| Factum | rrhh@factum.es (https://www.factum.es/unete-al-equipo/) | alta | — |
+| One eSecurity | recruitment@one-esecurity.com (https://www.one-esecurity.com/join_our_team.html) | alta | — |
+| Dotforce | info@dotforce.es (https://www.dotforce.es/) | media | — |
+| Seresco | formulario: https://seresco.es/talento/ofertas-empleo/ | media | — |
+| Ilunion Tecnología y Accesibilidad | contacto@ilunion.com (https://www.ilunion.com/es) | media | — |
+| GFT España | info@gft.com (https://www.gft.com/es/es/legal-disclaimer) | media | — |
+| Avanade España | formulario: https://www.avanade.com/es-es/career | media | — |
+| Deloitte España | formulario: https://www.deloitte.com/es/es/careers.html?icid=top_careers | media | — |
+| Management Solutions | formulario: https://www.managementsolutions.com/es/contacto | media | — |
+| Grupo Castilla | info@grupocastilla.es (https://www.grupocastilla.es/) | media | — |
+
+## Descartadas
+
+| Empresa | Web | Motivo |
+|---|---|---|
+| Telefónica Tech | https://telefonicatech.com | La web no responde (403) |
+| Sopra Steria España | https://www.soprasteria.es | La web no responde (502) |
+| GMV | https://www.gmv.com | La web no responde (403) |
+| Inetum España | https://www.inetum.com/es | La web no responde (404) |
+| Babel | https://www.babelgroup.com | La web no responde (403) |
+| Keepler Data Tech | https://keepler.io | La web no responde (403) |
+| Seidor | https://www.seidor.com | La web no responde (403) |
+| Grupo Oesía | https://grupooesia.com | La web no responde (403) |
+| Bechtle España | https://www.bechtle.com/es | La web no responde (403) |
+| Lyntia | https://www.lyntia.com | La web no responde (403) |
+| Openbank | https://www.openbank.es | Sin correo válido (ayuda@openbank.es: posible correo personal; incidencias@openbank.es: posible correo personal; santander_reclamaciones@gruposantander.es: dominio distinto al de la web; investor@gruposantander.com: dominio distinto al de la web; psd2.sandbox.soporte@redsys.es: dominio distinto al de la web) ni formulario oficial |
+| CIEMAT | https://www.ciemat.es | La web no responde (UNABLE_TO_VERIFY_LEAF_SIGNATURE) |
+| S21sec | https://www.s21sec.com | La web no responde (400) |
+| Tarlogic | https://www.tarlogic.com | La web no responde (403) |
+| Secure&IT | https://www.secureit.es | La web no responde (403) |
+| BeDisruptive | https://bedisruptive.com | Sin correo válido (contacto@ejemplo.com: dominio distinto al de la web) ni formulario oficial |
+| Cabify | https://cabify.com | Sin correo válido (accesibilidad@cabify.com: posible correo personal) ni formulario oficial |
+| idealista | https://www.idealista.com | La web no responde (403) |
+| Jobandtalent | https://www.jobandtalent.com | La web no responde (403) |
+| Seedtag | https://www.seedtag.com | La web no responde (403) |
+| Spotahome | https://www.spotahome.com | La web no responde (403) |
+| Fintonic | https://www.fintonic.com | La web no responde (403) |
+| Bit2Me | https://bit2me.com | La web no responde (403) |
+| Quonext | https://www.quonext.com | La web no responde (ECONNREFUSED) |
+| Goom Spain | https://www.goom.es | Sin correo válido (info@goom.it: dominio distinto al de la web) ni formulario oficial |
+| Tequila Works | https://tequilaworks.com | Sin correo publicado ni formulario oficial en las páginas revisadas |
+| Virtual Toys | https://www.virtualtoys.net | La web no responde (ERR_TLS_CERT_ALTNAME_INVALID) |
+| Saona Studios | https://www.saonastudios.com | Sin correo publicado ni formulario oficial en las páginas revisadas |
+| Enimbos | https://www.enimbos.com | La web no responde (ENOTFOUND) |
+| Intelligence Partner | https://www.intelligence-partner.com | Sin correo publicado ni formulario oficial en las páginas revisadas |
+| Devoteam España | https://www.devoteam.com/es | La web no responde (403) |
+| Orange España | https://www.orange.es | Sin correo publicado ni formulario oficial en las páginas revisadas |
+| Kyndryl España | https://www.kyndryl.com/es/es | La web no responde (403) |
+| SATEC | https://www.satec.es | Sin correo publicado ni formulario oficial en las páginas revisadas |
+| Sage España | https://www.sage.com/es-es | La web no responde (403) |

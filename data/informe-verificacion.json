@@ -1,0 +1,3629 @@
+{
+  "fecha": "2026-11-05T17:17:15.573Z",
+  "resultados": [
+    {
+      "id": "indra-group",
+      "nombre": "Indra Group",
+      "web": "https://www.indragroup.com",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.indragroup.com",
+          "estado": 200
+        },
+        {
+          "url": "https://careers.indragroup.com/",
+          "estado": 200
+        },
+        {
+          "url": "https://mobility.indragroup.com/es",
+          "estado": 200
+        },
+        {
+          "url": "https://www.indragroup.com/es/contacto",
+          "estado": 200
+        },
+        {
+          "url": "https://www.indragroup.com/es/informacion-legal",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "dpo@indra.es",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        }
+      ],
+      "contacto": "formulario: https://careers.indragroup.com/",
+      "confianza": "media"
+    },
+    {
+      "id": "telefonica-tech",
+      "nombre": "Telefónica Tech",
+      "web": "https://telefonicatech.com",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://telefonicatech.com",
+          "estado": 403
+        }
+      ],
+      "correosEncontrados": [],
+      "motivo": "La web no responde (403)"
+    },
+    {
+      "id": "accenture-espana",
+      "nombre": "Accenture España",
+      "web": "https://www.accenture.com/es-es",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.accenture.com/es-es",
+          "estado": 200
+        },
+        {
+          "url": "https://www.accenture.com/es-es/services/talent-organization",
+          "estado": 200
+        },
+        {
+          "url": "https://www.accenture.com/es-es/careers",
+          "estado": 200
+        },
+        {
+          "url": "https://www.accenture.com/es-es/careers/jobsearch",
+          "estado": 200
+        },
+        {
+          "url": "https://www.accenture.com/es-es/careers/explore-careers/career-areas",
+          "estado": 200
+        },
+        {
+          "url": "https://www.accenture.com/es-es/careers/life-at-accenture/working-here",
+          "estado": 200
+        },
+        {
+          "url": "https://www.accenture.com/es-es/careers/local/benefits",
+          "estado": 200
+        },
+        {
+          "url": "https://www.accenture.com/es-es/careers/life-at-accenture/work-environment",
+          "estado": 200
+        },
+        {
+          "url": "https://www.accenture.com/es-es/careers/explore-careers/area-of-interest/ai-usage-job-search",
+          "estado": 200
+        },
+        {
+          "url": "https://www.accenture.com/es-es/careers/explore-careers/area-of-interest/journey-to-accenture",
+          "estado": 200
+        },
+        {
+          "url": "https://www.accenture.com/es-es/careers/explore-careers/area-of-interest/pro-tips",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [],
+      "contacto": "formulario: https://www.accenture.com/es-es/services/talent-organization",
+      "confianza": "media"
+    },
+    {
+      "id": "ntt-data-espana",
+      "nombre": "NTT DATA España",
+      "web": "https://es.nttdata.com",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://es.nttdata.com",
+          "estado": 200
+        },
+        {
+          "url": "https://es.nttdata.com/contact-us",
+          "estado": 200
+        },
+        {
+          "url": "https://careers.emeal.nttdata.com/s/careers?language=es",
+          "estado": 200
+        },
+        {
+          "url": "https://careers.emeal.nttdata.com/s/jobs?language=es&amp;pcountry=Espana",
+          "estado": 200
+        },
+        {
+          "url": "https://careers.emeal.nttdata.com/s/events?language=es",
+          "estado": 200
+        },
+        {
+          "url": "https://www.nttdata.com/global/en/careers?category=see-job",
+          "estado": 400
+        },
+        {
+          "url": "https://es.nttdata.com/legal-notice",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "infoweb@nttdata.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        }
+      ],
+      "contacto": "formulario: https://careers.emeal.nttdata.com/s/careers?language=es",
+      "confianza": "media"
+    },
+    {
+      "id": "capgemini-espana",
+      "nombre": "Capgemini España",
+      "web": "https://www.capgemini.com/es-es",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.capgemini.com/es-es",
+          "estado": 200
+        },
+        {
+          "url": "https://www.capgemini.com/es-es/talento/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.capgemini.com/es-es/talento/por-que-capgemini/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.capgemini.com/es-es/talento/vida-en-capgemini/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.capgemini.com/es-es/talento/conoce-a-nuestra-gente/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.capgemini.com/es-es/talento/carreras-profesionales/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.capgemini.com/es-es/talento/carreras-profesionales/elige-futuro/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.capgemini.com/es-es/talento/carreras-profesionales/profesionales-experimentados/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.capgemini.com/es-es/talento/carreras-profesionales/profesiones/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.capgemini.com/es-es/talento/carreras-profesionales/carreras-en-capgemini-engineering/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.capgemini.com/es-es/talento/carreras-profesionales/carreras-en-capgemini-invent/",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "nombre@ejemplo.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "nombre@capgemini.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        }
+      ],
+      "contacto": "formulario: https://www.capgemini.com/es-es/talento/",
+      "confianza": "media"
+    },
+    {
+      "id": "sopra-steria-espana",
+      "nombre": "Sopra Steria España",
+      "web": "https://www.soprasteria.es",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.soprasteria.es",
+          "estado": 502
+        }
+      ],
+      "correosEncontrados": [],
+      "motivo": "La web no responde (502)"
+    },
+    {
+      "id": "gmv",
+      "nombre": "GMV",
+      "web": "https://www.gmv.com",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.gmv.com",
+          "estado": 403
+        }
+      ],
+      "correosEncontrados": [],
+      "motivo": "La web no responde (403)"
+    },
+    {
+      "id": "inetum-espana",
+      "nombre": "Inetum España",
+      "web": "https://www.inetum.com/es",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.inetum.com/es",
+          "estado": 404
+        }
+      ],
+      "correosEncontrados": [],
+      "motivo": "La web no responde (404)"
+    },
+    {
+      "id": "viewnext",
+      "nombre": "Viewnext",
+      "web": "https://www.viewnext.com",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.viewnext.com",
+          "estado": 200
+        },
+        {
+          "url": "https://www.viewnext.com/contacto/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.viewnext.com/empleo/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.viewnext.com/empleo",
+          "estado": 200
+        },
+        {
+          "url": "https://www.viewnext.com/aviso-legal",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "seguridad@viewnext.com",
+          "tipo": "general",
+          "motivoRechazo": "buzón no destinado a candidaturas"
+        }
+      ],
+      "contacto": "formulario: https://www.viewnext.com/contacto/",
+      "confianza": "media"
+    },
+    {
+      "id": "ayesa",
+      "nombre": "Ayesa",
+      "web": "https://www.ayesa.com",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.ayesa.com",
+          "estado": 200
+        },
+        {
+          "url": "https://www.ayesa.com/nosotros/equipo-directivo/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.ayesa.com/unete/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.ayesa.com/unete/vacantes/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.ayesa.com/unete/graduate-worldwide/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.ayesa.com/contacto/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.ayesa.com/aviso-legal/",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "marketing@ayesa.com",
+          "tipo": "general",
+          "motivoRechazo": "buzón no destinado a candidaturas"
+        },
+        {
+          "email": "seleccioningenieria@ayesa.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "info@ayesa.com",
+          "tipo": "general"
+        }
+      ],
+      "contacto": "info@ayesa.com (https://www.ayesa.com/aviso-legal/)",
+      "confianza": "media"
+    },
+    {
+      "id": "babel",
+      "nombre": "Babel",
+      "web": "https://www.babelgroup.com",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.babelgroup.com",
+          "estado": 403
+        }
+      ],
+      "correosEncontrados": [],
+      "motivo": "La web no responde (403)"
+    },
+    {
+      "id": "hiberus",
+      "nombre": "Hiberus",
+      "web": "https://www.hiberus.com",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.hiberus.com",
+          "estado": 200
+        },
+        {
+          "url": "https://www.hiberus.com/soluciones/kvp",
+          "estado": 200
+        },
+        {
+          "url": "https://www.hiberus.com/unete/por-que-hiberus",
+          "estado": 200
+        },
+        {
+          "url": "https://www.hiberus.com/unete/beneficios",
+          "estado": 200
+        },
+        {
+          "url": "https://www.hiberus.com/unete/cultura",
+          "estado": 200
+        },
+        {
+          "url": "https://www.hiberus.com/unete/university",
+          "estado": 200
+        },
+        {
+          "url": "https://www.hiberus.com/unete/ofertas-de-empleo",
+          "estado": 200
+        },
+        {
+          "url": "https://www.hiberus.com/equipo-directivo",
+          "estado": 200
+        },
+        {
+          "url": "https://www.hiberus.com/contacto",
+          "estado": 200
+        },
+        {
+          "url": "https://www.hiberus.com/aviso-legal",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "ejemplo@mail.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "info@hiberus.com",
+          "tipo": "general"
+        }
+      ],
+      "contacto": "info@hiberus.com (https://www.hiberus.com/aviso-legal)",
+      "confianza": "media"
+    },
+    {
+      "id": "paradigma-digital",
+      "nombre": "Paradigma Digital",
+      "web": "https://www.paradigmadigital.com",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.paradigmadigital.com",
+          "estado": 200
+        },
+        {
+          "url": "https://www.paradigmadigital.com/empleo/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.paradigmadigital.com/contacto/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.paradigmadigital.com/formula/platform-engineering/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.paradigmadigital.com/empleo/ofertas/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.paradigmadigital.com/legal/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.paradigmadigital.com/quienes-somos/team/",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "info@paradigmadigital.com",
+          "tipo": "general"
+        },
+        {
+          "email": "dpo@paradigmadigital.com",
+          "tipo": "general",
+          "motivoRechazo": "buzón no destinado a candidaturas"
+        },
+        {
+          "email": "people@paradigmadigital.com",
+          "tipo": "talento"
+        }
+      ],
+      "contacto": "people@paradigmadigital.com (https://www.paradigmadigital.com/legal/)",
+      "confianza": "alta"
+    },
+    {
+      "id": "plain-concepts",
+      "nombre": "Plain Concepts",
+      "web": "https://www.plainconcepts.com",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.plainconcepts.com",
+          "estado": 200
+        },
+        {
+          "url": "https://www.plainconcepts.com/careers/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.plainconcepts.com/contact/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.plainconcepts.com/casestudy/heijmans-digital-twins/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.plainconcepts.com/casestudy/aurax-plain-concepts-assistive-technology-and-inclusion-with-mouthx/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.plainconcepts.com/contact/?pais=worldwide",
+          "estado": 200
+        },
+        {
+          "url": "https://www.plainconcepts.com/legal-notice/",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "legal@plainconcepts.com",
+          "tipo": "general",
+          "motivoRechazo": "buzón no destinado a candidaturas"
+        }
+      ],
+      "contacto": "formulario: https://www.plainconcepts.com/careers/",
+      "confianza": "media"
+    },
+    {
+      "id": "izertis",
+      "nombre": "Izertis",
+      "web": "https://www.izertis.com",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.izertis.com",
+          "estado": 200
+        },
+        {
+          "url": "https://www.izertis.com/es/talento",
+          "estado": 200
+        },
+        {
+          "url": "https://www.izertis.com/es/contacto",
+          "estado": 200
+        },
+        {
+          "url": "https://www.izertis.com/es/w/caso-de-exito/federacion-deportiva-internacional-primer-nivel",
+          "estado": 200
+        },
+        {
+          "url": "https://www.izertis.com/talento",
+          "estado": 200
+        },
+        {
+          "url": "https://www.izertis.com/es/legal/aviso-legal",
+          "estado": 200
+        },
+        {
+          "url": "https://www.izertis.com/es/legal/politica-de-privacidad",
+          "estado": 200
+        },
+        {
+          "url": "https://www.izertis.com/es/legal/cookies",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "correo@empresa.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "rgpd.es@izertis.com",
+          "tipo": "general",
+          "motivoRechazo": "buzón no destinado a candidaturas"
+        },
+        {
+          "email": "dpo@izertis.com",
+          "tipo": "general",
+          "motivoRechazo": "buzón no destinado a candidaturas"
+        }
+      ],
+      "contacto": "formulario: https://www.izertis.com/es/talento",
+      "confianza": "media"
+    },
+    {
+      "id": "sngular",
+      "nombre": "Sngular",
+      "web": "https://www.sngular.com",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.sngular.com",
+          "estado": 200
+        },
+        {
+          "url": "https://www.sngular.com/talent-and-culture/talent",
+          "estado": 200
+        },
+        {
+          "url": "https://www.sngular.com/talent-and-culture/jobs",
+          "estado": 200
+        },
+        {
+          "url": "https://www.sngular.com/contact",
+          "estado": 200
+        },
+        {
+          "url": "https://www.sngular.com/talent",
+          "estado": 200
+        },
+        {
+          "url": "https://www.sngular.com/insights/482/the-role-of-junior-professionals-in-the-age-of-ai",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [],
+      "contacto": "formulario: https://www.sngular.com/talent-and-culture/talent",
+      "confianza": "media"
+    },
+    {
+      "id": "bosonit",
+      "nombre": "Bosonit",
+      "web": "https://www.bosonit.com",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.bosonit.com",
+          "estado": 200
+        },
+        {
+          "url": "https://bosonit.com/aviso-legal/",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "hola@bosonit.com",
+          "tipo": "general"
+        }
+      ],
+      "contacto": "hola@bosonit.com (https://bosonit.com/aviso-legal/)",
+      "confianza": "media"
+    },
+    {
+      "id": "stratio",
+      "nombre": "Stratio",
+      "web": "https://www.stratio.com",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.stratio.com",
+          "estado": 200
+        },
+        {
+          "url": "https://stratio.ai/talent/",
+          "estado": 200
+        },
+        {
+          "url": "https://stratio.ai/contact/",
+          "estado": 200
+        },
+        {
+          "url": "https://stratio.ai/legal-notice/",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "privacy@stratio.com",
+          "tipo": "general",
+          "motivoRechazo": "buzón no destinado a candidaturas"
+        },
+        {
+          "email": "legal@stratio.com",
+          "tipo": "general",
+          "motivoRechazo": "buzón no destinado a candidaturas"
+        }
+      ],
+      "contacto": "formulario: https://stratio.ai/talent/",
+      "confianza": "media"
+    },
+    {
+      "id": "keepler-data-tech",
+      "nombre": "Keepler Data Tech",
+      "web": "https://keepler.io",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://keepler.io",
+          "estado": 403
+        }
+      ],
+      "correosEncontrados": [],
+      "motivo": "La web no responde (403)"
+    },
+    {
+      "id": "bluetab",
+      "nombre": "Bluetab",
+      "web": "https://www.bluetab.net",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.bluetab.net",
+          "estado": 200
+        },
+        {
+          "url": "https://www.bluetab.net/unete-a-bluetab/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.bluetab.net/contacto/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.bluetab.net/contacto",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "dpo@beta.bluetab.net",
+          "tipo": "general",
+          "motivoRechazo": "buzón no destinado a candidaturas"
+        }
+      ],
+      "contacto": "formulario: https://www.bluetab.net/unete-a-bluetab/",
+      "confianza": "media"
+    },
+    {
+      "id": "seidor",
+      "nombre": "Seidor",
+      "web": "https://www.seidor.com",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.seidor.com",
+          "estado": 403
+        }
+      ],
+      "correosEncontrados": [],
+      "motivo": "La web no responde (403)"
+    },
+    {
+      "id": "grupo-oesia",
+      "nombre": "Grupo Oesía",
+      "web": "https://grupooesia.com",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://grupooesia.com",
+          "estado": 403
+        }
+      ],
+      "correosEncontrados": [],
+      "motivo": "La web no responde (403)"
+    },
+    {
+      "id": "altia",
+      "nombre": "Altia",
+      "web": "https://www.altia.es",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.altia.es",
+          "estado": 200
+        },
+        {
+          "url": "https://www.altiacompany.com/es/altia/contacto",
+          "estado": 200
+        },
+        {
+          "url": "https://www.altiacompany.com/es/unete",
+          "estado": 200
+        },
+        {
+          "url": "https://www.altiacompany.com/es/aviso-legal",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "info@altia.es",
+          "tipo": "general"
+        },
+        {
+          "email": "lopd@altia.es",
+          "tipo": "general",
+          "motivoRechazo": "buzón no destinado a candidaturas"
+        },
+        {
+          "email": "contacto.dpd@altia.es",
+          "tipo": "general"
+        }
+      ],
+      "contacto": "contacto.dpd@altia.es (https://www.altiacompany.com/es/aviso-legal)",
+      "confianza": "media"
+    },
+    {
+      "id": "panel-sistemas",
+      "nombre": "Panel Sistemas",
+      "web": "https://www.panel.es",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.panel.es",
+          "estado": 200
+        },
+        {
+          "url": "https://www.panel.es/talento-empleo/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.panel.es/como-trabajamos/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.panel.es/contacto/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.panel.es/aviso-legal/",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "panel@panel.es",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "contacto@panel.es",
+          "tipo": "general"
+        },
+        {
+          "email": "marketing@panel.es",
+          "tipo": "general",
+          "motivoRechazo": "buzón no destinado a candidaturas"
+        }
+      ],
+      "contacto": "contacto@panel.es (https://www.panel.es/aviso-legal/)",
+      "confianza": "media"
+    },
+    {
+      "id": "kairos-digital-solutions",
+      "nombre": "Kairós Digital Solutions",
+      "web": "https://www.kairosds.com",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.kairosds.com",
+          "estado": 200
+        },
+        {
+          "url": "https://www.kairosds.com/somos-kairos/nuestro-equipo",
+          "estado": 200
+        },
+        {
+          "url": "https://www.kairosds.com/talento/que-nos-hace-unicos",
+          "estado": 200
+        },
+        {
+          "url": "https://www.kairosds.com/job-offers",
+          "estado": 200
+        },
+        {
+          "url": "https://www.kairosds.com/talento/manifiesto",
+          "estado": 200
+        },
+        {
+          "url": "https://www.kairosds.com/legal",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "lopd@kairosds.com",
+          "tipo": "general",
+          "motivoRechazo": "buzón no destinado a candidaturas"
+        }
+      ],
+      "contacto": "formulario: https://www.kairosds.com/talento/que-nos-hace-unicos",
+      "confianza": "media"
+    },
+    {
+      "id": "ackstorm",
+      "nombre": "Ackstorm",
+      "web": "https://www.ackstorm.com",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.ackstorm.com",
+          "estado": 200
+        },
+        {
+          "url": "https://www.ackstorm.com/unete-al-equipo/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.ackstorm.com/contacto/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.ackstorm.com/aviso-legal/",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "info@ackstorm.com",
+          "tipo": "general"
+        }
+      ],
+      "contacto": "info@ackstorm.com (https://www.ackstorm.com/)",
+      "confianza": "media"
+    },
+    {
+      "id": "computacenter-espana",
+      "nombre": "Computacenter España",
+      "web": "https://www.computacenter.com/es-es",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.computacenter.com/es-es",
+          "estado": 200
+        },
+        {
+          "url": "https://www.computacenter.com/es-es/careers",
+          "estado": 200
+        },
+        {
+          "url": "https://www.computacenter.com/es-es/information/contact-us",
+          "estado": 200
+        },
+        {
+          "url": "https://www.computacenter.com/es-es/sustainability/people/people-vision",
+          "estado": 200
+        },
+        {
+          "url": "https://www.computacenter.com/es-es/sustainability/people",
+          "estado": 200
+        },
+        {
+          "url": "https://www.computacenter.com/es-es/information/legal",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "careers.sg@computacenter.com",
+          "tipo": "talento"
+        },
+        {
+          "email": "careers.au@computacenter.com",
+          "tipo": "talento"
+        },
+        {
+          "email": "careers.hk@computacenter.com",
+          "tipo": "talento"
+        },
+        {
+          "email": "bianca.garrido@computacenter.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        }
+      ],
+      "contacto": "careers.au@computacenter.com (https://www.computacenter.com/es-es/careers)",
+      "confianza": "alta"
+    },
+    {
+      "id": "econocom-espana",
+      "nombre": "Econocom España",
+      "web": "https://www.econocom.es",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.econocom.es",
+          "estado": 200
+        },
+        {
+          "url": "https://www.econocom.es/contact",
+          "estado": 200
+        },
+        {
+          "url": "https://www.econocom.es/trabaja-en-econocom/candidatura-espontanea",
+          "estado": 200
+        },
+        {
+          "url": "https://www.econocom.es/trabaja-en-econocom/nuestras-oportunidades",
+          "estado": 200
+        },
+        {
+          "url": "https://www.econocom.es/trabaja-en-econocom/ellos-transforman-econocom",
+          "estado": 200
+        },
+        {
+          "url": "https://www.econocom.es/informacion-legal",
+          "estado": 200
+        },
+        {
+          "url": "https://www.econocom.es/aviso-legal-politica-privacidad-y-proteccion-datos",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "marketingycomunicacion@econocom.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "dpo_econocom.es@econocom.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "candidaturas.es@econocom.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "dpo@econocom.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "contact@econocom.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        }
+      ],
+      "contacto": "formulario: https://www.econocom.es/trabaja-en-econocom/candidatura-espontanea",
+      "confianza": "media"
+    },
+    {
+      "id": "bechtle-espana",
+      "nombre": "Bechtle España",
+      "web": "https://www.bechtle.com/es",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.bechtle.com/es",
+          "estado": 403
+        }
+      ],
+      "correosEncontrados": [],
+      "motivo": "La web no responde (403)"
+    },
+    {
+      "id": "digital-realty-espana",
+      "nombre": "Digital Realty España (Interxion)",
+      "web": "https://www.digitalrealty.es",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.digitalrealty.es",
+          "estado": 200
+        },
+        {
+          "url": "https://www.digitalrealty.com/es/expertise/expert-teams",
+          "estado": 200
+        },
+        {
+          "url": "https://www.digitalrealty.com/es/about/leadership",
+          "estado": 200
+        },
+        {
+          "url": "https://www.digitalrealty.com/es/contact",
+          "estado": 200
+        },
+        {
+          "url": "https://www.digitalrealty.com/about/careers",
+          "estado": "UNABLE_TO_VERIFY_LEAF_SIGNATURE"
+        },
+        {
+          "url": "https://www.digitalrealty.com/es/about/legal",
+          "estado": 200
+        },
+        {
+          "url": "https://www.digitalrealty.com/es/about/legal/privacy",
+          "estado": 200
+        },
+        {
+          "url": "https://www.digitalrealty.com/es/about/legal/terms",
+          "estado": 200
+        },
+        {
+          "url": "https://www.digitalrealty.com/es/about/legal/privacy/cookies",
+          "estado": 200
+        },
+        {
+          "url": "https://www.digitalrealty.com/es/about/legal/policies/acceptable-use",
+          "estado": 200
+        },
+        {
+          "url": "https://www.digitalrealty.com/es/about/legal/terms/suppliers",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "customercare@digitalrealty.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "globalpr@digitalrealty.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "sales@digitalrealty.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "u003ecustomercare@digitalrealty.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "u003eglobalpr@digitalrealty.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "channelteam@digitalrealty.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "contact.apac@digitalrealty.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "contact.sa@digitalrealty.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "customersuccessteam@digitalrealty.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "sea10propertyops@digitalrealty.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "sea10dcops@digitalrealty.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "sea10remotehands@digitalrealty.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "sea10accessrequest@digitalrealty.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "sea10loadingdock@digitalrealty.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "privacy@digitalrealty.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "dpo@digitalrealty.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "privacy-ng@digitalrealty.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "u003eprivacy@digitalrealty.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "u003edpo@digitalrealty.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "u003eprivacy-ng@digitalrealty.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "contact@digitalrealty.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "u003econtact@digitalrealty.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "contact@digitalrealtytrust.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        }
+      ],
+      "contacto": "formulario: https://www.digitalrealty.com/es/contact",
+      "confianza": "media"
+    },
+    {
+      "id": "lyntia",
+      "nombre": "Lyntia",
+      "web": "https://www.lyntia.com",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.lyntia.com",
+          "estado": 403
+        }
+      ],
+      "correosEncontrados": [],
+      "motivo": "La web no responde (403)"
+    },
+    {
+      "id": "bbva",
+      "nombre": "BBVA",
+      "web": "https://www.bbva.com",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.bbva.com",
+          "estado": 200
+        },
+        {
+          "url": "https://www.bbva.com/en/careers/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.bbva.com/en/contact/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.bbva.com/en/press-contact/",
+          "estado": 200
+        },
+        {
+          "url": "https://shareholdersandinvestors.bbva.com/shareholders/shareholders-investors-communication-contact-policy/",
+          "estado": 200
+        },
+        {
+          "url": "https://shareholdersandinvestors.bbva.com/debt-investors/contact-debt-investors/",
+          "estado": 200
+        },
+        {
+          "url": "https://shareholdersandinvestors.bbva.com/sustainability-and-responsible-banking/contact-responsible-business/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.bbva.com/en/careers/life-at-bbva/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.bbva.com/en/careers/tech-data/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.bbva.com/en/careers/cib/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.bbva.com/en/careers/branch-network/",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "bbvabe@bbva.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "corporate.be@bbva.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "corporate.deutschland@bbva.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "markets.deutschland@bbva.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "london-reception@bbva.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "bbva@bbvabeijing.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "hkgeneral@bbva.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "bbva.taiwan.group@bbva.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "tokyo@bbva.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "singapore@bbva.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "seokoh.seo@bbva.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "joiel.akilan@bbva.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "jakarta@bbva.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "bbvainvestorrelations@bbva.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "patricia.bueno@bbva.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "mf.romo@bbva.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "diana.orcajada@bbva.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "gsa@bbva.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        }
+      ],
+      "contacto": "formulario: https://www.bbva.com/en/careers/",
+      "confianza": "media"
+    },
+    {
+      "id": "banco-santander",
+      "nombre": "Banco Santander",
+      "web": "https://www.santander.com",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.santander.com",
+          "estado": 200
+        },
+        {
+          "url": "https://www.santander.com/es/trabaja-con-nosotros",
+          "estado": 200
+        },
+        {
+          "url": "https://www.santander.com/es/accionistas-e-inversores/informacion-general/contacto-para-accionistas",
+          "estado": 200
+        },
+        {
+          "url": "https://www.santander.com/es/accionistas-e-inversores/informacion-general/contacto-para-inversores",
+          "estado": 200
+        },
+        {
+          "url": "https://www.santander.com/es/trabaja-con-nosotros/-Que-impacto-quieres-tener-",
+          "estado": 200
+        },
+        {
+          "url": "https://www.santander.com/es/stories/becas-santander",
+          "estado": 200
+        },
+        {
+          "url": "https://www.santander.com/es/trabaja-con-nosotros/-Que-impacto-quieres-tener-/reimaginar-la-tecnologia-empieza-contigo",
+          "estado": 200
+        },
+        {
+          "url": "https://www.santander.com/es/trabaja-con-nosotros/-Que-impacto-quieres-tener-/datos-e-ia",
+          "estado": 200
+        },
+        {
+          "url": "https://www.santander.com/es/stories/-ciberseguridad",
+          "estado": 200
+        },
+        {
+          "url": "https://www.santander.com/es/landing-pages/aviso-legal",
+          "estado": 200
+        },
+        {
+          "url": "https://www.santander.com/es/landing-pages/contacto",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "investor@gruposantander.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "santander_reclamaciones@gruposantander.es",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "accionistas@santander.com",
+          "tipo": "general",
+          "motivoRechazo": "buzón no destinado a candidaturas"
+        },
+        {
+          "email": "comunicacion@gruposantander.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "reportphishing@gruposantander.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        }
+      ],
+      "contacto": "formulario: https://www.santander.com/es/trabaja-con-nosotros",
+      "confianza": "media"
+    },
+    {
+      "id": "mapfre",
+      "nombre": "Mapfre",
+      "web": "https://www.mapfre.com",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.mapfre.com",
+          "estado": 200
+        },
+        {
+          "url": "https://www.mapfre.com/talento/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.mapfre.com/talento/unete-a-nuestro-equipo/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.mapfre.com/talento/que-esperamos-de-ti/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.mapfre.com/talento/plan-de-universidades/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.mapfre.com/normativa-legal/",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [],
+      "contacto": "formulario: https://www.mapfre.com/talento/",
+      "confianza": "media"
+    },
+    {
+      "id": "openbank",
+      "nombre": "Openbank",
+      "web": "https://www.openbank.es",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.openbank.es",
+          "estado": 200
+        },
+        {
+          "url": "https://www.openbank.es/aviso-legal",
+          "estado": 200
+        },
+        {
+          "url": "https://www.openbank.es/informacion-legal-reclamaciones",
+          "estado": 200
+        },
+        {
+          "url": "https://www.openbank.es/sostenibilidad-servicios-financieros",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "ayuda@openbank.es",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "incidencias@openbank.es",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "santander_reclamaciones@gruposantander.es",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "investor@gruposantander.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "psd2.sandbox.soporte@redsys.es",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        }
+      ],
+      "motivo": "Sin correo válido (ayuda@openbank.es: posible correo personal; incidencias@openbank.es: posible correo personal; santander_reclamaciones@gruposantander.es: dominio distinto al de la web; investor@gruposantander.com: dominio distinto al de la web; psd2.sandbox.soporte@redsys.es: dominio distinto al de la web) ni formulario oficial"
+    },
+    {
+      "id": "ciemat",
+      "nombre": "CIEMAT",
+      "web": "https://www.ciemat.es",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.ciemat.es",
+          "estado": "UNABLE_TO_VERIFY_LEAF_SIGNATURE"
+        }
+      ],
+      "correosEncontrados": [],
+      "motivo": "La web no responde (UNABLE_TO_VERIFY_LEAF_SIGNATURE)"
+    },
+    {
+      "id": "s21sec",
+      "nombre": "S21sec",
+      "web": "https://www.s21sec.com",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.s21sec.com",
+          "estado": 400
+        }
+      ],
+      "correosEncontrados": [],
+      "motivo": "La web no responde (400)"
+    },
+    {
+      "id": "entelgy",
+      "nombre": "Entelgy",
+      "web": "https://www.entelgy.com",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.entelgy.com",
+          "estado": 200
+        },
+        {
+          "url": "https://entelgy.com/talento/",
+          "estado": 200
+        },
+        {
+          "url": "https://entelgy.com/contacto",
+          "estado": 200
+        },
+        {
+          "url": "https://entelgy.com/servicios/gestion-del-cambio-y-adopcion-digital/",
+          "estado": 200
+        },
+        {
+          "url": "https://entelgy.com/servicios/smart-workplace/",
+          "estado": 200
+        },
+        {
+          "url": "https://entelgy.com/index.php/es/ofertas-de-empleo/",
+          "estado": 200
+        },
+        {
+          "url": "https://entelgy.com/aviso-legal/",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "dataprotection@entelgy.com",
+          "tipo": "general",
+          "motivoRechazo": "buzón no destinado a candidaturas"
+        },
+        {
+          "email": "info.colombia@entelgy.com",
+          "tipo": "general"
+        },
+        {
+          "email": "hola@entelgy.com",
+          "tipo": "general"
+        }
+      ],
+      "contacto": "hola@entelgy.com (https://entelgy.com/aviso-legal/)",
+      "confianza": "media"
+    },
+    {
+      "id": "zerolynx",
+      "nombre": "Zerolynx",
+      "web": "https://www.zerolynx.com",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.zerolynx.com",
+          "estado": 200
+        },
+        {
+          "url": "https://zerolynx.com/pages/equipo",
+          "estado": 200
+        },
+        {
+          "url": "https://zerolynx.com/pages/empleo",
+          "estado": 200
+        },
+        {
+          "url": "https://zerolynx.com/pages/contact",
+          "estado": 200
+        },
+        {
+          "url": "https://zerolynx.com/policies/contact-information",
+          "estado": 200
+        },
+        {
+          "url": "https://zerolynx.com/policies/legal-notice",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "info@zerolynx.com",
+          "tipo": "general"
+        }
+      ],
+      "contacto": "info@zerolynx.com (https://zerolynx.com/)",
+      "confianza": "media"
+    },
+    {
+      "id": "mnemo",
+      "nombre": "Mnemo",
+      "web": "https://www.mnemo.com",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.mnemo.com",
+          "estado": 200
+        },
+        {
+          "url": "https://mnemo.com/talento-y-cultura/",
+          "estado": 200
+        },
+        {
+          "url": "https://mnemo.com/contacto-mnemo/",
+          "estado": 200
+        },
+        {
+          "url": "https://mnemo.com/avisolegal/",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "j.garciagutierrez@mnemo.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "info@mnemo.com",
+          "tipo": "general"
+        },
+        {
+          "email": "rrhh@mnemo.com",
+          "tipo": "rrhh"
+        }
+      ],
+      "contacto": "rrhh@mnemo.com (https://mnemo.com/talento-y-cultura/)",
+      "confianza": "alta"
+    },
+    {
+      "id": "tarlogic",
+      "nombre": "Tarlogic",
+      "web": "https://www.tarlogic.com",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.tarlogic.com",
+          "estado": 403
+        }
+      ],
+      "correosEncontrados": [],
+      "motivo": "La web no responde (403)"
+    },
+    {
+      "id": "secure-it",
+      "nombre": "Secure&IT",
+      "web": "https://www.secureit.es",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.secureit.es",
+          "estado": 403
+        }
+      ],
+      "correosEncontrados": [],
+      "motivo": "La web no responde (403)"
+    },
+    {
+      "id": "grupo-ica",
+      "nombre": "Grupo ICA",
+      "web": "https://www.grupoica.com",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.grupoica.com",
+          "estado": 200
+        },
+        {
+          "url": "https://www.grupoica.com/contacto",
+          "estado": 200
+        },
+        {
+          "url": "https://www.grupoica.com/talento/tu-carrera",
+          "estado": 200
+        },
+        {
+          "url": "https://www.grupoica.com/-/ica-trabajando-en-el-mantenimiento-correctivo-y-evolutivo-del-aplicativo-argos-de-la-dgp-",
+          "estado": 200
+        },
+        {
+          "url": "https://www.grupoica.com/-/ica-esta-trabajando-en-el-mantenimiento-de-los-portales-web-del-ministerio-de-igualdad",
+          "estado": 200
+        },
+        {
+          "url": "https://www.grupoica.com/-/ica-esta-trabajando-en-el-mantenimiento-y-actualizacion-de-la-web-corporativa-de-la-direccion-general-de-proteccion-civil-y-emergencias-dgpce-",
+          "estado": 200
+        },
+        {
+          "url": "https://www.grupoica.com/aviso-legal",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "talento@grupoica.com",
+          "tipo": "talento"
+        },
+        {
+          "email": "lopd@grupoica.com",
+          "tipo": "general",
+          "motivoRechazo": "buzón no destinado a candidaturas"
+        }
+      ],
+      "contacto": "talento@grupoica.com (https://www.grupoica.com/talento/tu-carrera)",
+      "confianza": "alta"
+    },
+    {
+      "id": "prosegur-cipher",
+      "nombre": "Prosegur Cipher",
+      "web": "https://www.prosegur.es",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.prosegur.es",
+          "estado": 200
+        },
+        {
+          "url": "https://www.prosegur.es/hogares-y-personas",
+          "estado": 200
+        },
+        {
+          "url": "https://www.prosegur.es/trabaja-con-nosotros",
+          "estado": 200
+        },
+        {
+          "url": "https://www.prosegur.es/trabaja-con-nosotros/talento",
+          "estado": 200
+        },
+        {
+          "url": "https://www.prosegur.es/trabaja-con-nosotros/curso-vigilante-seguridad",
+          "estado": 200
+        },
+        {
+          "url": "https://www.prosegur.es/trabaja-con-nosotros/teleoperador",
+          "estado": 200
+        },
+        {
+          "url": "https://www.prosegur.es/trabaja-con-nosotros/otras-vacantes",
+          "estado": 200
+        },
+        {
+          "url": "https://www.prosegur.es/contacto",
+          "estado": 200
+        },
+        {
+          "url": "https://www.prosegur.es/aviso-legal",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "clientes.security@prosegur.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "contacto@cipher.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "contacto.avos@prosegur.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        }
+      ],
+      "contacto": "formulario: https://www.prosegur.es/trabaja-con-nosotros",
+      "confianza": "media"
+    },
+    {
+      "id": "bedisruptive",
+      "nombre": "BeDisruptive",
+      "web": "https://bedisruptive.com",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://bedisruptive.com",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "contacto@ejemplo.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        }
+      ],
+      "motivo": "Sin correo válido (contacto@ejemplo.com: dominio distinto al de la web) ni formulario oficial"
+    },
+    {
+      "id": "cabify",
+      "nombre": "Cabify",
+      "web": "https://cabify.com",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://cabify.com",
+          "estado": 200
+        },
+        {
+          "url": "https://cabify.com/es/flotas/contacto",
+          "estado": 200
+        },
+        {
+          "url": "https://cabify.com/es/empresas/contactanos",
+          "estado": 200
+        },
+        {
+          "url": "https://cabify.com/es/ads/contacto",
+          "estado": 200
+        },
+        {
+          "url": "https://cabify.com/es/legal",
+          "estado": 200
+        },
+        {
+          "url": "https://cabify.com/es/legal/politica-de-privacidad",
+          "estado": 200
+        },
+        {
+          "url": "https://cabify.com/es/legal/politica-de-cookies",
+          "estado": 200
+        },
+        {
+          "url": "https://cabify.com/es/legal/accesibilidad/declaracion",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "accesibilidad@cabify.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        }
+      ],
+      "motivo": "Sin correo válido (accesibilidad@cabify.com: posible correo personal) ni formulario oficial"
+    },
+    {
+      "id": "idealista",
+      "nombre": "idealista",
+      "web": "https://www.idealista.com",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.idealista.com",
+          "estado": 403
+        }
+      ],
+      "correosEncontrados": [],
+      "motivo": "La web no responde (403)"
+    },
+    {
+      "id": "fever",
+      "nombre": "Fever",
+      "web": "https://feverup.com",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://feverup.com",
+          "estado": 200
+        },
+        {
+          "url": "https://careers.feverup.com/",
+          "estado": 200
+        },
+        {
+          "url": "https://feverup.com/legal/terms_en.html",
+          "estado": 200
+        },
+        {
+          "url": "https://feverup.com/legal/privacy_en.html",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "hello@feverup.com",
+          "tipo": "general"
+        },
+        {
+          "email": "hola@feverup.com",
+          "tipo": "general"
+        },
+        {
+          "email": "ola@feverup.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "salut@feverup.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "legal@feverup.com",
+          "tipo": "general",
+          "motivoRechazo": "buzón no destinado a candidaturas"
+        },
+        {
+          "email": "privacy@ncsa.gov.qa",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        }
+      ],
+      "contacto": "hello@feverup.com (https://feverup.com/legal/terms_en.html)",
+      "confianza": "media"
+    },
+    {
+      "id": "jobandtalent",
+      "nombre": "Jobandtalent",
+      "web": "https://www.jobandtalent.com",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.jobandtalent.com",
+          "estado": 403
+        }
+      ],
+      "correosEncontrados": [],
+      "motivo": "La web no responde (403)"
+    },
+    {
+      "id": "clarity-ai",
+      "nombre": "Clarity AI",
+      "web": "https://clarity.ai",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://clarity.ai",
+          "estado": 200
+        },
+        {
+          "url": "https://clarity.ai/careers/",
+          "estado": 200
+        },
+        {
+          "url": "https://clarity.ai/contact/",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "solutions@clarity.ai",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        }
+      ],
+      "contacto": "formulario: https://clarity.ai/careers/",
+      "confianza": "media"
+    },
+    {
+      "id": "seedtag",
+      "nombre": "Seedtag",
+      "web": "https://www.seedtag.com",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.seedtag.com",
+          "estado": 403
+        }
+      ],
+      "correosEncontrados": [],
+      "motivo": "La web no responde (403)"
+    },
+    {
+      "id": "lingokids",
+      "nombre": "Lingokids",
+      "web": "https://lingokids.com",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://lingokids.com",
+          "estado": 200
+        },
+        {
+          "url": "https://jobs.lingokids.com/",
+          "estado": 200
+        },
+        {
+          "url": "https://lingokids.com/legal-notice",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [],
+      "contacto": "formulario: https://jobs.lingokids.com/",
+      "confianza": "media"
+    },
+    {
+      "id": "kenjo",
+      "nombre": "Kenjo",
+      "web": "https://www.kenjo.io",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.kenjo.io",
+          "estado": 200
+        },
+        {
+          "url": "https://www.kenjo.io/company/our-team",
+          "estado": 400
+        },
+        {
+          "url": "https://www.kenjo.io/contact",
+          "estado": 200
+        },
+        {
+          "url": "https://www.kenjo.io/product/reports-and-analytics",
+          "estado": 400
+        }
+      ],
+      "correosEncontrados": [],
+      "contacto": "formulario: https://www.kenjo.io/contact",
+      "confianza": "media"
+    },
+    {
+      "id": "cobee",
+      "nombre": "Cobee",
+      "web": "https://www.cobee.io",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.cobee.io",
+          "estado": 200
+        },
+        {
+          "url": "https://cobee.io/equipos-informaticos/",
+          "estado": 200
+        },
+        {
+          "url": "https://cobee.io/ebook/guia-mejor-responsable-recursos-humanos/",
+          "estado": 200
+        },
+        {
+          "url": "https://cobee.io/diccionario/",
+          "estado": 200
+        },
+        {
+          "url": "https://cobee.io/contacto/",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "hola@cobee.io",
+          "tipo": "general"
+        }
+      ],
+      "contacto": "hola@cobee.io (https://cobee.io/equipos-informaticos/)",
+      "confianza": "media"
+    },
+    {
+      "id": "spotahome",
+      "nombre": "Spotahome",
+      "web": "https://www.spotahome.com",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.spotahome.com",
+          "estado": 403
+        }
+      ],
+      "correosEncontrados": [],
+      "motivo": "La web no responde (403)"
+    },
+    {
+      "id": "fintonic",
+      "nombre": "Fintonic",
+      "web": "https://www.fintonic.com",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.fintonic.com",
+          "estado": 403
+        }
+      ],
+      "correosEncontrados": [],
+      "motivo": "La web no responde (403)"
+    },
+    {
+      "id": "bit2me",
+      "nombre": "Bit2Me",
+      "web": "https://bit2me.com",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://bit2me.com",
+          "estado": 403
+        }
+      ],
+      "correosEncontrados": [],
+      "motivo": "La web no responde (403)"
+    },
+    {
+      "id": "binhex",
+      "nombre": "Binhex",
+      "web": "https://binhex.cloud",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://binhex.cloud",
+          "estado": 200
+        },
+        {
+          "url": "https://www.binhex.cloud/es_ES/features/services",
+          "estado": 200
+        },
+        {
+          "url": "https://www.binhex.cloud/es_ES/features/people-communication",
+          "estado": 200
+        },
+        {
+          "url": "https://www.binhex.cloud/es_ES/about-us",
+          "estado": 200
+        },
+        {
+          "url": "https://www.binhex.cloud/es_ES/contactus",
+          "estado": 200
+        },
+        {
+          "url": "https://www.binhex.cloud/es_ES/jobs",
+          "estado": 200
+        },
+        {
+          "url": "https://www.binhex.cloud/es_ES/legal/cookies-policy",
+          "estado": 200
+        },
+        {
+          "url": "https://www.binhex.cloud/es_ES/legal/privacy-policy",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "info@binhex.cloud",
+          "tipo": "general"
+        },
+        {
+          "email": "info@yourcompany.example.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        }
+      ],
+      "contacto": "info@binhex.cloud (https://www.binhex.cloud/es_ES)",
+      "confianza": "media"
+    },
+    {
+      "id": "aitana",
+      "nombre": "Aitana",
+      "web": "https://www.aitana.es",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.aitana.es",
+          "estado": 200
+        },
+        {
+          "url": "https://www.aitana.es/soluciones/dynamics-365/dynamics-365-for-talent/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.aitana.es/soluciones/nominas-y-rrhh/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.aitana.es/soluciones/nominas-y-rrhh/omne-rh/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.aitana.es/soluciones/nominas-y-rrhh/factorial-rh/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.aitana.es/soluciones/nominas-y-rrhh/labor-gestion-nominas/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.aitana.es/soluciones/nominas-y-rrhh/mentor-gestion-recursos-humanos/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.aitana.es/aitana/trabaja-en-aitana/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.aitana.es/contacto/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.aitana.es/evento/checklist-rrhh-adaptar-empresa-nuevas-exigencias-laborales/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.aitana.es/aviso-legal/",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "milagro.martinez@aitana.es",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "mkt@aitana.es",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "ines.beamud@aitana.es",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "belen.martinez@aitana.es",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "marta.ortiz@aitana.es",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        }
+      ],
+      "contacto": "formulario: https://www.aitana.es/aitana/trabaja-en-aitana/",
+      "confianza": "media"
+    },
+    {
+      "id": "quonext",
+      "nombre": "Quonext",
+      "web": "https://www.quonext.com",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.quonext.com",
+          "estado": "ECONNREFUSED"
+        }
+      ],
+      "correosEncontrados": [],
+      "motivo": "La web no responde (ECONNREFUSED)"
+    },
+    {
+      "id": "grupo-efor",
+      "nombre": "Grupo Efor",
+      "web": "https://www.efor.es",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.efor.es",
+          "estado": 200
+        },
+        {
+          "url": "https://www.efor.es/contacto-con-efor.html",
+          "estado": 200
+        },
+        {
+          "url": "https://www.efor.es/contacto.html",
+          "estado": 200
+        },
+        {
+          "url": "https://www.efor.es/mas/trabaja-con-nosotros.html",
+          "estado": 200
+        },
+        {
+          "url": "https://www.efor.es/aviso-legal.html",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "marketing@efor.es",
+          "tipo": "general",
+          "motivoRechazo": "buzón no destinado a candidaturas"
+        },
+        {
+          "email": "info@efor.es",
+          "tipo": "general"
+        }
+      ],
+      "contacto": "info@efor.es (https://www.efor.es/aviso-legal.html)",
+      "confianza": "media"
+    },
+    {
+      "id": "devaim",
+      "nombre": "Devaim",
+      "web": "https://www.devaim.com",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.devaim.com",
+          "estado": 200
+        },
+        {
+          "url": "https://www.devaim.com/trabaja-con-nosotros-unete-al-equipo-devaim/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.devaim.com/aviso-legal/",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "info@devaim.com",
+          "tipo": "general"
+        },
+        {
+          "email": "comercial@devaim.com",
+          "tipo": "general"
+        }
+      ],
+      "contacto": "comercial@devaim.com (https://www.devaim.com/aviso-legal/)",
+      "confianza": "media"
+    },
+    {
+      "id": "goom-spain",
+      "nombre": "Goom Spain",
+      "web": "https://www.goom.es",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.goom.es",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "info@goom.it",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        }
+      ],
+      "motivo": "Sin correo válido (info@goom.it: dominio distinto al de la web) ni formulario oficial"
+    },
+    {
+      "id": "tequila-works",
+      "nombre": "Tequila Works",
+      "web": "https://tequilaworks.com",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://tequilaworks.com",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [],
+      "motivo": "Sin correo publicado ni formulario oficial en las páginas revisadas"
+    },
+    {
+      "id": "mercurysteam",
+      "nombre": "MercurySteam",
+      "web": "https://www.mercurysteam.com",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.mercurysteam.com",
+          "estado": 200
+        },
+        {
+          "url": "https://www.mercurysteam.com/talento/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.mercurysteam.com/contacto/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.mercurysteam.com/blog/las-personas-detras-de-los-juegos/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.mercurysteam.com/aviso-legal-y-politica-de-privacidad/",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "press@mercurysteam.com",
+          "tipo": "general",
+          "motivoRechazo": "buzón no destinado a candidaturas"
+        },
+        {
+          "email": "business@mercurysteam.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "support@mercurysteam.com",
+          "tipo": "general",
+          "motivoRechazo": "buzón no destinado a candidaturas"
+        },
+        {
+          "email": "info@mercurysteam.com",
+          "tipo": "general"
+        },
+        {
+          "email": "dpo@gfmservicios.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        }
+      ],
+      "contacto": "info@mercurysteam.com (https://www.mercurysteam.com/aviso-legal-y-politica-de-privacidad/)",
+      "confianza": "media"
+    },
+    {
+      "id": "virtual-toys",
+      "nombre": "Virtual Toys",
+      "web": "https://www.virtualtoys.net",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.virtualtoys.net",
+          "estado": "ERR_TLS_CERT_ALTNAME_INVALID"
+        }
+      ],
+      "correosEncontrados": [],
+      "motivo": "La web no responde (ERR_TLS_CERT_ALTNAME_INVALID)"
+    },
+    {
+      "id": "u-play-studios",
+      "nombre": "U-Play Studios",
+      "web": "https://www.uplaystudios.com",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.uplaystudios.com",
+          "estado": 200
+        },
+        {
+          "url": "https://www.uplaystudios.com/contacto.php",
+          "estado": 200
+        },
+        {
+          "url": "https://www.uplaystudios.com/about.php",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "info@uplaystudios.com",
+          "tipo": "general"
+        }
+      ],
+      "contacto": "info@uplaystudios.com (https://www.uplaystudios.com/contacto.php)",
+      "confianza": "media"
+    },
+    {
+      "id": "saona-studios",
+      "nombre": "Saona Studios",
+      "web": "https://www.saonastudios.com",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.saonastudios.com",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [],
+      "motivo": "Sin correo publicado ni formulario oficial en las páginas revisadas"
+    },
+    {
+      "id": "mobivery",
+      "nombre": "Mobivery",
+      "web": "https://www.mobivery.com",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.mobivery.com",
+          "estado": 200
+        },
+        {
+          "url": "https://mobivery.com/talento/",
+          "estado": 200
+        },
+        {
+          "url": "https://mobivery.com/contacto/",
+          "estado": 200
+        },
+        {
+          "url": "https://mobivery.com/portfolio/app-de-empleo-findr/",
+          "estado": 200
+        },
+        {
+          "url": "https://mobivery.com/portfolio/app-para-ong-caritas/",
+          "estado": 200
+        },
+        {
+          "url": "https://mobivery.com/como-trabajamos-con-ia-en-mobivery/",
+          "estado": 200
+        },
+        {
+          "url": "https://mobivery.com/como-desarrollar-una-aplicacion-movil-con-ia-proceso-fases-y-buenas-practicas/",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [],
+      "contacto": "formulario: https://mobivery.com/talento/",
+      "confianza": "media"
+    },
+    {
+      "id": "bluumi",
+      "nombre": "Bluumi",
+      "web": "https://www.bluumi.net",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.bluumi.net",
+          "estado": 200
+        },
+        {
+          "url": "https://bluumi.net/equipo/",
+          "estado": 200
+        },
+        {
+          "url": "https://bluumi.net/contacto/",
+          "estado": 200
+        },
+        {
+          "url": "https://bluumi.net/aviso-legal/",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "sac@bluumi.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "sac@bluumi.net",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        }
+      ],
+      "contacto": "formulario: https://bluumi.net/contacto/",
+      "confianza": "media"
+    },
+    {
+      "id": "duonet",
+      "nombre": "Duonet",
+      "web": "https://www.duonet.es",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.duonet.es",
+          "estado": 200
+        },
+        {
+          "url": "https://www.izertis.com/es/talento",
+          "estado": 200
+        },
+        {
+          "url": "https://www.izertis.com/es/contacto",
+          "estado": 200
+        },
+        {
+          "url": "https://www.izertis.com/es/w/caso-de-exito/federacion-deportiva-internacional-primer-nivel",
+          "estado": 200
+        },
+        {
+          "url": "https://www.izertis.com/talento",
+          "estado": 200
+        },
+        {
+          "url": "https://www.izertis.com/es/legal/aviso-legal",
+          "estado": 200
+        },
+        {
+          "url": "https://www.izertis.com/es/legal/politica-de-privacidad",
+          "estado": 200
+        },
+        {
+          "url": "https://www.izertis.com/es/legal/cookies",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "correo@empresa.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "rgpd.es@izertis.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "dpo@izertis.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        }
+      ],
+      "contacto": "formulario: https://www.izertis.com/es/talento",
+      "confianza": "media"
+    },
+    {
+      "id": "witrey",
+      "nombre": "Witrey",
+      "web": "https://www.witrey.com",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.witrey.com",
+          "estado": 200
+        },
+        {
+          "url": "https://witrey.com/contacto-witrey/",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "hello@witrey.com",
+          "tipo": "general"
+        },
+        {
+          "email": "hola@witrey.com",
+          "tipo": "general"
+        }
+      ],
+      "contacto": "hello@witrey.com (https://witrey.com/)",
+      "confianza": "media"
+    },
+    {
+      "id": "enimbos",
+      "nombre": "Enimbos",
+      "web": "https://www.enimbos.com",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.enimbos.com",
+          "estado": "ENOTFOUND"
+        }
+      ],
+      "correosEncontrados": [],
+      "motivo": "La web no responde (ENOTFOUND)"
+    },
+    {
+      "id": "intelligence-partner",
+      "nombre": "Intelligence Partner",
+      "web": "https://www.intelligence-partner.com",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.intelligence-partner.com",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [],
+      "motivo": "Sin correo publicado ni formulario oficial en las páginas revisadas"
+    },
+    {
+      "id": "devoteam-espana",
+      "nombre": "Devoteam España",
+      "web": "https://www.devoteam.com/es",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.devoteam.com/es",
+          "estado": 403
+        }
+      ],
+      "correosEncontrados": [],
+      "motivo": "La web no responde (403)"
+    },
+    {
+      "id": "tecnozero",
+      "nombre": "Tecnozero",
+      "web": "https://www.tecnozero.com",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.tecnozero.com",
+          "estado": 200
+        },
+        {
+          "url": "https://www.tecnozero.com/contacto/",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "sat@tecnozero.com",
+          "tipo": "general",
+          "motivoRechazo": "buzón no destinado a candidaturas"
+        },
+        {
+          "email": "administracion@tecnozero.com",
+          "tipo": "general"
+        },
+        {
+          "email": "compras@tecnozero.com",
+          "tipo": "general",
+          "motivoRechazo": "buzón no destinado a candidaturas"
+        },
+        {
+          "email": "tecnozero@tecnozero.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        }
+      ],
+      "contacto": "administracion@tecnozero.com (https://www.tecnozero.com/contacto/)",
+      "confianza": "media"
+    },
+    {
+      "id": "intelequia",
+      "nombre": "Intelequia",
+      "web": "https://intelequia.com",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://intelequia.com",
+          "estado": 200
+        },
+        {
+          "url": "https://talento.intelequia.com/es",
+          "estado": 200
+        },
+        {
+          "url": "https://intelequia.com/es/sectores/legal",
+          "estado": 200
+        },
+        {
+          "url": "https://intelequia.com/es/contacto",
+          "estado": 200
+        },
+        {
+          "url": "https://talento.intelequia.com/es/",
+          "estado": 200
+        },
+        {
+          "url": "https://intelequia.com/es/aviso-legal",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "legal@intelequia.com",
+          "tipo": "general",
+          "motivoRechazo": "buzón no destinado a candidaturas"
+        }
+      ],
+      "contacto": "formulario: https://talento.intelequia.com/es/",
+      "confianza": "media"
+    },
+    {
+      "id": "electronic-arts-madrid",
+      "nombre": "Electronic Arts Madrid",
+      "web": "https://www.ea.com",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.ea.com",
+          "estado": 200
+        },
+        {
+          "url": "https://www.ea.com/ea-play",
+          "estado": 400
+        },
+        {
+          "url": "https://www.ea.com/news/alyssa-thompson-celebrating-the-next",
+          "estado": 200
+        },
+        {
+          "url": "https://www.ea.com/careers",
+          "estado": 400
+        },
+        {
+          "url": "https://www.ea.com/legal/ea-play-terms",
+          "estado": 400
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "contact_eahelp@ea.com",
+          "tipo": "general"
+        }
+      ],
+      "contacto": "contact_eahelp@ea.com (https://www.ea.com/)",
+      "confianza": "media"
+    },
+    {
+      "id": "amadeus",
+      "nombre": "Amadeus",
+      "web": "https://amadeus.com",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://amadeus.com",
+          "estado": 200
+        },
+        {
+          "url": "https://amadeus.com/en/careers/overview",
+          "estado": 200
+        },
+        {
+          "url": "https://amadeus.com/en/careers/locations",
+          "estado": 200
+        },
+        {
+          "url": "https://amadeus.com/en/careers/teams",
+          "estado": 200
+        },
+        {
+          "url": "https://amadeus.com/en/careers/life-at-amadeus",
+          "estado": 200
+        },
+        {
+          "url": "https://amadeus.com/en/careers/how-we-hire",
+          "estado": 200
+        },
+        {
+          "url": "https://amadeus.com/en/sustainability/people-business-practices",
+          "estado": 200
+        },
+        {
+          "url": "https://amadeus.com/en/contact",
+          "estado": 200
+        },
+        {
+          "url": "https://amadeus.com/en/policies/amadeus-policies",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [],
+      "contacto": "formulario: https://amadeus.com/en/careers/overview",
+      "confianza": "media"
+    },
+    {
+      "id": "orange-espana",
+      "nombre": "Orange España",
+      "web": "https://www.orange.es",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.orange.es",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [],
+      "motivo": "Sin correo publicado ni formulario oficial en las páginas revisadas"
+    },
+    {
+      "id": "vodafone-espana",
+      "nombre": "Vodafone España",
+      "web": "https://www.vodafone.es",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.vodafone.es",
+          "estado": 200
+        },
+        {
+          "url": "https://www.vodafone.es/c/particulares/es/legales_tarifas_vodafone/",
+          "estado": 200
+        },
+        {
+          "url": "https://ayudacliente.vodafone.es/particulares/contacta/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.vodafone.es/c/conocenos/es/vodafone-espana/trabaja-con-nosotros/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.vodafone.es/c/conocenos/es/vodafone-espana/quienes-somos/legal-y-regulatorio/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.vodafone.es/c/conocenos/es/vodafone-espana/quienes-somos/legal-y-regulatorio/otra-informacion-legal/distribuidores/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.vodafone.es/c/conocenos/es/aviso-legal/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.vodafone.es/c/conocenos/es/vodafone-espana/quienes-somos/legal-y-regulatorio/politica-de-privacidad-y-cookies/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.vodafone.es/c/conocenos/es/vodafone-espana/contacto/informacion-al-consumidor/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.vodafone.es/c/conocenos/es/vodafone-espana/quienes-somos/legal-y-regulatorio/subvenciones/",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "soporte@vodafone.es",
+          "tipo": "general",
+          "motivoRechazo": "buzón no destinado a candidaturas"
+        },
+        {
+          "email": "dpo-spain@vodafone.com",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "derechosprotecciondatos@vodafone.es",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        }
+      ],
+      "contacto": "formulario: https://www.vodafone.es/c/conocenos/es/vodafone-espana/trabaja-con-nosotros/",
+      "confianza": "media"
+    },
+    {
+      "id": "ibm-espana",
+      "nombre": "IBM España",
+      "web": "https://www.ibm.com/es-es",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.ibm.com/es-es",
+          "estado": 200
+        },
+        {
+          "url": "https://www.ibm.com/careers?lnk=hpii5es",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "recrops@ca.ibm.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        }
+      ],
+      "contacto": "formulario: https://www.ibm.com/careers?lnk=hpii5es",
+      "confianza": "media"
+    },
+    {
+      "id": "kyndryl-espana",
+      "nombre": "Kyndryl España",
+      "web": "https://www.kyndryl.com/es/es",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.kyndryl.com/es/es",
+          "estado": 403
+        }
+      ],
+      "correosEncontrados": [],
+      "motivo": "La web no responde (403)"
+    },
+    {
+      "id": "aiuken",
+      "nombre": "Aiuken",
+      "web": "https://www.aiuken.com",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.aiuken.com",
+          "estado": 200
+        },
+        {
+          "url": "https://www.aiuken.com/terminos-de-uso-y-condiciones/",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "info@aiuken.com",
+          "tipo": "general"
+        },
+        {
+          "email": "lopd@aiuken.com",
+          "tipo": "general",
+          "motivoRechazo": "buzón no destinado a candidaturas"
+        }
+      ],
+      "contacto": "info@aiuken.com (https://www.aiuken.com/)",
+      "confianza": "media"
+    },
+    {
+      "id": "factum",
+      "nombre": "Factum",
+      "web": "https://www.factum.es",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.factum.es",
+          "estado": 200
+        },
+        {
+          "url": "https://www.factum.es/unete-al-equipo",
+          "estado": 200
+        },
+        {
+          "url": "https://www.factum.es/servicios-gestionados/evaluacion-tecnica-y-bastionado/bastionado-o-hardening-de-equipos/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.factum.es/contacto/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.factum.es/aviso-legal-y-condiciones-de-uso",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "rrhh@factum.es",
+          "tipo": "rrhh"
+        },
+        {
+          "email": "soporte@factum.es",
+          "tipo": "general",
+          "motivoRechazo": "buzón no destinado a candidaturas"
+        },
+        {
+          "email": "info@factum.es",
+          "tipo": "general"
+        },
+        {
+          "email": "administracion@factum.es",
+          "tipo": "general"
+        }
+      ],
+      "contacto": "rrhh@factum.es (https://www.factum.es/unete-al-equipo/)",
+      "confianza": "alta"
+    },
+    {
+      "id": "one-esecurity",
+      "nombre": "One eSecurity",
+      "web": "https://www.one-esecurity.com",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.one-esecurity.com",
+          "estado": 200
+        },
+        {
+          "url": "https://www.one-esecurity.com/contact_report_incident.html",
+          "estado": 200
+        },
+        {
+          "url": "https://www.one-esecurity.com/contact_contact_us.html",
+          "estado": 200
+        },
+        {
+          "url": "https://www.one-esecurity.com/join_our_team.html",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "incident@one-esecurity.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "info@one-esecurity.com",
+          "tipo": "general"
+        },
+        {
+          "email": "recruitment@one-esecurity.com",
+          "tipo": "talento"
+        }
+      ],
+      "contacto": "recruitment@one-esecurity.com (https://www.one-esecurity.com/join_our_team.html)",
+      "confianza": "alta"
+    },
+    {
+      "id": "dotforce",
+      "nombre": "Dotforce",
+      "web": "https://www.dotforce.es",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.dotforce.es",
+          "estado": 200
+        },
+        {
+          "url": "https://www.dotforce.es/contacto/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.dotforce.es/terminos-y-condiciones/",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "info@dotforce.es",
+          "tipo": "general"
+        }
+      ],
+      "contacto": "info@dotforce.es (https://www.dotforce.es/)",
+      "confianza": "media"
+    },
+    {
+      "id": "seresco",
+      "nombre": "Seresco",
+      "web": "https://www.seresco.es",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.seresco.es",
+          "estado": 200
+        },
+        {
+          "url": "https://seresco.es/gestion-de-personas/",
+          "estado": 200
+        },
+        {
+          "url": "https://seresco.es/gestion-de-personas/outsourcing-de-nomina/",
+          "estado": 200
+        },
+        {
+          "url": "https://seresco.es/gestion-de-personas/control-de-presencia/",
+          "estado": 200
+        },
+        {
+          "url": "https://seresco.es/gestion-de-personas/control-de-tareas/",
+          "estado": 200
+        },
+        {
+          "url": "https://seresco.es/talento/ofertas-empleo/",
+          "estado": 200
+        },
+        {
+          "url": "https://seresco.es/contacto/",
+          "estado": 200
+        },
+        {
+          "url": "https://seresco.es/seresco/seresco-patrocina-la-xvi-semana-de-impulso-tic-sitic2026-para-apoyar-la-innovacion-y-el-talento-tecnologico-en-asturias/",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "soluciones@seresco.es",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "dpo@seresco.es",
+          "tipo": "general",
+          "motivoRechazo": "buzón no destinado a candidaturas"
+        }
+      ],
+      "contacto": "formulario: https://seresco.es/talento/ofertas-empleo/",
+      "confianza": "media"
+    },
+    {
+      "id": "ilunion-tecnologia-y-accesibilidad",
+      "nombre": "Ilunion Tecnología y Accesibilidad",
+      "web": "https://www.ilunion.com",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.ilunion.com",
+          "estado": 200
+        },
+        {
+          "url": "https://www.ilunion.com/es/unete-al-equipo",
+          "estado": 200
+        },
+        {
+          "url": "https://www.ilunion.com/es/unete-al-equipo/por-que-ilunion",
+          "estado": 200
+        },
+        {
+          "url": "https://www.ilunion.com/es/unete-al-equipo/beneficios-empleado-ilunion",
+          "estado": 200
+        },
+        {
+          "url": "https://www.ilunion.com/es/compromiso/personas",
+          "estado": 200
+        },
+        {
+          "url": "https://www.ilunion.com/es/contacto",
+          "estado": 200
+        },
+        {
+          "url": "https://www.ilunion.com/es/aviso-legal",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "contacto@ilunion.com",
+          "tipo": "general"
+        },
+        {
+          "email": "dpd@ilunion.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        }
+      ],
+      "contacto": "contacto@ilunion.com (https://www.ilunion.com/es)",
+      "confianza": "media"
+    },
+    {
+      "id": "gft-espana",
+      "nombre": "GFT España",
+      "web": "https://www.gft.com/es",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.gft.com/es",
+          "estado": 200
+        },
+        {
+          "url": "https://www.gft.com/es/es/career",
+          "estado": 200
+        },
+        {
+          "url": "https://www.gft.com/es/es/contact-gft",
+          "estado": 200
+        },
+        {
+          "url": "https://www.gft.com/es/es/career/why-come-to-gft-spain",
+          "estado": 200
+        },
+        {
+          "url": "https://www.gft.com/es/es/career/scam-information",
+          "estado": 200
+        },
+        {
+          "url": "https://www.gft.com/es/es/legal-disclaimer",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "marta.lopez@gft.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "carreeriberia@gft.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "info@gft.com",
+          "tipo": "general"
+        },
+        {
+          "email": "u003einfo@gft.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        }
+      ],
+      "contacto": "info@gft.com (https://www.gft.com/es/es/legal-disclaimer)",
+      "confianza": "media"
+    },
+    {
+      "id": "avanade-espana",
+      "nombre": "Avanade España",
+      "web": "https://www.avanade.com/es-es",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.avanade.com/es-es",
+          "estado": 200
+        },
+        {
+          "url": "https://www.avanade.com/es-es/career",
+          "estado": 200
+        },
+        {
+          "url": "https://www.avanade.com/es-es/services/ai-workforce",
+          "estado": 200
+        },
+        {
+          "url": "https://www.avanade.com/es-es/career/area-of-expertise",
+          "estado": 200
+        },
+        {
+          "url": "https://www.avanade.com/es-es/career/limitless-learning",
+          "estado": 200
+        },
+        {
+          "url": "https://www.avanade.com/es-es/career/inclusion-and-diversity",
+          "estado": 200
+        },
+        {
+          "url": "https://www.avanade.com/es-es/career/life-at-avanade",
+          "estado": 200
+        },
+        {
+          "url": "https://www.avanade.com/es-es/career/benefits",
+          "estado": 200
+        },
+        {
+          "url": "https://www.avanade.com/es-es/career/search-jobs",
+          "estado": 200
+        },
+        {
+          "url": "https://www.avanade.com/es-es/about/leadership",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "ta-pr@avanade.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "u003eta-pr@avanade.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "eme-pr@avanade.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "u003eeme-pr@avanade.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "apac-pr@avanade.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "u003eapac-pr@avanade.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "na-pr@avanade.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "u003ena-pr@avanade.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "europe-pr@avanade.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "u003eeurope-pr@avanade.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "gm-pr@avanade.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "u003egm-pr@avanade.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        }
+      ],
+      "contacto": "formulario: https://www.avanade.com/es-es/career",
+      "confianza": "media"
+    },
+    {
+      "id": "deloitte-espana",
+      "nombre": "Deloitte España",
+      "web": "https://www.deloitte.com/es/es.html",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.deloitte.com/es/es.html",
+          "estado": 200
+        },
+        {
+          "url": "https://www.deloitte.com/es/es/contact/contact-us.html?icid=top_contact-us",
+          "estado": 200
+        },
+        {
+          "url": "https://www.deloitte.com/es/es/about/people/social-responsibility.html?icid=top_social-responsibility",
+          "estado": 200
+        },
+        {
+          "url": "https://www.deloitte.com/es/es/about/people/people-stories.html?icid=top_people-stories",
+          "estado": 200
+        },
+        {
+          "url": "https://www.deloitte.com/es/es/services/legal.html?icid=top_legal",
+          "estado": 200
+        },
+        {
+          "url": "https://www.deloitte.com/es/es/careers.html?icid=top_careers",
+          "estado": 200
+        },
+        {
+          "url": "https://empleo.es.deloitte.com/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.deloitte.com/es/es/careers/programa-de-practicas-glow-up.html",
+          "estado": 200
+        },
+        {
+          "url": "https://www.deloitte.com/es/es/about/mejor-empresa-para-trabajar.html",
+          "estado": 200
+        },
+        {
+          "url": "https://www.deloitte.com/es/es/about/people.html?icid=top_people",
+          "estado": 200
+        },
+        {
+          "url": "https://www.deloitte.com/es/es/services/legal/services/deloitte-legal-services.html?icid=top_deloitte-legal-services",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "bfernandezrodriguez@deloitte.es",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "glowup@deloitte.es",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        }
+      ],
+      "contacto": "formulario: https://www.deloitte.com/es/es/careers.html?icid=top_careers",
+      "confianza": "media"
+    },
+    {
+      "id": "management-solutions",
+      "nombre": "Management Solutions",
+      "web": "https://www.managementsolutions.com",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.managementsolutions.com",
+          "estado": 200
+        },
+        {
+          "url": "https://www.managementsolutions.com/es/tu-carrera-en-management-solutions",
+          "estado": 200
+        },
+        {
+          "url": "https://www.managementsolutions.com/es/tu-carrera-en-management-solutions/como-aplicar",
+          "estado": 200
+        },
+        {
+          "url": "https://www.managementsolutions.com/es/contacto",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [],
+      "contacto": "formulario: https://www.managementsolutions.com/es/contacto",
+      "confianza": "media"
+    },
+    {
+      "id": "satec",
+      "nombre": "SATEC",
+      "web": "https://www.satec.es",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.satec.es",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [],
+      "motivo": "Sin correo publicado ni formulario oficial en las páginas revisadas"
+    },
+    {
+      "id": "grupo-castilla",
+      "nombre": "Grupo Castilla",
+      "web": "https://www.grupocastilla.es",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.grupocastilla.es",
+          "estado": 200
+        },
+        {
+          "url": "https://www.grupocastilla.es/solicita-demo-conocimiento-software-rrhh/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.grupocastilla.es/servicios-rrhh/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.grupocastilla.es/servicios-rrhh/talent-services/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.grupocastilla.es/servicios-rrhh/seleccion-personal-reclutamiento/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.grupocastilla.es/servicios-rrhh/consultoria-estrategica/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.grupocastilla.es/servicios-rrhh/igualdad-retributiva/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.grupocastilla.es/servicios-rrhh/endomarketing/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.grupocastilla.es/servicios-rrhh/formacion/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.grupocastilla.es/servicios-rrhh/outsourcing-de-nominas/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.grupocastilla.es/software-rrhh/",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "info@grupocastilla.es",
+          "tipo": "general"
+        }
+      ],
+      "contacto": "info@grupocastilla.es (https://www.grupocastilla.es/)",
+      "confianza": "media"
+    },
+    {
+      "id": "sage-espana",
+      "nombre": "Sage España",
+      "web": "https://www.sage.com/es-es",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.sage.com/es-es",
+          "estado": 403
+        }
+      ],
+      "correosEncontrados": [],
+      "motivo": "La web no responde (403)"
+    }
+  ]
+}
