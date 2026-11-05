@@ -144,6 +144,10 @@ const rooms = {
       name: name.trim(),
       module: module || null,
       teacher_id: teacherId,
+      owner_name: getStoredSession()?.name || '',
+      editors: [],
+      editor_info: {},
+      open_to_teachers: true,
       is_active: true,
       created_at: Date.now(),
       expire_at: clampExpiry(expireAt ?? defaultExpiry()),
@@ -158,7 +162,7 @@ const rooms = {
     for (const r of readDb().rooms.filter((x) => x.teacher_id === teacherId && x.expire_at <= Date.now())) await rooms.remove(r.id);
     const db = readDb();
     return db.rooms
-      .filter((r) => r.teacher_id === teacherId)
+      .filter((r) => r.teacher_id === teacherId || (r.editors || []).includes(teacherId))
       .map((r) => ({
         ...r,
         resource_count: db.resources.filter((x) => x.room_id === r.id && x.status === 'approved').length,
@@ -167,7 +171,44 @@ const rooms = {
   },
   async getById(id) {
     await delay(60);
-    return clone(readDb().rooms.find((r) => r.id === id) ?? null);
+    const me = getStoredSession();
+    const room = readDb().rooms.find((r) => r.id === id && (r.teacher_id === me?.id || (r.editors || []).includes(me?.id)));
+    return clone(room ? { editors: [], editor_info: {}, open_to_teachers: true, ...room } : null);
+  },
+  async joinByPin(pin) {
+    const me = getStoredSession();
+    const db = readDb();
+    const r = db.rooms.find((x) => x.pin === pin);
+    if (!r) throw new Error('No hay ninguna sala con ese PIN.');
+    if (r.teacher_id === me.id || (r.editors || []).includes(me.id)) return r.id;
+    if (r.open_to_teachers === false) throw new Error('No puedes unirte: el profesor de esta sala no admite colaboradores ahora mismo.');
+    r.editors = [...(r.editors || []), me.id];
+    r.editor_info = { ...(r.editor_info || {}), [me.id]: { name: me.name, email: me.email } };
+    writeDb(db);
+    return r.id;
+  },
+  async leave(roomId) {
+    const me = getStoredSession();
+    const db = readDb();
+    const r = db.rooms.find((x) => x.id === roomId);
+    r.editors = (r.editors || []).filter((x) => x !== me.id);
+    delete r.editor_info?.[me.id];
+    writeDb(db);
+  },
+  async removeEditor(room, uid) {
+    const db = readDb();
+    const r = db.rooms.find((x) => x.id === room.id);
+    r.editors = (r.editors || []).filter((x) => x !== uid);
+    delete r.editor_info?.[uid];
+    writeDb(db);
+    return clone(r);
+  },
+  async setOpenToTeachers(room, open) {
+    const db = readDb();
+    const r = db.rooms.find((x) => x.id === room.id);
+    r.open_to_teachers = open;
+    writeDb(db);
+    return clone({ editors: [], editor_info: {}, ...r });
   },
   async getByPin(pin) {
     await delay();

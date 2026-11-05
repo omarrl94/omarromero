@@ -1,6 +1,6 @@
-import { ChevronLeft, DoorClosed, DoorOpen, Download, ExternalLink, Inbox, Maximize2, Megaphone, QrCode, Send, Trash2 } from 'lucide-react';
+import { ChevronLeft, DoorClosed, DoorOpen, Download, ExternalLink, Inbox, LogOut, Maximize2, Megaphone, QrCode, Send, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import ApprovalInbox from '../components/ApprovalInbox';
 import ConnectionBadge from '../components/ConnectionBadge';
 import EmptyState from '../components/EmptyState';
@@ -11,6 +11,7 @@ import ResourceForm from '../components/ResourceForm';
 import RoomNotice from '../components/RoomNotice';
 import RetentionPicker from '../components/RetentionPicker';
 import BackupModal from '../components/BackupModal';
+import RoomCollaborators from '../components/RoomCollaborators';
 import RoomQRCode from '../components/RoomQRCode';
 import Spinner from '../components/Spinner';
 import { RoomProvider } from '../context/RoomContext';
@@ -22,7 +23,7 @@ import { formatPin } from '../utils/ids';
 import { formatDay, isRoomOpen } from '../utils/format';
 import { useNow } from '../hooks/useNow';
 
-/** Ruta privada /profesor/sala/:roomId — carga la sala y verifica la propiedad. */
+/** Ruta privada /profesor/sala/:roomId — carga la sala y verifica que es suya o que colabora en ella. */
 export default function RoomControlPanel() {
   const { roomId } = useParams();
   const { user } = useAuth();
@@ -32,7 +33,7 @@ export default function RoomControlPanel() {
     let alive = true;
     backend.rooms
       .getById(roomId)
-      .then((room) => alive && setState({ loading: false, room: room?.teacher_id === user.id ? room : null }))
+      .then((room) => alive && setState({ loading: false, room: room && (room.teacher_id === user.id || room.editors?.includes(user.id)) ? room : null }))
       .catch(() => alive && setState({ loading: false, room: null }));
     return () => {
       alive = false;
@@ -44,7 +45,7 @@ export default function RoomControlPanel() {
     return (
       <div className="mx-auto max-w-md px-4 py-20 text-center">
         <h1 className="text-2xl font-bold">Sala no disponible</h1>
-        <p className="mt-2 text-stone-600 dark:text-stone-400">No existe o no pertenece a tu cuenta.</p>
+        <p className="mt-2 text-stone-600 dark:text-stone-400">No existe, o no es tuya ni colaboras en ella.</p>
         <Link to="/profesor" className="btn-primary mt-8">Volver a mis salas</Link>
       </div>
     );
@@ -69,8 +70,22 @@ function ControlPanel({ onRoomChange }) {
   const [actionError, setActionError] = useState(null);
   const [expiryOpen, setExpiryOpen] = useState(false);
   const [backupOpen, setBackupOpen] = useState(false);
+  const { user } = useAuth();
+  const navigate = useNavigate();
   useNow(30000); // re-render para reflejar el cierre automático
   const open = isRoomOpen(room);
+  // Colaboradores: moderan, publican y abren o cierran; borrar, fecha de borrado y colaboradores, solo el dueño
+  const isOwner = room.teacher_id === user.id;
+
+  const leave = async () => {
+    if (!window.confirm(`¿Dejar de colaborar en «${room.name}»? Lo que publicaste se queda en la sala.`)) return;
+    try {
+      await backend.rooms.leave(room.id);
+      navigate('/profesor');
+    } catch (e) {
+      setActionError(e.message);
+    }
+  };
 
   // Aviso en la pestaña del navegador cuando hay peticiones pendientes
   useDocumentTitle(pendingRequests.length ? `(${pendingRequests.length}) ${room.name}` : room.name);
@@ -104,6 +119,7 @@ function ControlPanel({ onRoomChange }) {
         <div className="min-w-0 flex-1">
           <p className="eyebrow">{room.module || 'Sala de clase'}</p>
           <h1 className="truncate text-xl font-extrabold sm:text-2xl">{room.name}</h1>
+          {!isOwner && <p className="text-xs text-stone-600 dark:text-stone-400">Colaboras en la sala de {room.owner_name || 'otro profesor'}</p>}
         </div>
         <button
           onClick={() => setQrOpen(true)}
@@ -127,6 +143,12 @@ function ControlPanel({ onRoomChange }) {
             <Download className="h-4 w-4" aria-hidden="true" />
             Copia
           </button>
+          {!isOwner && (
+            <button onClick={leave} className="btn-ghost btn-sm" title="Dejar de colaborar en esta sala">
+              <LogOut className="h-4 w-4" aria-hidden="true" />
+              Dejar de colaborar
+            </button>
+          )}
           <button onClick={toggleActive} className={open ? 'btn-danger btn-sm' : 'btn-secondary btn-sm'}>
             {open ? <DoorClosed className="h-4 w-4" aria-hidden="true" /> : <DoorOpen className="h-4 w-4" aria-hidden="true" />}
             {open ? 'Cerrar sala' : 'Reabrir'}
@@ -136,19 +158,23 @@ function ControlPanel({ onRoomChange }) {
 
             {open ? (
         <p className="mb-4 text-sm text-stone-600 dark:text-stone-400">
-          Abierta hasta que la cierres · Todo su contenido se borrará el{' '}
+          Abierta hasta que se cierre · Todo su contenido se borrará el{' '}
           <strong>{formatDay(room.expire_at)}</strong>.{' '}
-          <button type="button" className="font-semibold text-brand-700 underline underline-offset-2 hover:text-brand-800 dark:text-brand-300" onClick={() => setExpiryOpen(true)}>
-            Cambiar fecha de borrado
-          </button>
+          {isOwner && (
+            <button type="button" className="font-semibold text-brand-700 underline underline-offset-2 hover:text-brand-800 dark:text-brand-300" onClick={() => setExpiryOpen(true)}>
+              Cambiar fecha de borrado
+            </button>
+          )}
         </p>
       ) : (
         <p className="mb-4 rounded-xl bg-sun-100 px-4 py-3 text-sm font-medium text-sun-900 dark:bg-sun-400/15 dark:text-sun-200">
           La sala está cerrada: el PIN no admite nuevos alumnos ni aportaciones. Puedes reabrirla cuando quieras. Su contenido se
           borrará el {formatDay(room.expire_at)}.{' '}
-          <button type="button" className="font-semibold underline underline-offset-2" onClick={() => setExpiryOpen(true)}>
-            Cambiar fecha de borrado
-          </button>
+          {isOwner && (
+            <button type="button" className="font-semibold underline underline-offset-2" onClick={() => setExpiryOpen(true)}>
+              Cambiar fecha de borrado
+            </button>
+          )}
         </p>
       )}
       {expiryOpen && (
@@ -162,6 +188,11 @@ function ControlPanel({ onRoomChange }) {
         />
       )}
       {backupOpen && <BackupModal room={room} onClose={() => setBackupOpen(false)} />}
+      {isOwner && (
+        <div className="mb-6">
+          <RoomCollaborators room={room} onChange={onRoomChange} />
+        </div>
+      )}
       <ReportsPanel />
       {(error || actionError) && (
         <p className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">{error || actionError}</p>

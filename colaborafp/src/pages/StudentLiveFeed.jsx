@@ -1,6 +1,6 @@
-import { ArrowUp, DoorClosed, Megaphone, Share2 } from 'lucide-react';
+import { ArrowUp, DoorClosed, Megaphone, PencilLine, Share2, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import ConnectionBadge from '../components/ConnectionBadge';
 import EmptyState from '../components/EmptyState';
 import MySubmissions from '../components/MySubmissions';
@@ -10,6 +10,7 @@ import RoomNotice from '../components/RoomNotice';
 import ShareResourceModal from '../components/ShareResourceModal';
 import Spinner from '../components/Spinner';
 import { RoomProvider } from '../context/RoomContext';
+import { useAuth } from '../hooks/useAuth';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useNewArrivals } from '../hooks/useNewArrivals';
 import { useRoomFeed } from '../hooks/useRoomFeed';
@@ -53,13 +54,79 @@ export default function StudentLiveFeed() {
         <Link to="/" className="btn-primary mt-8">
           Probar otro PIN
         </Link>
+        {/* Profesorado: puede unirse aunque la sala esté cerrada */}
+        <div className="mt-8 text-left">
+          <TeacherJoin pin={pin} />
+        </div>
       </div>
     );
 
   return (
-    <RoomProvider room={state.room} role="student">
-      <LiveFeed />
-    </RoomProvider>
+    <>
+      <div className="mx-auto max-w-3xl px-4 pt-6 sm:px-6">
+        <TeacherJoin pin={pin} roomId={state.room.id} />
+      </div>
+      <RoomProvider room={state.room} role="student">
+        <LiveFeed />
+      </RoomProvider>
+    </>
+  );
+}
+
+/**
+ * Si quien abre la sala es profesor/a: «Abrir en modo profesor» (si ya la gestiona)
+ * o «Colaborar como profesor» (como en los calendarios de clase).
+ */
+function TeacherJoin({ pin, roomId }) {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [canManage, setCanManage] = useState(null);
+  const [joining, setJoining] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (!user) return;
+    if (!roomId) return setCanManage(false);
+    backend.rooms.getById(roomId).then((r) => setCanManage(!!r)).catch(() => setCanManage(false));
+  }, [user, roomId]);
+
+  if (!user || canManage === null) return null;
+
+  const join = async () => {
+    setJoining(true);
+    setError(null);
+    try {
+      navigate(`/profesor/sala/${await backend.rooms.joinByPin(pin)}`);
+    } catch (e) {
+      setError(e.message);
+      setJoining(false);
+    }
+  };
+
+  return (
+    <div className="card flex flex-wrap items-center gap-3 border-brand-200 p-4 dark:border-brand-400/30">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-100 text-brand-800 dark:bg-brand-400/15 dark:text-brand-300">
+        {canManage ? <PencilLine className="h-5 w-5" aria-hidden="true" /> : <Users className="h-5 w-5" aria-hidden="true" />}
+      </span>
+      <p className="min-w-0 flex-1 text-sm">
+        {canManage ? (
+          <>Gestionas esta sala. Ábrela en modo profesor para moderar y publicar.</>
+        ) : (
+          <>
+            <strong>Eres profesor/a.</strong> Puedes colaborar en esta sala: moderar las aportaciones, publicar y abrirla o cerrarla.
+          </>
+        )}
+      </p>
+      {canManage ? (
+        <Link to={`/profesor/sala/${roomId}`} className="btn-primary btn-sm">Abrir en modo profesor</Link>
+      ) : (
+        <button type="button" className="btn-primary btn-sm" onClick={join} disabled={joining}>
+          <Users className="h-4 w-4" aria-hidden="true" />
+          {joining ? 'Uniéndome…' : 'Colaborar como profesor'}
+        </button>
+      )}
+      {error && <p role="alert" className="w-full rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">{error}</p>}
+    </div>
   );
 }
 

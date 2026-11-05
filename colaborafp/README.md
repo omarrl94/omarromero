@@ -4,6 +4,8 @@ Plataforma de **sincronización de recursos en tiempo real para el aula** (códi
 **Centro de Formación Profesional José Ramón Otero**, abierta a todos los ciclos formativos.
 
 - **Profesorado** (correo del centro verificado): crea salas, proyecta un QR/PIN, publica recursos y modera las aportaciones.
+- **Profesorado colaborador**: como en los calendarios, otro profesor del centro se une a una sala con su PIN («Colaborar como profesor») y
+  modera, publica y la abre o cierra; borrarla, su fecha de borrado y los colaboradores siguen siendo cosa del dueño.
 - **Alumnado** (sin cuenta): entra con el QR o el PIN, recibe el contenido al instante y **propone** aportaciones que el profesor aprueba.
 - **Calendarios de clase**: uno por aula o grupo durante todo el curso (exámenes, entregas, avisos, festivos); el alumnado lo consulta con un código o QR, en tiempo real, y puede exportarlo a .ics.
 
@@ -36,6 +38,7 @@ npm run build
 | Medida | Dónde |
 | --- | --- |
 | Solo profesorado con correo `@jrotero.es` **verificado** (y la cuenta del administrador como única excepción) gestiona salas | `firestore.rules` (`isTeacher`) + registro |
+| Profesores colaboradores de una sala: se une **cada uno a sí mismo** con su correo real y solo si el dueño lo permite; el dueño solo puede quitarlos | `firestore.rules` (`canManage`, `editors`) |
 | Todo el contenido vive **dentro de su sala** (`rooms/{id}/resources`, `/chunks`, `/reports`): no se puede listar entre salas | modelo de datos + reglas |
 | PIN alfanumérico de 6 caracteres (31⁶ ≈ 887 M), generado con `crypto.getRandomValues`; los PIN no se pueden listar | `utils/ids.js` + reglas |
 | La sala está abierta **hasta que el profesor la cierra** (nunca más allá de su fecha de borrado); el alumnado solo aporta con la sala abierta | `closes_at` ≤ `expire_at` + reglas |

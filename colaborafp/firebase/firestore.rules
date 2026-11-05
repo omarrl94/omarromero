@@ -11,6 +11,8 @@ rules_version = '2';
 //    envía peticiones pendientes mientras la sala está abierta.
 //  · Calendarios de clase: el profesor y los profesores colaboradores publican fechas; el alumnado
 //    solo las ve con el código.
+//  · Salas: igual que los calendarios, otros profesores pueden colaborar (moderar, publicar, abrir y
+//    cerrar) si el dueño lo permite; borrar la sala, su fecha de borrado y los colaboradores, solo el dueño.
 //  · Las salas siguen abiertas hasta que el profesor las cierra, y nunca más allá de su fecha de
 //    borrado: todo su contenido caduca en la fecha que elige el profesor, como máximo 1 año
 //    (campo expire_at, preparado para una política TTL de Firestore).
@@ -54,6 +56,11 @@ service cloud.firestore {
     function isOwner(roomId) {
       return isTeacher() && exists(roomPath(roomId)) && room(roomId).teacher_id == request.auth.uid;
     }
+    // Dueño o profesor colaborador de la sala
+    function canManage(roomId) {
+      return isTeacher() && exists(roomPath(roomId))
+        && (room(roomId).teacher_id == request.auth.uid || request.auth.uid in editorsOf(room(roomId)));
+    }
     function roomOpen(roomId) {
       return exists(roomPath(roomId)) && room(roomId).is_active == true && room(roomId).closes_at > nowMs();
     }
@@ -79,11 +86,16 @@ service cloud.firestore {
       allow delete: if isAdmin() || (request.auth != null && request.auth.uid == uid);
     }
 
-    // ----- Salas: solo su profesor/a -----
+    // ----- Salas: su profesor/a y los profesores colaboradores -----
     match /rooms/{roomId} {
-      allow read, delete: if isTeacher() && resource.data.teacher_id == request.auth.uid;
+      allow read: if isTeacher() && (resource.data.teacher_id == request.auth.uid || request.auth.uid in editorsOf(resource.data));
+      allow delete: if isTeacher() && resource.data.teacher_id == request.auth.uid;
       allow create: if isTeacher()
-        && request.resource.data.keys().hasOnly(['pin', 'name', 'module', 'teacher_id', 'is_active', 'created_at', 'closes_at', 'expire_at'])
+        && request.resource.data.keys().hasOnly(['pin', 'name', 'module', 'teacher_id', 'owner_name', 'editors', 'editor_info', 'open_to_teachers', 'is_active', 'created_at', 'closes_at', 'expire_at'])
+        && request.resource.data.get('owner_name', '') is string && request.resource.data.get('owner_name', '').size() <= 80
+        && editorsOf(request.resource.data) == []
+        && request.resource.data.get('editor_info', {}) == {}
+        && request.resource.data.get('open_to_teachers', true) is bool
         && request.resource.data.teacher_id == request.auth.uid
         && request.resource.data.pin is string && request.resource.data.pin.matches('^[2-9A-HJKMNP-Z]{6}$')
         && request.resource.data.name is string
@@ -105,6 +117,36 @@ service cloud.firestore {
         && request.resource.data.expire_at is timestamp
         && request.resource.data.expire_at > request.time
         && request.resource.data.expire_at <= request.time + duration.value(366, 'd');
+      // Dueño: admitir colaboradores y QUITARLOS (nunca añadirlos él)
+      allow update: if isTeacher() && resource.data.teacher_id == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['editors', 'editor_info', 'open_to_teachers'])
+        && request.resource.data.get('open_to_teachers', true) is bool
+        && editorsOf(resource.data).toSet().hasAll(editorsOf(request.resource.data).toSet())
+        && resource.data.get('editor_info', {}).keys().toSet().hasAll(request.resource.data.get('editor_info', {}).keys().toSet());
+      // Otro profesor activado se une a sí mismo, si el dueño lo permite
+      allow update: if isTeacher() && resource.data.teacher_id != request.auth.uid
+        && resource.data.get('open_to_teachers', true) == true
+        && !(request.auth.uid in editorsOf(resource.data))
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['editors', 'editor_info'])
+        && editorsOf(request.resource.data).toSet() == editorsOf(resource.data).toSet().union([request.auth.uid].toSet())
+        && editorsOf(request.resource.data).size() <= 30
+        && request.resource.data.editor_info.diff(resource.data.get('editor_info', {})).affectedKeys().hasOnly([request.auth.uid])
+        && request.resource.data.editor_info[request.auth.uid].keys().hasOnly(['name', 'email'])
+        && request.resource.data.editor_info[request.auth.uid].email == request.auth.token.email
+        && request.resource.data.editor_info[request.auth.uid].name is string
+        && request.resource.data.editor_info[request.auth.uid].name.size() <= 80;
+      // Un colaborador deja de colaborar
+      allow update: if isTeacher() && request.auth.uid in editorsOf(resource.data)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['editors', 'editor_info'])
+        && editorsOf(request.resource.data).toSet() == editorsOf(resource.data).toSet().difference([request.auth.uid].toSet())
+        && request.resource.data.get('editor_info', {}).diff(resource.data.get('editor_info', {})).affectedKeys().hasOnly([request.auth.uid])
+        && !(request.auth.uid in request.resource.data.get('editor_info', {}));
+      // Un colaborador abre o cierra la sala (nunca más allá de su fecha de borrado)
+      allow update: if isTeacher() && request.auth.uid in editorsOf(resource.data)
+        && ('expire_at' in resource.data)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['is_active', 'closes_at'])
+        && request.resource.data.is_active is bool
+        && request.resource.data.closes_at is int && request.resource.data.closes_at <= maxClose(resource.data);
       // Migración única de salas creadas con la versión anterior (sin expire_at): se les asigna el plazo de borrado
       allow update: if isTeacher()
         && resource.data.teacher_id == request.auth.uid
@@ -133,6 +175,13 @@ service cloud.firestore {
         && (resource == null || resource.data.teacher_id == request.auth.uid
             || resource.data.active == false || resource.data.closes_at <= nowMs());
       allow delete: if isTeacher() && resource.data.teacher_id == request.auth.uid;
+      // Colaborador: solo abre o cierra el PIN de una sala en la que colabora (el resto no cambia)
+      allow update: if isTeacher()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['active', 'closes_at'])
+        && request.auth.uid in editorsOf(getAfter(roomPath(resource.data.room_id)).data)
+        && getAfter(roomPath(resource.data.room_id)).data.pin == pin
+        && request.resource.data.active == getAfter(roomPath(resource.data.room_id)).data.is_active
+        && request.resource.data.closes_at == getAfter(roomPath(resource.data.room_id)).data.closes_at;
     }
 
     // ----- Contenido de cada sala -----
@@ -157,17 +206,17 @@ service cloud.firestore {
 
       // Lectura de un recurso concreto por su id (aleatorio): el alumno sigue el estado de su petición
       allow get: if true;
-      // Listados: lo aprobado de ESTA sala; el profesor dueño ve también lo pendiente
-      allow list: if resource.data.status == 'approved' || isOwner(roomId);
+      // Listados: lo aprobado de ESTA sala; el profesorado de la sala ve también lo pendiente
+      allow list: if resource.data.status == 'approved' || canManage(roomId);
       // Alumnado: solo peticiones pendientes, con la sala abierta, sin firmar como 'teacher'
       allow create: if valid(request.resource.data) && (
-        isOwner(roomId)
+        canManage(roomId)
         || (request.resource.data.status == 'pending' && request.resource.data.author != 'teacher' && roomOpen(roomId))
       );
-      allow update: if isOwner(roomId)
+      allow update: if canManage(roomId)
         && valid(request.resource.data)
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'timestamp', 'expire_at']);
-      allow delete: if isOwner(roomId);
+      allow delete: if canManage(roomId);
 
       // Trozos de archivo (base64). Solo se crean en el MISMO lote que su recurso.
       match /chunks/{chunkId} {
@@ -187,7 +236,7 @@ service cloud.firestore {
         allow update: if isOwner(roomId)
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['expire_at'])
           && request.resource.data.expire_at == room(roomId).expire_at;
-        allow delete: if isOwner(roomId);
+        allow delete: if canManage(roomId);
       }
     }
 
@@ -297,7 +346,7 @@ service cloud.firestore {
       allow delete: if isTeacher() && resource.data.teacher_id == request.auth.uid;
     }
 
-    // ----- Notificaciones de contenido (LSSI): cualquiera notifica; solo el profesor de la sala las ve -----
+    // ----- Notificaciones de contenido (LSSI): cualquiera notifica; solo el profesorado de la sala las ve -----
     match /rooms/{roomId}/reports/{reportId} {
       allow create: if request.resource.data.keys().hasOnly(['resource_id', 'reason', 'details', 'created_at', 'expire_at'])
         && request.resource.data.resource_id is string && request.resource.data.resource_id.size() <= 64
@@ -306,7 +355,7 @@ service cloud.firestore {
         && request.resource.data.created_at is int
         && exists(roomPath(roomId))
         && request.resource.data.expire_at == room(roomId).expire_at;
-      allow read, delete: if isOwner(roomId);
+      allow read, delete: if canManage(roomId);
       allow update: if isOwner(roomId)
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['expire_at'])
         && request.resource.data.expire_at == room(roomId).expire_at;

@@ -1,4 +1,4 @@
-import { ArrowRight, DoorClosed, DoorOpen, Download, Plus, Presentation, Trash2, Upload } from 'lucide-react';
+import { ArrowRight, DoorClosed, DoorOpen, Download, Plus, Presentation, Trash2, Upload, Users } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import EmptyState from '../components/EmptyState';
@@ -14,7 +14,7 @@ import AdminApprovals from '../components/AdminApprovals';
 import BackupModal from '../components/BackupModal';
 import ClassCalendars from '../components/ClassCalendars';
 import RestoreModal from '../components/RestoreModal';
-import { formatPin } from '../utils/ids';
+import { formatPin, normalizePin } from '../utils/ids';
 
 export default function TeacherDashboard() {
   useDocumentTitle('Mis salas');
@@ -26,6 +26,9 @@ export default function TeacherDashboard() {
   const [creating, setCreating] = useState(false);
   const [backupRoom, setBackupRoom] = useState(null);
   const [restoring, setRestoring] = useState(false);
+  const [joinPin, setJoinPin] = useState('');
+  const [joining, setJoining] = useState(false);
+  const [joinError, setJoinError] = useState(null);
 
   const load = useCallback(() => {
     backend.rooms.listByTeacher(user.id).then(setRooms).catch((e) => setError(e.message));
@@ -44,6 +47,21 @@ export default function TeacherDashboard() {
     } catch (err) {
       setError(err.message);
       setCreating(false);
+    }
+  };
+
+  /** Colaborar en la sala de un compañero con su PIN (como en los calendarios). */
+  const join = async (e) => {
+    e.preventDefault();
+    const pin = normalizePin(joinPin);
+    if (pin.length !== 6) return setJoinError('El PIN tiene 6 caracteres.');
+    setJoining(true);
+    setJoinError(null);
+    try {
+      navigate(`/profesor/sala/${await backend.rooms.joinByPin(pin)}`);
+    } catch (err) {
+      setJoinError(err.message);
+      setJoining(false);
     }
   };
 
@@ -122,6 +140,24 @@ export default function TeacherDashboard() {
             Restaurar desde una copia
           </button>
         </section>
+        <section className="card p-6">
+          <h2 className="mb-2 flex items-center gap-2 text-lg font-bold">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-100 text-brand-800 dark:bg-brand-400/15 dark:text-brand-300"><Users className="h-4 w-4" /></span>
+            Colaborar en una sala
+          </h2>
+          <p className="mb-3 text-xs leading-relaxed text-stone-600 dark:text-stone-400">
+            Escribe el PIN de la sala de un compañero para moderarla y publicar en ella. Aparecerá en tu historial de salas.
+          </p>
+          <form onSubmit={join} className="flex gap-2">
+            <label className="sr-only" htmlFor="join-pin">PIN de la sala</label>
+            <input id="join-pin" className="input font-mono uppercase tracking-widest" maxLength={7} placeholder="ABC 234" autoComplete="off"
+              value={joinPin} onChange={(e) => setJoinPin(e.target.value)} />
+            <button type="submit" className="btn-secondary shrink-0" disabled={joining || !joinPin.trim()}>
+              {joining ? 'Uniéndome…' : 'Colaborar'}
+            </button>
+          </form>
+          {joinError && <p role="alert" className="mt-3 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">{joinError}</p>}
+        </section>
         {user.isAdmin && <AdminApprovals />}
         <AccountPanel />
         </div>
@@ -145,6 +181,11 @@ export default function TeacherDashboard() {
                     <div className="min-w-0">
                       <p className="eyebrow truncate">{room.module || 'Sala de clase'}</p>
                       <h3 className="truncate text-lg font-bold">{room.name}</h3>
+                      {room.teacher_id !== user.id && (
+                        <p className="mt-1 flex items-center gap-1 text-xs font-semibold text-brand-700 dark:text-brand-300">
+                          <Users className="h-3.5 w-3.5" aria-hidden="true" /> Colaboras · de {room.owner_name || 'otro profesor'}
+                        </p>
+                      )}
                     </div>
                     <span className={`chip shrink-0 ${isRoomOpen(room) ? 'bg-accent-100 text-accent-800 dark:bg-accent-300/15 dark:text-accent-300' : 'bg-stone-100 text-stone-700 dark:bg-ink-800 dark:text-stone-300'}`}>
                       {isRoomOpen(room) ? 'Abierta' : 'Cerrada'}
@@ -172,9 +213,11 @@ export default function TeacherDashboard() {
                     <button className="btn-secondary btn-sm" onClick={() => setBackupRoom(room)} title="Descargar copia de seguridad" aria-label={`Descargar copia de seguridad de ${room.name}`}>
                       <Download className="h-4 w-4" aria-hidden="true" />
                     </button>
-                    <button className="btn-danger btn-sm" onClick={() => remove(room)} title="Eliminar sala" aria-label={`Eliminar ${room.name}`}>
-                      <Trash2 className="h-4 w-4" />
-                    </button>
+                    {room.teacher_id === user.id && (
+                      <button className="btn-danger btn-sm" onClick={() => remove(room)} title="Eliminar sala" aria-label={`Eliminar ${room.name}`}>
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    )}
                   </div>
                 </li>
               ))}

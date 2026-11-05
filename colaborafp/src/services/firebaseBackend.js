@@ -5,7 +5,8 @@
  * Misma interfaz que `mockBackend.js`.
  *
  * Modelo de datos (todo el contenido vive DENTRO de su sala, así nadie puede listar recursos de otras salas):
- *   rooms/{roomId}                              { pin, name, module, teacher_id, is_active, created_at, closes_at, expire_at }
+ *   rooms/{roomId}                              { pin, name, module, teacher_id, owner_name, editors, editor_info, open_to_teachers,
+ *                                                 is_active, created_at, closes_at, expire_at } — editors: profesores colaboradores
  *   rooms/{roomId}/resources/{resId}            { room_id, author, type, content, language, title, status, timestamp,
  *                                                 file_size?, file_type?, chunks?, expire_at }
  *   rooms/{roomId}/resources/{resId}/chunks/{n} { index, data, expire_at }   — archivo en base64 troceado (≤ 5 MB)
@@ -151,7 +152,14 @@ const toResource = (snap) => {
   const d = snap.data();
   return { id: snap.id, ...d, expire_at: ms(d.expire_at), pending: snap.metadata.hasPendingWrites };
 };
-const toRoom = (id, d) => ({ id, ...d, expire_at: ms(d.expire_at) });
+const toRoom = (id, d) => ({
+  id,
+  ...d,
+  editors: d.editors || [],
+  editor_info: d.editor_info || {},
+  open_to_teachers: d.open_to_teachers !== false,
+  expire_at: ms(d.expire_at),
+});
 
 export const createFirebaseBackend = (config, { emulator } = {}) => {
   const app = initializeApp(config);
@@ -342,6 +350,9 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
         await reauthenticateWithCredential(user, EmailAuthProvider.credential(user.email, password));
         const snap = await getDocs(query(roomsCol, where('teacher_id', '==', user.uid)));
         for (const d of snap.docs) await removeRoom(d.id, d.data());
+        // Deja de colaborar en las salas de otros (lo que publicó se queda en la sala)
+        const shared = await getDocs(query(roomsCol, where('editors', 'array-contains', user.uid))).catch(() => ({ docs: [] }));
+        for (const d of shared.docs) await updateDoc(d.ref, { editors: arrayRemove(user.uid), [`editor_info.${user.uid}`]: deleteField() }).catch(() => {});
         await deleteDoc(approvalRef(user.uid)).catch(() => {});
         await deleteUser(user);
       }),
@@ -450,6 +461,8 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
     create: ({ name, module, teacherId, expireAt }) =>
       wrap(async () => {
         const expire_at = clampExpiry(expireAt ?? defaultExpiry());
+        // Campos de colaboradores; si las reglas publicadas aún no los admiten, la sala se crea sin ellos
+        let colaboradores = true;
         for (let attempt = 0; attempt < 5; attempt++) {
           const pin = generatePin();
           const ref = doc(roomsCol);
@@ -459,27 +472,45 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
             name: name.trim(),
             module: module || null,
             teacher_id: teacherId,
+            ...(colaboradores
+              ? {
+                  owner_name: myInfo().name,
+                  editors: [], // profesores que colaboran
+                  editor_info: {},
+                  open_to_teachers: true, // otros profesores pueden unirse con el PIN
+                }
+              : {}),
             is_active: true,
             created_at: now,
             closes_at: expire_at, // abierta hasta que el profesor la cierre
             expire_at,
           };
-          const created = await runTransaction(db, async (tx) => {
-            const [p, c] = await Promise.all([tx.get(pinRef(pin)), tx.get(doc(db, 'calcodes', pin))]);
-            if (c.exists() || (p.exists() && p.data().active && p.data().closes_at > Date.now())) return false; // colisión
-            tx.set(ref, { ...room, expire_at: Timestamp.fromMillis(room.expire_at) });
-            tx.set(pinRef(pin), pinDoc(ref.id, room));
-            return true;
-          });
+          let created;
+          try {
+            created = await runTransaction(db, async (tx) => {
+              const [p, c] = await Promise.all([tx.get(pinRef(pin)), tx.get(doc(db, 'calcodes', pin))]);
+              if (c.exists() || (p.exists() && p.data().active && p.data().closes_at > Date.now())) return false; // colisión
+              tx.set(ref, { ...room, expire_at: Timestamp.fromMillis(room.expire_at) });
+              tx.set(pinRef(pin), pinDoc(ref.id, room));
+              return true;
+            });
+          } catch (e) {
+            if (e?.code !== 'permission-denied' || !colaboradores) throw e;
+            colaboradores = false;
+            continue;
+          }
           if (created) return { id: ref.id, ...room };
         }
         throw new Error('No se pudo generar un PIN único. Inténtalo de nuevo.');
       }),
 
-    /** Lista las salas del profesor y borra las que han superado el plazo de conservación. */
+    /** Lista las salas del profesor (y en las que colabora) y borra las propias que han superado el plazo de conservación. */
     listByTeacher: (teacherId) =>
       wrap(async () => {
-        const snap = await getDocs(query(roomsCol, where('teacher_id', '==', teacherId)));
+        const [snap, shared] = await Promise.all([
+          getDocs(query(roomsCol, where('teacher_id', '==', teacherId))),
+          getDocs(query(roomsCol, where('editors', 'array-contains', teacherId))).catch(() => ({ docs: [] })),
+        ]);
         const now = Date.now();
         const docs = snap.docs; // ojo: cada acceso a snap.docs crea objetos nuevos
         // Salas de la versión anterior (sin expire_at): se migran, NUNCA se borran
@@ -490,7 +521,7 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
         const dataOf = (d) => migrated.get(d.id) ?? d.data();
         const expiredIds = new Set(docs.filter((d) => dataOf(d).expire_at && ms(dataOf(d).expire_at) <= now).map((d) => d.id));
         await Promise.all(docs.filter((d) => expiredIds.has(d.id)).map((d) => removeRoom(d.id, d.data()).catch(() => {})));
-        const alive = docs.filter((d) => !expiredIds.has(d.id));
+        const alive = [...docs.filter((d) => !expiredIds.has(d.id)), ...shared.docs.filter((d) => d.data().expire_at && ms(d.data().expire_at) > now)];
         const list = await Promise.all(
           alive.map(async (d) => {
             const count = await getCountFromServer(query(resCol(d.id), where('status', '==', 'approved'))).catch(() => null);
@@ -572,6 +603,46 @@ export const createFirebaseBackend = (config, { emulator } = {}) => {
       }),
 
     remove: (id) => wrap(() => removeRoom(id)),
+
+    // ----- Profesorado colaborador (como en los calendarios) -----
+    /** Un profesor que conoce el PIN se une como colaborador. Devuelve el id de la sala. */
+    joinByPin: (pin) =>
+      wrap(async () => {
+        const p = await getDoc(pinRef(pin)).catch(() => null);
+        if (!p?.exists()) throw new Error('No hay ninguna sala con ese PIN.');
+        const roomId = p.data().room_id, uid = me().uid;
+        if (p.data().teacher_id === uid) return roomId; // es suya
+        const ya = await getDoc(roomRef(roomId)).catch(() => null);
+        if (ya?.exists()) return roomId; // ya colabora
+        try {
+          await updateDoc(roomRef(roomId), { editors: arrayUnion(uid), [`editor_info.${uid}`]: myInfo() });
+        } catch (e) {
+          if (e?.code === 'permission-denied')
+            throw new Error('No puedes unirte: el profesor de esta sala no admite colaboradores ahora mismo, o tu cuenta aún no está activada.');
+          throw e;
+        }
+        return roomId;
+      }),
+    /** El colaborador deja de colaborar. */
+    leave: (roomId) =>
+      wrap(async () => {
+        const uid = me().uid;
+        await updateDoc(roomRef(roomId), { editors: arrayRemove(uid), [`editor_info.${uid}`]: deleteField() });
+      }),
+    /** El dueño quita a un colaborador. */
+    removeEditor: (room, uid) =>
+      wrap(async () => {
+        await updateDoc(roomRef(room.id), { editors: arrayRemove(uid), [`editor_info.${uid}`]: deleteField() });
+        const editor_info = { ...room.editor_info };
+        delete editor_info[uid];
+        return { ...room, editors: room.editors.filter((x) => x !== uid), editor_info };
+      }),
+    /** El dueño permite o no que se unan nuevos colaboradores. */
+    setOpenToTeachers: (room, open) =>
+      wrap(async () => {
+        await updateDoc(roomRef(room.id), { open_to_teachers: open });
+        return { ...room, open_to_teachers: open };
+      }),
   };
 
   // ---------- Recursos ----------
