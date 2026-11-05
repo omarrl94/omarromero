@@ -26,12 +26,13 @@ export function Layout({ children }: { children: ReactNode }) {
       </a>
       <header className="sticky top-0 z-40 border-b-2 border-tinta bg-papel/95 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-2.5">
-          <a href="#/" className="flex shrink-0 items-center gap-2.5 rounded-lg" aria-label="Conecta FFE, inicio">
+          <a href="#/" className="flex shrink-0 items-center gap-2.5 rounded-lg">
             <span className="grid size-9 place-items-center rounded-lg bg-amarillo font-display text-lg font-extrabold" aria-hidden="true">
               C
             </span>
             <span className="font-display text-lg leading-none font-extrabold">
               Conecta <span className="rounded bg-tinta px-1 text-amarillo">FFE</span>
+              <span className="sr-only"> (inicio)</span>
             </span>
           </a>
           <nav aria-label="Principal" className="ml-auto hidden md:block">

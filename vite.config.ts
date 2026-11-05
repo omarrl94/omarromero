@@ -29,7 +29,9 @@ function funcionesLocales(): Plugin {
         headers: req.headers as Record<string, string>,
         body: ['GET', 'HEAD'].includes(req.method ?? 'GET') ? undefined : new Uint8Array(cuerpo),
       });
-      const respuesta: Response = await mod.default(peticion, { ip: req.socket.remoteAddress });
+      // En modo de pruebas, la cabecera x-test-ip simula IPs distintas (límite de intentos).
+      const ipPrueba = process.env.CONECTA_MODO === 'pruebas' ? (req.headers['x-test-ip'] as string | undefined) : undefined;
+      const respuesta: Response = await mod.default(peticion, { ip: ipPrueba ?? req.socket.remoteAddress });
       res.statusCode = respuesta.status;
       respuesta.headers.forEach((v, k) => res.setHeader(k, v));
       res.end(Buffer.from(await respuesta.arrayBuffer()));
