@@ -1,0 +1,86 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/bricolage-grotesque';
+@import '@fontsource-variable/instrument-sans';
+
+@theme {
+  --font-sans: 'Instrument Sans Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Bricolage Grotesque Variable', 'Instrument Sans Variable', ui-sans-serif, sans-serif;
+
+  --color-tinta: #1d1d1b;
+  --color-tinta-suave: #4a4943;
+  --color-papel: #fbfaf6;
+  --color-hueso: #f3f0e6;
+  --color-linea: #dcd8cb;
+  --color-amarillo: #efcd2f;
+  --color-amarillo-claro: #fbf1c2;
+  --color-salvia: #a9cabb;
+  --color-salvia-claro: #e3efe9;
+  --color-salvia-oscuro: #2b5747;
+  --color-terracota: #e39f7d;
+  --color-terracota-claro: #f8e3d8;
+  --color-terracota-oscuro: #8a3c19;
+  --color-peligro: #a3261b;
+  --color-exito: #1f6b45;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-papel text-tinta font-sans antialiased;
+  }
+  h1, h2, h3 {
+    @apply font-display tracking-tight;
+    text-wrap: balance;
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-tinta);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@utility btn {
+  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border-2 border-tinta px-4 py-2 font-semibold transition-[transform,box-shadow] duration-150 disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+@utility btn-primario {
+  @apply btn bg-tinta text-papel hover:shadow-[4px_4px_0_var(--color-amarillo)] hover:-translate-x-0.5 hover:-translate-y-0.5;
+}
+
+@utility btn-secundario {
+  @apply btn bg-papel text-tinta hover:bg-hueso;
+}
+
+@utility btn-amarillo {
+  @apply btn bg-amarillo text-tinta hover:shadow-[4px_4px_0_var(--color-tinta)] hover:-translate-x-0.5 hover:-translate-y-0.5;
+}
+
+@utility campo {
+  @apply block w-full min-h-11 rounded-xl border-2 border-linea bg-white px-3 py-2 text-tinta placeholder:text-tinta-suave/70 focus:border-tinta;
+}
+
+@utility etiqueta {
+  @apply mb-1 block text-sm font-semibold;
+}
+
+@utility tarjeta {
+  @apply rounded-2xl border-2 border-tinta bg-white;
+}
+
+@utility chip {
+  @apply inline-flex items-center gap-1 rounded-full border border-tinta/20 px-2.5 py-0.5 text-xs font-semibold;
+}
+
+@utility enlace {
+  @apply font-semibold underline decoration-2 underline-offset-2 hover:decoration-amarillo;
+}

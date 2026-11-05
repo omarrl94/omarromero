@@ -16,6 +16,7 @@ export default tseslint.config(
       ...reactHooks.configs.recommended.rules,
       ...jsxA11y.configs.strict.rules,
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      'jsx-a11y/label-has-associated-control': ['error', { depth: 4 }],
     },
   },
 );
