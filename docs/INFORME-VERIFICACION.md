@@ -1,6 +1,6 @@
 # Informe de verificación de empresas
 
-Generado el 2026-11-05T17:23:52.417Z con `npm run verificar:empresas`. Candidatas: 106 · **válidas: 60** · descartadas: 46.
+Generado el 2026-11-05T17:33:50.850Z con `npm run verificar:empresas`. Candidatas: 112 · **válidas: 62** · descartadas: 50.
 
 Criterios: la web responde; el correo aparece literalmente en la URL indicada, es corporativo (mismo dominio), genérico (no personal), destinado a candidaturas o contacto general y su dominio tiene registros MX. Sin correo válido se acepta el formulario oficial de empleo o contacto. Sin ninguno, se descarta.
 
@@ -24,7 +24,7 @@ Criterios: la web responde; el correo aparece literalmente en la URL indicada, e
 | Panel Sistemas | contacto@panel.es (https://www.panel.es/aviso-legal/) | media | — |
 | Kairós Digital Solutions | formulario: https://www.kairosds.com/talento/que-nos-hace-unicos | media | — |
 | Ackstorm | info@ackstorm.com (https://www.ackstorm.com/) | media | — |
-| Computacenter España | careers.hk@computacenter.com (https://www.computacenter.com/es-es/careers) | alta | — |
+| Computacenter España | formulario: https://www.computacenter.com/es-es/careers | media | — |
 | Econocom España | formulario: https://www.econocom.es/trabaja-en-econocom/candidatura-espontanea | media | — |
 | BBVA | formulario: https://www.bbva.com/en/careers/ | media | — |
 | Banco Santander | formulario: https://www.santander.com/es/trabaja-con-nosotros | media | — |
@@ -68,6 +68,8 @@ Criterios: la web responde; el correo aparece literalmente en la URL indicada, e
 | Stackscale | formulario: https://www.stackscale.com/jobs/ | media | — |
 | Nunsys | info@nunsys.com (https://www.nunsys.com/) | media | — |
 | Sothis | rrhh@sothis.tech (https://www.sothis.tech/unete-al-equipo/) | alta | — |
+| Serikat | seleccion@serikat.es (https://serikat.es/talento/) | alta | — |
+| Logicalis España | info@logicalis.com (https://www.logicalis.com/contact-us) | media | — |
 
 ## Descartadas
 
@@ -119,3 +121,7 @@ Criterios: la web responde; el correo aparece literalmente en la URL indicada, e
 | TaxDown | https://taxdown.es | La web no responde (403) |
 | Payflow | https://payflow.es | La web no responde (403) |
 | Ricoh España | https://www.ricoh.es | La web no responde (UND_ERR_HEADERS_OVERFLOW) |
+| Vector ITC | https://www.vectoritcgroup.com | La web no responde (403) |
+| Axians España | https://www.axians.es | La web no responde (403) |
+| Inycom | https://www.inycom.es | Sin correo publicado ni formulario oficial en las páginas revisadas |
+| Ingenia | https://www.ingenia.es | La web no responde (ENOTFOUND) |

@@ -459,17 +459,17 @@
     ],
     "motivoEncaje": "Proveedor de infraestructura y puesto de trabajo: soporte, sistemas y redes.",
     "contacto": {
-      "tipo": "email",
-      "email": "careers.hk@computacenter.com",
+      "tipo": "formulario",
       "fuenteUrl": "https://www.computacenter.com/es-es/careers",
+      "formularioUrl": "https://www.computacenter.com/es-es/careers",
       "tipoContacto": "talento"
     },
     "empleoUrl": "https://www.computacenter.com/es-es/careers",
     "verificacion": {
       "fecha": "2026-11-05",
-      "confianza": "alta",
-      "mx": true,
-      "notas": "Verificación automática: 6 páginas revisadas; correo extraído literalmente de la fuente."
+      "confianza": "media",
+      "mx": null,
+      "notas": "Verificación automática: 6 páginas revisadas; sin correo de candidaturas publicado, se usa el formulario oficial."
     }
   },
   {
@@ -1051,6 +1051,34 @@
     }
   },
   {
+    "id": "logicalis-espana",
+    "nombre": "Logicalis España",
+    "web": "https://www.logicalis.com/es",
+    "sector": "Integración de redes y comunicaciones",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-redes",
+      "asir-sistemas",
+      "asir-ciberseguridad",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Integrador de redes y comunicaciones: perfil de redes de ASIR.",
+    "contacto": {
+      "tipo": "email",
+      "email": "info@logicalis.com",
+      "fuenteUrl": "https://www.logicalis.com/contact-us",
+      "tipoContacto": "general"
+    },
+    "empleoUrl": "https://www.logicalis.com/careers",
+    "verificacion": {
+      "fecha": "2026-11-05",
+      "confianza": "media",
+      "mx": true,
+      "notas": "Verificación automática: 3 páginas revisadas; correo extraído literalmente de la fuente."
+    }
+  },
+  {
     "id": "management-solutions",
     "nombre": "Management Solutions",
     "web": "https://www.managementsolutions.com",
@@ -1405,6 +1433,33 @@
       "confianza": "media",
       "mx": null,
       "notas": "Verificación automática: 8 páginas revisadas; sin correo de candidaturas publicado, se usa el formulario oficial."
+    }
+  },
+  {
+    "id": "serikat",
+    "nombre": "Serikat",
+    "web": "https://www.serikat.es",
+    "sector": "Consultoría y desarrollo de software",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-bbdd"
+    ],
+    "motivoEncaje": "Consultora de desarrollo con oficina en Madrid.",
+    "contacto": {
+      "tipo": "email",
+      "email": "seleccion@serikat.es",
+      "fuenteUrl": "https://serikat.es/talento/",
+      "tipoContacto": "rrhh"
+    },
+    "empleoUrl": "https://serikat.es/talento/",
+    "verificacion": {
+      "fecha": "2026-11-05",
+      "confianza": "alta",
+      "mx": true,
+      "notas": "Verificación automática: 5 páginas revisadas; correo extraído literalmente de la fuente."
     }
   },
   {

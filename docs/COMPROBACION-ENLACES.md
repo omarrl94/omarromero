@@ -1,10 +1,13 @@
 # Comprobación de enlaces
 
-Fecha: 2026-11-05T17:24:33.675Z · Enlaces de empresas: 138 · rotos: 0
+Fecha: 2026-11-05T17:34:44.616Z · Enlaces de empresas: 143 · rotos: 2
 
 ## Enlaces rotos del directorio
 
-Ninguno.
+| Empresa | Tipo | URL | Estado |
+|---|---|---|---|
+| Witrey | web | https://www.witrey.com | tiempo agotado |
+| Witrey | fuente | https://witrey.com/ | tiempo agotado |
 
 ## Portales (enlaces profundos)
 
