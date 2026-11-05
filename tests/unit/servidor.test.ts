@@ -63,6 +63,15 @@ describe('API de acceso y empresas', () => {
     process.env.ACCESS_CODE = antes;
   });
 
+  it('explica el error si SESSION_SECRET es demasiado corto (en vez de un 502)', async () => {
+    const antes = process.env.SESSION_SECRET;
+    process.env.SESSION_SECRET = 'corto';
+    const r = await acceso(post('codigo-de-prueba'), ctx('5.5.5.5'));
+    expect(r.status).toBe(503);
+    expect(((await r.json()) as { error: string }).error).toMatch(/SESSION_SECRET demasiado corto/);
+    process.env.SESSION_SECRET = antes;
+  });
+
   it('no usa datos ficticios si corre en Netlify', async () => {
     process.env.NETLIFY = 'true';
     const { cargarEmpresas } = await import('../../server/datos');

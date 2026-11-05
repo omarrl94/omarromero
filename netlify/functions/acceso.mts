@@ -5,6 +5,15 @@ import { codigoValido, cookieBorrada, cookieSesion, crearToken, sesionActiva } f
 import { variable } from '../../server/entorno';
 
 export default async (req: Request, context: Context) => {
+  try {
+    return await manejar(req, context);
+  } catch (e) {
+    console.error('Error en /api/acceso', e);
+    return error('No se ha podido comprobar el código por un error del servidor. Inténtalo de nuevo en un minuto.', 500);
+  }
+};
+
+async function manejar(req: Request, context: Context): Promise<Response> {
   const seguro = esHttps(req);
 
   if (req.method === 'GET') return json({ autenticado: sesionActiva(req) });
@@ -13,6 +22,10 @@ export default async (req: Request, context: Context) => {
 
   if (!variable('ACCESS_CODE') || !variable('SESSION_SECRET')) {
     return error('El acceso no está configurado en el servidor. Avisa a tu tutor/a.', 503);
+  }
+  if ((variable('SESSION_SECRET') ?? '').length < 32) {
+    console.error('SESSION_SECRET tiene menos de 32 caracteres');
+    return error('El acceso está mal configurado en el servidor (SESSION_SECRET demasiado corto). Avisa a tu tutor/a.', 503);
   }
 
   const ip = ipDe(req, context?.ip);
@@ -39,6 +52,6 @@ export default async (req: Request, context: Context) => {
 
   await limpiarFallos(ip);
   return json({ autenticado: true }, 200, { 'Set-Cookie': cookieSesion(crearToken(), seguro) });
-};
+}
 
 export const config: Config = { path: '/api/acceso' };
