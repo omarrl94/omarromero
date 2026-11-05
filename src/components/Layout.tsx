@@ -1,4 +1,5 @@
 import { useEffect, useRef, type ReactNode } from 'react';
+import { MODO_DEMO } from '../lib/api';
 import { useRuta } from '../lib/ruta';
 
 const NAV = [
@@ -24,6 +25,11 @@ export function Layout({ children }: { children: ReactNode }) {
       <a href="#contenido" onClick={(e) => { e.preventDefault(); principal.current?.focus(); }} className="sr-only z-50 rounded-lg bg-tinta px-4 py-2 text-papel focus:not-sr-only focus:fixed focus:left-3 focus:top-3">
         Saltar al contenido
       </a>
+      {MODO_DEMO && (
+        <p className="bg-tinta px-4 py-2 text-center text-sm font-semibold text-papel">
+          Demostración con datos ficticios · Código del directorio: <span className="rounded bg-amarillo px-1.5 font-mono text-tinta">demo-ffe</span>
+        </p>
+      )}
       <header className="sticky top-0 z-40 border-b-2 border-tinta bg-papel/95 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-2.5">
           <a href="#/" className="flex shrink-0 items-center gap-2.5 rounded-lg">

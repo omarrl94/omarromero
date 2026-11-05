@@ -64,19 +64,16 @@ test('genera el correo, exige el aviso de CV, abre Outlook/Gmail y registra el s
   await expect(page.getByLabel('CC (tutor/a de FFE)')).toHaveValue('omar.romero@jrotero.es');
   await cuerpo.fill('Texto editado por la alumna.');
 
-  const outlook = page.getByRole('button', { name: 'Abrir en Outlook web' });
-  await expect(outlook).toBeDisabled();
+  const outlook = page.getByRole('link', { name: /Abrir en Outlook web/ });
+  await expect(outlook).toHaveAttribute('aria-disabled', 'true');
   await page.getByLabel(/adjuntaré mi CV en PDF/).check();
-  await page.evaluate(() => {
-    (window as unknown as { abiertas: string[] }).abiertas = [];
-    window.open = (u?: string | URL) => {
-      (window as unknown as { abiertas: string[] }).abiertas.push(String(u));
-      return null;
-    };
-  });
+  const gmail = page.getByRole('link', { name: /Abrir en Gmail/ });
+  const abiertas = [await outlook.getAttribute('href'), await gmail.getAttribute('href')] as string[];
+  await expect(outlook).toHaveAttribute('target', '_blank');
+  await expect(page.getByRole('link', { name: /Abrir en mi app de correo/ })).toHaveAttribute('href', /^mailto:talento@ficticia-web\.test\?cc=/);
+  // Al pulsar se registra el contacto (se evita abrir la pestaña externa en la prueba).
+  await page.route('https://outlook.office.com/**', (r) => r.abort());
   await outlook.click();
-  await page.getByRole('button', { name: 'Abrir en Gmail' }).click();
-  const abiertas = await page.evaluate(() => (window as unknown as { abiertas: string[] }).abiertas);
   expect(abiertas[0]).toMatch(/^https:\/\/outlook\.office\.com\/mail\/deeplink\/compose\?to=talento%40ficticia-web\.test&cc=omar\.romero%40jrotero\.es/);
   expect(decodeURIComponent(abiertas[0])).toContain('Texto editado por la alumna.');
   expect(abiertas[1]).toMatch(/^https:\/\/mail\.google\.com\/mail\/\?view=cm/);

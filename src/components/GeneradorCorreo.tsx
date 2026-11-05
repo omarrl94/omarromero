@@ -45,11 +45,24 @@ export function GeneradorCorreo({ empresa, alumno }: { empresa: Empresa; alumno:
   const esFormulario = empresa.contacto.tipo === 'formulario';
   const superaMaximo = contactos.length >= config.maxContactosPorEmpresa;
 
-  const abrir = (url: string) => {
+  // Enlaces reales (no window.open): funcionan con bloqueadores de ventanas emergentes.
+  const alAbrir = () => {
     registrarContacto(empresa.id, empresa.nombre);
     setPreguntarEnviado(true);
-    window.open(url, url.startsWith('mailto:') ? '_self' : '_blank', 'noopener');
   };
+  const enlaceCorreo = (href: string, texto: string, clase: string, externo = true) => (
+    <a
+      href={href}
+      aria-disabled={!cvConfirmado}
+      tabIndex={cvConfirmado ? undefined : -1}
+      className={`${clase} ${cvConfirmado ? '' : 'pointer-events-none opacity-50'}`}
+      onClick={(ev) => (cvConfirmado ? alAbrir() : ev.preventDefault())}
+      {...(externo ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+    >
+      {texto}
+      {externo && <span className="sr-only"> (se abre en otra pestaña)</span>}
+    </a>
+  );
 
   const copiar = async () => {
     try {
@@ -130,9 +143,9 @@ export function GeneradorCorreo({ empresa, alumno }: { empresa: Empresa; alumno:
             </>
           ) : (
             <>
-              <button type="button" className="btn-primario" disabled={!cvConfirmado} onClick={() => abrir(urlOutlook(borrador))}>Abrir en Outlook web</button>
-              <button type="button" className="btn-primario" disabled={!cvConfirmado} onClick={() => abrir(urlGmail(borrador))}>Abrir en Gmail</button>
-              <button type="button" className="btn-secundario" disabled={!cvConfirmado} onClick={() => abrir(urlMailto(borrador))}>Abrir en mi app de correo</button>
+              {enlaceCorreo(urlOutlook(borrador), 'Abrir en Outlook web', 'btn-primario')}
+              {enlaceCorreo(urlGmail(borrador), 'Abrir en Gmail', 'btn-primario')}
+              {enlaceCorreo(urlMailto(borrador), 'Abrir en mi app de correo', 'btn-secundario', false)}
               <button type="button" className="btn-secundario" disabled={!cvConfirmado} onClick={copiar}>Copiar</button>
             </>
           )}

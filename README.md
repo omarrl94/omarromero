@@ -41,6 +41,7 @@ Con la CLI de Netlify (`npx netlify dev`) se usa Netlify Blobs local y el archiv
 | `npm run comprobar:enlaces` | Enlaces rotos del directorio y prueba de los portales (**necesita Internet**) |
 | `npm run comprobar:bundle` | Falla si `dist/` contiene correos de empresas, secretos o datos ficticios |
 | `npm run validar:datos` | Valida los JSON de datos con los esquemas Zod |
+| `npm run demo` | Genera `dist-demo/conecta-ffe-demo.html`: demostración en un solo archivo con datos ficticios y API simulada (código `demo-ffe`). **Nunca se despliega** |
 
 ## Variables de entorno
 

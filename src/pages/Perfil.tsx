@@ -17,13 +17,14 @@ const CAMPOS: { k: keyof Alumno; etiqueta: string; tipo: string; auto: string; a
 export function Perfil() {
   const [alumno, setAlumno] = useAlumno();
   const [borrado, setBorrado] = useState(false);
+  const [confirmando, setConfirmando] = useState(false);
   const cambiar = (c: Partial<Alumno>) => {
     setBorrado(false);
     setAlumno((prev) => ({ ...prev, ...c }));
   };
 
   async function borrar() {
-    if (!confirm('Se borrarán tu perfil, tus enlaces y todo tu seguimiento de este dispositivo. ¿Continuar?')) return;
+    setConfirmando(false);
     borrarTodo();
     olvidarEmpresas();
     try {
@@ -63,9 +64,17 @@ export function Perfil() {
       <section id="borrar" aria-labelledby="titulo-borrar" className="rounded-2xl border-2 border-peligro bg-terracota-claro p-5 sm:p-8">
         <h2 id="titulo-borrar" className="text-2xl font-extrabold">Borrar mis datos</h2>
         <p className="mt-2">Elimina de este dispositivo tu perfil, tus enlaces, tu seguimiento y la sesión del directorio.</p>
-        <button type="button" className="btn mt-4 border-peligro bg-peligro text-white hover:bg-[#8a1f16]" onClick={borrar}>
-          Borrar todos mis datos
-        </button>
+        {confirmando ? (
+          <div className="mt-4 flex flex-wrap items-center gap-3" role="group" aria-label="Confirmar borrado">
+            <p className="font-semibold">Se borrarán tu perfil, tus enlaces y todo tu seguimiento. ¿Continuar?</p>
+            <button type="button" className="btn border-peligro bg-peligro text-white hover:bg-[#8a1f16]" onClick={borrar}>Sí, borrar todo</button>
+            <button type="button" className="btn-secundario" onClick={() => setConfirmando(false)}>Cancelar</button>
+          </div>
+        ) : (
+          <button type="button" className="btn mt-4 border-peligro bg-peligro text-white hover:bg-[#8a1f16]" onClick={() => setConfirmando(true)}>
+            Borrar todos mis datos
+          </button>
+        )}
       </section>
     </div>
   );

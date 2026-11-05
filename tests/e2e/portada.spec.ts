@@ -35,8 +35,8 @@ test('noindex en la página', async ({ page }) => {
 test('borrar mis datos limpia el dispositivo', async ({ page }) => {
   await elegirPerfil(page, 'DAM', 'Desarrollo web');
   await page.goto('/#/perfil');
-  page.on('dialog', (d) => d.accept());
   await page.getByRole('button', { name: 'Borrar todos mis datos' }).click();
+  await page.getByRole('button', { name: 'Sí, borrar todo' }).click();
   await expect(page.getByText('Datos borrados')).toBeVisible();
   const claves = await page.evaluate(() => Object.keys(localStorage).filter((k) => k.startsWith('conecta-ffe:')));
   expect(claves).toEqual([]);

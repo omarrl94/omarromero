@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { Vacio } from '../components/Estados';
 import { fecha } from '../lib/formato';
 import { COLOR_ESTADO, ESTADOS, NOMBRE_ESTADO, useSeguimiento, type EstadoSeguimiento } from '../lib/seguimiento';
 
 export function Seguimiento() {
   const { seguimiento, actualizar, quitar } = useSeguimiento();
+  const [quitando, setQuitando] = useState<string | null>(null);
   const entradas = Object.entries(seguimiento).sort((a, b) => b[1].actualizado.localeCompare(a[1].actualizado));
   const cuenta = (s: EstadoSeguimiento) => entradas.filter(([, e]) => e.estado === s).length;
 
@@ -42,9 +44,18 @@ export function Seguimiento() {
                   {ESTADOS.map((s) => <option key={s} value={s}>{NOMBRE_ESTADO[s]}</option>)}
                 </select>
               </div>
-              <button type="button" className="btn-secundario" onClick={() => { if (confirm(`¿Quitar ${e.nombre} de tu seguimiento?`)) quitar(id); }}>
-                Quitar<span className="sr-only"> {e.nombre}</span>
-              </button>
+              {quitando === id ? (
+                <div className="flex gap-2">
+                  <button type="button" className="btn border-peligro bg-peligro text-white" onClick={() => { quitar(id); setQuitando(null); }}>
+                    Confirmar<span className="sr-only">: quitar {e.nombre}</span>
+                  </button>
+                  <button type="button" className="btn-secundario" onClick={() => setQuitando(null)}>Cancelar</button>
+                </div>
+              ) : (
+                <button type="button" className="btn-secundario" onClick={() => setQuitando(id)}>
+                  Quitar<span className="sr-only"> {e.nombre}</span>
+                </button>
+              )}
             </li>
           ))}
         </ul>

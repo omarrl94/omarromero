@@ -51,6 +51,11 @@ function funcionesLocales(): Plugin {
 
 export default defineConfig({
   plugins: [react(), tailwindcss(), funcionesLocales()],
-  build: { sourcemap: false, target: 'es2022' },
+  build: {
+    sourcemap: false,
+    target: 'es2022',
+    // La demostración de un solo archivo necesita todo el JS en un único bloque.
+    rollupOptions: process.env.VITE_DEMO === 'true' ? { output: { inlineDynamicImports: true } } : {},
+  },
   server: { port: 5173, strictPort: true },
 });
