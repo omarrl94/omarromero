@@ -2,7 +2,7 @@
 
 ## A. Estado y pendientes técnicos
 
-**Hecho:** 62 empresas reales verificadas con GitHub Actions (ver `docs/INFORME-VERIFICACION.md`), auditoría de 10 al azar sin problemas, CI en verde y 3 portales con enlace comprobado (LinkedIn, InfoJobs web y Welcome to the Jungle).
+**Hecho:** 128 empresas reales verificadas con GitHub Actions (13 con correo de RR. HH.) (ver `docs/INFORME-VERIFICACION.md`), auditoría de 10 al azar sin problemas, CI en verde y 3 portales con enlace comprobado (LinkedIn, InfoJobs web y Welcome to the Jungle).
 
 | # | Pendiente | Por qué | Cómo completarlo |
 |---|---|---|---|

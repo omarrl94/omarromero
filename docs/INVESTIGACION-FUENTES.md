@@ -64,13 +64,13 @@ la prueba definitiva es manual.
 
 ### Estado actual (5 de noviembre de 2026)
 
-Como el entorno de desarrollo no tenía Internet, la verificación se ejecuta en **GitHub Actions**
-(flujo `Verificar empresas`), que sí lo tiene. Resultado de la última ejecución:
+La verificación se ejecuta en **GitHub Actions** (flujo `Verificar empresas`), que tiene Internet. Última ejecución:
 
-- **112 candidatas → 62 empresas verificadas** (27 consultoras, 19 pymes, 11 grandes empresas y 5 startups; 47 con perfiles DAM y 46 con perfiles ASIR).
-- **30 con correo público** extraído literalmente de su web: 7 de confianza alta (`rrhh@`, `talento@`, `seleccion@`, `people@`, `recruitment@`) y 23 media (`info@`, `hola@`, `contacto@`). **32 con formulario oficial** de empleo o contacto.
-- **50 descartadas**. La mayoría porque la web bloquea a los robots (403) desde los servidores de GitHub. Otras por no publicar un buzón adecuado ni formulario, o porque la web redirige a otra empresa (p. ej. Duonet → Izertis). Los motivos de cada una están en `docs/INFORME-VERIFICACION.md`.
-- **Revisión con desconfianza:** tras la primera ejecución (61 válidas) se revisaron a mano todos los correos y aparecieron buzones válidos en forma pero inadecuados: `contacto.dpd@` (protección de datos), `careers.au@` y `careers.hk@` (filiales de Australia y Hong Kong), `contact_eahelp@` (atención al cliente), `comercial@` y `administracion@`. Se endurecieron las reglas del verificador, con pruebas para cada caso, y se volvió a verificar todo.
+- **206 candidatas → 128 empresas verificadas** (45 grandes empresas, 36 consultoras, 34 pymes y 13 startups; 98 con perfiles DAM y 98 con perfiles ASIR).
+- **54 con correo público** extraído literalmente de su web. **13 son de RR. HH., selección o talento**: Acens, Aena, Atmira, Factum, Grupo ICA, Keepler, Lyntia, Mnemo, One eSecurity, Panel Sistemas, Paradigma, Redsys y Sothis. Las otras 41 son buzones generales (`info@`, `hola@`, `contacto@`). **74 con formulario oficial** de empleo o contacto.
+- **Prioridad a RR. HH.:** el verificador revisa primero las páginas de empleo, prueba las rutas habituales (trabaja con nosotros, empleo, talento, careers, únete) y un segundo nivel de enlaces. Elige el buzón en este orden: prácticas, talento, RR. HH. y, por último, general. En la web, «Recomendadas» pone primero las empresas con correo de RR. HH. y hay un filtro «Correo de RR. HH.».
+- **78 descartadas**: webs que bloquean robots o no responden, sin buzón adecuado ni formulario, o que redirigen a otra empresa. Motivos en `docs/INFORME-VERIFICACION.md`.
+- **Revisión con desconfianza:** se revisaron a mano todos los correos tras cada ejecución. Se excluyeron buzones válidos en forma pero inadecuados: protección de datos (`contacto.dpd@`), filiales extranjeras (`careers.au@`, `careers.hk@`, `global.careers@`), atención al cliente (`contact_eahelp@`), ventas (`comercial@`), administración y secretaría. Cada caso tiene su prueba automática.
 - **Auditoría al azar** (`docs/AUDITORIA-MUESTRA.md`): 10 empresas comprobadas de nuevo desde cero, 0 problemas.
 - Los datos de **sector, tamaño, zona y motivo de encaje** salen de la investigación, no del script: conviene revisarlos.
 
