@@ -15,7 +15,7 @@ test('el directorio exige código y no expone correos sin sesión', async ({ pag
   await expect(page.getByRole('alert')).toContainText('Código incorrecto');
   await page.getByLabel('Código de acceso').fill(CODIGO);
   await page.getByRole('button', { name: 'Entrar' }).click();
-  await expect(page.getByText('Ficticia Web Studio')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Ficticia Web Studio', level: 3 })).toBeVisible();
 });
 
 test('limita los intentos fallidos', async ({ page }) => {
@@ -35,7 +35,7 @@ test('filtra, busca y ordena por encaje con el perfil', async ({ page }) => {
   await entrar(page);
   const tarjetas = page.getByRole('main').getByRole('listitem').filter({ has: page.getByRole('heading', { level: 3 }) });
   await expect(tarjetas.first()).toContainText('Ficticia Ciberdefensa');
-  await expect(page.getByText('Ficticia ERP Consulting')).toHaveCount(0); // sin perfiles ASIR
+  await expect(page.getByRole('heading', { name: 'Ficticia ERP Consulting', level: 3 })).toHaveCount(0); // sin perfiles ASIR
   await expect(tarjetas.first()).toContainText('Programa de prácticas publicado');
   await expect(page.getByText('Candidatura espontánea').first()).toBeVisible();
   await page.getByLabel('Buscar').fill('nube');
@@ -52,7 +52,7 @@ test('genera el correo, exige el aviso de CV, abre Outlook/Gmail y registra el s
   await elegirPerfil(page, 'DAM', 'Desarrollo web');
   await rellenarNombre(page);
   await entrar(page);
-  await page.getByRole('link', { name: 'Ficticia Web Studio' }).click();
+  await page.getByRole('link', { name: 'Ficticia Web Studio', exact: true }).click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Ficticia Web Studio');
   await expect(page.getByText('https://www.ficticia-web.test/empleo').first()).toBeVisible();
   await expect(page.getByText(/Verificado/)).toBeVisible();
@@ -84,7 +84,7 @@ test('genera el correo, exige el aviso de CV, abre Outlook/Gmail y registra el s
   await expect(page.getByText('Ya has contactado con esta empresa desde este dispositivo')).toBeVisible();
 
   await page.goto('/#/seguimiento');
-  await expect(page.getByRole('link', { name: 'Ficticia Web Studio' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Ficticia Web Studio', exact: true })).toBeVisible();
   await expect(page.getByLabel('Estado de Ficticia Web Studio')).toHaveValue('enviado');
   await sinViolacionesGraves(page);
 });
@@ -94,7 +94,7 @@ test('empresas solo con formulario: copiar texto y abrir el formulario oficial',
   await elegirPerfil(page, 'ASIR', 'Cloud y AWS');
   await rellenarNombre(page, 'Luis Gómez');
   await entrar(page);
-  await page.getByRole('link', { name: 'Ficticia Nube' }).click();
+  await page.getByRole('link', { name: 'Ficticia Nube', exact: true }).click();
   await expect(page.getByText('Esta empresa recibe candidaturas por formulario')).toBeVisible();
   await expect(page.getByText(/Tutor\/a de tu ciclo pendiente/)).toHaveCount(0); // sin campo CC en formularios
   await page.getByLabel(/adjuntaré mi CV en PDF/).check();
@@ -108,9 +108,48 @@ test('ASIR sin tutor asignado: el correo avisa y no pone copia', async ({ page }
   await elegirPerfil(page, 'ASIR', 'Ciberseguridad y SOC', 'B');
   await rellenarNombre(page);
   await entrar(page);
-  await page.getByRole('link', { name: 'Ficticia Ciberdefensa' }).click();
+  await page.getByRole('link', { name: 'Ficticia Ciberdefensa', exact: true }).click();
   await expect(page.getByLabel('CC (tutor/a de FFE)')).toHaveValue('');
   await expect(page.getByText(/Tutor\/a de tu ciclo pendiente de asignar/)).toBeVisible();
   await expect(page.getByLabel('Asunto')).toHaveValue(/Programa de prácticas SOC/);
   await expect(page.getByLabel(/Mensaje/)).toContainText('7 horas al día, 420 horas');
+});
+
+test('filtra por tipo de contacto y por cualquier rama de DAM o ASIR, y escribe desde la tarjeta', async ({ page }) => {
+  await elegirPerfil(page, 'DAM', 'Desarrollo web');
+  await rellenarNombre(page);
+  await entrar(page);
+  const tarjetas = page.getByRole('main').getByRole('listitem').filter({ has: page.getByRole('heading', { level: 3 }) });
+
+  // Por defecto: mi ciclo (DAM). La de ciberseguridad (solo ASIR) no sale.
+  await expect(page.getByRole('heading', { name: 'Ficticia Ciberdefensa', level: 3 })).toHaveCount(0);
+
+  // Todos: las 4 empresas, de DAM y de ASIR.
+  await page.getByLabel('Perfil o rama').selectOption('todos');
+  await expect(tarjetas).toHaveCount(4);
+
+  // Cualquier rama de ASIR: las que tienen algún perfil de ASIR.
+  await page.getByLabel('Perfil o rama').selectOption('ciclo:ASIR');
+  await expect(tarjetas).toHaveCount(2);
+  await expect(page.getByRole('heading', { name: 'Ficticia Ciberdefensa', level: 3 })).toBeVisible();
+
+  // Una rama concreta del otro ciclo.
+  await page.getByLabel('Perfil o rama').selectOption('asir-cloud');
+  await expect(tarjetas).toHaveCount(1);
+  await expect(tarjetas.first()).toContainText('Ficticia Nube');
+
+  // Tipo de contacto.
+  await page.getByLabel('Perfil o rama').selectOption('todos');
+  await page.getByLabel('Contacto').selectOption('formulario');
+  await expect(tarjetas).toHaveCount(1);
+  await expect(tarjetas.first().getByRole('link', { name: /Abrir formulario/ })).toHaveAttribute('href', 'https://www.ficticia-nube.test/empleo/candidatura');
+  await page.getByLabel('Contacto').selectOption('email');
+  await expect(tarjetas).toHaveCount(3);
+
+  // «Escribir correo» lleva directamente al generador de la empresa.
+  await tarjetas.filter({ hasText: 'Ficticia ERP Consulting' }).getByRole('link', { name: /Escribir correo/ }).click();
+  await expect(page).toHaveURL(/#\/empresas\/ficticia-erp\/correo$/);
+  await expect(page.getByRole('heading', { name: 'Tu correo para Ficticia ERP Consulting' })).toBeInViewport();
+  await expect(page.getByLabel('Para', { exact: true })).toHaveValue('empleo@ficticia-erp.test');
+  await sinViolacionesGraves(page);
 });

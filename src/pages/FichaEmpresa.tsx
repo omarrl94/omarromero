@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { perfilPorId, zonaPorId } from '../../config/ffe.config';
 import { etiquetaEncaje, puntuarEncaje } from '../../shared/encaje';
 import { Acceso } from '../components/Acceso';
@@ -10,10 +11,16 @@ import { useEmpresas } from '../lib/useEmpresas';
 
 const NOMBRE_CONFIANZA = { alta: 'Alta', media: 'Media', baja: 'Baja' };
 
-export function FichaEmpresa({ id }: { id: string }) {
+export function FichaEmpresa({ id, seccion }: { id: string; seccion?: string }) {
   const { estado, recargar } = useEmpresas();
   const [alumno] = useAlumno();
   const { seguimiento, actualizar } = useSeguimiento();
+  const lista = estado.tipo === 'listo';
+
+  // «Escribir correo» desde el listado: baja directamente al generador.
+  useEffect(() => {
+    if (lista && seccion === 'correo') document.getElementById('generador-correo')?.scrollIntoView({ block: 'start' });
+  }, [lista, seccion, id]);
 
   if (estado.tipo === 'sin-acceso') return <Acceso alEntrar={recargar} />;
   if (estado.tipo === 'cargando') return <Esqueleto filas={2} />;
@@ -64,6 +71,7 @@ export function FichaEmpresa({ id }: { id: string }) {
             </p>
           </header>
           {/* La clave regenera el borrador si cambian los datos del alumno o la empresa. */}
+          <div id="generador-correo" className="scroll-mt-20" />
           <GeneradorCorreo key={`${e.id}|${JSON.stringify(alumno)}`} empresa={e} alumno={alumno} />
         </article>
 

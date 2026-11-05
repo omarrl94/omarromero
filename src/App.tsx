@@ -20,7 +20,7 @@ const TITULOS: Record<string, string> = {
 };
 
 export function App() {
-  const [seccion = '', id] = useRuta();
+  const [seccion = '', id, subseccion] = useRuta();
 
   useEffect(() => {
     document.title = `${TITULOS[seccion] ?? 'Página no encontrada'} · Conecta FFE`;
@@ -28,7 +28,7 @@ export function App() {
 
   let pagina;
   if (seccion === '') pagina = <Portada />;
-  else if (seccion === 'empresas' && id) pagina = <FichaEmpresa id={id} />;
+  else if (seccion === 'empresas' && id) pagina = <FichaEmpresa id={id} seccion={subseccion} />;
   else if (seccion === 'empresas') pagina = <Empresas />;
   else if (seccion === 'ofertas') pagina = <Ofertas />;
   else if (seccion === 'seguimiento') pagina = <Seguimiento />;

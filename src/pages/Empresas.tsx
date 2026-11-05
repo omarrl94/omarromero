@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react';
-import { config, perfilPorId, perfilesDe, zonaPorId } from '../../config/ffe.config';
+import { config, perfilPorId, zonaPorId } from '../../config/ffe.config';
 import { etiquetaEncaje, puntuarEncaje } from '../../shared/encaje';
 import type { Empresa } from '../../shared/schemas';
 import { normalizar } from '../../shared/texto';
 import { Acceso } from '../components/Acceso';
+import { coincidePerfil, FiltroPerfil, perfilesParaEncaje, valorInicial } from '../components/FiltroPerfil';
 import { Aviso, ErrorCaja, Esqueleto, Vacio } from '../components/Estados';
 import { useAlumno } from '../lib/alumno';
 import { NOMBRE_TAMANO, fecha } from '../lib/formato';
@@ -11,6 +12,7 @@ import { COLOR_ESTADO, NOMBRE_ESTADO, useSeguimiento, type Seguimiento } from '.
 import { useEmpresas } from '../lib/useEmpresas';
 
 type Orden = 'encaje' | 'nombre' | 'verificacion';
+type Contacto = '' | 'email' | 'formulario';
 
 export function Empresas() {
   const { estado, recargar } = useEmpresas();
@@ -39,7 +41,8 @@ function ListaEmpresas({ empresas }: { empresas: Empresa[] }) {
   const [alumno] = useAlumno();
   const { seguimiento } = useSeguimiento();
   const [texto, setTexto] = useState('');
-  const [perfil, setPerfil] = useState('');
+  const [perfil, setPerfil] = useState(() => valorInicial(alumno));
+  const [contacto, setContacto] = useState<Contacto>('');
   const [tamano, setTamano] = useState('');
   const [zona, setZona] = useState('');
   const [soloPracticas, setSoloPracticas] = useState(false);
@@ -47,15 +50,16 @@ function ListaEmpresas({ empresas }: { empresas: Empresa[] }) {
   const [orden, setOrden] = useState<Orden>('encaje');
 
   const ciclo = alumno.ciclo;
-  const perfilesFiltro = useMemo(() => (perfil ? [perfil] : alumno.perfiles), [perfil, alumno.perfiles]);
 
   const resultado = useMemo(() => {
     const q = normalizar(texto);
+    const perfilesFiltro = perfilesParaEncaje(perfil, alumno);
+    const cicloEncaje = perfilPorId(perfil)?.ciclo ?? ciclo;
     const lista = empresas
-      .map((e) => ({ e, puntos: ciclo ? puntuarEncaje(e, { ciclo, perfiles: perfilesFiltro, zona: zona || alumno.zona }) : 50 }))
-      .filter(({ e, puntos }) => {
-        if (ciclo && puntos === 0) return false;
-        if (perfil && !e.perfiles.includes(perfil)) return false;
+      .map((e) => ({ e, puntos: cicloEncaje ? puntuarEncaje(e, { ciclo: cicloEncaje, perfiles: perfilesFiltro, zona: zona || alumno.zona }) : 0 }))
+      .filter(({ e }) => {
+        if (!coincidePerfil(e.perfiles, perfil, alumno, true)) return false;
+        if (contacto && e.contacto.tipo !== contacto) return false;
         if (tamano && e.tamano !== tamano) return false;
         if (zona && e.zona !== zona) return false;
         if (soloPracticas && !e.programaPracticas) return false;
@@ -69,7 +73,7 @@ function ListaEmpresas({ empresas }: { empresas: Empresa[] }) {
       return b.puntos - a.puntos || a.e.nombre.localeCompare(b.e.nombre, 'es');
     });
     return lista;
-  }, [empresas, ciclo, perfilesFiltro, perfil, tamano, zona, soloPracticas, ocultarContactadas, texto, orden, seguimiento, alumno.zona]);
+  }, [empresas, ciclo, perfil, contacto, tamano, zona, soloPracticas, ocultarContactadas, texto, orden, seguimiento, alumno]);
 
   if (empresas.length === 0) {
     return (
@@ -81,7 +85,8 @@ function ListaEmpresas({ empresas }: { empresas: Empresa[] }) {
 
   const limpiar = () => {
     setTexto('');
-    setPerfil('');
+    setPerfil('todos');
+    setContacto('');
     setTamano('');
     setZona('');
     setSoloPracticas(false);
@@ -102,13 +107,13 @@ function ListaEmpresas({ empresas }: { empresas: Empresa[] }) {
           <label htmlFor="buscar" className="etiqueta">Buscar</label>
           <input id="buscar" type="search" className="campo" placeholder="Nombre, sector, tecnología…" value={texto} onChange={(e) => setTexto(e.target.value)} />
         </div>
+        <FiltroPerfil id="f-perfil" valor={perfil} cambiar={setPerfil} alumno={alumno} />
         <div>
-          <label htmlFor="f-perfil" className="etiqueta">Perfil</label>
-          <select id="f-perfil" className="campo" value={perfil} onChange={(e) => setPerfil(e.target.value)}>
-            <option value="">{alumno.perfiles.length ? 'Mis perfiles' : 'Todos'}</option>
-            {(ciclo ? perfilesDe(ciclo) : config.perfiles).map((p) => (
-              <option key={p.id} value={p.id}>{p.nombre}</option>
-            ))}
+          <label htmlFor="f-contacto" className="etiqueta">Contacto</label>
+          <select id="f-contacto" className="campo" value={contacto} onChange={(e) => setContacto(e.target.value as Contacto)}>
+            <option value="">Correo o formulario</option>
+            <option value="email">Con correo</option>
+            <option value="formulario">Con formulario</option>
           </select>
         </div>
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-1">
@@ -162,7 +167,7 @@ function ListaEmpresas({ empresas }: { empresas: Empresa[] }) {
           <ul className="grid gap-3">
             {resultado.map(({ e, puntos }) => (
               <li key={e.id}>
-                <TarjetaEmpresa empresa={e} puntos={ciclo ? puntos : null} seguimiento={seguimiento} />
+                <TarjetaEmpresa empresa={e} puntos={puntos > 0 ? puntos : null} seguimiento={seguimiento} />
               </li>
             ))}
           </ul>
@@ -206,10 +211,29 @@ function TarjetaEmpresa({ empresa: e, puntos, seguimiento }: { empresa: Empresa;
         ))}
         {seg && <span className={`chip border-tinta ${COLOR_ESTADO[seg.estado]}`}>{NOMBRE_ESTADO[seg.estado]}</span>}
       </div>
-      <p className="mt-3 text-xs text-tinta-suave">
-        Verificada el {fecha(e.verificacion.fecha)}
-        {seg?.contactos.length ? ` · Contactada ${seg.contactos.length} ${seg.contactos.length === 1 ? 'vez' : 'veces'} desde este dispositivo` : ''}
-      </p>
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+        <p className="text-xs text-tinta-suave">
+          Verificada el {fecha(e.verificacion.fecha)}
+          {seg?.contactos.length ? ` · Contactada ${seg.contactos.length} ${seg.contactos.length === 1 ? 'vez' : 'veces'} desde este dispositivo` : ''}
+        </p>
+        {/* z-10: por encima del enlace que cubre toda la tarjeta */}
+        <div className="relative z-10 flex flex-wrap gap-2">
+          {e.contacto.tipo === 'email' ? (
+            <a href={`#/empresas/${e.id}/correo`} className="btn-amarillo min-h-10 py-1 text-sm">
+              Escribir correo<span className="sr-only"> a {e.nombre}</span>
+            </a>
+          ) : (
+            <>
+              <a href={`#/empresas/${e.id}/correo`} className="btn-secundario min-h-10 py-1 text-sm">
+                Preparar texto<span className="sr-only"> para {e.nombre}</span>
+              </a>
+              <a href={e.contacto.formularioUrl} target="_blank" rel="noopener noreferrer" className="btn-amarillo min-h-10 py-1 text-sm">
+                Abrir formulario<span className="sr-only"> de {e.nombre} (se abre en otra pestaña)</span>
+              </a>
+            </>
+          )}
+        </div>
+      </div>
     </article>
   );
 }

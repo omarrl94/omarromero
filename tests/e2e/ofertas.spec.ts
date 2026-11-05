@@ -35,3 +35,15 @@ test('estado vacío cuando aún no hay ofertas', async ({ page }) => {
   await page.goto('/#/ofertas');
   await expect(page.getByText('Todavía no hay ofertas descargadas')).toBeVisible();
 });
+
+test('las ofertas se pueden ver de cualquier rama de DAM o ASIR', async ({ page }) => {
+  await elegirPerfil(page, 'DAM', 'Desarrollo web');
+  await page.goto('/#/ofertas');
+  await expect(page.getByRole('heading', { name: 'Técnico SOC junior (FICTICIA)', level: 3 })).toHaveCount(0);
+  await page.getByLabel('Perfil o rama').selectOption('todos');
+  await expect(page.getByRole('heading', { name: 'Técnico SOC junior (FICTICIA)', level: 3 })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Prácticas desarrollo web (FICTICIA)', level: 3 })).toBeVisible();
+  await page.getByLabel('Perfil o rama').selectOption('ciclo:ASIR');
+  await expect(page.getByRole('heading', { name: 'Prácticas desarrollo web (FICTICIA)', level: 3 })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'Técnico SOC junior (FICTICIA)', level: 3 })).toBeVisible();
+});
