@@ -39,7 +39,8 @@ Idioma de la interfaz, el código de dominio y la documentación: **español de 
 - `config/ffe.config.ts`: **único** archivo con datos editables (modalidades, horas, tutores, perfiles, límites, enlaces profundos).
 - `shared/`: esquemas Zod y lógica pura compartida entre cliente y funciones (encaje, normalización de ofertas, correo).
 - `src/`: React + TypeScript + Vite + Tailwind v4.
-- `netlify/functions/`: API (`acceso`, `empresas`, `ofertas`, `retirada`) y función programada `ofertas-actualizar`.
+- `netlify/functions/`: API (`acceso`, `empresas`, `ofertas`) y función programada `ofertas-actualizar`. Las retiradas llegan por Netlify Forms (formulario `retirada`).
+- `.github/workflows/verificar-empresas.yml`: verifica las candidatas con Internet (al cambiarlas y cada mes) y guarda el resultado en la rama.
 - `server/`: código solo de servidor (almacén Blobs con alternativa local, sesión, límite de intentos, fuentes de ofertas).
 - `data/empresas.candidatas.json`: investigación **sin verificar**. Nunca se sirve.
 - `data/empresas.json`: solo empresas verificadas. Lo genera el script; se edita a mano solo para retiradas.

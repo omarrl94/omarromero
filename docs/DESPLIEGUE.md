@@ -50,7 +50,7 @@ Marca `ACCESS_CODE`, `SESSION_SECRET` y las claves como **secretas** (*Contains 
 ## 4. Desplegar
 
 1. **Deploys → Trigger deploy → Deploy site.**
-2. El build ejecuta `npm run check`: lint, tipos, 41 pruebas, validación de datos, build y la comprobación de que ningún correo protegido llega a la web pública. Si algo falla, el despliegue se detiene y el sitio anterior sigue publicado.
+2. El build ejecuta `npm run check`: lint, tipos, 43 pruebas, validación de datos, build y la comprobación de que ningún correo protegido llega a la web pública. Si algo falla, el despliegue se detiene y el sitio anterior sigue publicado.
 3. Al terminar, Netlify te da una URL tipo `https://nombre-aleatorio.netlify.app`. Cámbiala en **Domain management → Options → Edit site name** (por ejemplo `conecta-ffe-jrotero`).
 
 ## 5. Activar el formulario de retirada

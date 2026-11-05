@@ -124,12 +124,12 @@ export const config = {
    * Placeholders: {q} y {lugar} (ya codificados). Ver docs/INVESTIGACION-FUENTES.md.
    */
   enlacesProfundos: [
-    { id: 'linkedin', nombre: 'LinkedIn Empleos', plantilla: 'https://www.linkedin.com/jobs/search/?keywords={q}&location={lugar}&f_E=1%2C2', probado: false, fechaPrueba: null, nota: 'f_E=1 prácticas, 2 nivel inicial.' },
+    { id: 'linkedin', nombre: 'LinkedIn Empleos', plantilla: 'https://www.linkedin.com/jobs/search/?keywords={q}&location={lugar}&f_E=1%2C2', probado: true, fechaPrueba: '2026-11-05', nota: 'f_E=1 prácticas, 2 nivel inicial. Responde 200 sin pedir inicio de sesión (comprobación automática desde GitHub Actions, 05/11/2026). Revisar a mano que el filtro es el esperado.' },
     { id: 'indeed', nombre: 'Indeed', plantilla: 'https://es.indeed.com/jobs?q={q}&l={lugar}', probado: false, fechaPrueba: null },
-    { id: 'infojobs', nombre: 'InfoJobs (web)', plantilla: 'https://www.infojobs.net/jobsearch/search-results/list.xhtml?keyword={q}&provinceIds=33', probado: false, fechaPrueba: null, nota: 'provinceIds=33 = Madrid (por confirmar).' },
+    { id: 'infojobs', nombre: 'InfoJobs (web)', plantilla: 'https://www.infojobs.net/jobsearch/search-results/list.xhtml?keyword={q}&provinceIds=33', probado: true, fechaPrueba: '2026-11-05', nota: 'provinceIds=33 = Madrid (por confirmar a mano). Responde 200 sin pedir inicio de sesión (comprobación automática desde GitHub Actions, 05/11/2026). Revisar a mano que el filtro es el esperado.' },
     { id: 'tecnoempleo', nombre: 'Tecnoempleo', plantilla: 'https://www.tecnoempleo.com/ofertas-trabajo/?te={q}&pr=,28,', probado: false, fechaPrueba: null, nota: 'pr=,28, = Madrid (por confirmar).' },
     { id: 'glassdoor', nombre: 'Glassdoor', plantilla: 'https://www.glassdoor.es/Empleo/empleos.htm?sc.keyword={q}&locKeyword={lugar}', probado: false, fechaPrueba: null },
-    { id: 'wttj', nombre: 'Welcome to the Jungle', plantilla: 'https://www.welcometothejungle.com/es/jobs?query={q}&aroundQuery={lugar}', probado: false, fechaPrueba: null },
+    { id: 'wttj', nombre: 'Welcome to the Jungle', plantilla: 'https://www.welcometothejungle.com/es/jobs?query={q}&aroundQuery={lugar}', probado: true, fechaPrueba: '2026-11-05', nota: 'Responde 200 sin pedir inicio de sesión (comprobación automática desde GitHub Actions, 05/11/2026). Revisar a mano que el filtro es el esperado.' },
   ] satisfies EnlaceProfundo[],
 
   /** Ubicación por defecto para las búsquedas. */

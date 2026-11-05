@@ -1,32 +1,28 @@
 # Pendientes
 
-## A. Lo que no he podido hacer (y cómo completarlo)
+## A. Estado y pendientes técnicos
 
-La causa principal: el entorno de desarrollo **solo tenía acceso a los registros de paquetes y a la búsqueda web**.
-No podía abrir webs de empresas, APIs de empleo ni consultar DNS.
+**Hecho:** 62 empresas reales verificadas con GitHub Actions (ver `docs/INFORME-VERIFICACION.md`), auditoría de 10 al azar sin problemas, CI en verde y 3 portales con enlace comprobado (LinkedIn, InfoJobs web y Welcome to the Jungle).
 
-| # | Pendiente | Por qué | Cómo completarlo | Tiempo estimado |
-|---|---|---|---|---|
-| 1 | **Verificar las 68 empresas candidatas** y publicar el directorio | Sin acceso a sus webs ni a DNS (MX) | En un equipo con Internet: `npm install && npm run verificar:empresas`. Revisa `docs/INFORME-VERIFICACION.md` y el diff de `data/empresas.json`, y haz commit | 15 min de script + 1-2 h de revisión |
-| 2 | **Llegar a 60 o más empresas verificadas** | Depende del punto 1. Se espera que se descarte una parte | Si no se llega, añade candidatas (sobre todo pymes de zona sur y este) siguiendo `docs/GUIA-EMPRESAS.md` | 1-3 h |
-| 3 | **Revisión con desconfianza de 10 empresas al azar** | No hay empresas verificadas | `npm run auditar:muestra` y, además, abrir a mano las 10 fuentes en el navegador | 30 min |
-| 4 | **Probar los enlaces profundos** (LinkedIn, Indeed, InfoJobs web, Tecnoempleo, Glassdoor, Welcome to the Jungle) | Sin red. Además, varios bloquean a los robots | Abre cada uno desde `#/ofertas` en desarrollo. Si filtra bien por perfil y Madrid, pon `probado: true` y la fecha en `config/ffe.config.ts`. Confirma los códigos de provincia de InfoJobs (`33`) y Tecnoempleo (`,28,`) | 30 min |
-| 5 | **Confirmar que Adzuna cubre España** y sus condiciones | No se pudo llamar a la API ni abrir su documentación | Con las claves: `curl "https://api.adzuna.com/v1/api/jobs/es/search/1?app_id=…&app_key=…&results_per_page=1"`. Lee sus condiciones: hay una prueba de 14 días y luego hace falta licencia | 20 min + respuesta de Adzuna |
-| 6 | **Confirmar parámetros y condiciones de la API de InfoJobs** | Su documentación oficial no se pudo abrir | Revisa en developer.infojobs.net los parámetros de `server/fuentes/infojobs.ts` (`province=madrid`, `category=informatica-telecomunicaciones`, `sinceDate=_15_DAYS`) y ajústalos | 30 min |
-| 7 | **Primera actualización real de ofertas** | Sin claves ni red | Tras desplegar con las claves: Netlify → Functions → `ofertas-actualizar` → *Run now*. Revisa `#/ofertas` | 10 min |
-| 8 | **Probar con `netlify dev`** (Blobs reales y cookies) | La CLI descarga un runtime desde Internet | `npx netlify dev` en tu equipo, o directamente un *deploy preview* | 15 min |
-| 9 | **Comprobar que las empresas siguen activas en el registro** | El script comprueba la web, no el BORME | Para las dudosas (pymes pequeñas), búscalas en el BORME o en informa.es | Variable |
-| 10 | **Revisar sector, tamaño, zona y motivo de encaje** | Salen de la investigación y del conocimiento público, no de una comprobación automática | Repasa `data/empresas.candidatas.json`. Atención a la zona de las grandes empresas, que tienen varias sedes | 1 h |
+| # | Pendiente | Por qué | Cómo completarlo |
+|---|---|---|---|
+| 1 | **Revisión humana del directorio** | El script comprueba la fuente, el correo y el MX. El sector, la zona, el tamaño y el motivo de encaje salen de la investigación | Lee `docs/INFORME-VERIFICACION.md` y abre 10 fuentes al azar en el navegador (30 min) |
+| 2 | **Recuperar empresas descartadas por 403** | Muchas webs (GMV, Telefónica Tech, idealista, Seidor, S21sec…) bloquean a los robots desde los servidores de GitHub | Si te interesan, comprueba a mano su página de empleo. Si publican formulario o correo, se pueden incluir con una revisión manual documentada (ver `docs/GUIA-EMPRESAS.md`) |
+| 3 | **Witrey** | En la comprobación de enlaces su web agotó el tiempo de espera, aunque minutos antes sí verificó | Vigilar en la próxima ejecución mensual; si vuelve a fallar, retirarla |
+| 4 | **Indeed, Tecnoempleo y Glassdoor** | Bloquean a los robots (403): no se han podido probar y siguen ocultos | Pruébalos en el navegador y pon `probado: true` en `config/ffe.config.ts`. Confirma también a mano el filtro de Madrid de InfoJobs (`provinceIds=33`) |
+| 5 | **Confirmar Adzuna en España y sus condiciones** | Prueba gratuita de 14 días; después hace falta licencia | Ver `docs/DESPLIEGUE.md`, paso 7 |
+| 6 | **Confirmar parámetros de la API de InfoJobs** | Su documentación oficial no se pudo abrir | Revisa `server/fuentes/infojobs.ts` con la documentación de developer.infojobs.net |
+| 7 | **Empresas activas en el registro** | El script comprueba la web, no el BORME | Para las pymes pequeñas, búscalas en el BORME o en informa.es |
 
 ## B. Lo que tienes que hacer tú
 
 ### Antes de publicar (obligatorio)
 
-1. **Rama:** el trabajo está en `conecta-ffe`, una rama nueva sin el historial del LMS. Decide si se despliega desde esa rama o si se pasa a un repositorio propio.
+1. **Despliegue:** sigue `docs/DESPLIEGUE.md` (rama `conecta-ffe`).
 2. **Variables en Netlify** (Project configuration → Environment variables, solo servidor):
    - `ACCESS_CODE`: el código del curso para el alumnado (no lo publiques en el aula virtual en abierto).
    - `SESSION_SECRET`: genera uno con `node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"`.
-3. **Ejecutar la verificación de empresas** (pendientes 1 a 3) y revisar el informe.
+3. **Revisar el directorio verificado** (pendiente 1). La verificación se repite sola cada mes y cada vez que cambian las candidatas.
 4. **Activar Netlify Forms** y la notificación por correo del formulario `retirada`.
 5. **Revisar los textos legales** de `#/privacidad` con la persona responsable de protección de datos del centro (responsable del tratamiento, base jurídica, plazo de retirada de 10 días hábiles).
 6. **Revisión final** en el *deploy preview*: entra con el código, genera un correo de prueba **a tu propia dirección** (cambia el «Para») y comprueba que Outlook y Gmail se abren bien.

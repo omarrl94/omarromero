@@ -62,15 +62,17 @@ la prueba definitiva es manual.
 3. **Verificación automática** (`npm run verificar:empresas`). Para cada candidata, el script descarga la web oficial, sigue los enlaces de contacto, empleo y aviso legal del mismo dominio, **extrae los correos que aparecen literalmente** y se queda con el mejor buzón corporativo genérico para candidaturas (prácticas > talento > RR. HH. > general). Rechaza los correos personales, gratuitos, de otro dominio y los de privacidad, prensa o ventas, y comprueba los **registros MX**. Si no hay correo válido, busca el **formulario oficial** de empleo o contacto. Si tampoco hay, **descarta la empresa**. Guarda la URL exacta, la fecha y el nivel de confianza.
 4. **Revisión humana** del informe (`docs/INFORME-VERIFICACION.md`) y **auditoría al azar** (`npm run auditar:muestra`).
 
-### Estado actual
+### Estado actual (5 de noviembre de 2026)
 
-**La verificación no se ha podido ejecutar** porque el entorno no tenía acceso a las webs ni a DNS (el script
-se detiene sin tocar nada: «Sin acceso a Internet o DNS»). Por tanto:
+Como el entorno de desarrollo no tenía Internet, la verificación se ejecuta en **GitHub Actions**
+(flujo `Verificar empresas`), que sí lo tiene. Resultado de la última ejecución:
 
-- `data/empresas.json` está **vacío** y la aplicación muestra el estado vacío «Todavía no hay empresas verificadas».
-- **No se publica ninguna empresa sin verificar.** Es la consecuencia directa de la regla «un correo inventado es un fallo crítico».
-- Al ejecutar el script con red, se espera que una parte de las 68 candidatas se descarte (webs que solo tienen formulario de contacto genérico, dominios que hayan cambiado, etc.). Si no se llega a 60, se publican menos y el informe lo explica.
-- Los datos de **sector, tamaño, zona y motivo de encaje** salen de la investigación y de conocimiento público, no del script. Conviene revisarlos al leer el informe; sobre todo la zona (sede frente a oficina de Madrid).
+- **112 candidatas → 62 empresas verificadas** (27 consultoras, 19 pymes, 11 grandes empresas y 5 startups; 47 con perfiles DAM y 46 con perfiles ASIR).
+- **30 con correo público** extraído literalmente de su web: 7 de confianza alta (`rrhh@`, `talento@`, `seleccion@`, `people@`, `recruitment@`) y 23 media (`info@`, `hola@`, `contacto@`). **32 con formulario oficial** de empleo o contacto.
+- **50 descartadas**. La mayoría porque la web bloquea a los robots (403) desde los servidores de GitHub. Otras por no publicar un buzón adecuado ni formulario, o porque la web redirige a otra empresa (p. ej. Duonet → Izertis). Los motivos de cada una están en `docs/INFORME-VERIFICACION.md`.
+- **Revisión con desconfianza:** tras la primera ejecución (61 válidas) se revisaron a mano todos los correos y aparecieron buzones válidos en forma pero inadecuados: `contacto.dpd@` (protección de datos), `careers.au@` y `careers.hk@` (filiales de Australia y Hong Kong), `contact_eahelp@` (atención al cliente), `comercial@` y `administracion@`. Se endurecieron las reglas del verificador, con pruebas para cada caso, y se volvió a verificar todo.
+- **Auditoría al azar** (`docs/AUDITORIA-MUESTRA.md`): 10 empresas comprobadas de nuevo desde cero, 0 problemas.
+- Los datos de **sector, tamaño, zona y motivo de encaje** salen de la investigación, no del script: conviene revisarlos.
 
 ### Fuentes consultadas durante la investigación
 
