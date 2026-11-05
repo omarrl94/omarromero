@@ -66,7 +66,8 @@ describe('API de acceso y empresas', () => {
   it('no usa datos ficticios si corre en Netlify', async () => {
     process.env.NETLIFY = 'true';
     const { cargarEmpresas } = await import('../../server/datos');
-    expect(await cargarEmpresas()).toEqual([]);
+    const reales = await cargarEmpresas();
+    expect(reales.some((e) => e.web.includes('.test') || e.id.startsWith('ficticia'))).toBe(false);
     delete process.env.NETLIFY;
   });
 });

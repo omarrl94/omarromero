@@ -56,6 +56,12 @@ export async function verificar(c: Candidata, retiradas: Retirada[], deps: Depen
     r.motivo = `La web no responde (${raiz.estado || raiz.error})`;
     return { r };
   }
+  // Si la web redirige a otro dominio (p. ej. empresa absorbida), no es la misma empresa.
+  const base = (u: string) => new URL(u).hostname.replace(/^www\./, '').split('.').slice(-2).join('.');
+  if (base(raiz.urlFinal) !== base(c.web)) {
+    r.motivo = `La web redirige a otro dominio (${new URL(raiz.urlFinal).hostname}): posible empresa absorbida o cambio de marca, revisar a mano`;
+    return { r };
+  }
 
   // 2. Páginas a revisar: las indicadas en la investigación + enlaces de contacto/empleo/legal de la portada.
   const urls = [...new Set([...c.paginasContacto, ...(c.formularioUrl ? [c.formularioUrl] : []), ...(c.empleoUrl ? [c.empleoUrl] : []), ...enlacesDeInteres(raiz.html, raiz.urlFinal)])]

@@ -1792,5 +1792,188 @@
       "https://www.sage.com/es-es"
     ],
     "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "indizen",
+    "nombre": "Indizen",
+    "web": "https://www.indizen.com",
+    "sector": "Consultoría y desarrollo de software",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-bbdd",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Consultora madrileña de desarrollo y sistemas.",
+    "paginasContacto": [
+      "https://www.indizen.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "acens",
+    "nombre": "Acens",
+    "web": "https://www.acens.com",
+    "sector": "Hosting y cloud (grupo Telefónica)",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-cloud",
+      "asir-sistemas",
+      "asir-redes",
+      "asir-soporte"
+    ],
+    "motivoEncaje": "Proveedor de hosting y cloud: centros de datos, sistemas y soporte.",
+    "paginasContacto": [
+      "https://www.acens.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "gigas",
+    "nombre": "Gigas",
+    "web": "https://gigas.com",
+    "sector": "Cloud y telecomunicaciones para empresas",
+    "tamano": "pyme",
+    "zona": "norte",
+    "perfiles": [
+      "asir-cloud",
+      "asir-sistemas",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Proveedor cloud con sede en Alcobendas.",
+    "paginasContacto": [
+      "https://gigas.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "stackscale",
+    "nombre": "Stackscale",
+    "web": "https://www.stackscale.com",
+    "sector": "Cloud privado e infraestructura",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-cloud",
+      "asir-sistemas",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Infraestructura cloud y bare-metal desde Madrid.",
+    "paginasContacto": [
+      "https://www.stackscale.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "smartick",
+    "nombre": "Smartick",
+    "web": "https://www.smartick.es",
+    "sector": "Educación (plataforma de matemáticas con IA)",
+    "tamano": "startup",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-datos-ia"
+    ],
+    "motivoEncaje": "Edtech madrileña con producto web y adaptativo con IA.",
+    "paginasContacto": [
+      "https://www.smartick.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "taxdown",
+    "nombre": "TaxDown",
+    "web": "https://taxdown.es",
+    "sector": "Fiscalidad (producto digital)",
+    "tamano": "startup",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-android"
+    ],
+    "motivoEncaje": "Startup madrileña con producto web y móvil.",
+    "paginasContacto": [
+      "https://taxdown.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "payflow",
+    "nombre": "Payflow",
+    "web": "https://payflow.es",
+    "sector": "Fintech (salario flexible)",
+    "tamano": "startup",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-android"
+    ],
+    "motivoEncaje": "Fintech madrileña con app y plataforma web.",
+    "paginasContacto": [
+      "https://payflow.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "ricoh-espana",
+    "nombre": "Ricoh España",
+    "web": "https://www.ricoh.es",
+    "sector": "Servicios TI y puesto de trabajo",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-soporte",
+      "asir-sistemas",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Servicios de puesto de trabajo y soporte TI.",
+    "paginasContacto": [
+      "https://www.ricoh.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "nunsys",
+    "nombre": "Nunsys",
+    "web": "https://www.nunsys.com",
+    "sector": "Consultoría TI, ciberseguridad y ERP",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-sistemas",
+      "dam-erp",
+      "dam-web"
+    ],
+    "motivoEncaje": "Grupo tecnológico con oficina en Madrid: ciberseguridad, sistemas y ERP.",
+    "paginasContacto": [
+      "https://www.nunsys.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "sothis",
+    "nombre": "Sothis",
+    "web": "https://www.sothis.tech",
+    "sector": "Ciberseguridad, SAP e infraestructura",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "dam-erp",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Tecnológica con SOC, consultoría SAP y cloud; oficina en Madrid.",
+    "paginasContacto": [
+      "https://www.sothis.tech"
+    ],
+    "tipoContactoEsperado": "general"
   }
 ]

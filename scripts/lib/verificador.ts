@@ -63,10 +63,21 @@ export function tipoContactoDe(email: string): TipoContacto {
   return 'general';
 }
 
+/** Fragmentos que, en cualquier parte del buzón, indican que no es para candidaturas. */
+const FRAGMENTOS_NO_CANDIDATURAS = ['help', 'ayuda', 'support', 'soporte', 'privacy', 'privacidad', 'dpo', 'dpd', 'rgpd', 'gdpr', 'lopd', 'compliance', 'factura', 'billing', 'invoice', 'reclamacion', 'incidencia', 'abuse', 'noreply', 'no-reply', 'accesibilidad', 'customer'];
+/** Buzones de clientes, ventas o administración (no de candidaturas). */
+const OTROS_NO_CANDIDATURAS = ['comercial', 'commercial', 'clientes', 'cliente', 'atencion', 'administracion', 'contabilidad', 'accounting'];
+/** Códigos de país distintos de España en el buzón (p. ej. careers.au@): buzones de otras filiales. */
+const PAISES_EXTRANJEROS = ['au', 'uk', 'us', 'de', 'fr', 'it', 'pt', 'nl', 'be', 'mx', 'br', 'ar', 'cl', 'co', 'pe', 'in', 'ca', 'ie', 'pl', 'ch', 'at', 'se', 'no', 'dk', 'fi', 'emea', 'latam', 'apac', 'usa'];
+
 export function esParaCandidaturas(email: string): boolean {
   const local = email.split('@')[0].toLowerCase();
   const trozos = local.split(/[._+-]/);
-  return !NO_CANDIDATURAS.some((n) => local === n || trozos.includes(n) || local.startsWith(n));
+  if (NO_CANDIDATURAS.some((n) => local === n || trozos.includes(n) || local.startsWith(n))) return false;
+  if (FRAGMENTOS_NO_CANDIDATURAS.some((f) => local.includes(f))) return false;
+  if (OTROS_NO_CANDIDATURAS.some((n) => trozos.includes(n))) return false;
+  if (trozos.length > 1 && trozos.some((t) => PAISES_EXTRANJEROS.includes(t))) return false;
+  return true;
 }
 
 export interface CorreoValorado {

@@ -54,6 +54,13 @@ describe('verificar (integración sin red)', () => {
     expect(caida.r.motivo).toMatch(/La web no responde/);
   });
 
+  it('descarta webs que redirigen a otro dominio', async () => {
+    const deps2 = deps({});
+    deps2.descargar = async (url) => ({ url, urlFinal: 'https://www.otra-empresa.test/', estado: 200, html: 'talento@otra-empresa.test' });
+    const { r } = await verificar(base, [], deps2);
+    expect(r.motivo).toMatch(/redirige a otro dominio/);
+  });
+
   it('respeta las retiradas', async () => {
     const { r } = await verificar(base, [{ dominio: 'acme.test', fecha: '2026-11-01' }], deps({}));
     expect(r.motivo).toMatch(/Retirada/);
