@@ -1,0 +1,11 @@
+{
+  "actualizado": "2026-11-05T06:00:00.000Z",
+  "fuentes": [
+    { "id": "adzuna", "nombre": "Adzuna", "estado": "ok", "total": 2, "fecha": "2026-11-05T06:00:00.000Z" },
+    { "id": "infojobs", "nombre": "InfoJobs", "estado": "error", "mensaje": "HTTP 401 (dato ficticio)", "total": 0, "fecha": "2026-11-05T06:00:00.000Z" }
+  ],
+  "ofertas": [
+    { "id": "adzuna:f1", "titulo": "Prácticas desarrollo web (FICTICIA)", "empresa": "Ficticia Web Studio", "ubicacion": "Madrid", "remoto": false, "jornada": "completa", "tipo": "practicas", "perfiles": ["dam-web"], "fuente": "adzuna", "url": "https://empleo.example.com/f1", "fechaPublicacion": "2026-11-03T08:00:00.000Z" },
+    { "id": "adzuna:f2", "titulo": "Técnico SOC junior (FICTICIA)", "empresa": "Ficticia Ciberdefensa", "ubicacion": "Alcobendas", "remoto": true, "jornada": "parcial", "tipo": "junior", "perfiles": ["asir-ciberseguridad"], "fuente": "adzuna", "url": "https://empleo.example.com/f2", "fechaPublicacion": "2026-11-02T08:00:00.000Z" }
+  ]
+}

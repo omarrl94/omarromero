@@ -1,0 +1,53 @@
+[
+  {
+    "id": "ficticia-web",
+    "nombre": "Ficticia Web Studio",
+    "web": "https://www.ficticia-web.test",
+    "sector": "Desarrollo web y comercio electrónico",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "direccion": "Madrid (dato ficticio de pruebas)",
+    "perfiles": ["dam-web", "dam-backend"],
+    "motivoEncaje": "Dato ficticio para pruebas automáticas: estudio de desarrollo web con React y Node.",
+    "contacto": { "tipo": "email", "email": "talento@ficticia-web.test", "fuenteUrl": "https://www.ficticia-web.test/empleo", "tipoContacto": "talento" },
+    "empleoUrl": "https://www.ficticia-web.test/empleo",
+    "verificacion": { "fecha": "2026-11-05", "confianza": "alta", "mx": true, "notas": "Ficticia" }
+  },
+  {
+    "id": "ficticia-soc",
+    "nombre": "Ficticia Ciberdefensa",
+    "web": "https://www.ficticia-soc.test",
+    "sector": "Ciberseguridad gestionada",
+    "tamano": "consultora",
+    "zona": "norte",
+    "perfiles": ["asir-ciberseguridad", "asir-redes", "asir-sistemas"],
+    "motivoEncaje": "Dato ficticio para pruebas automáticas: SOC 24x7 con perfiles de nivel 1.",
+    "contacto": { "tipo": "email", "email": "rrhh@ficticia-soc.test", "fuenteUrl": "https://www.ficticia-soc.test/contacto", "tipoContacto": "rrhh" },
+    "programaPracticas": { "titulo": "Programa de prácticas SOC", "url": "https://www.ficticia-soc.test/practicas", "fechaComprobacion": "2026-11-05" },
+    "verificacion": { "fecha": "2026-11-05", "confianza": "alta", "mx": true }
+  },
+  {
+    "id": "ficticia-cloud",
+    "nombre": "Ficticia Nube",
+    "web": "https://www.ficticia-nube.test",
+    "sector": "Servicios cloud",
+    "tamano": "startup",
+    "zona": "remoto",
+    "perfiles": ["asir-cloud", "dam-backend", "dam-datos-ia"],
+    "motivoEncaje": "Dato ficticio para pruebas automáticas: plataforma cloud con equipos de datos.",
+    "contacto": { "tipo": "formulario", "fuenteUrl": "https://www.ficticia-nube.test/empleo", "formularioUrl": "https://www.ficticia-nube.test/empleo/candidatura", "tipoContacto": "talento" },
+    "verificacion": { "fecha": "2026-11-05", "confianza": "media", "mx": null }
+  },
+  {
+    "id": "ficticia-erp",
+    "nombre": "Ficticia ERP Consulting",
+    "web": "https://www.ficticia-erp.test",
+    "sector": "Consultoría ERP",
+    "tamano": "gran-empresa",
+    "zona": "sur",
+    "perfiles": ["dam-erp", "dam-bbdd"],
+    "motivoEncaje": "Dato ficticio para pruebas automáticas: implantación de SAP y Odoo.",
+    "contacto": { "tipo": "email", "email": "empleo@ficticia-erp.test", "fuenteUrl": "https://www.ficticia-erp.test/trabaja", "tipoContacto": "rrhh" },
+    "verificacion": { "fecha": "2026-11-05", "confianza": "alta", "mx": true }
+  }
+]
