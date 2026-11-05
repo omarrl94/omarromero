@@ -7,7 +7,7 @@ import { infojobs } from '../../server/fuentes/infojobs';
 import fixtures from '../fixtures/empresas.ficticias.json';
 import type { Empresa } from '../../shared/schemas';
 
-delete process.env.NETLIFY;
+for (const v of ["NETLIFY", "SITE_ID", "NETLIFY_BLOBS_CONTEXT"]) delete process.env[v];
 afterAll(async () => rm('.blobs-local/ofertas', { recursive: true, force: true }));
 
 const ahora = new Date('2026-11-05T06:00:00Z');

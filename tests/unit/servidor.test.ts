@@ -8,7 +8,7 @@ process.env.SESSION_SECRET = 'x'.repeat(40);
 process.env.ACCESS_CODE = 'codigo-de-prueba';
 process.env.CONECTA_MODO = 'pruebas';
 process.env.CONECTA_DATOS = 'ficticios';
-delete process.env.NETLIFY;
+for (const v of ["NETLIFY", "SITE_ID", "NETLIFY_BLOBS_CONTEXT"]) delete process.env[v];
 
 const ctx = (ip: string) => ({ ip }) as never;
 const post = (codigo: string) => new Request('https://conecta.test/api/acceso', { method: 'POST', body: JSON.stringify({ codigo }) });

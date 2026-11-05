@@ -106,6 +106,10 @@ export function SelectorPerfil({ alumno, cambiar, numerado }: Props) {
                 </label>
               ))}
             </div>
+            <p className="mt-2 text-sm text-tinta-suave">
+              FFE de {alumno.ciclo}: {config.horas[alumno.ciclo]} horas
+              {config.horasPendientesDeConfirmar[alumno.ciclo] ? ' (pendiente de confirmar)' : ''}.
+            </p>
           </Paso>
         </div>
       )}
