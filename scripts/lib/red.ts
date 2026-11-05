@@ -52,9 +52,10 @@ export async function tieneMx(dominio: string): Promise<boolean | null> {
 
 /** ¿Hay acceso a Internet y DNS? Evita descartar empresas por un fallo de red local. */
 export async function hayRed(): Promise<{ ok: boolean; detalle: string }> {
-  const p = await descargar('https://www.boe.es/', 10_000);
+  const pruebas = await Promise.all(['https://www.boe.es/', 'https://www.wikipedia.org/', 'https://github.com/'].map((u) => descargar(u, 10_000)));
+  const http = pruebas.some((p) => p.estado > 0 && p.estado < 500);
   const mx = await tieneMx('gmail.com');
-  return { ok: p.estado > 0 && p.estado < 500 && mx === true, detalle: `HTTP boe.es: ${p.estado || p.error}; MX gmail.com: ${mx}` };
+  return { ok: http && mx === true, detalle: `HTTP: ${pruebas.map((p) => p.estado || p.error).join(', ')}; MX gmail.com: ${mx}` };
 }
 
 export async function enSerie<T, R>(items: T[], concurrencia: number, fn: (x: T, i: number) => Promise<R>): Promise<R[]> {

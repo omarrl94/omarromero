@@ -1280,5 +1280,517 @@
       "https://www.saonastudios.com"
     ],
     "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "mobivery",
+    "nombre": "Mobivery",
+    "web": "https://www.mobivery.com",
+    "sector": "Desarrollo de apps móviles",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-android",
+      "dam-web",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Agencia de desarrollo de apps móviles con oficina en Madrid.",
+    "paginasContacto": [
+      "https://www.mobivery.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "bluumi",
+    "nombre": "Bluumi",
+    "web": "https://www.bluumi.net",
+    "sector": "Desarrollo de apps y web",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-android",
+      "dam-web"
+    ],
+    "motivoEncaje": "Estudio de desarrollo de aplicaciones móviles y web en Madrid.",
+    "paginasContacto": [
+      "https://www.bluumi.net"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "duonet",
+    "nombre": "Duonet",
+    "web": "https://www.duonet.es",
+    "sector": "Desarrollo web y aplicaciones de gestión",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-bbdd"
+    ],
+    "motivoEncaje": "Pyme de programación web y aplicaciones de gestión empresarial.",
+    "paginasContacto": [
+      "https://www.duonet.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "witrey",
+    "nombre": "Witrey",
+    "web": "https://www.witrey.com",
+    "sector": "Agencia digital: web, apps y comercio electrónico",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-android"
+    ],
+    "motivoEncaje": "Agencia madrileña de desarrollo web, apps y ecommerce.",
+    "paginasContacto": [
+      "https://www.witrey.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "enimbos",
+    "nombre": "Enimbos",
+    "web": "https://www.enimbos.com",
+    "sector": "Cloud (AWS) y servicios gestionados",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-cloud",
+      "asir-sistemas",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Consultora cloud con foco en AWS: encaja con ASIR cloud.",
+    "paginasContacto": [
+      "https://www.enimbos.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "intelligence-partner",
+    "nombre": "Intelligence Partner",
+    "web": "https://www.intelligence-partner.com",
+    "sector": "Cloud (Google Cloud y AWS) y datos",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-cloud",
+      "dam-datos-ia",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Partner cloud con proyectos de datos e infraestructura.",
+    "paginasContacto": [
+      "https://www.intelligence-partner.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "devoteam-espana",
+    "nombre": "Devoteam España",
+    "web": "https://www.devoteam.com/es",
+    "sector": "Consultoría cloud y datos",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-cloud",
+      "dam-datos-ia",
+      "dam-backend",
+      "asir-ciberseguridad"
+    ],
+    "motivoEncaje": "Consultora tecnológica con práctica de Google Cloud, AWS y ciberseguridad.",
+    "paginasContacto": [
+      "https://www.devoteam.com/es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "tecnozero",
+    "nombre": "Tecnozero",
+    "web": "https://www.tecnozero.com",
+    "sector": "Cloud Microsoft Azure y sistemas",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-cloud",
+      "asir-sistemas",
+      "asir-soporte"
+    ],
+    "motivoEncaje": "Pyme de servicios Azure y sistemas para empresas.",
+    "paginasContacto": [
+      "https://www.tecnozero.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "intelequia",
+    "nombre": "Intelequia",
+    "web": "https://intelequia.com",
+    "sector": "Cloud Microsoft Azure y desarrollo",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-cloud",
+      "dam-web",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Partner de Microsoft Azure con servicios cloud y desarrollo.",
+    "paginasContacto": [
+      "https://intelequia.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "electronic-arts-madrid",
+    "nombre": "Electronic Arts Madrid",
+    "web": "https://www.ea.com",
+    "sector": "Videojuegos",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-videojuegos",
+      "asir-soporte"
+    ],
+    "motivoEncaje": "El mayor estudio de videojuegos de España por plantilla (más de 600 personas en Madrid, según la Comunidad de Madrid, 2026).",
+    "paginasContacto": [
+      "https://www.ea.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "amadeus",
+    "nombre": "Amadeus",
+    "web": "https://amadeus.com",
+    "sector": "Tecnología para viajes",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "dam-web",
+      "dam-datos-ia",
+      "asir-cloud",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Tecnológica con sede en Madrid y grandes equipos de software y sistemas.",
+    "paginasContacto": [
+      "https://amadeus.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "orange-espana",
+    "nombre": "Orange España",
+    "web": "https://www.orange.es",
+    "sector": "Telecomunicaciones",
+    "tamano": "gran-empresa",
+    "zona": "oeste",
+    "perfiles": [
+      "asir-redes",
+      "asir-sistemas",
+      "asir-ciberseguridad",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Operador con sede en Pozuelo: redes, sistemas y ciberseguridad.",
+    "paginasContacto": [
+      "https://www.orange.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "vodafone-espana",
+    "nombre": "Vodafone España",
+    "web": "https://www.vodafone.es",
+    "sector": "Telecomunicaciones",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-redes",
+      "asir-ciberseguridad",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Operador con SOC y centros de operaciones en Madrid.",
+    "paginasContacto": [
+      "https://www.vodafone.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "ibm-espana",
+    "nombre": "IBM España",
+    "web": "https://www.ibm.com/es-es",
+    "sector": "Tecnología y consultoría",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "dam-datos-ia",
+      "asir-sistemas",
+      "asir-cloud",
+      "asir-ciberseguridad"
+    ],
+    "motivoEncaje": "Gran tecnológica con programas de talento joven y área de ciberseguridad.",
+    "paginasContacto": [
+      "https://www.ibm.com/es-es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "kyndryl-espana",
+    "nombre": "Kyndryl España",
+    "web": "https://www.kyndryl.com/es/es",
+    "sector": "Servicios de infraestructura TI",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-sistemas",
+      "asir-redes",
+      "asir-cloud",
+      "asir-soporte"
+    ],
+    "motivoEncaje": "Servicios de infraestructura: perfil muy afín a ASIR.",
+    "paginasContacto": [
+      "https://www.kyndryl.com/es/es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "aiuken",
+    "nombre": "Aiuken",
+    "web": "https://www.aiuken.com",
+    "sector": "Ciberseguridad y SOC",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-sistemas",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Empresa de ciberseguridad con SOC y servicios gestionados.",
+    "paginasContacto": [
+      "https://www.aiuken.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "factum",
+    "nombre": "Factum",
+    "web": "https://www.factum.es",
+    "sector": "Ciberseguridad y sistemas",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-sistemas",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Pyme madrileña de ciberseguridad e infraestructura.",
+    "paginasContacto": [
+      "https://www.factum.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "one-esecurity",
+    "nombre": "One eSecurity",
+    "web": "https://www.one-esecurity.com",
+    "sector": "Ciberseguridad y respuesta a incidentes",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-datos-ia-seguridad"
+    ],
+    "motivoEncaje": "Especialistas en respuesta a incidentes y análisis forense.",
+    "paginasContacto": [
+      "https://www.one-esecurity.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "dotforce",
+    "nombre": "Dotforce",
+    "web": "https://www.dotforce.es",
+    "sector": "Distribución de soluciones de ciberseguridad",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-redes",
+      "asir-soporte"
+    ],
+    "motivoEncaje": "Distribuidor de ciberseguridad con soporte técnico especializado.",
+    "paginasContacto": [
+      "https://www.dotforce.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "seresco",
+    "nombre": "Seresco",
+    "web": "https://www.seresco.es",
+    "sector": "Software de gestión, ERP y RR. HH.",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-erp",
+      "dam-bbdd",
+      "dam-backend",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Software de gestión y ERP con presencia en Madrid.",
+    "paginasContacto": [
+      "https://www.seresco.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "ilunion-tecnologia-y-accesibilidad",
+    "nombre": "Ilunion Tecnología y Accesibilidad",
+    "web": "https://www.ilunion.com",
+    "sector": "Servicios tecnológicos (grupo social ONCE)",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-soporte",
+      "asir-sistemas",
+      "dam-web"
+    ],
+    "motivoEncaje": "Grupo de economía social con servicios TI, soporte y accesibilidad web.",
+    "paginasContacto": [
+      "https://www.ilunion.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "gft-espana",
+    "nombre": "GFT España",
+    "web": "https://www.gft.com/es",
+    "sector": "Consultoría tecnológica para banca",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "dam-web",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Consultora de software para banca con equipos de desarrollo y cloud.",
+    "paginasContacto": [
+      "https://www.gft.com/es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "avanade-espana",
+    "nombre": "Avanade España",
+    "web": "https://www.avanade.com/es-es",
+    "sector": "Consultoría Microsoft",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-erp",
+      "asir-cloud",
+      "dam-datos-ia"
+    ],
+    "motivoEncaje": "Consultora especializada en Microsoft: Dynamics, Azure y desarrollo.",
+    "paginasContacto": [
+      "https://www.avanade.com/es-es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "deloitte-espana",
+    "nombre": "Deloitte España",
+    "web": "https://www.deloitte.com/es/es.html",
+    "sector": "Consultoría y ciberseguridad",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "dam-erp",
+      "dam-datos-ia",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Gran consultora con equipos de ciberseguridad, SAP y datos en Madrid.",
+    "paginasContacto": [
+      "https://www.deloitte.com/es/es.html"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "management-solutions",
+    "nombre": "Management Solutions",
+    "web": "https://www.managementsolutions.com",
+    "sector": "Consultoría de negocio y datos",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-datos-ia",
+      "dam-bbdd",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Consultora madrileña con mucho trabajo de datos y desarrollo.",
+    "paginasContacto": [
+      "https://www.managementsolutions.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "satec",
+    "nombre": "SATEC",
+    "web": "https://www.satec.es",
+    "sector": "Integración de sistemas y redes",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-redes",
+      "asir-sistemas",
+      "asir-ciberseguridad",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Integrador español de redes, sistemas y ciberseguridad.",
+    "paginasContacto": [
+      "https://www.satec.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "grupo-castilla",
+    "nombre": "Grupo Castilla",
+    "web": "https://www.grupocastilla.es",
+    "sector": "Software de RR. HH. y nóminas",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-erp",
+      "dam-web",
+      "dam-bbdd"
+    ],
+    "motivoEncaje": "Software de gestión de personas: ERP y desarrollo web.",
+    "paginasContacto": [
+      "https://www.grupocastilla.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "sage-espana",
+    "nombre": "Sage España",
+    "web": "https://www.sage.com/es-es",
+    "sector": "Software de gestión y ERP",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-erp",
+      "dam-backend",
+      "asir-soporte"
+    ],
+    "motivoEncaje": "Fabricante de ERP y software de gestión con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.sage.com/es-es"
+    ],
+    "tipoContactoEsperado": "general"
   }
 ]

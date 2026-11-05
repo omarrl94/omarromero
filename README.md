@@ -7,7 +7,7 @@ consiga plaza de **Formación en Empresa (FFE)** y encuentre ofertas de su perfi
 - **Ofertas:** prácticas, becas, junior y primer empleo desde APIs oficiales (Adzuna, InfoJobs y los feeds públicos Greenhouse, Lever y Ashby de las empresas del directorio), más enlaces profundos a LinkedIn, Indeed, Tecnoempleo, Glassdoor y Welcome to the Jungle.
 - **Privacidad:** sin registro ni analítica. Los datos del alumno se guardan solo en su navegador. El directorio está protegido con un código validado en el servidor y no se indexa.
 
-Las reglas del proyecto están en [CLAUDE.md](CLAUDE.md). **Antes de publicar, lee [docs/PENDIENTES.md](docs/PENDIENTES.md).**
+Las reglas del proyecto están en [CLAUDE.md](CLAUDE.md). **Para publicar, sigue [docs/DESPLIEGUE.md](docs/DESPLIEGUE.md)** (paso a paso, solo con el navegador).
 
 ## Stack
 
