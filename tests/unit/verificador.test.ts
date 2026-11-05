@@ -45,7 +45,7 @@ describe('valoración y elección', () => {
     expect(motivo('talento@acme.test')).toBeUndefined();
   });
   it('rechaza buzones de privacidad, clientes, ventas, administración y de otros países', () => {
-    const r = valorarCorreos(['contacto.dpd@acme.test', 'careers.au@acme.test', 'careers.hk@acme.test', 'it.jobs@acme.test', 'contact_eahelp@acme.test', 'comercial@acme.test', 'administracion@acme.test', 'atencion.clientes@acme.test', 'careers.es@acme.test', 'talento@acme.test'], WEB);
+    const r = valorarCorreos(['contacto.dpd@acme.test', 'careers.au@acme.test', 'careers.hk@acme.test', 'global.careers@acme.test', 'secretaria@acme.test', 'it.jobs@acme.test', 'contact_eahelp@acme.test', 'comercial@acme.test', 'administracion@acme.test', 'atencion.clientes@acme.test', 'careers.es@acme.test', 'talento@acme.test'], WEB);
     const aceptados = r.filter((x) => !x.motivoRechazo).map((x) => x.email);
     expect(aceptados).toEqual(['careers.es@acme.test', 'talento@acme.test']); // it.jobs@ es ambiguo (Italia): ante la duda, fuera
   });
@@ -64,6 +64,9 @@ describe('páginas', () => {
     expect(e).toEqual(expect.arrayContaining(['https://www.acme.test/es/contacto', 'https://careers.acme.test/jobs', 'https://www.acme.test/aviso-legal']));
     expect(e.some((u) => u.includes('otra.test'))).toBe(false);
     expect(e.some((u) => u.includes('/blog/'))).toBe(false);
+  });
+  it('descodifica &amp; en los enlaces', () => {
+    expect(enlacesDeInteres('<a href="/empleo?a=1&amp;b=2">Empleo</a>', WEB + '/')).toEqual(['https://www.acme.test/empleo?a=1&b=2']);
   });
   it('detecta feeds ATS enlazados', () => {
     expect(detectarAts(html)).toEqual([

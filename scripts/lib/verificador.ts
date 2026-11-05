@@ -66,9 +66,9 @@ export function tipoContactoDe(email: string): TipoContacto {
 /** Fragmentos que, en cualquier parte del buzón, indican que no es para candidaturas. */
 const FRAGMENTOS_NO_CANDIDATURAS = ['help', 'ayuda', 'support', 'soporte', 'privacy', 'privacidad', 'dpo', 'dpd', 'rgpd', 'gdpr', 'lopd', 'compliance', 'factura', 'billing', 'invoice', 'reclamacion', 'incidencia', 'abuse', 'noreply', 'no-reply', 'accesibilidad', 'customer'];
 /** Buzones de clientes, ventas o administración (no de candidaturas). */
-const OTROS_NO_CANDIDATURAS = ['comercial', 'commercial', 'clientes', 'cliente', 'atencion', 'administracion', 'contabilidad', 'accounting'];
+const OTROS_NO_CANDIDATURAS = ['comercial', 'commercial', 'clientes', 'cliente', 'atencion', 'administracion', 'contabilidad', 'accounting', 'secretaria', 'secretariado', 'direccion', 'gerencia'];
 /** Códigos de país distintos de España en el buzón (p. ej. careers.au@): buzones de otras filiales. */
-const PAISES_EXTRANJEROS = ['au', 'uk', 'us', 'de', 'fr', 'it', 'pt', 'nl', 'be', 'mx', 'br', 'ar', 'cl', 'co', 'pe', 'in', 'ca', 'ie', 'pl', 'ch', 'at', 'se', 'no', 'dk', 'fi', 'emea', 'latam', 'apac', 'usa'];
+const PAISES_EXTRANJEROS = ['au', 'uk', 'us', 'de', 'fr', 'it', 'pt', 'nl', 'be', 'mx', 'br', 'ar', 'cl', 'co', 'pe', 'in', 'ca', 'ie', 'pl', 'ch', 'at', 'se', 'no', 'dk', 'fi', 'emea', 'latam', 'apac', 'usa', 'global', 'international', 'intl', 'worldwide', 'europe'];
 
 /** Siglas de dos letras que sí pueden aparecer en un buzón español. */
 const DOS_LETRAS_PERMITIDAS = ['es', 'rh', 'hr', 'it', 'ti', 'cv', 'fp', 'rr', 'hh'];
@@ -120,7 +120,8 @@ export function enlacesDeInteres(html: string, base: string, max = 10): string[]
   const hostBase = new URL(base).hostname.replace(/^www\./, '');
   const raiz = hostBase.split('.').slice(-2).join('.');
   for (const m of html.matchAll(/<a\b[^>]*href=["']([^"'#]+)["'][^>]*>([\s\S]*?)<\/a>/gi)) {
-    const [, href, texto] = m;
+    const texto = m[2];
+    const href = decodificarEntidades(m[1]);
     if (/^(mailto|tel|javascript):/i.test(href)) continue;
     let url: URL;
     try {
