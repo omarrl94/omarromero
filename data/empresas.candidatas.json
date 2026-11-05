@@ -1,0 +1,1284 @@
+[
+  {
+    "id": "indra-group",
+    "nombre": "Indra Group",
+    "web": "https://www.indragroup.com",
+    "sector": "Tecnología, defensa y consultoría (Minsait)",
+    "tamano": "gran-empresa",
+    "zona": "norte",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-erp",
+      "dam-datos-ia",
+      "asir-ciberseguridad",
+      "asir-sistemas",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Gran empleador TIC con sede en Alcobendas que en 2026 anunció su apuesta por incorporar alumnado de ciclos de Informática mediante becas.",
+    "paginasContacto": [
+      "https://www.indragroup.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "telefonica-tech",
+    "nombre": "Telefónica Tech",
+    "web": "https://telefonicatech.com",
+    "sector": "Ciberseguridad, cloud e IoT",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-cloud",
+      "asir-redes",
+      "asir-sistemas",
+      "dam-datos-ia",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Unidad digital de Telefónica con SOC y servicios cloud: encaja con ASIR (SOC, cloud, redes) y DAM (datos, backend).",
+    "paginasContacto": [
+      "https://telefonicatech.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "accenture-espana",
+    "nombre": "Accenture España",
+    "web": "https://www.accenture.com/es-es",
+    "sector": "Consultoría tecnológica",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-erp",
+      "dam-datos-ia",
+      "asir-ciberseguridad",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Consultora con grandes equipos de desarrollo, SAP, datos y ciberseguridad en Madrid.",
+    "paginasContacto": [
+      "https://www.accenture.com/es-es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "ntt-data-espana",
+    "nombre": "NTT DATA España",
+    "web": "https://es.nttdata.com",
+    "sector": "Consultoría y servicios TI",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-erp",
+      "dam-bbdd",
+      "asir-ciberseguridad",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Consultora con muchos proyectos de desarrollo y ciberseguridad; publica becas y prácticas para estudiantes.",
+    "paginasContacto": [
+      "https://es.nttdata.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "capgemini-espana",
+    "nombre": "Capgemini España",
+    "web": "https://www.capgemini.com/es-es",
+    "sector": "Consultoría y servicios TI",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-erp",
+      "dam-datos-ia",
+      "asir-cloud",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Grandes equipos de desarrollo, SAP y cloud con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.capgemini.com/es-es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "sopra-steria-espana",
+    "nombre": "Sopra Steria España",
+    "web": "https://www.soprasteria.es",
+    "sector": "Consultoría y servicios TI",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-bbdd",
+      "asir-sistemas",
+      "asir-soporte",
+      "asir-ciberseguridad"
+    ],
+    "motivoEncaje": "Consultora con proyectos de desarrollo, soporte y sistemas para banca y Administración.",
+    "paginasContacto": [
+      "https://www.soprasteria.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "gmv",
+    "nombre": "GMV",
+    "web": "https://www.gmv.com",
+    "sector": "Espacio, defensa, ciberseguridad y software",
+    "tamano": "gran-empresa",
+    "zona": "norte",
+    "perfiles": [
+      "dam-backend",
+      "dam-escritorio",
+      "dam-datos-ia",
+      "asir-ciberseguridad",
+      "asir-sistemas",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Tecnológica española con sede en Tres Cantos: software crítico, ciberseguridad y sistemas.",
+    "paginasContacto": [
+      "https://www.gmv.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "inetum-espana",
+    "nombre": "Inetum España",
+    "web": "https://www.inetum.com/es",
+    "sector": "Servicios digitales y consultoría TI",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-erp",
+      "asir-soporte",
+      "asir-sistemas",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Consultora con proyectos de desarrollo, ERP y soporte, y mucho volumen de perfiles junior.",
+    "paginasContacto": [
+      "https://www.inetum.com/es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "viewnext",
+    "nombre": "Viewnext",
+    "web": "https://www.viewnext.com",
+    "sector": "Servicios TI (grupo IBM)",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "dam-bbdd",
+      "asir-sistemas",
+      "asir-soporte",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Filial de IBM centrada en mantenimiento de aplicaciones, sistemas y soporte.",
+    "paginasContacto": [
+      "https://www.viewnext.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "ayesa",
+    "nombre": "Ayesa",
+    "web": "https://www.ayesa.com",
+    "sector": "Ingeniería y consultoría tecnológica",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-erp",
+      "asir-sistemas",
+      "asir-ciberseguridad"
+    ],
+    "motivoEncaje": "Consultora tecnológica con oficina en Madrid y proyectos de desarrollo y sistemas.",
+    "paginasContacto": [
+      "https://www.ayesa.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "babel",
+    "nombre": "Babel",
+    "web": "https://www.babelgroup.com",
+    "sector": "Consultoría tecnológica",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-datos-ia",
+      "asir-cloud",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Consultora española mediana con desarrollo, cloud y datos.",
+    "paginasContacto": [
+      "https://www.babelgroup.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "hiberus",
+    "nombre": "Hiberus",
+    "web": "https://www.hiberus.com",
+    "sector": "Consultoría tecnológica",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-android",
+      "dam-backend",
+      "dam-erp",
+      "asir-sistemas",
+      "asir-ciberseguridad"
+    ],
+    "motivoEncaje": "Consultora con equipos de desarrollo web, móvil y ERP; oficina en Madrid.",
+    "paginasContacto": [
+      "https://www.hiberus.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "paradigma-digital",
+    "nombre": "Paradigma Digital",
+    "web": "https://www.paradigmadigital.com",
+    "sector": "Desarrollo de software y cloud",
+    "tamano": "consultora",
+    "zona": "oeste",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-android",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Consultora de desarrollo y cloud con sede en Pozuelo de Alarcón.",
+    "paginasContacto": [
+      "https://www.paradigmadigital.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "plain-concepts",
+    "nombre": "Plain Concepts",
+    "web": "https://www.plainconcepts.com",
+    "sector": "Desarrollo de software, IA y realidad extendida",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-videojuegos",
+      "dam-datos-ia",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Desarrollo .NET, IA y realidad mixta: encaja con DAM web, backend y videojuegos.",
+    "paginasContacto": [
+      "https://www.plainconcepts.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "izertis",
+    "nombre": "Izertis",
+    "web": "https://www.izertis.com",
+    "sector": "Consultoría tecnológica",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-erp",
+      "asir-ciberseguridad",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Consultora cotizada con desarrollo, ERP y ciberseguridad y oficina en Madrid.",
+    "paginasContacto": [
+      "https://www.izertis.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "sngular",
+    "nombre": "Sngular",
+    "web": "https://www.sngular.com",
+    "sector": "Desarrollo de software y datos",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-android",
+      "dam-backend",
+      "dam-datos-ia",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Consultora de desarrollo con equipos web, móvil y datos.",
+    "paginasContacto": [
+      "https://www.sngular.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "bosonit",
+    "nombre": "Bosonit",
+    "web": "https://www.bosonit.com",
+    "sector": "Datos, cloud y desarrollo",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "dam-bbdd",
+      "dam-datos-ia",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Consultora centrada en datos y cloud con programas de formación para perfiles junior.",
+    "paginasContacto": [
+      "https://www.bosonit.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "stratio",
+    "nombre": "Stratio",
+    "web": "https://www.stratio.com",
+    "sector": "Software de datos e IA",
+    "tamano": "startup",
+    "zona": "oeste",
+    "perfiles": [
+      "dam-datos-ia",
+      "dam-backend",
+      "dam-bbdd",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Producto de datos e IA generativa con sede en Pozuelo de Alarcón.",
+    "paginasContacto": [
+      "https://www.stratio.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "keepler-data-tech",
+    "nombre": "Keepler Data Tech",
+    "web": "https://keepler.io",
+    "sector": "Datos y cloud (AWS)",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-datos-ia",
+      "dam-backend",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Pyme especializada en datos sobre AWS: encaja con cloud (ASIR) y datos con Python (DAM).",
+    "paginasContacto": [
+      "https://keepler.io"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "bluetab",
+    "nombre": "Bluetab",
+    "web": "https://www.bluetab.net",
+    "sector": "Datos y analítica (grupo IBM)",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-datos-ia",
+      "dam-bbdd",
+      "dam-backend",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Consultora de datos con proyectos de ingeniería de datos y cloud.",
+    "paginasContacto": [
+      "https://www.bluetab.net"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "seidor",
+    "nombre": "Seidor",
+    "web": "https://www.seidor.com",
+    "sector": "Consultoría ERP (SAP) y tecnología",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-erp",
+      "dam-bbdd",
+      "dam-backend",
+      "asir-sistemas",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Gran partner de SAP y Microsoft: encaja con el perfil ERP de DAM.",
+    "paginasContacto": [
+      "https://www.seidor.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "grupo-oesia",
+    "nombre": "Grupo Oesía",
+    "web": "https://grupooesia.com",
+    "sector": "Ingeniería y consultoría TI",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "dam-web",
+      "asir-ciberseguridad",
+      "asir-sistemas",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Grupo de ingeniería con desarrollo, ciberseguridad y comunicaciones.",
+    "paginasContacto": [
+      "https://grupooesia.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "altia",
+    "nombre": "Altia",
+    "web": "https://www.altia.es",
+    "sector": "Consultoría TI",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-erp",
+      "asir-sistemas",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Consultora con desarrollo y servicios gestionados para Administración y empresa.",
+    "paginasContacto": [
+      "https://www.altia.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "panel-sistemas",
+    "nombre": "Panel Sistemas",
+    "web": "https://www.panel.es",
+    "sector": "Consultoría y desarrollo TI",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-bbdd",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Consultora mediana madrileña con desarrollo y bases de datos.",
+    "paginasContacto": [
+      "https://www.panel.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "kairos-digital-solutions",
+    "nombre": "Kairós Digital Solutions",
+    "web": "https://www.kairosds.com",
+    "sector": "Desarrollo de software y transformación digital",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-android",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Consultora de desarrollo con equipos web, móvil y cloud.",
+    "paginasContacto": [
+      "https://www.kairosds.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "ackstorm",
+    "nombre": "Ackstorm",
+    "web": "https://www.ackstorm.com",
+    "sector": "Cloud gestionado",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-cloud",
+      "asir-sistemas",
+      "asir-soporte"
+    ],
+    "motivoEncaje": "Servicios cloud gestionados: encaja con ASIR cloud y sistemas.",
+    "paginasContacto": [
+      "https://www.ackstorm.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "computacenter-espana",
+    "nombre": "Computacenter España",
+    "web": "https://www.computacenter.com/es-es",
+    "sector": "Servicios de infraestructura TI",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-soporte",
+      "asir-sistemas",
+      "asir-redes",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Proveedor de infraestructura y puesto de trabajo: soporte, sistemas y redes.",
+    "paginasContacto": [
+      "https://www.computacenter.com/es-es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "econocom-espana",
+    "nombre": "Econocom España",
+    "web": "https://www.econocom.es",
+    "sector": "Servicios TI y puesto de trabajo",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-soporte",
+      "asir-sistemas",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Servicios de puesto de trabajo y soporte: muy afín a ASIR soporte y sistemas.",
+    "paginasContacto": [
+      "https://www.econocom.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "bechtle-espana",
+    "nombre": "Bechtle España",
+    "web": "https://www.bechtle.com/es",
+    "sector": "Integración de sistemas TI",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-sistemas",
+      "asir-redes",
+      "asir-soporte",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Integrador de sistemas con proyectos de redes, servidores y cloud.",
+    "paginasContacto": [
+      "https://www.bechtle.com/es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "digital-realty-espana",
+    "nombre": "Digital Realty España (Interxion)",
+    "web": "https://www.digitalrealty.es",
+    "sector": "Centros de datos",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-sistemas",
+      "asir-redes",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Operador de centros de datos en Madrid: redes, sistemas e infraestructura.",
+    "paginasContacto": [
+      "https://www.digitalrealty.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "lyntia",
+    "nombre": "Lyntia",
+    "web": "https://www.lyntia.com",
+    "sector": "Redes de fibra y telecomunicaciones",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-redes",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Operador neutro de fibra con sede en Madrid: perfil de redes.",
+    "paginasContacto": [
+      "https://www.lyntia.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "bbva",
+    "nombre": "BBVA",
+    "web": "https://www.bbva.com",
+    "sector": "Banca (área tecnológica)",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-datos-ia",
+      "asir-ciberseguridad",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Gran área de ingeniería en Madrid con programas de talento joven.",
+    "paginasContacto": [
+      "https://www.bbva.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "banco-santander",
+    "nombre": "Banco Santander",
+    "web": "https://www.santander.com",
+    "sector": "Banca (área tecnológica)",
+    "tamano": "gran-empresa",
+    "zona": "oeste",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-datos-ia",
+      "asir-ciberseguridad",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Ciudad Financiera en Boadilla del Monte con equipos de tecnología y ciberseguridad.",
+    "paginasContacto": [
+      "https://www.santander.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "mapfre",
+    "nombre": "Mapfre",
+    "web": "https://www.mapfre.com",
+    "sector": "Seguros (área tecnológica)",
+    "tamano": "gran-empresa",
+    "zona": "oeste",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-erp",
+      "asir-sistemas",
+      "asir-ciberseguridad"
+    ],
+    "motivoEncaje": "Sede en Majadahonda con un área de tecnología amplia.",
+    "paginasContacto": [
+      "https://www.mapfre.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "openbank",
+    "nombre": "Openbank",
+    "web": "https://www.openbank.es",
+    "sector": "Banca digital",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-android",
+      "dam-backend",
+      "asir-cloud",
+      "asir-ciberseguridad"
+    ],
+    "motivoEncaje": "Banco digital del grupo Santander con producto propio web y móvil.",
+    "paginasContacto": [
+      "https://www.openbank.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "ciemat",
+    "nombre": "CIEMAT",
+    "web": "https://www.ciemat.es",
+    "sector": "Organismo público de investigación",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "dam-datos-ia",
+      "asir-sistemas",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Organismo público que en 2026 publicó en el BOE un convenio para la formación en empresa de FP en Madrid.",
+    "paginasContacto": [
+      "https://www.ciemat.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "s21sec",
+    "nombre": "S21sec",
+    "web": "https://www.s21sec.com",
+    "sector": "Ciberseguridad (grupo Thales)",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-sistemas",
+      "asir-redes"
+    ],
+    "motivoEncaje": "SOC en Madrid y servicios gestionados de ciberseguridad.",
+    "paginasContacto": [
+      "https://www.s21sec.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "entelgy",
+    "nombre": "Entelgy",
+    "web": "https://www.entelgy.com",
+    "sector": "Consultoría tecnológica y ciberseguridad (Innotec)",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "dam-web",
+      "dam-backend",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Grupo con la división de ciberseguridad Innotec y su SmartSOC en Madrid.",
+    "paginasContacto": [
+      "https://www.entelgy.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "zerolynx",
+    "nombre": "Zerolynx",
+    "web": "https://www.zerolynx.com",
+    "sector": "Ciberseguridad ofensiva",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-redes",
+      "asir-datos-ia-seguridad"
+    ],
+    "motivoEncaje": "Pyme madrileña de pentesting y seguridad ofensiva.",
+    "paginasContacto": [
+      "https://www.zerolynx.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "mnemo",
+    "nombre": "Mnemo",
+    "web": "https://www.mnemo.com",
+    "sector": "Ciberseguridad gestionada",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-sistemas",
+      "asir-soporte"
+    ],
+    "motivoEncaje": "Empresa de ciberseguridad gestionada con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.mnemo.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "tarlogic",
+    "nombre": "Tarlogic",
+    "web": "https://www.tarlogic.com",
+    "sector": "Ciberseguridad",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-redes",
+      "asir-datos-ia-seguridad"
+    ],
+    "motivoEncaje": "Ciberseguridad ofensiva y defensiva con oficina en Madrid.",
+    "paginasContacto": [
+      "https://www.tarlogic.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "secure-it",
+    "nombre": "Secure&IT",
+    "web": "https://www.secureit.es",
+    "sector": "Ciberseguridad y cumplimiento",
+    "tamano": "pyme",
+    "zona": "oeste",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-sistemas",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Pyme de ciberseguridad en la zona noroeste (Las Matas) con analistas SOC.",
+    "paginasContacto": [
+      "https://www.secureit.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "grupo-ica",
+    "nombre": "Grupo ICA",
+    "web": "https://www.grupoica.com",
+    "sector": "Sistemas, seguridad y CiberSOC",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-sistemas",
+      "asir-redes",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Tecnológica con CiberSOC propio, sistemas y desarrollo.",
+    "paginasContacto": [
+      "https://www.grupoica.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "prosegur-cipher",
+    "nombre": "Prosegur Cipher",
+    "web": "https://www.prosegur.es",
+    "sector": "Ciberseguridad (grupo Prosegur)",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "SOC en la sede madrileña de Prosegur.",
+    "paginasContacto": [
+      "https://www.prosegur.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "bedisruptive",
+    "nombre": "BeDisruptive",
+    "web": "https://bedisruptive.com",
+    "sector": "Ciberseguridad gestionada",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-datos-ia-seguridad",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Pyme de ciberseguridad gestionada y respuesta a incidentes.",
+    "paginasContacto": [
+      "https://bedisruptive.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "cabify",
+    "nombre": "Cabify",
+    "web": "https://cabify.com",
+    "sector": "Movilidad (producto digital)",
+    "tamano": "startup",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "dam-android",
+      "dam-web",
+      "dam-datos-ia"
+    ],
+    "motivoEncaje": "Producto digital madrileño con equipos de ingeniería móvil, backend y datos.",
+    "paginasContacto": [
+      "https://cabify.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "idealista",
+    "nombre": "idealista",
+    "web": "https://www.idealista.com",
+    "sector": "Portal inmobiliario (producto digital)",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-android",
+      "dam-datos-ia",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Producto digital madrileño con equipos de desarrollo y datos.",
+    "paginasContacto": [
+      "https://www.idealista.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "fever",
+    "nombre": "Fever",
+    "web": "https://feverup.com",
+    "sector": "Ocio y entretenimiento (producto digital)",
+    "tamano": "startup",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "dam-web",
+      "dam-android",
+      "dam-datos-ia"
+    ],
+    "motivoEncaje": "Startup madrileña de alto crecimiento con equipos de ingeniería y datos.",
+    "paginasContacto": [
+      "https://feverup.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "jobandtalent",
+    "nombre": "Jobandtalent",
+    "web": "https://www.jobandtalent.com",
+    "sector": "Empleo (producto digital)",
+    "tamano": "startup",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "dam-web",
+      "dam-datos-ia"
+    ],
+    "motivoEncaje": "Plataforma de empleo con sede en Madrid y equipos de ingeniería.",
+    "paginasContacto": [
+      "https://www.jobandtalent.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "clarity-ai",
+    "nombre": "Clarity AI",
+    "web": "https://clarity.ai",
+    "sector": "Datos e IA para sostenibilidad",
+    "tamano": "startup",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-datos-ia",
+      "dam-backend",
+      "dam-web"
+    ],
+    "motivoEncaje": "Startup de datos e IA con ingeniería en Madrid.",
+    "paginasContacto": [
+      "https://clarity.ai"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "seedtag",
+    "nombre": "Seedtag",
+    "web": "https://www.seedtag.com",
+    "sector": "Publicidad contextual con IA",
+    "tamano": "startup",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-datos-ia",
+      "dam-backend",
+      "dam-web"
+    ],
+    "motivoEncaje": "Adtech madrileña con IA y equipos de desarrollo.",
+    "paginasContacto": [
+      "https://www.seedtag.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "lingokids",
+    "nombre": "Lingokids",
+    "web": "https://lingokids.com",
+    "sector": "Educación infantil (apps)",
+    "tamano": "startup",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-android",
+      "dam-videojuegos",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Apps educativas gamificadas: encaja con móvil y videojuegos.",
+    "paginasContacto": [
+      "https://lingokids.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "kenjo",
+    "nombre": "Kenjo",
+    "web": "https://www.kenjo.io",
+    "sector": "Software de RR. HH. (SaaS)",
+    "tamano": "startup",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend"
+    ],
+    "motivoEncaje": "SaaS madrileño de recursos humanos con desarrollo web.",
+    "paginasContacto": [
+      "https://www.kenjo.io"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "cobee",
+    "nombre": "Cobee",
+    "web": "https://www.cobee.io",
+    "sector": "Beneficios para empleados (fintech)",
+    "tamano": "startup",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-android"
+    ],
+    "motivoEncaje": "Fintech madrileña con producto web y móvil.",
+    "paginasContacto": [
+      "https://www.cobee.io"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "spotahome",
+    "nombre": "Spotahome",
+    "web": "https://www.spotahome.com",
+    "sector": "Alquiler online (producto digital)",
+    "tamano": "startup",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Producto web con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.spotahome.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "fintonic",
+    "nombre": "Fintonic",
+    "web": "https://www.fintonic.com",
+    "sector": "Finanzas personales (app)",
+    "tamano": "startup",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-android",
+      "dam-backend",
+      "dam-datos-ia"
+    ],
+    "motivoEncaje": "App financiera madrileña con equipos móvil y datos.",
+    "paginasContacto": [
+      "https://www.fintonic.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "bit2me",
+    "nombre": "Bit2Me",
+    "web": "https://bit2me.com",
+    "sector": "Criptoactivos (fintech)",
+    "tamano": "startup",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "asir-ciberseguridad",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Fintech con producto web y fuerte componente de seguridad.",
+    "paginasContacto": [
+      "https://bit2me.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "binhex",
+    "nombre": "Binhex",
+    "web": "https://binhex.cloud",
+    "sector": "Implantación de Odoo",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-erp",
+      "dam-backend",
+      "dam-web"
+    ],
+    "motivoEncaje": "Partner de Odoo en Madrid: desarrollo de módulos con Python.",
+    "paginasContacto": [
+      "https://binhex.cloud"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "aitana",
+    "nombre": "Aitana",
+    "web": "https://www.aitana.es",
+    "sector": "Consultoría Microsoft Dynamics",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-erp",
+      "dam-bbdd",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Partner de Microsoft Dynamics: perfil ERP.",
+    "paginasContacto": [
+      "https://www.aitana.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "quonext",
+    "nombre": "Quonext",
+    "web": "https://www.quonext.com",
+    "sector": "Consultoría ERP y CRM (Microsoft)",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-erp",
+      "dam-bbdd"
+    ],
+    "motivoEncaje": "Partner de Business Central y CRM.",
+    "paginasContacto": [
+      "https://www.quonext.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "grupo-efor",
+    "nombre": "Grupo Efor",
+    "web": "https://www.efor.es",
+    "sector": "Consultoría ERP (Microsoft Dynamics)",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-erp",
+      "dam-bbdd",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Partner de Microsoft con sede en Madrid que implanta Dynamics 365.",
+    "paginasContacto": [
+      "https://www.efor.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "devaim",
+    "nombre": "Devaim",
+    "web": "https://www.devaim.com",
+    "sector": "Consultoría ERP (Business Central)",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-erp",
+      "dam-bbdd"
+    ],
+    "motivoEncaje": "Consultora madrileña que implanta Dynamics NAV y Business Central.",
+    "paginasContacto": [
+      "https://www.devaim.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "goom-spain",
+    "nombre": "Goom Spain",
+    "web": "https://www.goom.es",
+    "sector": "Consultoría cloud Microsoft y Business Central",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-erp",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Partner cloud de Microsoft en Madrid con implantaciones de Business Central.",
+    "paginasContacto": [
+      "https://www.goom.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "tequila-works",
+    "nombre": "Tequila Works",
+    "web": "https://tequilaworks.com",
+    "sector": "Desarrollo de videojuegos",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-videojuegos",
+      "dam-escritorio"
+    ],
+    "motivoEncaje": "Estudio madrileño de videojuegos.",
+    "paginasContacto": [
+      "https://tequilaworks.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "mercurysteam",
+    "nombre": "MercurySteam",
+    "web": "https://www.mercurysteam.com",
+    "sector": "Desarrollo de videojuegos",
+    "tamano": "pyme",
+    "zona": "norte",
+    "perfiles": [
+      "dam-videojuegos",
+      "dam-escritorio"
+    ],
+    "motivoEncaje": "Estudio de videojuegos en San Sebastián de los Reyes.",
+    "paginasContacto": [
+      "https://www.mercurysteam.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "virtual-toys",
+    "nombre": "Virtual Toys",
+    "web": "https://www.virtualtoys.net",
+    "sector": "Desarrollo de videojuegos",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-videojuegos",
+      "dam-android"
+    ],
+    "motivoEncaje": "Estudio madrileño de videojuegos y experiencias interactivas.",
+    "paginasContacto": [
+      "https://www.virtualtoys.net"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "u-play-studios",
+    "nombre": "U-Play Studios",
+    "web": "https://www.uplaystudios.com",
+    "sector": "Videojuegos y gamificación",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-videojuegos",
+      "dam-android",
+      "dam-web"
+    ],
+    "motivoEncaje": "Estudio de juegos y gamificación para marcas en Madrid.",
+    "paginasContacto": [
+      "https://www.uplaystudios.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "saona-studios",
+    "nombre": "Saona Studios",
+    "web": "https://www.saonastudios.com",
+    "sector": "Videojuegos y realidad virtual",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-videojuegos"
+    ],
+    "motivoEncaje": "Estudio madrileño de videojuegos y realidad virtual.",
+    "paginasContacto": [
+      "https://www.saonastudios.com"
+    ],
+    "tipoContactoEsperado": "general"
+  }
+]
