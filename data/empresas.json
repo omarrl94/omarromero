@@ -110,35 +110,6 @@
     }
   },
   {
-    "id": "altia",
-    "nombre": "Altia",
-    "web": "https://www.altia.es",
-    "sector": "Consultoría TI",
-    "tamano": "consultora",
-    "zona": "madrid",
-    "perfiles": [
-      "dam-web",
-      "dam-backend",
-      "dam-erp",
-      "asir-sistemas",
-      "asir-cloud"
-    ],
-    "motivoEncaje": "Consultora con desarrollo y servicios gestionados para Administración y empresa.",
-    "contacto": {
-      "tipo": "email",
-      "email": "contacto.dpd@altia.es",
-      "fuenteUrl": "https://www.altiacompany.com/es/aviso-legal",
-      "tipoContacto": "general"
-    },
-    "empleoUrl": "https://www.altiacompany.com/es/unete",
-    "verificacion": {
-      "fecha": "2026-11-05",
-      "confianza": "media",
-      "mx": true,
-      "notas": "Verificación automática: 4 páginas revisadas; correo extraído literalmente de la fuente."
-    }
-  },
-  {
     "id": "amadeus",
     "nombre": "Amadeus",
     "web": "https://amadeus.com",
@@ -489,7 +460,7 @@
     "motivoEncaje": "Proveedor de infraestructura y puesto de trabajo: soporte, sistemas y redes.",
     "contacto": {
       "tipo": "email",
-      "email": "careers.au@computacenter.com",
+      "email": "careers.hk@computacenter.com",
       "fuenteUrl": "https://www.computacenter.com/es-es/careers",
       "tipoContacto": "talento"
     },
@@ -543,8 +514,8 @@
     "motivoEncaje": "Consultora madrileña que implanta Dynamics NAV y Business Central.",
     "contacto": {
       "tipo": "email",
-      "email": "comercial@devaim.com",
-      "fuenteUrl": "https://www.devaim.com/aviso-legal/",
+      "email": "info@devaim.com",
+      "fuenteUrl": "https://www.devaim.com/",
       "tipoContacto": "general"
     },
     "empleoUrl": "https://www.devaim.com/trabaja-con-nosotros-unete-al-equipo-devaim/",
@@ -553,32 +524,6 @@
       "confianza": "media",
       "mx": true,
       "notas": "Verificación automática: 3 páginas revisadas; correo extraído literalmente de la fuente."
-    }
-  },
-  {
-    "id": "digital-realty-espana",
-    "nombre": "Digital Realty España (Interxion)",
-    "web": "https://www.digitalrealty.es",
-    "sector": "Centros de datos",
-    "tamano": "gran-empresa",
-    "zona": "madrid",
-    "perfiles": [
-      "asir-sistemas",
-      "asir-redes",
-      "asir-cloud"
-    ],
-    "motivoEncaje": "Operador de centros de datos en Madrid: redes, sistemas e infraestructura.",
-    "contacto": {
-      "tipo": "formulario",
-      "fuenteUrl": "https://www.digitalrealty.com/es/contact",
-      "formularioUrl": "https://www.digitalrealty.com/es/contact",
-      "tipoContacto": "general"
-    },
-    "verificacion": {
-      "fecha": "2026-11-05",
-      "confianza": "media",
-      "mx": null,
-      "notas": "Verificación automática: 10 páginas revisadas; sin correo de candidaturas publicado, se usa el formulario oficial."
     }
   },
   {
@@ -608,33 +553,6 @@
     }
   },
   {
-    "id": "duonet",
-    "nombre": "Duonet",
-    "web": "https://www.duonet.es",
-    "sector": "Desarrollo web y aplicaciones de gestión",
-    "tamano": "pyme",
-    "zona": "madrid",
-    "perfiles": [
-      "dam-web",
-      "dam-backend",
-      "dam-bbdd"
-    ],
-    "motivoEncaje": "Pyme de programación web y aplicaciones de gestión empresarial.",
-    "contacto": {
-      "tipo": "formulario",
-      "fuenteUrl": "https://www.izertis.com/es/talento",
-      "formularioUrl": "https://www.izertis.com/es/talento",
-      "tipoContacto": "talento"
-    },
-    "empleoUrl": "https://www.izertis.com/es/talento",
-    "verificacion": {
-      "fecha": "2026-11-05",
-      "confianza": "media",
-      "mx": null,
-      "notas": "Verificación automática: 8 páginas revisadas; sin correo de candidaturas publicado, se usa el formulario oficial."
-    }
-  },
-  {
     "id": "econocom-espana",
     "nombre": "Econocom España",
     "web": "https://www.econocom.es",
@@ -659,31 +577,6 @@
       "confianza": "media",
       "mx": null,
       "notas": "Verificación automática: 7 páginas revisadas; sin correo de candidaturas publicado, se usa el formulario oficial."
-    }
-  },
-  {
-    "id": "electronic-arts-madrid",
-    "nombre": "Electronic Arts Madrid",
-    "web": "https://www.ea.com",
-    "sector": "Videojuegos",
-    "tamano": "gran-empresa",
-    "zona": "madrid",
-    "perfiles": [
-      "dam-videojuegos",
-      "asir-soporte"
-    ],
-    "motivoEncaje": "El mayor estudio de videojuegos de España por plantilla (más de 600 personas en Madrid, según la Comunidad de Madrid, 2026).",
-    "contacto": {
-      "tipo": "email",
-      "email": "contact_eahelp@ea.com",
-      "fuenteUrl": "https://www.ea.com/",
-      "tipoContacto": "general"
-    },
-    "verificacion": {
-      "fecha": "2026-11-05",
-      "confianza": "media",
-      "mx": true,
-      "notas": "Verificación automática: 2 páginas revisadas; correo extraído literalmente de la fuente."
     }
   },
   {
@@ -794,6 +687,32 @@
       "confianza": "media",
       "mx": true,
       "notas": "Verificación automática: 6 páginas revisadas; correo extraído literalmente de la fuente."
+    }
+  },
+  {
+    "id": "gigas",
+    "nombre": "Gigas",
+    "web": "https://gigas.com",
+    "sector": "Cloud y telecomunicaciones para empresas",
+    "tamano": "pyme",
+    "zona": "norte",
+    "perfiles": [
+      "asir-cloud",
+      "asir-sistemas",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Proveedor cloud con sede en Alcobendas.",
+    "contacto": {
+      "tipo": "email",
+      "email": "info@gigas.com",
+      "fuenteUrl": "https://gigas.com/legal/legal-proteccion-de-datos.html",
+      "tipoContacto": "general"
+    },
+    "verificacion": {
+      "fecha": "2026-11-05",
+      "confianza": "media",
+      "mx": true,
+      "notas": "Verificación automática: 7 páginas revisadas; correo extraído literalmente de la fuente."
     }
   },
   {
@@ -1154,7 +1073,7 @@
       "fecha": "2026-11-05",
       "confianza": "media",
       "mx": null,
-      "notas": "Verificación automática: 4 páginas revisadas; sin correo de candidaturas publicado, se usa el formulario oficial."
+      "notas": "Verificación automática: 6 páginas revisadas; sin correo de candidaturas publicado, se usa el formulario oficial."
     }
   },
   {
@@ -1294,6 +1213,33 @@
       "confianza": "media",
       "mx": null,
       "notas": "Verificación automática: 6 páginas revisadas; sin correo de candidaturas publicado, se usa el formulario oficial."
+    }
+  },
+  {
+    "id": "nunsys",
+    "nombre": "Nunsys",
+    "web": "https://www.nunsys.com",
+    "sector": "Consultoría TI, ciberseguridad y ERP",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-sistemas",
+      "dam-erp",
+      "dam-web"
+    ],
+    "motivoEncaje": "Grupo tecnológico con oficina en Madrid: ciberseguridad, sistemas y ERP.",
+    "contacto": {
+      "tipo": "email",
+      "email": "info@nunsys.com",
+      "fuenteUrl": "https://www.nunsys.com/",
+      "tipoContacto": "general"
+    },
+    "verificacion": {
+      "fecha": "2026-11-05",
+      "confianza": "media",
+      "mx": true,
+      "notas": "Verificación automática: 10 páginas revisadas; correo extraído literalmente de la fuente."
     }
   },
   {
@@ -1491,26 +1437,52 @@
     }
   },
   {
-    "id": "stratio",
-    "nombre": "Stratio",
-    "web": "https://www.stratio.com",
-    "sector": "Software de datos e IA",
-    "tamano": "startup",
-    "zona": "oeste",
+    "id": "sothis",
+    "nombre": "Sothis",
+    "web": "https://www.sothis.tech",
+    "sector": "Ciberseguridad, SAP e infraestructura",
+    "tamano": "consultora",
+    "zona": "madrid",
     "perfiles": [
-      "dam-datos-ia",
-      "dam-backend",
-      "dam-bbdd",
+      "asir-ciberseguridad",
+      "dam-erp",
       "asir-cloud"
     ],
-    "motivoEncaje": "Producto de datos e IA generativa con sede en Pozuelo de Alarcón.",
+    "motivoEncaje": "Tecnológica con SOC, consultoría SAP y cloud; oficina en Madrid.",
+    "contacto": {
+      "tipo": "email",
+      "email": "rrhh@sothis.tech",
+      "fuenteUrl": "https://www.sothis.tech/unete-al-equipo/",
+      "tipoContacto": "rrhh"
+    },
+    "empleoUrl": "https://www.sothis.tech/sothissf-core-hr-gestion-de-talento/",
+    "verificacion": {
+      "fecha": "2026-11-05",
+      "confianza": "alta",
+      "mx": true,
+      "notas": "Verificación automática: 7 páginas revisadas; correo extraído literalmente de la fuente."
+    }
+  },
+  {
+    "id": "stackscale",
+    "nombre": "Stackscale",
+    "web": "https://www.stackscale.com",
+    "sector": "Cloud privado e infraestructura",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-cloud",
+      "asir-sistemas",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Infraestructura cloud y bare-metal desde Madrid.",
     "contacto": {
       "tipo": "formulario",
-      "fuenteUrl": "https://stratio.ai/talent/",
-      "formularioUrl": "https://stratio.ai/talent/",
+      "fuenteUrl": "https://www.stackscale.com/jobs/",
+      "formularioUrl": "https://www.stackscale.com/jobs/",
       "tipoContacto": "talento"
     },
-    "empleoUrl": "https://stratio.ai/talent/",
+    "empleoUrl": "https://www.stackscale.com/jobs/",
     "verificacion": {
       "fecha": "2026-11-05",
       "confianza": "media",
@@ -1532,16 +1504,16 @@
     ],
     "motivoEncaje": "Pyme de servicios Azure y sistemas para empresas.",
     "contacto": {
-      "tipo": "email",
-      "email": "administracion@tecnozero.com",
+      "tipo": "formulario",
       "fuenteUrl": "https://www.tecnozero.com/contacto/",
+      "formularioUrl": "https://www.tecnozero.com/contacto/",
       "tipoContacto": "general"
     },
     "verificacion": {
       "fecha": "2026-11-05",
       "confianza": "media",
-      "mx": true,
-      "notas": "Verificación automática: 2 páginas revisadas; correo extraído literalmente de la fuente."
+      "mx": null,
+      "notas": "Verificación automática: 2 páginas revisadas; sin correo de candidaturas publicado, se usa el formulario oficial."
     }
   },
   {

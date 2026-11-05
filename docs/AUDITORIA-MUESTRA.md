@@ -1,18 +1,18 @@
 # Auditoría de una muestra al azar
 
-Fecha: 2026-11-05T17:17:34.423Z · Muestra: 10 de 61 · Con problemas: 0
+Fecha: 2026-11-05T17:24:05.442Z · Muestra: 10 de 60 · Con problemas: 0
 
 | Empresa | Contacto | Fuente | Resultado |
 |---|---|---|---|
-| Econocom España | formulario | https://www.econocom.es/trabaja-en-econocom/candidatura-espontanea | ✔ OK |
-| Accenture España | formulario | https://www.accenture.com/es-es/services/talent-organization | ✔ OK |
-| NTT DATA España | formulario | https://careers.emeal.nttdata.com/s/careers?language=es | ✔ OK |
-| Digital Realty España (Interxion) | formulario | https://www.digitalrealty.com/es/contact | ✔ OK |
-| Hiberus | info@hiberus.com | https://www.hiberus.com/aviso-legal | ✔ OK |
-| Seresco | formulario | https://seresco.es/talento/ofertas-empleo/ | ✔ OK |
-| Dotforce | info@dotforce.es | https://www.dotforce.es/ | ✔ OK |
+| Aiuken | info@aiuken.com | https://www.aiuken.com/ | ✔ OK |
+| Plain Concepts | formulario | https://www.plainconcepts.com/careers/ | ✔ OK |
+| Devaim | info@devaim.com | https://www.devaim.com/ | ✔ OK |
+| Aitana | formulario | https://www.aitana.es/aitana/trabaja-en-aitana/ | ✔ OK |
 | Lingokids | formulario | https://jobs.lingokids.com/ | ✔ OK |
-| Indra Group | formulario | https://careers.indragroup.com/ | ✔ OK |
-| Prosegur Cipher | formulario | https://www.prosegur.es/trabaja-con-nosotros | ✔ OK |
+| Clarity AI | formulario | https://clarity.ai/careers/ | ✔ OK |
+| Paradigma Digital | people@paradigmadigital.com | https://www.paradigmadigital.com/legal/ | ✔ OK |
+| Fever | hello@feverup.com | https://feverup.com/legal/terms_en.html | ✔ OK |
+| Bluetab | formulario | https://www.bluetab.net/unete-a-bluetab/ | ✔ OK |
+| Grupo Efor | info@efor.es | https://www.efor.es/aviso-legal.html | ✔ OK |
 
 Si alguna falla: vuelve a ejecutar `npm run verificar:empresas -- --solo=<id>` o retírala.

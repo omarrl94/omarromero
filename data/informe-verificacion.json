@@ -1,5 +1,5 @@
 {
-  "fecha": "2026-11-05T17:17:15.573Z",
+  "fecha": "2026-11-05T17:23:52.417Z",
   "resultados": [
     {
       "id": "indra-group",
@@ -646,39 +646,15 @@
       "id": "stratio",
       "nombre": "Stratio",
       "web": "https://www.stratio.com",
-      "estado": "valida",
+      "estado": "descartada",
       "paginasRevisadas": [
         {
           "url": "https://www.stratio.com",
           "estado": 200
-        },
-        {
-          "url": "https://stratio.ai/talent/",
-          "estado": 200
-        },
-        {
-          "url": "https://stratio.ai/contact/",
-          "estado": 200
-        },
-        {
-          "url": "https://stratio.ai/legal-notice/",
-          "estado": 200
         }
       ],
-      "correosEncontrados": [
-        {
-          "email": "privacy@stratio.com",
-          "tipo": "general",
-          "motivoRechazo": "buzón no destinado a candidaturas"
-        },
-        {
-          "email": "legal@stratio.com",
-          "tipo": "general",
-          "motivoRechazo": "buzón no destinado a candidaturas"
-        }
-      ],
-      "contacto": "formulario: https://stratio.ai/talent/",
-      "confianza": "media"
+      "correosEncontrados": [],
+      "motivo": "La web redirige a otro dominio (stratio.ai): posible empresa absorbida o cambio de marca, revisar a mano"
     },
     {
       "id": "keepler-data-tech",
@@ -759,42 +735,15 @@
       "id": "altia",
       "nombre": "Altia",
       "web": "https://www.altia.es",
-      "estado": "valida",
+      "estado": "descartada",
       "paginasRevisadas": [
         {
           "url": "https://www.altia.es",
           "estado": 200
-        },
-        {
-          "url": "https://www.altiacompany.com/es/altia/contacto",
-          "estado": 200
-        },
-        {
-          "url": "https://www.altiacompany.com/es/unete",
-          "estado": 200
-        },
-        {
-          "url": "https://www.altiacompany.com/es/aviso-legal",
-          "estado": 200
         }
       ],
-      "correosEncontrados": [
-        {
-          "email": "info@altia.es",
-          "tipo": "general"
-        },
-        {
-          "email": "lopd@altia.es",
-          "tipo": "general",
-          "motivoRechazo": "buzón no destinado a candidaturas"
-        },
-        {
-          "email": "contacto.dpd@altia.es",
-          "tipo": "general"
-        }
-      ],
-      "contacto": "contacto.dpd@altia.es (https://www.altiacompany.com/es/aviso-legal)",
-      "confianza": "media"
+      "correosEncontrados": [],
+      "motivo": "La web redirige a otro dominio (www.altiacompany.com): posible empresa absorbida o cambio de marca, revisar a mano"
     },
     {
       "id": "panel-sistemas",
@@ -934,7 +883,7 @@
           "estado": 200
         },
         {
-          "url": "https://www.computacenter.com/es-es/sustainability/people/people-vision",
+          "url": "https://www.computacenter.com/sustainability/people/people-vision",
           "estado": 200
         },
         {
@@ -953,7 +902,8 @@
         },
         {
           "email": "careers.au@computacenter.com",
-          "tipo": "talento"
+          "tipo": "talento",
+          "motivoRechazo": "buzón no destinado a candidaturas"
         },
         {
           "email": "careers.hk@computacenter.com",
@@ -963,9 +913,24 @@
           "email": "bianca.garrido@computacenter.com",
           "tipo": "general",
           "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "tell.us@computacenter.com",
+          "tipo": "general",
+          "motivoRechazo": "buzón no destinado a candidaturas"
+        },
+        {
+          "email": "contacts@computacenter.fr",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
+        },
+        {
+          "email": "webmaster@computacenter.fr",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
         }
       ],
-      "contacto": "careers.au@computacenter.com (https://www.computacenter.com/es-es/careers)",
+      "contacto": "careers.hk@computacenter.com (https://www.computacenter.com/es-es/careers)",
       "confianza": "alta"
     },
     {
@@ -1051,172 +1016,15 @@
       "id": "digital-realty-espana",
       "nombre": "Digital Realty España (Interxion)",
       "web": "https://www.digitalrealty.es",
-      "estado": "valida",
+      "estado": "descartada",
       "paginasRevisadas": [
         {
           "url": "https://www.digitalrealty.es",
           "estado": 200
-        },
-        {
-          "url": "https://www.digitalrealty.com/es/expertise/expert-teams",
-          "estado": 200
-        },
-        {
-          "url": "https://www.digitalrealty.com/es/about/leadership",
-          "estado": 200
-        },
-        {
-          "url": "https://www.digitalrealty.com/es/contact",
-          "estado": 200
-        },
-        {
-          "url": "https://www.digitalrealty.com/about/careers",
-          "estado": "UNABLE_TO_VERIFY_LEAF_SIGNATURE"
-        },
-        {
-          "url": "https://www.digitalrealty.com/es/about/legal",
-          "estado": 200
-        },
-        {
-          "url": "https://www.digitalrealty.com/es/about/legal/privacy",
-          "estado": 200
-        },
-        {
-          "url": "https://www.digitalrealty.com/es/about/legal/terms",
-          "estado": 200
-        },
-        {
-          "url": "https://www.digitalrealty.com/es/about/legal/privacy/cookies",
-          "estado": 200
-        },
-        {
-          "url": "https://www.digitalrealty.com/es/about/legal/policies/acceptable-use",
-          "estado": 200
-        },
-        {
-          "url": "https://www.digitalrealty.com/es/about/legal/terms/suppliers",
-          "estado": 200
         }
       ],
-      "correosEncontrados": [
-        {
-          "email": "customercare@digitalrealty.com",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "globalpr@digitalrealty.com",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "sales@digitalrealty.com",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "u003ecustomercare@digitalrealty.com",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "u003eglobalpr@digitalrealty.com",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "channelteam@digitalrealty.com",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "contact.apac@digitalrealty.com",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "contact.sa@digitalrealty.com",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "customersuccessteam@digitalrealty.com",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "sea10propertyops@digitalrealty.com",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "sea10dcops@digitalrealty.com",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "sea10remotehands@digitalrealty.com",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "sea10accessrequest@digitalrealty.com",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "sea10loadingdock@digitalrealty.com",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "privacy@digitalrealty.com",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "dpo@digitalrealty.com",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "privacy-ng@digitalrealty.com",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "u003eprivacy@digitalrealty.com",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "u003edpo@digitalrealty.com",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "u003eprivacy-ng@digitalrealty.com",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "contact@digitalrealty.com",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "u003econtact@digitalrealty.com",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "contact@digitalrealtytrust.com",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        }
-      ],
-      "contacto": "formulario: https://www.digitalrealty.com/es/contact",
-      "confianza": "media"
+      "correosEncontrados": [],
+      "motivo": "La web redirige a otro dominio (www.digitalrealty.com): posible empresa absorbida o cambio de marca, revisar a mano"
     },
     {
       "id": "lyntia",
@@ -1292,7 +1100,7 @@
         {
           "email": "corporate.be@bbva.com",
           "tipo": "general",
-          "motivoRechazo": "posible correo personal"
+          "motivoRechazo": "buzón no destinado a candidaturas"
         },
         {
           "email": "corporate.deutschland@bbva.com",
@@ -1521,12 +1329,12 @@
         {
           "email": "ayuda@openbank.es",
           "tipo": "general",
-          "motivoRechazo": "posible correo personal"
+          "motivoRechazo": "buzón no destinado a candidaturas"
         },
         {
           "email": "incidencias@openbank.es",
           "tipo": "general",
-          "motivoRechazo": "posible correo personal"
+          "motivoRechazo": "buzón no destinado a candidaturas"
         },
         {
           "email": "santander_reclamaciones@gruposantander.es",
@@ -1544,7 +1352,7 @@
           "motivoRechazo": "dominio distinto al de la web"
         }
       ],
-      "motivo": "Sin correo válido (ayuda@openbank.es: posible correo personal; incidencias@openbank.es: posible correo personal; santander_reclamaciones@gruposantander.es: dominio distinto al de la web; investor@gruposantander.com: dominio distinto al de la web; psd2.sandbox.soporte@redsys.es: dominio distinto al de la web) ni formulario oficial"
+      "motivo": "Sin correo válido (ayuda@openbank.es: buzón no destinado a candidaturas; incidencias@openbank.es: buzón no destinado a candidaturas; santander_reclamaciones@gruposantander.es: dominio distinto al de la web; investor@gruposantander.com: dominio distinto al de la web; psd2.sandbox.soporte@redsys.es: dominio distinto al de la web) ni formulario oficial"
     },
     {
       "id": "ciemat",
@@ -1859,14 +1667,8 @@
           "estado": 200
         }
       ],
-      "correosEncontrados": [
-        {
-          "email": "contacto@ejemplo.com",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        }
-      ],
-      "motivo": "Sin correo válido (contacto@ejemplo.com: dominio distinto al de la web) ni formulario oficial"
+      "correosEncontrados": [],
+      "motivo": "La web redirige a otro dominio (www.beproject.info): posible empresa absorbida o cambio de marca, revisar a mano"
     },
     {
       "id": "cabify",
@@ -1911,10 +1713,10 @@
         {
           "email": "accesibilidad@cabify.com",
           "tipo": "general",
-          "motivoRechazo": "posible correo personal"
+          "motivoRechazo": "buzón no destinado a candidaturas"
         }
       ],
-      "motivo": "Sin correo válido (accesibilidad@cabify.com: posible correo personal) ni formulario oficial"
+      "motivo": "Sin correo válido (accesibilidad@cabify.com: buzón no destinado a candidaturas) ni formulario oficial"
     },
     {
       "id": "idealista",
@@ -2386,10 +2188,11 @@
         },
         {
           "email": "comercial@devaim.com",
-          "tipo": "general"
+          "tipo": "general",
+          "motivoRechazo": "buzón no destinado a candidaturas"
         }
       ],
-      "contacto": "comercial@devaim.com (https://www.devaim.com/aviso-legal/)",
+      "contacto": "info@devaim.com (https://www.devaim.com/)",
       "confianza": "media"
     },
     {
@@ -2403,14 +2206,8 @@
           "estado": 200
         }
       ],
-      "correosEncontrados": [
-        {
-          "email": "info@goom.it",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        }
-      ],
-      "motivo": "Sin correo válido (info@goom.it: dominio distinto al de la web) ni formulario oficial"
+      "correosEncontrados": [],
+      "motivo": "La web redirige a otro dominio (goom.it): posible empresa absorbida o cambio de marca, revisar a mano"
     },
     {
       "id": "tequila-works",
@@ -2536,7 +2333,7 @@
         }
       ],
       "correosEncontrados": [],
-      "motivo": "Sin correo publicado ni formulario oficial en las páginas revisadas"
+      "motivo": "La web redirige a otro dominio (store.steampowered.com): posible empresa absorbida o cambio de marca, revisar a mano"
     },
     {
       "id": "mobivery",
@@ -2619,60 +2416,15 @@
       "id": "duonet",
       "nombre": "Duonet",
       "web": "https://www.duonet.es",
-      "estado": "valida",
+      "estado": "descartada",
       "paginasRevisadas": [
         {
           "url": "https://www.duonet.es",
           "estado": 200
-        },
-        {
-          "url": "https://www.izertis.com/es/talento",
-          "estado": 200
-        },
-        {
-          "url": "https://www.izertis.com/es/contacto",
-          "estado": 200
-        },
-        {
-          "url": "https://www.izertis.com/es/w/caso-de-exito/federacion-deportiva-internacional-primer-nivel",
-          "estado": 200
-        },
-        {
-          "url": "https://www.izertis.com/talento",
-          "estado": 200
-        },
-        {
-          "url": "https://www.izertis.com/es/legal/aviso-legal",
-          "estado": 200
-        },
-        {
-          "url": "https://www.izertis.com/es/legal/politica-de-privacidad",
-          "estado": 200
-        },
-        {
-          "url": "https://www.izertis.com/es/legal/cookies",
-          "estado": 200
         }
       ],
-      "correosEncontrados": [
-        {
-          "email": "correo@empresa.com",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "rgpd.es@izertis.com",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "dpo@izertis.com",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        }
-      ],
-      "contacto": "formulario: https://www.izertis.com/es/talento",
-      "confianza": "media"
+      "correosEncontrados": [],
+      "motivo": "La web redirige a otro dominio (www.izertis.com): posible empresa absorbida o cambio de marca, revisar a mano"
     },
     {
       "id": "witrey",
@@ -2728,7 +2480,7 @@
         }
       ],
       "correosEncontrados": [],
-      "motivo": "Sin correo publicado ni formulario oficial en las páginas revisadas"
+      "motivo": "La web redirige a otro dominio (intelligence-partner-com.l.ink): posible empresa absorbida o cambio de marca, revisar a mano"
     },
     {
       "id": "devoteam-espana",
@@ -2767,7 +2519,8 @@
         },
         {
           "email": "administracion@tecnozero.com",
-          "tipo": "general"
+          "tipo": "general",
+          "motivoRechazo": "buzón no destinado a candidaturas"
         },
         {
           "email": "compras@tecnozero.com",
@@ -2780,7 +2533,7 @@
           "motivoRechazo": "posible correo personal"
         }
       ],
-      "contacto": "administracion@tecnozero.com (https://www.tecnozero.com/contacto/)",
+      "contacto": "formulario: https://www.tecnozero.com/contacto/",
       "confianza": "media"
     },
     {
@@ -2828,7 +2581,7 @@
       "id": "electronic-arts-madrid",
       "nombre": "Electronic Arts Madrid",
       "web": "https://www.ea.com",
-      "estado": "valida",
+      "estado": "descartada",
       "paginasRevisadas": [
         {
           "url": "https://www.ea.com",
@@ -2854,11 +2607,11 @@
       "correosEncontrados": [
         {
           "email": "contact_eahelp@ea.com",
-          "tipo": "general"
+          "tipo": "general",
+          "motivoRechazo": "buzón no destinado a candidaturas"
         }
       ],
-      "contacto": "contact_eahelp@ea.com (https://www.ea.com/)",
-      "confianza": "media"
+      "motivo": "Sin correo válido (contact_eahelp@ea.com: buzón no destinado a candidaturas) ni formulario oficial"
     },
     {
       "id": "amadeus",
@@ -3099,7 +2852,8 @@
         },
         {
           "email": "administracion@factum.es",
-          "tipo": "general"
+          "tipo": "general",
+          "motivoRechazo": "buzón no destinado a candidaturas"
         }
       ],
       "contacto": "rrhh@factum.es (https://www.factum.es/unete-al-equipo/)",
@@ -3271,7 +3025,7 @@
         {
           "email": "dpd@ilunion.com",
           "tipo": "general",
-          "motivoRechazo": "posible correo personal"
+          "motivoRechazo": "buzón no destinado a candidaturas"
         }
       ],
       "contacto": "contacto@ilunion.com (https://www.ilunion.com/es)",
@@ -3403,7 +3157,7 @@
         {
           "email": "apac-pr@avanade.com",
           "tipo": "general",
-          "motivoRechazo": "posible correo personal"
+          "motivoRechazo": "buzón no destinado a candidaturas"
         },
         {
           "email": "u003eapac-pr@avanade.com",
@@ -3531,6 +3285,14 @@
         {
           "url": "https://www.managementsolutions.com/es/contacto",
           "estado": 200
+        },
+        {
+          "url": "https://www.managementsolutions.com/index.php/es/contacto",
+          "estado": 200
+        },
+        {
+          "url": "https://www.managementsolutions.com/index.php/es/tu-carrera-en-management-solutions/como-aplicar",
+          "estado": 200
         }
       ],
       "correosEncontrados": [],
@@ -3624,6 +3386,294 @@
       ],
       "correosEncontrados": [],
       "motivo": "La web no responde (403)"
+    },
+    {
+      "id": "indizen",
+      "nombre": "Indizen",
+      "web": "https://www.indizen.com",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.indizen.com",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [],
+      "motivo": "La web redirige a otro dominio (www.scalian-spain.es): posible empresa absorbida o cambio de marca, revisar a mano"
+    },
+    {
+      "id": "acens",
+      "nombre": "Acens",
+      "web": "https://www.acens.com",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.acens.com",
+          "estado": 403
+        }
+      ],
+      "correosEncontrados": [],
+      "motivo": "La web no responde (403)"
+    },
+    {
+      "id": "gigas",
+      "nombre": "Gigas",
+      "web": "https://gigas.com",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://gigas.com",
+          "estado": 200
+        },
+        {
+          "url": "https://gigas.com/contacto.html",
+          "estado": 200
+        },
+        {
+          "url": "https://gigas.com/industrias/financiero-legal.html",
+          "estado": 200
+        },
+        {
+          "url": "https://gigas.com/legal/legal-aviso-legal.html",
+          "estado": 200
+        },
+        {
+          "url": "https://gigas.com/legal/legal-proteccion-de-datos.html",
+          "estado": 200
+        },
+        {
+          "url": "https://gigas.com/legal/legal-politica-cookies.html",
+          "estado": 200
+        },
+        {
+          "url": "https://gigas.com/legal/legal-requerimientos.html",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "info@gigas.com",
+          "tipo": "general"
+        },
+        {
+          "email": "dpo.gigas@gigas.com",
+          "tipo": "general",
+          "motivoRechazo": "buzón no destinado a candidaturas"
+        },
+        {
+          "email": "authorities@gigas.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        }
+      ],
+      "contacto": "info@gigas.com (https://gigas.com/legal/legal-proteccion-de-datos.html)",
+      "confianza": "media"
+    },
+    {
+      "id": "stackscale",
+      "nombre": "Stackscale",
+      "web": "https://www.stackscale.com",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.stackscale.com",
+          "estado": 200
+        },
+        {
+          "url": "https://www.stackscale.com/contact/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.stackscale.com/jobs/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.stackscale.com/legal-notice/",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [],
+      "contacto": "formulario: https://www.stackscale.com/jobs/",
+      "confianza": "media"
+    },
+    {
+      "id": "smartick",
+      "nombre": "Smartick",
+      "web": "https://www.smartick.es",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.smartick.es",
+          "estado": 403
+        }
+      ],
+      "correosEncontrados": [],
+      "motivo": "La web no responde (403)"
+    },
+    {
+      "id": "taxdown",
+      "nombre": "TaxDown",
+      "web": "https://taxdown.es",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://taxdown.es",
+          "estado": 403
+        }
+      ],
+      "correosEncontrados": [],
+      "motivo": "La web no responde (403)"
+    },
+    {
+      "id": "payflow",
+      "nombre": "Payflow",
+      "web": "https://payflow.es",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://payflow.es",
+          "estado": 403
+        }
+      ],
+      "correosEncontrados": [],
+      "motivo": "La web no responde (403)"
+    },
+    {
+      "id": "ricoh-espana",
+      "nombre": "Ricoh España",
+      "web": "https://www.ricoh.es",
+      "estado": "descartada",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.ricoh.es",
+          "estado": "UND_ERR_HEADERS_OVERFLOW"
+        }
+      ],
+      "correosEncontrados": [],
+      "motivo": "La web no responde (UND_ERR_HEADERS_OVERFLOW)"
+    },
+    {
+      "id": "nunsys",
+      "nombre": "Nunsys",
+      "web": "https://www.nunsys.com",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.nunsys.com",
+          "estado": 200
+        },
+        {
+          "url": "https://www.nunsys.com/personas/nosotros/historia/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.nunsys.com/personas/nosotros/reconocimientos-y-premios/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.nunsys.com/personas/nosotros/idi/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.nunsys.com/personas/nosotros/calidad/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.nunsys.com/personas/nosotros/sostenibilidad/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.nunsys.com/personas/nosotros/partners/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.nunsys.com/personas/nosotros/asociaciones/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.nunsys.com/personas/nosotros/igualdad-diversidad/",
+          "estado": 200
+        },
+        {
+          "url": "https://empleo.nunsys.com/",
+          "estado": 403
+        },
+        {
+          "url": "https://www.nunsys.com/actualidad/tecnologia-rrhh/",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "info@nunsys.com",
+          "tipo": "general"
+        },
+        {
+          "email": "procesosymejora@nunsys.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "calidadymedioambiente@nunsys.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        }
+      ],
+      "contacto": "info@nunsys.com (https://www.nunsys.com/)",
+      "confianza": "media"
+    },
+    {
+      "id": "sothis",
+      "nombre": "Sothis",
+      "web": "https://www.sothis.tech",
+      "estado": "valida",
+      "paginasRevisadas": [
+        {
+          "url": "https://www.sothis.tech",
+          "estado": 200
+        },
+        {
+          "url": "https://www.sothis.tech/legalidad-espanola-e-internacional/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.sothis.tech/sothissf-core-hr-gestion-de-talento/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.sothis.tech/contacto-2/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.sothis.tech/unete-al-equipo/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.sothis.tech/portal-talento/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.sothis.tech/nota-legal/",
+          "estado": 200
+        }
+      ],
+      "correosEncontrados": [
+        {
+          "email": "rgpd@sothis.tech",
+          "tipo": "general",
+          "motivoRechazo": "buzón no destinado a candidaturas"
+        },
+        {
+          "email": "info@sothis.tech",
+          "tipo": "general"
+        },
+        {
+          "email": "rrhh@sothis.tech",
+          "tipo": "rrhh"
+        }
+      ],
+      "contacto": "rrhh@sothis.tech (https://www.sothis.tech/unete-al-equipo/)",
+      "confianza": "alta"
     }
   ]
 }
