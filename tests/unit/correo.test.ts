@@ -21,13 +21,24 @@ describe('generarBorrador', () => {
     expect(b.cuerpo).toContain('8 horas al día, 320 horas');
     expect(b.cuerpo).toContain('GitHub: https://github.com/ana');
     expect(b.cuerpo).toContain('desarrollo web');
-    expect(b.cuerpo).toContain('Estimado equipo de Talento:');
+    expect(b.cuerpo).toContain('Hola, equipo de Talento:');
+    expect(b.cuerpo).toContain('DESARROLLO DE APLICACIONES MULTIPLATAFORMA (DAM)');
+    expect(b.cuerpo).toContain('programo en Java, Kotlin, C#, Python y JavaScript');
+    expect(b.cuerpo).toContain('- Desarrollo de videojuegos y aplicaciones interactivas con Unity y C#.');
+    expect(b.cuerpo).toContain('INTELIGENCIA ARTIFICIAL EN TODO MI TRABAJO');
+    expect(b.cuerpo).toContain('La utilizo para programar más rápido');
+    expect(b.cuerpo).toContain('podemos hablar diez minutos por teléfono');
+    expect(b.cuerpo).not.toContain('ASIR');
   });
   it('no pone copia si el tutor está pendiente (ASIR)', () => {
     const b = generarBorrador(empresa, { ...alumno, ciclo: 'ASIR', perfiles: ['asir-cloud'], modalidad: 'B' });
     expect(b.cc).toBe('');
     expect(b.cuerpo).toContain('7 horas al día, 420 horas');
     expect(b.cuerpo).not.toContain('Pongo en copia');
+    expect(b.cuerpo).toContain('ADMINISTRACIÓN DE SISTEMAS INFORMÁTICOS EN RED (ASIR)');
+    expect(b.cuerpo).toContain('Me apoyo en ella para analizar registros');
+    expect(b.cuerpo).not.toContain('MULTIPLATAFORMA');
+    expect(b.cuerpo).not.toMatch(/ustedes|Quedo a su disposición/);
   });
   it('usa el nombre del programa si la empresa lo publica', () => {
     const b = generarBorrador({ ...empresa, programaPracticas: { titulo: 'Programa Talento Joven' } }, alumno);
@@ -39,6 +50,6 @@ describe('generarBorrador', () => {
     expect(urlGmail(b)).toMatch(/^https:\/\/mail\.google\.com\/mail\/\?view=cm&fs=1&to=talento%40empresa\.test&cc=/);
     expect(urlMailto(b)).toMatch(/^mailto:talento@empresa\.test\?cc=omar\.romero%40jrotero\.es&subject=/);
     expect(decodeURIComponent(urlGmail(b).split('body=')[1])).toBe(b.cuerpo);
-    expect(textoParaCopiar(b)).toMatch(/^Para: talento@empresa\.test\nCC: omar\.romero@jrotero\.es\nAsunto: .*\n\nEstimado/);
+    expect(textoParaCopiar(b)).toMatch(/^Para: talento@empresa\.test\nCC: omar\.romero@jrotero\.es\nAsunto: .*\n\nHola/);
   });
 });

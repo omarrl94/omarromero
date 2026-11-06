@@ -137,6 +137,31 @@ export const config = {
       'Si te parece interesante, podemos hablar diez minutos por teléfono para contarte cómo funciona y ver qué perfil os encajaría mejor. Si la persona indicada es otra, te agradecería que me indicaras con quién debo hablar.',
   },
 
+  /**
+   * Textos del correo de cada alumno/a (editables). Van en primera persona y cada alumno recibe
+   * SOLO el bloque de su ciclo. Las tareas de cada ciclo se comparten con el correo del tutor.
+   */
+  textosCorreoAlumno: {
+    ciclos: {
+      DAM: {
+        intro:
+          'Llegaré a las prácticas con un perfil multiplataforma completo: programo en Java, Kotlin, C#, Python y JavaScript, y curso además una asignatura específica de IA y otra anual de Python. Estoy preparado/a para colaborar en tareas como:',
+        ia: 'La utilizo para programar más rápido, analizar y revisar código, detectar errores y vulnerabilidades y agilizar las pruebas y la documentación.',
+      },
+      ASIR: {
+        intro:
+          'Llegaré a las prácticas preparado/a para proteger, administrar y mantener en marcha la infraestructura tecnológica de una empresa, con los certificados CCNA, AWS Foundation y Cisco CyberOps y una sólida formación en ciberseguridad. Podré colaborar en objetivos como:',
+        ia: 'Me apoyo en ella para analizar registros, investigar incidentes de seguridad, diagnosticar problemas y reforzar la protección de los sistemas.',
+      },
+    },
+    iaTitulo: 'INTELIGENCIA ARTIFICIAL EN TODO MI TRABAJO',
+    iaIntro: 'La gran apuesta innovadora de mi ciclo es la inteligencia artificial, que aplico como herramienta de análisis para potenciar al máximo mi trabajo.',
+    iaCierre:
+      'Lo hago con criterio profesional, revisando y validando siempre lo que genera la IA, para llegar a la empresa preparado/a para trabajar como lo hacen ya los equipos técnicos más innovadores.',
+    llamada:
+      'Si te parece interesante, podemos hablar diez minutos por teléfono para contarte qué sé hacer y ver en qué podría ayudaros. Si la persona indicada es otra, te agradecería que me indicaras con quién debo hablar.',
+  },
+
   /** Sección de tutores: envío desde la cuenta del tutor, siempre en CCO y por lotes. */
   tutores_envio: {
     /** Máximo de empresas por correo (en CCO). Evita filtros antispam y límites de Outlook/Gmail. */

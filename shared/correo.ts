@@ -47,13 +47,13 @@ export function listaNatural(items: string[]): string {
 function saludo(tipoContacto: string): string {
   switch (tipoContacto) {
     case 'rrhh':
-      return 'Estimado equipo de Recursos Humanos:';
+      return 'Hola, equipo de Recursos Humanos:';
     case 'talento':
-      return 'Estimado equipo de Talento:';
+      return 'Hola, equipo de Talento:';
     case 'practicas':
-      return 'Estimado equipo de prácticas:';
+      return 'Hola, equipo de prácticas:';
     default:
-      return 'Buenos días:';
+      return 'Hola:';
   }
 }
 
@@ -76,26 +76,44 @@ export function generarBorrador(empresa: EmpresaCorreo, alumno: DatosAlumno): Bo
     alumno.linkedin && `LinkedIn: ${alumno.linkedin}`,
   ].filter(Boolean) as string[];
 
+  const textos = config.textosCorreoAlumno;
+  const bloque = config.textosCorreoTutor.ciclos[alumno.ciclo];
+  const propio = textos.ciclos[alumno.ciclo];
+
   const lineas = [
     saludo(empresa.contacto.tipoContacto),
     '',
     `Me llamo ${alumno.nombre || '[tu nombre]'} y estoy cursando 2.º de ${NOMBRE_CICLO[alumno.ciclo]} en el ${config.centro.nombre} (${config.centro.ciudad}).`,
     '',
     empresa.programaPracticas
-      ? `He visto que ${empresa.nombre} ofrece «${empresa.programaPracticas.titulo}» y me gustaría presentar mi candidatura para realizar allí mi periodo de Formación en Empresa (FFE).`
-      : `Me pongo en contacto con ${empresa.nombre} para preguntar si sería posible realizar con ustedes mi periodo de Formación en Empresa (FFE), la formación práctica obligatoria del ciclo.`,
+      ? `He visto que ${empresa.nombre} ofrece «${empresa.programaPracticas.titulo}» y me gustaría presentar mi candidatura para realizar con vosotros mi periodo de Formación en Empresa (FFE).`
+      : `Me pongo en contacto con ${empresa.nombre} para preguntarte si sería posible realizar con vosotros mi periodo de Formación en Empresa (FFE), la formación práctica obligatoria del ciclo.`,
     '',
-    `Me interesa especialmente su actividad en ${empresa.sector.toLowerCase()}${intereses.length ? ` y me encantaría aprender en áreas como ${listaNatural(intereses)}` : ''}. [Añade aquí en una o dos frases por qué te interesa esta empresa en concreto.]`,
+    `Me interesa especialmente vuestra actividad en ${empresa.sector.toLowerCase()}${intereses.length ? ` y me encantaría aprender en áreas como ${listaNatural(intereses)}` : ''}. [Añade aquí en una o dos frases por qué te interesa esta empresa en concreto.]`,
+    '',
+    bloque.titulo,
+    '',
+    propio.intro,
+    '',
+    ...bloque.tareas.map((x) => `- ${x}`),
+    '',
+    textos.iaTitulo,
+    '',
+    `${textos.iaIntro} ${propio.ia}`,
+    '',
+    textos.iaCierre,
     '',
     'Datos del periodo de formación:',
-    `· Fechas: del ${fechaLarga(modalidad.inicio)} al ${fechaLarga(modalidad.fin)} (${modalidad.nombre}).`,
-    `· Horario: ${modalidad.horasDia} horas al día, ${horas} horas en total.`,
-    '· Es una formación sin coste para la empresa, con convenio con el centro y seguimiento de un tutor o tutora.',
+    `- Fechas: del ${fechaLarga(modalidad.inicio)} al ${fechaLarga(modalidad.fin)} (${modalidad.nombre}).`,
+    `- Horario: ${modalidad.horasDia} horas al día, ${horas} horas en total.`,
+    '- Es una formación sin coste para la empresa, con convenio con el centro y seguimiento de un tutor o tutora.',
     '',
-    ...(enlaces.length ? ['Pueden ver algunos de mis proyectos aquí:', ...enlaces.map((e) => `· ${e}`), ''] : []),
-    'Adjunto mi currículum en PDF. Quedo a su disposición para una entrevista o para ampliar cualquier información.',
+    ...(enlaces.length ? ['Puedes ver algunos de mis proyectos aquí:', ...enlaces.map((e) => `- ${e}`), ''] : []),
+    textos.llamada,
     '',
-    ...(tutor ? [`Pongo en copia a mi tutor/a de FFE, ${tutor.nombre}, por si necesitan información sobre el convenio.`, ''] : []),
+    'Adjunto mi currículum en PDF. Quedo a tu disposición para una entrevista o para ampliar cualquier información.',
+    '',
+    ...(tutor ? [`Pongo en copia a mi tutor/a de FFE, ${tutor.nombre}, por si necesitáis información sobre el convenio.`, ''] : []),
     'Un saludo,',
     '',
     alumno.nombre || '[tu nombre]',
