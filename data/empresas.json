@@ -79,7 +79,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 13 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 14 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -242,7 +242,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 13 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 14 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -368,7 +368,7 @@
     "motivoEncaje": "Empresa de ciberseguridad con SOC y servicios gestionados.",
     "contacto": {
       "tipo": "email",
-      "email": "info-chile@aiuken.com",
+      "email": "info-uae@aiuken.com",
       "fuenteUrl": "https://www.aiuken.com/contacto/",
       "tipoContacto": "general"
     },
@@ -404,6 +404,62 @@
       "confianza": "media",
       "mx": null,
       "notas": "Verificación automática: 7 páginas revisadas (incluido el mapa del sitio); formulario oficial de contacto."
+    }
+  },
+  {
+    "id": "alvaro-moreno",
+    "nombre": "Álvaro Moreno",
+    "web": "https://www.alvaromoreno.com",
+    "sector": "Moda masculina",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-visual",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Marca de moda con tiendas propias en Madrid.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://empleo.alvaromoreno.com/",
+      "formularioUrl": "https://empleo.alvaromoreno.com/",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://empleo.alvaromoreno.com/",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 3 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
+    "id": "amadeus",
+    "nombre": "Amadeus",
+    "web": "https://amadeus.com",
+    "sector": "Tecnología para viajes",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "dam-web",
+      "dam-datos-ia",
+      "asir-cloud",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Tecnológica con sede en Madrid y grandes equipos de software y sistemas.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://amadeus.com/en/careers/life-at-amadeus",
+      "formularioUrl": "https://amadeus.com/en/careers/life-at-amadeus",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://amadeus.com/en/careers/overview",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 19 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -457,6 +513,32 @@
       "confianza": "alta",
       "mx": null,
       "notas": "Verificación automática: 5 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
+    "id": "aristocrazy",
+    "nombre": "Aristocrazy",
+    "web": "https://www.aristocrazy.com",
+    "sector": "Joyería y complementos",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-visual",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Marca de joyería madrileña con tiendas propias y tienda online.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.aristocrazy.com/pages/contacto",
+      "formularioUrl": "https://www.aristocrazy.com/pages/contacto",
+      "tipoContacto": "general"
+    },
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "media",
+      "mx": null,
+      "notas": "Verificación automática: 10 páginas revisadas (incluido el mapa del sitio); formulario oficial de contacto."
     }
   },
   {
@@ -580,11 +662,11 @@
     "motivoEncaje": "Consultora especializada en Microsoft: Dynamics, Azure y desarrollo.",
     "contacto": {
       "tipo": "formulario",
-      "fuenteUrl": "https://www.avanade.com/en/career",
-      "formularioUrl": "https://www.avanade.com/en/career",
+      "fuenteUrl": "https://www.avanade.com/es-es/career",
+      "formularioUrl": "https://www.avanade.com/es-es/career",
       "tipoContacto": "talento"
     },
-    "empleoUrl": "https://www.avanade.com/en/career",
+    "empleoUrl": "https://www.avanade.com/en/newsroom/avanade-acquires-cloudtalent-press-release",
     "verificacion": {
       "fecha": "2026-11-06",
       "confianza": "alta",
@@ -982,6 +1064,60 @@
     }
   },
   {
+    "id": "calidad-pascual",
+    "nombre": "Calidad Pascual",
+    "web": "https://www.calidadpascual.com",
+    "sector": "Alimentación: ventas y distribución",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta-tecnica",
+      "acom-logistica",
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Sede en Madrid y red comercial y de distribución propia.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.calidadpascual.com/2022/03/10/pascual-entre-las-mejores-empresas-espanolas-para-trabajar/",
+      "formularioUrl": "https://www.calidadpascual.com/2022/03/10/pascual-entre-las-mejores-empresas-espanolas-para-trabajar/",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.calidadpascual.com/2022/03/10/pascual-entre-las-mejores-empresas-espanolas-para-trabajar/",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 9 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
+    "id": "campofrio",
+    "nombre": "Campofrío",
+    "web": "https://www.campofrio.es",
+    "sector": "Alimentación: ventas y trade marketing",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta-tecnica",
+      "acom-visual",
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Sede en Madrid: ventas, trade marketing y marketing de marca.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.campofrio.es/conocenos/empleo",
+      "formularioUrl": "https://www.campofrio.es/conocenos/empleo",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.campofrio.es/conocenos/empleo",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 5 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
     "id": "capgemini-espana",
     "nombre": "Capgemini España",
     "web": "https://www.capgemini.com/es-es",
@@ -1114,6 +1250,33 @@
       "confianza": "alta",
       "mx": null,
       "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
+    "id": "cgi-espana",
+    "nombre": "CGI España",
+    "web": "https://www.cgi.com/es/es",
+    "sector": "Consultoría y servicios TI",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "dam-web",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Consultora internacional con oficina en Madrid.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.cgi.com/en/careers/faq",
+      "formularioUrl": "https://www.cgi.com/en/careers/faq",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.cgi.com/en/careers/faq",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 16 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -1280,6 +1443,60 @@
     }
   },
   {
+    "id": "darwin-verne",
+    "nombre": "Darwin & Verne",
+    "web": "https://www.darwinverne.com",
+    "sector": "Agencia creativa digital",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "dam-web"
+    ],
+    "motivoEncaje": "Agencia creativa y digital con sede en Madrid.",
+    "contacto": {
+      "tipo": "email",
+      "email": "talento@darwinverne.com",
+      "fuenteUrl": "https://darwinverne.com/talent/",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://darwinverne.com/talent/",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": true,
+      "notas": "Verificación automática: 9 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo."
+    }
+  },
+  {
+    "id": "decathlon-espana",
+    "nombre": "Decathlon España",
+    "web": "https://www.decathlon.es",
+    "sector": "Distribución de artículos deportivos",
+    "tamano": "gran-empresa",
+    "zona": "norte",
+    "perfiles": [
+      "acom-venta",
+      "acom-visual",
+      "acom-logistica",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Sede española en Alcobendas y muchas tiendas en Madrid: venta asesorada, implantación de producto y logística.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://trabajaconnosotros.decathlon.es/faq/",
+      "formularioUrl": "https://trabajaconnosotros.decathlon.es/faq/",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://trabajaconnosotros.decathlon.es/faq/",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 7 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
     "id": "deloitte-espana",
     "nombre": "Deloitte España",
     "web": "https://www.deloitte.com/es/es.html",
@@ -1334,6 +1551,37 @@
     }
   },
   {
+    "id": "dia",
+    "nombre": "DIA",
+    "web": "https://www.dia.es",
+    "sector": "Distribución",
+    "tamano": "gran-empresa",
+    "zona": "oeste",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "asir-sistemas",
+      "asir-soporte",
+      "acom-venta",
+      "acom-logistica",
+      "acom-gestion-comercio"
+    ],
+    "motivoEncaje": "Sede en Las Rozas con área de sistemas.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://empleo.dia.es/jobs",
+      "formularioUrl": "https://empleo.dia.es/jobs",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://empleo.dia.es/jobs",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 10 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
     "id": "digi-spain",
     "nombre": "Digi Spain",
     "web": "https://www.digimobil.es",
@@ -1360,6 +1608,32 @@
       "confianza": "alta",
       "mx": null,
       "notas": "Verificación automática: 16 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
+    "id": "digital-menta",
+    "nombre": "Digital Menta",
+    "web": "https://digitalmenta.com",
+    "sector": "Agencia de marketing digital",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Agencia madrileña de SEO, SEM y redes sociales.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.digitalmenta.com/digital-house-talent-advisory/",
+      "formularioUrl": "https://www.digitalmenta.com/digital-house-talent-advisory/",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.digitalmenta.com/digital-house-talent-advisory/",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 10 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -1414,32 +1688,6 @@
       "confianza": "alta",
       "mx": null,
       "notas": "Verificación automática: 21 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
-    }
-  },
-  {
-    "id": "ecoalf",
-    "nombre": "Ecoalf",
-    "web": "https://ecoalf.com",
-    "sector": "Moda sostenible",
-    "tamano": "pyme",
-    "zona": "madrid",
-    "perfiles": [
-      "acom-venta",
-      "acom-ecommerce",
-      "acom-marketing-digital"
-    ],
-    "motivoEncaje": "Marca de moda sostenible con sede en Madrid, tiendas propias y fuerte canal online.",
-    "contacto": {
-      "tipo": "email",
-      "email": "contacto@ecoalf.com",
-      "fuenteUrl": "https://ecoalf.com/en-us",
-      "tipoContacto": "general"
-    },
-    "verificacion": {
-      "fecha": "2026-11-06",
-      "confianza": "media",
-      "mx": true,
-      "notas": "Verificación automática: 1 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de otra."
     }
   },
   {
@@ -1535,16 +1783,16 @@
     "motivoEncaje": "Consultora digital con oficina en Madrid.",
     "contacto": {
       "tipo": "formulario",
-      "fuenteUrl": "https://emergya.com/es/trabaja-con-nosotros",
-      "formularioUrl": "https://emergya.com/es/trabaja-con-nosotros",
+      "fuenteUrl": "https://www.emergya.com/es/trabaja-con-nosotros",
+      "formularioUrl": "https://www.emergya.com/es/trabaja-con-nosotros",
       "tipoContacto": "talento"
     },
-    "empleoUrl": "https://emergya.com/es/trabaja-con-nosotros",
+    "empleoUrl": "https://www.emergya.com/es/trabaja-con-nosotros",
     "verificacion": {
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 13 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 12 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -1654,6 +1902,33 @@
       "confianza": "alta",
       "mx": true,
       "notas": "Verificación automática: 20 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo."
+    }
+  },
+  {
+    "id": "ericsson-espana",
+    "nombre": "Ericsson España",
+    "web": "https://www.ericsson.com/es",
+    "sector": "Telecomunicaciones",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-redes",
+      "asir-sistemas",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Fabricante de redes con sede en Madrid.",
+    "contacto": {
+      "tipo": "email",
+      "email": "hr.direct.americas@ericsson.com",
+      "fuenteUrl": "https://jobs.ericsson.com/careers/job/563121777428538-software--developer-?domain=ericsson.com",
+      "tipoContacto": "rrhh"
+    },
+    "empleoUrl": "https://jobs.ericsson.com/careers?domain=ericsson.com",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": true,
+      "notas": "Verificación automática: 7 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo."
     }
   },
   {
@@ -2008,6 +2283,33 @@
     }
   },
   {
+    "id": "gft-espana",
+    "nombre": "GFT España",
+    "web": "https://www.gft.com/es",
+    "sector": "Consultoría tecnológica para banca",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "dam-web",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Consultora de software para banca con equipos de desarrollo y cloud.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.gft.com/es/es/career",
+      "formularioUrl": "https://www.gft.com/es/es/career",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.gft.com/es/es/career",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 8 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
     "id": "gilmar",
     "nombre": "Gilmar",
     "web": "https://www.gilmar.es",
@@ -2284,6 +2586,65 @@
     }
   },
   {
+    "id": "idealista",
+    "nombre": "idealista",
+    "web": "https://www.idealista.com",
+    "sector": "Portal inmobiliario (producto digital)",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-android",
+      "dam-datos-ia",
+      "asir-sistemas",
+      "acom-venta-tecnica",
+      "acom-marketing-digital",
+      "acom-atencion-cliente"
+    ],
+    "motivoEncaje": "Producto digital madrileño con equipos de desarrollo y datos.",
+    "contacto": {
+      "tipo": "email",
+      "email": "people@idealista.com",
+      "fuenteUrl": "https://careers.idealista.com/cookie-policy",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://careers.idealista.com/jobs",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": true,
+      "notas": "Verificación automática: 18 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo."
+    }
+  },
+  {
+    "id": "ifema",
+    "nombre": "IFEMA Madrid",
+    "web": "https://www.ifema.es",
+    "sector": "Ferias y eventos",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "acom-atencion-cliente",
+      "acom-venta-tecnica"
+    ],
+    "motivoEncaje": "Institución ferial de Madrid: comercialización, marketing y atención a expositores.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.ifema.es/nosotros/personas-talento",
+      "formularioUrl": "https://www.ifema.es/nosotros/personas-talento",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.ifema.es/nosotros/personas-talento",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 13 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
     "id": "ikea-espana",
     "nombre": "IKEA España",
     "web": "https://www.ikea.com/es/es/",
@@ -2362,7 +2723,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 10 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 11 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -2638,6 +2999,32 @@
       "confianza": "alta",
       "mx": null,
       "notas": "Verificación automática: 22 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
+    "id": "joyeria-suarez",
+    "nombre": "Joyería Suárez",
+    "web": "https://www.joyeriasuarez.com",
+    "sector": "Joyería de alta gama",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-venta-tecnica",
+      "acom-visual"
+    ],
+    "motivoEncaje": "Joyería con tiendas en Madrid: venta de productos de alta gama.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.joyeriasuarez.com/en-int/pages/contact",
+      "formularioUrl": "https://www.joyeriasuarez.com/en-int/pages/contact",
+      "tipoContacto": "general"
+    },
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "media",
+      "mx": null,
+      "notas": "Verificación automática: 9 páginas revisadas (incluido el mapa del sitio); formulario oficial de contacto."
     }
   },
   {
@@ -2936,6 +3323,34 @@
     }
   },
   {
+    "id": "loreal-espana",
+    "nombre": "L'Oréal España",
+    "web": "https://www.loreal.com/es-es",
+    "sector": "Cosmética: ventas y marketing",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta-tecnica",
+      "acom-visual",
+      "acom-marketing-digital",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Sede española en Madrid: marketing, comercio electrónico y trade marketing.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.loreal.com/en/careers/",
+      "formularioUrl": "https://www.loreal.com/en/careers/",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.loreal.com/en/careers/",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 13 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
     "id": "leroy-merlin-espana",
     "nombre": "Leroy Merlin España",
     "web": "https://www.leroymerlin.es",
@@ -2954,16 +3369,16 @@
     "motivoEncaje": "Sede en Alcobendas con equipos digitales.",
     "contacto": {
       "tipo": "formulario",
-      "fuenteUrl": "https://empleo.leroymerlin.es/",
-      "formularioUrl": "https://empleo.leroymerlin.es/",
+      "fuenteUrl": "https://www.leroymerlin.es/ideas-y-consejos/consejos/herramientas-manuales-para-trabajar-madera.html",
+      "formularioUrl": "https://www.leroymerlin.es/ideas-y-consejos/consejos/herramientas-manuales-para-trabajar-madera.html",
       "tipoContacto": "talento"
     },
-    "empleoUrl": "https://empleo.leroymerlin.es/",
+    "empleoUrl": "https://www.leroymerlin.es/ideas-y-consejos/consejos/herramientas-manuales-para-trabajar-madera.html",
     "verificacion": {
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 7 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 6 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -2990,6 +3405,35 @@
       "confianza": "alta",
       "mx": null,
       "notas": "Verificación automática: 13 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
+    "id": "linea-directa",
+    "nombre": "Línea Directa",
+    "web": "https://www.lineadirecta.com",
+    "sector": "Seguros",
+    "tamano": "gran-empresa",
+    "zona": "norte",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-datos-ia",
+      "asir-sistemas",
+      "acom-atencion-cliente",
+      "acom-venta-tecnica"
+    ],
+    "motivoEncaje": "Aseguradora con sede en Tres Cantos y área tecnológica.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.lineadirecta.com/contactar/",
+      "formularioUrl": "https://www.lineadirecta.com/contactar/",
+      "tipoContacto": "general"
+    },
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "media",
+      "mx": null,
+      "notas": "Verificación automática: 9 páginas revisadas (incluido el mapa del sitio); formulario oficial de contacto."
     }
   },
   {
@@ -3095,7 +3539,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 14 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 11 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -3121,6 +3565,89 @@
       "confianza": "alta",
       "mx": true,
       "notas": "Verificación automática: 3 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto."
+    }
+  },
+  {
+    "id": "mahou-san-miguel",
+    "nombre": "Mahou San Miguel",
+    "web": "https://www.mahou-sanmiguel.com",
+    "sector": "Bebidas: ventas, trade marketing y logística",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta-tecnica",
+      "acom-visual",
+      "acom-logistica",
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Sede en Madrid: equipos comerciales, trade marketing y logística.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.mahou-sanmiguel.com/es-es/sala-de-prensa/notas-de-prensa/fomento-empleo-emprendimiento-joven-madrid",
+      "formularioUrl": "https://www.mahou-sanmiguel.com/es-es/sala-de-prensa/notas-de-prensa/fomento-empleo-emprendimiento-joven-madrid",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.mahou-sanmiguel.com/es-es/trabajar-mahou-sanmiguel",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 8 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
+    "id": "making-science",
+    "nombre": "Making Science",
+    "web": "https://www.makingscience.com",
+    "sector": "Marketing digital y tecnología",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "acom-ecommerce",
+      "dam-datos-ia",
+      "dam-web"
+    ],
+    "motivoEncaje": "Consultora madrileña de marketing digital, comercio electrónico y datos.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.makingscience.com/careers/",
+      "formularioUrl": "https://www.makingscience.com/careers/",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.makingscience.com/careers/",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 6 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
+    "id": "makro-espana",
+    "nombre": "Makro España",
+    "web": "https://www.makro.es",
+    "sector": "Distribución mayorista",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-logistica",
+      "acom-venta-tecnica"
+    ],
+    "motivoEncaje": "Mayorista con sede en Madrid: venta a profesionales, compras y logística.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://talento.makro.es/EmailToFriend?id=34279&pagetype=job",
+      "formularioUrl": "https://talento.makro.es/EmailToFriend?id=34279&pagetype=job",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://talento.makro.es/job/comercial-junior-barcelona-in-p-i-zona-franca-c-a-1-barcelona-jid-34279",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 16 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -3257,7 +3784,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": true,
-      "notas": "Verificación automática: 8 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo."
+      "notas": "Verificación automática: 10 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo."
     }
   },
   {
@@ -3555,32 +4082,6 @@
       "confianza": "alta",
       "mx": null,
       "notas": "Verificación automática: 21 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
-    }
-  },
-  {
-    "id": "one-esecurity",
-    "nombre": "One eSecurity",
-    "web": "https://www.one-esecurity.com",
-    "sector": "Ciberseguridad y respuesta a incidentes",
-    "tamano": "pyme",
-    "zona": "madrid",
-    "perfiles": [
-      "asir-ciberseguridad",
-      "asir-datos-ia-seguridad"
-    ],
-    "motivoEncaje": "Especialistas en respuesta a incidentes y análisis forense.",
-    "contacto": {
-      "tipo": "email",
-      "email": "recruitment@one-esecurity.com",
-      "fuenteUrl": "https://www.one-esecurity.com/join_our_team.html",
-      "tipoContacto": "talento"
-    },
-    "empleoUrl": "https://www.one-esecurity.com/join_our_team.html",
-    "verificacion": {
-      "fecha": "2026-11-06",
-      "confianza": "alta",
-      "mx": true,
-      "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo."
     }
   },
   {
@@ -3913,6 +4414,32 @@
     }
   },
   {
+    "id": "rebold",
+    "nombre": "Rebold",
+    "web": "https://letsrebold.com",
+    "sector": "Marketing de datos y medios",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "dam-datos-ia"
+    ],
+    "motivoEncaje": "Compañía de marketing y medios con sede en Madrid.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://letsrebold.com/en/careers/",
+      "formularioUrl": "https://letsrebold.com/en/careers/",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://letsrebold.com/en/careers/",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 5 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
     "id": "red-es",
     "nombre": "Red.es",
     "web": "https://www.red.es",
@@ -3963,7 +4490,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 16 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 18 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -4067,12 +4594,12 @@
       "formularioUrl": "https://www.rtve.es/corporacion/ofertas-empleo/",
       "tipoContacto": "talento"
     },
-    "empleoUrl": "https://www.rtve.es/noticias/20261104/mueren-tres-trabajadores-granja-pitillas-navarra-fosa-purines/17300329.shtml",
+    "empleoUrl": "https://www.rtve.es/noticias/20261106/yasira-videojuego-combatir-acoso-escolar-trabajar-empatia-disenado-joven-vasco/17303038.shtml",
     "verificacion": {
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 21 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 22 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -4127,7 +4654,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 10 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 12 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -4265,6 +4792,34 @@
     }
   },
   {
+    "id": "seresco",
+    "nombre": "Seresco",
+    "web": "https://www.seresco.es",
+    "sector": "Software de gestión, ERP y RR. HH.",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-erp",
+      "dam-bbdd",
+      "dam-backend",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Software de gestión y ERP con presencia en Madrid.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://seresco.es/talento/ofertas-empleo/",
+      "formularioUrl": "https://seresco.es/talento/ofertas-empleo/",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://seresco.es/talento/ofertas-empleo/",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 11 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
     "id": "seur",
     "nombre": "SEUR",
     "web": "https://www.seur.com",
@@ -4287,7 +4842,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 11 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 10 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -4313,7 +4868,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 22 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 21 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -4422,6 +4977,36 @@
       "confianza": "alta",
       "mx": null,
       "notas": "Verificación automática: 15 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
+    "id": "sopra-steria-espana",
+    "nombre": "Sopra Steria España",
+    "web": "https://www.soprasteria.es",
+    "sector": "Consultoría y servicios TI",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-bbdd",
+      "asir-sistemas",
+      "asir-soporte",
+      "asir-ciberseguridad"
+    ],
+    "motivoEncaje": "Consultora con proyectos de desarrollo, soporte y sistemas para banca y Administración.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://careers.soprasteria.es/",
+      "formularioUrl": "https://careers.soprasteria.es/",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://careers.soprasteria.es/",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 8 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -4800,6 +5385,33 @@
       "confianza": "alta",
       "mx": true,
       "notas": "Verificación automática: 11 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de otra."
+    }
+  },
+  {
+    "id": "tragsatec",
+    "nombre": "Tragsatec",
+    "web": "https://www.tragsa.es",
+    "sector": "Empresa pública de servicios técnicos",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-bbdd",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Grupo público con grandes equipos de desarrollo y sistemas.",
+    "contacto": {
+      "tipo": "email",
+      "email": "seleccion@tragsa.es",
+      "fuenteUrl": "https://www.tragsa.es/es/equipo-humano/unete-a-nuestro-equipo/Paginas/default.aspx",
+      "tipoContacto": "rrhh"
+    },
+    "empleoUrl": "https://www.tragsa.es/es/equipo-humano/unete-a-nuestro-equipo/Paginas/default.aspx",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": true,
+      "notas": "Verificación automática: 15 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo."
     }
   },
   {

@@ -1,18 +1,18 @@
 # Auditoría de una muestra al azar
 
-Fecha: 2026-11-06T18:50:23.704Z · Muestra: 10 de 190 · Con problemas: 0
+Fecha: 2026-11-06T19:02:22.225Z · Muestra: 10 de 212 · Con problemas: 1
 
 | Empresa | Contacto | Fuente | Resultado |
 |---|---|---|---|
-| Management Solutions | formulario | https://www.managementsolutions.com/en/your-career-at-management-solutions | ✔ OK |
-| Kanlli | formulario | http://kanlli.com/opinion/marketing-tech-talento/ | ✔ OK |
-| Nalcom | info@nalcom.com | https://nalcom.com/Contacto | ✔ OK |
-| Mercamadrid | rrhh@mercamadrid.es | https://www.mercamadrid.es/unete-al-equipo/ | ✔ OK |
-| Kiabi España | contacto@kiabi.es | https://www.kiabi.es/account/contact | ✔ OK |
-| Prosegur Cipher | formulario | https://www.prosegur.es/trabaja-con-nosotros | ✔ OK |
-| Moeve | formulario | https://www.moeveglobal.com/es/empleo | ✔ OK |
-| Kairós Digital Solutions | formulario | https://kairosds.com/talento/que-nos-hace-unicos | ✔ OK |
-| LLYC | formulario | https://llyc.global/en/ideas/6-talent-trends-for-2016/ | ✔ OK |
-| NTT DATA España | formulario | https://es.nttdata.com/landings/city-talent-index-2022 | ✔ OK |
+| Cuatroochenta | formulario | https://cuatroochenta.com/nace-xarxatec-activa-para-generar-talento-digital/ | ✔ OK |
+| Makro España | formulario | https://talento.makro.es/EmailToFriend?id=34279&pagetype=job | web 403 |
+| Product Hackers | formulario | https://producthackers.com/es/blog/aumentar-inscripciones-ofertas-empleo-cornerjob/ | ✔ OK |
+| SocialPubli | formulario | https://socialpubli.com/es/blog/empleo-buscamos-un-sales-manager-en-mexico/ | ✔ OK |
+| Mediaset España | formulario | https://jobs.mediaset.es/ | ✔ OK |
+| Naturgy | formulario | https://www.naturgy.com/trabaja-con-nosotros/ | ✔ OK |
+| Kelisto | formulario | https://www.kelisto.es/trabaja | ✔ OK |
+| Auditech | info@auditech.es | https://auditech.es/contacto/ | ✔ OK |
+| Lingokids | formulario | https://lingokids.com/es/blog/posts/trabaja-en-lingokids | ✔ OK |
+| BBVA | formulario | https://www.bbva.com/es/bbva-mejor-empresa-para-trabajar-en-espana/ | ✔ OK |
 
 Si alguna falla: vuelve a ejecutar `npm run verificar:empresas -- --solo=<id>` o retírala.
