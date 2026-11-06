@@ -5,6 +5,7 @@ export default defineConfig({
   plugins: [react()],
   test: {
     include: ['tests/unit/**/*.test.{ts,tsx}'],
+    setupFiles: ['tests/unit/aislar-entorno.ts'],
     environment: 'node',
   },
 });
