@@ -3773,5 +3773,402 @@
       "https://www.bolsasymercados.es"
     ],
     "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "arelance",
+    "nombre": "Arelance",
+    "web": "https://www.arelance.com",
+    "sector": "Consultoría tecnológica",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Consultora tecnológica con proyectos de desarrollo .NET y full stack en Madrid.",
+    "paginasContacto": [
+      "https://www.arelance.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "exdesis",
+    "nombre": "Exdesis",
+    "web": "https://www.exdesis.com",
+    "sector": "Consultoría y desarrollo de software",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-bbdd"
+    ],
+    "motivoEncaje": "Consultora madrileña con desarrollo .NET y full stack.",
+    "paginasContacto": [
+      "https://www.exdesis.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "consultia-it",
+    "nombre": "Consultia IT",
+    "web": "https://www.consultia.biz",
+    "sector": "Consultoría tecnológica",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Consultora con página de empleo propia y ofertas en Madrid.",
+    "paginasContacto": [
+      "https://www.consultia.biz",
+      "https://trabaja-con-nosotros.consultia.biz/"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "nalcom",
+    "nombre": "Nalcom",
+    "web": "https://www.nalcom.com",
+    "sector": "Consultoría informática y software a medida",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "asir-soporte"
+    ],
+    "motivoEncaje": "Consultoría informática madrileña con desarrollo a medida.",
+    "paginasContacto": [
+      "https://www.nalcom.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "melit-technologies",
+    "nombre": "Melit Technologies",
+    "web": "https://www.melit.es",
+    "sector": "Software a medida",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-android"
+    ],
+    "motivoEncaje": "Pyme madrileña de software a medida.",
+    "paginasContacto": [
+      "https://www.melit.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "imagar-solutions",
+    "nombre": "Imagar Solutions",
+    "web": "https://www.imagar.com",
+    "sector": "Desarrollo web y software",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Empresa de informática y desarrollo web en Madrid.",
+    "paginasContacto": [
+      "https://www.imagar.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "asd-solutions",
+    "nombre": "ASD Solutions",
+    "web": "https://asdsolutions.es",
+    "sector": "Desarrollo de software a medida",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-android",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Agencia de desarrollo de software y apps.",
+    "paginasContacto": [
+      "https://asdsolutions.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "implemental-systems",
+    "nombre": "Implemental Systems",
+    "web": "https://www.implementalsystems.com",
+    "sector": "Servicios informáticos y soporte",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-soporte",
+      "asir-sistemas",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Publica convenios de prácticas de soporte y sistemas en Madrid.",
+    "paginasContacto": [
+      "https://www.implementalsystems.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "sdos",
+    "nombre": "SDOS",
+    "web": "https://www.sdos.es",
+    "sector": "Desarrollo de apps móviles y web",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-android",
+      "dam-web",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Estudio de desarrollo de apps móviles y web.",
+    "paginasContacto": [
+      "https://www.sdos.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "raona",
+    "nombre": "Raona",
+    "web": "https://www.raona.com",
+    "sector": "Consultoría Microsoft y desarrollo",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Consultora Microsoft con oficina en Madrid.",
+    "paginasContacto": [
+      "https://www.raona.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "encamina",
+    "nombre": "Encamina",
+    "web": "https://www.encamina.com",
+    "sector": "Consultoría Microsoft, IA y cloud",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-datos-ia",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Partner de Microsoft con IA y cloud; oficina en Madrid.",
+    "paginasContacto": [
+      "https://www.encamina.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "aggity",
+    "nombre": "Aggity",
+    "web": "https://www.aggity.com",
+    "sector": "Transformación digital y ERP",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-erp",
+      "dam-web",
+      "dam-datos-ia"
+    ],
+    "motivoEncaje": "Tecnológica con ERP, datos y desarrollo.",
+    "paginasContacto": [
+      "https://www.aggity.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "grupo-trc",
+    "nombre": "Grupo TRC",
+    "web": "https://www.grupotrc.com",
+    "sector": "Integración de sistemas y comunicaciones",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-sistemas",
+      "asir-redes",
+      "asir-soporte",
+      "asir-ciberseguridad"
+    ],
+    "motivoEncaje": "Integrador madrileño de sistemas, redes y comunicaciones.",
+    "paginasContacto": [
+      "https://www.grupotrc.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "teknei",
+    "nombre": "Teknei",
+    "web": "https://www.teknei.com",
+    "sector": "Consultoría tecnológica",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Consultora tecnológica con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.teknei.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "linke",
+    "nombre": "Linke",
+    "web": "https://linke.es",
+    "sector": "Servicios TI y cloud",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-cloud",
+      "asir-sistemas",
+      "dam-web"
+    ],
+    "motivoEncaje": "Servicios cloud y desarrollo para empresas.",
+    "paginasContacto": [
+      "https://linke.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "bilbomatica",
+    "nombre": "Bilbomática",
+    "web": "https://www.bilbomatica.es",
+    "sector": "Consultoría y desarrollo de software",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Consultora con oficina en Madrid y proyectos de desarrollo.",
+    "paginasContacto": [
+      "https://www.bilbomatica.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "emergya",
+    "nombre": "Emergya",
+    "web": "https://www.emergya.com",
+    "sector": "Desarrollo digital y consultoría",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-android",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Consultora digital con oficina en Madrid.",
+    "paginasContacto": [
+      "https://www.emergya.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "ingecom",
+    "nombre": "Ingecom",
+    "web": "https://www.ingecom.net",
+    "sector": "Distribución de ciberseguridad",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-redes",
+      "asir-soporte"
+    ],
+    "motivoEncaje": "Mayorista de ciberseguridad con soporte técnico.",
+    "paginasContacto": [
+      "https://www.ingecom.net"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "innovery-espana",
+    "nombre": "Innovery España",
+    "web": "https://www.innovery.es",
+    "sector": "Ciberseguridad y redes",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-redes",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Integrador de ciberseguridad y redes en Madrid.",
+    "paginasContacto": [
+      "https://www.innovery.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "wellness-techgroup",
+    "nombre": "Wellness TechGroup",
+    "web": "https://www.wellnesstg.com",
+    "sector": "Tecnología, ciberseguridad y desarrollo",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "dam-web",
+      "dam-datos-ia"
+    ],
+    "motivoEncaje": "Grupo tecnológico con oficina en Madrid.",
+    "paginasContacto": [
+      "https://www.wellnesstg.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "cuatroochenta",
+    "nombre": "Cuatroochenta",
+    "web": "https://cuatroochenta.com",
+    "sector": "Desarrollo de apps y ciberseguridad",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-android",
+      "dam-web",
+      "asir-ciberseguridad"
+    ],
+    "motivoEncaje": "Tecnológica de apps y ciberseguridad con oficina en Madrid.",
+    "paginasContacto": [
+      "https://cuatroochenta.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "exclusive-networks-iberia",
+    "nombre": "Exclusive Networks Iberia",
+    "web": "https://www.exclusive-networks.com/es",
+    "sector": "Distribución de ciberseguridad y cloud",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-redes",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Distribuidor de ciberseguridad con sede ibérica en Madrid.",
+    "paginasContacto": [
+      "https://www.exclusive-networks.com/es"
+    ],
+    "tipoContactoEsperado": "rrhh"
   }
 ]
