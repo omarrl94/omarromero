@@ -192,7 +192,7 @@ export async function verificar(c: Candidata, retiradas: Retirada[], deps: Depen
     return { r };
   }
   if (mejor.tipo === 'email' && elegido) {
-    contacto = { tipo: 'email', email: elegido.v.email, fuenteUrl: dondeAparece.get(elegido.v.email)!.url, tipoContacto: elegido.v.tipo === 'general' && elegido.rango === 2 ? 'talento' : elegido.v.tipo };
+    contacto = { tipo: 'email', email: elegido.v.email, fuenteUrl: dondeAparece.get(elegido.v.email)!.url, tipoContacto: elegido.v.tipo };
     confianza = elegido.rango <= 2 ? 'alta' : 'media';
   } else {
     const formulario = (mejor.tipo === 'empleo' ? formEmpleo : formContacto)!;

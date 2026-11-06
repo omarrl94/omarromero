@@ -84,7 +84,7 @@ describe('verificar (integración sin red)', () => {
       'https://www.acme.test': '<a href="/unete">Únete</a>',
       'https://www.acme.test/unete': '<p>Envía tu CV a info@acme.test</p>',
     }));
-    expect(empresa?.contacto).toMatchObject({ tipo: 'email', email: 'info@acme.test', tipoContacto: 'talento', fuenteUrl: 'https://www.acme.test/unete' });
+    expect(empresa?.contacto).toMatchObject({ tipo: 'email', email: 'info@acme.test', tipoContacto: 'general', fuenteUrl: 'https://www.acme.test/unete' });
     expect(empresa?.verificacion.confianza).toBe('alta');
   });
 
