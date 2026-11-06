@@ -17,16 +17,16 @@
     "motivoEncaje": "Consultora con grandes equipos de desarrollo, SAP, datos y ciberseguridad en Madrid.",
     "contacto": {
       "tipo": "formulario",
-      "fuenteUrl": "https://www.accenture.com/ae-en/careers/jobdetails?id=14586579_en",
-      "formularioUrl": "https://www.accenture.com/ae-en/careers/jobdetails?id=14586579_en",
+      "fuenteUrl": "https://www.accenture.com/es-es/services/talent-organization",
+      "formularioUrl": "https://www.accenture.com/es-es/services/talent-organization",
       "tipoContacto": "talento"
     },
-    "empleoUrl": "https://www.accenture.com/ae-en/careers/jobdetails?id=14586579_en",
+    "empleoUrl": "https://www.accenture.com/es-es/services/talent-organization",
     "verificacion": {
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 25 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 12 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -52,7 +52,7 @@
       "fecha": "2026-11-06",
       "confianza": "media",
       "mx": null,
-      "notas": "Verificación automática: 3 páginas revisadas (incluido el mapa del sitio); formulario oficial de contacto."
+      "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); formulario oficial de contacto."
     }
   },
   {
@@ -133,7 +133,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": true,
-      "notas": "Verificación automática: 18 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo."
+      "notas": "Verificación automática: 17 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo."
     }
   },
   {
@@ -187,7 +187,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 26 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 24 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -215,32 +215,6 @@
       "confianza": "alta",
       "mx": null,
       "notas": "Verificación automática: 12 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
-    }
-  },
-  {
-    "id": "aiuken",
-    "nombre": "Aiuken",
-    "web": "https://www.aiuken.com",
-    "sector": "Ciberseguridad y SOC",
-    "tamano": "pyme",
-    "zona": "madrid",
-    "perfiles": [
-      "asir-ciberseguridad",
-      "asir-sistemas",
-      "asir-redes"
-    ],
-    "motivoEncaje": "Empresa de ciberseguridad con SOC y servicios gestionados.",
-    "contacto": {
-      "tipo": "email",
-      "email": "info-chile@aiuken.com",
-      "fuenteUrl": "https://www.aiuken.com/contacto/",
-      "tipoContacto": "general"
-    },
-    "verificacion": {
-      "fecha": "2026-11-06",
-      "confianza": "media",
-      "mx": true,
-      "notas": "Verificación automática: 3 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto."
     }
   },
   {
@@ -349,35 +323,6 @@
     }
   },
   {
-    "id": "avanade-espana",
-    "nombre": "Avanade España",
-    "web": "https://www.avanade.com/es-es",
-    "sector": "Consultoría Microsoft",
-    "tamano": "consultora",
-    "zona": "madrid",
-    "perfiles": [
-      "dam-web",
-      "dam-backend",
-      "dam-erp",
-      "asir-cloud",
-      "dam-datos-ia"
-    ],
-    "motivoEncaje": "Consultora especializada en Microsoft: Dynamics, Azure y desarrollo.",
-    "contacto": {
-      "tipo": "formulario",
-      "fuenteUrl": "https://www.avanade.com/en/career",
-      "formularioUrl": "https://www.avanade.com/en/career",
-      "tipoContacto": "talento"
-    },
-    "empleoUrl": "https://www.avanade.com/en/career",
-    "verificacion": {
-      "fecha": "2026-11-06",
-      "confianza": "alta",
-      "mx": null,
-      "notas": "Verificación automática: 29 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
-    }
-  },
-  {
     "id": "ayesa",
     "nombre": "Ayesa",
     "web": "https://www.ayesa.com",
@@ -432,7 +377,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 16 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 13 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -508,17 +453,17 @@
     ],
     "motivoEncaje": "Integrador de sistemas con proyectos de redes, servidores y cloud.",
     "contacto": {
-      "tipo": "email",
-      "email": "recruiting@bechtle.com",
-      "fuenteUrl": "https://www.bechtle.com/de-en/career/contact",
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.bechtle.com/karriere/cloud-jobs",
+      "formularioUrl": "https://www.bechtle.com/karriere/cloud-jobs",
       "tipoContacto": "talento"
     },
-    "empleoUrl": "https://www.bechtle.com/de-en/career/pupils",
+    "empleoUrl": "https://www.bechtle.com/karriere/cloud-jobs",
     "verificacion": {
       "fecha": "2026-11-06",
       "confianza": "alta",
-      "mx": true,
-      "notas": "Verificación automática: 9 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo."
+      "mx": null,
+      "notas": "Verificación automática: 6 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -728,16 +673,16 @@
     "motivoEncaje": "Producto digital madrileño con equipos de ingeniería móvil, backend y datos.",
     "contacto": {
       "tipo": "formulario",
-      "fuenteUrl": "https://cabify.careers/en/",
-      "formularioUrl": "https://cabify.careers/en/",
+      "fuenteUrl": "https://cabify.com/es/blog/incentivos-evitar-fuga-talento",
+      "formularioUrl": "https://cabify.com/es/blog/incentivos-evitar-fuga-talento",
       "tipoContacto": "talento"
     },
-    "empleoUrl": "https://cabify.careers/en/",
+    "empleoUrl": "https://cabify.com/es/blog/incentivos-evitar-fuga-talento",
     "verificacion": {
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 13 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 14 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -758,16 +703,16 @@
     "motivoEncaje": "Grandes equipos de desarrollo, SAP y cloud con sede en Madrid.",
     "contacto": {
       "tipo": "formulario",
-      "fuenteUrl": "https://www.capgemini.com/au-en/insights/expert-perspectives/pop-car-join-a-groundbreaking-urban-mobility-initiative/",
-      "formularioUrl": "https://www.capgemini.com/au-en/insights/expert-perspectives/pop-car-join-a-groundbreaking-urban-mobility-initiative/",
+      "fuenteUrl": "https://www.capgemini.com/es-es/talento/",
+      "formularioUrl": "https://www.capgemini.com/es-es/talento/",
       "tipoContacto": "talento"
     },
-    "empleoUrl": "https://www.capgemini.com/au-en/insights/expert-perspectives/pop-car-join-a-groundbreaking-urban-mobility-initiative/",
+    "empleoUrl": "https://www.capgemini.com/es-es/talento/",
     "verificacion": {
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 26 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 21 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -820,7 +765,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 16 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 15 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -866,16 +811,16 @@
     "motivoEncaje": "Proveedor de infraestructura y puesto de trabajo: soporte, sistemas y redes.",
     "contacto": {
       "tipo": "formulario",
-      "fuenteUrl": "https://www.computacenter.com/fr-fr/careers",
-      "formularioUrl": "https://www.computacenter.com/fr-fr/careers",
+      "fuenteUrl": "https://www.computacenter.com/en/careers",
+      "formularioUrl": "https://www.computacenter.com/en/careers",
       "tipoContacto": "talento"
     },
-    "empleoUrl": "https://www.computacenter.com/fr-fr/careers",
+    "empleoUrl": "https://www.computacenter.com/en/careers",
     "verificacion": {
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 18 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 14 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -921,16 +866,16 @@
     "motivoEncaje": "Gran consultora con equipos de ciberseguridad, SAP y datos en Madrid.",
     "contacto": {
       "tipo": "formulario",
-      "fuenteUrl": "https://www.deloitte.com/global/en/careers.html",
-      "formularioUrl": "https://www.deloitte.com/global/en/careers.html",
+      "fuenteUrl": "https://www.deloitte.com/es/es/careers.html?icid=top_careers",
+      "formularioUrl": "https://www.deloitte.com/es/es/careers.html?icid=top_careers",
       "tipoContacto": "talento"
     },
-    "empleoUrl": "https://www.deloitte.com/global/en/careers.html",
+    "empleoUrl": "https://www.deloitte.com/es/es/careers.html?icid=top_careers",
     "verificacion": {
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 25 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 16 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -1081,16 +1026,16 @@
     "motivoEncaje": "El mayor estudio de videojuegos de España por plantilla (más de 600 personas en Madrid, según la Comunidad de Madrid, 2026).",
     "contacto": {
       "tipo": "formulario",
-      "fuenteUrl": "https://www.ea.com/cs-cz/careers",
-      "formularioUrl": "https://www.ea.com/cs-cz/careers",
+      "fuenteUrl": "https://www.ea.com/careers",
+      "formularioUrl": "https://www.ea.com/careers",
       "tipoContacto": "talento"
     },
-    "empleoUrl": "https://www.ea.com/cs-cz/careers",
+    "empleoUrl": "https://www.ea.com/careers",
     "verificacion": {
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 14 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 10 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -1253,7 +1198,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 7 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 15 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -1300,7 +1245,7 @@
       "tipo": "email",
       "email": "equipo@factorlibre.com",
       "fuenteUrl": "https://factorlibre.com/trabaja-con-nosotros/",
-      "tipoContacto": "talento"
+      "tipoContacto": "general"
     },
     "empleoUrl": "https://factorlibre.com/trabaja-con-nosotros/",
     "verificacion": {
@@ -1329,12 +1274,12 @@
       "fuenteUrl": "https://www.factum.es/unete-al-equipo/",
       "tipoContacto": "rrhh"
     },
-    "empleoUrl": "https://www.factum.es/noticias/el-talento-especializado-en-ciberseguridad-sera-un-factor-decisivo-para-la-digitalizacion-en-2023/",
+    "empleoUrl": "https://www.factum.es/unete-al-equipo/",
     "verificacion": {
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": true,
-      "notas": "Verificación automática: 6 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo."
+      "notas": "Verificación automática: 5 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo."
     }
   },
   {
@@ -1352,16 +1297,16 @@
     "motivoEncaje": "Grupo con sede en Madrid y área digital.",
     "contacto": {
       "tipo": "formulario",
-      "fuenteUrl": "https://www.ferrovial.com/en/careers/",
-      "formularioUrl": "https://www.ferrovial.com/en/careers/",
+      "fuenteUrl": "https://www.ferrovial.com/en/careers/graduate-program/graduate-programs-in-construction/webber-summer-internship-program/",
+      "formularioUrl": "https://www.ferrovial.com/en/careers/graduate-program/graduate-programs-in-construction/webber-summer-internship-program/",
       "tipoContacto": "talento"
     },
-    "empleoUrl": "https://www.ferrovial.com/en/careers/",
+    "empleoUrl": "https://www.ferrovial.com/en/careers/graduate-program/graduate-programs-in-construction/webber-summer-internship-program/",
     "verificacion": {
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 11 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 16 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -1441,33 +1386,6 @@
       "confianza": "alta",
       "mx": null,
       "notas": "Verificación automática: 15 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
-    }
-  },
-  {
-    "id": "gft-espana",
-    "nombre": "GFT España",
-    "web": "https://www.gft.com/es",
-    "sector": "Consultoría tecnológica para banca",
-    "tamano": "consultora",
-    "zona": "madrid",
-    "perfiles": [
-      "dam-backend",
-      "dam-web",
-      "asir-cloud"
-    ],
-    "motivoEncaje": "Consultora de software para banca con equipos de desarrollo y cloud.",
-    "contacto": {
-      "tipo": "formulario",
-      "fuenteUrl": "https://www.gft.com/uk/en/career",
-      "formularioUrl": "https://www.gft.com/uk/en/career",
-      "tipoContacto": "talento"
-    },
-    "empleoUrl": "https://www.gft.com/uk/en/career",
-    "verificacion": {
-      "fecha": "2026-11-06",
-      "confianza": "alta",
-      "mx": null,
-      "notas": "Verificación automática: 18 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -1662,7 +1580,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 17 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 18 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -1707,43 +1625,16 @@
     "motivoEncaje": "Gran tecnológica con programas de talento joven y área de ciberseguridad.",
     "contacto": {
       "tipo": "formulario",
-      "fuenteUrl": "https://www.ibm.com/careers",
-      "formularioUrl": "https://www.ibm.com/careers",
+      "fuenteUrl": "https://www.ibm.com/careers?lnk=hpii5es",
+      "formularioUrl": "https://www.ibm.com/careers?lnk=hpii5es",
       "tipoContacto": "talento"
     },
-    "empleoUrl": "https://www.ibm.com/careers",
+    "empleoUrl": "https://www.ibm.com/careers?lnk=hpii5es",
     "verificacion": {
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 13 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
-    }
-  },
-  {
-    "id": "ilunion-tecnologia-y-accesibilidad",
-    "nombre": "Ilunion Tecnología y Accesibilidad",
-    "web": "https://www.ilunion.com",
-    "sector": "Servicios tecnológicos (grupo social ONCE)",
-    "tamano": "gran-empresa",
-    "zona": "madrid",
-    "perfiles": [
-      "asir-soporte",
-      "asir-sistemas",
-      "dam-web"
-    ],
-    "motivoEncaje": "Grupo de economía social con servicios TI, soporte y accesibilidad web.",
-    "contacto": {
-      "tipo": "formulario",
-      "fuenteUrl": "https://www.ilunion.com/es/unete-al-equipo",
-      "formularioUrl": "https://www.ilunion.com/es/unete-al-equipo",
-      "tipoContacto": "talento"
-    },
-    "empleoUrl": "https://www.ilunion.com/es/unete-al-equipo",
-    "verificacion": {
-      "fecha": "2026-11-06",
-      "confianza": "alta",
-      "mx": null,
-      "notas": "Verificación automática: 11 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 9 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -1796,7 +1687,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 8 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 7 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -1906,7 +1797,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 12 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 14 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -1926,7 +1817,7 @@
       "tipo": "email",
       "email": "info@intelygenz.com",
       "fuenteUrl": "https://intelygenz.com/talent-as-a-service/",
-      "tipoContacto": "talento"
+      "tipoContacto": "general"
     },
     "empleoUrl": "https://intelygenz.com/talent-as-a-service/",
     "verificacion": {
@@ -1993,7 +1884,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 23 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 22 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -2073,7 +1964,7 @@
       "fecha": "2026-11-06",
       "confianza": "media",
       "mx": null,
-      "notas": "Verificación automática: 14 páginas revisadas (incluido el mapa del sitio); formulario oficial de contacto."
+      "notas": "Verificación automática: 13 páginas revisadas (incluido el mapa del sitio); formulario oficial de contacto."
     }
   },
   {
@@ -2092,16 +1983,16 @@
     "motivoEncaje": "Servicios de infraestructura: perfil muy afín a ASIR.",
     "contacto": {
       "tipo": "formulario",
-      "fuenteUrl": "https://www.kyndryl.com/us/en/careers",
-      "formularioUrl": "https://www.kyndryl.com/us/en/careers",
+      "fuenteUrl": "https://www.kyndryl.com/es/es/careers",
+      "formularioUrl": "https://www.kyndryl.com/es/es/careers",
       "tipoContacto": "talento"
     },
-    "empleoUrl": "https://www.kyndryl.com/us/en/careers",
+    "empleoUrl": "https://www.kyndryl.com/es/es/careers",
     "verificacion": {
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 14 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -2154,7 +2045,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 6 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 7 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -2208,7 +2099,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 11 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 15 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -2588,7 +2479,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 19 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 15 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -2617,6 +2508,32 @@
       "confianza": "alta",
       "mx": null,
       "notas": "Verificación automática: 21 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
+    "id": "one-esecurity",
+    "nombre": "One eSecurity",
+    "web": "https://www.one-esecurity.com",
+    "sector": "Ciberseguridad y respuesta a incidentes",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-datos-ia-seguridad"
+    ],
+    "motivoEncaje": "Especialistas en respuesta a incidentes y análisis forense.",
+    "contacto": {
+      "tipo": "email",
+      "email": "recruitment@one-esecurity.com",
+      "fuenteUrl": "https://www.one-esecurity.com/join_our_team.html",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.one-esecurity.com/join_our_team.html",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": true,
+      "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo."
     }
   },
   {
@@ -2935,15 +2852,16 @@
     "motivoEncaje": "Grupo de Red Eléctrica con sede en Alcobendas y áreas TIC.",
     "contacto": {
       "tipo": "formulario",
-      "fuenteUrl": "https://www.redeia.com/es/sostenibilidad/transparencia-fiscal/buenas-practicas",
-      "formularioUrl": "https://www.redeia.com/es/sostenibilidad/transparencia-fiscal/buenas-practicas",
-      "tipoContacto": "general"
+      "fuenteUrl": "https://www.redeia.com/es/trabaja-con-nosotros/que-buscamos",
+      "formularioUrl": "https://www.redeia.com/es/trabaja-con-nosotros/que-buscamos",
+      "tipoContacto": "talento"
     },
+    "empleoUrl": "https://www.redeia.com/es/trabaja-con-nosotros/que-buscamos",
     "verificacion": {
       "fecha": "2026-11-06",
-      "confianza": "media",
+      "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 17 páginas revisadas (incluido el mapa del sitio); formulario oficial de contacto."
+      "notas": "Verificación automática: 19 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -2998,7 +2916,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 17 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 19 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -3135,7 +3053,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 13 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 12 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -3162,7 +3080,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 14 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 17 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -3190,34 +3108,6 @@
       "confianza": "alta",
       "mx": null,
       "notas": "Verificación automática: 5 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
-    }
-  },
-  {
-    "id": "seresco",
-    "nombre": "Seresco",
-    "web": "https://www.seresco.es",
-    "sector": "Software de gestión, ERP y RR. HH.",
-    "tamano": "consultora",
-    "zona": "madrid",
-    "perfiles": [
-      "dam-erp",
-      "dam-bbdd",
-      "dam-backend",
-      "asir-sistemas"
-    ],
-    "motivoEncaje": "Software de gestión y ERP con presencia en Madrid.",
-    "contacto": {
-      "tipo": "formulario",
-      "fuenteUrl": "https://seresco.es/talento/ofertas-empleo/",
-      "formularioUrl": "https://seresco.es/talento/ofertas-empleo/",
-      "tipoContacto": "talento"
-    },
-    "empleoUrl": "https://seresco.es/talento/ofertas-empleo/",
-    "verificacion": {
-      "fecha": "2026-11-06",
-      "confianza": "alta",
-      "mx": null,
-      "notas": "Verificación automática: 16 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -3261,16 +3151,16 @@
     "motivoEncaje": "Multinacional tecnológica con sede en Madrid.",
     "contacto": {
       "tipo": "formulario",
-      "fuenteUrl": "https://www.siemens.com/en-us/company/jobs/how-to-apply/",
-      "formularioUrl": "https://www.siemens.com/en-us/company/jobs/how-to-apply/",
+      "fuenteUrl": "https://www.siemens.com/es-es/company/jobs/",
+      "formularioUrl": "https://www.siemens.com/es-es/company/jobs/",
       "tipoContacto": "talento"
     },
-    "empleoUrl": "https://www.siemens.com/en-us/company/jobs/how-to-apply/",
+    "empleoUrl": "https://www.siemens.com/es-es/company/jobs/",
     "verificacion": {
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 14 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 8 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -3735,7 +3625,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 11 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 8 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -3762,32 +3652,6 @@
       "confianza": "media",
       "mx": true,
       "notas": "Verificación automática: 3 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto."
-    }
-  },
-  {
-    "id": "ufinet",
-    "nombre": "Ufinet",
-    "web": "https://www.ufinet.com",
-    "sector": "Redes de fibra",
-    "tamano": "gran-empresa",
-    "zona": "madrid",
-    "perfiles": [
-      "asir-redes",
-      "asir-sistemas"
-    ],
-    "motivoEncaje": "Operador de fibra con sede en Madrid.",
-    "contacto": {
-      "tipo": "formulario",
-      "fuenteUrl": "https://www.ufinet.com/por-que-ftth-es-la-mejor-opcion-para-los-trabajadores-remotos/",
-      "formularioUrl": "https://www.ufinet.com/por-que-ftth-es-la-mejor-opcion-para-los-trabajadores-remotos/",
-      "tipoContacto": "talento"
-    },
-    "empleoUrl": "https://www.ufinet.com/por-que-ftth-es-la-mejor-opcion-para-los-trabajadores-remotos/",
-    "verificacion": {
-      "fecha": "2026-11-06",
-      "confianza": "alta",
-      "mx": null,
-      "notas": "Verificación automática: 8 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -3871,7 +3735,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 11 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 12 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {

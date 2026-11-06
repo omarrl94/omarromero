@@ -1,5 +1,5 @@
 {
-  "fecha": "2026-11-06T16:28:40.073Z",
+  "fecha": "2026-11-06T16:36:25.189Z",
   "resultados": [
     {
       "id": "indra-group",
@@ -270,30 +270,6 @@
           "estado": 200
         },
         {
-          "url": "https://www.accenture.com/ae-en/careers/jobdetails?id=14586579_en",
-          "estado": 200
-        },
-        {
-          "url": "https://www.accenture.com/ae-en/careers/jobdetails?id=14871158_en",
-          "estado": 200
-        },
-        {
-          "url": "https://www.accenture.com/ae-en/careers/jobdetails?id=14840486_en",
-          "estado": 200
-        },
-        {
-          "url": "https://www.accenture.com/ae-en/careers/jobdetails?id=14854186_en",
-          "estado": 200
-        },
-        {
-          "url": "https://www.accenture.com/ae-en/careers/jobdetails?id=14871162_en",
-          "estado": 200
-        },
-        {
-          "url": "https://www.accenture.com/ae-en/careers/jobdetails?id=14663037_en",
-          "estado": 200
-        },
-        {
           "url": "https://www.accenture.com/es-es/services/talent-organization",
           "estado": 200
         },
@@ -368,34 +344,10 @@
         {
           "url": "https://www.accenture.com/rrhh",
           "estado": 404
-        },
-        {
-          "url": "https://www.accenture.com/en/services/talent-organization",
-          "estado": 200
-        },
-        {
-          "url": "https://www.accenture.com/ae-en/careers",
-          "estado": 200
-        },
-        {
-          "url": "https://www.accenture.com/ae-en/careers/jobsearch",
-          "estado": 200
-        },
-        {
-          "url": "https://www.accenture.com/ae-en/careers/explore-careers/career-areas",
-          "estado": 200
-        },
-        {
-          "url": "https://www.accenture.com/ae-en/careers/life-at-accenture/working-here",
-          "estado": 200
-        },
-        {
-          "url": "https://www.accenture.com/ae-en/careers/local/benefits",
-          "estado": 200
         }
       ],
       "correosEncontrados": [],
-      "contacto": "formulario: https://www.accenture.com/ae-en/careers/jobdetails?id=14586579_en",
+      "contacto": "formulario: https://www.accenture.com/es-es/services/talent-organization",
       "confianza": "alta"
     },
     {
@@ -442,10 +394,6 @@
         },
         {
           "url": "https://careers.emeal.nttdata.com/s/events?language=es",
-          "estado": 200
-        },
-        {
-          "url": "https://www.nttdata.com/global/en/careers?category=see-job",
           "estado": 200
         },
         {
@@ -499,26 +447,9 @@
         {
           "url": "https://careers.emeal.nttdata.com/s/jobs?",
           "estado": 200
-        },
-        {
-          "url": "https://careers.nttdata.com/global/en/sales-careers",
-          "estado": 200
-        },
-        {
-          "url": "https://careers.nttdata.com/global/en/NTT_DATA_Consulting_Careers",
-          "estado": 200
-        },
-        {
-          "url": "https://careers.nttdata.com/global/en/careers-in-tech",
-          "estado": 200
         }
       ],
       "correosEncontrados": [
-        {
-          "email": "global.careers@nttdata.com",
-          "tipo": "talento",
-          "motivoRechazo": "buzón no destinado a candidaturas"
-        },
         {
           "email": "infoweb@nttdata.com",
           "tipo": "general",
@@ -536,30 +467,6 @@
       "paginasRevisadas": [
         {
           "url": "https://www.capgemini.com/es-es",
-          "estado": 200
-        },
-        {
-          "url": "https://www.capgemini.com/au-en/insights/expert-perspectives/pop-car-join-a-groundbreaking-urban-mobility-initiative/",
-          "estado": 200
-        },
-        {
-          "url": "https://www.capgemini.com/au-en/insights/expert-perspectives/building-an-impactful-people-experience-a-12-step-journey/",
-          "estado": 200
-        },
-        {
-          "url": "https://www.capgemini.com/au-en/insights/expert-perspectives/start-your-journey-to-creating-an-amazing-people-experience/",
-          "estado": 200
-        },
-        {
-          "url": "https://www.capgemini.com/au-en/insights/expert-perspectives/gen-garage-where-tomorrows-talent-builds-todays-ai-for-good/",
-          "estado": 200
-        },
-        {
-          "url": "https://www.capgemini.com/au-en/insights/expert-perspectives/putting-people-first-to-create-a-seamless-employee-experience/",
-          "estado": 200
-        },
-        {
-          "url": "https://www.capgemini.com/au-en/insights/expert-perspectives/reimagine-your-employee-journey-into-an-amazing-people-experience/",
           "estado": 200
         },
         {
@@ -611,6 +518,14 @@
           "estado": 200
         },
         {
+          "url": "https://www.capgemini.com/es-es/talento/trabaja-en-capgemini/proceso-seleccion/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.capgemini.com/es-es/talento/trabaja-en-capgemini/consejos-entrevista/",
+          "estado": 200
+        },
+        {
           "url": "https://www.capgemini.com/trabaja-con-nosotros",
           "estado": 404
         },
@@ -643,27 +558,27 @@
           "estado": 404
         },
         {
-          "url": "https://www.capgemini.com/au-en/careers/",
+          "url": "https://www.capgemini.com/careers/",
           "estado": 200
         },
         {
-          "url": "https://www.capgemini.com/au-en/careers/why-join-capgemini/",
+          "url": "https://www.capgemini.com/careers/why-join-capgemini/",
           "estado": 200
         },
         {
-          "url": "https://www.capgemini.com/au-en/careers/life-at-capgemini/",
+          "url": "https://www.capgemini.com/careers/life-at-capgemini/",
           "estado": 200
         },
         {
-          "url": "https://www.capgemini.com/au-en/careers/meet-our-people/",
+          "url": "https://www.capgemini.com/careers/meet-our-people/",
           "estado": 200
         },
         {
-          "url": "https://www.capgemini.com/au-en/careers/career-paths/",
+          "url": "https://www.capgemini.com/careers/career-paths/",
           "estado": 200
         },
         {
-          "url": "https://www.capgemini.com/au-en/careers/career-paths/students-and-graduates/",
+          "url": "https://www.capgemini.com/careers/career-paths/students-and-graduates/",
           "estado": 200
         }
       ],
@@ -687,34 +602,9 @@
           "email": "name@capgemini.com",
           "tipo": "general",
           "motivoRechazo": "posible correo personal"
-        },
-        {
-          "email": "jan.krogel@capgemini.com",
-          "tipo": "general",
-          "motivoRechazo": "posible correo personal"
-        },
-        {
-          "email": "jon.harriman@capgemini.com",
-          "tipo": "general",
-          "motivoRechazo": "posible correo personal"
-        },
-        {
-          "email": "antoine.starek@capgemini.com",
-          "tipo": "general",
-          "motivoRechazo": "posible correo personal"
-        },
-        {
-          "email": "stephan.paolini@capgemini.com",
-          "tipo": "general",
-          "motivoRechazo": "posible correo personal"
-        },
-        {
-          "email": "talentacquisitionaunz@capgemini.com",
-          "tipo": "general",
-          "motivoRechazo": "posible correo personal"
         }
       ],
-      "contacto": "formulario: https://www.capgemini.com/au-en/insights/expert-perspectives/pop-car-join-a-groundbreaking-urban-mobility-initiative/",
+      "contacto": "formulario: https://www.capgemini.com/es-es/talento/",
       "confianza": "alta"
     },
     {
@@ -1171,15 +1061,7 @@
           "estado": 200
         },
         {
-          "url": "https://babelgroup.com/pt-pt/babel-inaugura-novo-escritorio-em-proenca-a-nova-e-reforca-a-aposta-na-valorizacao-e-retencao-de-talento-local/",
-          "estado": 200
-        },
-        {
           "url": "https://babelgroup.com/ia-al-servicio-de-las-personas-babel-logra-mas-eficiencia-y-refuerza-el-desarrollo-profesional-con-su-modelo-human-in-the-loop/",
-          "estado": 200
-        },
-        {
-          "url": "https://babelgroup.com/pt-pt/babel-assina-acordo-com-a-workday-para-impulsionar-a-gestao-global-de-talentos/",
           "estado": 200
         },
         {
@@ -1235,23 +1117,23 @@
           "estado": 200
         },
         {
-          "url": "https://babelgroup.com/pt-pt/servicios/it-people-transformation/",
-          "estado": 200
-        },
-        {
-          "url": "https://babelgroup.com/fr/babel-signe-un-accord-avec-workday-pour-renforcer-la-gestion-des-talents-au-niveau-mondial/",
-          "estado": 200
-        },
-        {
-          "url": "https://babelgroup.com/babel-firma-un-acuerdo-con-workday-para-impulsar-la-gestion-de-su-talento-a-nivel-global/",
-          "estado": 200
-        },
-        {
           "url": "https://babelgroup.com/en/sectores/empleo-y-seguridad-social/",
           "estado": 200
         },
         {
-          "url": "https://babelgroup.com/pt-pt/sectores/empleo-y-seguridad-social/",
+          "url": "https://babelgroup.com/servicios/it-people-transformation/talento-digital-transformacion/",
+          "estado": 200
+        },
+        {
+          "url": "https://babelgroup.com/en/servicios/it-people-transformation/digital-talent-and-transformation/",
+          "estado": 200
+        },
+        {
+          "url": "https://babelgroup.com/en/babelievers/",
+          "estado": 200
+        },
+        {
+          "url": "https://babelgroup.com/en/aviso-legal/",
           "estado": 200
         }
       ],
@@ -2305,27 +2187,7 @@
           "estado": 200
         },
         {
-          "url": "https://www.computacenter.com/fr/careers",
-          "estado": 200
-        },
-        {
           "url": "https://www.computacenter.com/en/careers",
-          "estado": 200
-        },
-        {
-          "url": "https://www.computacenter.com/de/careers",
-          "estado": 200
-        },
-        {
-          "url": "https://www.computacenter.com/en-us/careers",
-          "estado": 200
-        },
-        {
-          "url": "https://www.computacenter.com/de-ch/careers",
-          "estado": 200
-        },
-        {
-          "url": "https://www.computacenter.com/nl-nl/careers",
           "estado": 200
         },
         {
@@ -2381,15 +2243,7 @@
           "estado": 404
         },
         {
-          "url": "https://www.computacenter.com/fr-fr/careers",
-          "estado": 200
-        },
-        {
-          "url": "https://www.computacenter.com/fr-fr/careers/job-offers",
-          "estado": 200
-        },
-        {
-          "url": "https://www.computacenter.com/fr-fr/careers/diversity-policy",
+          "url": "https://www.computacenter.com/careers/job-offers",
           "estado": 200
         },
         {
@@ -2397,11 +2251,19 @@
           "estado": 200
         },
         {
-          "url": "https://careers.computacenter.com/uk?utm_source=site_corporate&utm_medium=careers_hp_bottom&utm_campaign=perma_link&utm_content=link",
+          "url": "https://careers.computacenter.com/hu?utm_source=site_corporate&utm_medium=careers_hp_bottom&utm_campaign=perma_link&utm_content=link",
           "estado": 200
         },
         {
-          "url": "https://careers.computacenter.com/be?utm_source=site_corporate&utm_medium=careers_hp_bottom&utm_campaign=perma_link&utm_content=link",
+          "url": "https://careers.computacenter.com/ro?utm_source=site_corporate&utm_medium=careers_hp_bottom&utm_campaign=perma_link&utm_content=link",
+          "estado": 200
+        },
+        {
+          "url": "https://www.computacenter.com/es-es/careers/job-offers",
+          "estado": 200
+        },
+        {
+          "url": "https://www.computacenter.com/information/contact-us",
           "estado": 200
         }
       ],
@@ -2447,7 +2309,7 @@
           "motivoRechazo": "dominio distinto al de la web"
         }
       ],
-      "contacto": "formulario: https://www.computacenter.com/fr-fr/careers",
+      "contacto": "formulario: https://www.computacenter.com/en/careers",
       "confianza": "alta"
     },
     {
@@ -2570,27 +2432,7 @@
           "estado": 200
         },
         {
-          "url": "https://www.bechtle.com/de-en/career/pupils",
-          "estado": 200
-        },
-        {
           "url": "https://www.bechtle.com/karriere/cloud-jobs",
-          "estado": 200
-        },
-        {
-          "url": "https://www.bechtle.com/de-en/career/contact",
-          "estado": 200
-        },
-        {
-          "url": "https://www.bechtle.com/de-en/career/benefits",
-          "estado": 200
-        },
-        {
-          "url": "https://www.bechtle.com/de-en/career/cloud-jobs",
-          "estado": 200
-        },
-        {
-          "url": "https://www.bechtle.com/de-en/career/departments",
           "estado": 200
         },
         {
@@ -2599,6 +2441,46 @@
         },
         {
           "url": "https://www.bechtle.com/es/legal-notice",
+          "estado": 200
+        },
+        {
+          "url": "https://www.bechtle.com/trabaja-con-nosotros",
+          "estado": 404
+        },
+        {
+          "url": "https://www.bechtle.com/trabaja-con-nosotros/",
+          "estado": 404
+        },
+        {
+          "url": "https://www.bechtle.com/empleo",
+          "estado": 404
+        },
+        {
+          "url": "https://www.bechtle.com/talento",
+          "estado": 404
+        },
+        {
+          "url": "https://www.bechtle.com/careers",
+          "estado": 404
+        },
+        {
+          "url": "https://www.bechtle.com/unete",
+          "estado": 404
+        },
+        {
+          "url": "https://www.bechtle.com/unete-al-equipo",
+          "estado": 404
+        },
+        {
+          "url": "https://www.bechtle.com/rrhh",
+          "estado": 404
+        },
+        {
+          "url": "http://jobs.bechtle.com/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.bechtle.com/legal/entsorgung-ruecknahme-elektrog-battdg-verpackg",
           "estado": 200
         }
       ],
@@ -2609,21 +2491,12 @@
           "motivoRechazo": "posible correo personal"
         },
         {
-          "email": "recruiting@bechtle.com",
-          "tipo": "talento"
-        },
-        {
-          "email": "ausbildung@bechtle.com",
-          "tipo": "general",
-          "motivoRechazo": "posible correo personal"
-        },
-        {
           "email": "kontakt@bechtle.com",
           "tipo": "general",
           "motivoRechazo": "posible correo personal"
         }
       ],
-      "contacto": "recruiting@bechtle.com (https://www.bechtle.com/de-en/career/contact)",
+      "contacto": "formulario: https://www.bechtle.com/karriere/cloud-jobs",
       "confianza": "alta"
     },
     {
@@ -3152,15 +3025,7 @@
           "estado": 404
         },
         {
-          "url": "https://www.mapfre.com/pt-br/talento/",
-          "estado": 200
-        },
-        {
           "url": "https://www.mapfre.com/en/talent/",
-          "estado": 200
-        },
-        {
-          "url": "https://www.mapfre.com/pt-br/talento/junte-se-a-nossa-equipe/",
           "estado": 200
         },
         {
@@ -3173,6 +3038,14 @@
         },
         {
           "url": "https://www.mapfre.com/talento/unete-a-nuestro-equipo/administracion-finanzas/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.mapfre.com/en/talent/que-esperamos-de-ti/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.mapfre.com/en/talent/universities-plan/",
           "estado": 200
         }
       ],
@@ -3458,10 +3331,6 @@
           "estado": 200
         },
         {
-          "url": "https://entelgy.com/pt-br/actualidad-es-pt-br/entelgy-talento/",
-          "estado": 200
-        },
-        {
           "url": "https://entelgy.com/actualidad-es/entrevista-a-marta-gallardo-de-personas-de-entelgy-en-el-programa-de-ar/",
           "estado": 200
         },
@@ -3474,7 +3343,11 @@
           "estado": 200
         },
         {
-          "url": "https://entelgy.com/pt-br/actualidad-es-pt-br/entelgy-foro-talento/",
+          "url": "https://entelgy.com/actualidad-es/la-prensa-destaca-la-importancia-del-talento-colaborativo-en-entelgy/",
+          "estado": 200
+        },
+        {
+          "url": "https://entelgy.com/en/present/innotec-talent-ciberseguridad/",
           "estado": 200
         }
       ],
@@ -4038,15 +3911,23 @@
           "estado": 200
         },
         {
-          "url": "https://cabify.com/en/ads/contact",
+          "url": "https://cabify.com/es/blog/incentivos-evitar-fuga-talento",
           "estado": 200
         },
         {
-          "url": "https://cabify.com/en/business/contact",
+          "url": "https://cabify.com/es/blog/compartir-coche-ir-a-trabajar-ventajas",
           "estado": 200
         },
         {
-          "url": "https://cabify.com/es/ads/contacto",
+          "url": "https://cabify.com/es/blog/programas-de-incentivos-clave-para-talento-y-productividad",
+          "estado": 200
+        },
+        {
+          "url": "https://cabify.com/es/blog/dia-de-la-nina-trabajamos-por-la-igualdad-de-oportunidades",
+          "estado": 200
+        },
+        {
+          "url": "https://cabify.com/es/blog/5-recomendaciones-para-atraer-talento-diverso-a-tu-empresa",
           "estado": 200
         },
         {
@@ -4054,15 +3935,11 @@
           "estado": 200
         },
         {
-          "url": "https://cabify.com/ar/ads/contacto",
-          "estado": 200
-        },
-        {
-          "url": "https://cabify.com/ar/empresas/contactanos",
-          "estado": 200
-        },
-        {
           "url": "https://cabify.com/es/empresas/contactanos",
+          "estado": 200
+        },
+        {
+          "url": "https://cabify.com/es/ads/contacto",
           "estado": 200
         },
         {
@@ -4121,7 +3998,7 @@
           "motivoRechazo": "buzón no destinado a candidaturas"
         }
       ],
-      "contacto": "formulario: https://cabify.careers/en/",
+      "contacto": "formulario: https://cabify.com/es/blog/incentivos-evitar-fuga-talento",
       "confianza": "alta"
     },
     {
@@ -4275,10 +4152,6 @@
           "estado": 200
         },
         {
-          "url": "https://www.jobandtalent.com/nl/dsp",
-          "estado": 200
-        },
-        {
           "url": "https://www.jobandtalent.com/vacancy",
           "estado": 200
         },
@@ -4359,19 +4232,19 @@
           "estado": 404
         },
         {
+          "url": "https://www.jobandtalent.com/jobs/detail/3d56fa17-20b7-4ed4-ad54-e86581151d10",
+          "estado": 200
+        },
+        {
+          "url": "https://www.jobandtalent.com/jobs/detail/e7eb59a3-2d90-46bd-9be5-aae7e4027349",
+          "estado": 200
+        },
+        {
           "url": "https://www.jobandtalent.com/jobs/detail/b487ec76-bdaa-450e-879e-98f7c6c1194a",
           "estado": 200
         },
         {
           "url": "https://www.jobandtalent.com/jobs/detail/c2059880-acb7-4a2e-b8d0-97adaea64055",
-          "estado": 200
-        },
-        {
-          "url": "https://www.jobandtalent.com/jobs/detail/d90eff61-d89a-4a09-8bf6-41af72b43897",
-          "estado": 200
-        },
-        {
-          "url": "https://www.jobandtalent.com/jobs/detail/a32f3951-210c-4217-aac3-a2a298b23cb2",
           "estado": 200
         },
         {
@@ -4451,26 +4324,6 @@
         },
         {
           "url": "https://clarity.ai/es/careers/",
-          "estado": 200
-        },
-        {
-          "url": "https://clarity.ai/fr/careers/",
-          "estado": 200
-        },
-        {
-          "url": "https://clarity.ai/de/careers/",
-          "estado": 200
-        },
-        {
-          "url": "https://clarity.ai/it/careers/",
-          "estado": 200
-        },
-        {
-          "url": "https://clarity.ai/ar/careers/",
-          "estado": 200
-        },
-        {
-          "url": "https://clarity.ai/pt/careers/",
           "estado": 200
         }
       ],
@@ -4677,15 +4530,15 @@
         },
         {
           "url": "https://lingokids.com/blog/posts/weve-joined-forces-with-ikea",
-          "estado": 429
+          "estado": 200
         },
         {
           "url": "https://lingokids.com/blog/posts/join-the-lingokids-x-storyphones-giveaway",
-          "estado": 429
+          "estado": 200
         },
         {
           "url": "https://lingokids.com/es/blog/posts/unete-a-la-aventura-playlearning-en-amazon",
-          "estado": 429
+          "estado": 200
         },
         {
           "url": "https://jobs.lingokids.com/",
@@ -4693,27 +4546,27 @@
         },
         {
           "url": "https://lingokids.com/legal-notice",
-          "estado": 429
+          "estado": 200
         },
         {
           "url": "https://lingokids.com/trabaja-con-nosotros",
-          "estado": 404
+          "estado": 429
         },
         {
           "url": "https://lingokids.com/trabaja-con-nosotros/",
-          "estado": 404
+          "estado": 429
         },
         {
           "url": "https://lingokids.com/empleo",
-          "estado": 404
+          "estado": 429
         },
         {
           "url": "https://lingokids.com/talento",
-          "estado": 404
+          "estado": 429
         },
         {
           "url": "https://lingokids.com/careers",
-          "estado": 404
+          "estado": 429
         },
         {
           "url": "https://lingokids.com/unete",
@@ -4780,10 +4633,6 @@
         },
         {
           "url": "https://www.kenjo.io/es/rrhh-glosario",
-          "estado": 200
-        },
-        {
-          "url": "https://www.kenjo.io/de/guides/people-analytics",
           "estado": 200
         },
         {
@@ -5527,7 +5376,7 @@
           "estado": 200
         },
         {
-          "url": "https://empleo.integratecnologia.es/?blackhole=f669dc569a",
+          "url": "https://empleo.integratecnologia.es/?blackhole=f714fbd23d",
           "estado": 200
         },
         {
@@ -5934,15 +5783,15 @@
         },
         {
           "url": "https://mobivery.com/trabaja-con-nosotros/",
-          "estado": "tiempo agotado"
-        },
-        {
-          "url": "https://mobivery.com/empleo",
           "estado": 404
         },
         {
-          "url": "https://mobivery.com/talento",
+          "url": "https://mobivery.com/empleo",
           "estado": "tiempo agotado"
+        },
+        {
+          "url": "https://mobivery.com/talento",
+          "estado": 200
         },
         {
           "url": "https://mobivery.com/careers",
@@ -6117,7 +5966,7 @@
         },
         {
           "url": "https://witrey.com/unete-al-equipo",
-          "estado": "tiempo agotado"
+          "estado": 404
         },
         {
           "url": "https://witrey.com/rrhh",
@@ -6233,7 +6082,7 @@
         },
         {
           "url": "https://intelequia.com/es/contacto",
-          "estado": "tiempo agotado"
+          "estado": 200
         },
         {
           "url": "https://intelequia.com/es/sectores/legal",
@@ -6277,7 +6126,7 @@
         },
         {
           "url": "https://intelequia.com/en/newsroom/post/galardonados-en-los-premios-rrhh-canarias-2023",
-          "estado": "tiempo agotado"
+          "estado": 200
         },
         {
           "url": "https://intelequia.com/en/blog/post/microsoft-fabric-una-nueva-forma-de-trabajar-con-datos-en-la-empresa",
@@ -6310,30 +6159,6 @@
       "paginasRevisadas": [
         {
           "url": "https://www.ea.com",
-          "estado": 200
-        },
-        {
-          "url": "https://www.ea.com/ar-sa/games/fifa/fifa-20/fifa-20-career-mode",
-          "estado": 200
-        },
-        {
-          "url": "https://www.ea.com/ar-sa/games/fifa/fifa-21/features/career-mode",
-          "estado": 200
-        },
-        {
-          "url": "https://www.ea.com/ar-sa/games/ea-sports-fc/fc-24/gameplay/player-career",
-          "estado": 200
-        },
-        {
-          "url": "https://www.ea.com/cs-cz/careers",
-          "estado": 200
-        },
-        {
-          "url": "https://www.ea.com/cs-cz/careers/teams",
-          "estado": 200
-        },
-        {
-          "url": "https://www.ea.com/cs-cz/careers/why-ea",
           "estado": 200
         },
         {
@@ -6385,27 +6210,27 @@
           "estado": 404
         },
         {
-          "url": "https://www.ea.com/cs-cz/commitments/people-and-culture",
+          "url": "https://www.ea.com/commitments/people-and-culture",
           "estado": 200
         },
         {
-          "url": "https://www.ea.com/cs-cz/careers/locations",
+          "url": "https://www.ea.com/careers/teams",
           "estado": 200
         },
         {
-          "url": "https://www.ea.com/cs-cz/careers/interns-and-university-graduates",
+          "url": "https://www.ea.com/careers/locations",
           "estado": 200
         },
         {
-          "url": "https://www.ea.com/cs-cz/careers/teams/studios",
+          "url": "https://www.ea.com/careers/interns-and-university-graduates",
           "estado": 200
         },
         {
-          "url": "https://www.ea.com/cs-cz/careers/teams/technology",
+          "url": "https://www.ea.com/careers/why-ea",
           "estado": 200
         },
         {
-          "url": "https://www.ea.com/cs-cz/careers/life-at-ea",
+          "url": "https://www.ea.com/commitments/inclusion-and-diversity",
           "estado": 200
         }
       ],
@@ -6431,7 +6256,7 @@
           "motivoRechazo": "dominio distinto al de la web"
         }
       ],
-      "contacto": "formulario: https://www.ea.com/cs-cz/careers",
+      "contacto": "formulario: https://www.ea.com/careers",
       "confianza": "alta"
     },
     {
@@ -6605,7 +6430,7 @@
         },
         {
           "url": "https://www.vodafone.es/c/conocenos/es/vodafone-espana/quienes-somos/legal-y-regulatorio/",
-          "estado": "tiempo agotado"
+          "estado": 200
         },
         {
           "url": "https://www.vodafone.es/c/conocenos/es/vodafone-espana/quienes-somos/legal-y-regulatorio/otra-informacion-legal/distribuidores/",
@@ -6637,7 +6462,7 @@
         },
         {
           "url": "https://www.vodafone.es/talento",
-          "estado": "tiempo agotado"
+          "estado": 404
         },
         {
           "url": "https://www.vodafone.es/careers",
@@ -6699,30 +6524,6 @@
           "estado": 200
         },
         {
-          "url": "https://www.ibm.com/careers",
-          "estado": 200
-        },
-        {
-          "url": "https://www.ibm.com/careers/blog",
-          "estado": 200
-        },
-        {
-          "url": "https://www.ibm.com/careers/cloud",
-          "estado": 200
-        },
-        {
-          "url": "https://www.ibm.com/careers/sales",
-          "estado": 200
-        },
-        {
-          "url": "https://www.ibm.com/careers/areas",
-          "estado": 200
-        },
-        {
-          "url": "https://www.ibm.com/careers/search",
-          "estado": "tiempo agotado"
-        },
-        {
           "url": "https://www.ibm.com/careers?lnk=hpii5es",
           "estado": 200
         },
@@ -6743,6 +6544,10 @@
           "estado": 404
         },
         {
+          "url": "https://www.ibm.com/careers",
+          "estado": 200
+        },
+        {
           "url": "https://www.ibm.com/unete",
           "estado": 404
         },
@@ -6755,8 +6560,12 @@
           "estado": 404
         },
         {
-          "url": "https://www.ibm.com/recursos-humanos",
-          "estado": 404
+          "url": "https://www.ibm.com/careers/search",
+          "estado": 200
+        },
+        {
+          "url": "https://www.ibm.com/careers/areas",
+          "estado": 200
         },
         {
           "url": "https://www.ibm.com/careers/career-opportunities",
@@ -6771,15 +6580,7 @@
           "estado": 200
         },
         {
-          "url": "https://www.ibm.com/careers/locations",
-          "estado": 200
-        },
-        {
-          "url": "https://www.ibm.com/careers/blog/once-an-ibmer-always-an-ibmer",
-          "estado": 200
-        },
-        {
-          "url": "https://careers.ibm.com/en_US/globalform?source=WEB_Blog",
+          "url": "https://www.ibm.com/careers/blog",
           "estado": 200
         }
       ],
@@ -6790,7 +6591,7 @@
           "motivoRechazo": "posible correo personal"
         }
       ],
-      "contacto": "formulario: https://www.ibm.com/careers",
+      "contacto": "formulario: https://www.ibm.com/careers?lnk=hpii5es",
       "confianza": "alta"
     },
     {
@@ -6805,26 +6606,6 @@
         },
         {
           "url": "https://www.kyndryl.com/careers",
-          "estado": 200
-        },
-        {
-          "url": "https://www.kyndryl.com/us/en/about-us/careers",
-          "estado": 200
-        },
-        {
-          "url": "https://www.kyndryl.com/us/en/careers/costa-rica",
-          "estado": 200
-        },
-        {
-          "url": "https://www.kyndryl.com/us/en/careers/early-careers",
-          "estado": 200
-        },
-        {
-          "url": "https://www.kyndryl.com/us/en/careers/life-at-kyndryl",
-          "estado": 200
-        },
-        {
-          "url": "https://www.kyndryl.com/us/en/consulting/people-performance",
           "estado": 200
         },
         {
@@ -6869,31 +6650,7 @@
         },
         {
           "url": "https://www.kyndryl.com/recursos-humanos",
-          "estado": "tiempo agotado"
-        },
-        {
-          "url": "https://www.kyndryl.com/us/en/careers",
-          "estado": 200
-        },
-        {
-          "url": "https://www.kyndryl.com/ar/es/careers",
-          "estado": 200
-        },
-        {
-          "url": "https://www.kyndryl.com/au/en/careers",
-          "estado": 200
-        },
-        {
-          "url": "https://www.kyndryl.com/at/de/careers",
-          "estado": 200
-        },
-        {
-          "url": "https://www.kyndryl.com/be/en/careers",
-          "estado": 200
-        },
-        {
-          "url": "https://www.kyndryl.com/be/fr/careers",
-          "estado": 200
+          "estado": 404
         }
       ],
       "correosEncontrados": [
@@ -6913,14 +6670,14 @@
           "motivoRechazo": "posible correo personal"
         }
       ],
-      "contacto": "formulario: https://www.kyndryl.com/us/en/careers",
+      "contacto": "formulario: https://www.kyndryl.com/es/es/careers",
       "confianza": "alta"
     },
     {
       "id": "aiuken",
       "nombre": "Aiuken",
       "web": "https://www.aiuken.com",
-      "estado": "valida",
+      "estado": "descartada",
       "paginasRevisadas": [
         {
           "url": "https://www.aiuken.com",
@@ -6931,68 +6688,40 @@
           "estado": 200
         },
         {
-          "url": "https://www.aiuken.com/terminos-de-uso-y-condiciones/",
+          "url": "https://www.aiuken.com/trabaja-con-nosotros",
           "estado": 200
         },
         {
-          "url": "https://www.aiuken.com/trabaja-con-nosotros",
-          "estado": 404
-        },
-        {
           "url": "https://www.aiuken.com/trabaja-con-nosotros/",
-          "estado": 404
+          "estado": 200
         },
         {
           "url": "https://www.aiuken.com/empleo",
-          "estado": 404
+          "estado": 200
         },
         {
           "url": "https://www.aiuken.com/talento",
-          "estado": "tiempo agotado"
+          "estado": 200
         },
         {
           "url": "https://www.aiuken.com/careers",
-          "estado": 404
+          "estado": 200
         },
         {
           "url": "https://www.aiuken.com/unete",
-          "estado": 404
+          "estado": 200
         },
         {
           "url": "https://www.aiuken.com/unete-al-equipo",
-          "estado": 404
+          "estado": 200
         },
         {
           "url": "https://www.aiuken.com/rrhh",
-          "estado": 404
+          "estado": 200
         }
       ],
-      "correosEncontrados": [
-        {
-          "email": "info@aiuken.com",
-          "tipo": "general"
-        },
-        {
-          "email": "name@company.com",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "lopd@aiuken.com",
-          "tipo": "general",
-          "motivoRechazo": "buzón no destinado a candidaturas"
-        },
-        {
-          "email": "info-chile@aiuken.com",
-          "tipo": "general"
-        },
-        {
-          "email": "info-uae@aiuken.com",
-          "tipo": "general"
-        }
-      ],
-      "contacto": "info-chile@aiuken.com (https://www.aiuken.com/contacto/)",
-      "confianza": "media"
+      "correosEncontrados": [],
+      "motivo": "Sin correo publicado ni formulario oficial en las páginas revisadas"
     },
     {
       "id": "factum",
@@ -7006,6 +6735,10 @@
         },
         {
           "url": "https://www.factum.es/noticias/el-talento-especializado-en-ciberseguridad-sera-un-factor-decisivo-para-la-digitalizacion-en-2023/",
+          "estado": "ETIMEDOUT"
+        },
+        {
+          "url": "https://www.factum.es/unete-al-equipo/",
           "estado": 200
         },
         {
@@ -7052,15 +6785,42 @@
       "id": "one-esecurity",
       "nombre": "One eSecurity",
       "web": "https://www.one-esecurity.com",
-      "estado": "descartada",
+      "estado": "valida",
       "paginasRevisadas": [
         {
           "url": "https://www.one-esecurity.com",
-          "estado": "tiempo agotado"
+          "estado": 200
+        },
+        {
+          "url": "https://www.one-esecurity.com/join_our_team.html",
+          "estado": 200
+        },
+        {
+          "url": "https://www.one-esecurity.com/contact_report_incident.html",
+          "estado": 200
+        },
+        {
+          "url": "https://www.one-esecurity.com/contact_contact_us.html",
+          "estado": 200
         }
       ],
-      "correosEncontrados": [],
-      "motivo": "La web no responde (tiempo agotado)"
+      "correosEncontrados": [
+        {
+          "email": "recruitment@one-esecurity.com",
+          "tipo": "talento"
+        },
+        {
+          "email": "incident@one-esecurity.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "info@one-esecurity.com",
+          "tipo": "general"
+        }
+      ],
+      "contacto": "recruitment@one-esecurity.com (https://www.one-esecurity.com/join_our_team.html)",
+      "confianza": "alta"
     },
     {
       "id": "dotforce",
@@ -7080,576 +6840,57 @@
       "id": "seresco",
       "nombre": "Seresco",
       "web": "https://www.seresco.es",
-      "estado": "valida",
+      "estado": "descartada",
       "paginasRevisadas": [
         {
           "url": "https://www.seresco.es",
-          "estado": 200
-        },
-        {
-          "url": "https://seresco.es/gestion-de-personas/",
-          "estado": 200
-        },
-        {
-          "url": "https://seresco.es/talento/ofertas-empleo/",
-          "estado": 200
-        },
-        {
-          "url": "https://seresco.es/nomina/dia-internacional-rrhh/",
-          "estado": 200
-        },
-        {
-          "url": "https://seresco.es/recursos-humanos-rrhh/big-data/",
-          "estado": 200
-        },
-        {
-          "url": "https://seresco.es/nomina/planes-departamento-rrhh/",
-          "estado": 200
-        },
-        {
-          "url": "https://seresco.es/laboral/papa-tu-en-que-trabajas/",
-          "estado": 200
-        },
-        {
-          "url": "https://seresco.es/gestion-de-personas/outsourcing-de-nomina/",
-          "estado": 200
-        },
-        {
-          "url": "https://seresco.es/gestion-de-personas/control-de-presencia/",
-          "estado": 200
-        },
-        {
-          "url": "https://seresco.es/gestion-de-personas/control-de-tareas/",
-          "estado": 200
-        },
-        {
-          "url": "https://seresco.es/seresco/seresco-participa-en-una-jornada-de-randstad-sobre-transparencia-salarial-y-gestion-del-talento/",
-          "estado": 200
-        },
-        {
-          "url": "https://seresco.es/seresco/seresco-patrocina-la-xvi-semana-de-impulso-tic-sitic2026-para-apoyar-la-innovacion-y-el-talento-tecnologico-en-asturias/",
-          "estado": 200
-        },
-        {
-          "url": "https://seresco.es/contacto/",
-          "estado": 200
-        },
-        {
-          "url": "https://seresco.es/trabaja-con-nosotros",
-          "estado": 200
-        },
-        {
-          "url": "https://seresco.es/trabaja-con-nosotros/",
-          "estado": 200
-        },
-        {
-          "url": "https://seresco.es/empleo",
-          "estado": 200
-        },
-        {
-          "url": "https://seresco.es/talento",
-          "estado": 200
-        },
-        {
-          "url": "https://seresco.es/careers",
-          "estado": 200
-        },
-        {
-          "url": "https://seresco.es/unete",
-          "estado": 200
-        },
-        {
-          "url": "https://seresco.es/unete-al-equipo",
-          "estado": 200
-        },
-        {
-          "url": "https://seresco.es/rrhh",
-          "estado": 200
-        },
-        {
-          "url": "https://seresco.es/gestion-personas/",
-          "estado": 200
+          "estado": "tiempo agotado"
         }
       ],
-      "correosEncontrados": [
-        {
-          "email": "soluciones@seresco.es",
-          "tipo": "general",
-          "motivoRechazo": "posible correo personal"
-        },
-        {
-          "email": "dpo@seresco.es",
-          "tipo": "general",
-          "motivoRechazo": "buzón no destinado a candidaturas"
-        }
-      ],
-      "contacto": "formulario: https://seresco.es/talento/ofertas-empleo/",
-      "confianza": "alta"
+      "correosEncontrados": [],
+      "motivo": "La web no responde (tiempo agotado)"
     },
     {
       "id": "ilunion-tecnologia-y-accesibilidad",
       "nombre": "Ilunion Tecnología y Accesibilidad",
       "web": "https://www.ilunion.com",
-      "estado": "valida",
+      "estado": "descartada",
       "paginasRevisadas": [
         {
           "url": "https://www.ilunion.com",
-          "estado": 200
-        },
-        {
-          "url": "https://www.ilunion.com/es/unete-al-equipo",
-          "estado": 200
-        },
-        {
-          "url": "https://www.ilunion.com/es/compromiso/personas",
-          "estado": 200
-        },
-        {
-          "url": "https://www.ilunion.com/es/unete-al-equipo/por-que-ilunion",
-          "estado": 200
-        },
-        {
-          "url": "https://www.ilunion.com/es/compromiso/personas/diversidad-social",
-          "estado": 200
-        },
-        {
-          "url": "https://www.ilunion.com/es/compromiso/personas/sentimiento-ilunion",
-          "estado": 200
-        },
-        {
-          "url": "https://www.ilunion.com/es/compromiso/personas/iniciativas-sociales",
-          "estado": 200
-        },
-        {
-          "url": "https://www.ilunion.com/es/unete-al-equipo/beneficios-empleado-ilunion",
-          "estado": 200
-        },
-        {
-          "url": "https://www.ilunion.com/es/contacto",
-          "estado": 200
-        },
-        {
-          "url": "https://www.ilunion.com/es/aviso-legal",
-          "estado": 200
-        },
-        {
-          "url": "https://www.ilunion.com/trabaja-con-nosotros",
-          "estado": 404
-        },
-        {
-          "url": "https://www.ilunion.com/trabaja-con-nosotros/",
-          "estado": 404
-        },
-        {
-          "url": "https://www.ilunion.com/empleo",
-          "estado": 403
-        },
-        {
-          "url": "https://www.ilunion.com/talento",
-          "estado": 404
-        },
-        {
-          "url": "https://www.ilunion.com/careers",
-          "estado": 404
-        },
-        {
-          "url": "https://www.ilunion.com/unete",
-          "estado": 404
-        },
-        {
-          "url": "https://www.ilunion.com/unete-al-equipo",
-          "estado": 200
-        },
-        {
-          "url": "https://www.ilunion.com/rrhh",
-          "estado": 404
-        },
-        {
-          "url": "https://empleo.ilunion.com/",
-          "estado": 200
+          "estado": "tiempo agotado"
         }
       ],
-      "correosEncontrados": [
-        {
-          "email": "contacto@ilunion.com",
-          "tipo": "general"
-        },
-        {
-          "email": "dpd@ilunion.com",
-          "tipo": "general",
-          "motivoRechazo": "buzón no destinado a candidaturas"
-        }
-      ],
-      "contacto": "formulario: https://www.ilunion.com/es/unete-al-equipo",
-      "confianza": "alta"
+      "correosEncontrados": [],
+      "motivo": "La web no responde (tiempo agotado)"
     },
     {
       "id": "gft-espana",
       "nombre": "GFT España",
       "web": "https://www.gft.com/es",
-      "estado": "valida",
+      "estado": "descartada",
       "paginasRevisadas": [
         {
           "url": "https://www.gft.com/es",
-          "estado": 200
-        },
-        {
-          "url": "https://www.gft.com/uk/en/career",
-          "estado": 200
-        },
-        {
-          "url": "https://www.gft.com/uk/en/career/benefits",
-          "estado": 200
-        },
-        {
-          "url": "https://www.gft.com/uk/en/career/scam-information",
-          "estado": 200
-        },
-        {
-          "url": "https://www.gft.com/uk/en/career/culture-and-values",
-          "estado": 200
-        },
-        {
-          "url": "https://www.gft.com/uk/en/about-us/sustainability/grow-tech-talents",
-          "estado": 200
-        },
-        {
-          "url": "https://www.gft.com/uk/en/about-us/newsroom/press-and-news/2025/press-releases/udpn-g-and-d-and-gft-join-cmbt-initiative",
-          "estado": 200
-        },
-        {
-          "url": "https://www.gft.com/es/es/career",
-          "estado": 200
-        },
-        {
-          "url": "https://www.gft.com/es/es/career/why-come-to-gft-spain",
-          "estado": 200
-        },
-        {
-          "url": "https://www.gft.com/es/es/career/scam-information",
-          "estado": 200
-        },
-        {
-          "url": "https://www.gft.com/es/es/contact-gft",
-          "estado": 200
-        },
-        {
-          "url": "https://www.gft.com/es/es/legal-disclaimer",
-          "estado": 200
-        },
-        {
-          "url": "https://www.gft.com/trabaja-con-nosotros",
-          "estado": 404
-        },
-        {
-          "url": "https://www.gft.com/trabaja-con-nosotros/",
-          "estado": 404
-        },
-        {
-          "url": "https://www.gft.com/empleo",
-          "estado": 200
-        },
-        {
-          "url": "https://www.gft.com/talento",
-          "estado": 404
-        },
-        {
-          "url": "https://www.gft.com/careers",
-          "estado": 404
-        },
-        {
-          "url": "https://www.gft.com/unete",
-          "estado": 404
-        },
-        {
-          "url": "https://www.gft.com/unete-al-equipo",
-          "estado": 404
-        },
-        {
-          "url": "https://www.gft.com/rrhh",
-          "estado": 404
-        },
-        {
-          "url": "https://jobs.gft.com/",
-          "estado": 200
-        },
-        {
-          "url": "https://www.gft.com/es/es/career/benefits",
-          "estado": 200
-        },
-        {
-          "url": "https://www.gft.com/es/es/career/culture-and-values",
-          "estado": 200
-        },
-        {
-          "url": "https://www.gft.com/es/es/about-us/career",
-          "estado": 200
-        },
-        {
-          "url": "https://jobs.gft.com/job/Sant-Cugat-del-Vall%C3%A8s-Becarioa-Dpto-Adminstraci%C3%B3n-de-Personal-Departamento-People-B-08174/1435277233/",
-          "estado": 200
-        },
-        {
-          "url": "https://www.gft.com/uk/en/contact-gft",
-          "estado": 200
+          "estado": "tiempo agotado"
         }
       ],
-      "correosEncontrados": [
-        {
-          "email": "nathan.tunbridge@gft.com",
-          "tipo": "general",
-          "motivoRechazo": "posible correo personal"
-        },
-        {
-          "email": "csr@gft.com",
-          "tipo": "general",
-          "motivoRechazo": "posible correo personal"
-        },
-        {
-          "email": "marketing.brazil@gft.com",
-          "tipo": "general",
-          "motivoRechazo": "buzón no destinado a candidaturas"
-        },
-        {
-          "email": "marta.lopez@gft.com",
-          "tipo": "general",
-          "motivoRechazo": "posible correo personal"
-        },
-        {
-          "email": "carreeriberia@gft.com",
-          "tipo": "general",
-          "motivoRechazo": "posible correo personal"
-        },
-        {
-          "email": "info@gft.com",
-          "tipo": "general",
-          "motivoRechazo": "solo aparece en el aviso legal, la privacidad o las condiciones (no es el buzón de candidaturas)"
-        },
-        {
-          "email": "u003einfo@gft.com",
-          "tipo": "general",
-          "motivoRechazo": "posible correo personal"
-        },
-        {
-          "email": "careeriberia@gft.com",
-          "tipo": "general",
-          "motivoRechazo": "posible correo personal"
-        },
-        {
-          "email": "marta.miravent@gft.com",
-          "tipo": "general",
-          "motivoRechazo": "posible correo personal"
-        },
-        {
-          "email": "ta.team.brazil@gft.com",
-          "tipo": "general",
-          "motivoRechazo": "buzón no destinado a candidaturas"
-        }
-      ],
-      "contacto": "formulario: https://www.gft.com/uk/en/career",
-      "confianza": "alta"
+      "correosEncontrados": [],
+      "motivo": "La web no responde (tiempo agotado)"
     },
     {
       "id": "avanade-espana",
       "nombre": "Avanade España",
       "web": "https://www.avanade.com/es-es",
-      "estado": "valida",
+      "estado": "descartada",
       "paginasRevisadas": [
         {
           "url": "https://www.avanade.com/es-es",
-          "estado": 200
-        },
-        {
-          "url": "https://www.avanade.com/en/career",
-          "estado": 200
-        },
-        {
-          "url": "https://www.avanade.com/en-ca/career",
-          "estado": 200
-        },
-        {
-          "url": "https://www.avanade.com/en-in/career",
-          "estado": 200
-        },
-        {
-          "url": "https://www.avanade.com/en-us/career",
-          "estado": 200
-        },
-        {
-          "url": "https://www.avanade.com/fr-ca/career",
-          "estado": 200
-        },
-        {
-          "url": "https://www.avanade.com/fr-fr/career",
-          "estado": 200
-        },
-        {
-          "url": "https://www.avanade.com/es-es/career",
-          "estado": 200
-        },
-        {
-          "url": "https://www.avanade.com/es-es/career/area-of-expertise",
-          "estado": 200
-        },
-        {
-          "url": "https://www.avanade.com/es-es/career/limitless-learning",
-          "estado": 200
-        },
-        {
-          "url": "https://www.avanade.com/es-es/career/inclusion-and-diversity",
-          "estado": 200
-        },
-        {
-          "url": "https://www.avanade.com/es-es/career/life-at-avanade",
-          "estado": 200
-        },
-        {
-          "url": "https://www.avanade.com/es-es/career/benefits",
-          "estado": 200
-        },
-        {
-          "url": "https://www.avanade.com/es-es/career/search-jobs",
-          "estado": 200
-        },
-        {
-          "url": "https://www.avanade.com/es-es/services/ai-workforce",
-          "estado": 200
-        },
-        {
-          "url": "https://www.avanade.com/es-es/about/leadership",
-          "estado": 200
-        },
-        {
-          "url": "https://www.avanade.com/trabaja-con-nosotros",
-          "estado": 200
-        },
-        {
-          "url": "https://www.avanade.com/trabaja-con-nosotros/",
-          "estado": 200
-        },
-        {
-          "url": "https://www.avanade.com/empleo",
-          "estado": 200
-        },
-        {
-          "url": "https://www.avanade.com/talento",
-          "estado": 200
-        },
-        {
-          "url": "https://www.avanade.com/careers",
-          "estado": 200
-        },
-        {
-          "url": "https://www.avanade.com/unete",
-          "estado": 200
-        },
-        {
-          "url": "https://www.avanade.com/unete-al-equipo",
-          "estado": 200
-        },
-        {
-          "url": "https://www.avanade.com/rrhh",
-          "estado": 200
-        },
-        {
-          "url": "https://www.avanade.com/en/career/area-of-expertise",
-          "estado": 200
-        },
-        {
-          "url": "https://www.avanade.com/en/career/countdown",
-          "estado": 200
-        },
-        {
-          "url": "https://www.avanade.com/en/career/limitless-learning",
-          "estado": 200
-        },
-        {
-          "url": "https://www.avanade.com/en/career/inclusion-and-diversity",
-          "estado": 200
-        },
-        {
-          "url": "https://www.avanade.com/en/career/life-at-avanade",
-          "estado": 200
-        },
-        {
-          "url": "https://www.avanade.com/en/career/benefits",
-          "estado": 200
+          "estado": "tiempo agotado"
         }
       ],
-      "correosEncontrados": [
-        {
-          "email": "ta-pr@avanade.com",
-          "tipo": "general",
-          "motivoRechazo": "buzón no destinado a candidaturas"
-        },
-        {
-          "email": "u003eta-pr@avanade.com",
-          "tipo": "general",
-          "motivoRechazo": "buzón no destinado a candidaturas"
-        },
-        {
-          "email": "eme-pr@avanade.com",
-          "tipo": "general",
-          "motivoRechazo": "buzón no destinado a candidaturas"
-        },
-        {
-          "email": "u003eeme-pr@avanade.com",
-          "tipo": "general",
-          "motivoRechazo": "buzón no destinado a candidaturas"
-        },
-        {
-          "email": "apac-pr@avanade.com",
-          "tipo": "general",
-          "motivoRechazo": "buzón no destinado a candidaturas"
-        },
-        {
-          "email": "u003eapac-pr@avanade.com",
-          "tipo": "general",
-          "motivoRechazo": "buzón no destinado a candidaturas"
-        },
-        {
-          "email": "na-pr@avanade.com",
-          "tipo": "general",
-          "motivoRechazo": "buzón no destinado a candidaturas"
-        },
-        {
-          "email": "u003ena-pr@avanade.com",
-          "tipo": "general",
-          "motivoRechazo": "buzón no destinado a candidaturas"
-        },
-        {
-          "email": "europe-pr@avanade.com",
-          "tipo": "general",
-          "motivoRechazo": "buzón no destinado a candidaturas"
-        },
-        {
-          "email": "u003eeurope-pr@avanade.com",
-          "tipo": "general",
-          "motivoRechazo": "buzón no destinado a candidaturas"
-        },
-        {
-          "email": "gm-pr@avanade.com",
-          "tipo": "general",
-          "motivoRechazo": "buzón no destinado a candidaturas"
-        },
-        {
-          "email": "u003egm-pr@avanade.com",
-          "tipo": "general",
-          "motivoRechazo": "buzón no destinado a candidaturas"
-        },
-        {
-          "email": "hr.support@avanade.com",
-          "tipo": "rrhh",
-          "motivoRechazo": "buzón no destinado a candidaturas"
-        },
-        {
-          "email": "u003ehr.support@avanade.com",
-          "tipo": "general",
-          "motivoRechazo": "buzón no destinado a candidaturas"
-        }
-      ],
-      "contacto": "formulario: https://www.avanade.com/en/career",
-      "confianza": "alta"
+      "correosEncontrados": [],
+      "motivo": "La web no responde (tiempo agotado)"
     },
     {
       "id": "deloitte-espana",
@@ -7659,30 +6900,6 @@
       "paginasRevisadas": [
         {
           "url": "https://www.deloitte.com/es/es.html",
-          "estado": 200
-        },
-        {
-          "url": "https://www.deloitte.com/global/en/careers.html",
-          "estado": 200
-        },
-        {
-          "url": "https://www.deloitte.com/global/en/about/people.html",
-          "estado": 200
-        },
-        {
-          "url": "https://www.deloitte.com/global/en/about/people/blogs.html",
-          "estado": 200
-        },
-        {
-          "url": "https://www.deloitte.com/global/en/careers/job-search.html",
-          "estado": 200
-        },
-        {
-          "url": "https://www.deloitte.com/global/en/careers/deloitte-life.html",
-          "estado": 200
-        },
-        {
-          "url": "https://www.deloitte.com/global/en/insights/topics/talent.html",
           "estado": 200
         },
         {
@@ -7734,6 +6951,14 @@
           "estado": 200
         },
         {
+          "url": "https://www.deloitte.com/es/es/services/legal/services/deloitte-legal-services.html?icid=top_deloitte-legal-services",
+          "estado": 200
+        },
+        {
+          "url": "https://www.deloitte.com/es/es/services/legal/services/contracts.html?icid=top_contracts",
+          "estado": 200
+        },
+        {
           "url": "https://www.deloitte.com/trabaja-con-nosotros",
           "estado": 404
         },
@@ -7766,36 +6991,11 @@
           "estado": 404
         },
         {
-          "url": "https://www.deloitte.com/global/en/about/people/social-responsibility.html?icid=top_social-responsibility",
-          "estado": 200
-        },
-        {
-          "url": "https://www.deloitte.com/global/en/careers/job-search.html?icid=top_job-search",
-          "estado": 200
-        },
-        {
-          "url": "https://www.deloitte.com/global/en/careers/deloitte-life/awards.html?icid=top_awards",
-          "estado": 200
-        },
-        {
-          "url": "https://www.deloitte.com/global/en/careers/deloitte-life/development.html?icid=top_development",
-          "estado": 200
-        },
-        {
-          "url": "https://www.deloitte.com/global/en/about/people.html?icid=top_people",
-          "estado": 200
-        },
-        {
-          "url": "https://www.deloitte.com/global/en/insights/topics/talent/human-capital-trends.html?icid=disidenav_human-capital-trends",
+          "url": "https://empleo.es.deloitte.com/go/Tax&Legal_ES/3617601/",
           "estado": 200
         }
       ],
       "correosEncontrados": [
-        {
-          "email": "globalwebmaster@deloitte.com",
-          "tipo": "general",
-          "motivoRechazo": "posible correo personal"
-        },
         {
           "email": "glowup@deloitte.es",
           "tipo": "general",
@@ -7810,99 +7010,9 @@
           "email": "bfernandezrodriguez@deloitte.es",
           "tipo": "general",
           "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "efcppo@deloitte.com",
-          "tipo": "general",
-          "motivoRechazo": "posible correo personal"
-        },
-        {
-          "email": "willrsmith@deloitte.co.uk",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "ecodd@deloitte.co.uk",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "kapastakia@deloitte.ca",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "nscoble-williams@tohmatsu.co.jp",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "sspelman@deloitte.com",
-          "tipo": "general",
-          "motivoRechazo": "posible correo personal"
-        },
-        {
-          "email": "jobaker@deloitte.ca",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "spfeifle@deloitte.de",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "nvandaele@deloitte.com",
-          "tipo": "general",
-          "motivoRechazo": "posible correo personal"
-        },
-        {
-          "email": "katesweeney@deloitte.co.uk",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "ramonayan@deloitte.com.cn",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "aflouch@deloitte.com.au",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "hzen@tohmatsu.co.jp",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "shpoynton@deloitte.com",
-          "tipo": "general",
-          "motivoRechazo": "posible correo personal"
-        },
-        {
-          "email": "jasflynn@deloitte.com",
-          "tipo": "general",
-          "motivoRechazo": "posible correo personal"
-        },
-        {
-          "email": "vreyes@deloitte.com",
-          "tipo": "general",
-          "motivoRechazo": "posible correo personal"
-        },
-        {
-          "email": "dmallon@deloitte.com",
-          "tipo": "general",
-          "motivoRechazo": "posible correo personal"
-        },
-        {
-          "email": "scantrell@deloitte.com",
-          "tipo": "general",
-          "motivoRechazo": "posible correo personal"
         }
       ],
-      "contacto": "formulario: https://www.deloitte.com/global/en/careers.html",
+      "contacto": "formulario: https://www.deloitte.com/es/es/careers.html?icid=top_careers",
       "confianza": "alta"
     },
     {
@@ -9326,7 +8436,7 @@
         },
         {
           "url": "https://cibersafety.com/unete-al-equipo",
-          "estado": 404
+          "estado": "tiempo agotado"
         },
         {
           "url": "https://cibersafety.com/rrhh",
@@ -9342,7 +8452,7 @@
         },
         {
           "url": "https://cibersafety.com/habilidades-para-trabajar-en-ciberseguridad/itemDataObject.url",
-          "estado": "tiempo agotado"
+          "estado": 404
         },
         {
           "url": "https://cibersafety.com/ubicaciones/",
@@ -9378,10 +8488,6 @@
         },
         {
           "url": "https://seintec.net/en/contact",
-          "estado": 200
-        },
-        {
-          "url": "https://seintec.net/fr/contact",
           "estado": 200
         },
         {
@@ -10957,11 +10063,11 @@
       "paginasRevisadas": [
         {
           "url": "https://playtomic.io",
-          "estado": 403
+          "estado": 200
         }
       ],
       "correosEncontrados": [],
-      "motivo": "La web no responde (403)"
+      "motivo": "La web redirige a otro dominio (playtomic.com): posible empresa absorbida o cambio de marca, revisar a mano"
     },
     {
       "id": "shakers",
@@ -11074,23 +10180,23 @@
           "estado": 200
         },
         {
-          "url": "https://www.shakersworks.com/it/area/ru-talento",
-          "estado": 200
-        },
-        {
-          "url": "https://www.shakersworks.com/pt/area/rh-talento",
-          "estado": 200
-        },
-        {
-          "url": "https://www.shakersworks.com/fr/pole/rh-talent",
-          "estado": 200
-        },
-        {
           "url": "https://www.shakersworks.com/en/producto/talent_insight",
           "estado": 200
         },
         {
           "url": "https://www.shakersworks.com/en/recursos/guia-contratar-talento-tech-ia",
+          "estado": 200
+        },
+        {
+          "url": "https://www.shakersworks.com/accede-a-top-talent",
+          "estado": 200
+        },
+        {
+          "url": "https://careers.shakersworks.com/jobs",
+          "estado": 200
+        },
+        {
+          "url": "https://careers.shakersworks.com/jobs/8680808-account-executive-portuguese-speaker",
           "estado": 200
         }
       ],
@@ -11189,14 +10295,6 @@
           "estado": 200
         },
         {
-          "url": "https://www.civitatis.com/pt/joinville/tour-joinville/",
-          "estado": 200
-        },
-        {
-          "url": "https://www.civitatis.com/pt/joinville/tour-rural-joinville/",
-          "estado": 200
-        },
-        {
           "url": "https://www.civitatis.com/es/joinville/tour-museos-teatros-joinville/",
           "estado": 200
         },
@@ -11210,6 +10308,10 @@
         },
         {
           "url": "https://empleo.civitatis.com/jobs",
+          "estado": 200
+        },
+        {
+          "url": "https://empleo.civitatis.com/connect/login",
           "estado": 200
         }
       ],
@@ -11286,15 +10388,7 @@
           "estado": 200
         },
         {
-          "url": "https://www.tucuvi.com/us/careers",
-          "estado": 200
-        },
-        {
           "url": "https://www.tucuvi.com/news/tucuvi-selected-to-join-spains-national-ai-sandbox",
-          "estado": 200
-        },
-        {
-          "url": "https://www.tucuvi.com/us/news/tucuvi-selected-to-join-spains-national-ai-sandbox",
           "estado": 200
         },
         {
@@ -11343,10 +10437,6 @@
         },
         {
           "url": "https://www.tucuvi.com/es/aviso-legal",
-          "estado": 200
-        },
-        {
-          "url": "https://www.tucuvi.com/us/legal-notice",
           "estado": 200
         }
       ],
@@ -11465,7 +10555,7 @@
         },
         {
           "url": "https://www.telefonica.com/rrhh",
-          "estado": "tiempo agotado"
+          "estado": 404
         }
       ],
       "correosEncontrados": [
@@ -11521,11 +10611,11 @@
       "paginasRevisadas": [
         {
           "url": "https://www.masorange.es",
-          "estado": "tiempo agotado"
+          "estado": 503
         }
       ],
       "correosEncontrados": [],
-      "motivo": "La web no responde (tiempo agotado)"
+      "motivo": "La web no responde (503)"
     },
     {
       "id": "digi-spain",
@@ -11671,7 +10761,7 @@
         },
         {
           "url": "https://www.redeia.com/en/sustainability/people",
-          "estado": "tiempo agotado"
+          "estado": 200
         },
         {
           "url": "https://www.redeia.com/es/sostenibilidad/personas",
@@ -11679,7 +10769,7 @@
         },
         {
           "url": "https://www.redeia.com/es/trabaja-con-nosotros/que-buscamos",
-          "estado": "tiempo agotado"
+          "estado": 200
         },
         {
           "url": "https://www.redeia.com/en/sustainability/people/work-life-balance",
@@ -11811,8 +10901,8 @@
           "motivoRechazo": "solo aparece en el aviso legal, la privacidad o las condiciones (no es el buzón de candidaturas)"
         }
       ],
-      "contacto": "formulario: https://www.redeia.com/es/sostenibilidad/transparencia-fiscal/buenas-practicas",
-      "confianza": "media"
+      "contacto": "formulario: https://www.redeia.com/es/trabaja-con-nosotros/que-buscamos",
+      "confianza": "alta"
     },
     {
       "id": "iberdrola",
@@ -11860,7 +10950,7 @@
         },
         {
           "url": "https://www.repsol.com/es/energia-avanzar/personas/asmr/index.cshtml",
-          "estado": "tiempo agotado"
+          "estado": 200
         },
         {
           "url": "https://www.repsol.com/es/conocenos/donde-trabajamos/sedes-repsol/index.cshtml",
@@ -11908,7 +10998,7 @@
         },
         {
           "url": "https://www.repsol.com/es/conocenos/nuestra-compania/nuestro-equipo/organigrama/index.cshtml",
-          "estado": "tiempo agotado"
+          "estado": 200
         },
         {
           "url": "https://www.repsol.com/trabaja-con-nosotros",
@@ -12004,6 +11094,26 @@
           "estado": 200
         },
         {
+          "url": "https://www.ferrovial.com/es/compania/sobre-nosotros/comite-direccion/dg-rrhh/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.ferrovial.com/es-es/compania/sobre-nosotros/comite-direccion/dg-rrhh/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.ferrovial.com/es-la/compania/sobre-nosotros/comite-direccion/dg-rrhh/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.ferrovial.com/en/careers/graduate-program/graduate-programs-in-construction/webber-summer-internship-program/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.ferrovial.com/es/empleo/graduate-program/programa-de-graduados-en-construccion/programa-para-graduados-en-eeuu/",
+          "estado": 200
+        },
+        {
           "url": "https://www.ferrovial.com/en/careers/",
           "estado": 200
         },
@@ -12017,7 +11127,7 @@
         },
         {
           "url": "https://www.ferrovial.com/trabaja-con-nosotros",
-          "estado": "tiempo agotado"
+          "estado": 404
         },
         {
           "url": "https://www.ferrovial.com/trabaja-con-nosotros/",
@@ -12048,27 +11158,27 @@
           "estado": 200
         },
         {
-          "url": "https://www.ferrovial.com/en-au/careers/",
+          "url": "https://www.ferrovial.com/es/accionistas-e-inversores/informacion-financiera/informacion-privilegiada-y-otra-informacion-relevante/operaciones-personas-responsabilidades-direccion/",
           "estado": 200
         },
         {
-          "url": "https://www.ferrovial.com/en-ca/careers/",
+          "url": "https://www.ferrovial.com/es/empleo/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.ferrovial.com/es/empleo/ofertas/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.ferrovial.com/es/empleo/por-que-ferrovial/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.ferrovial.com/es/empleo/graduate-program/",
           "estado": 200
         },
         {
           "url": "https://www.ferrovial.com/es-es/empleo/",
-          "estado": 200
-        },
-        {
-          "url": "https://www.ferrovial.com/es-la/empleo/",
-          "estado": 200
-        },
-        {
-          "url": "https://www.ferrovial.com/en-gb/careers/",
-          "estado": 200
-        },
-        {
-          "url": "https://www.ferrovial.com/en-us/careers/",
           "estado": 200
         }
       ],
@@ -12079,7 +11189,7 @@
           "motivoRechazo": "posible correo personal"
         }
       ],
-      "contacto": "formulario: https://www.ferrovial.com/en/careers/",
+      "contacto": "formulario: https://www.ferrovial.com/en/careers/graduate-program/graduate-programs-in-construction/webber-summer-internship-program/",
       "confianza": "alta"
     },
     {
@@ -12094,7 +11204,7 @@
         },
         {
           "url": "https://www.acciona.com/contact",
-          "estado": "tiempo agotado"
+          "estado": 200
         },
         {
           "url": "https://www.acciona.com/es/contacto",
@@ -12118,7 +11228,7 @@
         },
         {
           "url": "https://www.acciona.com/talento",
-          "estado": "tiempo agotado"
+          "estado": 404
         },
         {
           "url": "https://www.acciona.com/careers",
@@ -12139,14 +11249,9 @@
       ],
       "correosEncontrados": [
         {
-          "email": "accionacorp@acciona.com",
+          "email": "gabinetedeprensa@acciona.es",
           "tipo": "general",
-          "motivoRechazo": "posible correo personal"
-        },
-        {
-          "email": "protecciondedatos@acciona.com",
-          "tipo": "general",
-          "motivoRechazo": "buzón no destinado a candidaturas"
+          "motivoRechazo": "dominio distinto al de la web"
         },
         {
           "email": "prensa@acciona.com",
@@ -12157,6 +11262,21 @@
           "email": "responsabilidadcorporativa@acciona.com",
           "tipo": "general",
           "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "acciona.corp@acciona.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "protecciondedatos@acciona.com",
+          "tipo": "general",
+          "motivoRechazo": "buzón no destinado a candidaturas"
+        },
+        {
+          "email": "inversores@acciona.es",
+          "tipo": "general",
+          "motivoRechazo": "dominio distinto al de la web"
         },
         {
           "email": "inversores@acciona.com",
@@ -12182,6 +11302,11 @@
           "email": "protecciondedatos.accionaservice@acciona.com",
           "tipo": "general",
           "motivoRechazo": "buzón no destinado a candidaturas"
+        },
+        {
+          "email": "accionacorp@acciona.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
         }
       ],
       "contacto": "formulario: https://www.acciona.com/es/contacto",
@@ -12217,7 +11342,7 @@
         },
         {
           "url": "https://www.leroymerlin.es/ideas-y-consejos/paso-a-paso/como-cortar-una-tela-si-trabajas-con-patron.html",
-          "estado": 403
+          "estado": 200
         },
         {
           "url": "https://www.leroymerlin.es/ideas-y-consejos/consejos/que-herramientas-son-basicas-para-trabajar-piedra.html",
@@ -12351,7 +11476,7 @@
         },
         {
           "url": "https://www.verisure.es/equipo-directivo",
-          "estado": "tiempo agotado"
+          "estado": 200
         },
         {
           "url": "https://www.verisure.es/telefono-gratuito",
@@ -12375,7 +11500,7 @@
         },
         {
           "url": "https://www.verisure.es/talento",
-          "estado": "tiempo agotado"
+          "estado": 404
         },
         {
           "url": "https://www.verisure.es/careers",
@@ -13178,46 +12303,41 @@
         },
         {
           "url": "https://www.evolutio.com/trabaja-con-nosotros",
-          "estado": 404
+          "estado": 200
         },
         {
           "url": "https://www.evolutio.com/trabaja-con-nosotros/",
-          "estado": 404
+          "estado": 200
         },
         {
           "url": "https://www.evolutio.com/empleo",
-          "estado": 404
+          "estado": 200
         },
         {
           "url": "https://www.evolutio.com/talento",
-          "estado": 404
+          "estado": 200
         },
         {
           "url": "https://www.evolutio.com/careers",
-          "estado": 404
+          "estado": 200
         },
         {
           "url": "https://www.evolutio.com/unete",
-          "estado": 404
+          "estado": 200
         },
         {
           "url": "https://www.evolutio.com/unete-al-equipo",
-          "estado": 404
+          "estado": 200
         },
         {
           "url": "https://www.evolutio.com/rrhh",
-          "estado": 404
+          "estado": 200
         }
       ],
       "correosEncontrados": [
         {
           "email": "info@evolutio.com",
           "tipo": "general"
-        },
-        {
-          "email": "fundacion.evolutio@evolutio.com",
-          "tipo": "general",
-          "motivoRechazo": "posible correo personal"
         }
       ],
       "contacto": "formulario: https://www.evolutio.com/noticias/la-ia-y-la-gestion-documental-impulsan-la-eficiencia-y-el-talento/",
@@ -13227,86 +12347,15 @@
       "id": "ufinet",
       "nombre": "Ufinet",
       "web": "https://www.ufinet.com",
-      "estado": "valida",
+      "estado": "descartada",
       "paginasRevisadas": [
         {
           "url": "https://www.ufinet.com",
-          "estado": 200
-        },
-        {
-          "url": "https://www.ufinet.com/ufinet-apoya-tecnologicamente-a-personas-con-discapacidad/",
-          "estado": 200
-        },
-        {
-          "url": "https://www.ufinet.com/monitoreo-lanwan-mejores-practicas-para-empresas-modernas/",
-          "estado": 200
-        },
-        {
-          "url": "https://www.ufinet.com/cloud-connectivity-mejores-practicas-de-seguridad-en-la-nube/",
-          "estado": 200
-        },
-        {
-          "url": "https://www.ufinet.com/por-que-ftth-es-la-mejor-opcion-para-los-trabajadores-remotos/",
-          "estado": 200
-        },
-        {
-          "url": "https://www.ufinet.com/5-aspectos-a-considerar-antes-de-seleccionar-un-proveedor-de-ftth/",
-          "estado": 200
-        },
-        {
-          "url": "https://www.ufinet.com/inteligencia-artificial-como-impacta-en-el-empleo-y-en-la-economia/",
-          "estado": 200
-        },
-        {
-          "url": "https://www.ufinet.com/contactanos/",
-          "estado": 200
-        },
-        {
-          "url": "https://www.ufinet.com/trabaja-con-nosotros",
-          "estado": 404
-        },
-        {
-          "url": "https://www.ufinet.com/trabaja-con-nosotros/",
-          "estado": 404
-        },
-        {
-          "url": "https://www.ufinet.com/empleo",
-          "estado": 404
-        },
-        {
-          "url": "https://www.ufinet.com/talento",
-          "estado": 404
-        },
-        {
-          "url": "https://www.ufinet.com/careers",
-          "estado": 404
-        },
-        {
-          "url": "https://www.ufinet.com/unete",
-          "estado": 404
-        },
-        {
-          "url": "https://www.ufinet.com/unete-al-equipo",
-          "estado": 404
-        },
-        {
-          "url": "https://www.ufinet.com/rrhh",
-          "estado": 404
-        },
-        {
-          "url": "https://www.ufinet.com/es/contacto/",
-          "estado": 200
+          "estado": "tiempo agotado"
         }
       ],
-      "correosEncontrados": [
-        {
-          "email": "correo@ejemplo.com",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        }
-      ],
-      "contacto": "formulario: https://www.ufinet.com/por-que-ftth-es-la-mejor-opcion-para-los-trabajadores-remotos/",
-      "confianza": "alta"
+      "correosEncontrados": [],
+      "motivo": "La web no responde (tiempo agotado)"
     },
     {
       "id": "prisa-media",
@@ -13659,7 +12708,7 @@
         },
         {
           "url": "https://empleo.aena.es/empleo/",
-          "estado": 200
+          "estado": "UND_ERR_CONNECT_TIMEOUT"
         },
         {
           "url": "https://www.aena.es/es/contacto.html",
@@ -14262,30 +13311,6 @@
           "estado": 200
         },
         {
-          "url": "https://www.siemens.com/en-us/company/jobs/how-to-apply/",
-          "estado": 200
-        },
-        {
-          "url": "https://www.siemens.com/en-us/company/jobs/early-careers/",
-          "estado": 200
-        },
-        {
-          "url": "https://www.siemens.com/en-us/company/jobs/mirkow-factory/",
-          "estado": 200
-        },
-        {
-          "url": "https://www.siemens.com/en-us/company/jobs/labor-condition-applications/",
-          "estado": 200
-        },
-        {
-          "url": "https://www.siemens.com/en-us/partners/software/join-partner-program/build/",
-          "estado": 200
-        },
-        {
-          "url": "https://www.siemens.com/en-us/company/siemens-software-student-talent-programs/",
-          "estado": 200
-        },
-        {
           "url": "https://www.siemens.com/es-es/company/jobs/",
           "estado": 200
         },
@@ -14322,32 +13347,32 @@
           "estado": 404
         },
         {
-          "url": "https://www.siemens.com/en-us/company/jobs/",
+          "url": "https://jobs.siemens.com/es_ES/externaljobs",
           "estado": 200
         },
         {
-          "url": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs/?42386=%5B812129%5D&42386_format=17546&listFilterMode=1&folderRecordsPerPage=6&",
+          "url": "https://www.siemens.com/es-es/company/jobs/how-to-apply/",
           "estado": 200
         },
         {
-          "url": "https://jobs.siemens.com/en_US/externaljobs/RecommendationMethods",
+          "url": "https://www.siemens.com/es-es/company/jobs/growth-careers/",
           "estado": 200
         },
         {
-          "url": "https://www.siemens.com/en-us/company/jobs/life-at-siemens/",
+          "url": "https://www.siemens.com/es-es/company/jobs/faq/",
           "estado": 200
         },
         {
-          "url": "https://www.siemens.com/en-us/company/jobs/faq/",
+          "url": "https://www.siemens.com/es-es/company/jobs/life-at-siemens/",
           "estado": 200
         },
         {
-          "url": "https://www.siemens.com/en-us/company/jobs/growth-careers/",
+          "url": "https://jobs.siemens.com/es_ES/externaljobs/SearchJobs/?42392=%5B67940248%5D&42392_format=17551&listFilterMode=1&folderRecordsPerPage=6",
           "estado": 200
         }
       ],
       "correosEncontrados": [],
-      "contacto": "formulario: https://www.siemens.com/en-us/company/jobs/how-to-apply/",
+      "contacto": "formulario: https://www.siemens.com/es-es/company/jobs/",
       "confianza": "alta"
     },
     {
@@ -14370,10 +13395,6 @@
         },
         {
           "url": "https://www.airbus.com/en/careers/our-values",
-          "estado": 200
-        },
-        {
-          "url": "https://www.airbus.com/de/careers/datenschutz",
           "estado": 200
         },
         {
@@ -14462,7 +13483,7 @@
         },
         {
           "url": "https://www.airbus.com/rrhh",
-          "estado": 200
+          "estado": 404
         },
         {
           "url": "https://www.airbus.com/en/careers/students-and-graduates/interns/internships-in-france",
@@ -14494,11 +13515,6 @@
           "email": "emsom@airbus.com",
           "tipo": "general",
           "motivoRechazo": "posible correo personal"
-        },
-        {
-          "email": "dataprotection@airbus.com",
-          "tipo": "general",
-          "motivoRechazo": "buzón no destinado a candidaturas"
         }
       ],
       "contacto": "formulario: https://www.airbus.com/en/careers",
@@ -14564,7 +13580,7 @@
         },
         {
           "url": "https://www.hispasat.com/talento",
-          "estado": "UND_ERR_SOCKET"
+          "estado": 200
         },
         {
           "url": "https://www.hispasat.com/careers",
@@ -14633,15 +13649,31 @@
           "estado": 200
         },
         {
+          "url": "https://www.group.sener/en/careers/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.group.sener/youth-talent/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.group.sener/en/careers/job-offers/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.group.sener/talento/ofertas-empleo/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.group.sener/talento/programa-graduados/",
+          "estado": 200
+        },
+        {
           "url": "https://www.group.sener/talento/igualdad-diversidad-inclusion/",
           "estado": 200
         },
         {
           "url": "https://www.group.sener/talento/desarrollo-profesional/",
-          "estado": 200
-        },
-        {
-          "url": "https://www.group.sener/talento/programa-graduados/",
           "estado": 200
         },
         {
@@ -14689,10 +13721,6 @@
           "estado": 404
         },
         {
-          "url": "https://www.group.sener/en/careers/",
-          "estado": 200
-        },
-        {
           "url": "https://www.group.sener/talento/blog/david-martin-de-entornos-libres-salen-las-mejores-ideas/",
           "estado": 200
         },
@@ -14701,15 +13729,19 @@
           "estado": 200
         },
         {
-          "url": "https://www.group.sener/talento/blog/ophelia-bajari-la-inteligencia-colectiva-es-mayor-en-equipos-diversos/",
-          "estado": 200
-        },
-        {
           "url": "https://www.group.sener/en/careers/professional-development/",
           "estado": 200
         },
         {
           "url": "https://www.group.sener/en/careers/graduate-program/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.group.sener/talento/blog/?lang=en",
+          "estado": 200
+        },
+        {
+          "url": "https://www.group.sener/en/talento/blog/",
           "estado": 200
         }
       ],
@@ -16820,10 +15852,6 @@
         },
         {
           "url": "https://implementalsystems.com/en/join-us/",
-          "estado": 200
-        },
-        {
-          "url": "https://implementalsystems.com/fr/rejoindre/",
           "estado": 200
         },
         {

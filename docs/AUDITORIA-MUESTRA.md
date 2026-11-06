@@ -1,18 +1,18 @@
 # Auditoría de una muestra al azar
 
-Fecha: 2026-11-06T16:28:58.572Z · Muestra: 10 de 144 · Con problemas: 0
+Fecha: 2026-11-06T16:36:36.191Z · Muestra: 10 de 139 · Con problemas: 0
 
 | Empresa | Contacto | Fuente | Resultado |
 |---|---|---|---|
-| TaxDown | formulario | https://taxdown.es/ofertas-de-empleo/vp-of-design | ✔ OK |
-| Sothis | rrhh@sothis.tech | https://www.sothis.tech/unete-al-equipo/ | ✔ OK |
-| Sener | formulario | https://www.group.sener/talento/ | ✔ OK |
-| ASD Solutions | info@asdsolutions.es | https://asdsolutions.es/en/contact/ | ✔ OK |
-| VASS | formulario | https://vasscompany.com/en/talent/ | ✔ OK |
-| Sopra Steria España | formulario | https://careers.soprasteria.es/ | ✔ OK |
-| Redsys | cv@redsys.es | https://redsys.es/empleo | ✔ OK |
-| Entelgy | rrhh@entelgy.com | https://entelgy.com/actualidad-es/entrevista-a-marta-gallardo-de-personas-de-entelgy-en-el-programa-de-ar/ | ✔ OK |
-| Viewnext | formulario | https://www.viewnext.com/agile-management-y-la-gestion-del-talento-digital/ | ✔ OK |
-| Endesa | formulario | https://www.endesa.com/es/la-cara-e/empleo | ✔ OK |
+| Digi Spain | formulario | https://www.digimobil.es/preguntas-frecuentes/accesibilidad/en-que-requisitos-de-accesibilidad-esta-trabajando-digi | ✔ OK |
+| Intelequia | formulario | https://intelequia.com/es/sala-de-prensa/post/el-talento-canario-que-se-lanz%C3%B3-a-buscar-exoplanetas | ✔ OK |
+| Emergya | formulario | https://emergya.com/es/trabaja-con-nosotros | ✔ OK |
+| Cobee | formulario | https://cobee.io/blog/trabajar-remoto/ | ✔ OK |
+| DXC Technology España | formulario | https://dxc.com/ja/careers | ✔ OK |
+| Kairós Digital Solutions | formulario | https://kairosds.com/talento/que-nos-hace-unicos | ✔ OK |
+| Intelygenz | info@intelygenz.com | https://intelygenz.com/talent-as-a-service/ | ✔ OK |
+| HP España | formulario | https://www.hp.com/es-es/contact-hp/contact.html | ✔ OK |
+| Acciona | formulario | https://www.acciona.com/es/contacto | ✔ OK |
+| Imagar Solutions | formulario | https://www.imagar.com/informatica/herramientas-imprescindibles-para-teletrabajar/ | ✔ OK |
 
 Si alguna falla: vuelve a ejecutar `npm run verificar:empresas -- --solo=<id>` o retírala.
