@@ -1,7 +1,7 @@
 import type { Config } from '@netlify/functions';
 import { cargarEmpresas } from '../../server/datos';
 import { ErrorConfig } from '../../server/firebase';
-import { error, json } from '../../server/http';
+import { error, json, resumenError } from '../../server/http';
 import { contexto, puedeVerDirectorio } from '../../server/autorizacion';
 
 export default async (req: Request) => {
@@ -10,7 +10,7 @@ export default async (req: Request) => {
   } catch (e) {
     if (e instanceof ErrorConfig) return error(e.message, 503);
     console.error(e);
-    return error('Error del servidor. Inténtalo de nuevo en un minuto.', 500);
+    return error(`Error del servidor (${resumenError(e)}). Si se repite, envía este mensaje a la coordinación de FFE.`, 500);
   }
 };
 

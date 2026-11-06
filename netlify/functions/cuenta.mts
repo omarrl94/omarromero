@@ -7,7 +7,7 @@ import { enviarCorreo, ErrorCorreo, proveedor } from '../../server/correo';
 import { comprobarCodigo, cookieDobleFactor, cookieDobleFactorBorrada, dobleFactorValido, enviarCodigo, tokenDobleFactor } from '../../server/doble-factor';
 import { modoPruebas, variable } from '../../server/entorno';
 import { adminAuth, ErrorConfig } from '../../server/firebase';
-import { error, esHttps, json } from '../../server/http';
+import { error, esHttps, json, resumenError } from '../../server/http';
 import { identificar, uidPrueba } from '../../server/identidad';
 import { consultarLimite, ipDe, registrarFallo } from '../../server/limite';
 import { secreto } from '../../server/sesion';
@@ -50,7 +50,7 @@ export default async (req: Request, context: Context) => {
     if (e instanceof ErrorCorreo) return error(e.message, e.estado);
     if (e instanceof ErrorConfig) return error(e.message, 503);
     console.error('Error en /api/cuenta', e);
-    return error('Error del servidor. Inténtalo de nuevo en un minuto.', 500);
+    return error(`Error del servidor (${resumenError(e)}). Si se repite, envía este mensaje a la coordinación de FFE.`, 500);
   }
 };
 

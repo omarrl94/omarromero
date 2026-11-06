@@ -4,7 +4,7 @@ import { contexto, esSuperadmin } from '../../server/autorizacion';
 import { enviarCorreo } from '../../server/correo';
 import { variable } from '../../server/entorno';
 import { ErrorConfig } from '../../server/firebase';
-import { error, json } from '../../server/http';
+import { error, json, resumenError } from '../../server/http';
 import { guardarUsuario, listarUsuarios, obtenerUsuario, rolEfectivo, superadmins, type Rol } from '../../server/usuarios';
 
 const ROLES: Rol[] = ['alumno', 'tutor', 'superadmin', 'pendiente', 'bloqueado'];
@@ -15,7 +15,7 @@ export default async (req: Request) => {
   } catch (e) {
     if (e instanceof ErrorConfig) return error(e.message, 503);
     console.error(e);
-    return error('Error del servidor. Inténtalo de nuevo en un minuto.', 500);
+    return error(`Error del servidor (${resumenError(e)}). Si se repite, envía este mensaje a la coordinación de FFE.`, 500);
   }
 };
 
