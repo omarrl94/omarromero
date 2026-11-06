@@ -39,11 +39,14 @@ async function demo<T>(fn: (d: typeof import('../demo/api-demo')['apiDemo']) => 
   }
 }
 
+export type Rol = 'alumno' | 'tutor';
+type EstadoAcceso = { autenticado: boolean; rol: Rol | null };
+
 export const api = {
-  estadoAcceso: () => (MODO_DEMO ? demo((d) => d.estadoAcceso()) : pedir<{ autenticado: boolean }>('/api/acceso')),
+  estadoAcceso: () => (MODO_DEMO ? demo((d) => d.estadoAcceso()) : pedir<EstadoAcceso>('/api/acceso')),
   entrar: (codigo: string) =>
-    MODO_DEMO ? demo((d) => d.entrar(codigo)) : pedir<{ autenticado: boolean }>('/api/acceso', { method: 'POST', body: JSON.stringify({ codigo }) }),
-  salir: () => (MODO_DEMO ? demo((d) => d.salir()) : pedir<{ autenticado: boolean }>('/api/acceso', { method: 'DELETE' })),
+    MODO_DEMO ? demo((d) => d.entrar(codigo)) : pedir<EstadoAcceso>('/api/acceso', { method: 'POST', body: JSON.stringify({ codigo }) }),
+  salir: () => (MODO_DEMO ? demo((d) => d.salir()) : pedir<EstadoAcceso>('/api/acceso', { method: 'DELETE' })),
   empresas: () => (MODO_DEMO ? demo((d) => d.empresas()) : pedir<{ empresas: Empresa[]; total: number }>('/api/empresas')),
   ofertas: () => (MODO_DEMO ? demo((d) => d.ofertas()) : pedir<CacheOfertas>('/api/ofertas')),
 };

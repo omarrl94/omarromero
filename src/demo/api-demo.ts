@@ -8,20 +8,24 @@ import ofertas from '../../tests/fixtures/ofertas.ficticias.json';
 import type { CacheOfertas, Empresa } from '../../shared/schemas';
 
 export const CODIGO_DEMO = 'demo-ffe';
+export const CODIGO_DEMO_TUTOR = 'demo-tutor';
 const CLAVE = 'conecta-ffe-demo:sesion';
 const espera = (ms = 350) => new Promise((r) => setTimeout(r, ms));
 
-function sesion(): boolean {
+type RolDemo = 'alumno' | 'tutor';
+function rolSesion(): RolDemo | null {
   try {
-    return sessionStorage.getItem(CLAVE) === '1';
+    const v = sessionStorage.getItem(CLAVE);
+    return v === 'tutor' ? 'tutor' : v ? 'alumno' : null;
   } catch {
-    return (globalThis as { __sesionDemo?: boolean }).__sesionDemo === true;
+    return (globalThis as { __sesionDemo?: RolDemo | null }).__sesionDemo ?? null;
   }
 }
-function fijarSesion(v: boolean) {
-  (globalThis as { __sesionDemo?: boolean }).__sesionDemo = v;
+const sesion = () => rolSesion() !== null;
+function fijarSesion(rol: RolDemo | null) {
+  (globalThis as { __sesionDemo?: RolDemo | null }).__sesionDemo = rol;
   try {
-    if (v) sessionStorage.setItem(CLAVE, '1');
+    if (rol) sessionStorage.setItem(CLAVE, rol);
     else sessionStorage.removeItem(CLAVE);
   } catch {
     /* sin almacenamiento: queda en memoria */
@@ -36,17 +40,19 @@ export class ErrorDemo extends Error {
 
 export const apiDemo = {
   async estadoAcceso() {
-    return { autenticado: sesion() };
+    const rol = rolSesion();
+    return { autenticado: rol !== null, rol };
   },
   async entrar(codigo: string) {
     await espera();
-    if (codigo.trim() !== CODIGO_DEMO) throw new ErrorDemo(`Código incorrecto. En la demostración es «${CODIGO_DEMO}».`, 401);
-    fijarSesion(true);
-    return { autenticado: true };
+    const rol: RolDemo | null = codigo.trim() === CODIGO_DEMO_TUTOR ? 'tutor' : codigo.trim() === CODIGO_DEMO ? 'alumno' : null;
+    if (!rol) throw new ErrorDemo(`Código incorrecto. En la demostración: «${CODIGO_DEMO}» (alumnado) o «${CODIGO_DEMO_TUTOR}» (tutores).`, 401);
+    fijarSesion(rol);
+    return { autenticado: true, rol };
   },
   async salir() {
-    fijarSesion(false);
-    return { autenticado: false };
+    fijarSesion(null);
+    return { autenticado: false, rol: null };
   },
   async empresas() {
     await espera();

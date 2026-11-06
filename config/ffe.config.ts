@@ -88,6 +88,14 @@ export const config = {
   /** Máximo orientativo de contactos (correos) a la misma empresa desde el mismo dispositivo. */
   maxContactosPorEmpresa: 3,
 
+  /** Sección de tutores: envío desde la cuenta del tutor, siempre en CCO y por lotes. */
+  tutores_envio: {
+    /** Máximo de empresas por correo (en CCO). Evita filtros antispam y límites de Outlook/Gmail. */
+    maxDestinatariosPorLote: 40,
+    /** Días mínimos antes de volver a escribir a la misma empresa desde la sección de tutores. */
+    diasEntreEnvios: 30,
+  },
+
   /** Días tras los cuales una oferta sin fecha de caducidad se considera caducada. */
   diasMaximosOferta: 45,
 

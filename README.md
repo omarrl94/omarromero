@@ -5,6 +5,7 @@ consiga plaza de **Formación en Empresa (FFE)** y encuentre ofertas de su perfi
 
 - **Empresas para FFE:** directorio de empresas de Madrid **verificadas** (fuente y fecha), con buscador, filtros, orden por encaje, generador de correo editable (Outlook web, Gmail, app de correo o copiar), tutor en copia, aviso de CV y seguimiento local.
 - **Ofertas:** prácticas, becas, junior y primer empleo desde APIs oficiales (Adzuna, InfoJobs y los feeds públicos Greenhouse, Lever y Ashby de las empresas del directorio), más enlaces profundos a LinkedIn, Indeed, Tecnoempleo, Glassdoor y Welcome to the Jungle.
+- **Tutores** (`#/tutores`, con su propio código): escribir a las empresas del ciclo desde la cuenta del tutor, en CCO y por lotes, uno a uno personalizado o con combinación de correspondencia (CSV).
 - **Privacidad:** sin registro ni analítica. Los datos del alumno se guardan solo en su navegador. El directorio está protegido con un código validado en el servidor y no se indexa.
 
 Las reglas del proyecto están en [CLAUDE.md](CLAUDE.md). **Para publicar, sigue [docs/DESPLIEGUE.md](docs/DESPLIEGUE.md)** (paso a paso, solo con el navegador).
@@ -51,6 +52,7 @@ nunca uses el prefijo `VITE_` para ellas. La plantilla está en [.env.example](.
 | Variable | Obligatoria | Uso |
 |---|---|---|
 | `ACCESS_CODE` | Sí | Código que se da al alumnado para entrar al directorio |
+| `TUTOR_ACCESS_CODE` | No | Código del profesorado tutor para la sección «Tutores» (`#/tutores`). Distinto del del alumnado |
 | `SESSION_SECRET` | No | 32 o más caracteres para firmar la cookie de sesión. Si falta o es corto, el servidor genera y guarda una clave aleatoria en Netlify Blobs |
 | `ADZUNA_APP_ID`, `ADZUNA_APP_KEY` | No | Activan la fuente Adzuna |
 | `INFOJOBS_CLIENT_ID`, `INFOJOBS_CLIENT_SECRET` | No | Activan la fuente InfoJobs |

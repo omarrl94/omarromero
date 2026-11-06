@@ -28,18 +28,18 @@ export interface Borrador {
   cuerpo: string;
 }
 
-const NOMBRE_CICLO: Record<Ciclo, string> = {
+export const NOMBRE_CICLO: Record<Ciclo, string> = {
   DAM: 'Desarrollo de Aplicaciones Multiplataforma (DAM)',
   ASIR: 'Administración de Sistemas Informáticos en Red (ASIR)',
 };
 
-function fechaLarga(iso: string): string {
+export function fechaLarga(iso: string): string {
   const [a, m, d] = iso.split('-').map(Number);
   const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
   return `${d} de ${meses[m - 1]} de ${a}`;
 }
 
-function listaNatural(items: string[]): string {
+export function listaNatural(items: string[]): string {
   if (items.length <= 1) return items.join('');
   return `${items.slice(0, -1).join(', ')} y ${items.at(-1)}`;
 }

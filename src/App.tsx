@@ -8,6 +8,7 @@ import { Perfil } from './pages/Perfil';
 import { Portada } from './pages/Portada';
 import { Privacidad } from './pages/Privacidad';
 import { Seguimiento } from './pages/Seguimiento';
+import { Tutores } from './pages/Tutores';
 import { useEffect } from 'react';
 
 const TITULOS: Record<string, string> = {
@@ -17,6 +18,7 @@ const TITULOS: Record<string, string> = {
   seguimiento: 'Seguimiento',
   perfil: 'Mis datos',
   privacidad: 'Privacidad',
+  tutores: 'Tutores',
 };
 
 export function App() {
@@ -34,6 +36,7 @@ export function App() {
   else if (seccion === 'seguimiento') pagina = <Seguimiento />;
   else if (seccion === 'perfil') pagina = <Perfil />;
   else if (seccion === 'privacidad') pagina = <Privacidad />;
+  else if (seccion === 'tutores') pagina = <Tutores />;
   else pagina = <Vacio titulo="Página no encontrada"><a className="enlace" href="#/">Volver al inicio</a></Vacio>;
 
   return <Layout>{pagina}</Layout>;

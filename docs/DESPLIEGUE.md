@@ -40,11 +40,12 @@ En **Project configuration → Environment variables → Add a variable** (ámbi
 | Variable | Valor |
 |---|---|
 | `ACCESS_CODE` | El código del alumnado |
+| `TUTOR_ACCESS_CODE` | El código del profesorado tutor (sección «Acceso tutores» del pie de página). **Distinto** del del alumnado |
 | `SESSION_SECRET` | **Opcional.** Si no la pones, o si es corta, el servidor genera y guarda su propia clave aleatoria |
 | `ADZUNA_APP_ID` y `ADZUNA_APP_KEY` | Opcional (ver paso 7) |
 | `INFOJOBS_CLIENT_ID` y `INFOJOBS_CLIENT_SECRET` | Opcional (ver paso 7) |
 
-Marca `ACCESS_CODE`, `SESSION_SECRET` y las claves como **secretas** (*Contains secret values*).
+Marca `ACCESS_CODE`, `TUTOR_ACCESS_CODE`, `SESSION_SECRET` y las claves como **secretas** (*Contains secret values*).
 **No** les pongas el prefijo `VITE_`.
 
 ## 4. Desplegar
@@ -96,7 +97,7 @@ En la URL de producción, desde el móvil y desde el ordenador:
 
 | Cuándo | Qué |
 |---|---|
-| Cada curso | Cambiar `ACCESS_CODE`; actualizar fechas, horas y tutores en `config/ffe.config.ts` |
+| Cada curso | Cambiar `ACCESS_CODE` y `TUTOR_ACCESS_CODE`; actualizar fechas, horas y tutores en `config/ffe.config.ts` |
 | Cada mes (automático) | «Verificar empresas» se ejecuta solo; revisa el commit que genera |
 | Antes de cada periodo de FFE | Revisión manual de 10 empresas al azar |
 | Al recibir una retirada | `data/retiradas.json`, en un máximo de 10 días hábiles |

@@ -22,6 +22,7 @@ export default defineConfig({
       CONECTA_MODO: 'pruebas',
       CONECTA_DATOS: 'ficticios',
       ACCESS_CODE: 'codigo-e2e',
+      TUTOR_ACCESS_CODE: 'tutor-e2e',
       SESSION_SECRET: 'secreto-e2e-de-al-menos-treinta-y-dos-caracteres',
     },
   },

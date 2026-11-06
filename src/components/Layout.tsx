@@ -67,6 +67,7 @@ export function Layout({ children }: { children: ReactNode }) {
           </p>
           <p className="flex gap-4">
             <a className="enlace" href="#/privacidad">Privacidad y retirada</a>
+            <a className="enlace" href="#/tutores">Acceso tutores</a>
             <a className="enlace" href="#/perfil">Borrar mis datos</a>
           </p>
         </div>

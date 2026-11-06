@@ -1,7 +1,7 @@
 import type { Config, Context } from '@netlify/functions';
 import { error, esHttps, json } from '../../server/http';
 import { consultarLimite, ipDe, limpiarFallos, registrarFallo } from '../../server/limite';
-import { codigoValido, cookieBorrada, cookieSesion, crearToken, sesionActiva } from '../../server/sesion';
+import { cookieBorrada, cookieSesion, crearToken, rolDeCodigo, rolSesion } from '../../server/sesion';
 import { variable } from '../../server/entorno';
 
 export default async (req: Request, context: Context) => {
@@ -16,11 +16,14 @@ export default async (req: Request, context: Context) => {
 async function manejar(req: Request, context: Context): Promise<Response> {
   const seguro = esHttps(req);
 
-  if (req.method === 'GET') return json({ autenticado: await sesionActiva(req) });
-  if (req.method === 'DELETE') return json({ autenticado: false }, 200, { 'Set-Cookie': cookieBorrada(seguro) });
+  if (req.method === 'GET') {
+    const rol = await rolSesion(req);
+    return json({ autenticado: rol !== null, rol });
+  }
+  if (req.method === 'DELETE') return json({ autenticado: false, rol: null }, 200, { 'Set-Cookie': cookieBorrada(seguro) });
   if (req.method !== 'POST') return error('Método no permitido', 405, { Allow: 'GET, POST, DELETE' });
 
-  if (!variable('ACCESS_CODE')) {
+  if (!variable('ACCESS_CODE') && !variable('TUTOR_ACCESS_CODE')) {
     return error('El acceso no está configurado en el servidor (falta ACCESS_CODE). Avisa a tu tutor/a.', 503);
   }
 
@@ -40,14 +43,15 @@ async function manejar(req: Request, context: Context): Promise<Response> {
     return error('Petición no válida', 400);
   }
 
-  if (!codigoValido(codigo)) {
+  const rol = rolDeCodigo(codigo);
+  if (!rol) {
     await registrarFallo(ip);
     const restantes = Math.max(0, limite.restantes - 1);
     return error(`Código incorrecto. Te quedan ${restantes} intento${restantes === 1 ? '' : 's'}.`, 401);
   }
 
   await limpiarFallos(ip);
-  return json({ autenticado: true }, 200, { 'Set-Cookie': cookieSesion(await crearToken(), seguro) });
+  return json({ autenticado: true, rol }, 200, { 'Set-Cookie': cookieSesion(await crearToken(Date.now(), rol), seguro) });
 }
 
 export const config: Config = { path: '/api/acceso' };

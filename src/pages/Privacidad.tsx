@@ -40,7 +40,7 @@ export function Privacidad() {
         <p>
           El directorio lo mantiene el {config.centro.nombre} para que su alumnado de 2.º de DAM y ASIR solicite plaza de Formación en Empresa. Solo incluye datos de contacto <strong>corporativos que la propia empresa publica</strong> (en su web o en una fuente oficial), con la URL de origen y la fecha de comprobación. No incluimos correos personales de empleados ni correos deducidos. El acceso está restringido al alumnado con un código del centro y la web no se indexa en buscadores.
         </p>
-        <p>Cada correo lo redacta y envía un alumno o alumna de forma individual; no hay envíos automáticos ni masivos, y recomendamos un máximo de {config.maxContactosPorEmpresa} contactos por empresa.</p>
+        <p>El alumnado redacta y envía cada correo de forma individual, con un máximo recomendado de {config.maxContactosPorEmpresa} contactos por empresa. El profesorado tutor de FFE puede escribir a varias empresas a la vez desde su propia cuenta del centro: siempre en copia oculta, por lotes de {config.tutores_envio.maxDestinatariosPorLote} como máximo, sin repetir empresa en menos de {config.tutores_envio.diasEntreEnvios} días y con opción de darse de baja respondiendo «BAJA». Conecta FFE no envía correos por sí mismo.</p>
       </section>
 
       <section aria-labelledby="t-retirada" className="tarjeta p-5 sm:p-8">

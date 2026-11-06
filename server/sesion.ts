@@ -44,36 +44,57 @@ export function iguales(a: string, b: string): boolean {
   return timingSafeEqual(ha, hb);
 }
 
-/** ¿El código introducido coincide con ACCESS_CODE? Sin ACCESS_CODE configurado, nadie entra. */
-export function codigoValido(codigo: string): boolean {
-  const esperado = variable('ACCESS_CODE');
-  if (!esperado) return false;
-  return iguales(codigo.trim(), esperado);
+export type Rol = 'alumno' | 'tutor';
+
+/**
+ * Rol que corresponde al código introducido:
+ * - TUTOR_ACCESS_CODE → 'tutor' (directorio + sección de tutores)
+ * - ACCESS_CODE → 'alumno'
+ * Sin la variable configurada, ese rol no puede entrar.
+ */
+export function rolDeCodigo(codigo: string): Rol | null {
+  const limpio = codigo.trim();
+  const tutor = variable('TUTOR_ACCESS_CODE');
+  if (tutor && iguales(limpio, tutor)) return 'tutor';
+  const alumno = variable('ACCESS_CODE');
+  if (alumno && iguales(limpio, alumno)) return 'alumno';
+  return null;
 }
 
-export async function crearToken(ahora = Date.now()): Promise<string> {
-  const carga = b64url(JSON.stringify({ exp: ahora + config.acceso.sesionHoras * 3600_000, v: 1 }));
+/** Compatibilidad: ¿el código da acceso al directorio (alumno o tutor)? */
+export function codigoValido(codigo: string): boolean {
+  return rolDeCodigo(codigo) !== null;
+}
+
+export async function crearToken(ahora = Date.now(), rol: Rol = 'alumno'): Promise<string> {
+  const carga = b64url(JSON.stringify({ exp: ahora + config.acceso.sesionHoras * 3600_000, v: 1, rol }));
   const firma = createHmac('sha256', await secreto()).update(carga).digest('base64url');
   return `${carga}.${firma}`;
 }
 
-export async function tokenValido(token: string | undefined, ahora = Date.now()): Promise<boolean> {
-  if (!token) return false;
+/** Rol de un token firmado y vigente, o null. Los tokens antiguos sin rol cuentan como alumno. */
+export async function rolDeToken(token: string | undefined, ahora = Date.now()): Promise<Rol | null> {
+  if (!token) return null;
   const [carga, firma] = token.split('.');
-  if (!carga || !firma) return false;
+  if (!carga || !firma) return null;
   let esperada: string;
   try {
     esperada = createHmac('sha256', await secreto()).update(carga).digest('base64url');
   } catch {
-    return false;
+    return null;
   }
-  if (!iguales(firma, esperada)) return false;
+  if (!iguales(firma, esperada)) return null;
   try {
-    const { exp } = JSON.parse(Buffer.from(carga, 'base64url').toString('utf8')) as { exp: number };
-    return typeof exp === 'number' && exp > ahora;
+    const { exp, rol } = JSON.parse(Buffer.from(carga, 'base64url').toString('utf8')) as { exp: number; rol?: Rol };
+    if (typeof exp !== 'number' || exp <= ahora) return null;
+    return rol === 'tutor' ? 'tutor' : 'alumno';
   } catch {
-    return false;
+    return null;
   }
+}
+
+export async function tokenValido(token: string | undefined, ahora = Date.now()): Promise<boolean> {
+  return (await rolDeToken(token, ahora)) !== null;
 }
 
 export function leerCookie(req: Request, nombre: string): string | undefined {
@@ -102,4 +123,8 @@ export function cookieBorrada(seguro: boolean): string {
 
 export async function sesionActiva(req: Request): Promise<boolean> {
   return tokenValido(leerCookie(req, COOKIE_SESION));
+}
+
+export async function rolSesion(req: Request): Promise<Rol | null> {
+  return rolDeToken(leerCookie(req, COOKIE_SESION));
 }

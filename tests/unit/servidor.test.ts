@@ -6,6 +6,7 @@ import { crearToken, olvidarClaveEnMemoria, tokenValido } from '../../server/ses
 
 process.env.SESSION_SECRET = 'x'.repeat(40);
 process.env.ACCESS_CODE = 'codigo-de-prueba';
+process.env.TUTOR_ACCESS_CODE = 'codigo-tutor';
 process.env.CONECTA_MODO = 'pruebas';
 process.env.CONECTA_DATOS = 'ficticios';
 for (const v of ["NETLIFY", "SITE_ID", "NETLIFY_BLOBS_CONTEXT"]) delete process.env[v];
@@ -59,11 +60,19 @@ describe('API de acceso y empresas', () => {
     expect((await acceso(post('codigo-de-prueba'), ctx('3.3.3.3'))).status).toBe(200);
   });
 
-  it('no deja entrar si falta ACCESS_CODE', async () => {
-    const antes = process.env.ACCESS_CODE;
-    delete process.env.ACCESS_CODE;
-    expect((await acceso(post(''), ctx('4.4.4.4'))).status).toBe(503);
-    process.env.ACCESS_CODE = antes;
+  it('no deja entrar si no hay ningún código configurado', async () => {
+    const antes = { a: process.env.ACCESS_CODE, t: process.env.TUTOR_ACCESS_CODE };
+    try {
+      delete process.env.ACCESS_CODE;
+      delete process.env.TUTOR_ACCESS_CODE;
+      expect((await acceso(post(''), ctx('4.4.4.4'))).status).toBe(503);
+      // Solo con el de tutores: el código del alumnado no sirve.
+      process.env.TUTOR_ACCESS_CODE = antes.t;
+      expect((await acceso(post('codigo-de-prueba'), ctx('4.4.4.5'))).status).toBe(401);
+    } finally {
+      process.env.ACCESS_CODE = antes.a;
+      process.env.TUTOR_ACCESS_CODE = antes.t;
+    }
   });
 
   it('funciona sin SESSION_SECRET o con uno corto: genera y guarda una clave propia', async () => {
@@ -81,6 +90,19 @@ describe('API de acceso y empresas', () => {
     }
     process.env.SESSION_SECRET = antes;
     olvidarClaveEnMemoria();
+  });
+
+  it('distingue el código de tutores del del alumnado', async () => {
+    const t = await acceso(post('codigo-tutor'), ctx('6.6.6.6'));
+    expect(t.status).toBe(200);
+    expect(((await t.json()) as { rol: string }).rol).toBe('tutor');
+    const cookie = t.headers.get('set-cookie')!.split(';')[0];
+    const estado = await acceso(new Request('https://conecta.test/api/acceso', { headers: { cookie } }), ctx('6.6.6.6'));
+    expect(await estado.json()).toEqual({ autenticado: true, rol: 'tutor' });
+    // El tutor también ve el directorio.
+    expect((await empresas(new Request('https://conecta.test/api/empresas', { headers: { cookie } }))).status).toBe(200);
+    const a = await acceso(post('codigo-de-prueba'), ctx('6.6.6.6'));
+    expect(((await a.json()) as { rol: string }).rol).toBe('alumno');
   });
 
   it('no usa datos ficticios si corre en Netlify', async () => {

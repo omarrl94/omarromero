@@ -32,7 +32,11 @@ Idioma de la interfaz, el código de dominio y la documentación: **español de 
   (cookie HttpOnly firmada + limitación de intentos). **Ningún correo de empresa puede aparecer en `dist/`**:
   lo comprueba `npm run comprobar:bundle`.
 - `noindex` en meta, cabecera `X-Robots-Tag` y `robots.txt`.
-- Sin envíos automáticos ni masivos: cada correo lo revisa y lo envía el alumno desde su cliente.
+- Sin envíos automáticos: la app nunca envía correos por sí misma; cada correo sale de la cuenta de quien lo envía.
+- Alumnado: un correo por empresa, revisado y enviado por el alumno (máximo orientativo de contactos por empresa).
+- Tutores (`#/tutores`, código `TUTOR_ACCESS_CODE`): pueden escribir a varias empresas de su ciclo desde su cuenta,
+  **siempre en CCO**, por lotes (`tutores_envio.maxDestinatariosPorLote`), sin repetir empresa en menos de
+  `tutores_envio.diasEntreEnvios` días y con **línea de baja** obligatoria en el texto.
 
 ## Arquitectura
 
