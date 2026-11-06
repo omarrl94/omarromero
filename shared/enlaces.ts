@@ -23,6 +23,7 @@ export function enlacesParaPerfil(perfilId: string, opciones: { soloProbados: bo
   if (!perfil) return [];
   return config.enlacesProfundos
     .filter((e) => !opciones.soloProbados || e.probado)
+    .filter((e) => !('ciclos' in e) || !e.ciclos || (e.ciclos as readonly string[]).includes(perfil.ciclo))
     .map((e) => ({
       id: e.id,
       nombre: e.nombre,

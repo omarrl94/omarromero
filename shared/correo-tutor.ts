@@ -1,6 +1,6 @@
 import type { Ciclo } from '../config/ffe.config';
 import { config } from '../config/ffe.config';
-import { fechaLarga, NOMBRE_CICLO } from './correo';
+import { cierreIa, cortoCiclo, fechaLarga, NOMBRE_CICLO } from './correo';
 
 export interface DatosTutor {
   nombre: string;
@@ -53,7 +53,7 @@ export function generarCorreoTutor(t: DatosTutor, empresa?: { nombre: string; se
     '',
     `${textos.iaIntro} ${bloque.ia}`,
     '',
-    textos.iaCierre,
+    cierreIa(bloque, textos.iaCierre),
     '',
     'Periodos de formación:',
     ...config.modalidades.map((m) => `- ${m.nombre}: del ${fechaLarga(m.inicio)} al ${fechaLarga(m.fin)}, ${m.horasDia} horas al día.`),
@@ -72,7 +72,7 @@ export function generarCorreoTutor(t: DatosTutor, empresa?: { nombre: string; se
     'Muchas gracias por tu atención. Un saludo,',
     '',
     nombre,
-    `Tutor/a de FFE · 2.º ${ciclo} · ${config.centro.nombre}`,
+    `Tutor/a de FFE · 2.º ${cortoCiclo(ciclo)} · ${config.centro.nombre}`,
     ...(t.email.trim() ? [t.email.trim()] : []),
     ...(t.telefono?.trim() ? [`Tel.: ${t.telefono.trim()}`] : []),
     '',
@@ -80,7 +80,7 @@ export function generarCorreoTutor(t: DatosTutor, empresa?: { nombre: string; se
     LINEA_BAJA,
   ];
   return {
-    asunto: `Colaboración en la Formación en Empresa de 2.º ${ciclo} · ${config.centro.nombre}`,
+    asunto: `Colaboración en la Formación en Empresa de 2.º ${cortoCiclo(ciclo)} · ${config.centro.nombre}`,
     cuerpo: lineas.join('\n'),
   };
 }

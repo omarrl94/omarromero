@@ -86,7 +86,7 @@ export async function entrarComoTutor(page: Page): Promise<string> {
   return email;
 }
 
-export async function elegirPerfil(page: Page, ciclo: 'DAM' | 'ASIR', perfil: string, modalidad: 'A' | 'B' = 'A') {
+export async function elegirPerfil(page: Page, ciclo: 'DAM' | 'ASIR' | 'Actividades Comerciales', perfil: string, modalidad: 'A' | 'B' = 'A') {
   await page.goto('/#/');
   await page.locator('label').filter({ hasText: new RegExp(`^${ciclo}`) }).click();
   await page.locator('label').filter({ hasText: perfil }).click();

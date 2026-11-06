@@ -19,13 +19,23 @@ interface RespuestaAdzuna {
 /** Páginas por actualización: cada página es 1 llamada a la API (50 resultados). */
 export const PAGINAS_ADZUNA = 3;
 
-export function urlAdzuna(pagina: number, appId: string, appKey: string): string {
+/** Categorías de Adzuna: informática (DAM y ASIR) y las del sector comercial (Actividades Comerciales). */
+export const CATEGORIAS_ADZUNA = [
+  { categoria: 'it-jobs', paginas: PAGINAS_ADZUNA, obligatoria: true },
+  { categoria: 'sales-jobs', paginas: 1, obligatoria: false },
+  { categoria: 'retail-jobs', paginas: 1, obligatoria: false },
+  { categoria: 'pr-advertising-marketing-jobs', paginas: 1, obligatoria: false },
+  { categoria: 'customer-services-jobs', paginas: 1, obligatoria: false },
+  { categoria: 'logistics-warehouse-jobs', paginas: 1, obligatoria: false },
+];
+
+export function urlAdzuna(pagina: number, appId: string, appKey: string, categoria = 'it-jobs'): string {
   const p = new URLSearchParams({
     app_id: appId,
     app_key: appKey,
     results_per_page: '50',
     where: 'Madrid',
-    category: 'it-jobs',
+    category: categoria,
     what_or: 'prácticas practicas becario becaria beca junior trainee internship',
     what_exclude: 'senior lead manager director',
     max_days_old: '45',
@@ -43,23 +53,32 @@ export const adzuna: Fuente = {
     const id = variable('ADZUNA_APP_ID')!;
     const key = variable('ADZUNA_APP_KEY')!;
     const ofertas: OfertaBruta[] = [];
-    for (let pagina = 1; pagina <= PAGINAS_ADZUNA; pagina++) {
-      const r = await pedirJson<RespuestaAdzuna>(urlAdzuna(pagina, id, key), {}, fetchImpl);
-      for (const o of r.results ?? []) {
-        ofertas.push({
-          fuente: 'adzuna',
-          idFuente: String(o.id),
-          titulo: o.title,
-          empresa: o.company?.display_name ?? '',
-          ubicacion: o.location?.display_name ?? '',
-          url: o.redirect_url,
-          fechaPublicacion: o.created,
-          descripcion: o.description,
-          jornada: o.contract_time,
-          contrato: o.contract_type,
-        });
+    for (const { categoria, paginas, obligatoria } of CATEGORIAS_ADZUNA) {
+      for (let pagina = 1; pagina <= paginas; pagina++) {
+        let r: RespuestaAdzuna;
+        try {
+          r = await pedirJson<RespuestaAdzuna>(urlAdzuna(pagina, id, key, categoria), {}, fetchImpl);
+        } catch (e) {
+          // Informática es obligatoria; si falla una categoría del sector comercial, se sigue con las demás.
+          if (obligatoria) throw e;
+          break;
+        }
+        for (const o of r.results ?? []) {
+          ofertas.push({
+            fuente: 'adzuna',
+            idFuente: String(o.id),
+            titulo: o.title,
+            empresa: o.company?.display_name ?? '',
+            ubicacion: o.location?.display_name ?? '',
+            url: o.redirect_url,
+            fechaPublicacion: o.created,
+            descripcion: o.description,
+            jornada: o.contract_time,
+            contrato: o.contract_type,
+          });
+        }
+        if ((r.results ?? []).length < 50) break;
       }
-      if ((r.results ?? []).length < 50) break;
     }
     return ofertas;
   },

@@ -146,7 +146,7 @@ function ListaOfertas({ datos }: { datos: CacheOfertas }) {
           Las ofertas se actualizan una vez al día desde las fuentes configuradas. Mientras tanto, usa las búsquedas en portales de abajo.
         </Vacio>
       ) : lista.length === 0 ? (
-        <Vacio titulo="No hay ofertas con estos filtros">Prueba a quitar filtros o elige «Todos (DAM y ASIR)» en Perfil o rama.</Vacio>
+        <Vacio titulo="No hay ofertas con estos filtros">Prueba a quitar filtros o elige «Todos los ciclos» en Perfil o rama.</Vacio>
       ) : (
         <ul className="grid gap-3 md:grid-cols-2">
           {lista.map((o) => <li key={o.id}><TarjetaOferta o={o} /></li>)}

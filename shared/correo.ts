@@ -1,5 +1,5 @@
 import type { Ciclo, ModalidadId } from '../config/ffe.config';
-import { config, modalidadPorId, perfilPorId } from '../config/ffe.config';
+import { cicloPorId, config, modalidadPorId, perfilPorId } from '../config/ffe.config';
 
 export interface DatosAlumno {
   nombre: string;
@@ -28,10 +28,16 @@ export interface Borrador {
   cuerpo: string;
 }
 
-export const NOMBRE_CICLO: Record<Ciclo, string> = {
-  DAM: 'Desarrollo de Aplicaciones Multiplataforma (DAM)',
-  ASIR: 'Administración de Sistemas Informáticos en Red (ASIR)',
-};
+/** Nombre del ciclo para «estoy cursando 2.º de …». */
+export const NOMBRE_CICLO = Object.fromEntries(config.ciclos.map((c) => [c.id, c.enCorreo])) as Record<Ciclo, string>;
+
+/** Nombre corto del ciclo para asuntos y firmas («2.º DAM», «2.º Actividades Comerciales»). */
+export const cortoCiclo = (ciclo: Ciclo) => cicloPorId(ciclo).corto;
+
+/** Cierre del apartado de IA: el del ciclo si lo tiene, si no el común. */
+export function cierreIa(bloque: object, comun: string): string {
+  return 'iaCierre' in bloque && typeof bloque.iaCierre === 'string' ? bloque.iaCierre : comun;
+}
 
 export function fechaLarga(iso: string): string {
   const [a, m, d] = iso.split('-').map(Number);
@@ -67,8 +73,8 @@ export function generarBorrador(empresa: EmpresaCorreo, alumno: DatosAlumno): Bo
   const intereses = comunes.length ? comunes : perfilesAlumno;
 
   const asunto = empresa.programaPracticas
-    ? `Candidatura a ${empresa.programaPracticas.titulo} · Alumno/a de 2.º ${alumno.ciclo}`
-    : `Candidatura espontánea para Formación en Empresa (FFE) · 2.º ${alumno.ciclo}`;
+    ? `Candidatura a ${empresa.programaPracticas.titulo} · Alumno/a de 2.º ${cortoCiclo(alumno.ciclo)}`
+    : `Candidatura espontánea para Formación en Empresa (FFE) · 2.º ${cortoCiclo(alumno.ciclo)}`;
 
   const enlaces = [
     alumno.github && `GitHub: ${alumno.github}`,
@@ -101,7 +107,7 @@ export function generarBorrador(empresa: EmpresaCorreo, alumno: DatosAlumno): Bo
     '',
     `${textos.iaIntro} ${propio.ia}`,
     '',
-    textos.iaCierre,
+    cierreIa(propio, textos.iaCierre),
     '',
     'Datos del periodo de formación:',
     `- Fechas: del ${fechaLarga(modalidad.inicio)} al ${fechaLarga(modalidad.fin)} (${modalidad.nombre}).`,
@@ -117,7 +123,7 @@ export function generarBorrador(empresa: EmpresaCorreo, alumno: DatosAlumno): Bo
     'Un saludo,',
     '',
     alumno.nombre || '[tu nombre]',
-    `2.º ${alumno.ciclo} · ${config.centro.nombre}`,
+    `2.º ${cortoCiclo(alumno.ciclo)} · ${config.centro.nombre}`,
     ...(alumno.telefono ? [`Tel.: ${alumno.telefono}`] : []),
   ];
 

@@ -1,11 +1,11 @@
-import { config, perfilPorId, type Ciclo } from '../../config/ffe.config';
+import { cicloPorId, config, IDS_CICLOS, perfilPorId, type Ciclo } from '../../config/ffe.config';
 import type { Alumno } from '../lib/alumno';
 
 /**
  * Valor del filtro de perfil:
  * - 'mis': los perfiles elegidos por el alumno (o su ciclo)
- * - 'todos': todos los perfiles de DAM y de ASIR
- * - 'ciclo:DAM' / 'ciclo:ASIR': cualquier rama de ese ciclo
+ * - 'todos': todos los perfiles de todos los ciclos
+ * - 'ciclo:DAM', 'ciclo:ASIR', 'ciclo:ACOM': cualquier rama de ese ciclo
  * - un id de perfil concreto (p. ej. 'asir-cloud')
  */
 export type ValorPerfil = string;
@@ -24,8 +24,10 @@ const deCiclo = (perfiles: string[], ciclo: Ciclo) => perfiles.some((p) => perfi
  */
 export function coincidePerfil(perfiles: string[], valor: ValorPerfil, alumno: Alumno, amplio = false): boolean {
   if (valor === 'todos') return true;
-  if (valor === 'ciclo:DAM') return deCiclo(perfiles, 'DAM');
-  if (valor === 'ciclo:ASIR') return deCiclo(perfiles, 'ASIR');
+  if (valor.startsWith('ciclo:')) {
+    const ciclo = valor.slice(6) as Ciclo;
+    return IDS_CICLOS.includes(ciclo) && deCiclo(perfiles, ciclo);
+  }
   if (valor === 'mis') {
     if (amplio && alumno.ciclo) return deCiclo(perfiles, alumno.ciclo);
     if (alumno.perfiles.length) return perfiles.some((p) => alumno.perfiles.includes(p));
@@ -44,17 +46,20 @@ export function FiltroPerfil({ id, valor, cambiar, alumno }: { id: string; valor
     <div className="col-span-2 lg:col-span-1">
       <label htmlFor={id} className="etiqueta">Perfil o rama</label>
       <select id={id} className="campo" value={valor} onChange={(e) => cambiar(e.target.value)}>
-        {(alumno.perfiles.length > 0 || alumno.ciclo) && <option value="mis">{alumno.perfiles.length ? 'Mis perfiles' : `Mi ciclo (${alumno.ciclo})`}</option>}
-        <option value="todos">Todos (DAM y ASIR)</option>
-        <option value="ciclo:DAM">Cualquier rama de DAM</option>
-        <option value="ciclo:ASIR">Cualquier rama de ASIR</option>
-        {(['DAM', 'ASIR'] as Ciclo[]).map((c) => (
-          <optgroup key={c} label={c}>
+        {(alumno.perfiles.length > 0 || alumno.ciclo) && <option value="mis">{alumno.perfiles.length ? 'Mis perfiles' : `Mi ciclo (${alumno.ciclo ? cicloPorId(alumno.ciclo).corto : ''})`}</option>}
+        <option value="todos">Todos los ciclos</option>
+        {config.ciclos.map((c) => (
+          <option key={c.id} value={`ciclo:${c.id}`}>
+            Cualquier rama de {c.corto}
+          </option>
+        ))}
+        {config.ciclos.map((c) => (
+          <optgroup key={c.id} label={c.corto}>
             {config.perfiles
-              .filter((p) => p.ciclo === c)
+              .filter((p) => p.ciclo === c.id)
               .map((p) => (
                 <option key={p.id} value={p.id}>
-                  {c} · {p.nombre}
+                  {c.corto} · {p.nombre}
                 </option>
               ))}
           </optgroup>

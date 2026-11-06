@@ -903,7 +903,10 @@
       "dam-backend",
       "dam-android",
       "dam-datos-ia",
-      "asir-sistemas"
+      "asir-sistemas",
+      "acom-venta-tecnica",
+      "acom-marketing-digital",
+      "acom-atencion-cliente"
     ],
     "motivoEncaje": "Producto digital madrileño con equipos de desarrollo y datos.",
     "paginasContacto": [
@@ -922,7 +925,10 @@
       "dam-backend",
       "dam-web",
       "dam-android",
-      "dam-datos-ia"
+      "dam-datos-ia",
+      "acom-marketing-digital",
+      "acom-atencion-cliente",
+      "acom-ecommerce"
     ],
     "motivoEncaje": "Startup madrileña de alto crecimiento con equipos de ingeniería y datos.",
     "paginasContacto": [
@@ -1343,7 +1349,9 @@
     "zona": "madrid",
     "perfiles": [
       "dam-web",
-      "dam-android"
+      "dam-android",
+      "acom-ecommerce",
+      "acom-marketing-digital"
     ],
     "motivoEncaje": "Agencia madrileña de desarrollo web, apps y ecommerce.",
     "paginasContacto": [
@@ -1490,7 +1498,9 @@
       "asir-redes",
       "asir-sistemas",
       "asir-ciberseguridad",
-      "dam-backend"
+      "dam-backend",
+      "acom-venta-tecnica",
+      "acom-atencion-cliente"
     ],
     "motivoEncaje": "Operador con sede en Pozuelo: redes, sistemas y ciberseguridad.",
     "paginasContacto": [
@@ -1508,7 +1518,9 @@
     "perfiles": [
       "asir-redes",
       "asir-ciberseguridad",
-      "asir-cloud"
+      "asir-cloud",
+      "acom-venta-tecnica",
+      "acom-atencion-cliente"
     ],
     "motivoEncaje": "Operador con SOC y centros de operaciones en Madrid.",
     "paginasContacto": [
@@ -2884,7 +2896,9 @@
     "perfiles": [
       "asir-redes",
       "asir-soporte",
-      "asir-sistemas"
+      "asir-sistemas",
+      "acom-venta-tecnica",
+      "acom-atencion-cliente"
     ],
     "motivoEncaje": "Operador con fuerte despliegue de red en Madrid.",
     "paginasContacto": [
@@ -2994,7 +3008,13 @@
       "dam-web",
       "dam-backend",
       "asir-sistemas",
-      "asir-soporte"
+      "asir-soporte",
+      "acom-venta",
+      "acom-visual",
+      "acom-ecommerce",
+      "acom-atencion-cliente",
+      "acom-logistica",
+      "acom-marketing-digital"
     ],
     "motivoEncaje": "Gran empresa madrileña con área de sistemas y comercio electrónico.",
     "paginasContacto": [
@@ -3012,7 +3032,11 @@
     "perfiles": [
       "dam-web",
       "dam-backend",
-      "dam-datos-ia"
+      "dam-datos-ia",
+      "acom-venta",
+      "acom-visual",
+      "acom-logistica",
+      "acom-atencion-cliente"
     ],
     "motivoEncaje": "Sede en Alcobendas con equipos digitales.",
     "paginasContacto": [
@@ -3030,7 +3054,11 @@
     "perfiles": [
       "dam-web",
       "dam-backend",
-      "asir-sistemas"
+      "asir-sistemas",
+      "acom-venta",
+      "acom-visual",
+      "acom-logistica",
+      "acom-ecommerce"
     ],
     "motivoEncaje": "Sede en Alcobendas con área tecnológica.",
     "paginasContacto": [
@@ -3049,7 +3077,10 @@
       "dam-web",
       "dam-backend",
       "asir-sistemas",
-      "asir-soporte"
+      "asir-soporte",
+      "acom-venta",
+      "acom-logistica",
+      "acom-gestion-comercio"
     ],
     "motivoEncaje": "Sede en Las Rozas con área de sistemas.",
     "paginasContacto": [
@@ -3642,7 +3673,9 @@
     "zona": "madrid",
     "perfiles": [
       "asir-soporte",
-      "asir-sistemas"
+      "asir-sistemas",
+      "acom-venta-tecnica",
+      "acom-logistica"
     ],
     "motivoEncaje": "Mayorista de informática con sede en Madrid.",
     "paginasContacto": [
@@ -3695,7 +3728,8 @@
     "zona": "madrid",
     "perfiles": [
       "dam-web",
-      "dam-datos-ia"
+      "dam-datos-ia",
+      "acom-marketing-digital"
     ],
     "motivoEncaje": "Consultora digital madrileña con datos y desarrollo.",
     "paginasContacto": [
@@ -4168,6 +4202,622 @@
     "motivoEncaje": "Distribuidor de ciberseguridad con sede ibérica en Madrid.",
     "paginasContacto": [
       "https://www.exclusive-networks.com/es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "ikea-espana",
+    "nombre": "IKEA España",
+    "web": "https://www.ikea.com/es/es/",
+    "sector": "Distribución de mobiliario y hogar",
+    "tamano": "gran-empresa",
+    "zona": "norte",
+    "perfiles": [
+      "acom-venta",
+      "acom-visual",
+      "acom-logistica",
+      "acom-atencion-cliente"
+    ],
+    "motivoEncaje": "Grandes tiendas en Madrid (San Sebastián de los Reyes, Alcorcón, Ensanche de Vallecas) con venta, exposición, logística y atención al cliente.",
+    "paginasContacto": [
+      "https://www.ikea.com/es/es/"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "decathlon-espana",
+    "nombre": "Decathlon España",
+    "web": "https://www.decathlon.es",
+    "sector": "Distribución de artículos deportivos",
+    "tamano": "gran-empresa",
+    "zona": "norte",
+    "perfiles": [
+      "acom-venta",
+      "acom-visual",
+      "acom-logistica",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Sede española en Alcobendas y muchas tiendas en Madrid: venta asesorada, implantación de producto y logística.",
+    "paginasContacto": [
+      "https://www.decathlon.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "mediamarkt-espana",
+    "nombre": "MediaMarkt España",
+    "web": "https://www.mediamarkt.es",
+    "sector": "Distribución de electrónica",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-venta-tecnica",
+      "acom-atencion-cliente",
+      "acom-logistica"
+    ],
+    "motivoEncaje": "Tiendas de electrónica en Madrid: venta técnica de productos tecnológicos y atención al cliente.",
+    "paginasContacto": [
+      "https://www.mediamarkt.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "alcampo",
+    "nombre": "Alcampo",
+    "web": "https://www.alcampo.es",
+    "sector": "Distribución alimentaria e hipermercados",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-logistica",
+      "acom-visual",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Sede en Madrid e hipermercados en toda la región, con tienda online y logística propia.",
+    "paginasContacto": [
+      "https://www.alcampo.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "ahorramas",
+    "nombre": "Ahorramas",
+    "web": "https://www.ahorramas.com",
+    "sector": "Supermercados",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-logistica",
+      "acom-gestion-comercio"
+    ],
+    "motivoEncaje": "Cadena de supermercados madrileña: venta, reposición, almacén y gestión de tienda.",
+    "paginasContacto": [
+      "https://www.ahorramas.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "lidl-espana",
+    "nombre": "Lidl España",
+    "web": "https://www.lidl.es",
+    "sector": "Supermercados",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-logistica"
+    ],
+    "motivoEncaje": "Tiendas y plataformas logísticas en la Comunidad de Madrid.",
+    "paginasContacto": [
+      "https://www.lidl.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "mercadona",
+    "nombre": "Mercadona",
+    "web": "https://www.mercadona.es",
+    "sector": "Supermercados",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-logistica",
+      "acom-atencion-cliente"
+    ],
+    "motivoEncaje": "Supermercados en toda la Comunidad de Madrid y bloque logístico en Ciempozuelos.",
+    "paginasContacto": [
+      "https://www.mercadona.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "primark-espana",
+    "nombre": "Primark España",
+    "web": "https://www.primark.com/es-es",
+    "sector": "Moda y distribución textil",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-visual",
+      "acom-logistica"
+    ],
+    "motivoEncaje": "Grandes tiendas de moda en Madrid, con escaparatismo y reposición.",
+    "paginasContacto": [
+      "https://www.primark.com/es-es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "tendam",
+    "nombre": "Tendam (Cortefiel, Springfield, Women'secret)",
+    "web": "https://www.tendam.es",
+    "sector": "Moda y distribución textil",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-visual",
+      "acom-ecommerce",
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Grupo de moda con sede en Madrid: tiendas, visual merchandising y comercio electrónico.",
+    "paginasContacto": [
+      "https://www.tendam.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "el-ganso",
+    "nombre": "El Ganso",
+    "web": "https://www.elganso.com",
+    "sector": "Moda (marca madrileña)",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-visual",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Marca de moda nacida en Madrid con tiendas propias y tienda online.",
+    "paginasContacto": [
+      "https://www.elganso.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "ecoalf",
+    "nombre": "Ecoalf",
+    "web": "https://ecoalf.com",
+    "sector": "Moda sostenible",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-ecommerce",
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Marca de moda sostenible con sede en Madrid, tiendas propias y fuerte canal online.",
+    "paginasContacto": [
+      "https://ecoalf.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "pompeii",
+    "nombre": "Pompeii",
+    "web": "https://www.pompeiibrand.com",
+    "sector": "Calzado y moda (comercio electrónico)",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-ecommerce",
+      "acom-marketing-digital",
+      "acom-atencion-cliente"
+    ],
+    "motivoEncaje": "Marca madrileña nativa digital: tienda online, redes sociales y atención al cliente.",
+    "paginasContacto": [
+      "https://www.pompeiibrand.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "muroexe",
+    "nombre": "Muroexe",
+    "web": "https://muroexe.com",
+    "sector": "Calzado (comercio electrónico)",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-ecommerce",
+      "acom-marketing-digital",
+      "acom-atencion-cliente"
+    ],
+    "motivoEncaje": "Marca de calzado madrileña con venta online y tiendas propias.",
+    "paginasContacto": [
+      "https://muroexe.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "kiwoko",
+    "nombre": "Kiwoko",
+    "web": "https://www.kiwoko.com",
+    "sector": "Tiendas de mascotas",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-ecommerce",
+      "acom-atencion-cliente",
+      "acom-logistica"
+    ],
+    "motivoEncaje": "Cadena de tiendas de mascotas con sede en Madrid y tienda online.",
+    "paginasContacto": [
+      "https://www.kiwoko.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "fnac-espana",
+    "nombre": "Fnac España",
+    "web": "https://www.fnac.es",
+    "sector": "Distribución de cultura y tecnología",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-venta-tecnica",
+      "acom-atencion-cliente"
+    ],
+    "motivoEncaje": "Tiendas en Madrid de tecnología y cultura: venta técnica y atención al cliente.",
+    "paginasContacto": [
+      "https://www.fnac.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "worten-espana",
+    "nombre": "Worten España",
+    "web": "https://www.worten.es",
+    "sector": "Distribución de electrónica",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-venta-tecnica",
+      "acom-atencion-cliente"
+    ],
+    "motivoEncaje": "Tiendas de electrónica y electrodomésticos en Madrid.",
+    "paginasContacto": [
+      "https://www.worten.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "phone-house",
+    "nombre": "The Phone House",
+    "web": "https://www.phonehouse.es",
+    "sector": "Distribución de telefonía y tecnología",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta-tecnica",
+      "acom-venta",
+      "acom-atencion-cliente"
+    ],
+    "motivoEncaje": "Sede en Madrid y tiendas de telefonía: venta técnica de productos tecnológicos.",
+    "paginasContacto": [
+      "https://www.phonehouse.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "game-espana",
+    "nombre": "GAME España",
+    "web": "https://www.game.es",
+    "sector": "Distribución de videojuegos",
+    "tamano": "gran-empresa",
+    "zona": "sur",
+    "perfiles": [
+      "acom-venta",
+      "acom-venta-tecnica",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Cadena de tiendas de videojuegos con sede en la Comunidad de Madrid y tienda online.",
+    "paginasContacto": [
+      "https://www.game.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "douglas-espana",
+    "nombre": "Douglas España",
+    "web": "https://www.douglas.es",
+    "sector": "Perfumería y cosmética",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-visual",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Perfumerías en Madrid y sede española en Madrid: venta asesorada y comercio electrónico.",
+    "paginasContacto": [
+      "https://www.douglas.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "seur",
+    "nombre": "SEUR",
+    "web": "https://www.seur.com",
+    "sector": "Transporte urgente y logística del comercio electrónico",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-logistica",
+      "acom-atencion-cliente"
+    ],
+    "motivoEncaje": "Sede en Madrid; logística y atención al cliente del comercio electrónico.",
+    "paginasContacto": [
+      "https://www.seur.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "logista",
+    "nombre": "Logista",
+    "web": "https://www.logista.com",
+    "sector": "Distribución y logística",
+    "tamano": "gran-empresa",
+    "zona": "sur",
+    "perfiles": [
+      "acom-logistica",
+      "acom-gestion-comercio"
+    ],
+    "motivoEncaje": "Sede en Leganés: almacén, aprovisionamiento y distribución a comercios.",
+    "paginasContacto": [
+      "https://www.logista.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "correos-express",
+    "nombre": "Correos Express",
+    "web": "https://www.correosexpress.com",
+    "sector": "Paquetería urgente",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-logistica",
+      "acom-atencion-cliente"
+    ],
+    "motivoEncaje": "Paquetería urgente con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.correosexpress.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "konecta",
+    "nombre": "Konecta",
+    "web": "https://www.grupokonecta.com",
+    "sector": "Atención al cliente y ventas (contact center)",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-atencion-cliente",
+      "acom-venta-tecnica"
+    ],
+    "motivoEncaje": "Gran empresa de atención al cliente y televenta con sede y centros en Madrid.",
+    "paginasContacto": [
+      "https://www.grupokonecta.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "atento-espana",
+    "nombre": "Atento",
+    "web": "https://atento.com",
+    "sector": "Atención al cliente y ventas (contact center)",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-atencion-cliente",
+      "acom-venta-tecnica"
+    ],
+    "motivoEncaje": "Centros de atención al cliente y telemarketing en Madrid.",
+    "paginasContacto": [
+      "https://atento.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "redpiso",
+    "nombre": "Redpiso",
+    "web": "https://www.redpiso.es",
+    "sector": "Inmobiliaria",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta-tecnica",
+      "acom-atencion-cliente"
+    ],
+    "motivoEncaje": "Red de agencias inmobiliarias de Madrid: venta de inmuebles y atención al cliente.",
+    "paginasContacto": [
+      "https://www.redpiso.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "llyc",
+    "nombre": "LLYC",
+    "web": "https://llyc.global",
+    "sector": "Consultoría de comunicación y marketing",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Consultora de comunicación y marketing con sede en Madrid.",
+    "paginasContacto": [
+      "https://llyc.global"
+    ],
+    "tipoContactoEsperado": "talento"
+  },
+  {
+    "id": "antevenio",
+    "nombre": "Antevenio",
+    "web": "https://www.antevenio.com",
+    "sector": "Marketing digital y publicidad online",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Grupo de marketing digital con sede en Madrid: email marketing, afiliación y comercio electrónico.",
+    "paginasContacto": [
+      "https://www.antevenio.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "neoattack",
+    "nombre": "NeoAttack",
+    "web": "https://neoattack.com",
+    "sector": "Agencia de marketing digital",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Agencia de marketing digital de Madrid: SEO, redes sociales y publicidad online.",
+    "paginasContacto": [
+      "https://neoattack.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "socialpubli",
+    "nombre": "SocialPubli",
+    "web": "https://socialpubli.com",
+    "sector": "Marketing de influencia",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Plataforma madrileña de marketing de influencers, colaboradora habitual de FFE de comercio en Madrid.",
+    "paginasContacto": [
+      "https://socialpubli.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "nestrategia",
+    "nombre": "Nestrategia",
+    "web": "https://www.nestrategia.com",
+    "sector": "Agencia de marketing online",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Agencia de diseño, programación y marketing online de Madrid, colaboradora de FFE de comercio.",
+    "paginasContacto": [
+      "https://www.nestrategia.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "kanlli",
+    "nombre": "Kanlli",
+    "web": "https://www.kanlli.com",
+    "sector": "Agencia de marketing digital",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Agencia de marketing digital y comercio electrónico con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.kanlli.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "elogia",
+    "nombre": "Elogia",
+    "web": "https://elogia.net",
+    "sector": "Agencia de marketing digital y comercio electrónico",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Agencia de marketing digital especializada en comercio electrónico, con oficina en Madrid.",
+    "paginasContacto": [
+      "https://elogia.net"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "the-plan-company",
+    "nombre": "The Plan Company",
+    "web": "https://theplancompany.com",
+    "sector": "Agencia de medios y marketing digital",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Agencia madrileña de estrategia de medios y marketing digital.",
+    "paginasContacto": [
+      "https://theplancompany.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "territorio-creativo",
+    "nombre": "Territorio Creativo",
+    "web": "https://www.territoriocreativo.es",
+    "sector": "Consultoría de marketing digital",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Consultora de marketing y transformación digital con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.territoriocreativo.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "labelium-espana",
+    "nombre": "Labelium España",
+    "web": "https://www.labelium.com",
+    "sector": "Agencia de marketing digital y rendimiento",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Agencia de marketing de resultados con oficina en Madrid.",
+    "paginasContacto": [
+      "https://www.labelium.com"
     ],
     "tipoContactoEsperado": "rrhh"
   }

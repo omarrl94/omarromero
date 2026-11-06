@@ -48,3 +48,11 @@
 - **Recordatorio local** para insistir pasados 7 días sin respuesta.
 - **Prueba automática de enlaces profundos** en CI, con navegador real y aceptación de cookies, para detectar cambios de formato de URL.
 - **Ejecución programada del verificador** (p. ej. un GitHub Action mensual) que abra un PR con el diff de `data/empresas.json` para revisión humana.
+
+## Actividades Comerciales (grado medio)
+
+- [ ] **Horas de FFE**: en `config/ffe.config.ts` → `horas.ACOM` hay 500 h (total de 1.º y 2.º en el plan de Madrid). Pon las horas del periodo que corresponda en nuestro centro y cambia `horasPendientesDeConfirmar.ACOM` a `false`.
+- [ ] **Tutor/a de FFE**: `tutores.ACOM` está en `null`; mientras tanto el correo del alumnado sale sin copia al tutor.
+- [ ] **Fechas**: el ciclo usa las mismas modalidades A y B que DAM y ASIR. Si en grado medio son otras, avísame para separarlas.
+- [ ] **Revisar los textos del correo** (`textosCorreoTutor.ciclos.ACOM` y `textosCorreoAlumno.ciclos.ACOM`), sobre todo el apartado de inteligencia artificial, que es una propuesta.
+

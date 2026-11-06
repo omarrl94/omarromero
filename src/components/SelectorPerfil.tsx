@@ -1,4 +1,4 @@
-import { config, perfilesDe, type Ciclo, type ModalidadId } from '../../config/ffe.config';
+import { cicloPorId, config, perfilesDe, type Ciclo, type ModalidadId } from '../../config/ffe.config';
 import { fecha } from '../lib/formato';
 import type { Alumno } from '../lib/alumno';
 
@@ -9,11 +9,6 @@ interface Props {
   numerado?: boolean;
 }
 
-const COLOR_CICLO: Record<Ciclo, string> = { DAM: 'bg-salvia', ASIR: 'bg-terracota' };
-const DESCRIPCION_CICLO: Record<Ciclo, string> = {
-  DAM: 'Desarrollo de Aplicaciones Multiplataforma',
-  ASIR: 'Administración de Sistemas Informáticos en Red',
-};
 
 function Paso({ n, titulo, numerado, children }: { n: number; titulo: string; numerado?: boolean; children: React.ReactNode }) {
   return (
@@ -44,14 +39,17 @@ export function SelectorPerfil({ alumno, cambiar, numerado }: Props) {
   return (
     <div className="grid gap-8">
       <Paso n={1} titulo="¿Qué ciclo estudias?" numerado={numerado}>
-        <div className="grid grid-cols-2 gap-3">
-          {(['DAM', 'ASIR'] as Ciclo[]).map((c) => {
+        <div className="grid gap-3 sm:grid-cols-3">
+          {config.ciclos.map((info) => {
+            const c = info.id as Ciclo;
             const activo = alumno.ciclo === c;
             return (
-              <label key={c} className={`relative flex cursor-pointer flex-col rounded-2xl border-2 border-tinta p-4 transition ${activo ? `${COLOR_CICLO[c]} shadow-[5px_5px_0_var(--color-tinta)]` : 'bg-white hover:bg-hueso'}`}>
+              <label key={c} className={`relative flex cursor-pointer flex-col rounded-2xl border-2 border-tinta p-4 transition ${activo ? `${info.color} shadow-[5px_5px_0_var(--color-tinta)]` : 'bg-white hover:bg-hueso'}`}>
                 <input type="radio" name="ciclo" value={c} checked={activo} onChange={() => elegirCiclo(c)} className="peer sr-only" />
-                <span className="font-display text-3xl font-extrabold">{c}</span>
-                <span className="mt-1 text-sm leading-snug">{DESCRIPCION_CICLO[c]}</span>
+                <span className={`font-display font-extrabold ${info.corto.length > 6 ? 'pr-8 text-2xl leading-tight' : 'text-3xl'}`}>{info.corto}</span>
+                <span className="mt-1 text-sm leading-snug">
+                  {info.corto === info.id ? info.nombre : info.familia} · Grado {info.grado}
+                </span>
                 <span className="absolute right-3 top-3 grid size-6 place-items-center rounded-full border-2 border-tinta bg-white text-xs font-bold peer-focus-visible:outline-3 peer-focus-visible:outline-tinta" aria-hidden="true">
                   {activo ? '✓' : ''}
                 </span>
@@ -107,7 +105,7 @@ export function SelectorPerfil({ alumno, cambiar, numerado }: Props) {
               ))}
             </div>
             <p className="mt-2 text-sm text-tinta-suave">
-              FFE de {alumno.ciclo}: {config.horas[alumno.ciclo]} horas
+              FFE de {cicloPorId(alumno.ciclo).corto}: {config.horas[alumno.ciclo]} horas
               {config.horasPendientesDeConfirmar[alumno.ciclo] ? ' (pendiente de confirmar)' : ''}.
             </p>
           </Paso>

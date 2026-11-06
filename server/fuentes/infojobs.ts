@@ -20,14 +20,16 @@ interface RespuestaInfojobs {
   }[];
 }
 
-/** Una llamada por término: 3 llamadas por actualización. */
+/** Una llamada por término: 3 llamadas por actualización (informática). */
 export const TERMINOS_INFOJOBS = ['prácticas', 'becario', 'junior'];
+/** Categorías del sector comercial (Actividades Comerciales): una llamada de «prácticas» por categoría. */
+export const CATEGORIAS_COMERCIO_INFOJOBS = ['comercial-ventas', 'venta-al-detalle', 'marketing-comunicacion', 'atencion-a-clientes', 'compras-logistica-almacen'];
 
-export function urlInfojobs(q: string): string {
+export function urlInfojobs(q: string, categoria = 'informatica-telecomunicaciones'): string {
   const p = new URLSearchParams({
     q,
     province: 'madrid',
-    category: 'informatica-telecomunicaciones',
+    category: categoria,
     sinceDate: '_15_DAYS',
     maxResults: '50',
     order: 'updated-desc',
@@ -42,8 +44,19 @@ export const infojobs: Fuente = {
   async obtener(fetchImpl = fetch) {
     const auth = Buffer.from(`${variable('INFOJOBS_CLIENT_ID')}:${variable('INFOJOBS_CLIENT_SECRET')}`).toString('base64');
     const ofertas: OfertaBruta[] = [];
-    for (const q of TERMINOS_INFOJOBS) {
-      const r = await pedirJson<RespuestaInfojobs>(urlInfojobs(q), { headers: { Authorization: `Basic ${auth}` } }, fetchImpl);
+    const consultas = [
+      ...TERMINOS_INFOJOBS.map((q) => ({ q, categoria: 'informatica-telecomunicaciones', obligatoria: true })),
+      ...CATEGORIAS_COMERCIO_INFOJOBS.map((categoria) => ({ q: 'prácticas', categoria, obligatoria: false })),
+    ];
+    for (const { q, categoria, obligatoria } of consultas) {
+      let r: RespuestaInfojobs;
+      try {
+        r = await pedirJson<RespuestaInfojobs>(urlInfojobs(q, categoria), { headers: { Authorization: `Basic ${auth}` } }, fetchImpl);
+      } catch (e) {
+        // Informática es obligatoria; si falla una categoría del sector comercial, se sigue con las demás.
+        if (obligatoria) throw e;
+        continue;
+      }
       for (const o of r.offers ?? []) {
         ofertas.push({
           fuente: 'infojobs',

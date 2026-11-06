@@ -6,7 +6,7 @@
  * así que aquí NO puede haber secretos ni correos de empresas.
  */
 
-export type Ciclo = 'DAM' | 'ASIR';
+export type Ciclo = 'DAM' | 'ASIR' | 'ACOM';
 export type ModalidadId = 'A' | 'B';
 
 export interface Modalidad {
@@ -16,6 +16,20 @@ export interface Modalidad {
   inicio: string;
   fin: string;
   horasDia: number;
+}
+
+export interface InfoCiclo {
+  id: Ciclo;
+  /** Nombre corto para chips, filtros, asuntos y firmas. */
+  corto: string;
+  /** Nombre completo del título. */
+  nombre: string;
+  grado: 'medio' | 'superior';
+  familia: string;
+  /** Texto para «estoy cursando 2.º de …» en los correos. */
+  enCorreo: string;
+  /** Clase de color de la marca (Tailwind) para el selector. */
+  color: string;
 }
 
 export interface Tutor {
@@ -53,6 +67,8 @@ export interface EnlaceProfundo {
   /** Fecha ISO de la última comprobación manual o con `npm run comprobar:enlaces`. */
   fechaPrueba: string | null;
   nota?: string;
+  /** Solo para estos ciclos (p. ej. portales solo de informática). Sin indicar: todos. */
+  ciclos?: Ciclo[];
 }
 
 export const config = {
@@ -66,6 +82,13 @@ export const config = {
 
   curso: '2026-2027',
 
+  /** Ciclos del centro que usan la aplicación. El orden es el de los selectores. */
+  ciclos: [
+    { id: 'DAM', corto: 'DAM', nombre: 'Desarrollo de Aplicaciones Multiplataforma', grado: 'superior', familia: 'Informática y Comunicaciones', enCorreo: 'Desarrollo de Aplicaciones Multiplataforma (DAM)', color: 'bg-salvia' },
+    { id: 'ASIR', corto: 'ASIR', nombre: 'Administración de Sistemas Informáticos en Red', grado: 'superior', familia: 'Informática y Comunicaciones', enCorreo: 'Administración de Sistemas Informáticos en Red (ASIR)', color: 'bg-terracota' },
+    { id: 'ACOM', corto: 'Actividades Comerciales', nombre: 'Técnico en Actividades Comerciales', grado: 'medio', familia: 'Comercio y Marketing', enCorreo: 'Actividades Comerciales (ciclo de grado medio de Comercio y Marketing)', color: 'bg-amarillo' },
+  ] satisfies InfoCiclo[],
+
   modalidades: [
     { id: 'A', nombre: 'Modalidad A', inicio: '2027-03-01', fin: '2027-05-21', horasDia: 8 },
     { id: 'B', nombre: 'Modalidad B', inicio: '2027-02-18', fin: '2027-05-21', horasDia: 7 },
@@ -75,14 +98,20 @@ export const config = {
   horas: {
     DAM: 320,
     ASIR: 420,
+    /**
+     * En la Comunidad de Madrid la FFE de Actividades Comerciales suma 500 h entre 1.º y 2.º
+     * (Decreto 102/2024). Pon aquí las horas del periodo en el que se usa la aplicación.
+     */
+    ACOM: 500,
   } satisfies Record<Ciclo, number>,
   /** Marca para mostrar «pendiente de confirmar» junto a las horas. */
-  horasPendientesDeConfirmar: { DAM: false, ASIR: true } satisfies Record<Ciclo, boolean>,
+  horasPendientesDeConfirmar: { DAM: false, ASIR: true, ACOM: true } satisfies Record<Ciclo, boolean>,
 
   /** Tutor de FFE de cada ciclo. `null` = pendiente: el correo se genera sin copia y se avisa. */
   tutores: {
     DAM: { nombre: 'Omar Romero', email: 'omar.romero@jrotero.es' },
     ASIR: null,
+    ACOM: null,
   } satisfies Record<Ciclo, Tutor | null>,
 
   /** Máximo orientativo de contactos (correos) a la misma empresa desde el mismo dispositivo. */
@@ -127,6 +156,28 @@ export const config = {
         ],
         ia: 'En ASIR se apoyan en ella para analizar registros, investigar incidentes de seguridad, diagnosticar problemas y reforzar la protección de los sistemas.',
       },
+      // Basado en los resultados de aprendizaje del Real Decreto 1688/2011 y el plan de Madrid (docs/CICLO-ACTIVIDADES-COMERCIALES.md).
+      ACOM: {
+        titulo: 'ACTIVIDADES COMERCIALES (GRADO MEDIO)',
+        intro:
+          'Nuestro alumnado de Actividades Comerciales llegará a las prácticas preparado para vender, atender al cliente y dinamizar un comercio, tanto en tienda física como en el canal online. Su formación abarca todo el ciclo comercial, desde la compra, el almacén y la venta hasta el marketing y el comercio electrónico, e incluye inglés profesional y digitalización aplicada. Podrá colaborar en tareas como:',
+        tareas: [
+          'Venta y asesoramiento al cliente en tienda, aplicando técnicas de venta, negociación y cierre, y gestionando el cobro con el terminal punto de venta (TPV).',
+          'Venta técnica y telemarketing: ofertas comerciales de productos tecnológicos, servicios, alta gama e inmuebles, y captación y fidelización de clientes por teléfono.',
+          'Dinamización del punto de venta: implantación y reposición del producto, escaparatismo, cartelería, señalética y acciones promocionales, midiendo sus resultados.',
+          'Comercio electrónico: mantenimiento de la web, la tienda online y el catálogo, y gestión de las ventas y pedidos online.',
+          'Marketing digital y redes sociales: ejecución del plan de marketing digital, publicación de contenidos, dinamización de comunidades y posicionamiento web.',
+          'Marketing e investigación comercial: análisis del mercado, de la competencia y de los clientes, y apoyo en las políticas de producto, precio, distribución y comunicación.',
+          'Atención al cliente y posventa: información, seguimiento de pedidos, gestión de quejas y reclamaciones y mantenimiento de la base de datos de clientes.',
+          'Almacén y logística: recepción, ubicación, preparación y expedición de pedidos, control de stocks e inventarios con programas de gestión de almacén.',
+          'Compras y aprovisionamiento: previsión de la demanda, pedidos a proveedores, control de albaranes y facturas y análisis de la rentabilidad del surtido.',
+          'Gestión administrativa del comercio: documentación comercial, facturación electrónica, hojas de cálculo y bases de datos, y materiales publicitarios con diseño gráfico.',
+          'Atención a clientes en inglés, de palabra y por escrito.',
+        ],
+        ia: 'En Actividades Comerciales la utilizan para crear descripciones de producto y contenidos para redes sociales, analizar datos de ventas y de clientes, preparar campañas y promociones y agilizar la atención al cliente.',
+        iaCierre:
+          'Lo hacen con criterio profesional, revisando y validando siempre lo que genera la IA. Llegarán a la empresa preparados para trabajar como lo hacen ya los equipos comerciales y de marketing más innovadores.',
+      },
     },
     iaTitulo: 'INTELIGENCIA ARTIFICIAL EN TODO SU TRABAJO',
     iaIntro:
@@ -152,6 +203,13 @@ export const config = {
         intro:
           'Llegaré a las prácticas preparado/a para proteger, administrar y mantener en marcha la infraestructura tecnológica de una empresa, con los certificados CCNA, AWS Foundation y Cisco CyberOps y una sólida formación en ciberseguridad. Podré colaborar en objetivos como:',
         ia: 'Me apoyo en ella para analizar registros, investigar incidentes de seguridad, diagnosticar problemas y reforzar la protección de los sistemas.',
+      },
+      ACOM: {
+        intro:
+          'Llegaré a las prácticas preparado/a para vender, atender al cliente y dinamizar un comercio, tanto en tienda física como en el canal online. Mi formación abarca todo el ciclo comercial, desde la compra, el almacén y la venta hasta el marketing y el comercio electrónico, e incluye inglés profesional y digitalización aplicada. Puedo colaborar en tareas como:',
+        ia: 'La utilizo para crear descripciones de producto y contenidos para redes sociales, analizar datos de ventas y de clientes, preparar campañas y promociones y agilizar la atención al cliente.',
+        iaCierre:
+          'Lo hago con criterio profesional, revisando y validando siempre lo que genera la IA, para llegar a la empresa preparado/a para trabajar como lo hacen ya los equipos comerciales y de marketing más innovadores.',
       },
     },
     iaTitulo: 'INTELIGENCIA ARTIFICIAL EN TODO MI TRABAJO',
@@ -190,6 +248,15 @@ export const config = {
     { id: 'asir-cloud', ciclo: 'ASIR', nombre: 'Cloud y AWS', descripcion: 'AWS, Azure, DevOps, contenedores e infraestructura como código.', palabrasClave: ['cloud', 'aws', 'azure', 'gcp', 'devops', 'docker', 'kubernetes', 'terraform', 'nube'], busqueda: 'cloud AWS devops junior' },
     { id: 'asir-soporte', ciclo: 'ASIR', nombre: 'Soporte técnico', descripcion: 'Helpdesk, atención a usuarios, ITSM.', palabrasClave: ['soporte', 'helpdesk', 'help desk', 'service desk', 'microinformatica', 'atencion al usuario', 'tecnico it', 'itil', 'cau'], busqueda: 'soporte técnico informático junior' },
     { id: 'asir-datos-ia-seguridad', ciclo: 'ASIR', nombre: 'Datos e IA aplicada a la seguridad', descripcion: 'Automatización, scripting, detección con datos e IA.', palabrasClave: ['python', 'automatizacion', 'scripting', 'detection', 'deteccion', 'ia', 'ai', 'machine learning', 'threat', 'datos'], busqueda: 'python ciberseguridad automatización junior' },
+    // Actividades Comerciales (grado medio): un perfil por área de los módulos del título
+    { id: 'acom-venta', ciclo: 'ACOM', nombre: 'Venta y atención en tienda', descripcion: 'Dependiente/a, asesor/a de ventas, caja y TPV (Procesos de venta).', palabrasClave: ['dependiente', 'dependienta', 'vendedor', 'vendedora', 'asesor de ventas', 'asesora de ventas', 'ayudante de tienda', 'auxiliar de tienda', 'cajero', 'cajera', 'retail', 'tienda', 'store'], busqueda: 'dependiente prácticas' },
+    { id: 'acom-venta-tecnica', ciclo: 'ACOM', nombre: 'Venta técnica y comercial', descripcion: 'Comercial, telemarketing, productos tecnológicos, alta gama e inmobiliaria (Venta técnica).', palabrasClave: ['comercial', 'agente comercial', 'gestor comercial', 'ventas', 'televenta', 'telemarketing', 'inmobiliaria', 'asesor inmobiliario', 'captacion', 'key account', 'b2b'], busqueda: 'comercial junior prácticas' },
+    { id: 'acom-marketing-digital', ciclo: 'ACOM', nombre: 'Marketing digital y redes sociales', descripcion: 'Redes sociales, contenidos, SEO y campañas (Marketing y Comercio electrónico).', palabrasClave: ['marketing digital', 'marketing', 'redes sociales', 'social media', 'community manager', 'contenidos', 'seo', 'sem', 'email marketing', 'growth', 'publicidad'], busqueda: 'marketing digital prácticas' },
+    { id: 'acom-ecommerce', ciclo: 'ACOM', nombre: 'Comercio electrónico', descripcion: 'Tienda online, catálogo, marketplaces y pedidos online (Comercio electrónico).', palabrasClave: ['ecommerce', 'e-commerce', 'comercio electronico', 'tienda online', 'marketplace', 'shopify', 'prestashop', 'woocommerce', 'catalogo', 'amazon'], busqueda: 'ecommerce prácticas' },
+    { id: 'acom-visual', ciclo: 'ACOM', nombre: 'Escaparatismo y visual merchandising', descripcion: 'Implantación de producto, escaparates, cartelería y promociones (Dinamización del punto de venta).', palabrasClave: ['visual merchandising', 'visual merchandiser', 'merchandising', 'escaparatismo', 'escaparatista', 'reponedor', 'reponedora', 'promotor', 'promotora', 'trade marketing', 'punto de venta'], busqueda: 'visual merchandising prácticas' },
+    { id: 'acom-atencion-cliente', ciclo: 'ACOM', nombre: 'Atención al cliente', descripcion: 'Información, posventa, quejas y reclamaciones, CRM (Servicios de atención comercial).', palabrasClave: ['atencion al cliente', 'customer service', 'customer care', 'teleoperador', 'teleoperadora', 'call center', 'contact center', 'posventa', 'postventa', 'recepcionista', 'experiencia de cliente'], busqueda: 'atención al cliente prácticas' },
+    { id: 'acom-logistica', ciclo: 'ACOM', nombre: 'Almacén, compras y logística', descripcion: 'Recepción, pedidos, stocks, inventarios y aprovisionamiento (Técnicas de almacén y Gestión de compras).', palabrasClave: ['almacen', 'logistica', 'mozo de almacen', 'preparador de pedidos', 'picking', 'stock', 'inventario', 'compras', 'aprovisionamiento', 'supply chain', 'expediciones'], busqueda: 'auxiliar de almacén logística prácticas' },
+    { id: 'acom-gestion-comercio', ciclo: 'ACOM', nombre: 'Gestión de tienda y administración comercial', descripcion: 'Documentación comercial, facturación, hoja de cálculo y gestión de un pequeño comercio.', palabrasClave: ['administrativo comercial', 'auxiliar administrativo', 'back office', 'facturacion', 'gestion comercial', 'encargado de tienda', 'subencargado', 'responsable de tienda', 'franquicia'], busqueda: 'auxiliar administrativo comercial prácticas' },
   ] satisfies Perfil[],
 
   zonas: [
@@ -209,7 +276,7 @@ export const config = {
     { id: 'linkedin', nombre: 'LinkedIn Empleos', plantilla: 'https://www.linkedin.com/jobs/search/?keywords={q}&location={lugar}&f_E=1%2C2', probado: true, fechaPrueba: '2026-11-05', nota: 'f_E=1 prácticas, 2 nivel inicial. Responde 200 sin pedir inicio de sesión (comprobación automática desde GitHub Actions, 05/11/2026). Revisar a mano que el filtro es el esperado.' },
     { id: 'indeed', nombre: 'Indeed', plantilla: 'https://es.indeed.com/jobs?q={q}&l={lugar}', probado: false, fechaPrueba: null },
     { id: 'infojobs', nombre: 'InfoJobs (web)', plantilla: 'https://www.infojobs.net/jobsearch/search-results/list.xhtml?keyword={q}&provinceIds=33', probado: true, fechaPrueba: '2026-11-05', nota: 'provinceIds=33 = Madrid (por confirmar a mano). Responde 200 sin pedir inicio de sesión (comprobación automática desde GitHub Actions, 05/11/2026). Revisar a mano que el filtro es el esperado.' },
-    { id: 'tecnoempleo', nombre: 'Tecnoempleo', plantilla: 'https://www.tecnoempleo.com/ofertas-trabajo/?te={q}&pr=,28,', probado: false, fechaPrueba: null, nota: 'pr=,28, = Madrid (por confirmar).' },
+    { id: 'tecnoempleo', nombre: 'Tecnoempleo', plantilla: 'https://www.tecnoempleo.com/ofertas-trabajo/?te={q}&pr=,28,', probado: false, fechaPrueba: null, nota: 'pr=,28, = Madrid (por confirmar). Portal solo de empleo tecnológico.', ciclos: ['DAM', 'ASIR'] },
     { id: 'glassdoor', nombre: 'Glassdoor', plantilla: 'https://www.glassdoor.es/Empleo/empleos.htm?sc.keyword={q}&locKeyword={lugar}', probado: false, fechaPrueba: null },
     { id: 'wttj', nombre: 'Welcome to the Jungle', plantilla: 'https://www.welcometothejungle.com/es/jobs?query={q}&aroundQuery={lugar}', probado: true, fechaPrueba: '2026-11-05', nota: 'Responde 200 sin pedir inicio de sesión (comprobación automática desde GitHub Actions, 05/11/2026). Revisar a mano que el filtro es el esperado.' },
   ] satisfies EnlaceProfundo[],
@@ -244,6 +311,8 @@ export type Config = typeof config;
 export type PerfilId = (typeof config.perfiles)[number]['id'];
 export type ZonaId = (typeof config.zonas)[number]['id'];
 
+export const cicloPorId = (id: Ciclo) => config.ciclos.find((c) => c.id === id)!;
+export const IDS_CICLOS = config.ciclos.map((c) => c.id) as Ciclo[];
 export const perfilesDe = (ciclo: Ciclo) => config.perfiles.filter((p) => p.ciclo === ciclo);
 export const perfilPorId = (id: string) => config.perfiles.find((p) => p.id === id);
 export const zonaPorId = (id: string) => config.zonas.find((z) => z.id === id);

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { config, perfilPorId, perfilesDe, zonaPorId, type Ciclo } from '../../config/ffe.config';
+import { cicloPorId, config, perfilPorId, perfilesDe, zonaPorId, type Ciclo } from '../../config/ffe.config';
 import { csvCombinacion, enLotes, generarCorreoTutor, saludoEmpresa, urlGmailCco, urlMailtoCco, urlOutlookCco, type BorradorCco } from '../../shared/correo-tutor';
 import { urlGmail, urlMailto, urlOutlook } from '../../shared/correo';
 import type { Empresa } from '../../shared/schemas';
@@ -71,12 +71,15 @@ function PanelTutor({ empresas }: { empresas: Empresa[] }) {
         <fieldset className="mt-4">
           <legend className="etiqueta">Ciclo que tutorizas</legend>
           <div className="flex flex-wrap gap-2">
-            {(['DAM', 'ASIR'] as Ciclo[]).map((c) => (
-              <label key={c} className={`flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border-2 px-4 py-2 font-bold has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-tinta ${tutor.ciclo === c ? (c === 'DAM' ? 'border-tinta bg-salvia' : 'border-tinta bg-terracota') : 'border-linea bg-white'}`}>
-                <input type="radio" name="ciclo-tutor" className="sr-only" checked={tutor.ciclo === c} onChange={() => elegirCiclo(c)} />
-                {c}
-              </label>
-            ))}
+            {config.ciclos.map((info) => {
+              const c = info.id as Ciclo;
+              return (
+                <label key={c} className={`flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border-2 px-4 py-2 font-bold has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-tinta ${tutor.ciclo === c ? `border-tinta ${info.color}` : 'border-linea bg-white'}`}>
+                  <input type="radio" name="ciclo-tutor" className="sr-only" checked={tutor.ciclo === c} onChange={() => elegirCiclo(c)} />
+                  {info.corto}
+                </label>
+              );
+            })}
           </div>
         </fieldset>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -207,7 +210,7 @@ function Envio({
   return (
     <>
       <section aria-labelledby="t-empresas" className="grid gap-4">
-        <h2 id="t-empresas" className="text-xl font-extrabold">2. Empresas de {ciclo}</h2>
+        <h2 id="t-empresas" className="text-xl font-extrabold">2. Empresas de {cicloPorId(ciclo).corto}</h2>
         <BarraFiltros
           etiqueta="Filtrar empresas para el envío"
           activos={activos}
@@ -237,7 +240,7 @@ function Envio({
           <div className="col-span-2 lg:col-span-1">
             <label htmlFor="t-rama" className="etiqueta">Rama</label>
             <select id="t-rama" className="campo" value={rama} onChange={(e) => setRama(e.target.value)}>
-              <option value="todas">Cualquier rama de {ciclo}</option>
+              <option value="todas">Cualquier rama de {cicloPorId(ciclo).corto}</option>
               {perfilesDe(ciclo).map((p) => (
                 <option key={p.id} value={p.id}>{p.nombre}</option>
               ))}

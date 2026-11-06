@@ -25,7 +25,7 @@ const TERMINOS_PRACTICAS = ['practicas', 'practica', 'becario', 'becaria', 'inte
 const TERMINOS_BECA = ['beca', 'becas', 'scholarship', 'graduate program', 'programa graduados'];
 const TERMINOS_JUNIOR = ['junior', 'jr', 'jr.', 'entry level', 'entry-level', 'graduate', 'recien titulado', 'recien graduado', 'sin experiencia', 'primer empleo', 'early career'];
 const TERMINOS_SENIOR = ['senior', 'sr', 'sr.', 'lead', 'principal', 'head', 'manager', 'director', 'directora', 'jefe', 'jefa', 'arquitecto', 'arquitecta', 'architect', 'staff', 'expert', 'experto', 'experta', 'mid', 'semi senior', 'semisenior', 'ssr', 'tech lead', 'responsable', 'coordinador', 'coordinadora', 'vp', 'cto', 'ciso'];
-/** Términos que indican que la oferta NO es del sector informático. */
+/** Términos del sector informático (DAM y ASIR). */
 const TERMINOS_TIC = ['informatica', 'informatico', 'desarrollador', 'desarrolladora', 'developer', 'programador', 'programadora', 'software', 'sistemas', 'redes', 'it', 'tic', 'ciberseguridad', 'cloud', 'devops', 'datos', 'data', 'soporte', 'helpdesk', 'web', 'backend', 'frontend', 'full stack', 'fullstack', 'sql', 'python', 'java', 'javascript', 'android', 'unity', 'sap', 'erp', 'qa', 'tester', 'dam', 'asir', 'daw', 'smr'];
 
 /** Años mínimos de experiencia pedidos (0 si no se detectan). */
@@ -44,6 +44,19 @@ export function esSenior(titulo: string, extra = ''): boolean {
 export function esDelSectorTic(texto: string): boolean {
   const t = normalizar(texto);
   return TERMINOS_TIC.some((s) => contieneTermino(t, s));
+}
+
+/** Términos del sector de Comercio y Marketing (ciclo de Actividades Comerciales). */
+const TERMINOS_COMERCIO = ['comercio', 'comercial', 'ventas', 'venta', 'vendedor', 'vendedora', 'dependiente', 'dependienta', 'retail', 'tienda', 'marketing', 'ecommerce', 'e-commerce', 'atencion al cliente', 'customer service', 'teleoperador', 'teleoperadora', 'almacen', 'logistica', 'compras', 'merchandising', 'escaparatismo', 'reponedor', 'reponedora', 'cajero', 'cajera', 'redes sociales', 'community manager'];
+
+export function esDelSectorComercio(texto: string): boolean {
+  const t = normalizar(texto);
+  return TERMINOS_COMERCIO.some((s) => contieneTermino(t, s));
+}
+
+/** ¿La oferta es de alguno de los sectores de los ciclos del centro (informática o comercio y marketing)? */
+export function esDeLosCiclos(texto: string): boolean {
+  return esDelSectorTic(texto) || esDelSectorComercio(texto);
 }
 
 /** Clasifica el tipo de oferta. `null` si no es de prácticas, beca, junior ni primer empleo. */
@@ -108,7 +121,7 @@ export interface ResultadoNormalizacion {
 
 /**
  * Convierte ofertas brutas de cualquier fuente en ofertas normalizadas:
- * excluye senior, caducadas, fuera del sector TIC y las que no son prácticas/beca/junior/primer empleo,
+ * excluye senior, caducadas, fuera de los sectores de los ciclos (informática y comercio) y las que no son prácticas/beca/junior/primer empleo,
  * y elimina duplicados (se queda con la publicada más recientemente).
  */
 export function normalizarOfertas(brutas: OfertaBruta[], ahora = new Date()): ResultadoNormalizacion {
@@ -131,7 +144,7 @@ export function normalizarOfertas(brutas: OfertaBruta[], ahora = new Date()): Re
       d.caducadas++;
       continue;
     }
-    if (!esDelSectorTic(textoCompleto)) {
+    if (!esDeLosCiclos(textoCompleto)) {
       d.noTic++;
       continue;
     }
