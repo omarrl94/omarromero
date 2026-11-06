@@ -12,7 +12,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { CandidatasSchema, EmpresaSchema, EmpresasSchema, type Candidata, type Empresa } from '../shared/schemas';
 import { descargar as descargarRed, enSerie, hayRed, tieneMx as tieneMxRed, type Pagina } from './lib/red';
 import { pathToFileURL } from 'node:url';
-import { detectarAts, elegirCorreo, enlacesDeInteres, esPaginaFormulario, extraerCorreos, mencionaPracticas, priorizarUrls, RUTAS_HABITUALES, tituloDe, valorarCorreos, type CorreoValorado } from './lib/verificador';
+import { detectarAts, enlacesDeInteres, esPaginaFormulario, extraerCorreos, leerSitemap, mencionaPracticas, paginasEmpleoDeSitemap, priorizarUrls, RANGO_FORMULARIO, rangoCorreo, RUTAS_HABITUALES, tipoPagina, tituloDe, valorarCorreos, type CorreoValorado, type TipoPagina } from './lib/verificador';
 
 interface Retirada { id?: string; dominio?: string; fecha: string }
 
@@ -79,7 +79,26 @@ export async function verificar(c: Candidata, retiradas: Retirada[], deps: Depen
       }
     }
   };
-  await revisar([...c.paginasContacto, ...(c.formularioUrl ? [c.formularioUrl] : []), ...(c.empleoUrl ? [c.empleoUrl] : []), ...enlacesDeInteres(raiz.html, raiz.urlFinal, 14)], 14);
+  // Mapa del sitio: encuentra las páginas de empleo y RR. HH. aunque no estén enlazadas en la portada.
+  const delSitemap: string[] = [];
+  {
+    const robots = await descargar(`${origen}/robots.txt`, 10_000);
+    const mapas = [...robots.html.matchAll(/^\s*sitemap:\s*(\S+)/gim)].map((m) => m[1]);
+    if (!mapas.length) mapas.push(`${origen}/sitemap.xml`, `${origen}/sitemap_index.xml`);
+    const vistos = new Set<string>();
+    const pendientesMapa = mapas.slice(0, 3);
+    while (pendientesMapa.length && vistos.size < 6) {
+      const m = pendientesMapa.shift()!;
+      if (vistos.has(m)) continue;
+      vistos.add(m);
+      const pm = await descargar(m, 12_000);
+      if (pm.estado !== 200) continue;
+      const { urls, esIndice } = leerSitemap(pm.html);
+      if (esIndice) pendientesMapa.push(...urls.filter((u) => /page|pagina|sitemap\.xml$|main|general/i.test(u)).slice(0, 3), ...urls.slice(0, 2));
+      else delSitemap.push(...paginasEmpleoDeSitemap(urls, raiz.urlFinal));
+    }
+  }
+  await revisar([...c.paginasContacto, ...(c.formularioUrl ? [c.formularioUrl] : []), ...(c.empleoUrl ? [c.empleoUrl] : []), ...delSitemap.slice(0, 6), ...enlacesDeInteres(raiz.html, raiz.urlFinal, 14)], 18);
   // Rutas habituales solo si en lo revisado no hay ya un buzón de RR. HH./talento.
   const hayRrhh = () => valorarCorreos(paginas.flatMap((p) => extraerCorreos(p.html)), c.web).some((v) => !v.motivoRechazo && v.tipo !== 'general');
   if (!hayRrhh()) await revisar(RUTAS_HABITUALES.map((ruta) => origen + ruta), 8);
@@ -89,25 +108,41 @@ export async function verificar(c: Candidata, retiradas: Retirada[], deps: Depen
     await revisar(deEmpleo.flatMap((p) => enlacesDeInteres(p.html, p.urlFinal, 8)), 6);
   }
 
-  // 3. Correos publicados en esas páginas (con la URL exacta donde aparecen).
-  const dondeAparece = new Map<string, string>();
-  for (const p of paginas) for (const e of extraerCorreos(p.html)) if (!dondeAparece.has(e)) dondeAparece.set(e, p.urlFinal);
-  r.correosEncontrados = valorarCorreos([...dondeAparece.keys()], c.web);
-
-  // 4. Elegir el mejor correo con registros MX.
-  let elegido: CorreoValorado | null = null;
-  let mx: boolean | null = null;
-  const pendientes = [...r.correosEncontrados];
-  while (!elegido) {
-    const cand = elegirCorreo(pendientes);
-    if (!cand) break;
-    mx = await tieneMx(cand.email.split('@')[1]);
-    if (mx === true) elegido = cand;
-    else {
-      const v = r.correosEncontrados.find((x) => x.email === cand.email)!;
-      v.motivoRechazo = mx === false ? 'el dominio no tiene registros MX' : 'no se pudo consultar MX';
-      pendientes.splice(pendientes.indexOf(cand), 1);
+  // 3. Correos publicados en esas páginas: dónde aparece cada uno y en qué tipo de página.
+  const dondeAparece = new Map<string, { url: string; tipos: TipoPagina[] }>();
+  const preferencia: TipoPagina[] = ['empleo', 'contacto', 'otra', 'legal'];
+  for (const p of paginas) {
+    const tipo = tipoPagina(p.urlFinal);
+    for (const e of extraerCorreos(p.html)) {
+      const previo = dondeAparece.get(e);
+      if (!previo) dondeAparece.set(e, { url: p.urlFinal, tipos: [tipo] });
+      else {
+        previo.tipos.push(tipo);
+        if (preferencia.indexOf(tipo) < preferencia.indexOf(tipoPagina(previo.url))) previo.url = p.urlFinal;
+      }
     }
+  }
+  r.correosEncontrados = valorarCorreos([...dondeAparece.keys()], c.web);
+  for (const v of r.correosEncontrados) {
+    if (!v.motivoRechazo && rangoCorreo(v, dondeAparece.get(v.email)!.tipos) === null) {
+      v.motivoRechazo = 'solo aparece en el aviso legal, la privacidad o las condiciones (no es el buzón de candidaturas)';
+    }
+  }
+
+  // 4. Correos aceptables, del mejor al peor canal, con registros MX.
+  const candidatosCorreo = r.correosEncontrados
+    .map((v) => ({ v, rango: rangoCorreo(v, dondeAparece.get(v.email)!.tipos) }))
+    .filter((x): x is { v: CorreoValorado; rango: number } => x.rango !== null)
+    .sort((a, b) => a.rango - b.rango || a.v.email.localeCompare(b.v.email));
+  let elegido: { v: CorreoValorado; rango: number } | null = null;
+  let mx: boolean | null = null;
+  for (const cand of candidatosCorreo) {
+    mx = await tieneMx(cand.v.email.split('@')[1]);
+    if (mx === true) {
+      elegido = cand;
+      break;
+    }
+    cand.v.motivoRechazo = mx === false ? 'el dominio no tiene registros MX' : 'no se pudo consultar MX';
   }
 
   // 5. Feeds ATS enlazados desde la propia web.
@@ -134,26 +169,35 @@ export async function verificar(c: Candidata, retiradas: Retirada[], deps: Depen
     }
   }
 
-  // 6. Contacto: correo verificado o, si no, formulario oficial.
+  // 6. Canal de contacto: el mejor entre correo y formulario (ver rangoCorreo y RANGO_FORMULARIO).
+  const RE_URL_EMPLEO = /(empleo|trabaja|careers|career|jobs|talent|talento|unete|join|candidat)/i;
+  const formEmpleo =
+    paginas.find((p) => c.formularioUrl && p.url === c.formularioUrl && RE_URL_EMPLEO.test(p.urlFinal)) ??
+    paginas.find((p) => p !== raiz && esPaginaFormulario(p.urlFinal, p.html) && RE_URL_EMPLEO.test(p.urlFinal));
+  const formContacto =
+    paginas.find((p) => c.formularioUrl && p.url === c.formularioUrl) ?? paginas.find((p) => p !== raiz && esPaginaFormulario(p.urlFinal, p.html));
+  const opciones: { rango: number; tipo: 'email' | 'empleo' | 'contacto' }[] = [];
+  if (elegido) opciones.push({ rango: elegido.rango, tipo: 'email' });
+  if (formEmpleo) opciones.push({ rango: RANGO_FORMULARIO.empleo, tipo: 'empleo' });
+  if (formContacto) opciones.push({ rango: RANGO_FORMULARIO.contacto, tipo: 'contacto' });
+  opciones.sort((a, b) => a.rango - b.rango);
+  const mejor = opciones[0];
+
   let contacto: Empresa['contacto'];
   let confianza: Empresa['verificacion']['confianza'];
-  if (elegido) {
-    contacto = { tipo: 'email', email: elegido.email, fuenteUrl: dondeAparece.get(elegido.email)!, tipoContacto: elegido.tipo };
-    confianza = elegido.tipo === 'general' ? 'media' : 'alta';
+  if (!mejor) {
+    r.motivo = r.correosEncontrados.length
+      ? `Sin correo válido para candidaturas (${r.correosEncontrados.map((x) => `${x.email}: ${x.motivoRechazo}`).join('; ')}) ni formulario oficial`
+      : 'Sin correo publicado ni formulario oficial en las páginas revisadas';
+    return { r };
+  }
+  if (mejor.tipo === 'email' && elegido) {
+    contacto = { tipo: 'email', email: elegido.v.email, fuenteUrl: dondeAparece.get(elegido.v.email)!.url, tipoContacto: elegido.v.tipo === 'general' && elegido.rango === 2 ? 'talento' : elegido.v.tipo };
+    confianza = elegido.rango <= 2 ? 'alta' : 'media';
   } else {
-    const formulario =
-      paginas.find((p) => c.formularioUrl && p.url === c.formularioUrl) ??
-      paginas.find((p) => p !== raiz && esPaginaFormulario(p.urlFinal, p.html) && /(empleo|trabaja|careers|career|jobs|talent|talento|unete|join|candidat)/i.test(p.urlFinal)) ??
-      paginas.find((p) => p !== raiz && esPaginaFormulario(p.urlFinal, p.html));
-    if (!formulario) {
-      r.motivo = r.correosEncontrados.length
-        ? `Sin correo válido (${r.correosEncontrados.map((x) => `${x.email}: ${x.motivoRechazo}`).join('; ')}) ni formulario oficial`
-        : 'Sin correo publicado ni formulario oficial en las páginas revisadas';
-      return { r };
-    }
-    const esEmpleo = /(empleo|trabaja|careers|career|jobs|talent|talento|unete|join|candidat)/i.test(formulario.urlFinal);
-    contacto = { tipo: 'formulario', fuenteUrl: formulario.urlFinal, formularioUrl: formulario.urlFinal, tipoContacto: esEmpleo ? 'talento' : 'general' };
-    confianza = 'media';
+    const formulario = (mejor.tipo === 'empleo' ? formEmpleo : formContacto)!;
+    contacto = { tipo: 'formulario', fuenteUrl: formulario.urlFinal, formularioUrl: formulario.urlFinal, tipoContacto: mejor.tipo === 'empleo' ? 'talento' : 'general' };
+    confianza = mejor.tipo === 'empleo' ? 'alta' : 'media';
     mx = null;
   }
 
@@ -175,7 +219,7 @@ export async function verificar(c: Candidata, retiradas: Retirada[], deps: Depen
       fecha: deps.hoy(),
       confianza,
       mx,
-      notas: `Verificación automática: ${paginas.length} páginas revisadas; ${contacto.tipo === 'email' ? 'correo extraído literalmente de la fuente' : 'sin correo de candidaturas publicado, se usa el formulario oficial'}.`,
+      notas: `Verificación automática: ${paginas.length} páginas revisadas (incluido el mapa del sitio); ${contacto.tipo === 'email' ? `correo extraído literalmente de una página de ${tipoPagina(contacto.fuenteUrl)}` : `formulario oficial de ${contacto.tipoContacto === 'talento' ? 'empleo' : 'contacto'}`}.`,
     },
   };
   const val = EmpresaSchema.safeParse(empresa);

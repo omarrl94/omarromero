@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { perfilPorId, zonaPorId } from '../../config/ffe.config';
 import { etiquetaEncaje, puntuarEncaje } from '../../shared/encaje';
 import { ErrorCaja, Esqueleto, Vacio } from '../components/Estados';
+import { AvisoEmpresa } from '../components/AvisoEmpresa';
 import { GeneradorCorreo } from '../components/GeneradorCorreo';
 import { useAlumno } from '../lib/alumno';
 import { NOMBRE_TAMANO, NOMBRE_TIPO_CONTACTO, fecha } from '../lib/formato';
@@ -84,7 +85,8 @@ export function FichaEmpresa({ id, seccion }: { id: string; seccion?: string }) 
               <div><dt className="font-semibold text-tinta-suave">Dónde aparece</dt><dd className="break-all"><a className="enlace" href={e.contacto.fuenteUrl} target="_blank" rel="noopener noreferrer">{e.contacto.fuenteUrl}</a></dd></div>
               <div><dt className="font-semibold text-tinta-suave">Verificado</dt><dd>{fecha(e.verificacion.fecha)} · confianza {NOMBRE_CONFIANZA[e.verificacion.confianza].toLowerCase()}{e.verificacion.mx ? ' · dominio con correo activo (MX)' : ''}</dd></div>
             </dl>
-            <p className="mt-3 text-xs text-tinta-suave">¿Ves algún dato incorrecto? Avisa a tu tutor/a. Si representas a la empresa, puedes <a className="enlace" href="#/privacidad">pedir la retirada</a>.</p>
+            <div className="mt-3"><AvisoEmpresa empresaId={e.id} nombre={e.nombre} /></div>
+            <p className="mt-3 text-xs text-tinta-suave">Si representas a la empresa, puedes <a className="enlace" href="#/privacidad">pedir la retirada</a>.</p>
           </section>
           <section aria-labelledby="titulo-seg" className="tarjeta p-5">
             <h2 id="titulo-seg" className="text-lg font-bold">Mi seguimiento</h2>

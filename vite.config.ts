@@ -12,6 +12,7 @@ function funcionesLocales(): Plugin {
     '/api/cuenta': '/netlify/functions/cuenta.mts',
     '/api/admin': '/netlify/functions/admin.mts',
     '/api/diagnostico': '/netlify/functions/diagnostico.mts',
+    '/api/incidencias': '/netlify/functions/incidencias.mts',
     '/api/empresas': '/netlify/functions/empresas.mts',
     '/api/ofertas': '/netlify/functions/ofertas.mts',
   };

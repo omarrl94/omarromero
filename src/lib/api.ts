@@ -72,6 +72,21 @@ export interface UsuarioAdmin {
 
 type Respuesta = { ok: boolean; [k: string]: unknown };
 
+export type TipoIncidencia = 'rebote' | 'no-acepta' | 'correo-equivocado' | 'otro';
+export interface Incidencia {
+  empresaId: string;
+  tipo: TipoIncidencia;
+  comentario: string;
+  fecha: string;
+  email: string;
+}
+export const NOMBRE_INCIDENCIA: Record<TipoIncidencia, string> = {
+  rebote: 'El correo ha rebotado (no existe o no se entrega)',
+  'no-acepta': 'Han contestado que no aceptan alumnado en prácticas',
+  'correo-equivocado': 'Es un correo de otro departamento (ventas, clientes…)',
+  otro: 'Otro problema',
+};
+
 const post = <T = Respuesta,>(url: string, cuerpo: unknown) => pedir<T>(url, { method: 'POST', body: JSON.stringify(cuerpo) });
 
 export const api = {
@@ -83,6 +98,13 @@ export const api = {
   admin: {
     listar: () => (MODO_DEMO ? demo((d) => d.listarUsuarios()) : pedir<{ usuarios: UsuarioAdmin[] }>('/api/admin')),
     cambiarRol: (uid: string, rol: Rol) => (MODO_DEMO ? demo((d) => d.cambiarRol(uid, rol)) : post('/api/admin', { uid, rol })),
+  },
+  incidencias: {
+    enviar: (empresaId: string, tipo: TipoIncidencia, comentario: string) =>
+      MODO_DEMO ? demo((d) => d.enviarIncidencia(empresaId, tipo, comentario)) : post('/api/incidencias', { empresaId, tipo, comentario }),
+    listar: () => (MODO_DEMO ? demo((d) => d.listarIncidencias()) : pedir<{ incidencias: Incidencia[]; ocultas: string[]; empresas: Record<string, { nombre: string; contacto: string }> }>('/api/incidencias')),
+    ocultar: (empresaId: string, ocultar: boolean) =>
+      MODO_DEMO ? demo((d) => d.ocultarEmpresa(empresaId, ocultar)) : post('/api/incidencias', { empresaId, accion: 'ocultar', ocultar }),
   },
   empresas: () => (MODO_DEMO ? demo((d) => d.empresas()) : pedir<{ empresas: Empresa[]; total: number }>('/api/empresas')),
   ofertas: () => (MODO_DEMO ? demo((d) => d.ofertas()) : pedir<CacheOfertas>('/api/ofertas')),

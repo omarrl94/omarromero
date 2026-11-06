@@ -34,7 +34,10 @@ export async function asegurarUsuario(id: Identidad, nombre?: string): Promise<{
 export async function contexto(req: Request): Promise<Contexto | null> {
   const identidad = await identificar(req);
   if (!identidad) return null;
-  const usuario = identidad.verificado ? await obtenerUsuario(identidad.uid) : null;
+  let usuario = identidad.verificado ? await obtenerUsuario(identidad.uid) : null;
+  // Alta automática del alumnado y de los superadmin desde cualquier ruta. El profesorado se da de
+  // alta en /api/cuenta, que además avisa al superadmin de la solicitud.
+  if (identidad.verificado && !usuario && rolInicial(identidad.email) !== 'pendiente') usuario = (await asegurarUsuario(identidad))?.usuario ?? null;
   const rol = usuario ? rolEfectivo(usuario) : null;
   const necesitaDobleFactor = rol !== null && ROLES_CON_DOBLE_FACTOR.includes(rol);
   return { identidad, usuario, rol, necesitaDobleFactor, dobleFactorOk: necesitaDobleFactor ? await dobleFactorValido(req, identidad.uid) : true };

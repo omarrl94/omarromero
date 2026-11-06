@@ -42,8 +42,8 @@ describe('verificar (integración sin red)', () => {
       },
       { 'acme.test': false },
     ));
-    expect(empresa?.contacto).toMatchObject({ tipo: 'formulario', formularioUrl: 'https://www.acme.test/empleo' });
-    expect(empresa?.verificacion.confianza).toBe('media');
+    expect(empresa?.contacto).toMatchObject({ tipo: 'formulario', formularioUrl: 'https://www.acme.test/empleo', tipoContacto: 'talento' });
+    expect(empresa?.verificacion.confianza).toBe('alta');
   });
 
   it('descarta sin correo válido ni formulario, y si la web no responde', async () => {
@@ -59,6 +59,43 @@ describe('verificar (integración sin red)', () => {
     deps2.descargar = async (url) => ({ url, urlFinal: 'https://www.otra-empresa.test/', estado: 200, html: 'talento@otra-empresa.test' });
     const { r } = await verificar(base, [], deps2);
     expect(r.motivo).toMatch(/redirige a otro dominio/);
+  });
+
+  it('nunca usa un correo que solo aparece en el aviso legal: prefiere el formulario de empleo', async () => {
+    const { empresa, r } = await verificar(base, [], deps({
+      'https://www.acme.test': '<a href="/aviso-legal">Aviso legal</a><a href="/trabaja-con-nosotros">Trabaja con nosotros</a>',
+      'https://www.acme.test/aviso-legal': 'Contacto: info@acme.test',
+      'https://www.acme.test/trabaja-con-nosotros': '<form action="/cv"><input name="cv"></form>',
+    }));
+    expect(r.correosEncontrados.find((c) => c.email === 'info@acme.test')?.motivoRechazo).toMatch(/aviso legal/);
+    expect(empresa?.contacto).toMatchObject({ tipo: 'formulario', formularioUrl: 'https://www.acme.test/trabaja-con-nosotros' });
+  });
+
+  it('el formulario de empleo va por delante de un info@ de la portada', async () => {
+    const { empresa } = await verificar(base, [], deps({
+      'https://www.acme.test': '<p>info@acme.test</p><a href="/empleo">Empleo</a>',
+      'https://www.acme.test/empleo': '<form><input name="cv"></form>',
+    }));
+    expect(empresa?.contacto.tipo).toBe('formulario');
+  });
+
+  it('acepta un correo general si la empresa lo publica en su página de empleo', async () => {
+    const { empresa } = await verificar(base, [], deps({
+      'https://www.acme.test': '<a href="/unete">Únete</a>',
+      'https://www.acme.test/unete': '<p>Envía tu CV a info@acme.test</p>',
+    }));
+    expect(empresa?.contacto).toMatchObject({ tipo: 'email', email: 'info@acme.test', tipoContacto: 'talento', fuenteUrl: 'https://www.acme.test/unete' });
+    expect(empresa?.verificacion.confianza).toBe('alta');
+  });
+
+  it('encuentra la página de RR. HH. en el mapa del sitio aunque no esté enlazada', async () => {
+    const { empresa } = await verificar(base, [], deps({
+      'https://www.acme.test': '<p>Bienvenidos</p>',
+      'https://www.acme.test/robots.txt': 'User-agent: *\nSitemap: https://www.acme.test/sitemap.xml',
+      'https://www.acme.test/sitemap.xml': '<urlset><url><loc>https://www.acme.test/blog/x</loc></url><url><loc>https://www.acme.test/es/rrhh/seleccion</loc></url></urlset>',
+      'https://www.acme.test/es/rrhh/seleccion': 'Candidaturas: seleccion@acme.test',
+    }));
+    expect(empresa?.contacto).toMatchObject({ tipo: 'email', email: 'seleccion@acme.test', tipoContacto: 'rrhh' });
   });
 
   it('respeta las retiradas', async () => {

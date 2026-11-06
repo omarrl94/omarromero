@@ -92,3 +92,25 @@ describe('priorizarUrls', () => {
     ]);
   });
 });
+
+describe('tipo de página y rango del canal', () => {
+  it('clasifica páginas', async () => {
+    const { tipoPagina } = await import('../../scripts/lib/verificador');
+    expect(tipoPagina('https://a.test/aviso-legal')).toBe('legal');
+    expect(tipoPagina('https://a.test/legal/terms_en.html')).toBe('legal');
+    expect(tipoPagina('https://a.test/politica-de-privacidad')).toBe('legal');
+    expect(tipoPagina('https://a.test/trabaja-con-nosotros')).toBe('empleo');
+    expect(tipoPagina('https://careers.a.test/')).toBe('empleo');
+    expect(tipoPagina('https://a.test/contacto')).toBe('contacto');
+    expect(tipoPagina('https://a.test/')).toBe('otra');
+  });
+  it('ordena: RR. HH. > formulario de empleo > general en empleo > general de contacto > formulario de contacto', async () => {
+    const { rangoCorreo, RANGO_FORMULARIO } = await import('../../scripts/lib/verificador');
+    expect(rangoCorreo({ email: 'rrhh@a.test', tipo: 'rrhh' }, ['legal'])).toBe(0);
+    expect(RANGO_FORMULARIO.empleo).toBe(1);
+    expect(rangoCorreo({ email: 'info@a.test', tipo: 'general' }, ['empleo', 'legal'])).toBe(2);
+    expect(rangoCorreo({ email: 'info@a.test', tipo: 'general' }, ['contacto'])).toBe(3);
+    expect(RANGO_FORMULARIO.contacto).toBe(4);
+    expect(rangoCorreo({ email: 'info@a.test', tipo: 'general' }, ['legal'])).toBeNull();
+  });
+});

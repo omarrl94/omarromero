@@ -51,6 +51,7 @@ test('profesorado: queda pendiente; el superadmin lo aprueba con doble factor y 
   await pJefa.getByRole('button', { name: 'Comprobar' }).click();
   await expect(pJefa).toHaveURL(/#\/admin/);
   await expect(pJefa.getByRole('heading', { name: 'Usuarios y roles' })).toBeVisible();
+  await expect(pJefa.getByRole('heading', { name: /Avisos de empresas/ })).toBeVisible();
   await sinViolacionesGraves(pJefa);
   await pJefa.getByLabel('Buscar').fill(profe);
   await pJefa.getByRole('listitem').filter({ hasText: profe }).getByRole('button', { name: /Aprobar como tutor/ }).click();

@@ -1,5 +1,6 @@
 import type { Config } from '@netlify/functions';
 import { cargarEmpresas } from '../../server/datos';
+import { empresasOcultas } from '../../server/incidencias';
 import { ErrorConfig } from '../../server/firebase';
 import { error, json, resumenError } from '../../server/http';
 import { contexto, puedeVerDirectorio } from '../../server/autorizacion';
@@ -23,7 +24,8 @@ async function manejar(req: Request): Promise<Response> {
     return json({ error: 'No tienes acceso al directorio.', motivo }, 403);
   }
   try {
-    const empresas = await cargarEmpresas();
+    const ocultas = await empresasOcultas();
+    const empresas = (await cargarEmpresas()).filter((e) => !ocultas.includes(e.id));
     return json({ empresas, total: empresas.length });
   } catch (e) {
     console.error(e);

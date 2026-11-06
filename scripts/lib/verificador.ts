@@ -194,3 +194,62 @@ export function priorizarUrls(urls: string[]): string[] {
   const puntos = (u: string) => (RE_EMPLEO.test(u) ? 0 : /contact/i.test(u) ? 1 : 2);
   return [...urls].sort((a, b) => puntos(a) - puntos(b));
 }
+
+export type TipoPagina = 'empleo' | 'contacto' | 'legal' | 'otra';
+
+const RE_LEGAL = /(aviso-?legal|legal-?notice|\/legal|privac|privacy|terminos|t[eé]rminos|terms|condiciones|cookies|proteccion-de-datos|rgpd|gdpr|imprint|impressum)/i;
+const RE_PAGINA_EMPLEO = /(trabaja|empleo|talent|career|jobs|unete|[uú]nete|join|rrhh|recursos-humanos|seleccion|equipo-humano|people|personas|practicas|becas|candidat)/i;
+
+/** Tipo de página según su URL: el mismo correo vale más en la página de empleo que en el aviso legal. */
+export function tipoPagina(url: string): TipoPagina {
+  let ruta = url;
+  try {
+    const u = new URL(url);
+    ruta = u.hostname + u.pathname;
+  } catch {
+    /* URL relativa */
+  }
+  if (RE_LEGAL.test(ruta)) return 'legal';
+  if (RE_PAGINA_EMPLEO.test(ruta)) return 'empleo';
+  if (/contact/i.test(ruta)) return 'contacto';
+  return 'otra';
+}
+
+/**
+ * Orden de preferencia del canal de candidatura (menor = mejor), o null si no sirve:
+ *   0 correo de RR. HH./talento/prácticas · 1 formulario o portal de empleo
+ *   2 correo general en la página de empleo · 3 correo general de contacto o de la web
+ *   4 formulario de contacto general. Un correo general que SOLO aparece en el aviso legal,
+ *   la privacidad o las condiciones no se usa: es el contacto legal, no el de candidaturas.
+ */
+export function rangoCorreo(v: CorreoValorado, paginas: TipoPagina[]): number | null {
+  if (v.motivoRechazo) return null;
+  if (v.tipo !== 'general') return 0;
+  if (paginas.includes('empleo')) return 2;
+  if (paginas.includes('contacto') || paginas.includes('otra')) return 3;
+  return null;
+}
+
+export const RANGO_FORMULARIO = { empleo: 1, contacto: 4 } as const;
+
+/** URL de un sitemap (<loc>) y si es un índice de sitemaps. */
+export function leerSitemap(xml: string): { urls: string[]; esIndice: boolean } {
+  const urls = [...xml.matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/gi)].map((m) => decodificarEntidades(m[1]));
+  return { urls, esIndice: /<sitemapindex/i.test(xml) };
+}
+
+/** Del sitemap, las páginas que parecen de empleo, RR. HH., prácticas o contacto (mismo dominio). */
+export function paginasEmpleoDeSitemap(urls: string[], base: string, max = 6): string[] {
+  const raiz = new URL(base).hostname.replace(/^www\./, '').split('.').slice(-2).join('.');
+  const mismas = urls.filter((u) => {
+    try {
+      return new URL(u).hostname.replace(/^www\./, '').endsWith(raiz);
+    } catch {
+      return false;
+    }
+  });
+  // Primero las de empleo; las de una sola ruta corta antes que las de ofertas concretas.
+  const empleo = mismas.filter((u) => tipoPagina(u) === 'empleo').sort((a, b) => a.length - b.length);
+  const contacto = mismas.filter((u) => tipoPagina(u) === 'contacto').sort((a, b) => a.length - b.length);
+  return [...new Set([...empleo.slice(0, max), ...contacto.slice(0, 2)])];
+}

@@ -3,6 +3,7 @@ import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import admin from '../../netlify/functions/admin.mts';
 import cuenta from '../../netlify/functions/cuenta.mts';
 import empresas from '../../netlify/functions/empresas.mts';
+import incidencias from '../../netlify/functions/incidencias.mts';
 import { correosPara } from '../../server/correo';
 import { olvidarClaveEnMemoria } from '../../server/sesion';
 
@@ -117,6 +118,30 @@ describe('cuentas y roles', () => {
     await verificar(email);
     expect((await cuenta(pet('/api/cuenta', email, { cuerpo: { accion: 'borrar-cuenta' } }), ctx())).status).toBe(200);
     expect(await estado(email)).toMatchObject({ verificado: false, rol: null });
+  });
+
+  it('avisos de empresas: el alumnado avisa, el superadmin los ve y oculta la empresa', async () => {
+    const alumno = 'aviso@a.jrotero.es';
+    await verificar(alumno);
+    const r = await incidencias(pet('/api/incidencias', alumno, { cuerpo: { empresaId: 'ficticia-web', tipo: 'rebote', comentario: 'Delivery failed' } }));
+    expect(r.status).toBe(200);
+    expect((await incidencias(pet('/api/incidencias', alumno, { cuerpo: { empresaId: 'no-existe', tipo: 'rebote' } }))).status).toBe(404);
+    expect((await incidencias(pet('/api/incidencias', alumno, { cuerpo: { empresaId: 'ficticia-web', tipo: 'inventado' } }))).status).toBe(400);
+    // El alumno no puede ver los avisos ni ocultar empresas.
+    expect((await incidencias(pet('/api/incidencias', alumno))).status).toBe(403);
+    expect((await incidencias(pet('/api/incidencias', alumno, { cuerpo: { empresaId: 'ficticia-web', accion: 'ocultar' } }))).status).toBe(403);
+
+    const omar = 'omar.romero@jrotero.es';
+    await verificar(omar);
+    const cookie = await dobleFactor(omar);
+    const lista = (await (await incidencias(pet('/api/incidencias', omar, { cookie }))).json()) as { incidencias: { empresaId: string; tipo: string; email: string }[] };
+    expect(lista.incidencias).toEqual([expect.objectContaining({ empresaId: 'ficticia-web', tipo: 'rebote', email: alumno })]);
+    expect((await incidencias(pet('/api/incidencias', omar, { cookie, cuerpo: { empresaId: 'ficticia-web', accion: 'ocultar' } }))).status).toBe(200);
+    const d = (await (await empresas(pet('/api/empresas', alumno))).json()) as { total: number; empresas: { id: string }[] };
+    expect(d.total).toBe(3);
+    expect(d.empresas.some((e) => e.id === 'ficticia-web')).toBe(false);
+    await incidencias(pet('/api/incidencias', omar, { cookie, cuerpo: { empresaId: 'ficticia-web', accion: 'ocultar', ocultar: false } }));
+    expect(((await (await empresas(pet('/api/empresas', alumno))).json()) as { total: number }).total).toBe(4);
   });
 
   it('los tokens de prueba no valen en Netlify', async () => {

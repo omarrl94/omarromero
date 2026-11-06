@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { api, type Rol, type UsuarioAdmin } from '../lib/api';
 import { normalizar } from '../../shared/texto';
+import { AvisosAdmin } from '../components/AvisosAdmin';
 import { Aviso, Cargando, ErrorCaja, Vacio } from '../components/Estados';
 import { fecha } from '../lib/formato';
 
@@ -125,6 +126,7 @@ export function Admin() {
           ))}
         </ul>
       )}
+      <AvisosAdmin />
     </div>
   );
 }

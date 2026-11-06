@@ -173,3 +173,14 @@ test('los filtros se mantienen al abrir una empresa y volver atrás', async ({ p
   await page.reload();
   await expect(page.getByLabel('Buscar')).toHaveValue('ciber');
 });
+
+test('desde la ficha se avisa de un correo que rebota', async ({ page }) => {
+  await entrarComoAlumno(page);
+  await page.getByRole('link', { name: 'Ficticia ERP Consulting', exact: true }).click();
+  await page.getByRole('button', { name: /El correo ha rebotado o algo no funciona/ }).click();
+  await page.getByLabel(/El correo ha rebotado/).check();
+  await page.getByLabel('Detalle (opcional)').fill('Mail Delivery Subsystem: dirección no encontrada');
+  await sinViolacionesGraves(page);
+  await page.getByRole('button', { name: 'Enviar aviso' }).click();
+  await expect(page.getByRole('status').filter({ hasText: 'La coordinación de FFE revisará' })).toBeVisible();
+});

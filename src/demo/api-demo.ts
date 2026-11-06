@@ -141,12 +141,34 @@ export const apiDemo = {
     guardar(CLAVE_USUARIOS, usuarios);
     return { ok: true };
   },
+  async enviarIncidencia(empresaId: string, tipo: string, comentario: string) {
+    const yo = await actual();
+    const lista = leer<unknown[]>('conecta-ffe-demo:incidencias', []);
+    guardar('conecta-ffe-demo:incidencias', [{ empresaId, tipo, comentario, fecha: new Date().toISOString(), email: yo?.email ?? '' }, ...lista]);
+    return { ok: true };
+  },
+  async listarIncidencias() {
+    return {
+      incidencias: leer<{ empresaId: string; tipo: 'rebote'; comentario: string; fecha: string; email: string }[]>('conecta-ffe-demo:incidencias', []),
+      ocultas: leer<string[]>('conecta-ffe-demo:ocultas', []),
+      empresas: Object.fromEntries((empresas as Empresa[]).map((e) => [e.id, { nombre: e.nombre, contacto: e.contacto.email ?? e.contacto.formularioUrl ?? '' }])),
+    };
+  },
+  async ocultarEmpresa(empresaId: string, ocultar: boolean) {
+    const o = new Set(leer<string[]>('conecta-ffe-demo:ocultas', []));
+    if (ocultar) o.add(empresaId);
+    else o.delete(empresaId);
+    guardar('conecta-ffe-demo:ocultas', [...o]);
+    return { ok: true };
+  },
   async empresas() {
     await espera();
     const e = await estado().catch(() => null);
     if (!e) throw new ErrorDemo('Inicia sesión para ver las empresas.', 401);
     if (!e.rol || !['alumno', 'tutor', 'superadmin'].includes(e.rol) || !e.dobleFactorOk) throw new ErrorDemo('No tienes acceso al directorio.', 403);
-    return { empresas: empresas as Empresa[], total: empresas.length };
+    const ocultas = leer<string[]>('conecta-ffe-demo:ocultas', []);
+    const visibles = (empresas as Empresa[]).filter((x) => !ocultas.includes(x.id));
+    return { empresas: visibles, total: visibles.length };
   },
   async ofertas() {
     await espera();
