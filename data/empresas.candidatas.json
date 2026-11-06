@@ -3020,7 +3020,8 @@
     "paginasContacto": [
       "https://www.elcorteingles.es"
     ],
-    "tipoContactoEsperado": "rrhh"
+    "tipoContactoEsperado": "rrhh",
+    "empleoUrl": "https://empleo.elcorteingles.es/"
   },
   {
     "id": "leroy-merlin-espana",
@@ -5658,6 +5659,330 @@
     "motivoEncaje": "Consultora tecnológica con sede en Madrid.",
     "paginasContacto": [
       "https://zemsania.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "aristocrazy",
+    "nombre": "Aristocrazy",
+    "web": "https://www.aristocrazy.com",
+    "sector": "Joyería y complementos",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-visual",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Marca de joyería madrileña con tiendas propias y tienda online.",
+    "paginasContacto": [
+      "https://www.aristocrazy.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "joyeria-suarez",
+    "nombre": "Joyería Suárez",
+    "web": "https://www.joyeriasuarez.com",
+    "sector": "Joyería de alta gama",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-venta-tecnica",
+      "acom-visual"
+    ],
+    "motivoEncaje": "Joyería con tiendas en Madrid: venta de productos de alta gama.",
+    "paginasContacto": [
+      "https://www.joyeriasuarez.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "bimba-y-lola",
+    "nombre": "Bimba y Lola",
+    "web": "https://www.bimbaylola.com",
+    "sector": "Moda y complementos",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-visual",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Marca de moda con tiendas en Madrid y canal online.",
+    "paginasContacto": [
+      "https://www.bimbaylola.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "alvaro-moreno",
+    "nombre": "Álvaro Moreno",
+    "web": "https://www.alvaromoreno.com",
+    "sector": "Moda masculina",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-visual",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Marca de moda con tiendas propias en Madrid.",
+    "paginasContacto": [
+      "https://www.alvaromoreno.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "vinoseleccion",
+    "nombre": "Vinoselección",
+    "web": "https://www.vinoseleccion.com",
+    "sector": "Venta de vino por catálogo y online",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-ecommerce",
+      "acom-atencion-cliente",
+      "acom-venta-tecnica",
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Club de vinos madrileño: venta a distancia, atención al cliente y marketing.",
+    "paginasContacto": [
+      "https://www.vinoseleccion.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "lavinia",
+    "nombre": "Lavinia",
+    "web": "https://www.lavinia.es",
+    "sector": "Tienda de vinos",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-venta-tecnica",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Tienda especializada de vinos en Madrid con venta online.",
+    "paginasContacto": [
+      "https://www.lavinia.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "bodeboca",
+    "nombre": "Bodeboca",
+    "web": "https://www.bodeboca.com",
+    "sector": "Comercio electrónico de vinos",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-ecommerce",
+      "acom-marketing-digital",
+      "acom-atencion-cliente",
+      "acom-logistica"
+    ],
+    "motivoEncaje": "Tienda online de vinos con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.bodeboca.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "mahou-san-miguel",
+    "nombre": "Mahou San Miguel",
+    "web": "https://www.mahou-sanmiguel.com",
+    "sector": "Bebidas: ventas, trade marketing y logística",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta-tecnica",
+      "acom-visual",
+      "acom-logistica",
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Sede en Madrid: equipos comerciales, trade marketing y logística.",
+    "paginasContacto": [
+      "https://www.mahou-sanmiguel.com"
+    ],
+    "tipoContactoEsperado": "talento"
+  },
+  {
+    "id": "calidad-pascual",
+    "nombre": "Calidad Pascual",
+    "web": "https://www.calidadpascual.com",
+    "sector": "Alimentación: ventas y distribución",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta-tecnica",
+      "acom-logistica",
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Sede en Madrid y red comercial y de distribución propia.",
+    "paginasContacto": [
+      "https://www.calidadpascual.com"
+    ],
+    "tipoContactoEsperado": "talento"
+  },
+  {
+    "id": "campofrio",
+    "nombre": "Campofrío",
+    "web": "https://www.campofrio.es",
+    "sector": "Alimentación: ventas y trade marketing",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta-tecnica",
+      "acom-visual",
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Sede en Madrid: ventas, trade marketing y marketing de marca.",
+    "paginasContacto": [
+      "https://www.campofrio.es"
+    ],
+    "tipoContactoEsperado": "talento"
+  },
+  {
+    "id": "loreal-espana",
+    "nombre": "L'Oréal España",
+    "web": "https://www.loreal.com/es-es",
+    "sector": "Cosmética: ventas y marketing",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta-tecnica",
+      "acom-visual",
+      "acom-marketing-digital",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Sede española en Madrid: marketing, comercio electrónico y trade marketing.",
+    "paginasContacto": [
+      "https://www.loreal.com/es-es"
+    ],
+    "tipoContactoEsperado": "talento"
+  },
+  {
+    "id": "ifema",
+    "nombre": "IFEMA Madrid",
+    "web": "https://www.ifema.es",
+    "sector": "Ferias y eventos",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "acom-atencion-cliente",
+      "acom-venta-tecnica"
+    ],
+    "motivoEncaje": "Institución ferial de Madrid: comercialización, marketing y atención a expositores.",
+    "paginasContacto": [
+      "https://www.ifema.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "making-science",
+    "nombre": "Making Science",
+    "web": "https://www.makingscience.com",
+    "sector": "Marketing digital y tecnología",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "acom-ecommerce",
+      "dam-datos-ia",
+      "dam-web"
+    ],
+    "motivoEncaje": "Consultora madrileña de marketing digital, comercio electrónico y datos.",
+    "paginasContacto": [
+      "https://www.makingscience.com"
+    ],
+    "tipoContactoEsperado": "talento"
+  },
+  {
+    "id": "rebold",
+    "nombre": "Rebold",
+    "web": "https://letsrebold.com",
+    "sector": "Marketing de datos y medios",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "dam-datos-ia"
+    ],
+    "motivoEncaje": "Compañía de marketing y medios con sede en Madrid.",
+    "paginasContacto": [
+      "https://letsrebold.com"
+    ],
+    "tipoContactoEsperado": "talento"
+  },
+  {
+    "id": "digital-menta",
+    "nombre": "Digital Menta",
+    "web": "https://digitalmenta.com",
+    "sector": "Agencia de marketing digital",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Agencia madrileña de SEO, SEM y redes sociales.",
+    "paginasContacto": [
+      "https://digitalmenta.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "40-de-fiebre",
+    "nombre": "40deFiebre",
+    "web": "https://www.40defiebre.com",
+    "sector": "Agencia de marketing digital",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Agencia madrileña de inbound marketing y redes sociales.",
+    "paginasContacto": [
+      "https://www.40defiebre.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "darwin-verne",
+    "nombre": "Darwin & Verne",
+    "web": "https://www.darwinverne.com",
+    "sector": "Agencia creativa digital",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "dam-web"
+    ],
+    "motivoEncaje": "Agencia creativa y digital con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.darwinverne.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "supermercados-la-despensa",
+    "nombre": "Supermercados La Despensa",
+    "web": "https://www.supermercadosladespensa.es",
+    "sector": "Supermercados",
+    "tamano": "pyme",
+    "zona": "sur",
+    "perfiles": [
+      "acom-venta",
+      "acom-logistica",
+      "acom-gestion-comercio"
+    ],
+    "motivoEncaje": "Cadena madrileña de supermercados de proximidad.",
+    "paginasContacto": [
+      "https://www.supermercadosladespensa.es"
     ],
     "tipoContactoEsperado": "rrhh"
   }

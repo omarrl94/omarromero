@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { verificar, type Dependencias } from '../../scripts/verificar-empresas';
+import { portalesDeEmpleo, verificar, type Dependencias } from '../../scripts/verificar-empresas';
 import type { Pagina } from '../../scripts/lib/red';
 import type { Candidata } from '../../shared/schemas';
 
@@ -19,6 +19,24 @@ const base: Candidata = {
 };
 
 describe('verificar (integración sin red)', () => {
+  it('si la portada bloquea a los robots, verifica desde el portal de empleo del mismo dominio', async () => {
+    expect(portalesDeEmpleo({ web: 'https://www.acme.test' })[0]).toBe('https://empleo.acme.test/');
+    const { r, empresa } = await verificar(base, [], deps({
+      'https://empleo.acme.test/': '<p>Envía tu candidatura a <a href="mailto:seleccion@acme.test">seleccion@acme.test</a></p>',
+    }));
+    expect(r.estado).toBe('valida');
+    expect(empresa?.contacto).toMatchObject({ tipo: 'email', email: 'seleccion@acme.test', tipoContacto: 'rrhh', fuenteUrl: 'https://empleo.acme.test/' });
+  });
+
+  it('no toma correos de la web de otro país ni buzones de filiales extranjeras', async () => {
+    const { empresa } = await verificar(base, [], deps({
+      'https://www.acme.test': '<a href="/en-us/contact">Contact</a><a href="/contacto">Contacto</a> info-chile@acme.test',
+      'https://www.acme.test/en-us/contact': 'jobs@acme.test',
+      'https://www.acme.test/contacto': '<form action="/enviar"><input name="nombre"><textarea name="mensaje"></textarea><button>Enviar</button></form>',
+    }));
+    expect(empresa?.contacto.tipo).not.toBe('email');
+  });
+
   it('extrae el correo de la página de empleo y guarda la URL exacta', async () => {
     const { r, empresa } = await verificar(base, [], deps({
       'https://www.acme.test': '<a href="/trabaja-con-nosotros">Trabaja con nosotros</a><a href="/contacto">Contacto</a> info@acme.test',

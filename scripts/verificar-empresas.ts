@@ -40,6 +40,12 @@ export interface Dependencias {
 
 const DEPS: Dependencias = { descargar: descargarRed, tieneMx: tieneMxRed, hoy };
 
+/** Portales de empleo que se prueban si la portada no responde: el de la investigación y subdominios habituales. */
+export function portalesDeEmpleo(c: Pick<Candidata, 'web' | 'empleoUrl'>): string[] {
+  const dominio = new URL(c.web).hostname.replace(/^www\./, '');
+  return [...new Set([...(c.empleoUrl ? [c.empleoUrl] : []), ...['empleo', 'trabajaconnosotros', 'careers', 'jobs', 'talento'].map((s) => `https://${s}.${dominio}/`)])];
+}
+
 export async function verificar(c: Candidata, retiradas: Retirada[], deps: Dependencias = DEPS): Promise<{ r: ResultadoVerificacion; empresa?: Empresa }> {
   const { descargar, tieneMx } = deps;
   const r: ResultadoVerificacion = { id: c.id, nombre: c.nombre, web: c.web, estado: 'descartada', paginasRevisadas: [], correosEncontrados: [] };
@@ -49,12 +55,24 @@ export async function verificar(c: Candidata, retiradas: Retirada[], deps: Depen
     return { r };
   }
 
-  // 1. La web responde.
-  const raiz = await descargar(c.web);
+  // 1. La web responde. Si la portada bloquea a los robots (403, tiempo agotado…), se prueba su portal oficial
+  //    de empleo: el indicado en la investigación o un subdominio de empleo del MISMO dominio.
+  let raiz = await descargar(c.web);
   r.paginasRevisadas.push({ url: c.web, estado: raiz.estado || raiz.error || 'error' });
   if (raiz.estado < 200 || raiz.estado >= 400) {
-    r.motivo = `La web no responde (${raiz.estado || raiz.error})`;
-    return { r };
+    const fallo = raiz.estado || raiz.error;
+    for (const alternativa of portalesDeEmpleo(c)) {
+      const p = await descargar(alternativa);
+      r.paginasRevisadas.push({ url: alternativa, estado: p.estado || p.error || 'error' });
+      if (p.estado >= 200 && p.estado < 400) {
+        raiz = p;
+        break;
+      }
+    }
+    if (raiz.estado < 200 || raiz.estado >= 400) {
+      r.motivo = `La web no responde (${fallo})`;
+      return { r };
+    }
   }
   // Si la web redirige a otro dominio (p. ej. empresa absorbida), no es la misma empresa.
   const base = (u: string) => new URL(u).hostname.replace(/^www\./, '').split('.').slice(-2).join('.');
@@ -112,6 +130,8 @@ export async function verificar(c: Candidata, retiradas: Retirada[], deps: Depen
   const dondeAparece = new Map<string, { url: string; tipos: TipoPagina[] }>();
   const preferencia: TipoPagina[] = ['empleo', 'contacto', 'otra', 'legal'];
   for (const p of paginas) {
+    // Las páginas de filiales de otros países (p. ej. la portada redirigida a /en-us) no cuentan.
+    if (esRutaDeOtroPais(p.urlFinal)) continue;
     const tipo = tipoPagina(p.urlFinal);
     for (const e of extraerCorreos(p.html)) {
       const previo = dondeAparece.get(e);
