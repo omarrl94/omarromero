@@ -11,6 +11,7 @@ function funcionesLocales(): Plugin {
   const rutas: Record<string, string> = {
     '/api/cuenta': '/netlify/functions/cuenta.mts',
     '/api/admin': '/netlify/functions/admin.mts',
+    '/api/diagnostico': '/netlify/functions/diagnostico.mts',
     '/api/empresas': '/netlify/functions/empresas.mts',
     '/api/ofertas': '/netlify/functions/ofertas.mts',
   };

@@ -4,7 +4,7 @@
  * proveedor de pruebas del cliente; en producción nunca.
  */
 import { createHash } from 'node:crypto';
-import { adminAuth } from './firebase';
+import { adminAuth, ErrorConfig, idProyecto } from './firebase';
 import { modoPruebas } from './entorno';
 import { almacen } from './almacen';
 
@@ -39,11 +39,16 @@ export async function identificar(req: Request): Promise<Identidad | null> {
       return null;
     }
   }
+  const auth = await adminAuth(); // si falla la configuración, el error llega explicado
   try {
-    const d = await adminAuth().verifyIdToken(token);
+    const d = await auth.verifyIdToken(token);
     if (!d.email) return null;
     return { uid: d.uid, email: d.email.toLowerCase(), verificado: Boolean(d.email_verified), nombre: typeof d.name === 'string' ? d.name : undefined };
-  } catch {
-    return null;
+  } catch (e) {
+    const m = String((e as Error)?.message ?? e);
+    if (/incorrect "aud"|incorrect "iss"/i.test(m)) {
+      throw new ErrorConfig(`La web y el servidor usan proyectos de Firebase distintos: revisa que FIREBASE_PROJECT_ID («${idProyecto() ?? 'vacío'}») sea igual que VITE_FIREBASE_PROJECT_ID.`);
+    }
+    return null; // token caducado o falso: hay que volver a iniciar sesión
   }
 }

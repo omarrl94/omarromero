@@ -6,7 +6,7 @@ import { asegurarUsuario, contexto } from '../../server/autorizacion';
 import { enviarCorreo, ErrorCorreo, proveedor } from '../../server/correo';
 import { comprobarCodigo, cookieDobleFactor, cookieDobleFactorBorrada, dobleFactorValido, enviarCodigo, tokenDobleFactor } from '../../server/doble-factor';
 import { modoPruebas, variable } from '../../server/entorno';
-import { adminAuth } from '../../server/firebase';
+import { adminAuth, ErrorConfig } from '../../server/firebase';
 import { error, esHttps, json } from '../../server/http';
 import { identificar, uidPrueba } from '../../server/identidad';
 import { consultarLimite, ipDe, registrarFallo } from '../../server/limite';
@@ -48,6 +48,7 @@ export default async (req: Request, context: Context) => {
     return await manejar(req, context);
   } catch (e) {
     if (e instanceof ErrorCorreo) return error(e.message, e.estado);
+    if (e instanceof ErrorConfig) return error(e.message, 503);
     console.error('Error en /api/cuenta', e);
     return error('Error del servidor. Inténtalo de nuevo en un minuto.', 500);
   }
@@ -106,7 +107,7 @@ async function manejar(req: Request, context: Context): Promise<Response> {
     const email = String(cuerpo.email ?? '').trim().toLowerCase().slice(0, 200);
     if (tipoPorCorreo(email)) {
       try {
-        const enlace = modoPruebas() ? `${urlApp(req)}/#/entrar?restablecer=prueba` : await adminAuth().generatePasswordResetLink(email, { url: `${urlApp(req)}/#/entrar` });
+        const enlace = modoPruebas() ? `${urlApp(req)}/#/entrar?restablecer=prueba` : await (await adminAuth()).generatePasswordResetLink(email, { url: `${urlApp(req)}/#/entrar` });
         await enviarCorreo({
           para: email,
           clave: `reset:${email}`,
@@ -132,7 +133,7 @@ async function manejar(req: Request, context: Context): Promise<Response> {
     if (!proveedor()) return json({ ok: false, usarFirebase: true, error: 'El correo del centro no está configurado.' }, 503);
     const enlace = modoPruebas()
       ? `${new URL(req.url).origin}/api/cuenta?verificar=${id.uid}&firma=${await firmaPrueba(id.uid)}`
-      : await adminAuth().generateEmailVerificationLink(id.email, { url: `${urlApp(req)}/#/entrar?verificado=1` });
+      : await (await adminAuth()).generateEmailVerificationLink(id.email, { url: `${urlApp(req)}/#/entrar?verificado=1` });
     const enviado = await enviarCorreo({
       para: id.email,
       clave: `verificacion:${id.uid}`,
@@ -182,7 +183,7 @@ async function manejar(req: Request, context: Context): Promise<Response> {
     if (superadmins().includes(id.email)) return error('La cuenta de superadmin no se puede borrar desde aquí.', 403);
     await borrarUsuario(id.uid);
     if (modoPruebas() && id.uid === uidPrueba(id.email)) await almacen('verificados-prueba').guardar(id.uid, null);
-    else await adminAuth().deleteUser(id.uid);
+    else await (await adminAuth()).deleteUser(id.uid);
     return json({ ok: true }, 200, { 'Set-Cookie': cookieDobleFactorBorrada(seguro) });
   }
 
