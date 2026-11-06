@@ -1,10 +1,14 @@
 # Comprobación de enlaces
 
-Fecha: 2026-11-05T21:52:15.053Z · Enlaces de empresas: 293 · rotos: 0
+Fecha: 2026-11-06T16:18:53.247Z · Enlaces de empresas: 275 · rotos: 3
 
 ## Enlaces rotos del directorio
 
-Ninguno.
+| Empresa | Tipo | URL | Estado |
+|---|---|---|---|
+| Digi Spain | web | https://www.digimobil.es | 418 |
+| Leroy Merlin España | web | https://www.leroymerlin.es | 403 |
+| Leroy Merlin España | empleo | https://www.leroymerlin.es/ideas-y-consejos/consejos/herramientas-manuales-para-trabajar-madera.html | 403 |
 
 ## Portales (enlaces profundos)
 
