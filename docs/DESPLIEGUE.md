@@ -21,7 +21,7 @@ del buzón del centro (los mismos que en ColaboraFP, la web de exámenes y el cu
 
 ## 2. Comprobar las empresas (GitHub Actions)
 
-Ya está hecho: hay 139 empresas verificadas. El flujo «Verificar empresas» se repite solo cada mes y cada vez que cambian las candidatas (ver `docs/GUIA-EMPRESAS.md`).
+Ya está hecho: hay 216 empresas verificadas (163 de informática y 72 de comercio y marketing). El flujo «Verificar empresas» se repite solo cada mes y cada vez que cambian las candidatas (ver `docs/GUIA-EMPRESAS.md`).
 
 ## 3. Crear el sitio en Netlify
 

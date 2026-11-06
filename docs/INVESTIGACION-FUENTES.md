@@ -66,7 +66,7 @@ la prueba definitiva es manual.
 
 La verificación se ejecuta en **GitHub Actions** (flujo `Verificar empresas`), que tiene Internet. Última ejecución:
 
-- **228 candidatas → 139 empresas verificadas**: 16 con correo de RR. HH. o selección, 9 con correo general publicado por la empresa y 114 con formulario oficial.
+- **328 candidatas → 216 empresas verificadas** (163 de informática y 72 de comercio y marketing): 23 con correo de RR. HH. o selección (7 de comercio), 18 con correo general publicado por la empresa y 175 con formulario oficial. Las grandes cadenas que bloquean a los robots (403) se intentan verificar desde su portal de empleo del mismo dominio.
 - **54 con correo público** extraído literalmente de su web. **13 son de RR. HH., selección o talento**: Acens, Aena, Atmira, Factum, Grupo ICA, Keepler, Lyntia, Mnemo, One eSecurity, Panel Sistemas, Paradigma, Redsys y Sothis. Las otras 41 son buzones generales (`info@`, `hola@`, `contacto@`). **74 con formulario oficial** de empleo o contacto.
 - **Prioridad a RR. HH.:** el verificador revisa primero las páginas de empleo, prueba las rutas habituales (trabaja con nosotros, empleo, talento, careers, únete) y un segundo nivel de enlaces. Elige el buzón en este orden: prácticas, talento, RR. HH. y, por último, general. En la web, «Recomendadas» pone primero las empresas con correo de RR. HH. y hay un filtro «Correo de RR. HH.».
 - **78 descartadas**: webs que bloquean robots o no responden, sin buzón adecuado ni formulario, o que redirigen a otra empresa. Motivos en `docs/INFORME-VERIFICACION.md`.
