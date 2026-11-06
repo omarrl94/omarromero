@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { config, perfilPorId, perfilesDe, zonaPorId, type Ciclo } from '../../config/ffe.config';
-import { csvCombinacion, enLotes, generarCorreoTutor, LINEA_BAJA, urlGmailCco, urlMailtoCco, urlOutlookCco, type BorradorCco } from '../../shared/correo-tutor';
+import { csvCombinacion, enLotes, generarCorreoTutor, saludoEmpresa, urlGmailCco, urlMailtoCco, urlOutlookCco, type BorradorCco } from '../../shared/correo-tutor';
 import { urlGmail, urlMailto, urlOutlook } from '../../shared/correo';
 import type { Empresa } from '../../shared/schemas';
 import { normalizar } from '../../shared/texto';
@@ -132,8 +132,8 @@ function Envio({
   const [mensaje, setMensaje] = useState<string | null>(null);
 
   const base = useMemo(() => generarCorreoTutor(tutor), [tutor]);
-  const [asunto, setAsunto] = useEstadoSesion(`tutor.asunto.${ciclo}`, base.asunto);
-  const [cuerpo, setCuerpo] = useEstadoSesion(`tutor.cuerpo.${ciclo}`, base.cuerpo);
+  const [asunto, setAsunto] = useEstadoSesion(`tutor.v2.asunto.${ciclo}`, base.asunto);
+  const [cuerpo, setCuerpo] = useEstadoSesion(`tutor.v2.cuerpo.${ciclo}`, base.cuerpo);
 
   const reciente = (id: string) => {
     const ultima = registro[id]?.fechas.at(-1);
@@ -433,7 +433,7 @@ function Envio({
             {seleccionadas.map((e) => {
               const personal = generarCorreoTutor(tutor, { nombre: e.nombre, sector: e.sector });
               // Respeta las ediciones del tutor: solo se cambia el saludo y la frase de presentación.
-              const cuerpoPersonal = cuerpo === base.cuerpo ? personal.cuerpo : cuerpo.replace(/^Buenos días:/, `Estimado equipo de ${e.nombre}:`);
+              const cuerpoPersonal = cuerpo === base.cuerpo ? personal.cuerpo : cuerpo.replace(/^Hola:/, saludoEmpresa(e.nombre));
               const b = { para: e.contacto.email!, cc: '', asunto, cuerpo: cuerpoPersonal };
               const listo = confirmado;
               return (
@@ -473,7 +473,7 @@ function Envio({
             <ol className="list-decimal space-y-1 pl-5 text-sm">
               <li>En Word: <strong>Correspondencia → Iniciar combinación → Mensajes de correo electrónico</strong>.</li>
               <li><strong>Seleccionar destinatarios → Usar una lista existente</strong> y elige el CSV.</li>
-              <li>Pega el texto de arriba y sustituye «Buenos días:» por el campo <strong>«saludo»</strong> (Insertar campo combinado).</li>
+              <li>Pega el texto de arriba y sustituye «Hola:» por el campo <strong>«saludo»</strong> (Insertar campo combinado).</li>
               <li><strong>Finalizar y combinar → Enviar mensajes de correo</strong>: campo «Para» = <strong>email</strong> y escribe el asunto. Outlook enviará un correo por empresa.</li>
               <li>Vuelve aquí y pulsa «Marcar como enviadas».</li>
             </ol>
@@ -482,7 +482,7 @@ function Envio({
             </button>
           </div>
         )}
-        <p className="mt-4 text-xs text-tinta-suave">{LINEA_BAJA.replace('respondan a este correo', 'las empresas pueden responder')} Si una empresa pide la baja, solicita su retirada del directorio.</p>
+        <p className="mt-4 text-xs text-tinta-suave">Todos los correos incluyen una línea de baja: la empresa puede responder «BAJA» y no se le vuelve a escribir. Si una empresa pide la baja, solicita su retirada del directorio.</p>
       </section>
     </>
   );

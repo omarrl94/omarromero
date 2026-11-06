@@ -1,6 +1,6 @@
 import type { Ciclo } from '../config/ffe.config';
-import { config, perfilesDe } from '../config/ffe.config';
-import { fechaLarga, listaNatural, NOMBRE_CICLO } from './correo';
+import { config } from '../config/ffe.config';
+import { fechaLarga, NOMBRE_CICLO } from './correo';
 
 export interface DatosTutor {
   nombre: string;
@@ -17,7 +17,10 @@ export interface CorreoTutor {
 }
 
 /** Línea de baja: obligatoria en la sección de tutores. */
-export const LINEA_BAJA = 'Si prefieren no recibir más comunicaciones del centro sobre la Formación en Empresa, respondan a este correo con la palabra «BAJA» y no volveremos a escribirles.';
+export const LINEA_BAJA = 'Si prefieres no recibir más comunicaciones del centro sobre la Formación en Empresa, responde a este correo con la palabra «BAJA» y no volveremos a escribirte.';
+
+/** Saludo de los correos personalizados (también es la columna «saludo» del CSV). */
+export const saludoEmpresa = (empresa: string) => `Hola, equipo de ${empresa}:`;
 
 /**
  * Correo del tutor/a a empresas para pedir plazas de FFE.
@@ -25,35 +28,48 @@ export const LINEA_BAJA = 'Si prefieren no recibir más comunicaciones del centr
  */
 export function generarCorreoTutor(t: DatosTutor, empresa?: { nombre: string; sector?: string }): CorreoTutor {
   const ciclo = t.ciclo;
-  const perfiles = perfilesDe(ciclo).map((p) => p.nombre.toLowerCase());
+  const textos = config.textosCorreoTutor;
+  const bloque = textos.ciclos[ciclo];
   const horas = config.horas[ciclo];
   const nombre = t.nombre.trim() || '[tu nombre]';
 
   const lineas = [
-    empresa ? `Estimado equipo de ${empresa.nombre}:` : 'Buenos días:',
+    empresa ? saludoEmpresa(empresa.nombre) : 'Hola:',
     '',
     `Me llamo ${nombre} y soy tutor/a de Formación en Empresa (FFE) de 2.º de ${NOMBRE_CICLO[ciclo]} en el ${config.centro.nombre} (${config.centro.ciudad}).`,
     '',
     empresa
-      ? `Nos ponemos en contacto con ${empresa.nombre}${empresa.sector ? `, por su actividad en ${empresa.sector.toLowerCase()},` : ''} para preguntarles si podrían acoger a alumnado de nuestro ciclo durante su periodo de Formación en Empresa, la formación práctica obligatoria del ciclo.`
-      : 'Nos ponemos en contacto con ustedes para preguntarles si podrían acoger a alumnado de nuestro ciclo durante su periodo de Formación en Empresa, la formación práctica obligatoria del ciclo.',
-    '',
-    `Nuestro alumnado se forma en ${listaNatural(perfiles)}.`,
+      ? `Me pongo en contacto con ${empresa.nombre}${empresa.sector ? `, por vuestra actividad en ${empresa.sector.toLowerCase()},` : ''} para preguntarte si podríais acoger a alumnado de nuestro ciclo durante su periodo de Formación en Empresa, la formación práctica obligatoria del ciclo.`
+      : 'Me pongo en contacto contigo para preguntarte si podríais acoger a alumnado de nuestro ciclo durante su periodo de Formación en Empresa, la formación práctica obligatoria del ciclo.',
     ...(t.alumnos?.trim() ? ['', `Este curso buscamos plaza para ${t.alumnos.trim()} alumnos y alumnas.`] : []),
     '',
+    bloque.titulo,
+    '',
+    bloque.intro,
+    '',
+    ...bloque.tareas.map((x) => `- ${x}`),
+    '',
+    textos.iaTitulo,
+    '',
+    `${textos.iaIntro} ${bloque.ia}`,
+    '',
+    textos.iaCierre,
+    '',
     'Periodos de formación:',
-    ...config.modalidades.map((m) => `· ${m.nombre}: del ${fechaLarga(m.inicio)} al ${fechaLarga(m.fin)}, ${m.horasDia} horas al día.`),
-    `· Duración total: ${horas} horas.`,
+    ...config.modalidades.map((m) => `- ${m.nombre}: del ${fechaLarga(m.inicio)} al ${fechaLarga(m.fin)}, ${m.horasDia} horas al día.`),
+    `- Duración total: ${horas} horas.`,
     '',
     'Cómo funciona:',
-    '· No tiene coste para la empresa y no supone relación laboral.',
-    '· Se firma un convenio con el centro, y el alumnado está cubierto por el seguro escolar y la póliza del centro.',
-    '· El centro asigna un tutor/a que hace el seguimiento junto con la persona de la empresa que acompañe al alumno.',
-    '· El plan de actividades se adapta a los proyectos de la empresa.',
+    '- No tiene coste para la empresa y no supone relación laboral.',
+    '- Se firma un convenio con el centro, y el alumnado está cubierto por el seguro escolar y la póliza del centro.',
+    '- El centro asigna un tutor/a que hace el seguimiento junto con la persona de la empresa que acompañe al alumno.',
+    '- El plan de actividades se adapta a vuestros proyectos.',
     '',
-    'Si les interesa, respondan a este correo indicando cuántas plazas podrían ofrecer y en qué áreas. Les enviaremos los currículos del alumnado y la documentación del convenio.',
+    textos.llamada,
     '',
-    'Muchas gracias por su atención. Un saludo,',
+    'También puedes responder a este correo indicando cuántas plazas podríais ofrecer y en qué áreas, y te enviaré los currículos del alumnado y la documentación del convenio.',
+    '',
+    'Muchas gracias por tu atención. Un saludo,',
     '',
     nombre,
     `Tutor/a de FFE · 2.º ${ciclo} · ${config.centro.nombre}`,
@@ -105,6 +121,6 @@ export function urlMailtoCco(b: BorradorCco): string {
 export function csvCombinacion(filas: { empresa: string; email: string; sector: string; zona: string; perfiles: string }[]): string {
   const celda = (v: string) => `"${v.replace(/"/g, '""')}"`;
   const cabecera = ['empresa', 'email', 'sector', 'zona', 'perfiles', 'saludo'];
-  const cuerpo = filas.map((f) => [f.empresa, f.email, f.sector, f.zona, f.perfiles, `Estimado equipo de ${f.empresa}:`].map(celda).join(';'));
+  const cuerpo = filas.map((f) => [f.empresa, f.email, f.sector, f.zona, f.perfiles, saludoEmpresa(f.empresa)].map(celda).join(';'));
   return '﻿' + [cabecera.join(';'), ...cuerpo].join('\r\n');
 }

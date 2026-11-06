@@ -51,7 +51,8 @@ test('el tutor selecciona empresas de su ciclo y prepara el envío en CCO, uno a
   const fila = page.getByRole('listitem').filter({ hasText: 'talento@ficticia-web.test' });
   const outlookUno = fila.getByRole('link', { name: /^Outlook/ });
   const cuerpo = new URL((await outlookUno.getAttribute('href'))!).searchParams.get('body')!;
-  expect(cuerpo).toMatch(/^Estimado equipo de Ficticia Web Studio:/);
+  expect(cuerpo).toMatch(/^Hola, equipo de Ficticia Web Studio:/);
+  expect(cuerpo).toContain('DESARROLLO DE APLICACIONES MULTIPLATAFORMA (DAM)');
 
   // CSV
   await page.locator('label').filter({ hasText: 'Combinación de correspondencia' }).click();

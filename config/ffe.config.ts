@@ -88,6 +88,55 @@ export const config = {
   /** Máximo orientativo de contactos (correos) a la misma empresa desde el mismo dispositivo. */
   maxContactosPorEmpresa: 3,
 
+  /**
+   * Textos del correo de los tutores a las empresas (editables). Cada ciclo lleva SOLO su bloque:
+   * DAM con lo que hacen en DAM y ASIR con lo que hacen en ASIR.
+   */
+  textosCorreoTutor: {
+    ciclos: {
+      DAM: {
+        titulo: 'DESARROLLO DE APLICACIONES MULTIPLATAFORMA (DAM)',
+        intro:
+          'Nuestros alumnos llegarán a las prácticas con un perfil multiplataforma completo: programan en Java, Kotlin, C#, Python y JavaScript, y cursan además una asignatura específica de IA y otra anual de Python. Están preparados para colaborar en tareas como:',
+        tareas: [
+          'Desarrollo de aplicaciones de escritorio con interfaces en Swing y JavaFX.',
+          'Desarrollo de interfaces y aplicaciones web con HTML, CSS y React.',
+          'Creación de aplicaciones Android con Kotlin y Jetpack Compose, incluyendo persistencia de datos, Firebase, APIs REST, sensores, multimedia y publicación en Google Play.',
+          'Desarrollo de videojuegos y aplicaciones interactivas con Unity y C#.',
+          'Programación concurrente, servicios y comunicaciones en red con Java.',
+          'Diseño y gestión de bases de datos SQL y NoSQL, y acceso a datos desde aplicaciones.',
+          'Adaptación de sistemas de gestión empresarial (ERP).',
+          'Automatización de tareas, análisis de datos y proyectos de IA y big data con Python.',
+          'Pruebas, depuración, mantenimiento y documentación técnica de aplicaciones.',
+        ],
+        ia: 'En DAM la utilizan para programar más rápido, analizar y revisar código, detectar errores y vulnerabilidades y agilizar las pruebas y la documentación.',
+      },
+      ASIR: {
+        titulo: 'ADMINISTRACIÓN DE SISTEMAS INFORMÁTICOS EN RED (ASIR)',
+        intro:
+          'Nuestros alumnos de ASIR llegarán a las prácticas preparados para proteger, administrar y mantener en marcha la infraestructura tecnológica de una empresa, con los certificados CCNA, AWS Foundation y Cisco CyberOps y una sólida formación en ciberseguridad. Podrán colaborar en objetivos como:',
+        tareas: [
+          'Vigilar la seguridad de la empresa: monitorizar los sistemas y analizar registros para detectar amenazas e incidentes a tiempo.',
+          'Blindar los sistemas frente a ataques: localizar vulnerabilidades, aplicar medidas de bastionado y controlar los accesos.',
+          'Proteger la red corporativa con cortafuegos, VPN y proxies.',
+          'Garantizar la continuidad del negocio con copias de seguridad, recuperación de datos y alta disponibilidad.',
+          'Administrar infraestructuras Windows y Linux y sus servicios de red (DHCP, DNS, HTTP…).',
+          'Desplegar y gestionar servicios en la nube con AWS.',
+          'Configurar, mantener y diagnosticar redes corporativas (routers, switches y puntos de acceso).',
+          'Mantener a punto los equipos y el software de la empresa.',
+        ],
+        ia: 'En ASIR se apoyan en ella para analizar registros, investigar incidentes de seguridad, diagnosticar problemas y reforzar la protección de los sistemas.',
+      },
+    },
+    iaTitulo: 'INTELIGENCIA ARTIFICIAL EN TODO SU TRABAJO',
+    iaIntro:
+      'La gran apuesta innovadora de nuestros ciclos es la inteligencia artificial, que nuestros alumnos aplican como herramienta de análisis para potenciar al máximo su trabajo.',
+    iaCierre:
+      'Lo hacen con criterio profesional, revisando y validando siempre lo que genera la IA. Llegarán a la empresa preparados para trabajar como lo hacen ya los equipos técnicos más innovadores.',
+    llamada:
+      'Si te parece interesante, podemos hablar diez minutos por teléfono para contarte cómo funciona y ver qué perfil os encajaría mejor. Si la persona indicada es otra, te agradecería que me indicaras con quién debo hablar.',
+  },
+
   /** Sección de tutores: envío desde la cuenta del tutor, siempre en CCO y por lotes. */
   tutores_envio: {
     /** Máximo de empresas por correo (en CCO). Evita filtros antispam y límites de Outlook/Gmail. */
