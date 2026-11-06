@@ -68,7 +68,7 @@ const FRAGMENTOS_NO_CANDIDATURAS = ['help', 'ayuda', 'support', 'soporte', 'priv
 /** Buzones de clientes, ventas o administración (no de candidaturas). */
 const OTROS_NO_CANDIDATURAS = ['comercial', 'commercial', 'clientes', 'cliente', 'atencion', 'administracion', 'contabilidad', 'accounting', 'secretaria', 'secretariado', 'direccion', 'gerencia'];
 /** Códigos de país distintos de España en el buzón (p. ej. careers.au@): buzones de otras filiales. */
-const PAISES_EXTRANJEROS = ['au', 'uk', 'us', 'de', 'fr', 'it', 'pt', 'nl', 'be', 'mx', 'br', 'ar', 'cl', 'co', 'pe', 'in', 'ca', 'ie', 'pl', 'ch', 'at', 'se', 'no', 'dk', 'fi', 'emea', 'latam', 'apac', 'usa', 'global', 'international', 'intl', 'worldwide', 'europe', 'chile', 'mexico', 'peru', 'colombia', 'argentina', 'brasil', 'brazil', 'portugal', 'france', 'italia', 'italy', 'germany', 'deutschland', 'uruguay', 'ecuador', 'panama', 'paraguay', 'bolivia', 'venezuela', 'india', 'china', 'japan'];
+const PAISES_EXTRANJEROS = ['au', 'uk', 'us', 'de', 'fr', 'it', 'pt', 'nl', 'be', 'mx', 'br', 'ar', 'cl', 'co', 'pe', 'in', 'ca', 'ie', 'pl', 'ch', 'at', 'se', 'no', 'dk', 'fi', 'emea', 'latam', 'apac', 'usa', 'global', 'international', 'intl', 'worldwide', 'europe', 'chile', 'mexico', 'peru', 'colombia', 'argentina', 'brasil', 'brazil', 'portugal', 'france', 'italia', 'italy', 'germany', 'deutschland', 'uruguay', 'ecuador', 'panama', 'paraguay', 'bolivia', 'venezuela', 'india', 'china', 'japan', 'americas', 'america', 'asia', 'africa', 'mena', 'nordics', 'uae', 'dubai', 'emirates', 'qatar', 'ksa', 'saudi', 'gcc', 'anz'];
 
 /** Siglas de dos letras que sí pueden aparecer en un buzón español. */
 const DOS_LETRAS_PERMITIDAS = ['es', 'rh', 'hr', 'it', 'ti', 'cv', 'fp', 'rr', 'hh'];

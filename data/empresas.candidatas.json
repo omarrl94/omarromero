@@ -4777,7 +4777,7 @@
   {
     "id": "the-plan-company",
     "nombre": "The Plan Company",
-    "web": "https://theplancompany.com",
+    "web": "https://www.theplancompany.es",
     "sector": "Agencia de medios y marketing digital",
     "tamano": "pyme",
     "zona": "madrid",
@@ -4786,7 +4786,7 @@
     ],
     "motivoEncaje": "Agencia madrileña de estrategia de medios y marketing digital.",
     "paginasContacto": [
-      "https://theplancompany.com"
+      "https://www.theplancompany.es"
     ],
     "tipoContactoEsperado": "rrhh"
   },
@@ -4918,7 +4918,7 @@
   {
     "id": "primaprix",
     "nombre": "Primaprix",
-    "web": "https://www.primaprix.es",
+    "web": "https://primaprix.eu",
     "sector": "Supermercados de descuento",
     "tamano": "pyme",
     "zona": "madrid",
@@ -4929,7 +4929,7 @@
     ],
     "motivoEncaje": "Cadena madrileña de tiendas de outlet de alimentación y droguería.",
     "paginasContacto": [
-      "https://www.primaprix.es"
+      "https://primaprix.eu"
     ],
     "tipoContactoEsperado": "rrhh"
   },
@@ -4953,7 +4953,7 @@
   {
     "id": "decimas",
     "nombre": "Décimas",
-    "web": "https://www.decimas.es",
+    "web": "https://www.decimas.com",
     "sector": "Moda y material deportivo",
     "tamano": "gran-empresa",
     "zona": "madrid",
@@ -4964,7 +4964,7 @@
     ],
     "motivoEncaje": "Cadena de tiendas de deporte con sede en Madrid.",
     "paginasContacto": [
-      "https://www.decimas.es"
+      "https://www.decimas.com"
     ],
     "tipoContactoEsperado": "rrhh"
   },
@@ -5281,8 +5281,8 @@
   },
   {
     "id": "mediapost-espana",
-    "nombre": "Mediapost España",
-    "web": "https://www.mediapost.es",
+    "nombre": "Muviria (antes Mediapost España)",
+    "web": "https://www.muviria.es",
     "sector": "Marketing relacional y distribución publicitaria",
     "tamano": "gran-empresa",
     "zona": "madrid",
@@ -5293,7 +5293,7 @@
     ],
     "motivoEncaje": "Marketing relacional, buzoneo y logística de campañas con sede en Madrid.",
     "paginasContacto": [
-      "https://www.mediapost.es"
+      "https://www.muviria.es"
     ],
     "tipoContactoEsperado": "rrhh"
   },

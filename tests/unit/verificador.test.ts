@@ -128,3 +128,11 @@ describe('esRutaDeOtroPais', () => {
     expect(esRutaDeOtroPais('https://www.acme.test/trabaja-con-nosotros')).toBe(false);
   });
 });
+
+describe('buzones de regiones extranjeras', () => {
+  it('rechaza buzones de América, Oriente Medio y otras regiones', () => {
+    for (const e of ['hr.direct.americas@acme.test', 'career.mena@acme.test', 'info-uae@acme.test', 'info-chile@acme.test']) {
+      expect(valorarCorreos([e], 'https://www.acme.test')[0].motivoRechazo).toBeTruthy();
+    }
+  });
+});
