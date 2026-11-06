@@ -80,7 +80,9 @@ function EstadoFuentes({ datos }: { datos: CacheOfertas }) {
 function ListaOfertas({ datos }: { datos: CacheOfertas }) {
   const [alumno] = useAlumno();
   const [texto, setTexto] = useEstadoSesion('ofertas.texto', '');
-  const [perfil, setPerfil] = useEstadoSesion('ofertas.perfil', () => valorInicial(alumno));
+  // null = «automático»: sigue el perfil del alumno hasta que lo cambie a mano.
+  const [perfilElegido, setPerfil] = useEstadoSesion<string | null>('ofertas.perfil', null);
+  const perfil = perfilElegido ?? valorInicial(alumno);
   const [tipo, setTipo] = useEstadoSesion('ofertas.tipo', '');
   const [jornada, setJornada] = useEstadoSesion('ofertas.jornada', '');
   const [soloRemoto, setSoloRemoto] = useEstadoSesion('ofertas.remoto', false);

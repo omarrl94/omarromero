@@ -1,18 +1,23 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { MODO_DEMO } from '../lib/api';
 import { useRuta } from '../lib/ruta';
+import { useSesion } from '../lib/sesion';
 
-const NAV = [
-  { ruta: 'empresas', texto: 'Empresas' },
-  { ruta: 'ofertas', texto: 'Ofertas' },
-  { ruta: 'seguimiento', texto: 'Seguimiento' },
-  { ruta: 'perfil', texto: 'Mis datos' },
-];
+type ItemNav = { ruta: string; texto: string };
+
+function navegacion(rol: string | null | undefined): ItemNav[] {
+  if (rol === 'superadmin') return [{ ruta: 'admin', texto: 'Admin' }, { ruta: 'tutores', texto: 'Tutores' }, { ruta: 'empresas', texto: 'Empresas' }, { ruta: 'ofertas', texto: 'Ofertas' }, { ruta: 'perfil', texto: 'Cuenta' }];
+  if (rol === 'tutor') return [{ ruta: 'tutores', texto: 'Tutores' }, { ruta: 'empresas', texto: 'Empresas' }, { ruta: 'ofertas', texto: 'Ofertas' }, { ruta: 'perfil', texto: 'Cuenta' }];
+  if (rol === 'alumno') return [{ ruta: 'empresas', texto: 'Empresas' }, { ruta: 'ofertas', texto: 'Ofertas' }, { ruta: 'seguimiento', texto: 'Seguimiento' }, { ruta: 'perfil', texto: 'Mis datos' }];
+  return [{ ruta: 'empresas', texto: 'Empresas' }, { ruta: 'ofertas', texto: 'Ofertas' }, { ruta: 'entrar', texto: 'Entrar' }];
+}
 
 export function Layout({ children }: { children: ReactNode }) {
   const ruta = useRuta();
   const principal = useRef<HTMLElement>(null);
   const actual = ruta[0] ?? '';
+  const { usuario, estado, salir } = useSesion();
+  const NAV = navegacion(estado?.verificado ? estado.rol : null);
 
   // Al cambiar de página, el foco va al contenido principal (lectores de pantalla).
   useEffect(() => {
@@ -52,7 +57,14 @@ export function Layout({ children }: { children: ReactNode }) {
               ))}
             </ul>
           </nav>
-          <img src="/logo-jrotero.png" alt="Formación Profesional José Ramón Otero" width={154} height={33} className="ml-auto hidden h-7 w-auto sm:block md:ml-4" />
+          <img src="/logo-jrotero.png" alt="Formación Profesional José Ramón Otero" width={154} height={33} className="ml-auto hidden h-7 w-auto lg:block lg:ml-4" />
+          {usuario ? (
+            <button type="button" className="btn-secundario ml-auto min-h-10 py-1 text-sm md:ml-3" onClick={() => void salir()}>
+              Salir<span className="sr-only"> ({usuario.email})</span>
+            </button>
+          ) : (
+            <a href="#/entrar" className="btn-primario ml-auto min-h-10 py-1 text-sm md:ml-3">Entrar</a>
+          )}
         </div>
       </header>
 
@@ -63,19 +75,18 @@ export function Layout({ children }: { children: ReactNode }) {
       <footer className="border-t-2 border-tinta bg-hueso">
         <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-6 pb-24 text-sm md:flex-row md:items-center md:justify-between md:pb-6">
           <p>
-            <strong>Conecta FFE</strong> · C.F.P. José Ramón Otero (Madrid). Sin registro, sin analítica: tus datos se quedan en este dispositivo.
+            <strong>Conecta FFE</strong> · C.F.P. José Ramón Otero (Madrid). Sin analítica. Tus datos se guardan en tu cuenta y puedes borrarlos cuando quieras.
           </p>
           <p className="flex gap-4">
             <a className="enlace" href="#/privacidad">Privacidad y retirada</a>
-            <a className="enlace" href="#/tutores">Acceso tutores</a>
-            <a className="enlace" href="#/perfil">Borrar mis datos</a>
+            <a className="enlace" href="#/perfil">Mi cuenta</a>
           </p>
         </div>
       </footer>
 
       {/* Navegación inferior en móvil */}
       <nav aria-label="Principal (móvil)" className="fixed inset-x-0 bottom-0 z-40 border-t-2 border-tinta bg-papel md:hidden">
-        <ul className="grid grid-cols-4">
+        <ul className="grid" style={{ gridTemplateColumns: `repeat(${NAV.length}, minmax(0, 1fr))` }}>
           {NAV.map((n) => (
             <li key={n.ruta}>
               <a href={`#/${n.ruta}`} aria-current={actual === n.ruta ? 'page' : undefined} className={`flex min-h-14 items-center justify-center px-1 text-center text-sm font-semibold ${actual === n.ruta ? 'bg-amarillo' : ''}`}>

@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { perfilPorId, zonaPorId } from '../../config/ffe.config';
 import { etiquetaEncaje, puntuarEncaje } from '../../shared/encaje';
-import { Acceso } from '../components/Acceso';
 import { ErrorCaja, Esqueleto, Vacio } from '../components/Estados';
 import { GeneradorCorreo } from '../components/GeneradorCorreo';
 import { useAlumno } from '../lib/alumno';
@@ -22,7 +21,7 @@ export function FichaEmpresa({ id, seccion }: { id: string; seccion?: string }) 
     if (lista && seccion === 'correo') document.getElementById('generador-correo')?.scrollIntoView({ block: 'start' });
   }, [lista, seccion, id]);
 
-  if (estado.tipo === 'sin-acceso') return <Acceso alEntrar={recargar} />;
+  if (estado.tipo === 'sin-acceso') return <ErrorCaja mensaje="Tu sesión ha caducado o no tienes acceso. Vuelve a entrar." reintentar={recargar} />;
   if (estado.tipo === 'cargando') return <Esqueleto filas={2} />;
   if (estado.tipo === 'error') return <ErrorCaja mensaje={estado.mensaje} reintentar={recargar} />;
 

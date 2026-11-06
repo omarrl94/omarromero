@@ -1,11 +1,16 @@
 import type { Config } from '@netlify/functions';
 import { cargarEmpresas } from '../../server/datos';
 import { error, json } from '../../server/http';
-import { sesionActiva } from '../../server/sesion';
+import { contexto, puedeVerDirectorio } from '../../server/autorizacion';
 
 export default async (req: Request) => {
   if (req.method !== 'GET') return error('Método no permitido', 405, { Allow: 'GET' });
-  if (!(await sesionActiva(req))) return error('Necesitas el código de acceso del centro.', 401);
+  const c = await contexto(req);
+  if (!c) return error('Inicia sesión para ver las empresas.', 401);
+  if (!puedeVerDirectorio(c)) {
+    const motivo = !c.identidad.verificado ? 'verificacion' : c.rol === 'pendiente' ? 'pendiente' : c.rol === 'bloqueado' || !c.rol ? 'sin-permiso' : 'doble-factor';
+    return json({ error: 'No tienes acceso al directorio.', motivo }, 403);
+  }
   try {
     const empresas = await cargarEmpresas();
     return json({ empresas, total: empresas.length });

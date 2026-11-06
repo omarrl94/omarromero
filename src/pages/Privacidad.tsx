@@ -25,13 +25,15 @@ export function Privacidad() {
       </header>
 
       <section aria-labelledby="t-alumnado" className="grid gap-3 leading-relaxed">
-        <h2 id="t-alumnado" className="text-2xl font-extrabold">Para el alumnado</h2>
+        <h2 id="t-alumnado" className="text-2xl font-extrabold">Para el alumnado y el profesorado</h2>
         <ul className="list-disc space-y-2 pl-5">
-          <li><strong>No hay registro de usuarios ni analítica.</strong> No usamos cookies de seguimiento ni herramientas de terceros que te sigan.</li>
-          <li><strong>Tus datos se quedan en tu navegador</strong> (localStorage): nombre, teléfono, enlaces, perfil, modalidad y seguimiento. No se envían al servidor. Puedes borrarlos cuando quieras en <a className="enlace" href="#/perfil">Mis datos</a>.</li>
+          <li><strong>Cuenta del centro.</strong> Para usar Conecta FFE creas una cuenta con tu correo del centro: el alumnado con @{config.cuentas.dominioAlumnado} y el profesorado con @{config.cuentas.dominioProfesorado}. La cuenta la gestiona Firebase Authentication (Google), como en el resto de plataformas del centro.</li>
+          <li><strong>Qué se guarda en tu cuenta:</strong> tu nombre, tu correo, tu rol (alumno/a o tutor/a), tu perfil (ciclo, perfiles, zona, modalidad, teléfono y enlaces) y tu seguimiento de candidaturas. Sirve para que veas lo mismo en el móvil y en el ordenador. Nadie más puede leer tus datos: ni el resto del alumnado ni las empresas.</li>
           <li><strong>Tu CV nunca se sube.</strong> Lo adjuntas tú en tu programa de correo.</li>
-          <li>Para entrar al directorio se usa una <strong>cookie técnica</strong> de sesión (12 horas) que solo indica que has introducido el código del centro. Para limitar intentos se guarda temporalmente un resumen cifrado (hash) de tu IP, nunca la IP en claro.</li>
-          <li><strong>Los correos los envías tú.</strong> Conecta FFE solo prepara un borrador.</li>
+          <li><strong>Seguridad:</strong> el correo se verifica con un enlace enviado desde el buzón del centro. El profesorado tutor y la administración entran además con un código que llega por correo (doble factor). Para limitar intentos se guarda temporalmente un resumen cifrado de tu IP, nunca la IP en claro.</li>
+          <li><strong>Sin analítica</strong> ni cookies de seguimiento. Solo se usan cookies técnicas de sesión.</li>
+          <li><strong>Los correos a las empresas los envías tú</strong> desde tu cuenta: Conecta FFE solo prepara el borrador.</li>
+          <li><strong>Puedes borrar tu cuenta</strong> y todos tus datos cuando quieras en <a className="enlace" href="#/perfil">Mi cuenta</a>. Al cerrar sesión se borran los datos guardados en ese navegador.</li>
         </ul>
       </section>
 

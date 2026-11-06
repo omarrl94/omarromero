@@ -1,7 +1,8 @@
 import { expect, test } from '@playwright/test';
-import { abrirFiltros, elegirPerfil, sinViolacionesGraves } from './ayudas';
+import { abrirFiltros, elegirPerfil, entrarComoAlumno, sinViolacionesGraves } from './ayudas';
 
 test('muestra ofertas con fuente, fecha, ubicación, jornada, enlace y fuentes fallidas', async ({ page }) => {
+  await entrarComoAlumno(page);
   await elegirPerfil(page, 'DAM', 'Desarrollo web');
   await page.goto('/#/ofertas');
   await expect(page.getByText(/Actualizado el/)).toBeVisible();
@@ -23,6 +24,7 @@ test('muestra ofertas con fuente, fecha, ubicación, jornada, enlace y fuentes f
 
 test('estado de error con reintento si falla la API', async ({ page }) => {
   let fallar = true;
+  await entrarComoAlumno(page);
   await page.route('**/api/ofertas', (r) => (fallar ? r.fulfill({ status: 500, body: '{"error":"Fallo simulado"}', contentType: 'application/json' }) : r.continue()));
   await page.goto('/#/ofertas');
   await expect(page.getByRole('alert')).toContainText('Fallo simulado');
@@ -32,12 +34,14 @@ test('estado de error con reintento si falla la API', async ({ page }) => {
 });
 
 test('estado vacío cuando aún no hay ofertas', async ({ page }) => {
+  await entrarComoAlumno(page);
   await page.route('**/api/ofertas', (r) => r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ actualizado: null, fuentes: [], ofertas: [] }) }));
   await page.goto('/#/ofertas');
   await expect(page.getByText('Todavía no hay ofertas descargadas')).toBeVisible();
 });
 
 test('las ofertas se pueden ver de cualquier rama de DAM o ASIR', async ({ page }) => {
+  await entrarComoAlumno(page);
   await elegirPerfil(page, 'DAM', 'Desarrollo web');
   await page.goto('/#/ofertas');
   await expect(page.getByRole('heading', { name: 'Técnico SOC junior (FICTICIA)', level: 3 })).toHaveCount(0);

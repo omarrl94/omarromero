@@ -5,8 +5,9 @@ consiga plaza de **Formación en Empresa (FFE)** y encuentre ofertas de su perfi
 
 - **Empresas para FFE:** directorio de empresas de Madrid **verificadas** (fuente y fecha), con buscador, filtros, orden por encaje, generador de correo editable (Outlook web, Gmail, app de correo o copiar), tutor en copia, aviso de CV y seguimiento local.
 - **Ofertas:** prácticas, becas, junior y primer empleo desde APIs oficiales (Adzuna, InfoJobs y los feeds públicos Greenhouse, Lever y Ashby de las empresas del directorio), más enlaces profundos a LinkedIn, Indeed, Tecnoempleo, Glassdoor y Welcome to the Jungle.
-- **Tutores** (`#/tutores`, con su propio código): escribir a las empresas del ciclo desde la cuenta del tutor, en CCO y por lotes, uno a uno personalizado o con combinación de correspondencia (CSV).
-- **Privacidad:** sin registro ni analítica. Los datos del alumno se guardan solo en su navegador. El directorio está protegido con un código validado en el servidor y no se indexa.
+- **Cuentas y roles:** registro con el correo del centro (alumnado @a.jrotero.es, profesorado @jrotero.es), verificación desde el buzón del centro, doble factor por correo para tutores y superadmin, y panel de administración (`#/admin`) para aprobar tutores.
+- **Tutores** (`#/tutores`): escribir a las empresas del ciclo desde la cuenta del tutor, en CCO y por lotes, uno a uno personalizado o con combinación de correspondencia (CSV).
+- **Privacidad:** sin analítica. Perfil y seguimiento en la cuenta del usuario (Firestore, solo accesibles por él), con borrado de cuenta. El directorio solo se entrega a cuentas verificadas con rol y no se indexa.
 
 Las reglas del proyecto están en [CLAUDE.md](CLAUDE.md). **Para publicar, sigue [docs/DESPLIEGUE.md](docs/DESPLIEGUE.md)** (paso a paso, solo con el navegador).
 
@@ -26,7 +27,8 @@ npm run dev            # http://localhost:5173 (la API de /api/* corre con el mi
 Para ver el directorio en local con **datos ficticios** (dominios `.test`, nunca en producción):
 
 ```bash
-CONECTA_MODO=pruebas CONECTA_DATOS=ficticios ACCESS_CODE=prueba SESSION_SECRET=$(node -e "console.log('x'.repeat(40))") npm run dev
+CONECTA_MODO=pruebas CONECTA_DATOS=ficticios VITE_AUTH=prueba MAIL_MODE=log npm run dev
+# Los «correos» (verificación, códigos) se guardan en .blobs-local/correos-enviados/
 ```
 
 Con la CLI de Netlify (`npx netlify dev`) se usa Netlify Blobs local y el archivo `.env`.
@@ -46,18 +48,16 @@ Con la CLI de Netlify (`npx netlify dev`) se usa Netlify Blobs local y el archiv
 
 ## Variables de entorno
 
-Se definen en **Netlify → Project configuration → Environment variables**. Son solo del servidor:
-nunca uses el prefijo `VITE_` para ellas. La plantilla está en [.env.example](.env.example).
+Todas se explican paso a paso en [docs/DESPLIEGUE.md](docs/DESPLIEGUE.md) (plantilla en [.env.example](.env.example)).
 
 | Variable | Obligatoria | Uso |
 |---|---|---|
-| `ACCESS_CODE` | Sí | Código que se da al alumnado para entrar al directorio |
-| `TUTOR_ACCESS_CODE` | No | Código del profesorado tutor para la sección «Tutores» (`#/tutores`). Distinto del del alumnado |
-| `SESSION_SECRET` | No | 32 o más caracteres para firmar la cookie de sesión. Si falta o es corto, el servidor genera y guarda una clave aleatoria en Netlify Blobs |
-| `ADZUNA_APP_ID`, `ADZUNA_APP_KEY` | No | Activan la fuente Adzuna |
-| `INFOJOBS_CLIENT_ID`, `INFOJOBS_CLIENT_SECRET` | No | Activan la fuente InfoJobs |
-
-Sin `ACCESS_CODE`, nadie puede entrar al directorio: la API responde 503. Sin claves de una fuente, la fuente aparece como «sin configurar».
+| `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID`, `VITE_FIREBASE_APP_ID` | Sí | Cuentas (Firebase Authentication) y datos del usuario (Firestore). Públicas por diseño |
+| `FIREBASE_SERVICE_ACCOUNT` | Sí | Servidor: verificar sesiones, enviar enlaces y borrar cuentas (**secreta**) |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` | Sí | Correos desde el buzón del centro: verificación, doble factor y avisos (o Resend / Microsoft Graph) |
+| `SUPERADMIN_EMAILS` | No | Más superadmin además de `omar.romero@jrotero.es` |
+| `APP_URL`, `SESSION_SECRET` | No | Enlaces de los correos; firma del doble factor (si falta, se genera sola) |
+| `ADZUNA_*`, `INFOJOBS_*` | No | Fuentes de ofertas |
 
 ## Configuración editable
 
@@ -75,7 +75,7 @@ Todo lo que cambia de un curso a otro está en **[config/ffe.config.ts](config/f
 
 - **Empresas:** sigue [docs/GUIA-EMPRESAS.md](docs/GUIA-EMPRESAS.md). Verifica antes de cada periodo de FFE y cada trimestre.
 - **Retiradas:** se reciben en Netlify Forms. Se añaden a `data/retiradas.json`. Plazo de 10 días hábiles.
-- **Código de acceso:** cámbialo cada curso (variable `ACCESS_CODE`). Si cambias `SESSION_SECRET`, se cierran todas las sesiones.
+- **Cuentas:** cada curso, bloquea o borra en **Admin** las cuentas de quien ya terminó.
 - **Fuentes de ofertas:** el estado de cada fuente aparece en `#/ofertas`. Si una falla varios días, revisa las claves y sus condiciones ([docs/INVESTIGACION-FUENTES.md](docs/INVESTIGACION-FUENTES.md)).
 - **Dependencias:** `npm audit` y `npm outdated` cada trimestre. Después, `npm run check && npm run e2e`.
 

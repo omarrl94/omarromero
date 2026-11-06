@@ -1,115 +1,132 @@
 import { rm } from 'node:fs/promises';
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
-import acceso from '../../netlify/functions/acceso.mts';
+import admin from '../../netlify/functions/admin.mts';
+import cuenta from '../../netlify/functions/cuenta.mts';
 import empresas from '../../netlify/functions/empresas.mts';
-import { crearToken, olvidarClaveEnMemoria, tokenValido } from '../../server/sesion';
+import { correosPara } from '../../server/correo';
+import { olvidarClaveEnMemoria } from '../../server/sesion';
 
-process.env.SESSION_SECRET = 'x'.repeat(40);
-process.env.ACCESS_CODE = 'codigo-de-prueba';
-process.env.TUTOR_ACCESS_CODE = 'codigo-tutor';
+for (const v of ['NETLIFY', 'SITE_ID', 'NETLIFY_BLOBS_CONTEXT']) delete process.env[v];
 process.env.CONECTA_MODO = 'pruebas';
 process.env.CONECTA_DATOS = 'ficticios';
-for (const v of ["NETLIFY", "SITE_ID", "NETLIFY_BLOBS_CONTEXT"]) delete process.env[v];
+process.env.MAIL_MODE = 'log';
+process.env.SESSION_SECRET = 'x'.repeat(40);
 
-const ctx = (ip: string) => ({ ip }) as never;
-const post = (codigo: string) => new Request('https://conecta.test/api/acceso', { method: 'POST', body: JSON.stringify({ codigo }) });
+const BASE = 'https://conecta.test';
+const token = (email: string) => 'prueba.' + Buffer.from(JSON.stringify({ email })).toString('base64url');
+const ctx = (ip = '1.1.1.1') => ({ ip }) as never;
+function pet(ruta: string, email?: string, opciones: { metodo?: string; cuerpo?: unknown; cookie?: string } = {}) {
+  const headers: Record<string, string> = {};
+  if (email) headers.authorization = `Bearer ${token(email)}`;
+  if (opciones.cookie) headers.cookie = opciones.cookie;
+  return new Request(BASE + ruta, { method: opciones.metodo ?? (opciones.cuerpo ? 'POST' : 'GET'), headers, body: opciones.cuerpo ? JSON.stringify(opciones.cuerpo) : undefined });
+}
+const ultimoCorreo = async (para: string) => (await correosPara(para)).at(-1);
+
+async function verificar(email: string) {
+  expect((await cuenta(pet('/api/cuenta', email, { cuerpo: { accion: 'verificacion' } }), ctx())).status).toBe(200);
+  const enlace = (await ultimoCorreo(email))!.texto.match(/https?:\/\/\S+verificar=\S+/)![0];
+  const r = await cuenta(new Request(enlace.replace(/^https?:\/\/[^/]+/, BASE)), ctx());
+  expect(r.status).toBe(302);
+}
+
+async function estado(email: string, cookie?: string) {
+  return (await (await cuenta(pet('/api/cuenta', email, { cookie }), ctx())).json()) as { rol: string | null; verificado: boolean; necesitaDobleFactor: boolean; dobleFactorOk: boolean };
+}
+
+async function dobleFactor(email: string): Promise<string> {
+  expect((await cuenta(pet('/api/cuenta', email, { cuerpo: { accion: 'enviar-codigo' } }), ctx())).status).toBe(200);
+  const codigo = (await ultimoCorreo(email))!.asunto.match(/(\d{6})/)![1];
+  const mal = await cuenta(pet('/api/cuenta', email, { cuerpo: { accion: 'verificar-codigo', codigo: codigo === '000000' ? '111111' : '000000' } }), ctx('9.9.9.9'));
+  expect(mal.status).toBe(401);
+  const r = await cuenta(pet('/api/cuenta', email, { cuerpo: { accion: 'verificar-codigo', codigo } }), ctx('9.9.9.9'));
+  expect(r.status).toBe(200);
+  return r.headers.get('set-cookie')!.split(';')[0];
+}
 
 beforeEach(async () => {
-  await rm('.blobs-local/limites', { recursive: true, force: true });
-  await rm('.blobs-local/sistema', { recursive: true, force: true });
+  await rm('.blobs-local', { recursive: true, force: true });
+  olvidarClaveEnMemoria();
 });
-afterAll(async () => rm('.blobs-local/limites', { recursive: true, force: true }));
+afterAll(async () => rm('.blobs-local', { recursive: true, force: true }));
 
-describe('sesión', () => {
-  it('firma y caduca tokens', async () => {
-    const t = await crearToken(Date.now());
-    expect(await tokenValido(t)).toBe(true);
-    expect(await tokenValido(t, Date.now() + 13 * 3600_000)).toBe(false);
-    expect(await tokenValido(t.slice(0, -2) + 'xx')).toBe(false);
-    expect(await tokenValido(undefined)).toBe(false);
-  });
-});
-
-describe('API de acceso y empresas', () => {
-  it('rechaza el directorio sin sesión', async () => {
-    const r = await empresas(new Request('https://conecta.test/api/empresas'));
+describe('cuentas y roles', () => {
+  it('el directorio exige iniciar sesión', async () => {
+    const r = await empresas(pet('/api/empresas'));
     expect(r.status).toBe(401);
-    expect(await r.text()).not.toContain('@');
+    expect(await r.text()).not.toContain('@ficticia');
   });
 
-  it('entrega el directorio con el código correcto y cookie segura', async () => {
-    const r = await acceso(post('codigo-de-prueba'), ctx('1.1.1.1'));
+  it('alumnado @a.jrotero.es: tras verificar el correo entra directamente', async () => {
+    const email = 'ana.perez@a.jrotero.es';
+    expect(await estado(email)).toMatchObject({ verificado: false, rol: null });
+    expect((await empresas(pet('/api/empresas', email))).status).toBe(403);
+    await verificar(email);
+    expect(await estado(email)).toMatchObject({ verificado: true, rol: 'alumno', necesitaDobleFactor: false });
+    const r = await empresas(pet('/api/empresas', email));
     expect(r.status).toBe(200);
-    const cookie = r.headers.get('set-cookie')!;
-    expect(cookie).toMatch(/HttpOnly/);
-    expect(cookie).toMatch(/SameSite=Strict/);
-    expect(cookie).toMatch(/Secure/);
-    const valor = cookie.split(';')[0];
-    const d = await empresas(new Request('https://conecta.test/api/empresas', { headers: { cookie: valor } }));
-    expect(d.status).toBe(200);
-    const datos = (await d.json()) as { total: number };
-    expect(datos.total).toBe(4);
-    expect(d.headers.get('x-robots-tag')).toContain('noindex');
+    expect(((await r.json()) as { total: number }).total).toBe(4);
   });
 
-  it('limita los intentos fallidos por IP', async () => {
-    for (let i = 0; i < 5; i++) expect((await acceso(post('mal'), ctx('2.2.2.2'))).status).toBe(401);
-    const bloqueado = await acceso(post('codigo-de-prueba'), ctx('2.2.2.2'));
-    expect(bloqueado.status).toBe(429);
-    expect(bloqueado.headers.get('retry-after')).toBeTruthy();
-    expect((await acceso(post('codigo-de-prueba'), ctx('3.3.3.3'))).status).toBe(200);
+  it('rechaza correos de otros dominios', async () => {
+    const r = await cuenta(pet('/api/cuenta', 'alguien@gmail.com', { cuerpo: { accion: 'verificacion' } }), ctx());
+    expect(r.status).toBe(403);
   });
 
-  it('no deja entrar si no hay ningún código configurado', async () => {
-    const antes = { a: process.env.ACCESS_CODE, t: process.env.TUTOR_ACCESS_CODE };
-    try {
-      delete process.env.ACCESS_CODE;
-      delete process.env.TUTOR_ACCESS_CODE;
-      expect((await acceso(post(''), ctx('4.4.4.4'))).status).toBe(503);
-      // Solo con el de tutores: el código del alumnado no sirve.
-      process.env.TUTOR_ACCESS_CODE = antes.t;
-      expect((await acceso(post('codigo-de-prueba'), ctx('4.4.4.5'))).status).toBe(401);
-    } finally {
-      process.env.ACCESS_CODE = antes.a;
-      process.env.TUTOR_ACCESS_CODE = antes.t;
-    }
+  it('profesorado @jrotero.es queda pendiente, avisa al superadmin y el superadmin lo aprueba con doble factor', async () => {
+    const profe = 'laura.tutora@jrotero.es';
+    await verificar(profe);
+    expect(await estado(profe)).toMatchObject({ rol: 'pendiente' });
+    const aviso = await ultimoCorreo('omar.romero@jrotero.es');
+    expect(aviso?.asunto).toContain('Nueva solicitud de tutor');
+    const sinAcceso = await empresas(pet('/api/empresas', profe));
+    expect(await sinAcceso.json()).toMatchObject({ motivo: 'pendiente' });
+
+    const omar = 'omar.romero@jrotero.es';
+    await verificar(omar);
+    expect(await estado(omar)).toMatchObject({ rol: 'superadmin', necesitaDobleFactor: true, dobleFactorOk: false });
+    expect((await admin(pet('/api/admin', omar))).status).toBe(403);
+    const cookie = await dobleFactor(omar);
+    expect(await estado(omar, cookie)).toMatchObject({ dobleFactorOk: true });
+
+    const lista = (await (await admin(pet('/api/admin', omar, { cookie }))).json()) as { usuarios: { uid: string; email: string; rol: string }[] };
+    const laura = lista.usuarios.find((u) => u.email === profe)!;
+    expect(laura.rol).toBe('pendiente');
+    const yo = lista.usuarios.find((u) => u.email === omar)!;
+    expect((await admin(pet('/api/admin', omar, { cookie, cuerpo: { uid: yo.uid, rol: 'alumno' } }))).status).toBe(403);
+    expect((await admin(pet('/api/admin', omar, { cookie, cuerpo: { uid: laura.uid, rol: 'jefe' } }))).status).toBe(400);
+    expect((await admin(pet('/api/admin', omar, { cookie, cuerpo: { uid: laura.uid, rol: 'tutor' } }))).status).toBe(200);
+    expect((await ultimoCorreo(profe))?.asunto).toContain('Tu acceso de tutor/a está activo');
+
+    // El tutor necesita su propio doble factor para ver el directorio.
+    expect(await (await empresas(pet('/api/empresas', profe))).json()).toMatchObject({ motivo: 'doble-factor' });
+    const cookieTutor = await dobleFactor(profe);
+    expect((await empresas(pet('/api/empresas', profe, { cookie: cookieTutor }))).status).toBe(200);
+    // La cookie de doble factor de otra persona no sirve.
+    expect((await empresas(pet('/api/empresas', profe, { cookie }))).status).toBe(403);
   });
 
-  it('funciona sin SESSION_SECRET o con uno corto: genera y guarda una clave propia', async () => {
-    const antes = process.env.SESSION_SECRET;
-    for (const valor of [undefined, 'corto']) {
-      if (valor === undefined) delete process.env.SESSION_SECRET;
-      else process.env.SESSION_SECRET = valor;
-      olvidarClaveEnMemoria();
-      const r = await acceso(post('codigo-de-prueba'), ctx('5.5.5.5'));
-      expect(r.status).toBe(200);
-      const cookie = r.headers.get('set-cookie')!.split(';')[0];
-      olvidarClaveEnMemoria(); // otra instancia de la función: lee la clave guardada
-      const d = await empresas(new Request('https://conecta.test/api/empresas', { headers: { cookie } }));
-      expect(d.status).toBe(200);
-    }
-    process.env.SESSION_SECRET = antes;
-    olvidarClaveEnMemoria();
+  it('un alumno no puede usar el panel de administración', async () => {
+    const email = 'luis@a.jrotero.es';
+    await verificar(email);
+    expect((await admin(pet('/api/admin', email))).status).toBe(403);
   });
 
-  it('distingue el código de tutores del del alumnado', async () => {
-    const t = await acceso(post('codigo-tutor'), ctx('6.6.6.6'));
-    expect(t.status).toBe(200);
-    expect(((await t.json()) as { rol: string }).rol).toBe('tutor');
-    const cookie = t.headers.get('set-cookie')!.split(';')[0];
-    const estado = await acceso(new Request('https://conecta.test/api/acceso', { headers: { cookie } }), ctx('6.6.6.6'));
-    expect(await estado.json()).toEqual({ autenticado: true, rol: 'tutor' });
-    // El tutor también ve el directorio.
-    expect((await empresas(new Request('https://conecta.test/api/empresas', { headers: { cookie } }))).status).toBe(200);
-    const a = await acceso(post('codigo-de-prueba'), ctx('6.6.6.6'));
-    expect(((await a.json()) as { rol: string }).rol).toBe('alumno');
+  it('borrar la cuenta elimina el acceso', async () => {
+    const email = 'borrar@a.jrotero.es';
+    await verificar(email);
+    expect((await cuenta(pet('/api/cuenta', email, { cuerpo: { accion: 'borrar-cuenta' } }), ctx())).status).toBe(200);
+    expect(await estado(email)).toMatchObject({ verificado: false, rol: null });
   });
 
-  it('no usa datos ficticios si corre en Netlify', async () => {
+  it('los tokens de prueba no valen en Netlify', async () => {
+    const email = 'ana@a.jrotero.es';
+    await verificar(email);
     process.env.NETLIFY = 'true';
-    const { cargarEmpresas } = await import('../../server/datos');
-    const reales = await cargarEmpresas();
-    expect(reales.some((e) => e.web.includes('.test') || e.id.startsWith('ficticia'))).toBe(false);
-    delete process.env.NETLIFY;
+    try {
+      expect((await cuenta(pet('/api/cuenta', email), ctx())).status).toBe(401);
+    } finally {
+      delete process.env.NETLIFY;
+    }
   });
 });

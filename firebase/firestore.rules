@@ -1,0 +1,25 @@
+rules_version = '2';
+// Conecta FFE · reglas de Firestore.
+// Cada persona solo puede leer y escribir SU documento «usuarios/{uid}» (perfil, seguimiento y
+// datos de tutor), con el correo verificado y del centro. Los roles NO están aquí: los gestiona
+// el servidor (Netlify) y ningún cliente puede cambiarlos.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function correoDelCentro() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email.matches('^[^@]+@(a[.])?jrotero[.]es$');
+    }
+
+    match /usuarios/{uid} {
+      allow read, delete: if correoDelCentro() && request.auth.uid == uid;
+      allow create, update: if correoDelCentro() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['alumno', 'seguimiento', 'tutor', 'tutor-envios', 'actualizado']);
+    }
+
+    // Todo lo demás, cerrado.
+    match /{documento=**} {
+      allow read, write: if false;
+    }
+  }
+}

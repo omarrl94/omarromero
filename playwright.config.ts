@@ -21,8 +21,9 @@ export default defineConfig({
     env: {
       CONECTA_MODO: 'pruebas',
       CONECTA_DATOS: 'ficticios',
-      ACCESS_CODE: 'codigo-e2e',
-      TUTOR_ACCESS_CODE: 'tutor-e2e',
+      VITE_AUTH: 'prueba',
+      MAIL_MODE: 'log',
+      SUPERADMIN_EMAILS: 'jefa-movil@jrotero.es,jefa-escritorio@jrotero.es',
       SESSION_SECRET: 'secreto-e2e-de-al-menos-treinta-y-dos-caracteres',
     },
   },

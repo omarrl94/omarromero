@@ -1,24 +1,19 @@
 import { expect, test } from '@playwright/test';
-import { abrirFiltros, CODIGO, ipUnica, sinViolacionesGraves } from './ayudas';
+import { abrirFiltros, entrarComoAlumno, entrarComoTutor, ipUnica, sinViolacionesGraves } from './ayudas';
 
 test.beforeEach(async ({ page }) => ipUnica(page));
 
-test('la sección de tutores pide su propio código (el del alumnado no sirve)', async ({ page }) => {
+test('la sección de tutores no está disponible para el alumnado', async ({ page }) => {
+  await entrarComoAlumno(page);
   await page.goto('/#/tutores');
-  await expect(page.getByRole('heading', { name: 'Acceso para tutores' })).toBeVisible();
-  await sinViolacionesGraves(page);
-  await page.getByLabel('Código de acceso').fill(CODIGO);
-  await page.getByRole('button', { name: 'Entrar' }).click();
-  await expect(page.getByText('Has entrado con el código del alumnado')).toBeVisible();
-  await page.getByLabel('Código de acceso').fill('tutor-e2e');
-  await page.getByRole('button', { name: 'Entrar' }).click();
-  await expect(page.getByRole('heading', { name: 'Escribir a las empresas de tu ciclo' })).toBeVisible();
+  await expect(page.getByText('Sección no disponible para tu cuenta')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Tutores' })).toHaveCount(0);
 });
 
 test('el tutor selecciona empresas de su ciclo y prepara el envío en CCO, uno a uno y CSV', async ({ page }) => {
-  await page.goto('/#/tutores');
-  await page.getByLabel('Código de acceso').fill('tutor-e2e');
-  await page.getByRole('button', { name: 'Entrar' }).click();
+  await entrarComoTutor(page);
+  await expect(page.getByRole('heading', { name: 'Escribir a las empresas de tu ciclo' })).toBeVisible();
+  await sinViolacionesGraves(page);
 
   // Ciclo DAM: se rellenan nombre y correo del tutor oficial.
   await page.locator('label').filter({ hasText: /^DAM$/ }).click();

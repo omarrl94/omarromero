@@ -1,14 +1,12 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { config, perfilPorId, perfilesDe, zonaPorId, type Ciclo } from '../../config/ffe.config';
 import { csvCombinacion, enLotes, generarCorreoTutor, LINEA_BAJA, urlGmailCco, urlMailtoCco, urlOutlookCco, type BorradorCco } from '../../shared/correo-tutor';
 import { urlGmail, urlMailto, urlOutlook } from '../../shared/correo';
 import type { Empresa } from '../../shared/schemas';
 import { normalizar } from '../../shared/texto';
-import { Acceso } from '../components/Acceso';
 import { BarraFiltros, ChipOpcion } from '../components/BarraFiltros';
 import { Aviso, Cargando, ErrorCaja, Vacio } from '../components/Estados';
 import { useLocal } from '../lib/almacen-local';
-import { api } from '../lib/api';
 import { useEstadoSesion } from '../lib/estado-sesion';
 import { fecha, NOMBRE_TAMANO, NOMBRE_TIPO_CONTACTO } from '../lib/formato';
 import { useEmpresas } from '../lib/useEmpresas';
@@ -32,44 +30,7 @@ const esCorreoRrhh = (e: Empresa) => e.contacto.tipo === 'email' && e.contacto.t
 const diasDesde = (iso: string) => Math.floor((Date.now() - new Date(iso).getTime()) / 864e5);
 
 export function Tutores() {
-  const [rol, setRol] = useState<'cargando' | 'tutor' | 'alumno' | 'ninguno'>('cargando');
   const { estado, recargar } = useEmpresas();
-
-  const comprobar = useCallback(
-    () =>
-      api.estadoAcceso().then(
-        (r) => setRol(r.rol === 'tutor' ? 'tutor' : r.rol === 'alumno' ? 'alumno' : 'ninguno'),
-        () => setRol('ninguno'),
-      ),
-    [],
-  );
-  useEffect(() => {
-    void comprobar();
-  }, [comprobar]);
-
-  if (rol === 'cargando') return <Cargando texto="Comprobando acceso…" />;
-  if (rol !== 'tutor') {
-    return (
-      <div className="grid gap-4">
-        {rol === 'alumno' && (
-          <div className="mx-auto w-full max-w-md">
-            <Aviso tono="atencion" titulo="Has entrado con el código del alumnado">
-              Esta sección es para el profesorado. Introduce el código de tutores del centro.
-            </Aviso>
-          </div>
-        )}
-        <Acceso
-          titulo="Acceso para tutores"
-          descripcion="Sección para el profesorado tutor de FFE: escribir a las empresas del directorio de tu ciclo."
-          ayuda="Es un código distinto del del alumnado. Lo gestiona la coordinación de FFE del centro."
-          alEntrar={(r) => {
-            setRol(r === 'tutor' ? 'tutor' : r === 'alumno' ? 'alumno' : 'ninguno');
-            recargar();
-          }}
-        />
-      </div>
-    );
-  }
 
   return (
     <div className="grid gap-6">
@@ -82,7 +43,7 @@ export function Tutores() {
       </header>
       {estado.tipo === 'cargando' && <Cargando texto="Cargando empresas…" />}
       {estado.tipo === 'error' && <ErrorCaja mensaje={estado.mensaje} reintentar={recargar} />}
-      {estado.tipo === 'sin-acceso' && <ErrorCaja mensaje="La sesión ha caducado. Recarga la página e introduce de nuevo el código." />}
+      {estado.tipo === 'sin-acceso' && <ErrorCaja mensaje="Tu sesión ha caducado. Vuelve a entrar." reintentar={recargar} />}
       {estado.tipo === 'listo' && <PanelTutor empresas={estado.empresas} />}
     </div>
   );

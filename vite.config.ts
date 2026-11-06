@@ -9,7 +9,8 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
  */
 function funcionesLocales(): Plugin {
   const rutas: Record<string, string> = {
-    '/api/acceso': '/netlify/functions/acceso.mts',
+    '/api/cuenta': '/netlify/functions/cuenta.mts',
+    '/api/admin': '/netlify/functions/admin.mts',
     '/api/empresas': '/netlify/functions/empresas.mts',
     '/api/ofertas': '/netlify/functions/ofertas.mts',
   };

@@ -143,6 +143,20 @@ export const config = {
   /** Ubicación por defecto para las búsquedas. */
   lugarBusqueda: 'Madrid',
 
+  /** Cuentas: quién puede registrarse y quién administra. */
+  cuentas: {
+    /** Dominio del correo del alumnado (registro como alumno/a). */
+    dominioAlumnado: 'a.jrotero.es',
+    /** Dominio del correo del profesorado (registro como tutor/a, pendiente de aprobación). */
+    dominioProfesorado: 'jrotero.es',
+    /** Superadministradores: aprueban tutores y asignan roles. Se pueden añadir más con SUPERADMIN_EMAILS. */
+    superadmins: ['omar.romero@jrotero.es'],
+    /** Minutos de validez del código de doble factor enviado por correo. */
+    minutosCodigo: 10,
+    /** Horas que dura la verificación de doble factor en un navegador. */
+    horasDobleFactor: 12,
+  },
+
   acceso: {
     /** Intentos fallidos permitidos por IP en la ventana. */
     maxIntentos: 5,

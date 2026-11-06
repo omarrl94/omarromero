@@ -51,6 +51,14 @@ export function borrarTodo(): void {
   oyentes.forEach((o) => o());
 }
 
+/** Avisa de cualquier cambio en los datos guardados (para sincronizarlos con la cuenta). */
+export function suscribirCambios(o: () => void): () => void {
+  oyentes.add(o);
+  return () => {
+    oyentes.delete(o);
+  };
+}
+
 function suscribir(o: () => void) {
   oyentes.add(o);
   const alCambiar = (e: StorageEvent) => {

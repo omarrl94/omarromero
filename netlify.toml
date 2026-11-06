@@ -5,10 +5,14 @@
 
 [build.environment]
   NODE_VERSION = "22"
+  # La configuración web de Firebase es pública por diseño (la protegen las reglas de Firestore
+  # y el servidor), así que se excluye del escáner de secretos de Netlify.
+  SECRETS_SCAN_OMIT_KEYS = "VITE_FIREBASE_API_KEY,VITE_FIREBASE_AUTH_DOMAIN,VITE_FIREBASE_PROJECT_ID,VITE_FIREBASE_APP_ID"
 
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
+  external_node_modules = ["firebase-admin"]
   # Los datos del directorio solo viajan dentro de las funciones, nunca en dist/.
   included_files = ["data/empresas.json", "data/retiradas.json"]
 

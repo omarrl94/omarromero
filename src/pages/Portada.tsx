@@ -1,9 +1,12 @@
 import { config, perfilPorId } from '../../config/ffe.config';
 import { SelectorPerfil } from '../components/SelectorPerfil';
 import { useAlumno } from '../lib/alumno';
+import { useSesion } from '../lib/sesion';
 
 export function Portada() {
   const [alumno, setAlumno] = useAlumno();
+  const { usuario, estado } = useSesion();
+  const rol = estado?.verificado ? estado.rol : null;
   const cambiar = (c: Partial<typeof alumno>) => setAlumno((prev) => ({ ...prev, ...c }));
   const listo = alumno.ciclo && alumno.perfiles.length > 0 && alumno.modalidad;
 
@@ -18,12 +21,29 @@ export function Portada() {
           <p className="mt-4 max-w-xl text-lg">
             Empresas de Madrid revisadas una a una, un correo de presentación listo para editar y ofertas de prácticas y primer empleo de tu perfil.
           </p>
-          <button type="button" className="btn-primario mt-6" onClick={() => { const el = document.getElementById('elige'); el?.scrollIntoView(); el?.querySelector('input')?.focus({ preventScroll: true }); }}>
-            Elegir mi perfil <span aria-hidden="true">↓</span>
-          </button>
+          <div className="mt-6 flex flex-wrap gap-3">
+            {!usuario ? (
+              <>
+                <a href="#/entrar" className="btn-primario">Crear cuenta o entrar</a>
+                <span className="self-center text-sm font-semibold">Alumnado con @a.jrotero.es · profesorado con @jrotero.es</span>
+              </>
+            ) : rol === 'tutor' || rol === 'superadmin' ? (
+              <>
+                <a href="#/tutores" className="btn-primario">Ir a la sección de tutores</a>
+                {rol === 'superadmin' && <a href="#/admin" className="btn-secundario">Usuarios y roles</a>}
+              </>
+            ) : rol === 'alumno' ? (
+              <button type="button" className="btn-primario" onClick={() => { const el = document.getElementById('elige'); el?.scrollIntoView(); el?.querySelector('input')?.focus({ preventScroll: true }); }}>
+                Elegir mi perfil <span aria-hidden="true">↓</span>
+              </button>
+            ) : (
+              <a href="#/entrar" className="btn-primario">Continuar con mi cuenta</a>
+            )}
+          </div>
         </div>
       </section>
 
+      {(rol === 'alumno' || !usuario) && (
       <section id="elige" aria-labelledby="titulo-elige" className="scroll-mt-24">
         <div className="mb-6 flex flex-wrap items-end justify-between gap-2">
           <h2 id="titulo-elige" className="text-3xl font-extrabold">Cuéntanos qué buscas</h2>
@@ -46,6 +66,8 @@ export function Portada() {
           </div>
         </div>
       </section>
+
+      )}
 
       <section aria-labelledby="titulo-como" className="grid gap-4">
         <h2 id="titulo-como" className="text-2xl font-extrabold">Cómo funciona</h2>

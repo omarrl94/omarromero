@@ -26,15 +26,19 @@ Idioma de la interfaz, el código de dominio y la documentación: **español de 
 
 ## Privacidad y seguridad
 
-- No se suben ni almacenan CV. Los datos del alumno viven solo en `localStorage` (clave `conecta-ffe:*`) con botón de borrado.
-- Sin analítica ni registro de usuarios.
+- No se suben ni almacenan CV.
+- Sin analítica. Cuentas con Firebase Auth: alumnado @a.jrotero.es (rol automático), profesorado @jrotero.es
+  (pendiente hasta que un superadmin lo apruebe), superadmin en `config.cuentas.superadmins`. Los roles viven solo
+  en el servidor (Netlify Blobs); tutores y superadmin pasan doble factor por correo.
+- Perfil y seguimiento se sincronizan en `usuarios/{uid}` de Firestore (reglas en `firebase/firestore.rules`).
+  Al cerrar sesión se borran los datos del navegador; el usuario puede borrar su cuenta.
 - El directorio de empresas se entrega solo desde `/api/empresas` tras validar el código de acceso en el servidor
-  (cookie HttpOnly firmada + limitación de intentos). **Ningún correo de empresa puede aparecer en `dist/`**:
+  (token de Firebase + rol + doble factor cuando corresponde). **Ningún correo de empresa puede aparecer en `dist/`**:
   lo comprueba `npm run comprobar:bundle`.
 - `noindex` en meta, cabecera `X-Robots-Tag` y `robots.txt`.
 - Sin envíos automáticos: la app nunca envía correos por sí misma; cada correo sale de la cuenta de quien lo envía.
 - Alumnado: un correo por empresa, revisado y enviado por el alumno (máximo orientativo de contactos por empresa).
-- Tutores (`#/tutores`, código `TUTOR_ACCESS_CODE`): pueden escribir a varias empresas de su ciclo desde su cuenta,
+- Tutores (`#/tutores`, rol tutor aprobado + doble factor): pueden escribir a varias empresas de su ciclo desde su cuenta,
   **siempre en CCO**, por lotes (`tutores_envio.maxDestinatariosPorLote`), sin repetir empresa en menos de
   `tutores_envio.diasEntreEnvios` días y con **línea de baja** obligatoria en el texto.
 
@@ -43,7 +47,7 @@ Idioma de la interfaz, el código de dominio y la documentación: **español de 
 - `config/ffe.config.ts`: **único** archivo con datos editables (modalidades, horas, tutores, perfiles, límites, enlaces profundos).
 - `shared/`: esquemas Zod y lógica pura compartida entre cliente y funciones (encaje, normalización de ofertas, correo).
 - `src/`: React + TypeScript + Vite + Tailwind v4.
-- `netlify/functions/`: API (`acceso`, `empresas`, `ofertas`) y función programada `ofertas-actualizar`. Las retiradas llegan por Netlify Forms (formulario `retirada`).
+- `netlify/functions/`: API (`cuenta`, `admin`, `empresas`, `ofertas`) y función programada `ofertas-actualizar`. Las retiradas llegan por Netlify Forms (formulario `retirada`).
 - `.github/workflows/verificar-empresas.yml`: verifica las candidatas con Internet (al cambiarlas y cada mes) y guarda el resultado en la rama.
 - `server/`: código solo de servidor (almacén Blobs con alternativa local, sesión, límite de intentos, fuentes de ofertas).
 - `data/empresas.candidatas.json`: investigación **sin verificar**. Nunca se sirve.

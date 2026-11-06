@@ -12,7 +12,7 @@ import { config } from '../config/ffe.config';
 const PERMITIDOS = new Set(
   [config.centro.contactoPrivacidad, ...Object.values(config.tutores).flatMap((t) => (t ? [t.email] : []))].map((e) => e.toLowerCase()),
 );
-const SECRETOS = ['TUTOR_ACCESS_CODE', 'ACCESS_CODE', 'SESSION_SECRET', 'ADZUNA_APP_KEY', 'ADZUNA_APP_ID', 'INFOJOBS_CLIENT_SECRET', 'INFOJOBS_CLIENT_ID'];
+const SECRETOS = ['SESSION_SECRET', 'FIREBASE_SERVICE_ACCOUNT', 'FIREBASE_PRIVATE_KEY', 'SMTP_PASS', 'RESEND_API_KEY', 'MS_CLIENT_SECRET', 'ADZUNA_APP_KEY', 'ADZUNA_APP_ID', 'INFOJOBS_CLIENT_SECRET', 'INFOJOBS_CLIENT_ID'];
 const RE_EMAIL = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,24}/gi;
 
 async function archivos(dir: string): Promise<string[]> {

@@ -4,7 +4,6 @@ import { config, perfilPorId, zonaPorId } from '../../config/ffe.config';
 import { etiquetaEncaje, puntuarEncaje } from '../../shared/encaje';
 import type { Empresa } from '../../shared/schemas';
 import { normalizar } from '../../shared/texto';
-import { Acceso } from '../components/Acceso';
 import { BarraFiltros, ChipOpcion } from '../components/BarraFiltros';
 import { coincidePerfil, FiltroPerfil, perfilesParaEncaje, valorInicial } from '../components/FiltroPerfil';
 import { Aviso, ErrorCaja, Esqueleto, Vacio } from '../components/Estados';
@@ -23,7 +22,6 @@ const bonusContacto = (e: Empresa) => (esCorreoRrhh(e) ? 15 : e.contacto.tipo ==
 
 export function Empresas() {
   const { estado, recargar } = useEmpresas();
-  if (estado.tipo === 'sin-acceso') return <Acceso alEntrar={recargar} />;
   return (
     <div className="grid gap-6">
       <header>
@@ -39,6 +37,7 @@ export function Empresas() {
         </>
       )}
       {estado.tipo === 'error' && <ErrorCaja mensaje={estado.mensaje} reintentar={recargar} />}
+      {estado.tipo === 'sin-acceso' && <ErrorCaja mensaje="Tu sesión ha caducado o no tienes acceso. Vuelve a entrar." reintentar={recargar} />}
       {estado.tipo === 'listo' && <ListaEmpresas empresas={estado.empresas} />}
     </div>
   );
@@ -48,7 +47,9 @@ function ListaEmpresas({ empresas }: { empresas: Empresa[] }) {
   const [alumno] = useAlumno();
   const { seguimiento } = useSeguimiento();
   const [texto, setTexto] = useEstadoSesion('empresas.texto', '');
-  const [perfil, setPerfil] = useEstadoSesion('empresas.perfil', () => valorInicial(alumno));
+  // null = «automático»: sigue el perfil del alumno hasta que lo cambie a mano.
+  const [perfilElegido, setPerfil] = useEstadoSesion<string | null>('empresas.perfil', null);
+  const perfil = perfilElegido ?? valorInicial(alumno);
   useRecordarScroll('empresas', empresas.length > 0);
   const [contacto, setContacto] = useEstadoSesion<Contacto>('empresas.contacto', '');
   const [tamano, setTamano] = useEstadoSesion('empresas.tamano', '');

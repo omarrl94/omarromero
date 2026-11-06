@@ -12,7 +12,7 @@ acceso a Internet y está en `docs/PENDIENTES.md`.
 | CI en GitHub Actions (check + E2E) | ✔ en verde |
 | Build de producción (Vite) | ✔ JS 287 kB (88 kB gzip), CSS 32 kB (6,4 kB gzip) |
 | Build real de Netlify (`netlify build --offline`) | ✔ `npm run check` completo y 4 funciones empaquetadas. Rutas `/api/acceso`, `/api/empresas` y `/api/ofertas`; programada `ofertas-actualizar` con `17 6 * * *` |
-| Bundle sin correos protegidos ni secretos (`npm run comprobar:bundle`) | ✔ limpio con los datos reales: 57 correos protegidos ausentes de `dist/`. Prueba negativa: al plantar un correo protegido y el nombre `ACCESS_CODE` en `dist/`, el script los detecta y sale con código 1 |
+| Bundle sin correos protegidos ni secretos (`npm run comprobar:bundle`) | ✔ limpio con los datos reales: 57 correos protegidos ausentes de `dist/`. Prueba negativa: al plantar un correo protegido y el nombre de una variable secreta en `dist/`, el script los detecta y sale con código 1 |
 | Validación de datos con Zod | ✔ 206 candidatas y 128 empresas verificadas válidas |
 | E2E móvil (Pixel 7) y escritorio (1280×860) | ✔ 32/32 (16 por dispositivo): portada y perfil en menos de 60 s, código de acceso, límite de intentos (429), filtros y orden por encaje, ficha, generador de correo (CV obligatorio, Outlook y Gmail con CC del tutor, edición), seguimiento y aviso de empresa ya contactada, empresas solo con formulario, ASIR sin tutor, ofertas (fuente, fecha, ubicación, jornada, enlace, fuente fallida), estados de error, vacío y reintento, `noindex` y borrado de datos |
 | Accesibilidad (axe WCAG 2.1 A/AA dentro de los E2E) | ✔ 0 violaciones graves o críticas en portada, privacidad, acceso, directorio, ficha, seguimiento y ofertas, en móvil y escritorio |

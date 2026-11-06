@@ -1,38 +1,21 @@
 import { expect, test } from '@playwright/test';
-import { abrirFiltros, CODIGO, elegirPerfil, entrar, ipUnica, rellenarNombre, sinViolacionesGraves } from './ayudas';
+import { abrirFiltros, elegirPerfil, entrarComoAlumno, ipUnica, irAEmpresas, rellenarNombre, sinViolacionesGraves } from './ayudas';
 
 test.beforeEach(async ({ page }) => ipUnica(page));
 
-test('el directorio exige código y no expone correos sin sesión', async ({ page, request }) => {
+test('el directorio exige iniciar sesión y no expone correos', async ({ page, request }) => {
   const r = await request.get('/api/empresas');
   expect(r.status()).toBe(401);
   expect(await r.text()).not.toContain('@');
   await page.goto('/#/empresas');
-  await expect(page.getByRole('heading', { name: 'Directorio protegido' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Entrar en Conecta FFE' })).toBeVisible();
   await sinViolacionesGraves(page);
-  await page.getByLabel('Código de acceso').fill('incorrecto');
-  await page.getByRole('button', { name: 'Entrar' }).click();
-  await expect(page.getByRole('alert')).toContainText('Código incorrecto');
-  await page.getByLabel('Código de acceso').fill(CODIGO);
-  await page.getByRole('button', { name: 'Entrar' }).click();
-  await expect(page.getByRole('heading', { name: 'Ficticia Web Studio', level: 3 })).toBeVisible();
-});
-
-test('limita los intentos fallidos', async ({ page }) => {
-  await page.goto('/#/empresas');
-  for (let i = 0; i < 5; i++) {
-    await page.getByLabel('Código de acceso').fill(`mal-${i}`);
-    await page.getByRole('button', { name: 'Entrar' }).click();
-    await expect(page.getByRole('alert')).toContainText(/Código incorrecto/);
-  }
-  await page.getByLabel('Código de acceso').fill(CODIGO);
-  await page.getByRole('button', { name: 'Entrar' }).click();
-  await expect(page.getByRole('alert')).toContainText('Demasiados intentos');
 });
 
 test('filtra, busca y ordena por encaje con el perfil', async ({ page }) => {
+  await entrarComoAlumno(page);
   await elegirPerfil(page, 'ASIR', 'Ciberseguridad y SOC');
-  await entrar(page);
+  await irAEmpresas(page);
   const tarjetas = page.getByRole('main').getByRole('listitem').filter({ has: page.getByRole('heading', { level: 3 }) });
   await expect(tarjetas.first()).toContainText('Ficticia Ciberdefensa');
   await expect(page.getByRole('heading', { name: 'Ficticia ERP Consulting', level: 3 })).toHaveCount(0); // sin perfiles ASIR
@@ -51,9 +34,10 @@ test('filtra, busca y ordena por encaje con el perfil', async ({ page }) => {
 });
 
 test('genera el correo, exige el aviso de CV, abre Outlook/Gmail y registra el seguimiento', async ({ page }) => {
+  await entrarComoAlumno(page);
   await elegirPerfil(page, 'DAM', 'Desarrollo web');
   await rellenarNombre(page);
-  await entrar(page);
+  await irAEmpresas(page);
   await page.getByRole('link', { name: 'Ficticia Web Studio', exact: true }).click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Ficticia Web Studio');
   await expect(page.getByText('https://www.ficticia-web.test/empleo').first()).toBeVisible();
@@ -93,9 +77,10 @@ test('genera el correo, exige el aviso de CV, abre Outlook/Gmail y registra el s
 
 test('empresas solo con formulario: copiar texto y abrir el formulario oficial', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  await entrarComoAlumno(page);
   await elegirPerfil(page, 'ASIR', 'Cloud y AWS');
   await rellenarNombre(page, 'Luis Gómez');
-  await entrar(page);
+  await irAEmpresas(page);
   await page.getByRole('link', { name: 'Ficticia Nube', exact: true }).click();
   await expect(page.getByText('Esta empresa recibe candidaturas por formulario')).toBeVisible();
   await expect(page.getByText(/Tutor\/a de tu ciclo pendiente/)).toHaveCount(0); // sin campo CC en formularios
@@ -107,9 +92,10 @@ test('empresas solo con formulario: copiar texto y abrir el formulario oficial',
 });
 
 test('ASIR sin tutor asignado: el correo avisa y no pone copia', async ({ page }) => {
+  await entrarComoAlumno(page);
   await elegirPerfil(page, 'ASIR', 'Ciberseguridad y SOC', 'B');
   await rellenarNombre(page);
-  await entrar(page);
+  await irAEmpresas(page);
   await page.getByRole('link', { name: 'Ficticia Ciberdefensa', exact: true }).click();
   await expect(page.getByLabel('CC (tutor/a de FFE)')).toHaveValue('');
   await expect(page.getByText(/Tutor\/a de tu ciclo pendiente de asignar/)).toBeVisible();
@@ -118,9 +104,10 @@ test('ASIR sin tutor asignado: el correo avisa y no pone copia', async ({ page }
 });
 
 test('filtra por tipo de contacto y por cualquier rama de DAM o ASIR, y escribe desde la tarjeta', async ({ page }) => {
+  await entrarComoAlumno(page);
   await elegirPerfil(page, 'DAM', 'Desarrollo web');
   await rellenarNombre(page);
-  await entrar(page);
+  await irAEmpresas(page);
   const tarjetas = page.getByRole('main').getByRole('listitem').filter({ has: page.getByRole('heading', { level: 3 }) });
 
   // Por defecto: mi ciclo (DAM). La de ciberseguridad (solo ASIR) no sale.
@@ -162,8 +149,9 @@ test('filtra por tipo de contacto y por cualquier rama de DAM o ASIR, y escribe 
 });
 
 test('los filtros se mantienen al abrir una empresa y volver atrás', async ({ page }) => {
+  await entrarComoAlumno(page);
   await elegirPerfil(page, 'DAM', 'Desarrollo web');
-  await entrar(page);
+  await irAEmpresas(page);
   await abrirFiltros(page);
   await page.getByLabel('Perfil o rama').selectOption('ciclo:ASIR');
   await page.getByLabel('Contacto').selectOption('email');

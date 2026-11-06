@@ -19,13 +19,11 @@
 ### Antes de publicar (obligatorio)
 
 1. **Despliegue:** sigue `docs/DESPLIEGUE.md` (rama `conecta-ffe`).
-2. **Variables en Netlify** (Project configuration → Environment variables, solo servidor):
-   - `ACCESS_CODE`: el código del curso para el alumnado (no lo publiques en el aula virtual en abierto).
-   - `SESSION_SECRET`: genera uno con `node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"`.
+2. **Crear el proyecto de Firebase** `conecta-ffe` y añadir sus variables y las del correo del centro (`docs/DESPLIEGUE.md`, pasos 1 y 4).
 3. **Revisar el directorio verificado** (pendiente 1). La verificación se repite sola cada mes y cada vez que cambian las candidatas.
 4. **Activar Netlify Forms** y la notificación por correo del formulario `retirada`.
-5. **Revisar los textos legales** de `#/privacidad` con la persona responsable de protección de datos del centro (responsable del tratamiento, base jurídica, plazo de retirada de 10 días hábiles).
-6. **Revisión final** en el *deploy preview*: entra con el código, genera un correo de prueba **a tu propia dirección** (cambia el «Para») y comprueba que Outlook y Gmail se abren bien.
+5. **Revisar los textos legales** de `#/privacidad` con la persona responsable de protección de datos del centro. Ahora hay cuentas y datos en Firebase: hay que fijar el responsable del tratamiento, la base jurídica, el encargado (Google, región UE), los plazos de conservación y el de retirada (10 días hábiles).
+6. **Primer acceso como superadmin** y comprobación final (`docs/DESPLIEGUE.md`, pasos 6 y 9).
 
 ### Datos de configuración que confirmar (`config/ffe.config.ts`)
 

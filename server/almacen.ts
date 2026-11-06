@@ -1,11 +1,13 @@
 import { getStore } from '@netlify/blobs';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { enNetlify } from './entorno';
 
 export interface Almacen {
   leer<T>(clave: string): Promise<T | null>;
   guardar(clave: string, valor: unknown): Promise<void>;
+  /** Claves que empiezan por el prefijo. */
+  claves(prefijo: string): Promise<string[]>;
 }
 
 const memoria = new Map<string, Almacen>();
@@ -27,6 +29,13 @@ function almacenLocal(nombre: string): Almacen {
       await mkdir(dirname(r), { recursive: true });
       await writeFile(r, JSON.stringify(valor));
     },
+    async claves(prefijo) {
+      try {
+        return (await readdir(base)).filter((f) => f.endsWith('.json')).map((f) => f.slice(0, -5)).filter((k) => k.startsWith(prefijo));
+      } catch {
+        return [];
+      }
+    },
   };
 }
 
@@ -38,6 +47,10 @@ function almacenBlobs(nombre: string): Almacen {
     },
     async guardar(clave, valor) {
       await store.setJSON(clave, valor);
+    },
+    async claves(prefijo) {
+      const { blobs } = await store.list({ prefix: prefijo });
+      return blobs.map((b) => b.key);
     },
   };
 }

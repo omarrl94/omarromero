@@ -14,3 +14,9 @@ export function useRuta(): string[] {
 export function ir(ruta: string) {
   window.location.hash = ruta.startsWith('#') ? ruta : `#${ruta}`;
 }
+
+/** Parámetros tras «?» en el hash: «#/entrar?verificado=1» → verificado=1. */
+export function useParametros(): URLSearchParams {
+  const hash = useSyncExternalStore(suscribir, () => window.location.hash, () => '');
+  return new URLSearchParams(hash.split('?')[1] ?? '');
+}
