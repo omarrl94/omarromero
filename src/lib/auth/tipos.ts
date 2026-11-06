@@ -30,7 +30,7 @@ export function mensajeAuth(e: unknown): string {
     'auth/wrong-password': 'Correo o contraseña incorrectos.',
     'auth/user-not-found': 'Correo o contraseña incorrectos.',
     'auth/too-many-requests': 'Demasiados intentos. Espera unos minutos.',
-    'auth/network-request-failed': 'No hay conexión. Comprueba tu red.',
+    'auth/network-request-failed': 'No se ha podido conectar con el servicio de cuentas. Comprueba tu conexión; si sigue pasando, avisa a la coordinación de FFE (puede estar bloqueado por la red o por una extensión del navegador).',
     'auth/requires-recent-login': 'Por seguridad, cierra sesión y vuelve a entrar antes de hacer esto.',
   };
   if (mapa[code]) return mapa[code];
