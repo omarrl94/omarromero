@@ -12,7 +12,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { CandidatasSchema, EmpresaSchema, EmpresasSchema, type Candidata, type Empresa } from '../shared/schemas';
 import { descargar as descargarRed, enSerie, hayRed, tieneMx as tieneMxRed, type Pagina } from './lib/red';
 import { pathToFileURL } from 'node:url';
-import { detectarAts, enlacesDeInteres, esPaginaFormulario, extraerCorreos, leerSitemap, mencionaPracticas, paginasEmpleoDeSitemap, priorizarUrls, RANGO_FORMULARIO, rangoCorreo, RUTAS_HABITUALES, tipoPagina, tituloDe, valorarCorreos, type CorreoValorado, type TipoPagina } from './lib/verificador';
+import { detectarAts, enlacesDeInteres, esPaginaFormulario, extraerCorreos, leerSitemap, mencionaPracticas, paginasEmpleoDeSitemap, priorizarUrls, RANGO_FORMULARIO, rangoCorreo, RUTAS_HABITUALES, tipoPagina, tituloDe, esRutaDeOtroPais, valorarCorreos, type CorreoValorado, type TipoPagina } from './lib/verificador';
 
 interface Retirada { id?: string; dominio?: string; fecha: string }
 
@@ -69,11 +69,11 @@ export async function verificar(c: Candidata, retiradas: Retirada[], deps: Depen
   const revisadas = new Set<string>([c.web, raiz.urlFinal]);
   const paginas: Pagina[] = [raiz];
   const revisar = async (lista: string[], max: number) => {
-    for (const u of priorizarUrls([...new Set(lista)]).filter((x) => !revisadas.has(x)).slice(0, max)) {
+    for (const u of priorizarUrls([...new Set(lista)]).filter((x) => !revisadas.has(x) && !esRutaDeOtroPais(x)).slice(0, max)) {
       revisadas.add(u);
       const p = await descargar(u);
       r.paginasRevisadas.push({ url: u, estado: p.estado || p.error || 'error' });
-      if (p.estado >= 200 && p.estado < 400 && !revisadas.has(p.urlFinal + '#ok')) {
+      if (p.estado >= 200 && p.estado < 400 && !esRutaDeOtroPais(p.urlFinal) && !revisadas.has(p.urlFinal + '#ok')) {
         revisadas.add(p.urlFinal + '#ok');
         paginas.push(p);
       }

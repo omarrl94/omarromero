@@ -253,3 +253,19 @@ export function paginasEmpleoDeSitemap(urls: string[], base: string, max = 6): s
   const contacto = mismas.filter((u) => tipoPagina(u) === 'contacto').sort((a, b) => a.length - b.length);
   return [...new Set([...empleo.slice(0, max), ...contacto.slice(0, 2)])];
 }
+
+/**
+ * Páginas de la web de otro país del mismo grupo (p. ej. /de-en/, /fr-fr/, /mx/): sus correos son de esa
+ * filial, no de la oficina de Madrid. Una ruta con «es» (es-es, en-es, /es/) o solo de idioma (/en/) es válida.
+ */
+export function esRutaDeOtroPais(url: string): boolean {
+  let primero: string;
+  try {
+    primero = new URL(url).pathname.split('/').filter(Boolean)[0]?.toLowerCase() ?? '';
+  } catch {
+    return false;
+  }
+  const locale = /^([a-z]{2})[-_]([a-z]{2})$/.exec(primero);
+  if (locale) return locale[1] !== 'es' && locale[2] !== 'es';
+  return PAISES_EXTRANJEROS.includes(primero);
+}

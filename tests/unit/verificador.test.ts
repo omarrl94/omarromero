@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { correoApareceEn, decodificarCfEmail, detectarAts, elegirCorreo, enlacesDeInteres, esPaginaFormulario, extraerCorreos, mencionaPracticas, tipoContactoDe, valorarCorreos } from '../../scripts/lib/verificador';
+import { correoApareceEn, decodificarCfEmail, esRutaDeOtroPais, detectarAts, elegirCorreo, enlacesDeInteres, esPaginaFormulario, extraerCorreos, mencionaPracticas, tipoContactoDe, valorarCorreos } from '../../scripts/lib/verificador';
 
 const WEB = 'https://www.acme.test';
 const html = `
@@ -112,5 +112,19 @@ describe('tipo de página y rango del canal', () => {
     expect(rangoCorreo({ email: 'info@a.test', tipo: 'general' }, ['contacto'])).toBe(3);
     expect(RANGO_FORMULARIO.contacto).toBe(4);
     expect(rangoCorreo({ email: 'info@a.test', tipo: 'general' }, ['legal'])).toBeNull();
+  });
+});
+
+describe('esRutaDeOtroPais', () => {
+  it('descarta las webs de filiales de otros países', () => {
+    expect(esRutaDeOtroPais('https://www.bechtle.com/de-en/career/contact')).toBe(true);
+    expect(esRutaDeOtroPais('https://www.acme.test/fr-fr/carrieres')).toBe(true);
+    expect(esRutaDeOtroPais('https://www.acme.test/mx/empleo')).toBe(true);
+  });
+  it('acepta las páginas de España y las de solo idioma', () => {
+    expect(esRutaDeOtroPais('https://www.bechtle.com/es-es/carrera')).toBe(false);
+    expect(esRutaDeOtroPais('https://www.acme.test/en-es/careers')).toBe(false);
+    expect(esRutaDeOtroPais('https://www.acme.test/en/careers')).toBe(false);
+    expect(esRutaDeOtroPais('https://www.acme.test/trabaja-con-nosotros')).toBe(false);
   });
 });
