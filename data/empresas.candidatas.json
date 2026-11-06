@@ -3135,7 +3135,9 @@
       "dam-web",
       "dam-backend",
       "dam-datos-ia",
-      "asir-sistemas"
+      "asir-sistemas",
+      "acom-atencion-cliente",
+      "acom-venta-tecnica"
     ],
     "motivoEncaje": "Aseguradora con sede en Tres Cantos y área tecnológica.",
     "paginasContacto": [
@@ -4818,6 +4820,844 @@
     "motivoEncaje": "Agencia de marketing de resultados con oficina en Madrid.",
     "paginasContacto": [
       "https://www.labelium.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "toys-r-us-espana",
+    "nombre": "Toys\"R\"Us España",
+    "web": "https://www.toysrus.es",
+    "sector": "Distribución de juguetes",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-visual",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Tiendas de juguetes en Madrid y tienda online.",
+    "paginasContacto": [
+      "https://www.toysrus.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "casa-del-libro",
+    "nombre": "Casa del Libro",
+    "web": "https://www.casadellibro.com",
+    "sector": "Librerías y comercio electrónico",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-ecommerce",
+      "acom-atencion-cliente"
+    ],
+    "motivoEncaje": "Cadena de librerías con sede en Madrid y gran tienda online.",
+    "paginasContacto": [
+      "https://www.casadellibro.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "cash-converters-espana",
+    "nombre": "Cash Converters España",
+    "web": "https://www.cashconverters.es",
+    "sector": "Comercio de segunda mano",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-venta-tecnica",
+      "acom-ecommerce",
+      "acom-gestion-comercio"
+    ],
+    "motivoEncaje": "Red de tiendas con sede en Madrid: compraventa, tasación y tienda online.",
+    "paginasContacto": [
+      "https://www.cashconverters.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "makro-espana",
+    "nombre": "Makro España",
+    "web": "https://www.makro.es",
+    "sector": "Distribución mayorista",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-logistica",
+      "acom-venta-tecnica"
+    ],
+    "motivoEncaje": "Mayorista con sede en Madrid: venta a profesionales, compras y logística.",
+    "paginasContacto": [
+      "https://www.makro.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "mercamadrid",
+    "nombre": "Mercamadrid",
+    "web": "https://www.mercamadrid.es",
+    "sector": "Mercado mayorista y logística alimentaria",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-logistica",
+      "acom-gestion-comercio",
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Gran mercado mayorista de Madrid: logística, comercio y comunicación.",
+    "paginasContacto": [
+      "https://www.mercamadrid.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "primaprix",
+    "nombre": "Primaprix",
+    "web": "https://www.primaprix.es",
+    "sector": "Supermercados de descuento",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-logistica",
+      "acom-gestion-comercio"
+    ],
+    "motivoEncaje": "Cadena madrileña de tiendas de outlet de alimentación y droguería.",
+    "paginasContacto": [
+      "https://www.primaprix.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "bm-supermercados",
+    "nombre": "BM Supermercados",
+    "web": "https://www.bmsupermercados.es",
+    "sector": "Supermercados",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-logistica"
+    ],
+    "motivoEncaje": "Supermercados en la Comunidad de Madrid.",
+    "paginasContacto": [
+      "https://www.bmsupermercados.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "decimas",
+    "nombre": "Décimas",
+    "web": "https://www.decimas.es",
+    "sector": "Moda y material deportivo",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-visual",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Cadena de tiendas de deporte con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.decimas.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "kiabi-espana",
+    "nombre": "Kiabi España",
+    "web": "https://www.kiabi.es",
+    "sector": "Moda",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-visual",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Tiendas de moda en la Comunidad de Madrid y venta online.",
+    "paginasContacto": [
+      "https://www.kiabi.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "securitas-direct",
+    "nombre": "Securitas Direct (Verisure)",
+    "web": "https://www.securitasdirect.es",
+    "sector": "Alarmas y seguridad: venta y atención al cliente",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta-tecnica",
+      "acom-atencion-cliente"
+    ],
+    "motivoEncaje": "Sede en Madrid; venta técnica de sistemas de seguridad y gran servicio de atención al cliente.",
+    "paginasContacto": [
+      "https://www.securitasdirect.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "clicars",
+    "nombre": "Clicars",
+    "web": "https://www.clicars.com",
+    "sector": "Venta online de coches",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-ecommerce",
+      "acom-venta-tecnica",
+      "acom-atencion-cliente",
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Comercio electrónico de vehículos con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.clicars.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "flexicar",
+    "nombre": "Flexicar",
+    "web": "https://www.flexicar.es",
+    "sector": "Venta de coches de ocasión",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta-tecnica",
+      "acom-atencion-cliente",
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Red de concesionarios de ocasión con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.flexicar.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "packlink",
+    "nombre": "Packlink",
+    "web": "https://www.packlink.es",
+    "sector": "Logística para comercio electrónico",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-ecommerce",
+      "acom-logistica",
+      "acom-atencion-cliente"
+    ],
+    "motivoEncaje": "Plataforma de envíos para tiendas online con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.packlink.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "rastreator",
+    "nombre": "Rastreator",
+    "web": "https://www.rastreator.com",
+    "sector": "Comparador online",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "acom-atencion-cliente",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Comparador madrileño: marketing digital y atención al cliente.",
+    "paginasContacto": [
+      "https://www.rastreator.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "acierto",
+    "nombre": "Acierto.com",
+    "web": "https://www.acierto.com",
+    "sector": "Comparador y venta telefónica de seguros",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta-tecnica",
+      "acom-atencion-cliente",
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Comparador con sede en Madrid y equipos de televenta.",
+    "paginasContacto": [
+      "https://www.acierto.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "kelisto",
+    "nombre": "Kelisto",
+    "web": "https://www.kelisto.es",
+    "sector": "Comparador online",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "acom-atencion-cliente"
+    ],
+    "motivoEncaje": "Comparador madrileño de servicios: contenidos y marketing digital.",
+    "paginasContacto": [
+      "https://www.kelisto.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "century21-espana",
+    "nombre": "Century 21 España",
+    "web": "https://www.century21.es",
+    "sector": "Inmobiliaria",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta-tecnica",
+      "acom-atencion-cliente"
+    ],
+    "motivoEncaje": "Red inmobiliaria con sede en Madrid: venta de inmuebles.",
+    "paginasContacto": [
+      "https://www.century21.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "gilmar",
+    "nombre": "Gilmar",
+    "web": "https://www.gilmar.es",
+    "sector": "Inmobiliaria",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta-tecnica",
+      "acom-atencion-cliente",
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Inmobiliaria madrileña: venta, alquiler y marketing inmobiliario.",
+    "paginasContacto": [
+      "https://www.gilmar.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "haya-real-estate",
+    "nombre": "Haya Real Estate",
+    "web": "https://www.haya.es",
+    "sector": "Servicios inmobiliarios",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta-tecnica",
+      "acom-atencion-cliente"
+    ],
+    "motivoEncaje": "Gestora inmobiliaria con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.haya.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "tipsa",
+    "nombre": "TIPSA",
+    "web": "https://www.tip-sa.com",
+    "sector": "Paquetería urgente",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-logistica",
+      "acom-atencion-cliente"
+    ],
+    "motivoEncaje": "Red de paquetería urgente con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.tip-sa.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "zeleris",
+    "nombre": "Zeleris",
+    "web": "https://www.zeleris.com",
+    "sector": "Logística y transporte urgente",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-logistica",
+      "acom-atencion-cliente"
+    ],
+    "motivoEncaje": "Logística y paquetería con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.zeleris.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "cbl-logistica",
+    "nombre": "CBL Logística",
+    "web": "https://www.cbl-logistica.com",
+    "sector": "Logística",
+    "tamano": "gran-empresa",
+    "zona": "sur",
+    "perfiles": [
+      "acom-logistica"
+    ],
+    "motivoEncaje": "Operador logístico con plataformas en el sur de Madrid.",
+    "paginasContacto": [
+      "https://www.cbl-logistica.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "teleperformance-espana",
+    "nombre": "Teleperformance España",
+    "web": "https://www.teleperformance.com/es-es",
+    "sector": "Atención al cliente (contact center)",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-atencion-cliente",
+      "acom-venta-tecnica"
+    ],
+    "motivoEncaje": "Centros de atención al cliente y televenta en Madrid.",
+    "paginasContacto": [
+      "https://www.teleperformance.com/es-es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "sra-rushmore",
+    "nombre": "Sra. Rushmore",
+    "web": "https://www.srarushmore.com",
+    "sector": "Agencia de publicidad",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Agencia creativa madrileña.",
+    "paginasContacto": [
+      "https://www.srarushmore.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "ymedia",
+    "nombre": "Ymedia",
+    "web": "https://www.ymedia.es",
+    "sector": "Agencia de medios",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Agencia de medios y marketing digital con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.ymedia.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "flat101",
+    "nombre": "Flat 101",
+    "web": "https://www.flat101.es",
+    "sector": "Agencia de comercio electrónico y CRO",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-ecommerce",
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Agencia de comercio electrónico con oficina en Madrid.",
+    "paginasContacto": [
+      "https://www.flat101.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "mediapost-espana",
+    "nombre": "Mediapost España",
+    "web": "https://www.mediapost.es",
+    "sector": "Marketing relacional y distribución publicitaria",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "acom-logistica",
+      "acom-atencion-cliente"
+    ],
+    "motivoEncaje": "Marketing relacional, buzoneo y logística de campañas con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.mediapost.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "atrevia",
+    "nombre": "ATREVIA",
+    "web": "https://www.atrevia.com",
+    "sector": "Comunicación y posicionamiento",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Consultora de comunicación con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.atrevia.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "ipsos-espana",
+    "nombre": "Ipsos España",
+    "web": "https://www.ipsos.com/es-es",
+    "sector": "Investigación de mercados",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "acom-atencion-cliente"
+    ],
+    "motivoEncaje": "Investigación de mercados con sede en Madrid (investigación comercial y encuestas).",
+    "paginasContacto": [
+      "https://www.ipsos.com/es-es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "simple-logica",
+    "nombre": "Simple Lógica",
+    "web": "https://www.simplelogica.com",
+    "sector": "Investigación de mercados",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "acom-atencion-cliente"
+    ],
+    "motivoEncaje": "Instituto madrileño de investigación de mercados y opinión.",
+    "paginasContacto": [
+      "https://www.simplelogica.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "europa-press",
+    "nombre": "Europa Press",
+    "web": "https://www.europapress.es",
+    "sector": "Agencia de noticias y medios digitales",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "dam-web",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Agencia de noticias con sede en Madrid: medios digitales, marketing y sistemas.",
+    "paginasContacto": [
+      "https://www.europapress.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "agencia-efe",
+    "nombre": "Agencia EFE",
+    "web": "https://efe.com",
+    "sector": "Agencia de noticias",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "asir-sistemas",
+      "asir-soporte",
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Agencia pública de noticias con sede en Madrid y equipos técnicos propios.",
+    "paginasContacto": [
+      "https://efe.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "20minutos",
+    "nombre": "20minutos",
+    "web": "https://www.20minutos.es",
+    "sector": "Medio digital",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Diario digital con sede en Madrid: desarrollo web y marketing digital.",
+    "paginasContacto": [
+      "https://www.20minutos.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "unidad-editorial",
+    "nombre": "Unidad Editorial",
+    "web": "https://www.unidadeditorial.es",
+    "sector": "Medios de comunicación",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "acom-marketing-digital",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Grupo editor con sede en Madrid (El Mundo, Marca, Expansión).",
+    "paginasContacto": [
+      "https://www.unidadeditorial.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "vocento",
+    "nombre": "Vocento",
+    "web": "https://www.vocento.com",
+    "sector": "Medios de comunicación",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "acom-marketing-digital",
+      "dam-datos-ia"
+    ],
+    "motivoEncaje": "Grupo de medios con sede en Madrid y área digital.",
+    "paginasContacto": [
+      "https://www.vocento.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "kpmg-espana",
+    "nombre": "KPMG España",
+    "web": "https://kpmg.com/es/es/home.html",
+    "sector": "Consultoría y tecnología",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "dam-datos-ia",
+      "asir-ciberseguridad",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Consultora con sede en Madrid y áreas de tecnología y ciberseguridad.",
+    "paginasContacto": [
+      "https://kpmg.com/es/es/home.html"
+    ],
+    "tipoContactoEsperado": "talento"
+  },
+  {
+    "id": "pwc-espana",
+    "nombre": "PwC España",
+    "web": "https://www.pwc.es",
+    "sector": "Consultoría y tecnología",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "dam-datos-ia",
+      "asir-ciberseguridad",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Consultora con sede en Madrid y áreas de tecnología y ciberseguridad.",
+    "paginasContacto": [
+      "https://www.pwc.es"
+    ],
+    "tipoContactoEsperado": "talento"
+  },
+  {
+    "id": "ey-espana",
+    "nombre": "EY España",
+    "web": "https://www.ey.com/es_es",
+    "sector": "Consultoría y tecnología",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "dam-datos-ia",
+      "asir-ciberseguridad",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Consultora con sede en Madrid y áreas de tecnología y ciberseguridad.",
+    "paginasContacto": [
+      "https://www.ey.com/es_es"
+    ],
+    "tipoContactoEsperado": "talento"
+  },
+  {
+    "id": "isdefe",
+    "nombre": "Isdefe",
+    "web": "https://www.isdefe.es",
+    "sector": "Ingeniería y tecnología (sector público)",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-sistemas",
+      "asir-redes",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Empresa pública de ingeniería y ciberseguridad con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.isdefe.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "ineco",
+    "nombre": "Ineco",
+    "web": "https://www.ineco.com",
+    "sector": "Ingeniería y consultoría de transporte",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "dam-bbdd",
+      "asir-sistemas",
+      "asir-ciberseguridad"
+    ],
+    "motivoEncaje": "Ingeniería pública con sede en Madrid y equipos de sistemas y desarrollo.",
+    "paginasContacto": [
+      "https://www.ineco.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "konica-minolta-espana",
+    "nombre": "Konica Minolta España",
+    "web": "https://www.konicaminolta.es",
+    "sector": "Soluciones de impresión y servicios TI",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-soporte",
+      "asir-sistemas",
+      "asir-redes",
+      "acom-venta-tecnica"
+    ],
+    "motivoEncaje": "Sede en Madrid: soporte técnico, sistemas y venta técnica de soluciones.",
+    "paginasContacto": [
+      "https://www.konicaminolta.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "xerox-espana",
+    "nombre": "Xerox España",
+    "web": "https://www.xerox.es",
+    "sector": "Soluciones de impresión y servicios TI",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-soporte",
+      "asir-sistemas",
+      "acom-venta-tecnica"
+    ],
+    "motivoEncaje": "Servicios de impresión y TI con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.xerox.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "ilitia",
+    "nombre": "Ilitia Technologies",
+    "web": "https://www.ilitia.com",
+    "sector": "Desarrollo de software",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-escritorio",
+      "dam-bbdd"
+    ],
+    "motivoEncaje": "Empresa madrileña de desarrollo de software a medida.",
+    "paginasContacto": [
+      "https://www.ilitia.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "solid-gear",
+    "nombre": "Solid GEAR",
+    "web": "https://solidgeargroup.com",
+    "sector": "Desarrollo de software",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-android",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Empresa de desarrollo web y móvil con oficina en Madrid.",
+    "paginasContacto": [
+      "https://solidgeargroup.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "claranet-espana",
+    "nombre": "Claranet España",
+    "web": "https://www.claranet.es",
+    "sector": "Cloud, ciberseguridad y servicios gestionados",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-cloud",
+      "asir-ciberseguridad",
+      "asir-sistemas",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Servicios gestionados de cloud y ciberseguridad con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.claranet.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "ackcent",
+    "nombre": "Ackcent",
+    "web": "https://www.ackcent.com",
+    "sector": "Ciberseguridad",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-datos-ia-seguridad",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Empresa de ciberseguridad con oficina en Madrid.",
+    "paginasContacto": [
+      "https://www.ackcent.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "zemsania",
+    "nombre": "Zemsania",
+    "web": "https://zemsania.com",
+    "sector": "Consultoría tecnológica",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "asir-sistemas",
+      "asir-soporte"
+    ],
+    "motivoEncaje": "Consultora tecnológica con sede en Madrid.",
+    "paginasContacto": [
+      "https://zemsania.com"
     ],
     "tipoContactoEsperado": "rrhh"
   }
