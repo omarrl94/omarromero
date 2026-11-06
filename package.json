@@ -20,8 +20,9 @@
     "comprobar:bundle": "tsx scripts/comprobar-bundle.ts",
     "comprobar:enlaces": "tsx scripts/comprobar-enlaces.ts",
     "auditar:muestra": "tsx scripts/auditar-muestra.ts",
-    "check": "npm run lint && npm run typecheck && npm run test && npm run validar:datos && npm run build && npm run comprobar:bundle",
-    "demo": "tsx scripts/empaquetar-demo.ts"
+    "check": "npm run comprobar:config && npm run lint && npm run typecheck && npm run test && npm run validar:datos && npm run build && npm run comprobar:bundle",
+    "demo": "tsx scripts/empaquetar-demo.ts",
+    "comprobar:config": "tsx scripts/comprobar-config.ts"
   },
   "dependencies": {
     "@fontsource-variable/bricolage-grotesque": "^5.3.0",
