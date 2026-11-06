@@ -323,7 +323,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 25 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 24 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -368,7 +368,7 @@
     "motivoEncaje": "Empresa de ciberseguridad con SOC y servicios gestionados.",
     "contacto": {
       "tipo": "email",
-      "email": "info-uae@aiuken.com",
+      "email": "info@aiuken.com",
       "fuenteUrl": "https://www.aiuken.com/contacto/",
       "tipoContacto": "general"
     },
@@ -431,35 +431,6 @@
       "confianza": "alta",
       "mx": null,
       "notas": "Verificación automática: 3 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
-    }
-  },
-  {
-    "id": "amadeus",
-    "nombre": "Amadeus",
-    "web": "https://amadeus.com",
-    "sector": "Tecnología para viajes",
-    "tamano": "gran-empresa",
-    "zona": "madrid",
-    "perfiles": [
-      "dam-backend",
-      "dam-web",
-      "dam-datos-ia",
-      "asir-cloud",
-      "asir-sistemas"
-    ],
-    "motivoEncaje": "Tecnológica con sede en Madrid y grandes equipos de software y sistemas.",
-    "contacto": {
-      "tipo": "formulario",
-      "fuenteUrl": "https://amadeus.com/en/careers/life-at-amadeus",
-      "formularioUrl": "https://amadeus.com/en/careers/life-at-amadeus",
-      "tipoContacto": "talento"
-    },
-    "empleoUrl": "https://amadeus.com/en/careers/overview",
-    "verificacion": {
-      "fecha": "2026-11-06",
-      "confianza": "alta",
-      "mx": null,
-      "notas": "Verificación automática: 19 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -662,16 +633,16 @@
     "motivoEncaje": "Consultora especializada en Microsoft: Dynamics, Azure y desarrollo.",
     "contacto": {
       "tipo": "formulario",
-      "fuenteUrl": "https://www.avanade.com/es-es/career",
-      "formularioUrl": "https://www.avanade.com/es-es/career",
+      "fuenteUrl": "https://www.avanade.com/en/career",
+      "formularioUrl": "https://www.avanade.com/en/career",
       "tipoContacto": "talento"
     },
-    "empleoUrl": "https://www.avanade.com/en/newsroom/avanade-acquires-cloudtalent-press-release",
+    "empleoUrl": "https://www.avanade.com/en/career",
     "verificacion": {
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 24 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 23 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -1051,16 +1022,16 @@
     "motivoEncaje": "Producto digital madrileño con equipos de ingeniería móvil, backend y datos.",
     "contacto": {
       "tipo": "formulario",
-      "fuenteUrl": "https://cabify.com/es/blog/incentivos-evitar-fuga-talento",
-      "formularioUrl": "https://cabify.com/es/blog/incentivos-evitar-fuga-talento",
+      "fuenteUrl": "https://cabify.careers/en/",
+      "formularioUrl": "https://cabify.careers/en/",
       "tipoContacto": "talento"
     },
-    "empleoUrl": "https://cabify.com/es/blog/incentivos-evitar-fuga-talento",
+    "empleoUrl": "https://cabify.careers/en/",
     "verificacion": {
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 14 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 11 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -1497,6 +1468,33 @@
     }
   },
   {
+    "id": "decimas",
+    "nombre": "Décimas",
+    "web": "https://www.decimas.com",
+    "sector": "Moda y material deportivo",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-visual",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Cadena de tiendas de deporte con sede en Madrid.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.decimas.com/es-es/trabaja-con-nosotros",
+      "formularioUrl": "https://www.decimas.com/es-es/trabaja-con-nosotros",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.decimas.com/es-es/trabaja-con-nosotros",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 5 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
     "id": "deloitte-espana",
     "nombre": "Deloitte España",
     "web": "https://www.deloitte.com/es/es.html",
@@ -1918,17 +1916,17 @@
     ],
     "motivoEncaje": "Fabricante de redes con sede en Madrid.",
     "contacto": {
-      "tipo": "email",
-      "email": "hr.direct.americas@ericsson.com",
-      "fuenteUrl": "https://jobs.ericsson.com/careers/job/563121777428538-software--developer-?domain=ericsson.com",
-      "tipoContacto": "rrhh"
+      "tipo": "formulario",
+      "fuenteUrl": "https://jobs.ericsson.com/careers?domain=ericsson.com",
+      "formularioUrl": "https://jobs.ericsson.com/careers?domain=ericsson.com",
+      "tipoContacto": "talento"
     },
     "empleoUrl": "https://jobs.ericsson.com/careers?domain=ericsson.com",
     "verificacion": {
       "fecha": "2026-11-06",
       "confianza": "alta",
-      "mx": true,
-      "notas": "Verificación automática: 7 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo."
+      "mx": null,
+      "notas": "Verificación automática: 7 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -2582,7 +2580,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 14 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 13 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -2811,6 +2809,34 @@
     }
   },
   {
+    "id": "ing-espana",
+    "nombre": "ING España",
+    "web": "https://www.ing.es",
+    "sector": "Banca digital",
+    "tamano": "gran-empresa",
+    "zona": "oeste",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-android",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Banco digital con sede en Las Rozas.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.ing.es/ennaranja/finanzas-personales/cuanto-voy-a-cobrar-de-paro-asi-se-calcula-la-prestacion-por-desempleo/",
+      "formularioUrl": "https://www.ing.es/ennaranja/finanzas-personales/cuanto-voy-a-cobrar-de-paro-asi-se-calcula-la-prestacion-por-desempleo/",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.ing.es/ennaranja/finanzas-personales/que-impuestos-deberas-pagar-trabajador/",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 7 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
     "id": "ingecom",
     "nombre": "Ingecom",
     "web": "https://www.ingecom.net",
@@ -2930,7 +2956,7 @@
     "motivoEncaje": "Investigación de mercados con sede en Madrid (investigación comercial y encuestas).",
     "contacto": {
       "tipo": "email",
-      "email": "career.mena@ipsos.com",
+      "email": "empleos@ipsos.com",
       "fuenteUrl": "https://www.ipsos.com/es-es/contactanos",
       "tipoContacto": "talento"
     },
@@ -3378,7 +3404,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 6 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 7 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -3485,7 +3511,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 19 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 18 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -3784,7 +3810,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": true,
-      "notas": "Verificación automática: 10 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo."
+      "notas": "Verificación automática: 9 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo."
     }
   },
   {
@@ -3892,6 +3918,32 @@
       "confianza": "alta",
       "mx": null,
       "notas": "Verificación automática: 19 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
+    "id": "mediapost-espana",
+    "nombre": "Muviria (antes Mediapost España)",
+    "web": "https://www.muviria.es",
+    "sector": "Marketing relacional y distribución publicitaria",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "acom-logistica",
+      "acom-atencion-cliente"
+    ],
+    "motivoEncaje": "Marketing relacional, buzoneo y logística de campañas con sede en Madrid.",
+    "contacto": {
+      "tipo": "email",
+      "email": "info@muviria.es",
+      "fuenteUrl": "https://www.muviria.es/conexion-consumidor/personas-clave-tecnologia/",
+      "tipoContacto": "general"
+    },
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": true,
+      "notas": "Verificación automática: 8 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo."
     }
   },
   {
@@ -4082,6 +4134,32 @@
       "confianza": "alta",
       "mx": null,
       "notas": "Verificación automática: 21 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
+    "id": "one-esecurity",
+    "nombre": "One eSecurity",
+    "web": "https://www.one-esecurity.com",
+    "sector": "Ciberseguridad y respuesta a incidentes",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-datos-ia-seguridad"
+    ],
+    "motivoEncaje": "Especialistas en respuesta a incidentes y análisis forense.",
+    "contacto": {
+      "tipo": "email",
+      "email": "recruitment@one-esecurity.com",
+      "fuenteUrl": "https://www.one-esecurity.com/join_our_team.html",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.one-esecurity.com/join_our_team.html",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": true,
+      "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo."
     }
   },
   {
@@ -4278,6 +4356,33 @@
       "confianza": "media",
       "mx": true,
       "notas": "Verificación automática: 7 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto."
+    }
+  },
+  {
+    "id": "primaprix",
+    "nombre": "Primaprix",
+    "web": "https://primaprix.eu",
+    "sector": "Supermercados de descuento",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-logistica",
+      "acom-gestion-comercio"
+    ],
+    "motivoEncaje": "Cadena madrileña de tiendas de outlet de alimentación y droguería.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://primaprix.eu/es/trabaja-en-primaprix/",
+      "formularioUrl": "https://primaprix.eu/es/trabaja-en-primaprix/",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://primaprix.eu/es/desarrollo-talento/",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -4490,7 +4595,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 18 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 19 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -4654,7 +4759,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 12 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 10 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -4792,34 +4897,6 @@
     }
   },
   {
-    "id": "seresco",
-    "nombre": "Seresco",
-    "web": "https://www.seresco.es",
-    "sector": "Software de gestión, ERP y RR. HH.",
-    "tamano": "consultora",
-    "zona": "madrid",
-    "perfiles": [
-      "dam-erp",
-      "dam-bbdd",
-      "dam-backend",
-      "asir-sistemas"
-    ],
-    "motivoEncaje": "Software de gestión y ERP con presencia en Madrid.",
-    "contacto": {
-      "tipo": "formulario",
-      "fuenteUrl": "https://seresco.es/talento/ofertas-empleo/",
-      "formularioUrl": "https://seresco.es/talento/ofertas-empleo/",
-      "tipoContacto": "talento"
-    },
-    "empleoUrl": "https://seresco.es/talento/ofertas-empleo/",
-    "verificacion": {
-      "fecha": "2026-11-06",
-      "confianza": "alta",
-      "mx": null,
-      "notas": "Verificación automática: 11 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
-    }
-  },
-  {
     "id": "seur",
     "nombre": "SEUR",
     "web": "https://www.seur.com",
@@ -4868,7 +4945,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 21 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 22 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -5335,6 +5412,30 @@
     }
   },
   {
+    "id": "the-plan-company",
+    "nombre": "The Plan Company",
+    "web": "https://www.theplancompany.es",
+    "sector": "Agencia de medios y marketing digital",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Agencia madrileña de estrategia de medios y marketing digital.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.theplancompany.es/contacto/",
+      "formularioUrl": "https://www.theplancompany.es/contacto/",
+      "tipoContacto": "general"
+    },
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "media",
+      "mx": null,
+      "notas": "Verificación automática: 6 páginas revisadas (incluido el mapa del sitio); formulario oficial de contacto."
+    }
+  },
+  {
     "id": "tinybird",
     "nombre": "Tinybird",
     "web": "https://www.tinybird.co",
@@ -5708,7 +5809,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 10 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 9 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {

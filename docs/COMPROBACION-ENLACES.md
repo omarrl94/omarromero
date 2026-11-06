@@ -1,6 +1,6 @@
 # Comprobación de enlaces
 
-Fecha: 2026-11-06T19:03:46.123Z · Enlaces de empresas: 450 · rotos: 9
+Fecha: 2026-11-06T19:16:13.741Z · Enlaces de empresas: 457 · rotos: 9
 
 ## Enlaces rotos del directorio
 
@@ -9,12 +9,12 @@ Fecha: 2026-11-06T19:03:46.123Z · Enlaces de empresas: 450 · rotos: 9
 | CGI España | web | https://www.cgi.com/es/es | 404 |
 | Decathlon España | web | https://www.decathlon.es | 403 |
 | DIA | web | https://www.dia.es | 403 |
+| Digi Spain | web | https://www.digimobil.es | 418 |
 | Ericsson España | web | https://www.ericsson.com/es | 403 |
 | idealista | web | https://www.idealista.com | 403 |
 | Leroy Merlin España | web | https://www.leroymerlin.es | 403 |
 | Leroy Merlin España | empleo | https://www.leroymerlin.es/ideas-y-consejos/consejos/herramientas-manuales-para-trabajar-madera.html | 403 |
 | Makro España | web | https://www.makro.es | 403 |
-| Sopra Steria España | web | https://www.soprasteria.es | tiempo agotado |
 
 ## Portales (enlaces profundos)
 

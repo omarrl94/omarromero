@@ -1,18 +1,18 @@
 # Auditoría de una muestra al azar
 
-Fecha: 2026-11-06T19:02:22.225Z · Muestra: 10 de 212 · Con problemas: 1
+Fecha: 2026-11-06T19:14:59.105Z · Muestra: 10 de 216 · Con problemas: 0
 
 | Empresa | Contacto | Fuente | Resultado |
 |---|---|---|---|
+| Tendam (Cortefiel, Springfield, Women'secret) | formulario | https://www.tendam.es/tendam-reconocida-como-best-company-for-all-talent-2026/ | ✔ OK |
 | Cuatroochenta | formulario | https://cuatroochenta.com/nace-xarxatec-activa-para-generar-talento-digital/ | ✔ OK |
-| Makro España | formulario | https://talento.makro.es/EmailToFriend?id=34279&pagetype=job | web 403 |
-| Product Hackers | formulario | https://producthackers.com/es/blog/aumentar-inscripciones-ofertas-empleo-cornerjob/ | ✔ OK |
-| SocialPubli | formulario | https://socialpubli.com/es/blog/empleo-buscamos-un-sales-manager-en-mexico/ | ✔ OK |
-| Mediaset España | formulario | https://jobs.mediaset.es/ | ✔ OK |
-| Naturgy | formulario | https://www.naturgy.com/trabaja-con-nosotros/ | ✔ OK |
-| Kelisto | formulario | https://www.kelisto.es/trabaja | ✔ OK |
-| Auditech | info@auditech.es | https://auditech.es/contacto/ | ✔ OK |
-| Lingokids | formulario | https://lingokids.com/es/blog/posts/trabaja-en-lingokids | ✔ OK |
-| BBVA | formulario | https://www.bbva.com/es/bbva-mejor-empresa-para-trabajar-en-espana/ | ✔ OK |
+| Intelygenz | info@intelygenz.com | https://intelygenz.com/talent-as-a-service/ | ✔ OK |
+| Ferrovial | formulario | https://www.ferrovial.com/en/careers/ | ✔ OK |
+| GMV | formulario | https://www.gmv.com/es/talento | ✔ OK |
+| Aggity | formulario | https://aggity.com/people-analytics-gestion-del-talento/ | ✔ OK |
+| Cibersafety | formulario | https://cibersafety.com/trabajar-con-una-wifi-publica-segura/ | ✔ OK |
+| Ahorramas | formulario | https://empleo.ahorramas.com/ | ✔ OK |
+| Casa del Libro | formulario | https://www.casadellibro.com/nosotros/trabajaNosotros | ✔ OK |
+| Kanlli | formulario | http://kanlli.com/opinion/marketing-tech-talento/ | ✔ OK |
 
 Si alguna falla: vuelve a ejecutar `npm run verificar:empresas -- --solo=<id>` o retírala.
