@@ -1,6 +1,6 @@
 # Informe de verificación de empresas
 
-Generado el 2026-11-06T16:18:02.367Z con `npm run verificar:empresas`. Candidatas: 206 · **válidas: 129** · descartadas: 77.
+Generado el 2026-11-06T16:28:40.073Z con `npm run verificar:empresas`. Candidatas: 228 · **válidas: 144** · descartadas: 84.
 
 Criterios: la web responde; el correo aparece literalmente en la URL indicada, es corporativo (mismo dominio), genérico (no personal), destinado a candidaturas o contacto general y su dominio tiene registros MX. Sin correo válido se acepta el formulario oficial de empleo o contacto. Sin ninguno, se descarta.
 
@@ -44,7 +44,7 @@ Criterios: la web responde; el correo aparece literalmente en la URL indicada, e
 | Secure&IT | formulario: https://www.secureit.es/aumenta-el-numero-de-mujeres-que-trabaja-en-ciberseguridad/ | alta | — |
 | Grupo ICA | talento@grupoica.com (https://www.grupoica.com/talento/tu-carrera) | alta | — |
 | Prosegur Cipher | formulario: https://www.prosegur.es/trabaja-con-nosotros | alta | — |
-| Cabify | formulario: https://cabify.com/es/blog/incentivos-evitar-fuga-talento | alta | — |
+| Cabify | formulario: https://cabify.careers/en/ | alta | — |
 | Fever | formulario: https://careers.feverup.com/ | alta | — |
 | Jobandtalent | formulario: https://www.jobandtalent.com/jobs | alta | lever:jobandtalent |
 | Seedtag | formulario: https://www.seedtag.com/press/farah-golant-joins-seedtag-board-of-directors | alta | — |
@@ -68,8 +68,8 @@ Criterios: la web responde; el correo aparece literalmente en la URL indicada, e
 | Vodafone España | formulario: https://www.vodafone.es/c/conocenos/es/vodafone-espana/trabaja-con-nosotros/ | alta | — |
 | IBM España | formulario: https://www.ibm.com/careers | alta | — |
 | Kyndryl España | formulario: https://www.kyndryl.com/us/en/careers | alta | — |
-| Aiuken | info@aiuken.com (https://www.aiuken.com/) | media | — |
-| One eSecurity | recruitment@one-esecurity.com (https://www.one-esecurity.com/join_our_team.html) | alta | — |
+| Aiuken | info-chile@aiuken.com (https://www.aiuken.com/contacto/) | media | — |
+| Factum | rrhh@factum.es (https://www.factum.es/unete-al-equipo/) | alta | — |
 | Seresco | formulario: https://seresco.es/talento/ofertas-empleo/ | alta | — |
 | Ilunion Tecnología y Accesibilidad | formulario: https://www.ilunion.com/es/unete-al-equipo | alta | — |
 | GFT España | formulario: https://www.gft.com/uk/en/career | alta | — |
@@ -112,7 +112,7 @@ Criterios: la web responde; el correo aparece literalmente en la URL indicada, e
 | Ferrovial | formulario: https://www.ferrovial.com/en/careers/ | alta | — |
 | Acciona | formulario: https://www.acciona.com/es/contacto | media | — |
 | Leroy Merlin España | formulario: https://www.leroymerlin.es/ideas-y-consejos/consejos/herramientas-manuales-para-trabajar-madera.html | alta | — |
-| Línea Directa | formulario: https://www.lineadirecta.com/contactar/ | media | — |
+| Línea Directa | formulario: https://www.lineadirecta.com/blog/salud/salud-familia/buenas-malas-practicas-uso-lentillas.html | media | — |
 | Red.es | formulario: https://www.red.es/es/iniciativas/talento-digital | alta | — |
 | Tragsatec | seleccion@tragsa.es (https://www.tragsa.es/es/equipo-humano/unete-a-nuestro-equipo/Paginas/default.aspx) | alta | — |
 | FNMT-RCM | formulario: https://www.fnmt.es/ofertas-de-empleo | alta | — |
@@ -137,6 +137,21 @@ Criterios: la web responde; el correo aparece literalmente en la URL indicada, e
 | The Cocktail | formulario: https://the-cocktail.com/talento | alta | — |
 | Redsys | cv@redsys.es (https://redsys.es/empleo) | alta | — |
 | BME | formulario: https://www.bolsasymercados.es/en/bme-exchange/listing/opening-bells/joins-bme-cox.html | alta | — |
+| Arelance | formulario: https://www.arelance.com/el-viaje-de-encarna-en-arelance-20-anos-construyendo-suenos-y-talento-it/ | alta | — |
+| Nalcom | info@nalcom.com (https://nalcom.com/Contacto) | media | — |
+| Melit Technologies | rrhh@melit.es (https://www.melit.es/empleo/encontrar-trabajo-programador-informatico) | alta | — |
+| Imagar Solutions | formulario: https://www.imagar.com/informatica/herramientas-imprescindibles-para-teletrabajar/ | alta | — |
+| ASD Solutions | info@asdsolutions.es (https://asdsolutions.es/en/contact/) | media | — |
+| Implemental Systems | formulario: https://implementalsystems.com/unete/ | alta | — |
+| Raona | formulario: https://raona.com/en/ai-in-your-administrative-jobs/ | alta | — |
+| Encamina | formulario: https://www.encamina.com/en/talent-ai/ | alta | — |
+| Aggity | formulario: https://aggity.com/people-analytics-gestion-del-talento/ | alta | — |
+| Teknei | formulario: https://teknei.com/unete/ | alta | — |
+| Bilbomática | formulario: https://www.bilbomatica.es/es/unete | alta | — |
+| Emergya | formulario: https://emergya.com/es/trabaja-con-nosotros | alta | — |
+| Ingecom | formulario: https://www.ingecom.net/en/varonis-joins-ingecoms-cyber-security-portfolio/ | alta | — |
+| Cuatroochenta | formulario: https://cuatroochenta.com/nace-xarxatec-activa-para-generar-talento-digital/ | alta | — |
+| Exclusive Networks Iberia | formulario: https://www.exclusive-networks.com/company/careers | alta | — |
 
 ## Descartadas
 
@@ -165,7 +180,7 @@ Criterios: la web responde; el correo aparece literalmente en la URL indicada, e
 | Devoteam España | https://www.devoteam.com/es | La web no responde (403) |
 | Tecnozero | https://www.tecnozero.com | La web no responde (UND_ERR_SOCKET) |
 | Amadeus | https://amadeus.com | Sin correo publicado ni formulario oficial en las páginas revisadas |
-| Factum | https://www.factum.es | La web no responde (tiempo agotado) |
+| One eSecurity | https://www.one-esecurity.com | La web no responde (tiempo agotado) |
 | Dotforce | https://www.dotforce.es | La web no responde (UND_ERR_SOCKET) |
 | Sage España | https://www.sage.com/es-es | La web no responde (403) |
 | Indizen | https://www.indizen.com | La web redirige a otro dominio (www.scalian-spain.es): posible empresa absorbida o cambio de marca, revisar a mano |
@@ -201,7 +216,7 @@ Criterios: la web responde; el correo aparece literalmente en la URL indicada, e
 | Savana | https://savanamed.com | La web no responde (UND_ERR_SOCKET) |
 | MasOrange | https://www.masorange.es | La web no responde (tiempo agotado) |
 | Iberdrola | https://www.iberdrola.com | La web no responde (403) |
-| El Corte Inglés | https://www.elcorteingles.es | La web no responde (tiempo agotado) |
+| El Corte Inglés | https://www.elcorteingles.es | La web no responde (403) |
 | Carrefour España | https://www.carrefour.es | La web no responde (403) |
 | DIA | https://www.dia.es | La web no responde (403) |
 | Verisure España | https://www.verisure.es | Sin correo válido para candidaturas (infocomercial@securitasdirect.es: dominio distinto al de la web; no@no.es: dominio distinto al de la web; creatividad_digital@securitasdirect.es: dominio distinto al de la web; info@verisure.es: solo aparece en el aviso legal, la privacidad o las condiciones (no es el buzón de candidaturas)) ni formulario oficial |
@@ -219,3 +234,10 @@ Criterios: la web responde; el correo aparece literalmente en la URL indicada, e
 | Good Rebels | https://www.goodrebels.com | La web no responde (UND_ERR_SOCKET) |
 | Iberpay | https://www.iberpay.es | La web redirige a otro dominio (www.iberpay.com): posible empresa absorbida o cambio de marca, revisar a mano |
 | Bizum | https://bizum.es | La web redirige a otro dominio (bizum.com): posible empresa absorbida o cambio de marca, revisar a mano |
+| Exdesis | https://www.exdesis.com | La web redirige a otro dominio (www.exdesis.es): posible empresa absorbida o cambio de marca, revisar a mano |
+| Consultia IT | https://www.consultia.biz | La web no responde (502) |
+| SDOS | https://www.sdos.es | La web no responde (403) |
+| Grupo TRC | https://www.grupotrc.com | La web no responde (UNABLE_TO_VERIFY_LEAF_SIGNATURE) |
+| Linke | https://linke.es | Sin correo publicado ni formulario oficial en las páginas revisadas |
+| Innovery España | https://www.innovery.es | La web no responde (ECONNREFUSED) |
+| Wellness TechGroup | https://www.wellnesstg.com | La web no responde (UND_ERR_CONNECT_TIMEOUT) |

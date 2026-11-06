@@ -137,6 +137,33 @@
     }
   },
   {
+    "id": "aggity",
+    "nombre": "Aggity",
+    "web": "https://www.aggity.com",
+    "sector": "Transformación digital y ERP",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-erp",
+      "dam-web",
+      "dam-datos-ia"
+    ],
+    "motivoEncaje": "Tecnológica con ERP, datos y desarrollo.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://aggity.com/people-analytics-gestion-del-talento/",
+      "formularioUrl": "https://aggity.com/people-analytics-gestion-del-talento/",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://aggity.com/people-analytics-gestion-del-talento/",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 15 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
     "id": "airbus-espana",
     "nombre": "Airbus España",
     "web": "https://www.airbus.com/es",
@@ -160,7 +187,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 27 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 26 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -182,12 +209,12 @@
       "formularioUrl": "https://www.aitana.es/aitana/trabaja-en-aitana/",
       "tipoContacto": "talento"
     },
-    "empleoUrl": "https://www.aitana.es/evento/trabajar-bc-desde-microsoft-teams/",
+    "empleoUrl": "https://www.aitana.es/aitana/trabaja-en-aitana/",
     "verificacion": {
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 16 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 12 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -205,15 +232,68 @@
     "motivoEncaje": "Empresa de ciberseguridad con SOC y servicios gestionados.",
     "contacto": {
       "tipo": "email",
-      "email": "info@aiuken.com",
-      "fuenteUrl": "https://www.aiuken.com/",
+      "email": "info-chile@aiuken.com",
+      "fuenteUrl": "https://www.aiuken.com/contacto/",
       "tipoContacto": "general"
     },
     "verificacion": {
       "fecha": "2026-11-06",
       "confianza": "media",
       "mx": true,
-      "notas": "Verificación automática: 2 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de otra."
+      "notas": "Verificación automática: 3 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto."
+    }
+  },
+  {
+    "id": "arelance",
+    "nombre": "Arelance",
+    "web": "https://www.arelance.com",
+    "sector": "Consultoría tecnológica",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Consultora tecnológica con proyectos de desarrollo .NET y full stack en Madrid.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.arelance.com/el-viaje-de-encarna-en-arelance-20-anos-construyendo-suenos-y-talento-it/",
+      "formularioUrl": "https://www.arelance.com/el-viaje-de-encarna-en-arelance-20-anos-construyendo-suenos-y-talento-it/",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.arelance.com/el-viaje-de-encarna-en-arelance-20-anos-construyendo-suenos-y-talento-it/",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 5 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
+    "id": "asd-solutions",
+    "nombre": "ASD Solutions",
+    "web": "https://asdsolutions.es",
+    "sector": "Desarrollo de software a medida",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-android",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Agencia de desarrollo de software y apps.",
+    "contacto": {
+      "tipo": "email",
+      "email": "info@asdsolutions.es",
+      "fuenteUrl": "https://asdsolutions.es/en/contact/",
+      "tipoContacto": "general"
+    },
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "media",
+      "mx": true,
+      "notas": "Verificación automática: 5 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto."
     }
   },
   {
@@ -442,6 +522,33 @@
     }
   },
   {
+    "id": "bilbomatica",
+    "nombre": "Bilbomática",
+    "web": "https://www.bilbomatica.es",
+    "sector": "Consultoría y desarrollo de software",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Consultora con oficina en Madrid y proyectos de desarrollo.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.bilbomatica.es/es/unete",
+      "formularioUrl": "https://www.bilbomatica.es/es/unete",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.bilbomatica.es/es/unete",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 6 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
     "id": "binhex",
     "nombre": "Binhex",
     "web": "https://binhex.cloud",
@@ -621,16 +728,16 @@
     "motivoEncaje": "Producto digital madrileño con equipos de ingeniería móvil, backend y datos.",
     "contacto": {
       "tipo": "formulario",
-      "fuenteUrl": "https://cabify.com/es/blog/incentivos-evitar-fuga-talento",
-      "formularioUrl": "https://cabify.com/es/blog/incentivos-evitar-fuga-talento",
+      "fuenteUrl": "https://cabify.careers/en/",
+      "formularioUrl": "https://cabify.careers/en/",
       "tipoContacto": "talento"
     },
-    "empleoUrl": "https://cabify.com/es/blog/incentivos-evitar-fuga-talento",
+    "empleoUrl": "https://cabify.careers/en/",
     "verificacion": {
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 21 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 13 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -769,6 +876,33 @@
       "confianza": "alta",
       "mx": null,
       "notas": "Verificación automática: 18 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
+    "id": "cuatroochenta",
+    "nombre": "Cuatroochenta",
+    "web": "https://cuatroochenta.com",
+    "sector": "Desarrollo de apps y ciberseguridad",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-android",
+      "dam-web",
+      "asir-ciberseguridad"
+    ],
+    "motivoEncaje": "Tecnológica de apps y ciberseguridad con oficina en Madrid.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://cuatroochenta.com/nace-xarxatec-activa-para-generar-talento-digital/",
+      "formularioUrl": "https://cuatroochenta.com/nace-xarxatec-activa-para-generar-talento-digital/",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://cuatroochenta.com/nace-xarxatec-activa-para-generar-talento-digital/",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 21 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -960,6 +1094,33 @@
     }
   },
   {
+    "id": "emergya",
+    "nombre": "Emergya",
+    "web": "https://www.emergya.com",
+    "sector": "Desarrollo digital y consultoría",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-android",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Consultora digital con oficina en Madrid.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://emergya.com/es/trabaja-con-nosotros",
+      "formularioUrl": "https://emergya.com/es/trabaja-con-nosotros",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://emergya.com/es/trabaja-con-nosotros",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 13 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
     "id": "emt-madrid",
     "nombre": "EMT Madrid",
     "web": "https://www.emtmadrid.es",
@@ -984,6 +1145,33 @@
       "confianza": "alta",
       "mx": null,
       "notas": "Verificación automática: 10 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
+    "id": "encamina",
+    "nombre": "Encamina",
+    "web": "https://www.encamina.com",
+    "sector": "Consultoría Microsoft, IA y cloud",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-datos-ia",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Partner de Microsoft con IA y cloud; oficina en Madrid.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.encamina.com/en/talent-ai/",
+      "formularioUrl": "https://www.encamina.com/en/talent-ai/",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.encamina.com/en/talent-ai/",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 12 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -1069,6 +1257,33 @@
     }
   },
   {
+    "id": "exclusive-networks-iberia",
+    "nombre": "Exclusive Networks Iberia",
+    "web": "https://www.exclusive-networks.com/es",
+    "sector": "Distribución de ciberseguridad y cloud",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-redes",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Distribuidor de ciberseguridad con sede ibérica en Madrid.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.exclusive-networks.com/company/careers",
+      "formularioUrl": "https://www.exclusive-networks.com/company/careers",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.exclusive-networks.com/company/careers",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 17 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
     "id": "factor-libre",
     "nombre": "Factor Libre",
     "web": "https://factorlibre.com",
@@ -1093,6 +1308,33 @@
       "confianza": "alta",
       "mx": true,
       "notas": "Verificación automática: 10 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo."
+    }
+  },
+  {
+    "id": "factum",
+    "nombre": "Factum",
+    "web": "https://www.factum.es",
+    "sector": "Ciberseguridad y sistemas",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-sistemas",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Pyme madrileña de ciberseguridad e infraestructura.",
+    "contacto": {
+      "tipo": "email",
+      "email": "rrhh@factum.es",
+      "fuenteUrl": "https://www.factum.es/unete-al-equipo/",
+      "tipoContacto": "rrhh"
+    },
+    "empleoUrl": "https://www.factum.es/noticias/el-talento-especializado-en-ciberseguridad-sera-un-factor-decisivo-para-la-digitalizacion-en-2023/",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": true,
+      "notas": "Verificación automática: 6 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo."
     }
   },
   {
@@ -1420,7 +1662,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 18 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 17 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -1505,6 +1747,59 @@
     }
   },
   {
+    "id": "imagar-solutions",
+    "nombre": "Imagar Solutions",
+    "web": "https://www.imagar.com",
+    "sector": "Desarrollo web y software",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Empresa de informática y desarrollo web en Madrid.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.imagar.com/informatica/herramientas-imprescindibles-para-teletrabajar/",
+      "formularioUrl": "https://www.imagar.com/informatica/herramientas-imprescindibles-para-teletrabajar/",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.imagar.com/informatica/herramientas-imprescindibles-para-teletrabajar/",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 15 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
+    "id": "implemental-systems",
+    "nombre": "Implemental Systems",
+    "web": "https://www.implementalsystems.com",
+    "sector": "Servicios informáticos y soporte",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-soporte",
+      "asir-sistemas",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Publica convenios de prácticas de soporte y sistemas en Madrid.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://implementalsystems.com/unete/",
+      "formularioUrl": "https://implementalsystems.com/unete/",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://implementalsystems.com/unete/",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 8 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
     "id": "indra-group",
     "nombre": "Indra Group",
     "web": "https://www.indragroup.com",
@@ -1533,6 +1828,33 @@
       "confianza": "alta",
       "mx": null,
       "notas": "Verificación automática: 15 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
+    "id": "ingecom",
+    "nombre": "Ingecom",
+    "web": "https://www.ingecom.net",
+    "sector": "Distribución de ciberseguridad",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-redes",
+      "asir-soporte"
+    ],
+    "motivoEncaje": "Mayorista de ciberseguridad con soporte técnico.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.ingecom.net/en/varonis-joins-ingecoms-cyber-security-portfolio/",
+      "formularioUrl": "https://www.ingecom.net/en/varonis-joins-ingecoms-cyber-security-portfolio/",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.ingecom.net/en/varonis-joins-ingecoms-cyber-security-portfolio/",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 12 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -1584,7 +1906,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 14 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 12 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -1779,7 +2101,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 13 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 14 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -1851,15 +2173,15 @@
     "motivoEncaje": "Aseguradora con sede en Tres Cantos y área tecnológica.",
     "contacto": {
       "tipo": "formulario",
-      "fuenteUrl": "https://www.lineadirecta.com/contactar/",
-      "formularioUrl": "https://www.lineadirecta.com/contactar/",
+      "fuenteUrl": "https://www.lineadirecta.com/blog/salud/salud-familia/buenas-malas-practicas-uso-lentillas.html",
+      "formularioUrl": "https://www.lineadirecta.com/blog/salud/salud-familia/buenas-malas-practicas-uso-lentillas.html",
       "tipoContacto": "general"
     },
     "verificacion": {
       "fecha": "2026-11-06",
       "confianza": "media",
       "mx": null,
-      "notas": "Verificación automática: 9 páginas revisadas (incluido el mapa del sitio); formulario oficial de contacto."
+      "notas": "Verificación automática: 14 páginas revisadas (incluido el mapa del sitio); formulario oficial de contacto."
     }
   },
   {
@@ -1886,7 +2208,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 15 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 11 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -1914,7 +2236,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 11 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 10 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -2026,6 +2348,33 @@
     }
   },
   {
+    "id": "melit-technologies",
+    "nombre": "Melit Technologies",
+    "web": "https://www.melit.es",
+    "sector": "Software a medida",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-android"
+    ],
+    "motivoEncaje": "Pyme madrileña de software a medida.",
+    "contacto": {
+      "tipo": "email",
+      "email": "rrhh@melit.es",
+      "fuenteUrl": "https://www.melit.es/empleo/encontrar-trabajo-programador-informatico",
+      "tipoContacto": "rrhh"
+    },
+    "empleoUrl": "https://www.melit.es/empleo/encontrar-trabajo-programador-informatico",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": true,
+      "notas": "Verificación automática: 6 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo."
+    }
+  },
+  {
     "id": "mercurysteam",
     "nombre": "MercurySteam",
     "web": "https://www.mercurysteam.com",
@@ -2130,6 +2479,32 @@
       "confianza": "alta",
       "mx": null,
       "notas": "Verificación automática: 19 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
+    "id": "nalcom",
+    "nombre": "Nalcom",
+    "web": "https://www.nalcom.com",
+    "sector": "Consultoría informática y software a medida",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "asir-soporte"
+    ],
+    "motivoEncaje": "Consultoría informática madrileña con desarrollo a medida.",
+    "contacto": {
+      "tipo": "email",
+      "email": "info@nalcom.com",
+      "fuenteUrl": "https://nalcom.com/Contacto",
+      "tipoContacto": "general"
+    },
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "media",
+      "mx": true,
+      "notas": "Verificación automática: 3 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto."
     }
   },
   {
@@ -2242,32 +2617,6 @@
       "confianza": "alta",
       "mx": null,
       "notas": "Verificación automática: 21 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
-    }
-  },
-  {
-    "id": "one-esecurity",
-    "nombre": "One eSecurity",
-    "web": "https://www.one-esecurity.com",
-    "sector": "Ciberseguridad y respuesta a incidentes",
-    "tamano": "pyme",
-    "zona": "madrid",
-    "perfiles": [
-      "asir-ciberseguridad",
-      "asir-datos-ia-seguridad"
-    ],
-    "motivoEncaje": "Especialistas en respuesta a incidentes y análisis forense.",
-    "contacto": {
-      "tipo": "email",
-      "email": "recruitment@one-esecurity.com",
-      "fuenteUrl": "https://www.one-esecurity.com/join_our_team.html",
-      "tipoContacto": "talento"
-    },
-    "empleoUrl": "https://www.one-esecurity.com/join_our_team.html",
-    "verificacion": {
-      "fecha": "2026-11-06",
-      "confianza": "alta",
-      "mx": true,
-      "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo."
     }
   },
   {
@@ -2518,6 +2867,33 @@
     }
   },
   {
+    "id": "raona",
+    "nombre": "Raona",
+    "web": "https://www.raona.com",
+    "sector": "Consultoría Microsoft y desarrollo",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Consultora Microsoft con oficina en Madrid.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://raona.com/en/ai-in-your-administrative-jobs/",
+      "formularioUrl": "https://raona.com/en/ai-in-your-administrative-jobs/",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://raona.com/en/ai-in-your-administrative-jobs/",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 14 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
     "id": "red-es",
     "nombre": "Red.es",
     "web": "https://www.red.es",
@@ -2567,7 +2943,7 @@
       "fecha": "2026-11-06",
       "confianza": "media",
       "mx": null,
-      "notas": "Verificación automática: 13 páginas revisadas (incluido el mapa del sitio); formulario oficial de contacto."
+      "notas": "Verificación automática: 17 páginas revisadas (incluido el mapa del sitio); formulario oficial de contacto."
     }
   },
   {
@@ -2622,7 +2998,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 19 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 17 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -2650,7 +3026,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 21 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 20 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -2705,7 +3081,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 12 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 10 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -2786,7 +3162,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 17 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 14 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -2950,7 +3326,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 13 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 15 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -3141,6 +3517,33 @@
       "confianza": "media",
       "mx": null,
       "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); formulario oficial de contacto."
+    }
+  },
+  {
+    "id": "teknei",
+    "nombre": "Teknei",
+    "web": "https://www.teknei.com",
+    "sector": "Consultoría tecnológica",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Consultora tecnológica con sede en Madrid.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://teknei.com/unete/",
+      "formularioUrl": "https://teknei.com/unete/",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://teknei.com/unete/",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 18 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -3468,7 +3871,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 12 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 11 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
