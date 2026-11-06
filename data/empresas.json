@@ -1,5 +1,31 @@
 [
   {
+    "id": "20minutos",
+    "nombre": "20minutos",
+    "web": "https://www.20minutos.es",
+    "sector": "Medio digital",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Diario digital con sede en Madrid: desarrollo web y marketing digital.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.20minutos.es/deportes/tenis/antonio-cassano-mitico-exfutbolista-italiano-que-jugo-real-madrid-carlos-alcaraz-tiene-mas-talento-magia-que-jannik-sinner_7058357_0.html",
+      "formularioUrl": "https://www.20minutos.es/deportes/tenis/antonio-cassano-mitico-exfutbolista-italiano-que-jugo-real-madrid-carlos-alcaraz-tiene-mas-talento-magia-que-jannik-sinner_7058357_0.html",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.20minutos.es/deportes/tenis/antonio-cassano-mitico-exfutbolista-italiano-que-jugo-real-madrid-carlos-alcaraz-tiene-mas-talento-magia-que-jannik-sinner_7058357_0.html",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 14 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
     "id": "accenture-espana",
     "nombre": "Accenture España",
     "web": "https://www.accenture.com/es-es",
@@ -44,16 +70,16 @@
     "motivoEncaje": "Grupo con sede en Alcobendas y área digital.",
     "contacto": {
       "tipo": "formulario",
-      "fuenteUrl": "https://www.acciona.com/es/nuestro-proposito/trabaja-con-nosotros/formacion",
-      "formularioUrl": "https://www.acciona.com/es/nuestro-proposito/trabaja-con-nosotros/formacion",
+      "fuenteUrl": "https://www.acciona.com/es/nuestro-proposito/trabaja-con-nosotros",
+      "formularioUrl": "https://www.acciona.com/es/nuestro-proposito/trabaja-con-nosotros",
       "tipoContacto": "talento"
     },
-    "empleoUrl": "https://www.acciona.com/es/nuestro-proposito/trabaja-con-nosotros/formacion",
+    "empleoUrl": "https://www.acciona.com/es/nuestro-proposito/trabaja-con-nosotros",
     "verificacion": {
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 12 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 13 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -81,6 +107,60 @@
       "confianza": "alta",
       "mx": true,
       "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo."
+    }
+  },
+  {
+    "id": "acierto",
+    "nombre": "Acierto.com",
+    "web": "https://www.acierto.com",
+    "sector": "Comparador y venta telefónica de seguros",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta-tecnica",
+      "acom-atencion-cliente",
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Comparador con sede en Madrid y equipos de televenta.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.acierto.com/seguros-vida/seguro-desempleo/",
+      "formularioUrl": "https://www.acierto.com/seguros-vida/seguro-desempleo/",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.acierto.com/seguros-vida/seguro-desempleo/",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 6 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
+    "id": "ackcent",
+    "nombre": "Ackcent",
+    "web": "https://www.ackcent.com",
+    "sector": "Ciberseguridad",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-datos-ia-seguridad",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Empresa de ciberseguridad con oficina en Madrid.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://ackcent.com/ackcent-joins-cybersecurity-awareness-month/",
+      "formularioUrl": "https://ackcent.com/ackcent-joins-cybersecurity-awareness-month/",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://ackcent.com/ackcent-joins-cybersecurity-awareness-month/",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 10 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -135,6 +215,34 @@
       "confianza": "alta",
       "mx": true,
       "notas": "Verificación automática: 18 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo."
+    }
+  },
+  {
+    "id": "agencia-efe",
+    "nombre": "Agencia EFE",
+    "web": "https://efe.com",
+    "sector": "Agencia de noticias",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "asir-sistemas",
+      "asir-soporte",
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Agencia pública de noticias con sede en Madrid y equipos técnicos propios.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://efe.com/other-news/2022-09-21/federer-says-sad-to-realize-career-coming-to-end/",
+      "formularioUrl": "https://efe.com/other-news/2022-09-21/federer-says-sad-to-realize-career-coming-to-end/",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://efe.com/other-news/2022-09-21/federer-says-sad-to-realize-career-coming-to-end/",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 13 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -215,7 +323,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 24 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 25 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -311,16 +419,17 @@
     ],
     "motivoEncaje": "Grupo de marketing digital con sede en Madrid: email marketing, afiliación y comercio electrónico.",
     "contacto": {
-      "tipo": "email",
-      "email": "info@antevenio.com",
-      "fuenteUrl": "https://www.antevenio.com/contacto/",
-      "tipoContacto": "general"
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.antevenio.com/blog/antevenio-repite-ranking-100-mejores-empresas-para-trabajar/",
+      "formularioUrl": "https://www.antevenio.com/blog/antevenio-repite-ranking-100-mejores-empresas-para-trabajar/",
+      "tipoContacto": "talento"
     },
+    "empleoUrl": "https://www.antevenio.com/blog/antevenio-repite-ranking-100-mejores-empresas-para-trabajar/",
     "verificacion": {
       "fecha": "2026-11-06",
-      "confianza": "media",
-      "mx": true,
-      "notas": "Verificación automática: 2 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto."
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 8 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -764,6 +873,32 @@
     }
   },
   {
+    "id": "bm-supermercados",
+    "nombre": "BM Supermercados",
+    "web": "https://www.bmsupermercados.es",
+    "sector": "Supermercados",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-logistica"
+    ],
+    "motivoEncaje": "Supermercados en la Comunidad de Madrid.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.bmsupermercados.es/unete-al-equipo.htm",
+      "formularioUrl": "https://www.bmsupermercados.es/unete-al-equipo.htm",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.bmsupermercados.es/unete-al-equipo.htm",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
     "id": "bme",
     "nombre": "BME",
     "web": "https://www.bolsasymercados.es",
@@ -834,16 +969,16 @@
     "motivoEncaje": "Producto digital madrileño con equipos de ingeniería móvil, backend y datos.",
     "contacto": {
       "tipo": "formulario",
-      "fuenteUrl": "https://cabify.careers/en/",
-      "formularioUrl": "https://cabify.careers/en/",
+      "fuenteUrl": "https://cabify.com/es/blog/incentivos-evitar-fuga-talento",
+      "formularioUrl": "https://cabify.com/es/blog/incentivos-evitar-fuga-talento",
       "tipoContacto": "talento"
     },
-    "empleoUrl": "https://cabify.careers/en/",
+    "empleoUrl": "https://cabify.com/es/blog/incentivos-evitar-fuga-talento",
     "verificacion": {
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 11 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 14 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -874,6 +1009,111 @@
       "confianza": "alta",
       "mx": null,
       "notas": "Verificación automática: 21 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
+    "id": "casa-del-libro",
+    "nombre": "Casa del Libro",
+    "web": "https://www.casadellibro.com",
+    "sector": "Librerías y comercio electrónico",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-ecommerce",
+      "acom-atencion-cliente"
+    ],
+    "motivoEncaje": "Cadena de librerías con sede en Madrid y gran tienda online.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.casadellibro.com/nosotros/trabajaNosotros",
+      "formularioUrl": "https://www.casadellibro.com/nosotros/trabajaNosotros",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.casadellibro.com/nosotros/trabajaNosotros",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 6 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
+    "id": "cash-converters-espana",
+    "nombre": "Cash Converters España",
+    "web": "https://www.cashconverters.es",
+    "sector": "Comercio de segunda mano",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-venta-tecnica",
+      "acom-ecommerce",
+      "acom-gestion-comercio"
+    ],
+    "motivoEncaje": "Red de tiendas con sede en Madrid: compraventa, tasación y tienda online.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.cashconverters.es/trabaja-con-nosotros/",
+      "formularioUrl": "https://www.cashconverters.es/trabaja-con-nosotros/",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.cashconverters.es/trabaja-con-nosotros/",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 7 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
+    "id": "cbl-logistica",
+    "nombre": "CBL Logística",
+    "web": "https://www.cbl-logistica.com",
+    "sector": "Logística",
+    "tamano": "gran-empresa",
+    "zona": "sur",
+    "perfiles": [
+      "acom-logistica"
+    ],
+    "motivoEncaje": "Operador logístico con plataformas en el sur de Madrid.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.cbl-logistica.com/formulario-de-contacto",
+      "formularioUrl": "https://www.cbl-logistica.com/formulario-de-contacto",
+      "tipoContacto": "general"
+    },
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "media",
+      "mx": null,
+      "notas": "Verificación automática: 3 páginas revisadas (incluido el mapa del sitio); formulario oficial de contacto."
+    }
+  },
+  {
+    "id": "century21-espana",
+    "nombre": "Century 21 España",
+    "web": "https://www.century21.es",
+    "sector": "Inmobiliaria",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta-tecnica",
+      "acom-atencion-cliente"
+    ],
+    "motivoEncaje": "Red inmobiliaria con sede en Madrid: venta de inmuebles.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://century21.es/unete-a-nosotros",
+      "formularioUrl": "https://century21.es/unete-a-nosotros",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://century21.es/unete-a-nosotros",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -927,6 +1167,34 @@
       "confianza": "alta",
       "mx": null,
       "notas": "Verificación automática: 15 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
+    "id": "clicars",
+    "nombre": "Clicars",
+    "web": "https://www.clicars.com",
+    "sector": "Venta online de coches",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-ecommerce",
+      "acom-venta-tecnica",
+      "acom-atencion-cliente",
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Comercio electrónico de vehículos con sede en Madrid.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.clicars.com/blog/comparativa/mejores-furgonetas-para-trabajar/",
+      "formularioUrl": "https://www.clicars.com/blog/comparativa/mejores-furgonetas-para-trabajar/",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.clicars.com/blog/comparativa/mejores-furgonetas-para-trabajar/",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 5 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -1036,7 +1304,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 19 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 16 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -1389,6 +1657,33 @@
     }
   },
   {
+    "id": "europa-press",
+    "nombre": "Europa Press",
+    "web": "https://www.europapress.es",
+    "sector": "Agencia de noticias y medios digitales",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "dam-web",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Agencia de noticias con sede en Madrid: medios digitales, marketing y sistemas.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.europapress.es/asturias/noticia-cecilia-perez-compromete-trabajar-lealtad-cercania-20261106122858.html",
+      "formularioUrl": "https://www.europapress.es/asturias/noticia-cecilia-perez-compromete-trabajar-lealtad-cercania-20261106122858.html",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.europapress.es/asturias/noticia-cecilia-perez-compromete-trabajar-lealtad-cercania-20261106122858.html",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 26 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
     "id": "evolutio",
     "nombre": "Evolutio",
     "web": "https://www.evolutio.com",
@@ -1440,6 +1735,34 @@
       "confianza": "alta",
       "mx": null,
       "notas": "Verificación automática: 17 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
+    "id": "ey-espana",
+    "nombre": "EY España",
+    "web": "https://www.ey.com/es_es",
+    "sector": "Consultoría y tecnología",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "dam-datos-ia",
+      "asir-ciberseguridad",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Consultora con sede en Madrid y áreas de tecnología y ciberseguridad.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.ey.com/es_es/careers",
+      "formularioUrl": "https://www.ey.com/es_es/careers",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.ey.com/es_es/careers",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 13 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -1579,6 +1902,58 @@
     }
   },
   {
+    "id": "flat101",
+    "nombre": "Flat 101",
+    "web": "https://www.flat101.es",
+    "sector": "Agencia de comercio electrónico y CRO",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-ecommerce",
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Agencia de comercio electrónico con oficina en Madrid.",
+    "contacto": {
+      "tipo": "email",
+      "email": "info@flat101.es",
+      "fuenteUrl": "https://www.flat101.es/blog/seo/practicas-seo-a-evitar-black-hat-seo/",
+      "tipoContacto": "general"
+    },
+    "empleoUrl": "https://www.flat101.es/blog/seo/como-trabajar-marca-para-aparecer-en-ai-overviews-en-4-fases/",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": true,
+      "notas": "Verificación automática: 5 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo."
+    }
+  },
+  {
+    "id": "flexicar",
+    "nombre": "Flexicar",
+    "web": "https://www.flexicar.es",
+    "sector": "Venta de coches de ocasión",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta-tecnica",
+      "acom-atencion-cliente",
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Red de concesionarios de ocasión con sede en Madrid.",
+    "contacto": {
+      "tipo": "email",
+      "email": "info@flexicar.es",
+      "fuenteUrl": "https://www.flexicar.es/contacto/",
+      "tipoContacto": "general"
+    },
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "media",
+      "mx": true,
+      "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto."
+    }
+  },
+  {
     "id": "fnmt-rcm",
     "nombre": "FNMT-RCM",
     "web": "https://www.fnmt.es",
@@ -1633,25 +2008,25 @@
     }
   },
   {
-    "id": "gft-espana",
-    "nombre": "GFT España",
-    "web": "https://www.gft.com/es",
-    "sector": "Consultoría tecnológica para banca",
-    "tamano": "consultora",
+    "id": "gilmar",
+    "nombre": "Gilmar",
+    "web": "https://www.gilmar.es",
+    "sector": "Inmobiliaria",
+    "tamano": "gran-empresa",
     "zona": "madrid",
     "perfiles": [
-      "dam-backend",
-      "dam-web",
-      "asir-cloud"
+      "acom-venta-tecnica",
+      "acom-atencion-cliente",
+      "acom-marketing-digital"
     ],
-    "motivoEncaje": "Consultora de software para banca con equipos de desarrollo y cloud.",
+    "motivoEncaje": "Inmobiliaria madrileña: venta, alquiler y marketing inmobiliario.",
     "contacto": {
       "tipo": "formulario",
-      "fuenteUrl": "https://www.gft.com/es/es/career",
-      "formularioUrl": "https://www.gft.com/es/es/career",
+      "fuenteUrl": "https://www.gilmar.es/blog/trabajar-desde-casa-en-malaga/",
+      "formularioUrl": "https://www.gilmar.es/blog/trabajar-desde-casa-en-malaga/",
       "tipoContacto": "talento"
     },
-    "empleoUrl": "https://www.gft.com/es/es/career",
+    "empleoUrl": "https://www.gilmar.es/blog/trabajar-desde-casa-en-malaga/",
     "verificacion": {
       "fecha": "2026-11-06",
       "confianza": "alta",
@@ -1936,6 +2311,34 @@
     }
   },
   {
+    "id": "ilitia",
+    "nombre": "Ilitia Technologies",
+    "web": "https://www.ilitia.com",
+    "sector": "Desarrollo de software",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-escritorio",
+      "dam-bbdd"
+    ],
+    "motivoEncaje": "Empresa madrileña de desarrollo de software a medida.",
+    "contacto": {
+      "tipo": "email",
+      "email": "info@ilitia.com",
+      "fuenteUrl": "https://www.ilitia.com/es/talento",
+      "tipoContacto": "general"
+    },
+    "empleoUrl": "https://www.ilitia.com/es/talento",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": true,
+      "notas": "Verificación automática: 6 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo."
+    }
+  },
+  {
     "id": "ilunion-tecnologia-y-accesibilidad",
     "nombre": "Ilunion Tecnología y Accesibilidad",
     "web": "https://www.ilunion.com",
@@ -2153,6 +2556,31 @@
     }
   },
   {
+    "id": "ipsos-espana",
+    "nombre": "Ipsos España",
+    "web": "https://www.ipsos.com/es-es",
+    "sector": "Investigación de mercados",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "acom-atencion-cliente"
+    ],
+    "motivoEncaje": "Investigación de mercados con sede en Madrid (investigación comercial y encuestas).",
+    "contacto": {
+      "tipo": "email",
+      "email": "career.mena@ipsos.com",
+      "fuenteUrl": "https://www.ipsos.com/es-es/contactanos",
+      "tipoContacto": "talento"
+    },
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": true,
+      "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto."
+    }
+  },
+  {
     "id": "izertis",
     "nombre": "Izertis",
     "web": "https://www.izertis.com",
@@ -2263,7 +2691,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 13 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 12 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -2294,6 +2722,32 @@
     }
   },
   {
+    "id": "kelisto",
+    "nombre": "Kelisto",
+    "web": "https://www.kelisto.es",
+    "sector": "Comparador online",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "acom-atencion-cliente"
+    ],
+    "motivoEncaje": "Comparador madrileño de servicios: contenidos y marketing digital.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.kelisto.es/trabaja",
+      "formularioUrl": "https://www.kelisto.es/trabaja",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.kelisto.es/trabaja",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
     "id": "kenjo",
     "nombre": "Kenjo",
     "web": "https://www.kenjo.io",
@@ -2316,6 +2770,32 @@
       "confianza": "media",
       "mx": null,
       "notas": "Verificación automática: 13 páginas revisadas (incluido el mapa del sitio); formulario oficial de contacto."
+    }
+  },
+  {
+    "id": "kiabi-espana",
+    "nombre": "Kiabi España",
+    "web": "https://www.kiabi.es",
+    "sector": "Moda",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-visual",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Tiendas de moda en la Comunidad de Madrid y venta online.",
+    "contacto": {
+      "tipo": "email",
+      "email": "contacto@kiabi.es",
+      "fuenteUrl": "https://www.kiabi.es/account/contact",
+      "tipoContacto": "general"
+    },
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "media",
+      "mx": true,
+      "notas": "Verificación automática: 5 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto."
     }
   },
   {
@@ -2343,6 +2823,62 @@
       "confianza": "media",
       "mx": null,
       "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); formulario oficial de contacto."
+    }
+  },
+  {
+    "id": "konica-minolta-espana",
+    "nombre": "Konica Minolta España",
+    "web": "https://www.konicaminolta.es",
+    "sector": "Soluciones de impresión y servicios TI",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-soporte",
+      "asir-sistemas",
+      "asir-redes",
+      "acom-venta-tecnica"
+    ],
+    "motivoEncaje": "Sede en Madrid: soporte técnico, sistemas y venta técnica de soluciones.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://career.konicaminolta.es/jobs",
+      "formularioUrl": "https://career.konicaminolta.es/jobs",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.konicaminolta.es/es-es/trabaja-con-nosotros",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 12 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
+    "id": "kpmg-espana",
+    "nombre": "KPMG España",
+    "web": "https://kpmg.com/es/es/home.html",
+    "sector": "Consultoría y tecnología",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "dam-datos-ia",
+      "asir-ciberseguridad",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Consultora con sede en Madrid y áreas de tecnología y ciberseguridad.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://kpmg.com/xx/en/careers.html",
+      "formularioUrl": "https://kpmg.com/xx/en/careers.html",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://kpmg.com/es/es/sala-prensa/notas-prensa/2026/09/kpmg-entre-10-mejores-empresas-trabajar-espana-apuesta-talento-futuro.html",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 14 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -2400,6 +2936,37 @@
     }
   },
   {
+    "id": "leroy-merlin-espana",
+    "nombre": "Leroy Merlin España",
+    "web": "https://www.leroymerlin.es",
+    "sector": "Distribución",
+    "tamano": "gran-empresa",
+    "zona": "norte",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-datos-ia",
+      "acom-venta",
+      "acom-visual",
+      "acom-logistica",
+      "acom-atencion-cliente"
+    ],
+    "motivoEncaje": "Sede en Alcobendas con equipos digitales.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://empleo.leroymerlin.es/",
+      "formularioUrl": "https://empleo.leroymerlin.es/",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://empleo.leroymerlin.es/",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 7 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
     "id": "lidl-espana",
     "nombre": "Lidl España",
     "web": "https://www.lidl.es",
@@ -2426,33 +2993,6 @@
     }
   },
   {
-    "id": "linea-directa",
-    "nombre": "Línea Directa",
-    "web": "https://www.lineadirecta.com",
-    "sector": "Seguros",
-    "tamano": "gran-empresa",
-    "zona": "norte",
-    "perfiles": [
-      "dam-web",
-      "dam-backend",
-      "dam-datos-ia",
-      "asir-sistemas"
-    ],
-    "motivoEncaje": "Aseguradora con sede en Tres Cantos y área tecnológica.",
-    "contacto": {
-      "tipo": "formulario",
-      "fuenteUrl": "https://www.lineadirecta.com/contactar/",
-      "formularioUrl": "https://www.lineadirecta.com/contactar/",
-      "tipoContacto": "general"
-    },
-    "verificacion": {
-      "fecha": "2026-11-06",
-      "confianza": "media",
-      "mx": null,
-      "notas": "Verificación automática: 9 páginas revisadas (incluido el mapa del sitio); formulario oficial de contacto."
-    }
-  },
-  {
     "id": "lingokids",
     "nombre": "Lingokids",
     "web": "https://lingokids.com",
@@ -2476,7 +3016,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 14 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 15 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -2555,7 +3095,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 11 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 14 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -2691,6 +3231,33 @@
       "confianza": "alta",
       "mx": true,
       "notas": "Verificación automática: 6 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo."
+    }
+  },
+  {
+    "id": "mercamadrid",
+    "nombre": "Mercamadrid",
+    "web": "https://www.mercamadrid.es",
+    "sector": "Mercado mayorista y logística alimentaria",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-logistica",
+      "acom-gestion-comercio",
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Gran mercado mayorista de Madrid: logística, comercio y comunicación.",
+    "contacto": {
+      "tipo": "email",
+      "email": "rrhh@mercamadrid.es",
+      "fuenteUrl": "https://www.mercamadrid.es/unete-al-equipo/",
+      "tipoContacto": "rrhh"
+    },
+    "empleoUrl": "https://www.mercamadrid.es/unete-al-equipo/",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": true,
+      "notas": "Verificación automática: 8 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo."
     }
   },
   {
@@ -2988,6 +3555,32 @@
       "confianza": "alta",
       "mx": null,
       "notas": "Verificación automática: 21 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
+    "id": "one-esecurity",
+    "nombre": "One eSecurity",
+    "web": "https://www.one-esecurity.com",
+    "sector": "Ciberseguridad y respuesta a incidentes",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-datos-ia-seguridad"
+    ],
+    "motivoEncaje": "Especialistas en respuesta a incidentes y análisis forense.",
+    "contacto": {
+      "tipo": "email",
+      "email": "recruitment@one-esecurity.com",
+      "fuenteUrl": "https://www.one-esecurity.com/join_our_team.html",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.one-esecurity.com/join_our_team.html",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": true,
+      "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo."
     }
   },
   {
@@ -3293,6 +3886,60 @@
     }
   },
   {
+    "id": "rastreator",
+    "nombre": "Rastreator",
+    "web": "https://www.rastreator.com",
+    "sector": "Comparador online",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "acom-atencion-cliente",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Comparador madrileño: marketing digital y atención al cliente.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.rastreator.com/seguros-de-vida/guias/seguro-desempleo",
+      "formularioUrl": "https://www.rastreator.com/seguros-de-vida/guias/seguro-desempleo",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.rastreator.com/seguros-de-vida/guias/seguro-desempleo",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 10 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
+    "id": "red-es",
+    "nombre": "Red.es",
+    "web": "https://www.red.es",
+    "sector": "Entidad pública de transformación digital",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-sistemas",
+      "asir-ciberseguridad",
+      "dam-web"
+    ],
+    "motivoEncaje": "Entidad pública con sede en Madrid.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.red.es/es/iniciativas/talento-digital",
+      "formularioUrl": "https://www.red.es/es/iniciativas/talento-digital",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.red.es/es/iniciativas/talento-digital",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 17 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
     "id": "redeia",
     "nombre": "Redeia",
     "web": "https://www.redeia.com",
@@ -3316,7 +3963,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 17 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 16 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -3397,7 +4044,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 18 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 19 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -3481,6 +4128,32 @@
       "confianza": "alta",
       "mx": null,
       "notas": "Verificación automática: 10 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
+    "id": "securitas-direct",
+    "nombre": "Securitas Direct (Verisure)",
+    "web": "https://www.securitasdirect.es",
+    "sector": "Alarmas y seguridad: venta y atención al cliente",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta-tecnica",
+      "acom-atencion-cliente"
+    ],
+    "motivoEncaje": "Sede en Madrid; venta técnica de sistemas de seguridad y gran servicio de atención al cliente.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.securitasdirect.es/prensa/medios/talento",
+      "formularioUrl": "https://www.securitasdirect.es/prensa/medios/talento",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.securitasdirect.es/prensa/medios/talento",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 12 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -3614,7 +4287,7 @@
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 10 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+      "notas": "Verificación automática: 11 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {
@@ -3802,6 +4475,30 @@
       "confianza": "alta",
       "mx": null,
       "notas": "Verificación automática: 3 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
+    "id": "sra-rushmore",
+    "nombre": "Sra. Rushmore",
+    "web": "https://www.srarushmore.com",
+    "sector": "Agencia de publicidad",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Agencia creativa madrileña.",
+    "contacto": {
+      "tipo": "email",
+      "email": "jobs@srarushmore.com",
+      "fuenteUrl": "https://srarushmore.com/es/contacto/",
+      "tipoContacto": "talento"
+    },
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": true,
+      "notas": "Verificación automática: 3 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto."
     }
   },
   {
@@ -4080,30 +4777,29 @@
     }
   },
   {
-    "id": "tragsatec",
-    "nombre": "Tragsatec",
-    "web": "https://www.tragsa.es",
-    "sector": "Empresa pública de servicios técnicos",
+    "id": "tipsa",
+    "nombre": "TIPSA",
+    "web": "https://www.tip-sa.com",
+    "sector": "Paquetería urgente",
     "tamano": "gran-empresa",
     "zona": "madrid",
     "perfiles": [
-      "dam-web",
-      "dam-bbdd",
-      "asir-sistemas"
+      "acom-logistica",
+      "acom-atencion-cliente"
     ],
-    "motivoEncaje": "Grupo público con grandes equipos de desarrollo y sistemas.",
+    "motivoEncaje": "Red de paquetería urgente con sede en Madrid.",
     "contacto": {
       "tipo": "email",
-      "email": "seleccion@tragsa.es",
-      "fuenteUrl": "https://www.tragsa.es/es/equipo-humano/unete-a-nuestro-equipo/Paginas/default.aspx",
+      "email": "seleccion.personal@tip-sa.com",
+      "fuenteUrl": "https://www.tip-sa.com/es/bolsa-trabajo",
       "tipoContacto": "rrhh"
     },
-    "empleoUrl": "https://www.tragsa.es/es/equipo-humano/unete-a-nuestro-equipo/Paginas/default.aspx",
+    "empleoUrl": "https://www.tip-sa.com/es/blog/unete-gramolatipsa",
     "verificacion": {
       "fecha": "2026-11-06",
       "confianza": "alta",
       "mx": true,
-      "notas": "Verificación automática: 15 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo."
+      "notas": "Verificación automática: 11 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de otra."
     }
   },
   {
@@ -4211,6 +4907,32 @@
     }
   },
   {
+    "id": "unidad-editorial",
+    "nombre": "Unidad Editorial",
+    "web": "https://www.unidadeditorial.es",
+    "sector": "Medios de comunicación",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "acom-marketing-digital",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Grupo editor con sede en Madrid (El Mundo, Marca, Expansión).",
+    "contacto": {
+      "tipo": "email",
+      "email": "info@unidadeditorial.es",
+      "fuenteUrl": "https://www.unidadeditorial.es/",
+      "tipoContacto": "general"
+    },
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "media",
+      "mx": true,
+      "notas": "Verificación automática: 1 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de otra."
+    }
+  },
+  {
     "id": "vass",
     "nombre": "VASS",
     "web": "https://vasscompany.com",
@@ -4268,6 +4990,33 @@
     }
   },
   {
+    "id": "vocento",
+    "nombre": "Vocento",
+    "web": "https://www.vocento.com",
+    "sector": "Medios de comunicación",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "acom-marketing-digital",
+      "dam-datos-ia"
+    ],
+    "motivoEncaje": "Grupo de medios con sede en Madrid y área digital.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.vocento.com/talento/",
+      "formularioUrl": "https://www.vocento.com/talento/",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.vocento.com/talento/",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 6 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
     "id": "vodafone-espana",
     "nombre": "Vodafone España",
     "web": "https://www.vodafone.es",
@@ -4321,6 +5070,59 @@
       "confianza": "media",
       "mx": true,
       "notas": "Verificación automática: 3 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto."
+    }
+  },
+  {
+    "id": "xerox-espana",
+    "nombre": "Xerox España",
+    "web": "https://www.xerox.es",
+    "sector": "Soluciones de impresión y servicios TI",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-soporte",
+      "asir-sistemas",
+      "acom-venta-tecnica"
+    ],
+    "motivoEncaje": "Servicios de impresión y TI con sede en Madrid.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.xerox.es/es-es/jobs",
+      "formularioUrl": "https://www.xerox.es/es-es/jobs",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.xerox.es/es-es/jobs",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 10 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
+    }
+  },
+  {
+    "id": "zeleris",
+    "nombre": "Zeleris",
+    "web": "https://www.zeleris.com",
+    "sector": "Logística y transporte urgente",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-logistica",
+      "acom-atencion-cliente"
+    ],
+    "motivoEncaje": "Logística y paquetería con sede en Madrid.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.zeleris.com/trabaja-con-nosotros/",
+      "formularioUrl": "https://www.zeleris.com/trabaja-con-nosotros/",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.zeleris.com/trabaja-con-nosotros/",
+    "verificacion": {
+      "fecha": "2026-11-06",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); formulario oficial de empleo."
     }
   },
   {

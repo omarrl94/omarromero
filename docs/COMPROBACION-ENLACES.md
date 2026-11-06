@@ -1,12 +1,12 @@
 # Comprobación de enlaces
 
-Fecha: 2026-11-06T18:37:18.248Z · Enlaces de empresas: 336 · rotos: 1
+Fecha: 2026-11-06T18:51:21.722Z · Enlaces de empresas: 400 · rotos: 1
 
 ## Enlaces rotos del directorio
 
 | Empresa | Tipo | URL | Estado |
 |---|---|---|---|
-| Digi Spain | web | https://www.digimobil.es | 418 |
+| Leroy Merlin España | web | https://www.leroymerlin.es | 403 |
 
 ## Portales (enlaces profundos)
 

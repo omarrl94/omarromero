@@ -1,18 +1,18 @@
 # Auditoría de una muestra al azar
 
-Fecha: 2026-11-06T18:36:21.850Z · Muestra: 10 de 160 · Con problemas: 0
+Fecha: 2026-11-06T18:50:23.704Z · Muestra: 10 de 190 · Con problemas: 0
 
 | Empresa | Contacto | Fuente | Resultado |
 |---|---|---|---|
-| Electronic Arts Madrid | formulario | https://www.ea.com/careers | ✔ OK |
-| The Cocktail | formulario | https://the-cocktail.com/talento | ✔ OK |
-| Grupo Linka | formulario | https://www.grupolinka.com/contacto/ | ✔ OK |
-| Acens | rrhh.seleccion@acens.com | https://www.acens.com/corporativo/equipo-humano/ | ✔ OK |
-| Cabify | formulario | https://cabify.careers/en/ | ✔ OK |
-| Econocom España | formulario | https://www.econocom.es/trabaja-en-econocom/nuestras-oportunidades | ✔ OK |
-| Implemental Systems | formulario | https://implementalsystems.com/unete/ | ✔ OK |
-| Intelequia | formulario | https://intelequia.com/es/sala-de-prensa/post/el-talento-canario-que-se-lanz%C3%B3-a-buscar-exoplanetas | ✔ OK |
-| Cuatroochenta | formulario | https://cuatroochenta.com/nace-xarxatec-activa-para-generar-talento-digital/ | ✔ OK |
-| Atento | formulario | https://atento.com/es/trabaja-con-nosotros | ✔ OK |
+| Management Solutions | formulario | https://www.managementsolutions.com/en/your-career-at-management-solutions | ✔ OK |
+| Kanlli | formulario | http://kanlli.com/opinion/marketing-tech-talento/ | ✔ OK |
+| Nalcom | info@nalcom.com | https://nalcom.com/Contacto | ✔ OK |
+| Mercamadrid | rrhh@mercamadrid.es | https://www.mercamadrid.es/unete-al-equipo/ | ✔ OK |
+| Kiabi España | contacto@kiabi.es | https://www.kiabi.es/account/contact | ✔ OK |
+| Prosegur Cipher | formulario | https://www.prosegur.es/trabaja-con-nosotros | ✔ OK |
+| Moeve | formulario | https://www.moeveglobal.com/es/empleo | ✔ OK |
+| Kairós Digital Solutions | formulario | https://kairosds.com/talento/que-nos-hace-unicos | ✔ OK |
+| LLYC | formulario | https://llyc.global/en/ideas/6-talent-trends-for-2016/ | ✔ OK |
+| NTT DATA España | formulario | https://es.nttdata.com/landings/city-talent-index-2022 | ✔ OK |
 
 Si alguna falla: vuelve a ejecutar `npm run verificar:empresas -- --solo=<id>` o retírala.

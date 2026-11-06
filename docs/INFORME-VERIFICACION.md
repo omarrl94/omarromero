@@ -1,6 +1,6 @@
 # Informe de verificación de empresas
 
-Generado el 2026-11-06T18:36:00.044Z con `npm run verificar:empresas`. Candidatas: 263 · **válidas: 160** · descartadas: 103.
+Generado el 2026-11-06T18:49:42.440Z con `npm run verificar:empresas`. Candidatas: 310 · **válidas: 190** · descartadas: 120.
 
 Criterios: la web responde; el correo aparece literalmente en la URL indicada, es corporativo (mismo dominio), genérico (no personal), destinado a candidaturas o contacto general y su dominio tiene registros MX. Sin correo válido se acepta el formulario oficial de empleo o contacto. Sin ninguno, se descarta.
 
@@ -43,7 +43,7 @@ Criterios: la web responde; el correo aparece literalmente en la URL indicada, e
 | Secure&IT | formulario: https://www.secureit.es/aumenta-el-numero-de-mujeres-que-trabaja-en-ciberseguridad/ | alta | — |
 | Grupo ICA | talento@grupoica.com (https://www.grupoica.com/talento/tu-carrera) | alta | — |
 | Prosegur Cipher | formulario: https://www.prosegur.es/trabaja-con-nosotros | alta | — |
-| Cabify | formulario: https://cabify.careers/en/ | alta | — |
+| Cabify | formulario: https://cabify.com/es/blog/incentivos-evitar-fuga-talento | alta | — |
 | Fever | formulario: https://careers.feverup.com/ | alta | — |
 | Jobandtalent | formulario: https://www.jobandtalent.com/jobs | alta | lever:jobandtalent |
 | Seedtag | formulario: https://www.seedtag.com/press/farah-golant-joins-seedtag-board-of-directors | alta | — |
@@ -69,8 +69,8 @@ Criterios: la web responde; el correo aparece literalmente en la URL indicada, e
 | Kyndryl España | formulario: https://www.kyndryl.com/es/es/careers | alta | — |
 | Aiuken | info-chile@aiuken.com (https://www.aiuken.com/contacto/) | media | — |
 | Factum | rrhh@factum.es (https://www.factum.es/unete-al-equipo/) | alta | — |
+| One eSecurity | recruitment@one-esecurity.com (https://www.one-esecurity.com/join_our_team.html) | alta | — |
 | Ilunion Tecnología y Accesibilidad | formulario: https://www.ilunion.com/es/unete-al-equipo | alta | — |
-| GFT España | formulario: https://www.gft.com/es/es/career | alta | — |
 | Avanade España | formulario: https://www.avanade.com/en/career | alta | — |
 | Deloitte España | formulario: https://www.deloitte.com/es/es/careers.html?icid=top_careers | alta | — |
 | Management Solutions | formulario: https://www.managementsolutions.com/en/your-career-at-management-solutions | alta | — |
@@ -108,9 +108,9 @@ Criterios: la web responde; el correo aparece literalmente en la URL indicada, e
 | Redeia | formulario: https://www.redeia.com/es/trabaja-con-nosotros/que-buscamos | alta | — |
 | Repsol | formulario: https://www.repsol.com/es/empleo/index.cshtml | alta | — |
 | Ferrovial | formulario: https://www.ferrovial.com/en/careers/ | alta | — |
-| Acciona | formulario: https://www.acciona.com/es/nuestro-proposito/trabaja-con-nosotros/formacion | alta | — |
-| Línea Directa | formulario: https://www.lineadirecta.com/contactar/ | media | — |
-| Tragsatec | seleccion@tragsa.es (https://www.tragsa.es/es/equipo-humano/unete-a-nuestro-equipo/Paginas/default.aspx) | alta | — |
+| Acciona | formulario: https://www.acciona.com/es/nuestro-proposito/trabaja-con-nosotros | alta | — |
+| Leroy Merlin España | formulario: https://empleo.leroymerlin.es/ | alta | — |
+| Red.es | formulario: https://www.red.es/es/iniciativas/talento-digital | alta | — |
 | FNMT-RCM | formulario: https://www.fnmt.es/ofertas-de-empleo | alta | — |
 | Intelygenz | info@intelygenz.com (https://intelygenz.com/talent-as-a-service/) | alta | — |
 | Evolutio | formulario: https://www.evolutio.com/noticias/la-ia-y-la-gestion-documental-impulsan-la-eficiencia-y-el-talento/ | alta | — |
@@ -162,18 +162,48 @@ Criterios: la web responde; el correo aparece literalmente en la URL indicada, e
 | Atento | formulario: https://atento.com/es/trabaja-con-nosotros | alta | — |
 | Redpiso | formulario: https://realestate.redpiso.es/trabaja-con-nosotros/ | alta | — |
 | LLYC | formulario: https://llyc.global/en/ideas/6-talent-trends-for-2016/ | alta | — |
-| Antevenio | info@antevenio.com (https://www.antevenio.com/contacto/) | media | — |
+| Antevenio | formulario: https://www.antevenio.com/blog/antevenio-repite-ranking-100-mejores-empresas-para-trabajar/ | alta | — |
 | NeoAttack | rrhh@neoattack.com (https://neoattack.com/buscamos-talento/) | alta | — |
 | SocialPubli | formulario: https://socialpubli.com/es/blog/empleo-buscamos-un-sales-manager-en-mexico/ | alta | — |
 | Nestrategia | formulario: https://jobs.nestrategia.com/jobs/careers | alta | — |
 | Kanlli | formulario: http://kanlli.com/opinion/marketing-tech-talento/ | alta | — |
 | Elogia | hola@elogia.net (https://elogia.net/) | media | — |
+| Casa del Libro | formulario: https://www.casadellibro.com/nosotros/trabajaNosotros | alta | — |
+| Cash Converters España | formulario: https://www.cashconverters.es/trabaja-con-nosotros/ | alta | — |
+| Mercamadrid | rrhh@mercamadrid.es (https://www.mercamadrid.es/unete-al-equipo/) | alta | — |
+| BM Supermercados | formulario: https://www.bmsupermercados.es/unete-al-equipo.htm | alta | — |
+| Kiabi España | contacto@kiabi.es (https://www.kiabi.es/account/contact) | media | — |
+| Securitas Direct (Verisure) | formulario: https://www.securitasdirect.es/prensa/medios/talento | alta | — |
+| Clicars | formulario: https://www.clicars.com/blog/comparativa/mejores-furgonetas-para-trabajar/ | alta | — |
+| Flexicar | info@flexicar.es (https://www.flexicar.es/contacto/) | media | — |
+| Rastreator | formulario: https://www.rastreator.com/seguros-de-vida/guias/seguro-desempleo | alta | — |
+| Acierto.com | formulario: https://www.acierto.com/seguros-vida/seguro-desempleo/ | alta | — |
+| Kelisto | formulario: https://www.kelisto.es/trabaja | alta | — |
+| Century 21 España | formulario: https://century21.es/unete-a-nosotros | alta | — |
+| Gilmar | formulario: https://www.gilmar.es/blog/trabajar-desde-casa-en-malaga/ | alta | — |
+| TIPSA | seleccion.personal@tip-sa.com (https://www.tip-sa.com/es/bolsa-trabajo) | alta | — |
+| Zeleris | formulario: https://www.zeleris.com/trabaja-con-nosotros/ | alta | — |
+| CBL Logística | formulario: https://www.cbl-logistica.com/formulario-de-contacto | media | — |
+| Sra. Rushmore | jobs@srarushmore.com (https://srarushmore.com/es/contacto/) | alta | — |
+| Flat 101 | info@flat101.es (https://www.flat101.es/blog/seo/practicas-seo-a-evitar-black-hat-seo/) | alta | — |
+| Ipsos España | career.mena@ipsos.com (https://www.ipsos.com/es-es/contactanos) | alta | — |
+| Europa Press | formulario: https://www.europapress.es/asturias/noticia-cecilia-perez-compromete-trabajar-lealtad-cercania-20261106122858.html | alta | — |
+| Agencia EFE | formulario: https://efe.com/other-news/2022-09-21/federer-says-sad-to-realize-career-coming-to-end/ | alta | — |
+| 20minutos | formulario: https://www.20minutos.es/deportes/tenis/antonio-cassano-mitico-exfutbolista-italiano-que-jugo-real-madrid-carlos-alcaraz-tiene-mas-talento-magia-que-jannik-sinner_7058357_0.html | alta | — |
+| Unidad Editorial | info@unidadeditorial.es (https://www.unidadeditorial.es/) | media | — |
+| Vocento | formulario: https://www.vocento.com/talento/ | alta | — |
+| KPMG España | formulario: https://kpmg.com/xx/en/careers.html | alta | — |
+| EY España | formulario: https://www.ey.com/es_es/careers | alta | — |
+| Konica Minolta España | formulario: https://career.konicaminolta.es/jobs | alta | — |
+| Xerox España | formulario: https://www.xerox.es/es-es/jobs | alta | — |
+| Ilitia Technologies | info@ilitia.com (https://www.ilitia.com/es/talento) | alta | — |
+| Ackcent | formulario: https://ackcent.com/ackcent-joins-cybersecurity-awareness-month/ | alta | — |
 
 ## Descartadas
 
 | Empresa | Web | Motivo |
 |---|---|---|
-| Sopra Steria España | https://www.soprasteria.es | La web no responde (tiempo agotado) |
+| Sopra Steria España | https://www.soprasteria.es | La web no responde (502) |
 | Inetum España | https://www.inetum.com/es | La web no responde (404) |
 | Stratio | https://www.stratio.com | La web redirige a otro dominio (stratio.ai): posible empresa absorbida o cambio de marca, revisar a mano |
 | Seidor | https://www.seidor.com | La web no responde (403) |
@@ -197,9 +227,9 @@ Criterios: la web responde; el correo aparece literalmente en la URL indicada, e
 | Devoteam España | https://www.devoteam.com/es | La web no responde (403) |
 | Tecnozero | https://www.tecnozero.com | La web no responde (UND_ERR_SOCKET) |
 | Amadeus | https://amadeus.com | Sin correo publicado ni formulario oficial en las páginas revisadas |
-| One eSecurity | https://www.one-esecurity.com | La web no responde (tiempo agotado) |
-| Dotforce | https://www.dotforce.es | La web no responde (tiempo agotado) |
+| Dotforce | https://www.dotforce.es | La web no responde (UND_ERR_SOCKET) |
 | Seresco | https://www.seresco.es | La web no responde (tiempo agotado) |
+| GFT España | https://www.gft.com/es | La web no responde (tiempo agotado) |
 | Sage España | https://www.sage.com/es-es | La web no responde (403) |
 | Indizen | https://www.indizen.com | La web redirige a otro dominio (www.scalian-spain.es): posible empresa absorbida o cambio de marca, revisar a mano |
 | Gigas | https://gigas.com | Sin correo válido para candidaturas (info@gigas.com: solo aparece en el aviso legal, la privacidad o las condiciones (no es el buzón de candidaturas); dpo.gigas@gigas.com: buzón no destinado a candidaturas; authorities@gigas.com: posible correo personal) ni formulario oficial |
@@ -235,14 +265,14 @@ Criterios: la web responde; el correo aparece literalmente en la URL indicada, e
 | MasOrange | https://www.masorange.es | La web no responde (tiempo agotado) |
 | Iberdrola | https://www.iberdrola.com | La web no responde (403) |
 | El Corte Inglés | https://www.elcorteingles.es | La web no responde (403) |
-| Leroy Merlin España | https://www.leroymerlin.es | La web no responde (tiempo agotado) |
 | Carrefour España | https://www.carrefour.es | La web no responde (403) |
-| DIA | https://www.dia.es | La web no responde (403) |
+| DIA | https://www.dia.es | La web no responde (tiempo agotado) |
 | Verisure España | https://www.verisure.es | Sin correo válido para candidaturas (infocomercial@securitasdirect.es: dominio distinto al de la web; no@no.es: dominio distinto al de la web; creatividad_digital@securitasdirect.es: dominio distinto al de la web; info@verisure.es: solo aparece en el aviso legal, la privacidad o las condiciones (no es el buzón de candidaturas)) ni formulario oficial |
 | Mutua Madrileña | https://www.mutua.es | Sin correo válido para candidaturas (dpo@mutua.es: buzón no destinado a candidaturas; protecciondatos@mutua.es: buzón no destinado a candidaturas) ni formulario oficial |
+| Línea Directa | https://www.lineadirecta.com | La web no responde (tiempo agotado) |
 | Bankinter | https://www.bankinter.com | La web no responde (403) |
 | ING España | https://www.ing.es | Sin correo válido para candidaturas (atencioncliente@ing.es: posible correo personal) ni formulario oficial |
-| Red.es | https://www.red.es | La web no responde (tiempo agotado) |
+| Tragsatec | https://www.tragsa.es | La web no responde (tiempo agotado) |
 | Prisa Media | https://www.prisamedia.com | La web no responde (ENOTFOUND) |
 | Atresmedia | https://www.atresmediacorporacion.com | Sin correo publicado ni formulario oficial en las páginas revisadas |
 | Metro de Madrid | https://www.metromadrid.es | Sin correo publicado ni formulario oficial en las páginas revisadas |
@@ -260,7 +290,7 @@ Criterios: la web responde; el correo aparece literalmente en la URL indicada, e
 | Grupo TRC | https://www.grupotrc.com | La web no responde (UNABLE_TO_VERIFY_LEAF_SIGNATURE) |
 | Linke | https://linke.es | Sin correo publicado ni formulario oficial en las páginas revisadas |
 | Innovery España | https://www.innovery.es | La web no responde (ECONNREFUSED) |
-| Wellness TechGroup | https://www.wellnesstg.com | La web no responde (tiempo agotado) |
+| Wellness TechGroup | https://www.wellnesstg.com | La web no responde (UND_ERR_CONNECT_TIMEOUT) |
 | Decathlon España | https://www.decathlon.es | La web no responde (403) |
 | MediaMarkt España | https://www.mediamarkt.es | La web no responde (403) |
 | Mercadona | https://www.mercadona.es | Sin correo publicado ni formulario oficial en las páginas revisadas |
@@ -276,3 +306,20 @@ Criterios: la web responde; el correo aparece literalmente en la URL indicada, e
 | The Plan Company | https://theplancompany.com | La web redirige a otro dominio (www.theplancompany.es): posible empresa absorbida o cambio de marca, revisar a mano |
 | Territorio Creativo | https://www.territoriocreativo.es | La web no responde (UND_ERR_SOCKET) |
 | Labelium España | https://www.labelium.com | La web no responde (403) |
+| Toys"R"Us España | https://www.toysrus.es | La web no responde (451) |
+| Makro España | https://www.makro.es | La web no responde (403) |
+| Primaprix | https://www.primaprix.es | La web redirige a otro dominio (primaprix.eu): posible empresa absorbida o cambio de marca, revisar a mano |
+| Décimas | https://www.decimas.es | La web redirige a otro dominio (www.decimas.com): posible empresa absorbida o cambio de marca, revisar a mano |
+| Packlink | https://www.packlink.es | Sin correo publicado ni formulario oficial en las páginas revisadas |
+| Haya Real Estate | https://www.haya.es | La web no responde (522) |
+| Teleperformance España | https://www.teleperformance.com/es-es | La web redirige a otro dominio (www.tp.com): posible empresa absorbida o cambio de marca, revisar a mano |
+| Ymedia | https://www.ymedia.es | La web no responde (UND_ERR_CONNECT_TIMEOUT) |
+| Mediapost España | https://www.mediapost.es | La web redirige a otro dominio (www.muviria.es): posible empresa absorbida o cambio de marca, revisar a mano |
+| ATREVIA | https://www.atrevia.com | La web no responde (UND_ERR_SOCKET) |
+| Simple Lógica | https://www.simplelogica.com | La web no responde (UND_ERR_CONNECT_TIMEOUT) |
+| PwC España | https://www.pwc.es | La web no responde (403) |
+| Isdefe | https://www.isdefe.es | La web no responde (403) |
+| Ineco | https://www.ineco.com | La web no responde (503) |
+| Solid GEAR | https://solidgeargroup.com | La web redirige a otro dominio (priorityfulfillment.com): posible empresa absorbida o cambio de marca, revisar a mano |
+| Claranet España | https://www.claranet.es | La web redirige a otro dominio (www.claranet.com): posible empresa absorbida o cambio de marca, revisar a mano |
+| Zemsania | https://zemsania.com | La web no responde (ERR_SSL_TLSV1_ALERT_INTERNAL_ERROR) |
