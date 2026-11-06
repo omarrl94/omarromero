@@ -13,10 +13,18 @@ interface Cuenta {
   privateKey: string;
 }
 
+/** Quita lo que se suele copiar de más desde el .json: comillas envolventes y coma final. */
+export function limpiarValor(v: string | undefined): string | undefined {
+  if (!v) return v;
+  let r = v.trim().replace(/,$/, '').trim();
+  if (r.length >= 2 && (r[0] === '"' || r[0] === "'") && r.at(-1) === r[0]) r = r.slice(1, -1);
+  return r.trim() || undefined;
+}
+
 export function cuentaServicio(): Cuenta | null {
-  const email = variable('FIREBASE_CLIENT_EMAIL');
-  const clave = variable('FIREBASE_PRIVATE_KEY');
-  if (email && clave) return { projectId: variable('FIREBASE_PROJECT_ID') ?? '', clientEmail: email, privateKey: clave.replace(/\\n/g, '\n') };
+  const email = limpiarValor(variable('FIREBASE_CLIENT_EMAIL'));
+  const clave = limpiarValor(variable('FIREBASE_PRIVATE_KEY'));
+  if (email && clave) return { projectId: limpiarValor(variable('FIREBASE_PROJECT_ID')) ?? '', clientEmail: email, privateKey: clave.replace(/\\n/g, '\n') };
   const json = variable('FIREBASE_SERVICE_ACCOUNT');
   if (!json) return null;
   try {
@@ -29,7 +37,7 @@ export function cuentaServicio(): Cuenta | null {
 }
 
 export function idProyecto(): string | undefined {
-  return variable('FIREBASE_PROJECT_ID') ?? cuentaServicio()?.projectId ?? variable('VITE_FIREBASE_PROJECT_ID');
+  return limpiarValor(variable('FIREBASE_PROJECT_ID')) ?? (cuentaServicio()?.projectId || undefined) ?? variable('VITE_FIREBASE_PROJECT_ID');
 }
 
 let app: App | null = null;
