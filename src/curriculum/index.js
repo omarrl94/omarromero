@@ -8,10 +8,11 @@ import rustPack from './rust-pack.js';
 import cppPack from './cpp-pack.js';
 import goPack from './go-pack.js';
 import jsPack from './js-pack.js';
+import csharpPack from './csharp-pack.js';
 import { DRILL_CHALLENGES } from './drill-challenges.js';
 import { OOP_LEVELS } from './oop-levels.js';
 
-export const PACKS = [rustPack, cppPack, goPack, jsPack];
+export const PACKS = [rustPack, cppPack, goPack, jsPack, csharpPack];
 
 const drillsOf = (m) => DRILL_CHALLENGES.filter((d) => d.module === m);
 
@@ -28,7 +29,7 @@ export const MODULES = [
 
 export const CHALLENGES = MODULES.flatMap((m) => m.challenges);
 
-// Paquetes de lenguaje: cada misión recibe su versión en Rust, C++, Go y JavaScript.
+// Paquetes de lenguaje: cada misión recibe su versión en Rust, C++, Go, JavaScript y C#.
 const asMap = (x) => (typeof x === 'string' ? { default: x } : { ...x });
 for (const pack of PACKS) {
   for (const ch of CHALLENGES) {

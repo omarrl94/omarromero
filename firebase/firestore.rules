@@ -32,7 +32,7 @@ service cloud.firestore {
     function validStats(d) {
       return d.gold is int && d.gold >= 0 && d.gold <= 40000
         && d.xp is int && d.xp >= 0 && d.xp <= 100000
-        && d.worlds is int && d.worlds >= 0 && d.worlds <= 9
+        && d.worlds is int && d.worlds >= 0 && d.worlds <= 10
         && d.conquered is int && d.conquered >= 0 && d.conquered <= 500;
     }
 

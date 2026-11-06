@@ -173,11 +173,34 @@ export const LANGUAGES = {
       class: 'class Nombre extends Base {\n  \n}',
     },
   },
+  csharp: {
+    id: 'csharp',
+    name: 'C#',
+    ext: 'cs',
+    color: '#34d399',
+    accent: 'text-emerald-300',
+    comment: '//',
+    paradigm: 'Orientado a objetos y multiparadigma sobre .NET: tipado estático, propiedades, LINQ y async/await nativo. El método Main es la puerta de entrada.',
+    tagline: 'El lenguaje de Unity: con él se programan miles de videojuegos. Y apps, webs y servidores.',
+    keywords: ['using', 'namespace', 'class', 'struct', 'interface', 'public', 'private', 'protected', 'internal', 'static', 'readonly', 'const', 'virtual', 'override', 'abstract', 'sealed', 'new', 'return', 'if', 'else', 'for', 'foreach', 'in', 'while', 'do', 'break', 'continue', 'switch', 'case', 'void', 'this', 'base', 'null', 'true', 'false', 'var', 'async', 'await', 'lock', 'get', 'set', 'is', 'as'],
+    types: ['int', 'long', 'short', 'byte', 'double', 'float', 'decimal', 'bool', 'char', 'string', 'object', 'var', 'List', 'Dictionary', 'HashSet', 'Task', 'Console', 'Math'],
+    builtins: ['Console.WriteLine', 'Console.Write', 'Math.Max', 'Math.Min', 'Math.Abs', 'Count', 'Length', 'Add', 'Contains', 'ContainsKey', 'GetValueOrDefault', 'Task.Run', 'Task.WhenAll'],
+    snippets: {
+      for: 'for (int i = 0; i < n; i++)\n{\n    \n}',
+      foreach: 'foreach (var x in lista)\n{\n    \n}',
+      if: 'if (condicion)\n{\n    \n}',
+      static: 'static int Nombre(int param)\n{\n    return ;\n}',
+      class: 'class Nombre : Base\n{\n    \n}',
+    },
+  },
 };
 
-export const LANG_ORDER = ['python', 'js', 'java', 'kotlin', 'swift', 'c', 'cpp', 'go', 'rust'];
+export const LANG_ORDER = ['python', 'js', 'java', 'csharp', 'kotlin', 'swift', 'c', 'cpp', 'go', 'rust'];
 
 export const camelToSnake = (s) => s.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toLowerCase();
 
 /** Nombre idiomático de un identificador en un lenguaje (snake_case en Python y Rust). */
 export const idiom = (name, lang) => (lang === 'python' || lang === 'rust' ? camelToSnake(name) : name);
+
+/** Nombre idiomático de una FUNCIÓN: como idiom, pero en C# los métodos van en PascalCase. */
+export const fnIdiom = (name, lang) => (lang === 'csharp' ? name[0].toUpperCase() + name.slice(1) : idiom(name, lang));

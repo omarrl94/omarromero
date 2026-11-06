@@ -1,4 +1,4 @@
-// Convierte cada nivel de práctica (drills.js) en una misión completa para los 9 mundos.
+// Convierte cada nivel de práctica (drills.js) en una misión completa para los 10 mundos.
 import { DRILLS } from './drills.js';
 import { generate, signature, fnName } from './levelgen.js';
 import { check, entry } from './helpers.js';

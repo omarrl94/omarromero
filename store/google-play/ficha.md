@@ -11,7 +11,7 @@ CodeForge: aprende a programar
 ## Descripción breve (máx. 80 caracteres)
 
 ```
-Aprende a programar construyendo un motor de juego. 9 lenguajes, 44 niveles.
+Aprende a programar construyendo un motor de juego. 10 lenguajes, 44 niveles.
 ```
 
 ## Descripción completa (máx. 4000 caracteres)
@@ -19,8 +19,8 @@ Aprende a programar construyendo un motor de juego. 9 lenguajes, 44 niveles.
 ```
 ¿Quieres aprender a programar de verdad, sin aburrirte? En CodeForge no lees teoría: construyes, línea a línea, el motor de un videojuego. Tu código controla la física de la nave, la inteligencia de los drones, la memoria y las entidades del mundo. Si te equivocas, el mundo hace «glitch» y te enseña dónde está el fallo.
 
-🌍 9 LENGUAJES, 9 MUNDOS
-Python, JavaScript, Java, Kotlin, Swift, C, C++, Go y Rust. Cada lenguaje es un planeta propio con sus reglas, su sintaxis y sus trucos. Elige por dónde empezar y conquístalos todos.
+🌍 10 LENGUAJES, 10 MUNDOS
+Python, JavaScript, Java, C#, Kotlin, Swift, C, C++, Go y Rust. Cada lenguaje es un planeta propio con sus reglas, su sintaxis y sus trucos. Elige por dónde empezar y conquístalos todos.
 
 🧠 44 NIVELES POR MUNDO
 Fundamentos, control de flujo, estructuras de datos, programación orientada a objetos, sistemas y memoria, funciones y recursión, algoritmos… y un jefe final que pone a prueba la eficiencia de tu código (Big O).
@@ -65,6 +65,6 @@ Para volver a generar el icono y las pantallas de arranque: `node scripts/brand/
 
 ```
 <es-ES>
-¡Primera versión de CodeForge! 9 mundos (Python, JavaScript, Java, Kotlin, Swift, C, C++, Go y Rust) con 44 niveles cada uno, lecciones visuales, ranking de pilotos y progreso en la nube.
+¡Primera versión de CodeForge! 10 mundos (Python, JavaScript, Java, C#, Kotlin, Swift, C, C++, Go y Rust) con 44 niveles cada uno, lecciones visuales, ranking de pilotos y progreso en la nube.
 </es-ES>
 ```

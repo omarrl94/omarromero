@@ -232,7 +232,7 @@ func runScanners() async {
     }
     const a = analyzeConcurrency(code, lang);
     const asyncDecl = {
-      python: /async\s+def\s+scan/, java: /static\s+\w+\s+scan\s*\(/, kotlin: /suspend\s+fun\s+scan/, swift: /func\s+scan\s*\([^)]*\)\s*async/, rust: /fn\s+scan\s*\(/, go: /func\s+scan\s*\(/, js: /async\s+function\s+scan|scan\s*=\s*async/,
+      python: /async\s+def\s+scan/, java: /static\s+\w+\s+scan\s*\(/, csharp: /async\s+Task<int>\s+Scan\s*\(/, kotlin: /suspend\s+fun\s+scan/, swift: /func\s+scan\s*\([^)]*\)\s*async/, rust: /fn\s+scan\s*\(/, go: /func\s+scan\s*\(/, js: /async\s+function\s+scan|scan\s*=\s*async/,
     }[lang].test(code);
     const raceFree = !a.sharedMutation || a.protectedMutation;
     const checks = [

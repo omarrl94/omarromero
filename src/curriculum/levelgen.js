@@ -1,5 +1,5 @@
 // Generador de niveles: cada nivel se describe UNA vez en una representación neutral
-// (IR) y aquí se genera código idiomático para los 9 lenguajes. Así cada mundo tiene
+// (IR) y aquí se genera código idiomático para los 10 lenguajes. Así cada mundo tiene
 // decenas de niveles con la misma calidad, verificados automáticamente.
 import { camelToSnake } from '../core/languages.js';
 
@@ -73,6 +73,8 @@ class Gen {
   }
 
   id(n) { return this.lang === 'python' || this.lang === 'rust' ? camelToSnake(n) : n; }
+  /** Nombre de función: en C# los métodos van en PascalCase. */
+  fid(n) { return this.lang === 'csharp' ? n[0].toUpperCase() + n.slice(1) : this.id(n); }
   lenName(a) { return this.arrParams.length === 1 && !this.types.n ? 'n' : `${a}Len`; }
   ind(level) { return (this.lang === 'js' ? '  ' : '    ').repeat(level); }
   get T() { return this.lang === 'python'; }
@@ -118,7 +120,7 @@ class Gen {
       case 'not': return L === 'python' ? `not ${this.expr(e.e, 7)}` : `!${this.expr(e.e, 7)}`;
       case 'len': {
         const a = this.id(e.a);
-        return { python: `len(${a})`, js: `${a}.length`, java: `${a}.length`, kotlin: `${a}.size`, swift: `${a}.count`, c: this.lenName(e.a), cpp: `(int) ${a}.size()`, go: `len(${a})`, rust: `${a}.len()` }[L];
+        return { python: `len(${a})`, js: `${a}.length`, java: `${a}.length`, csharp: `${a}.Length`, kotlin: `${a}.size`, swift: `${a}.count`, c: this.lenName(e.a), cpp: `(int) ${a}.size()`, go: `len(${a})`, rust: `${a}.len()` }[L];
       }
       case 'idx': {
         const a = this.id(e.a);
@@ -133,17 +135,17 @@ class Gen {
           e.args.forEach((x, k) => { out.push(args[k]); if (x.k === 'var' && (this.types[x.n] === 'arr' || this.types[x.n] === 'arrMut')) out.push(this.lenName(x.n)); });
           return `${this.id(e.f)}(${out.join(', ')})`;
         }
-        return `${this.id(e.f)}(${args.join(', ')})`;
+        return `${this.fid(e.f)}(${args.join(', ')})`;
       }
       case 'mget': {
         const m = this.id(e.m);
         const k = L === 'rust' ? this.rcast(e.key, 'i32') : this.expr(e.key);
-        return { python: `${m}.get(${k}, 0)`, js: `(${m}[${k}] ?? 0)`, java: `${m}.getOrDefault(${k}, 0)`, kotlin: `(${m}[${k}] ?: 0)`, swift: `${m}[${k}, default: 0]`, c: `${m}[${k}]`, cpp: `${m}[${k}]`, go: `${m}[${k}]`, rust: `*${m}.get(&${k}).unwrap_or(&0)` }[L];
+        return { python: `${m}.get(${k}, 0)`, js: `(${m}[${k}] ?? 0)`, java: `${m}.getOrDefault(${k}, 0)`, csharp: `${m}.GetValueOrDefault(${k})`, kotlin: `(${m}[${k}] ?: 0)`, swift: `${m}[${k}, default: 0]`, c: `${m}[${k}]`, cpp: `${m}[${k}]`, go: `${m}[${k}]`, rust: `*${m}.get(&${k}).unwrap_or(&0)` }[L];
       }
       case 'shas': {
         const s = this.id(e.s);
         const x = L === 'rust' ? this.rcast(e.x, 'i32') : this.expr(e.x);
-        return { python: `${x} in ${s}`, js: `${s}.has(${x})`, java: `${s}.contains(${x})`, kotlin: `${x} in ${s}`, swift: `${s}.contains(${x})`, c: `${s}[${x}]`, cpp: `${s}.count(${x})`, go: `${s}[${x}]`, rust: `${s}.contains(&${x})` }[L];
+        return { python: `${x} in ${s}`, js: `${s}.has(${x})`, java: `${s}.contains(${x})`, csharp: `${s}.Contains(${x})`, kotlin: `${x} in ${s}`, swift: `${s}.contains(${x})`, c: `${s}[${x}]`, cpp: `${s}.count(${x})`, go: `${s}[${x}]`, rust: `${s}.contains(&${x})` }[L];
       }
       case 'bin': {
         const p = PREC[e.op];
@@ -182,8 +184,8 @@ class Gen {
   typeName(t) {
     const L = this.lang;
     const map = {
-      int: { java: 'int', kotlin: 'Int', swift: 'Int', c: 'int', cpp: 'int', go: 'int', rust: 'i32' },
-      bool: { java: 'boolean', kotlin: 'Boolean', swift: 'Bool', c: 'bool', cpp: 'bool', go: 'bool', rust: 'bool' },
+      int: { java: 'int', csharp: 'int', kotlin: 'Int', swift: 'Int', c: 'int', cpp: 'int', go: 'int', rust: 'i32' },
+      bool: { java: 'boolean', csharp: 'bool', kotlin: 'Boolean', swift: 'Bool', c: 'bool', cpp: 'bool', go: 'bool', rust: 'bool' },
     };
     return map[t] ? map[t][L] : null;
   }
@@ -194,11 +196,11 @@ class Gen {
     if (L === 'python' || L === 'js') return id;
     if (t === 'int' || t === 'bool') {
       const ty = this.typeName(t);
-      return { java: `${ty} ${id}`, kotlin: `${id}: ${ty}`, swift: `_ ${id}: ${ty}`, c: `${ty} ${id}`, cpp: `${ty} ${id}`, go: `${id} ${ty}`, rust: `${id}: ${ty}` }[L];
+      return { java: `${ty} ${id}`, csharp: `${ty} ${id}`, kotlin: `${id}: ${ty}`, swift: `_ ${id}: ${ty}`, c: `${ty} ${id}`, cpp: `${ty} ${id}`, go: `${id} ${ty}`, rust: `${id}: ${ty}` }[L];
     }
     const mut = t === 'arrMut';
     return {
-      java: `int[] ${id}`, kotlin: `${id}: IntArray`, swift: mut ? `_ ${id}: inout [Int]` : `_ ${id}: [Int]`,
+      java: `int[] ${id}`, csharp: `int[] ${id}`, kotlin: `${id}: IntArray`, swift: mut ? `_ ${id}: inout [Int]` : `_ ${id}: [Int]`,
       c: `${mut ? '' : 'const '}int ${id}[], int ${this.lenName(n)}`, cpp: `${mut ? '' : 'const '}vector<int>& ${id}`,
       go: `${id} []int`, rust: mut ? `${id}: &mut Vec<i32>` : `${id}: &[i32]`,
     }[L];
@@ -214,6 +216,7 @@ class Gen {
       case 'python': return `def ${name}(${ps}):`;
       case 'js': return `function ${name}(${ps}) {`;
       case 'java': return `static ${rt || 'void'} ${name}(${ps}) {`;
+      case 'csharp': return `static ${rt || 'void'} ${this.fid(f.name)}(${ps}) {`;
       case 'kotlin': return `fun ${name}(${ps})${rt ? `: ${rt}` : ''} {`;
       case 'swift': return `func ${name}(${ps})${rt ? ` -> ${rt}` : ''} {`;
       case 'c': case 'cpp': return `${rt || 'void'} ${name}(${ps}) {`;
@@ -234,27 +237,27 @@ class Gen {
 
   cond(c) {
     const code = this.expr(c, 0, 'i32');
-    return { python: code, js: `(${code})`, java: `(${code})`, kotlin: `(${code})`, swift: code, c: `(${code})`, cpp: `(${code})`, go: code, rust: code }[this.lang];
+    return { python: code, js: `(${code})`, java: `(${code})`, csharp: `(${code})`, kotlin: `(${code})`, swift: code, c: `(${code})`, cpp: `(${code})`, go: code, rust: code }[this.lang];
   }
 
   stmt(s, level) {
     const L = this.lang;
     const I = this.ind(level);
-    const semi = ['js', 'java', 'c', 'cpp', 'rust'].includes(L) ? ';' : '';
+    const semi = ['js', 'java', 'csharp', 'c', 'cpp', 'rust'].includes(L) ? ';' : '';
     switch (s.k) {
       case 'let': {
         const id = this.id(s.n);
         this.types[s.n] = s.t;
         if (s.t === 'map') {
           return [{
-            python: `${I}${id} = {}`, js: `${I}const ${id} = {};`, java: `${I}Map<Integer, Integer> ${id} = new HashMap<>();`,
+            python: `${I}${id} = {}`, js: `${I}const ${id} = {};`, java: `${I}Map<Integer, Integer> ${id} = new HashMap<>();`, csharp: `${I}var ${id} = new Dictionary<int, int>();`,
             kotlin: `${I}val ${id} = mutableMapOf<Int, Int>()`, swift: `${I}var ${id}: [Int: Int] = [:]`, c: `${I}int ${id}[${s.bound}] = {0};`,
             cpp: `${I}unordered_map<int, int> ${id};`, go: `${I}${id} := make(map[int]int)`, rust: `${I}let mut ${id}: HashMap<i32, i32> = HashMap::new();`,
           }[L]];
         }
         if (s.t === 'set') {
           return [{
-            python: `${I}${id} = set()`, js: `${I}const ${id} = new Set();`, java: `${I}Set<Integer> ${id} = new HashSet<>();`,
+            python: `${I}${id} = set()`, js: `${I}const ${id} = new Set();`, java: `${I}Set<Integer> ${id} = new HashSet<>();`, csharp: `${I}var ${id} = new HashSet<int>();`,
             kotlin: `${I}val ${id} = mutableSetOf<Int>()`, swift: `${I}var ${id} = Set<Int>()`, c: `${I}bool ${id}[${s.bound}] = {false};`,
             cpp: `${I}unordered_set<int> ${id};`, go: `${I}${id} := make(map[int]bool)`, rust: `${I}let mut ${id}: HashSet<i32> = HashSet::new();`,
           }[L]];
@@ -265,6 +268,7 @@ class Gen {
           python: `${I}${id} = ${e}`,
           js: `${I}${s.mut ? 'let' : 'const'} ${id} = ${e};`,
           java: `${I}${ty} ${id} = ${e};`,
+          csharp: `${I}${ty} ${id} = ${e};`,
           kotlin: `${I}${s.mut ? 'var' : 'val'} ${id} = ${e}`,
           swift: `${I}${s.mut ? 'var' : 'let'} ${id} = ${e}`,
           c: `${I}${ty} ${id} = ${e};`,
@@ -319,6 +323,7 @@ class Gen {
           python: `for ${id} in range(${s.from.k === 'num' && s.from.v === 0 && !s.incl ? '' : `${from}, `}${s.incl ? this.expr(B('+', s.to, num(1))) : to}):`,
           js: `for (let ${id} = ${from}; ${id} ${cmp} ${to}; ${id}++) {`,
           java: `for (int ${id} = ${from}; ${id} ${cmp} ${to}; ${id}++) {`,
+          csharp: `for (int ${id} = ${from}; ${id} ${cmp} ${to}; ${id}++) {`,
           kotlin: `for (${id} in ${from}${s.incl ? '..' : ' until '}${to}) {`,
           swift: `for ${id} in ${from}${s.incl ? '...' : '..<'}${s.to.k === 'bin' ? `(${to})` : to} {`,
           c: `for (int ${id} = ${from}; ${id} ${cmp} ${to}; ${id}++) {`,
@@ -337,7 +342,7 @@ class Gen {
           return [`${I}for (int ${k} = 0; ${k} < ${this.lenName(s.a)}; ${k}++) {`, `${this.ind(level + 1)}int ${id} = ${a}[${k}];`, ...this.block(s.body, level + 1), ...this.close(level)];
         }
         const head = {
-          python: `for ${id} in ${a}:`, js: `for (const ${id} of ${a}) {`, java: `for (int ${id} : ${a}) {`, kotlin: `for (${id} in ${a}) {`,
+          python: `for ${id} in ${a}:`, js: `for (const ${id} of ${a}) {`, java: `for (int ${id} : ${a}) {`, csharp: `foreach (int ${id} in ${a}) {`, kotlin: `for (${id} in ${a}) {`,
           swift: `for ${id} in ${a} {`, cpp: `for (int ${id} : ${a}) {`, go: `for _, ${id} := range ${a} {`, rust: `for &${id} in ${a} {`,
         }[L];
         return [`${I}${head}`, ...this.block(s.body, level + 1), ...this.close(level)];
@@ -370,7 +375,7 @@ class Gen {
         const k = L === 'rust' ? this.rcast(s.key, 'i32') : this.expr(s.key);
         return [{
           python: `${I}${m}[${k}] = ${m}.get(${k}, 0) + 1`, js: `${I}${m}[${k}] = (${m}[${k}] ?? 0) + 1;`,
-          java: `${I}${m}.put(${k}, ${m}.getOrDefault(${k}, 0) + 1);`, kotlin: `${I}${m}[${k}] = (${m}[${k}] ?: 0) + 1`,
+          java: `${I}${m}.put(${k}, ${m}.getOrDefault(${k}, 0) + 1);`, csharp: `${I}${m}[${k}] = ${m}.GetValueOrDefault(${k}) + 1;`, kotlin: `${I}${m}[${k}] = (${m}[${k}] ?: 0) + 1`,
           swift: `${I}${m}[${k}, default: 0] += 1`, c: `${I}${m}[${k}]++;`, cpp: `${I}${m}[${k}]++;`, go: `${I}${m}[${k}]++`,
           rust: `${I}*${m}.entry(${k}).or_insert(0) += 1;`,
         }[L]];
@@ -379,7 +384,7 @@ class Gen {
         const st = this.id(s.s);
         const x = L === 'rust' ? this.rcast(s.x, 'i32') : this.expr(s.x);
         return [{
-          python: `${I}${st}.add(${x})`, js: `${I}${st}.add(${x});`, java: `${I}${st}.add(${x});`, kotlin: `${I}${st}.add(${x})`,
+          python: `${I}${st}.add(${x})`, js: `${I}${st}.add(${x});`, java: `${I}${st}.add(${x});`, csharp: `${I}${st}.Add(${x});`, kotlin: `${I}${st}.add(${x})`,
           swift: `${I}${st}.insert(${x})`, c: `${I}${st}[${x}] = true;`, cpp: `${I}${st}.insert(${x});`, go: `${I}${st}[${x}] = true`, rust: `${I}${st}.insert(${x});`,
         }[L]];
       }
@@ -406,6 +411,7 @@ function prelude(lang, fns) {
   const needVec = fns.some((f) => f.params.some(([, t]) => t === 'arr' || t === 'arrMut'));
   const out = [];
   if (lang === 'java' && (needMap || needSet)) out.push('import java.util.*;', '');
+  if (lang === 'csharp') out.push('using System;', ...(needMap || needSet ? ['using System.Collections.Generic;'] : []), '');
   if (lang === 'c' && needBool) out.push('#include <stdbool.h>', '');
   if (lang === 'cpp') {
     const inc = [];
@@ -430,8 +436,8 @@ function prelude(lang, fns) {
  */
 export function generate(lang, fns, { stub = false, todo = '', bare = false } = {}) {
   const lines = bare ? [] : [...prelude(lang, fns)];
-  const java = lang === 'java' && !bare;
-  if (java) lines.push('public class Main {');
+  const java = (lang === 'java' || lang === 'csharp') && !bare;
+  if (java) lines.push(lang === 'csharp' ? 'class Program {' : 'public class Main {');
   fns.forEach((f, k) => {
     const g = new Gen(lang, f);
     let body = f.body;
@@ -440,7 +446,7 @@ export function generate(lang, fns, { stub = false, todo = '', bare = false } = 
     const out = [`${g.ind(base)}${g.header()}`];
     for (const s of body) {
       if (s.k === 'todo') out.push(`${g.ind(base + 1)}${lang === 'python' ? '#' : '//'} TODO: ${s.text}`);
-      else if (s.k === 'ret' && s.e && s.e.k === 'raw') out.push(`${g.ind(base + 1)}return ${s.e.v}${['js', 'java', 'c', 'cpp', 'rust'].includes(lang) ? ';' : ''}`);
+      else if (s.k === 'ret' && s.e && s.e.k === 'raw') out.push(`${g.ind(base + 1)}return ${s.e.v}${['js', 'java', 'csharp', 'c', 'cpp', 'rust'].includes(lang) ? ';' : ''}`);
       else out.push(...g.stmt(s, base + 1));
     }
     if (lang === 'python' && !out.slice(1).some((l) => !l.trim().startsWith('#'))) out.push(`${g.ind(base + 1)}pass`);
@@ -449,7 +455,21 @@ export function generate(lang, fns, { stub = false, todo = '', bare = false } = 
     lines.push(...out);
   });
   if (java) lines.push('}');
-  return `${lines.join('\n')}\n`;
+  return `${(lang === 'csharp' ? allman(lines) : lines).join('\n')}\n`;
+}
+
+/** Estilo de llaves de .NET (Allman): cada «{» en su propia línea, alineada con su cabecera. */
+export function allman(lines) {
+  const out = [];
+  for (const line of lines) {
+    const ind = /^\s*/.exec(line)[0];
+    const t = line.trim();
+    let m;
+    if ((m = /^\}\s*(else.*?)\s*\{$/.exec(t))) out.push(`${ind}}`, `${ind}${m[1]}`, `${ind}{`);
+    else if (t.length > 1 && t.endsWith('{') && !/^\{/.test(t)) out.push(`${ind}${t.slice(0, -1).trimEnd()}`, `${ind}{`);
+    else out.push(line);
+  }
+  return out;
 }
 
 /** Firma de la función en un lenguaje (para los textos de las lecciones). */
@@ -458,4 +478,4 @@ export function signature(lang, f) {
 }
 
 /** Nombre idiomático de una función en un lenguaje. */
-export const fnName = (lang, name) => (lang === 'python' || lang === 'rust' ? camelToSnake(name) : name);
+export const fnName = (lang, name) => (lang === 'python' || lang === 'rust' ? camelToSnake(name) : lang === 'csharp' ? name[0].toUpperCase() + name.slice(1) : name);

@@ -283,13 +283,14 @@ function keysFor(lang) {
     { label: '( )', pair: '()', aria: 'Paréntesis' },
   ];
   const braces = lang === 'python' ? [] : [{ label: '{ }', pair: '{}', aria: 'Llaves' }];
-  const semi = ['java', 'c', 'cpp', 'js', 'rust', 'go', 'swift', 'kotlin'].includes(lang) ? [{ label: ';', text: ';' }] : [];
+  const semi = ['java', 'csharp', 'c', 'cpp', 'js', 'rust', 'go', 'swift', 'kotlin'].includes(lang) ? [{ label: ';', text: ';' }] : [];
   const extra = {
     python: [':', '#'],
     c: ['*', '&', '->', '#'],
     cpp: ['::', '<<', '*', '&', '->'],
     go: [':=', '&', '*'],
     rust: ['::', '&', '->', '!', "'"],
+    csharp: ['=>', '$"', '<>', '++'],
     swift: ['->', '?', '!', '\\('],
     kotlin: ['->', '?', '$', '..'],
     java: ['++', '//'],

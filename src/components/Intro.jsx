@@ -5,7 +5,7 @@ import { Logo } from './TopBar.jsx';
 import { play } from '../core/sound.js';
 
 const BOOT = [
-  'forge_vm: 9 mundos cargados ..... [ OK ]',
+  'forge_vm: 10 mundos cargados .... [ OK ]',
   'physics: gravity = undefined .... [ESPERANDO TU CÓDIGO]',
   'drones: patrol_ai ............... [SIN PROGRAMAR]',
   'heap: 0 bytes asignados ......... [ OK ]',
@@ -39,7 +39,7 @@ export default function Intro({ onStart }) {
             <span key={l} className="rounded-full border px-3 py-1 text-xs font-bold" style={{ borderColor: `${LANGUAGES[l].color}55`, color: LANGUAGES[l].color }}>{LANGUAGES[l].name}</span>
           ))}
         </motion.div>
-        <p className="mt-3 text-center text-xs text-slate-500">9 mundos independientes. Cada uno te enseña su lenguaje desde cero.</p>
+        <p className="mt-3 text-center text-xs text-slate-500">10 mundos independientes. Cada uno te enseña su lenguaje desde cero.</p>
         <div className="mt-8 flex justify-center">
           <motion.button
             type="button"

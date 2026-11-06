@@ -1,4 +1,4 @@
-// Niveles de práctica: cada uno se describe una vez (IR) y se genera para los 9 mundos.
+// Niveles de práctica: cada uno se describe una vez (IR) y se genera para los 10 mundos.
 // Cada nivel trae explicación, ejemplo en el lenguaje del mundo, casos de prueba y pistas.
 import { fn, num, bool, V, B, not, idx, len, call, mget, shas, let_, set, op, if_, for_, each, while_, ret, swap, minc, sadd } from './levelgen.js';
 

@@ -68,7 +68,7 @@ const DENS = { mdpi: 1, hdpi: 1.5, xhdpi: 2, xxhdpi: 3, xxxhdpi: 4 };
       <div style="position:absolute;left:380px;top:120px;right:50px">
         <div style="font:800 76px 'JetBrains Mono',monospace;color:#fff;letter-spacing:-2px">Code<span style="color:#22e4ff;text-shadow:0 0 24px #22e4ff">Forge</span></div>
         <div style="font:700 19px 'JetBrains Mono',monospace;color:#ff3df0;letter-spacing:.38em;margin-top:6px">THE LIVING ENGINE</div>
-        <div style="font:500 25px/1.45 'JetBrains Mono',monospace;color:#d6dcff;margin-top:28px">Aprende a programar construyendo<br>un motor de juego. <span style="color:#a3ff3d">9 lenguajes.</span></div>
+        <div style="font:500 25px/1.45 'JetBrains Mono',monospace;color:#d6dcff;margin-top:28px">Aprende a programar construyendo<br>un motor de juego. <span style="color:#a3ff3d">10 lenguajes.</span></div>
       </div></div>`);
   await b.close();
   console.log('Iconos, splash y material de Google Play generados.');

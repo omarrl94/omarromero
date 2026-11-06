@@ -59,7 +59,7 @@ jobs:
       - name: Instalar dependencias
         run: npm ci
 
-      - name: Comprobar el temario (792 verificaciones)
+      - name: Comprobar el temario (880 verificaciones)
         run: npm test
 
       - name: Compilar la web del juego

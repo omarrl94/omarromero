@@ -29,6 +29,9 @@ const TYPES = {
   int32: INT(32), int64: INT(64), int16: INT(16), uint8: INT(8, false), uint32: INT(32, false), uint64: INT(64, false), rune: INT(32),
   float64: { kind: 'float' }, float32: { kind: 'float' }, string: { kind: 'str' },
   number: { kind: 'float' }, bigint: { kind: 'int', bits: Infinity, signed: true },
+  // C#
+  sbyte: INT(8), ushort: INT(16, false), uint: INT(32, false), ulong: INT(64, false),
+  decimal: { kind: 'float' }, object: { kind: 'other' },
 };
 
 /** Tipo efectivo de una declaración, resolviendo particularidades de cada lenguaje. */
@@ -38,6 +41,9 @@ export function typeInfo(type, lang) {
   if (lang === 'swift' && t === 'Int') return INT(64);
   if (lang === 'go' && (t === 'int' || t === 'uint')) return INT(64, t === 'int');
   if (lang === 'go' && t === 'bool') return { kind: 'bool' };
+  if (lang === 'csharp' && t === 'byte') return INT(8, false);
+  if (lang === 'csharp' && /^(Dictionary|SortedDictionary)\b/.test(t)) return { kind: 'map' };
+  if (lang === 'csharp' && /^(HashSet|SortedSet)\b/.test(t)) return { kind: 'set' };
   if (lang === 'js' && t === 'boolean') return { kind: 'bool' };
   if (lang === 'python' && t === 'int') return { kind: 'int', bits: Infinity, signed: true };
   if (lang === 'python' && t === 'float') return { kind: 'float' };
@@ -62,6 +68,21 @@ function inferType(expr, value, lang) {
     if (value instanceof Set) return 'Set';
     if (value instanceof Map) return 'Map';
     if (value && typeof value === 'object') return 'Object';
+    return null;
+  }
+  if (lang === 'csharp') {
+    if (/^-?\d[\d_]*\.\d*([eE]-?\d+)?[dD]?$/.test(e)) return 'double';
+    if (/^-?\d[\d_]*[mM]$/.test(e)) return 'decimal';
+    if (/^-?\d[\d_]*[lL]$/.test(e)) return 'long';
+    if (/^-?\d[\d_]*$/.test(e)) return 'int';
+    if (/^\$?"/.test(e)) return 'string';
+    if (/^(true|false)$/.test(e)) return 'bool';
+    if (typeof value === 'number') return Number.isInteger(value) ? 'int' : 'double';
+    if (typeof value === 'string') return 'string';
+    if (typeof value === 'boolean') return 'bool';
+    if (Array.isArray(value)) return /List</.test(e) ? 'List<int>' : 'int[]';
+    if (value instanceof Set) return 'HashSet<int>';
+    if (value && typeof value === 'object') return 'Dictionary<string, int>';
     return null;
   }
   if (lang === 'go' || lang === 'cpp') {
@@ -119,7 +140,7 @@ const wrapInt = (v, bits, signed) => {
 const rangeOf = (bits, signed) => (signed ? [-(2 ** (bits - 1)), 2 ** (bits - 1) - 1] : [0, 2 ** bits - 1]);
 
 const LANG_TYPE_NAMES = {
-  java: { int32: 'int', int64: 'long' }, c: { int32: 'int', int64: 'long long' },
+  java: { int32: 'int', int64: 'long' }, csharp: { int32: 'int', int64: 'long' }, c: { int32: 'int', int64: 'long long' },
   kotlin: { int32: 'Int', int64: 'Long' }, swift: { int32: 'Int32', int64: 'Int64' }, python: { int32: 'int', int64: 'int' }, rust: { int32: 'i32', int64: 'i64' },
 };
 
@@ -138,6 +159,7 @@ const ERR = {
   index: (lang, i, len) => ({
     python: 'IndexError: list index out of range',
     java: `java.lang.ArrayIndexOutOfBoundsException: Index ${i} out of bounds for length ${len}`,
+    csharp: 'System.IndexOutOfRangeException: Index was outside the bounds of the array.',
     kotlin: `java.lang.ArrayIndexOutOfBoundsException: Index ${i} out of bounds for length ${len}`,
     swift: 'Fatal error: Index out of range',
     rust: `index out of bounds: the len is ${len} but the index is ${i}`,
@@ -150,6 +172,7 @@ const ERR = {
   timeout: (lang) => ({
     python: 'TimeoutError: el bucle no termina (¿condición de salida?)',
     java: 'java.util.concurrent.TimeoutException: el bucle no termina',
+    csharp: 'Watchdog: el proceso no termina (bucle infinito)',
     kotlin: 'kotlinx.coroutines.TimeoutCancellationException: el bucle no termina',
     swift: 'Watchdog: el proceso no termina (bucle infinito)',
     c: 'Watchdog: proceso terminado por SIGKILL (bucle infinito)',
@@ -164,6 +187,7 @@ const NAMES = {
   name: (lang, n) => ({
     python: `NameError: name '${n}' is not defined`,
     java: `error: cannot find symbol\n  symbol:   variable ${n}`,
+    csharp: `error CS0103: The name '${n}' does not exist in the current context`,
     kotlin: `error: unresolved reference: ${n}`,
     swift: `error: cannot find '${n}' in scope`,
     c: `error: '${n}' undeclared (first use in this function)`,
@@ -175,6 +199,7 @@ const NAMES = {
   nullRef: (lang, prop) => ({
     python: `AttributeError: 'NoneType' object has no attribute '${prop}'`,
     java: `java.lang.NullPointerException: Cannot read field "${prop}" because value is null`,
+    csharp: 'System.NullReferenceException: Object reference not set to an instance of an object.',
     kotlin: 'java.lang.NullPointerException',
     swift: 'Fatal error: Unexpectedly found nil while unwrapping an Optional value',
     c: 'Segmentation fault (core dumped) — desreferencia de puntero NULL',
@@ -186,6 +211,7 @@ const NAMES = {
   notCallable: (lang, n) => ({
     python: `TypeError: '${n}' object is not callable`,
     java: `error: cannot find symbol\n  symbol:   method ${n}`,
+    csharp: `error CS0103: The name '${n}' does not exist in the current context`,
     kotlin: `error: unresolved reference: ${n}`,
     swift: `error: cannot call value of non-function type '${n}'`,
     c: `error: called object '${n}' is not a function`,
@@ -197,6 +223,7 @@ const NAMES = {
   recursion: (lang) => ({
     python: 'RecursionError: maximum recursion depth exceeded',
     java: 'java.lang.StackOverflowError',
+    csharp: 'Stack overflow.\n   Repeat 10000 times:',
     kotlin: 'java.lang.StackOverflowError',
     swift: 'EXC_BAD_ACCESS: stack overflow',
     c: 'Segmentation fault (core dumped) — stack overflow',
@@ -236,7 +263,7 @@ function parseFrames(e, maxLine) {
 
 function frameLabel(fn, lang) {
   if (fn) return fn;
-  return { python: '<module>', java: 'main', kotlin: 'main', swift: 'top-level', c: 'main', rust: 'main', cpp: 'main', go: 'main', js: '<anonymous>' }[lang];
+  return { python: '<module>', java: 'main', csharp: 'Main', kotlin: 'main', swift: 'top-level', c: 'main', rust: 'main', cpp: 'main', go: 'main', js: '<anonymous>' }[lang];
 }
 
 /** Construye un stack trace con el formato nativo de cada lenguaje. */
@@ -251,6 +278,11 @@ export function formatTrace(lang, message, frames) {
       const cls = lang === 'java' ? 'Main' : 'MainKt';
       const head = message.startsWith('error') ? message : `Exception in thread "main" ${message}`;
       return [head, ...fr.map((f) => `\tat ${cls}.${frameLabel(f.fn, lang)}(${file}:${f.line})`)].join('\n');
+    }
+    case 'csharp': {
+      if (/^error/.test(message)) return `${file}(${fr[0].line},1): ${message}`;
+      if (/^Stack overflow/.test(message)) return [message, ...fr.slice(0, 3).map((f) => `   at Program.${frameLabel(f.fn, lang)}() in ${file}:line ${f.line}`)].join('\n');
+      return [`Unhandled exception. ${message}`, ...fr.map((f) => `   at Program.${frameLabel(f.fn, lang)}() in ${file}:line ${f.line}`)].join('\n');
     }
     case 'go':
       if (!/^(runtime error|panic|invalid memory)/.test(message) && !/stack/.test(message)) return `./${file}:${fr[0].line}:1: ${message}`;
@@ -350,6 +382,36 @@ function installProtos() {
   def(DictProto, '__isEmpty', function () { return Object.keys(this).length === 0; });
   def(DictProto, 'getOrDefault', function (k, d) { return this.__get(k, d); });
   def(DictProto, 'toString', function () { return JSON.stringify({ ...this }); });
+  // C# (List / HashSet / Dictionary)
+  def(DictProto, '__add', function (k, v) {
+    if (Object.prototype.hasOwnProperty.call(this, k)) {
+      throw new ForgeRuntimeError('dupkey', `System.ArgumentException: An item with the same key has already been added. Key: ${k}`, { hint: 'Add falla si la clave ya existe: usa el indexador dict[clave] = valor para actualizarla.' });
+    }
+    this[k] = v;
+  });
+  def(DictProto, '__remove', function (k) { const had = Object.prototype.hasOwnProperty.call(this, k); delete this[k]; return had; });
+  def(DictProto, '__clear', function () { Object.keys(this).forEach((k) => delete this[k]); });
+  def(Array.prototype, '__remove', function (x) { tick(this.length); const i = this.indexOf(x); if (i >= 0) this.splice(i, 1); return i >= 0; });
+  def(Array.prototype, '__clear', function () { this.length = 0; });
+  def(Set.prototype, '__remove', function (x) { return this.delete(x); });
+  def(Set.prototype, '__clear', function () { this.clear(); });
+  for (const P of [Number.prototype, String.prototype, Boolean.prototype, Array.prototype]) {
+    def(P, '__csstr', function () { return fmt(this.valueOf(), 'csharp'); });
+  }
+}
+
+/** Dictionary de C#: leer una clave que no existe lanza KeyNotFoundException (como en .NET). */
+const PROBES = new Set(['toJSON', 'then', 'constructor', 'length', 'nodeType', '$$typeof', 'asymmetricMatch', '@@__IMMUTABLE_ITERABLE__@@']);
+function csDict(init) {
+  const target = Object.assign(Object.create(DictProto), init || {});
+  return new Proxy(target, {
+    get(t, k, r) {
+      if (typeof k === 'symbol' || k in t || PROBES.has(k) || String(k).startsWith('__') || !CUR || CUR.lang !== 'csharp') return Reflect.get(t, k, r);
+      throw new ForgeRuntimeError('keynotfound', `System.Collections.Generic.KeyNotFoundException: The given key '${k}' was not present in the dictionary.`, {
+        hint: 'En C# leer una clave que no existe es un error. Comprueba antes con ContainsKey o usa GetValueOrDefault(clave).',
+      });
+    },
+  });
 }
 
 const isDict = (o) => o && typeof o === 'object' && Object.getPrototypeOf(o) === DictProto;
@@ -380,6 +442,20 @@ function fmt(v, lang, nested = false) {
     if (Array.isArray(v)) return `[${v.map((x) => fmt(x, lang, true)).join(' ')}]`;
     if (v instanceof Set) return `map[${[...v].map((x) => `${fmt(x, lang, true)}:true`).join(' ')}]`;
     if (isDict(v)) return `map[${Object.keys(v).sort().map((k) => `${k}:${fmt(v[k], lang, true)}`).join(' ')}]`;
+    return String(v);
+  }
+  if (lang === 'csharp') {
+    if (v === null || v === undefined) return '';
+    if (typeof v === 'boolean') return v ? 'True' : 'False';
+    if (typeof v === 'number') return Number.isFinite(v) ? String(v) : v > 0 ? '∞' : v < 0 ? '-∞' : 'NaN';
+    if (typeof v === 'string') return v;
+    if (Array.isArray(v)) {
+      if (nested) return `[${v.map((x) => fmt(x, lang, true)).join(', ')}]`;
+      const t = v.every((x) => typeof x === 'string') && v.length ? 'String' : v.every((x) => typeof x === 'boolean') && v.length ? 'Boolean' : v.some((x) => typeof x === 'number' && !Number.isInteger(x)) ? 'Double' : 'Int32';
+      return `System.${t}[]`;
+    }
+    if (v instanceof Set) return 'System.Collections.Generic.HashSet`1[System.Int32]';
+    if (isDict(v)) return 'System.Collections.Generic.Dictionary`2[System.String,System.Int32]';
     return String(v);
   }
   if (lang === 'js') {
@@ -594,6 +670,36 @@ function buildHelpers(S, meta) {
     },
     __tick: () => tick(),
     __show: (v) => fmt(v, lang),
+    // C#
+    __csprint: (v = '') => { const line = S.partial + fmt(v, 'csharp'); S.partial = ''; out(line); },
+    __cswrite: (v = '') => {
+      const ps = (S.partial + fmt(v, 'csharp')).split('\n');
+      S.partial = ps.pop();
+      ps.forEach(out);
+    },
+    __csshow: (v, spec = '', width = 0) => {
+      let r;
+      const sm = /^([FfNnDdPp])(\d*)$/.exec(spec || '');
+      if (sm && typeof v === 'number') {
+        const k = sm[1].toUpperCase();
+        const d = sm[2] === '' ? (k === 'D' ? 0 : 2) : Number(sm[2]);
+        if (k === 'F') r = v.toFixed(d);
+        else if (k === 'N') r = v.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+        else if (k === 'P') r = `${(v * 100).toFixed(d)} %`;
+        else r = String(Math.trunc(v)).padStart(d, '0');
+      } else r = fmt(v, 'csharp');
+      const w = Number(width) || 0;
+      return w > 0 ? r.padStart(w) : w < 0 ? r.padEnd(-w) : r;
+    },
+    __csdict: (o) => csDict(o),
+    __csiter: (x) => {
+      if (x === null || x === undefined) throw new ForgeRuntimeError('null', NAMES.nullRef('csharp', 'GetEnumerator'));
+      if (isDict(x)) return Object.keys(x).map((k) => ({ Key: k, Value: x[k] }));
+      if (typeof x === 'string') return [...x];
+      return x;
+    },
+    __join: (sep, xs) => [...(xs || [])].map((x) => fmt(x, lang)).join(sep),
+    __revArr: (a) => { a.reverse(); return a; },
     __cout: (...parts) => {
       const text = parts.map((x) => (typeof x === 'boolean' ? (x ? '1' : '0') : fmt(x, lang))).join('');
       const ps = (S.partial + text).split('\n');
@@ -618,6 +724,7 @@ function buildHelpers(S, meta) {
         if (b === 0) {
           throw new ForgeRuntimeError('divzero', {
             java: 'java.lang.ArithmeticException: / by zero', kotlin: 'java.lang.ArithmeticException: / by zero',
+            csharp: 'System.DivideByZeroException: Attempted to divide by zero.',
             swift: 'Fatal error: Division by zero', c: 'Floating point exception (core dumped) — división entre cero',
             cpp: 'Floating point exception (core dumped) — división entre cero', go: 'runtime error: integer divide by zero',
             rust: 'attempt to divide by zero',
@@ -689,6 +796,20 @@ function buildHelpers(S, meta) {
     qsort: (a, n) => { const s = a.slice(0, n).__sorted(); s.forEach((v, i) => { a[i] = v; }); },
     __carr: (type, init, size, line) => {
       let arr;
+      const name = meta.decls[line]?.name;
+      if (typeof init === 'string' && /^(char|uint8_t|wchar_t)$/.test(type)) {
+        // En C no hay tipo string: un texto es un array de char terminado en '\0'.
+        const need = init.length + 1;
+        const cap = size ?? need;
+        if (cap < init.length) {
+          throw new ForgeRuntimeError('type', `error: initializer-string for array of 'char' is too long`, {
+            line, hint: `"${init}" tiene ${init.length} letras y necesita ${need} char (con el '\\0' final), pero el array solo tiene ${cap}.`,
+          });
+        }
+        const flags = cap < need ? ['noterm'] : [];
+        if (name) S.vars[name] = { name, type: `char[${cap}]`, kind: 'str', value: init, line, flags, display: cap < need ? `"${init}"  (¡sin '\\0' final: no cabe!)` : `"${init}"  (${init.length} letras + '\\0')` };
+        return init;
+      }
       if (init !== null && init !== undefined && typeof init === 'string') arr = init;
       else {
         const n = size ?? (init ? init.length : 0);
@@ -696,8 +817,7 @@ function buildHelpers(S, meta) {
         arr = new Array(Math.max(0, n)).fill(fill);
         if (init) init.forEach((v, i) => { if (i < arr.length) arr[i] = v; });
       }
-      const name = meta.decls[line]?.name;
-      if (name) S.vars[name] = { type: `${type}[]`, kind: 'list', value: arr, line };
+      if (name) S.vars[name] = { name, type: `${type}[]`, kind: 'list', value: arr, line, flags: [] };
       return arr;
     },
     __decl: (type, name, value, line) => declare(S, meta, type, name, value, line),
@@ -716,7 +836,7 @@ function declare(S, meta, type, name, value, line) {
   if (!type && typeof value === 'number' && lang !== 'python' && lang !== 'js') {
     // Inferencia por operandos: Int32 * Int32 sigue siendo Int32 (Kotlin/Swift/var de Java).
     const opTypes = (exprSrc.match(/[A-Za-z_]\w*/g) || []).filter((x) => S.vars[x] && S.vars[x].kind === 'int').map((x) => S.vars[x].type);
-    if (/Int64\(|\bint64\(|\.toLong\(\)|\(\s*long\s*\)|\(\s*int64_t\s*\)|\d[lL]\b|\bas\s+i64\b/.test(exprSrc)) declType = { swift: 'Int64', kotlin: 'Long', java: 'long', c: 'int64_t', cpp: 'int64_t', rust: 'i64', go: 'int64' }[lang] || declType;
+    if (/Int64\(|\bint64\(|\.toLong\(\)|\(\s*long\s*\)|\(\s*int64_t\s*\)|\d[lL]\b|\bas\s+i64\b/.test(exprSrc)) declType = { swift: 'Int64', kotlin: 'Long', java: 'long', csharp: 'long', c: 'int64_t', cpp: 'int64_t', rust: 'i64', go: 'int64' }[lang] || declType;
     else if (opTypes.length && Number.isInteger(value) && !/\d\.\d/.test(exprSrc)) {
       declType = opTypes.reduce((a, b) => ((typeInfo(b, lang).bits || 0) > (typeInfo(a, lang).bits || 0) ? b : a));
     }
@@ -749,6 +869,9 @@ function declare(S, meta, type, name, value, line) {
         }
         if (lang === 'go') {
           throw new ForgeRuntimeError('type', `cannot use ${exprSrc.trim()} (untyped float constant) as ${declType} value in variable declaration (truncated)`, { line, hint: 'Un int no puede guardar decimales: usa float64.' });
+        }
+        if (lang === 'csharp') {
+          throw new ForgeRuntimeError('type', `error CS0266: Cannot implicitly convert type 'double' to '${declType}'. An explicit conversion exists (are you missing a cast?)`, { line, hint: 'Un int no guarda decimales: usa double. C# no recorta en silencio: te obliga a decidir.' });
         }
         throw new ForgeRuntimeError('type', lang === 'java'
           ? `error: incompatible types: possible lossy conversion from ${from} to ${declType}`
@@ -785,6 +908,7 @@ function declare(S, meta, type, name, value, line) {
         if (literal && lang !== 'c') {
           if (lang === 'rust') throw new ForgeRuntimeError('type', `error: literal out of range for \`${declType}\``, { line });
           if (lang === 'go') throw new ForgeRuntimeError('type', `cannot use ${exprSrc.trim()} (untyped int constant) as ${declType} value in variable declaration (overflows)`, { line });
+          if (lang === 'csharp') throw new ForgeRuntimeError('type', `error CS0266: Cannot implicitly convert type 'long' to '${declType}'. An explicit conversion exists (are you missing a cast?)`, { line, hint: `${exprSrc.trim()} no cabe en un ${declType}: usa long.` });
           throw new ForgeRuntimeError('type', lang === 'java' ? 'error: integer number too large'
             : lang === 'kotlin' ? `error: the integer literal does not conform to the expected type ${declType}`
               : `error: integer literal '${exprSrc.trim()}' overflows when stored into '${declType}'`, { line });
@@ -802,6 +926,8 @@ function declare(S, meta, type, name, value, line) {
       }
     }
   }
+  // C#: los arrays (tamaño fijo) se vigilan, como en .NET: salirse lanza IndexOutOfRangeException.
+  if (lang === 'csharp' && /\[\]$/.test(declType || '') && Array.isArray(value) && !value.__tracked) value = makeTracked(value, name, S);
   rec.value = value;
   rec.typeName = LANG_TYPE_NAMES[lang] ? declType : declType;
   S.vars[name] = rec;
@@ -836,7 +962,12 @@ export function runProgram({ code, lang, invoke, api, maxTicks = 3e6, callMain =
   result.js = tr.js;
   const maxLine = code.split('\n').length;
   const H = buildHelpers(S, tr.meta);
-  if (api) Object.assign(H, api(S));
+  if (api) {
+    const A = api(S);
+    Object.assign(H, A);
+    // C#: los métodos van en PascalCase (Waypoint, Scan…): mismo API con su nombre idiomático.
+    if (lang === 'csharp') Object.keys(A).forEach((k) => { const P = k[0].toUpperCase() + k.slice(1); if (!(P in H)) H[P] = A[k]; });
+  }
   const names = Object.keys(H).filter((k) => /^[A-Za-z_$][\w$]*$/.test(k) && !['String', 'Math'].includes(k));
   const fnNames = [...new Set(tr.meta.functions.map((f) => f.name))];
   const body = `"use strict";\nconst {${names.join(', ')}} = __H; return (function () {\n${tr.js}\n;return {${fnNames.map((n) => `${n}: typeof ${n} === 'function' ? ${n} : undefined`).join(', ')}}; })();`;
@@ -858,7 +989,8 @@ export function runProgram({ code, lang, invoke, api, maxTicks = 3e6, callMain =
     }
     const fns = factory(S, H) || {};
     result.fns = fns;
-    if (callMain && lang !== 'python' && typeof fns.main === 'function') fns.main([]);
+    const mainFn = lang === 'csharp' ? fns.Main || fns.main : fns.main;
+    if (callMain && lang !== 'python' && typeof mainFn === 'function') mainFn([]);
     if (invoke) {
       result.value = invoke({
         fns,
@@ -884,7 +1016,7 @@ export function runProgram({ code, lang, invoke, api, maxTicks = 3e6, callMain =
 }
 
 function syntaxMessage(lang) {
-  return { python: 'SyntaxError: invalid syntax', java: 'error: illegal start of expression', kotlin: 'error: expecting an element', swift: 'error: expected expression', c: 'error: expected expression', rust: 'error: expected expression', cpp: 'error: expected primary-expression', go: 'syntax error: unexpected token', js: 'SyntaxError: Unexpected token' }[lang];
+  return { python: 'SyntaxError: invalid syntax', java: 'error: illegal start of expression', csharp: 'error CS1525: Invalid expression term', kotlin: 'error: expecting an element', swift: 'error: expected expression', c: 'error: expected expression', rust: 'error: expected expression', cpp: 'error: expected primary-expression', go: 'syntax error: unexpected token', js: 'SyntaxError: Unexpected token' }[lang];
 }
 
 /** Busca la primera línea que rompe la compilación compilando prefijos con cierres. */
@@ -913,6 +1045,7 @@ function formatSyntax(lang, e) {
   const file = sourceFile(lang);
   if (lang === 'python') return `  File "${file}", line ${e.line}\n${e.message}`;
   if (lang === 'java') return `${file}:${e.line}: ${e.message}`;
+  if (lang === 'csharp') return `${file}(${e.line},${e.col || 1}): ${e.message}`;
   if (lang === 'rust') return `${e.message}\n  --> ${file}:${e.line}:${e.col || 1}`;
   if (lang === 'go') return `./${file}:${e.line}:${e.col || 1}: ${e.message}`;
   if (lang === 'js') return `${file}:${e.line}\n${e.message}`;

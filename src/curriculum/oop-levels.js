@@ -13,7 +13,7 @@ function move(lang, c) {
   const o = c.delta < 0 ? '-=' : '+=';
   const d = Math.abs(c.delta);
   return {
-    python: `self.${c.axis} ${o} ${d}`, java: `${c.axis} ${o} ${d};`, kotlin: `${c.axis} ${o} ${d}`, swift: `${c.axis} ${o} ${d}`,
+    python: `self.${c.axis} ${o} ${d}`, java: `${c.axis} ${o} ${d};`, csharp: `${c.axis} ${o} ${d};`, kotlin: `${c.axis} ${o} ${d}`, swift: `${c.axis} ${o} ${d}`,
     c: `self->${c.axis} ${o} ${d};`, cpp: `${c.axis} ${o} ${d};`, go: `${lower(c.name)[0]}.${c.axis} ${o} ${d}`, rust: `self.${c.axis} ${o} ${d}.0;`, js: `this.${c.axis} ${o} ${d};`,
   }[lang];
 }
@@ -23,6 +23,7 @@ function classCode(lang, c) {
   switch (lang) {
     case 'python': return m ? `class ${c.name}(Entity):\n    def update(self):\n        ${m}\n` : `class ${c.name}(Entity):\n    pass\n`;
     case 'java': return `class ${c.name} extends Entity {\n    ${c.name}(double x, double y) { super(x, y); }\n${m ? `\n    @Override\n    void update() {\n        ${m}\n    }\n` : ''}}\n`;
+    case 'csharp': return `class ${c.name} : Entity\n{\n    public ${c.name}(double x, double y) : base(x, y) { }\n${m ? `\n    public override void Update()\n    {\n        ${m}\n    }\n` : ''}}\n`;
     case 'kotlin': return m ? `class ${c.name}(x: Double, y: Double) : Entity(x, y) {\n    override fun update() {\n        ${m}\n    }\n}\n` : `class ${c.name}(x: Double, y: Double) : Entity(x, y)\n`;
     case 'swift': return m ? `class ${c.name}: Entity {\n    override func update() {\n        ${m}\n    }\n}\n` : `class ${c.name}: Entity { }\n`;
     case 'cpp': return m ? `class ${c.name} : public Entity {\npublic:\n    void update() override {\n        ${m}\n    }\n};\n` : `class ${c.name} : public Entity {\n};\n`;
@@ -44,6 +45,7 @@ const BASE = {
   python: 'class Entity:\n    def __init__(self, x, y):\n        self.x = x\n        self.y = y\n\n    def update(self):\n        pass\n',
   java: 'class Entity {\n    protected double x, y;\n\n    Entity(double x, double y) {\n        this.x = x;\n        this.y = y;\n    }\n\n    void update() { }\n}\n',
   kotlin: 'open class Entity(var x: Double, var y: Double) {\n    open fun update() { }\n}\n',
+  csharp: 'class Entity\n{\n    protected double x, y;\n\n    public Entity(double x, double y)\n    {\n        this.x = x;\n        this.y = y;\n    }\n\n    public virtual void Update() { }\n}\n',
   swift: 'class Entity {\n    var x: Double\n    var y: Double\n\n    init(x: Double, y: Double) {\n        self.x = x\n        self.y = y\n    }\n\n    func update() { }\n}\n',
   cpp: 'class Entity {\npublic:\n    float x = 0, y = 0;\n    virtual void update() {}\n    virtual ~Entity() = default;\n};\n',
   js: 'class Entity {\n  constructor(x, y) {\n    this.x = x;\n    this.y = y;\n  }\n\n  update() {}\n}\n',
@@ -105,6 +107,7 @@ function makeLevel(L) {
     polyglot[lang] = {
       python: 'class Hija(Entity): hereda; redefinir update() lo sobrescribe y pass deja el cuerpo vacío.',
       java: 'extends para heredar y @Override para que el compilador compruebe que de verdad sobrescribes.',
+      csharp: 'class Hija : Entity. Update() es virtual en la base y las hijas que se mueven escriben public override void Update(). Sin override, el método solo OCULTA al de la base y el motor seguiría llamando al de Entity.',
       kotlin: 'La base es open y su update() es open fun; las hijas escriben override fun update().',
       swift: 'class Hija: Entity y override func update() en las que se mueven.',
       c: 'Cada «clase» es una struct con Entity base; como primer campo; el polimorfismo es asignar a base.update la función de cada tipo.',
@@ -147,6 +150,11 @@ function makeLevel(L) {
           movers.filter((c) => !movesOk(c)).map((c) => { const mv = motion(c.name); return `${c.name}: (${mv.vx}, ${mv.vy})`; }).join(' · ')),
       ];
       if (statics.length) checks.push(check('static', `${statics.map((c) => c.name).join(', ')} no se mueve${statics.length > 1 ? 'n' : ''}`, statics.every((c) => inherits(c.name) && !motion(c.name).vx && !motion(c.name).vy)));
+      if (lang === 'csharp') {
+        const hidden = movers.filter((c) => classes[c.name] && classes[c.name].methods.update && !classes[c.name].methods.update.override);
+        checks.push(check('csharp-override', 'Los Update() que mueven llevan override', hidden.length === 0,
+          hidden.length ? `warning CS0114: '${hidden[0].name}.Update()' hides inherited member 'Entity.Update()' — sin override, el motor no llama a tu versión.` : ''));
+      }
       if (lang === 'go') {
         const bad = movers.filter((c) => classes[c.name] && classes[c.name].methods.update && !classes[c.name].methods.update.pointer);
         checks.push(check('go-pointer', 'Los Update() que mueven usan receptor puntero', bad.length === 0, bad.length ? `${bad.map((c) => c.name).join(', ')}: usa (x *${bad[0].name}).` : ''));
@@ -161,6 +169,7 @@ function makeLevel(L) {
       motion: ['¿Qué variable cambia cada clase en su update(): x o y? ¿Y en qué sentido, suma o resta?'],
       static: ['Si una entidad no se mueve, ¿necesita escribir su propio update() o le vale el heredado?'],
       'go-pointer': ['Con receptor por valor el método recibe una copia. ¿Qué le pasa al original?'],
+      'csharp-override': ['¿Qué palabra le dice a C# que tu Update() REEMPLAZA al de Entity en lugar de esconderlo?'],
     },
   };
 }

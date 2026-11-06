@@ -3,7 +3,7 @@
 > Aquí no se hacen ejercicios. **Se programa el mundo.**
 
 SPA gamificada (React + Tailwind + Canvas + Framer Motion + Lucide) donde aprender a programar en
-**Python, JavaScript, Java, Kotlin, Swift, C, C++, Go y Rust** consiste en construir, pieza a pieza, las físicas, la IA y las
+**Python, JavaScript, Java, C#, Kotlin, Swift, C, C++, Go y Rust** consiste en construir, pieza a pieza, las físicas, la IA y las
 reglas de un motor de juego vivo. Cada línea que escribes se compila **de verdad** y el resultado se ve
 al instante en un canvas; cada bug también.
 
@@ -11,7 +11,7 @@ al instante en un canvas; cada bug también.
 npm install
 npm run dev      # http://localhost:5173
 npm run build    # genera dist/ (estático, desplegable en Netlify/Firebase/GitHub Pages)
-npm test         # verifica el currículo en los 9 lenguajes (792 comprobaciones)
+npm test         # verifica el currículo en los 10 lenguajes (880 comprobaciones)
 npm run test:rules  # reglas de Firestore contra el emulador (23 pruebas, requiere Java)
 ```
 
@@ -46,12 +46,12 @@ práctica, 3 niveles extra de POO y el Boss.
 
 Los niveles de práctica se describen **una sola vez** en una representación neutral
 ([`src/curriculum/drills.js`](src/curriculum/drills.js)) y un generador
-([`levelgen.js`](src/curriculum/levelgen.js)) produce código idiomático para los 9 lenguajes:
+([`levelgen.js`](src/curriculum/levelgen.js)) produce código idiomático para los 10 lenguajes:
 la firma, el código inicial, la solución y el ejemplo de la lección. Cada nivel trae su explicación,
-casos de prueba visuales en el canvas y pistas. `npm test` ejecuta en los 9 lenguajes el código
+casos de prueba visuales en el canvas y pistas. `npm test` ejecuta en los 10 lenguajes el código
 inicial de cada nivel (debe fallar) y su solución (debe pasar).
 
-## Nueve mundos independientes
+## Diez mundos independientes
 
 Cada lenguaje es un **mundo propio**: eliges uno en la galaxia de mundos y, dentro, todo se explica en ese lenguaje (lecciones, ejemplos, errores, pistas y el Codex). No hay cambio de lenguaje dentro de una misión. Cada mundo guarda su propia XP, rango, estrellas, lecciones vistas y desbloqueo de módulos; la racha y los logros son comunes.
 
@@ -60,8 +60,9 @@ Cada lenguaje es un **mundo propio**: eliges uno en la galaxia de mundos y, dent
 | Python | tipado dinámico, `//` y `%`, enteros sin límite, asyncio |
 | JavaScript | `number` y la pérdida de precisión más allá de 2^53, BigInt, `const`/`let`, `Promise.all` |
 | Java / Kotlin | tipos estáticos, la trampa de la promoción a `long`, `open`/`override`, hilos y corrutinas |
+| C# | `var`, conversiones que no compilan (CS0266), `Dictionary` y `KeyNotFoundException`, `virtual`/`override`, `async`/`await` con `Task.WhenAll` |
 | Swift | traps por overflow, `inout`, `override`, `async let` |
-| C | truncado silencioso, punteros, `malloc`/`free` visualizados |
+| C | truncado silencioso, texto como array de `char` con `'\0'` (no existe `string`), punteros, `malloc`/`free` visualizados |
 | C++ | `vector`, `unordered_map`, `virtual`/`override`, `new[]`/`delete[]` y use-after-free |
 | Go | `:=`, «declared and not used», `int32` vs `int64`, receptor puntero, goroutines y canales |
 | Rust 🦀 | inmutabilidad, *panic* por overflow, Entry API, traits, concurrencia sin carreras |
@@ -82,7 +83,7 @@ Cada lenguaje es un **mundo propio**: eliges uno en la galaxia de mundos y, dent
 
 | Pieza | Qué hace |
 |---|---|
-| **Forge VM** | Transpilador 1:1 de un subconjunto realista de los 9 lenguajes a JavaScript instrumentado. Conserva la numeración de líneas, así que cada error y cada frame del stack trace apunta a tu línea. |
+| **Forge VM** | Transpilador 1:1 de un subconjunto realista de los 10 lenguajes a JavaScript instrumentado. Conserva la numeración de líneas, así que cada error y cada frame del stack trace apunta a tu línea. |
 | **Rust 🦀** | El lenguaje más querido de los últimos años: *panic* al desbordar, inmutabilidad por defecto (error E0384), `HashMap::entry`, traits en lugar de herencia y concurrencia sin carreras de datos. |
 | **Tipos reales** | `int` desborda a los 2 147 483 647 (wrap-around en Java/Kotlin/C, *trap* en Swift, precisión arbitraria en Python), la promoción `long x = a * b` se evalúa en 32 bits como en la JVM, `int g = 9.81` es error de compilación en Java/Kotlin/Swift y truncado silencioso en C. |
 | **Heap simulado (C)** | `malloc`/`calloc`/`free` sobre bloques visualizados: detecta *heap-buffer-overflow*, *use-after-free*, *double free* y fugas, con mensajes estilo AddressSanitizer. |
@@ -106,8 +107,8 @@ Cada lenguaje es un **mundo propio**: eliges uno en la galaxia de mundos y, dent
 | 5 · Sistemas | Núcleo del Sistema | `malloc`/`free` en C · concurrencia (asyncio, hilos, corrutinas, `async let`) | Heap visual · línea de tiempo serie vs paralelo |
 | Boss | El Enjambre O(n²) | Refactorizar de O(n²) a O(n) | La velocidad de la simulación depende de tu complejidad |
 
-Cada misión trae, para **cada uno de los 9 lenguajes**, un código inicial con un bug didáctico y una solución de
-referencia. `npm test` comprueba que el código inicial falla y la solución pasa en los 9 lenguajes.
+Cada misión trae, para **cada uno de los 10 lenguajes**, un código inicial con un bug didáctico y una solución de
+referencia. `npm test` comprueba que el código inicial falla y la solución pasa en los 10 lenguajes.
 La pestaña **Codex** explica cómo se hace en tu lenguaje y, al superar la misión, te enseña la
 solución de referencia para que compares.
 
@@ -134,7 +135,7 @@ src/
     explain.js      explicación de líneas y de errores en lenguaje sencillo
     progress.js     XP, oro, rangos, estrellas, rachas, logros, persistencia por jugador y fusión con la nube
     sound.js        sonidos WebAudio
-  curriculum/       6 módulos · 9 misiones × 9 lenguajes (starter, solución, validación, pistas)
+  curriculum/       6 módulos · 9 misiones × 10 lenguajes (starter, solución, validación, pistas)
     lessons.js      lecciones «Aprende primero» y ayudas de cada check
     *-pack.js       paquetes de Rust, C++, Go y JavaScript (misiones, ejemplos y pasos propios)
   services/

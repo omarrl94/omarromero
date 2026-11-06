@@ -20,9 +20,10 @@ const TYPE_NAMES = {
   java: { int: 'int', float: 'double', bool: 'boolean', str: 'String' },
   kotlin: { int: 'Int', float: 'Double', bool: 'Boolean', str: 'String' },
   swift: { int: 'Int', float: 'Double', bool: 'Bool', str: 'String' },
-  c: { int: 'int', float: 'double', bool: 'bool', str: 'char *' },
+  c: { int: 'int', float: 'double', bool: 'bool', str: 'char[]' },
   rust: { int: 'i32', float: 'f64', bool: 'bool', str: '&str' },
   cpp: { int: 'int', float: 'double', bool: 'bool', str: 'string' },
+  csharp: { int: 'int', float: 'double', bool: 'bool', str: 'string' },
   go: { int: 'int', float: 'float64', bool: 'bool', str: 'string' },
   js: { int: 'number', float: 'number', bool: 'boolean', str: 'string' },
 };
@@ -134,8 +135,8 @@ function Odometer() {
 }
 
 function Widths({ lang }) {
-  const big = { python: 'int (sin límite)', java: 'long', kotlin: 'Long', swift: 'Int64', c: 'long long', rust: 'i64', cpp: 'long long', go: 'int64', js: 'BigInt (sin límite)' }[lang];
-  const small = { python: 'int', java: 'int', kotlin: 'Int', swift: 'Int32', c: 'int', rust: 'i32', cpp: 'int', go: 'int32', js: 'number exacto' }[lang];
+  const big = { python: 'int (sin límite)', java: 'long', csharp: 'long', kotlin: 'Long', swift: 'Int64', c: 'long long', rust: 'i64', cpp: 'long long', go: 'int64', js: 'BigInt (sin límite)' }[lang];
+  const small = { python: 'int', java: 'int', csharp: 'int', kotlin: 'Int', swift: 'Int32', c: 'int', rust: 'i32', cpp: 'int', go: 'int32', js: 'number exacto' }[lang];
   return (
     <div className="space-y-3">
       {(lang === 'js' ? [['number', 53, 'exacto hasta 2^53'], ['BigInt', 64, 'sin límite']] : [[small, 32, '≈ 2.100 millones'], [big, 64, '≈ 9 trillones']]).map(([n, bits, max], k) => (
@@ -278,6 +279,43 @@ function Zigzag() {
         </g>
       ))}
     </svg>
+  );
+}
+
+/** C: un texto es un array de char con el terminador '\0' al final. */
+function CString() {
+  const letters = ['N', 'o', 'v', 'a'];
+  const t = useTick(650, 8);
+  return (
+    <div className="flex flex-col items-center gap-3">
+      <div className="text-xs text-slate-400"><span className="font-bold text-neon-magenta">char pilotName[]</span> = "Nova";</div>
+      <div className="flex flex-wrap justify-center gap-1">
+        {[...letters, '\\0'].map((ch, i) => {
+          const end = i === letters.length;
+          const lit = t > i;
+          return (
+            <div key={i} className="flex flex-col items-center">
+              <motion.div
+                animate={{ opacity: lit ? 1 : 0.25, scale: t === i + 1 ? 1.15 : 1 }}
+                className="grid h-11 w-11 place-items-center rounded-md border-2 text-base font-bold"
+                style={{ borderColor: end ? C.red : C.magenta, color: end ? C.red : C.text, background: end ? 'rgba(255,71,103,0.08)' : 'rgba(255,61,240,0.06)' }}
+              >
+                '{ch}'
+              </motion.div>
+              <div className="text-[10px] text-slate-500">[{i}]</div>
+            </div>
+          );
+        })}
+      </div>
+      <AnimatePresence>
+        {t > letters.length && (
+          <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} className="text-center text-xs leading-relaxed text-slate-300">
+            4 letras + <span className="font-bold text-neon-red">'\0'</span> (fin del texto) = <span className="font-bold text-white">5 char</span>
+            <div className="text-slate-500">C no tiene tipo string: el texto es una fila de char</div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
 
@@ -611,7 +649,7 @@ function Borrow() {
 const VISUALS = {
   boxes: Boxes, typecut: TypeCut, quotes: Quotes, odometer: Odometer, widths: Widths, promotion: Promotion, division: Division,
   loop: Loop, rangeEnds: RangeEnds, table: Table, branch: Branch, modulo: Modulo, zigzag: Zigzag,
-  array: ArrayV, swap: Swap, bubble: Bubble, dict: Dict, counter: Counter, mold: Mold, tree: Tree, poly: Poly,
+  array: ArrayV, cstring: CString, swap: Swap, bubble: Bubble, dict: Dict, counter: Counter, mold: Mold, tree: Tree, poly: Poly,
   malloc: Malloc, leak: Leak, timeline: Timeline, race: Race, grid: Grid, seen: Seen, bars: Bars, borrow: Borrow, stack: Stack,
 };
 

@@ -32,15 +32,16 @@ function Coin({ x, y, r = 7 }) {
 
 const PLANETS = {
   python: [130, 170], js: [320, 105], java: [500, 195], kotlin: [690, 110], swift: [870, 185],
-  c: [190, 410], cpp: [395, 450], go: [610, 395], rust: [830, 445],
+  c: [130, 415], cpp: [320, 455], csharp: [500, 400], go: [690, 455], rust: [870, 410],
 };
 // En el móvil: lienzo vertical con los planetas en tres columnas, para que se vean grandes.
 const PLANETS_NARROW = {
   python: [78, 105], js: [210, 140], java: [342, 105],
-  kotlin: [342, 300], swift: [210, 335], c: [78, 300],
-  cpp: [78, 495], go: [210, 530], rust: [342, 495],
+  csharp: [342, 300], kotlin: [210, 335], swift: [78, 300],
+  c: [78, 495], cpp: [210, 530], go: [342, 495],
+  rust: [210, 700],
 };
-const LANES = [['python', 'js'], ['js', 'java'], ['java', 'kotlin'], ['kotlin', 'swift'], ['python', 'c'], ['c', 'cpp'], ['cpp', 'go'], ['go', 'rust'], ['java', 'cpp'], ['swift', 'rust'], ['java', 'go']];
+const LANES = [['python', 'js'], ['js', 'java'], ['java', 'kotlin'], ['kotlin', 'swift'], ['python', 'c'], ['c', 'cpp'], ['cpp', 'csharp'], ['csharp', 'go'], ['go', 'rust'], ['swift', 'rust'], ['java', 'csharp']];
 
 /**
  * Mapa galáctico: cada lenguaje es un planeta que se cubre de oro a medida que
@@ -55,7 +56,7 @@ export function GalaxyMap({ onEnter, avatar }) {
   const narrow = useMedia(PHONE);
   const P = narrow ? PLANETS_NARROW : PLANETS;
   const GW = narrow ? 420 : 1000;
-  const GH = narrow ? 620 : 560;
+  const GH = narrow ? 800 : 560;
 
   return (
     <div className="relative">

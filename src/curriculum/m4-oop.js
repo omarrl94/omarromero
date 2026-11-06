@@ -302,6 +302,13 @@ int main(void) {
       checks.push(check('cpp-virtual', 'update() es virtual en Entity', ok,
         ok ? '' : marked.length ? `error: 'void ${marked[0]}::update()' marked 'override', but does not override — falta virtual en Entity.` : 'Sin virtual, el motor siempre llamaría al update() de Entity.'));
     }
+    if (lang === 'csharp') {
+      const bu = base && base.methods.update;
+      const ok = bu && bu.virtual;
+      const marked = kids.filter((n) => classes[n] && classes[n].methods.update && (classes[n].methods.update.override || classes[n].methods.update.badOverride));
+      checks.push(check('csharp-virtual', 'Update() es virtual en Entity', ok,
+        ok ? '' : marked.length ? `error CS0506: '${marked[0]}.Update()': cannot override inherited member 'Entity.Update()' because it is not marked virtual, abstract, or override` : 'Sin virtual, ninguna hija puede sobrescribir Update().'));
+    }
     if (lang === 'go') {
       const bad = kids.filter((n) => classes[n] && classes[n].methods.update && !classes[n].methods.update.pointer && (motionOf(classes[n].methods.update.body).vx || motionOf(classes[n].methods.update.body).vy));
       checks.push(check('go-pointer', 'Los Update() que mueven usan receptor puntero', bad.length === 0,
@@ -343,6 +350,7 @@ int main(void) {
     'kotlin-open': ['En Kotlin, ¿se puede heredar de cualquier clase? ¿Qué palabra «abre» una clase a la herencia?'],
     'swift-override': ['¿Qué palabra exige Swift delante de un método que reemplaza al del padre?'],
     'cpp-virtual': ['Si el motor guarda un Entity* que apunta a un Enemy, ¿qué update() se ejecuta si el de Entity no es virtual?'],
+    'csharp-virtual': ['Si Entity no marca Update() como virtual, ¿puede una clase hija reemplazarlo?', '¿Qué palabra pones en la base para permitir que las hijas usen override?'],
     'go-pointer': ['Si un método recibe una copia del struct y cambia su x, ¿qué le pasa al struct original?'],
     'rust-default': ['Si Obstacle no escribe su propio update(), ¿de dónde debería sacarlo? ¿Puede un trait traer un comportamiento por defecto?'],
   },

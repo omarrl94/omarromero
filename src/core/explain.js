@@ -36,6 +36,43 @@ export function explainLine(raw, lang) {
   let m;
   if (/^(#|\/\/)/.test(t) && !/^#include|^#\[/.test(t)) return `Comentario: el ordenador lo ignora. Es una nota para las personas que leen el código${/TODO/.test(t) ? '. Este marca algo que TIENES QUE HACER tú.' : /⚠/.test(t) ? '. Este avisa de que en esta zona hay un fallo que arreglar.' : '.'}`;
   if (/^\}\s*$/.test(t)) return 'Cierra el bloque que se abrió con { más arriba.';
+  if (lang === 'csharp') {
+    if (t === '{') return 'Abre un bloque: en C# la llave va en su propia línea (estilo de .NET).';
+    if ((m = /^using\s+([\w.]+)\s*;/.exec(t))) return `Trae las herramientas del espacio de nombres ${m[1]}${m[1] === 'System' ? ' (ahí viven Console, Math…)' : /Collections/.test(m[1]) ? ' (List, Dictionary, HashSet…)' : /Tasks|Threading/.test(m[1]) ? ' (Task, para tareas en paralelo)' : ''}.`;
+    if ((m = /^namespace\s+([\w.]+)/.exec(t))) return `Agrupa tu código bajo el nombre ${m[1]}, como una carpeta: evita choques con nombres de otras librerías.`;
+    if (/^(?:(?:public|internal|static)\s+)*class\s+Program\b/.test(t)) return 'En C# todo el código vive dentro de una clase. Program es el contenedor del programa.';
+    if (/\bstatic\s+(?:async\s+)?(?:void|int|Task)\s+Main\s*\(/.test(t)) return 'Aquí empieza el programa: Main (con mayúscula) es el primer método que ejecuta .NET.';
+    if ((m = /^(?:(?:public|private|protected|internal|static|async|virtual|override|abstract|sealed)\s+)*(?:async\s+)?(void|[\w<>[\],\s]+?)\s+([A-Z]\w*)\s*\(([^)]*)\)\s*$/.exec(t))) {
+      const mods = t.slice(0, t.indexOf(m[2]));
+      const ret = m[1].trim();
+      return `Define el método ${m[2]}${m[3].trim() ? ` (recibe ${m[3].trim()})` : ''}${ret === 'void' ? ', que no devuelve nada' : /^Task<(\w+)>/.test(ret) ? `, asíncrono: devuelve una tarea que acabará dando un ${/^Task<(\w+)>/.exec(ret)[1]}` : `, que devuelve un ${ret}`}.${/\bvirtual\b/.test(mods) ? ' virtual: las clases hijas pueden sobrescribirlo.' : ''}${/\boverride\b/.test(mods) ? ' override: reemplaza la versión virtual de la clase padre.' : ''}${/\babstract\b/.test(mods) ? ' abstract: no tiene cuerpo; cada hija DEBE escribir el suyo.' : ''}${/\bstatic\b/.test(mods) && !/override|virtual/.test(mods) ? ' static: se usa sin crear un objeto.' : ''}`;
+    }
+    if ((m = /^Console\.Write(Line)?\(\s*\$"/.exec(t))) return `Muestra un texto en la consola${m[1] ? ' y salta de línea' : ''}. El $ delante de las comillas permite meter valores entre llaves: {nombre} se sustituye por su valor.`;
+    if ((m = /^Console\.Write(Line)?\(/.exec(t))) return `Muestra ${t.includes('()') ? 'una línea en blanco' : 'un valor'} en la consola${m[1] ? ' y salta de línea' : ' sin saltar de línea'}.`;
+    if ((m = /^foreach\s*\(\s*(?:var|[\w<>]+)\s+(\w+|\([^)]*\))\s+in\s+(.+)\)/.exec(t))) return `Bucle: recorre ${m[2]} elemento a elemento; en cada vuelta, ${m[1]} vale el siguiente. No hay índice que se pueda salir del array.`;
+    if ((m = /^var\s+(\w+)\s*=\s*(.+?);?$/.exec(t))) {
+      const rhs = m[2];
+      const what = /new\s+List</.test(rhs) ? 'una lista (List) que puede crecer' : /new\s+Dictionary</.test(rhs) ? 'un diccionario (Dictionary): etiquetas → valores' : /new\s+HashSet</.test(rhs) ? 'un conjunto (HashSet) sin repetidos' : /\bawait\b/.test(rhs) ? 'el resultado de esperar (await) una tarea' : `el resultado de ${rhs}`;
+      return `Crea una variable ${m[1]} con ${what}. var: C# deduce el tipo solo, pero sigue siendo fijo.`;
+    }
+    if ((m = /^(\w+)\.Add\((.*)\);?$/.exec(t))) return `Añade ${m[2]} a ${m[1]}${/,/.test(m[2]) ? ' (en un Dictionary, Add falla si la clave ya existe)' : ''}.`;
+    if (/GetValueOrDefault\(/.test(t)) return 'GetValueOrDefault(clave) lee el valor de la clave o 0 si no existe: así el contador no lanza KeyNotFoundException.';
+    if ((m = /^lock\s*\((\w+)\)/.exec(t))) return `lock: solo un hilo a la vez puede entrar en este bloque (${m[1]} hace de candado). Evita que dos tareas pisen el mismo dato.`;
+    if (/Task\.WhenAll\(/.test(t)) return 'Task.WhenAll espera a que terminen TODAS las tareas y junta sus resultados. Con await, el programa sigue cuando acaba la última.';
+    if (/Task\.Run\(/.test(t)) return 'Task.Run lanza el trabajo en otro hilo y sigue sin esperar: devuelve una tarea que puedes esperar después.';
+    if (/\.Select\(\s*\w+\s*=>/.test(t)) return 'Select aplica la función de la flecha (=>) a cada elemento y devuelve los resultados, uno por elemento.';
+  }
+  if (lang === 'c') {
+    // C no tiene tipo string: el texto es un array de char terminado en '\0'.
+    if ((m = /^(?:const\s+|static\s+)*(?:std::)?(string|String)\s+(\w+)/.exec(t))) return `En C NO existe el tipo ${m[1]}: esta línea no compila. Un texto en C es un array de char: escribe char ${m[2]}[] = "…";`;
+    if ((m = /^(?:const\s+|static\s+)*char\s+(\w+)\s*\[\s*(\d*)\s*\]\s*=\s*"([^"]*)"/.exec(t))) {
+      const need = m[3].length + 1;
+      const cap = m[2] ? Number(m[2]) : need;
+      return `Crea un array de char llamado ${m[1]} (así se guarda un texto en C) con las letras de "${m[3]}" y un '\\0' al final que marca dónde acaba: ${m[3].length} letras + '\\0' = ${need} char.${m[2] ? ` El array tiene ${cap} huecos${cap >= need ? `, así que sobran ${cap - need}.` : cap === m[3].length ? ': no cabe el \'\\0\' y C no sabrá dónde termina el texto.' : ': ¡no caben todas las letras!'}` : ' Al dejar [] vacío, C cuenta el tamaño por ti.'}`;
+    }
+    if ((m = /^(?:const\s+)?char\s*\*\s*(\w+)\s*=\s*"([^"]*)"/.exec(t))) return `Crea un puntero a char llamado ${m[1]}: apunta a la primera letra del texto "${m[2]}", guardado en memoria de solo lectura. Si quieres poder cambiar las letras, usa char ${m[1]}[] = "${m[2]}";`;
+    if (/printf\s*\(.*%s/.test(t)) return 'Muestra un mensaje en la consola. %s se sustituye por un texto (un array de char): printf lo recorre letra a letra hasta encontrar el \'\\0\'.';
+  }
   if (/^package\s+main/.test(t)) return 'Dice que este archivo pertenece al paquete main: el que se convierte en un programa ejecutable.';
   if (/^using\s+namespace\s+std/.test(t)) return 'Permite escribir cout o vector sin el prefijo std:: delante.';
   if (/^(public|private|protected):$/.test(t)) return 'Lo que viene debajo es ' + (t.startsWith('public') ? 'público: se puede usar desde fuera de la clase.' : 'privado: solo lo usa la propia clase.');
@@ -154,10 +191,13 @@ export function plainError(err) {
     recursion: { title: 'Una función se llama a sí misma sin fin', what: 'La función nunca llega a un caso en el que pare.', fix: 'Añade un caso base que devuelva un valor sin volver a llamarse.' },
     call: { title: 'Llamas a algo que no es una función', what: `${L ? `${L[0].toUpperCase()}${L.slice(1)}` : 'Aquí'} usas paréntesis () con algo que no es una función.`, fix: 'Revisa el nombre de la función.' },
     panic: { title: 'Rust ha detenido el programa (panic)', what: `${L ? `${L[0].toUpperCase()}${L.slice(1)}` : 'Aquí'} se ha llamado a panic!: el programa se para de forma controlada antes de hacer algo peligroso.`, fix: 'Lee el mensaje del panic para ver qué condición falló.' },
+    keynotfound: { title: 'Esa clave no está en el diccionario', what: `${L ? `${L[0].toUpperCase()}${L.slice(1)}` : 'Aquí'} lees una clave que el Dictionary aún no tiene. En C# eso no da 0: detiene el programa (KeyNotFoundException).`, fix: err.hint || 'Usa dict.GetValueOrDefault(clave) o comprueba antes con ContainsKey(clave).' },
+    dupkey: { title: 'Esa clave ya existe', what: `${L ? `${L[0].toUpperCase()}${L.slice(1)}` : 'Aquí'} usas Add con una clave que ya estaba en el diccionario.`, fix: err.hint || 'Para cambiar el valor de una clave, usa dict[clave] = valor.' },
+    divzero: { title: 'División entre cero', what: `${L ? `${L[0].toUpperCase()}${L.slice(1)}` : 'Aquí'} se divide un entero entre 0, y eso no tiene resultado.`, fix: 'Comprueba que el divisor no sea 0 antes de dividir.' },
     borrow: { title: 'El compilador de Rust protege la memoria', what: `${L ? `${L[0].toUpperCase()}${L.slice(1)}` : 'Aquí'} usas un valor de una forma que podría ser insegura.`, fix: err.hint || 'Revisa quién es el dueño del valor y si necesitas mut.' },
   };
   if (byCode[err.code]) return byCode[err.code];
-  if (err.code === 'type' || /incompatible types|lossy|does not conform|cannot convert|mismatched types|too large/.test(msg)) {
+  if (err.code === 'type' || /incompatible types|lossy|does not conform|cannot convert|Cannot implicitly convert|mismatched types|too large/.test(msg)) {
     return {
       title: 'El tipo no encaja',
       what: `${L ? `${L[0].toUpperCase()}${L.slice(1)}` : 'Aquí'} intentas guardar un valor en una caja de otro tipo (por ejemplo, un decimal en una caja de enteros).`,
@@ -166,7 +206,7 @@ export function plainError(err) {
   }
   if (/expected ':'|expecting ':'/.test(msg)) return { title: 'Faltan los dos puntos', what: `${L ? `${L[0].toUpperCase()}${L.slice(1)}` : 'Aquí'} una línea que abre un bloque (if, for, def…) debe terminar en «:».`, fix: 'Añade «:» al final de esa línea.' };
   if (/Indentation/.test(msg)) return { title: 'La sangría no cuadra', what: `En Python los espacios al principio de la línea indican qué está dentro de qué. ${L ? `${L[0].toUpperCase()}${L.slice(1)}` : 'Aquí'} no encajan.`, fix: 'Usa 4 espacios por nivel: el contenido de un if, for o def va 4 espacios más a la derecha.' };
-  if (/';' expected|expected ';'/.test(msg)) return { title: 'Falta un punto y coma', what: `${L ? `${L[0].toUpperCase()}${L.slice(1)}` : 'Aquí'} la instrucción no termina en «;».`, fix: 'En Java, C y Rust cada instrucción acaba en «;». Añádelo al final de la línea.' };
+  if (/';' expected|expected ';'|; expected/.test(msg)) return { title: 'Falta un punto y coma', what: `${L ? `${L[0].toUpperCase()}${L.slice(1)}` : 'Aquí'} la instrucción no termina en «;».`, fix: 'En Java, C#, C y C++ cada instrucción acaba en «;». Añádelo al final de la línea.' };
   if (/'[)}\]]' esperado|se esperaba|sin apertura/.test(msg)) return { title: 'Paréntesis o llaves descompensados', what: 'Hay un ( [ { que no se cierra, o un cierre que sobra.', fix: err.hint || 'Cuenta las aperturas y los cierres: cada uno necesita su pareja.' };
   return { title: err.kind === 'runtime' ? 'El programa se ha detenido' : 'El código no compila', what: `Hay un problema ${L || 'en el código'}.`, fix: err.hint || 'Lee el mensaje técnico de abajo y compara la línea con los ejemplos de la lección.' };
 }

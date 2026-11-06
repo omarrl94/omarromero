@@ -6,6 +6,7 @@ import rustPack from './rust-pack.js';
 import cppPack from './cpp-pack.js';
 import goPack from './go-pack.js';
 import jsPack from './js-pack.js';
+import csharpPack from './csharp-pack.js';
 import { DRILL_LESSONS } from './drill-challenges.js';
 import { OOP_LESSONS } from './oop-levels.js';
 
@@ -33,7 +34,16 @@ export const LESSONS = {
           java: 'int shipMass = 1200;          // entero\ndouble gravity = 9.81;        // decimal\nboolean shieldsOn = true;     // sí / no\nString pilotName = "Nova";    // texto',
           kotlin: 'val shipMass: Int = 1200          // entero\nval gravity: Double = 9.81        // decimal\nval shieldsOn: Boolean = true     // sí / no\nval pilotName: String = "Nova"    // texto',
           swift: 'let shipMass: Int = 1200         // entero\nlet gravity: Double = 9.81       // decimal\nlet shieldsOn: Bool = true       // sí / no\nlet pilotName: String = "Nova"   // texto',
-          c: 'int shipMass = 1200;        // entero\ndouble gravity = 9.81;      // decimal\nbool shieldsOn = true;      // sí / no (stdbool.h)\nchar *pilotName = "Nova";   // texto',
+          c: 'int shipMass = 1200;          // entero\ndouble gravity = 9.81;        // decimal\nbool shieldsOn = true;        // sí / no (stdbool.h)\nchar pilotName[] = "Nova";    // texto: array de char',
+        },
+      },
+      {
+        title: 'En C no existe el tipo «string»',
+        text: 'C es un lenguaje de bajo nivel y no tiene un tipo para texto. Un texto es un array de caracteres (char): una fila de cajitas con una letra en cada una y, al final, un carácter especial \'\\0\' (el «terminador») que marca dónde acaba. Por eso "Nova" ocupa 5 cajas, no 4. Se declara con char nombre[] = "..." y C cuenta las cajas por ti. Si escribes string, el compilador no lo conoce.',
+        visual: 'cstring',
+        langs: ['c'],
+        code: {
+          c: 'char pilotName[] = "Nova";\n// en memoria: \'N\' \'o\' \'v\' \'a\' \'\\0\'  → 5 bytes\n\nchar callsign[16] = "Nova";   // array de 16: sobra sitio\nprintf("%s\\n", pilotName);    // %s imprime un texto\n\n// string pilotName = "Nova";  ❌ unknown type name \'string\'',
         },
       },
       {
@@ -47,7 +57,7 @@ export const LESSONS = {
       java: 'gravity está declarada como int (entero) y no puede guardar 9.81. Cambia int por double en esa línea. Luego, donde está el TODO, declara String pilotName = "tu nombre";',
       kotlin: 'gravity está declarada como Int (entero). Cambia Int por Double. Luego, donde está el TODO, añade val pilotName: String = "tu nombre"',
       swift: 'gravity está declarada como Int (entero). Cambia Int por Double. Luego, donde está el TODO, añade let pilotName: String = "tu nombre"',
-      c: 'int gravity = 9.81 guarda solo 9 (C corta los decimales sin avisar). Cambia int por double. Si quieres que el printf la muestre bien, cambia %d por %f. Luego declara char *pilotName = "tu nombre";',
+      c: 'int gravity = 9.81 guarda solo 9 (C corta los decimales sin avisar). Cambia int por double. Si quieres que el printf la muestre bien, cambia %d por %f. Luego, donde está el TODO, declara el texto como un array de char: char pilotName[] = "tu nombre"; (en C no existe el tipo string).',
     },
   },
 
@@ -411,7 +421,7 @@ for (const [id, lesson] of Object.entries(LESSONS)) {
     if (!step.langs) step.langs = [...BASE];
     step.textByLang = step.textByLang || {};
   }
-  for (const pack of [rustPack, cppPack, goPack, jsPack]) {
+  for (const pack of [rustPack, cppPack, goPack, jsPack, csharpPack]) {
     for (const step of lesson.steps) {
       if (step.only) continue;
       const wasGeneric = step.generic;
@@ -429,7 +439,7 @@ for (const [id, lesson] of Object.entries(LESSONS)) {
   }
 }
 
-// Lecciones de los niveles de práctica (generadas: ya traen el ejemplo en los 9 lenguajes).
+// Lecciones de los niveles de práctica (generadas: ya traen el ejemplo en los 10 lenguajes).
 Object.assign(LESSONS, DRILL_LESSONS, OOP_LESSONS);
 
 /** Pasos de la lección visibles para un lenguaje. */
@@ -444,6 +454,7 @@ export const CHECK_HELP = {
     python: 'Quita las comillas: 9.81 sin comillas es un número decimal (float); con comillas es texto (str).',
     js: 'Quita las comillas: 9.81 sin comillas es un number; con comillas es un string.',
     java: 'Cambia int por double: es el tipo para números con decimales.',
+    csharp: 'Cambia int por double: C# no deja guardar un decimal en un int (error CS0266).',
     kotlin: 'Cambia Int por Double: es el tipo para números con decimales.',
     swift: 'Cambia Int por Double: es el tipo para números con decimales.',
     c: 'Cambia int por double: un int corta los decimales sin avisar.',
@@ -454,14 +465,20 @@ export const CHECK_HELP = {
   'gravity-value': 'Escribe el valor de la gravedad terrestre: 9.81 (con punto, no con coma).',
   mass: 'shipMass ya está bien: 1200 es un entero. No hace falta tocarlo.',
   shields: 'shieldsOn ya está bien: un booleano a true (True en Python).',
-  pilot: 'Añade una variable de texto nueva llamada pilotName (pilot_name en Python) con tu nombre entre comillas.',
+  pilot: {
+    default: 'Añade una variable de texto nueva llamada pilotName (pilot_name en Python) con tu nombre entre comillas.',
+    c: 'En C no existe el tipo string: el texto es un array de char. Escribe char pilotName[] = "tu nombre"; (C añade el \'\\0\' final por ti).',
+  },
   'total-exists': 'No cambies el nombre totalThrust: el motor lo busca por ese nombre.',
   'no-overflow': {
     default: 'El resultado (3.000 millones) no cabe en 32 bits. Usa un tipo de 64 bits y convierte uno de los números ANTES de multiplicar.',
     swift: 'Convierte los dos números a Int64 antes de multiplicar: Int64(engines) * Int64(thrustPerEngine).',
     go: 'Convierte los dos números a int64 antes de multiplicar: int64(engines) * int64(thrustPerEngine).',
     rust: 'Declara total_thrust como i64 y convierte cada operando con as i64.',
+    csharp: 'Convierte un operando a long ANTES de multiplicar: (long)engines * thrustPerEngine. Si no, C# multiplica en 32 bits y da la vuelta sin avisar.',
   },
+  'csharp-virtual': 'En Entity, escribe public virtual void Update() { }: sin virtual, ninguna clase hija puede sobrescribirlo con override.',
+  'csharp-override': 'Escribe public override void Update() en cada clase que se mueve: sin override, tu método solo esconde al de Entity.',
   precision: 'Añade una n al final de los dos números para que sean BigInt: 9007199254740992n y 1n.',
   'fuel-int': 'Usa // en lugar de / para obtener una división sin decimales.',
   'fuel-reserve': 'El sobrante de repartir es el resto de la división: usa el operador %.',

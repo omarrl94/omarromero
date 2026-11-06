@@ -56,7 +56,7 @@ int main(void) {
     int gravity = 9.81;
     int shipMass = 1200;
     bool shieldsOn = true;
-    // TODO: declara pilotName (char *) con tu nombre de piloto
+    // TODO: declara pilotName (un array de char: en C no existe string)
     printf("g = %d\\n", gravity);
     return 0;
 }
@@ -96,7 +96,7 @@ int main(void) {
     double gravity = 9.81;
     int shipMass = 1200;
     bool shieldsOn = true;
-    char *pilotName = "Nova";
+    char pilotName[] = "Nova";
     printf("g = %.2f\\n", gravity);
     return 0;
 }
@@ -107,7 +107,7 @@ int main(void) {
     java: 'Tipado estático estricto: asignar 9.81 a un int es un error de compilación (posible pérdida de precisión). double es el decimal por defecto.',
     kotlin: 'Inferencia de tipos con seguridad: val g = 9.81 ya es Double. Declarar Int y asignar un decimal no compila.',
     swift: 'Como Kotlin: inferencia + seguridad. Double es el decimal estándar; Swift nunca convierte números implícitamente.',
-    c: 'C convierte en silencio: int g = 9.81 compila y guarda 9 (truncado). El compilador confía en ti… y la nave se estrella.',
+    c: 'C convierte en silencio: int g = 9.81 compila y guarda 9 (truncado). El compilador confía en ti… y la nave se estrella. Y el texto no es un tipo: es un array de char terminado en \'\\0\'.',
   },
   evaluate({ result, lang }) {
     const g = v(result, 'gravity', lang);

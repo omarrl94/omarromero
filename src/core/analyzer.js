@@ -38,6 +38,12 @@ export function lintStyle(code, lang) {
       if (/^var\s/.test(t)) warn(L, 'Usa let o const en lugar de var (var ignora los bloques).', 'no-var');
       if (/[^=!]==[^=]/.test(t) || /!=[^=]/.test(t)) warn(L, 'Usa === y !== : == convierte tipos por sorpresa ("1" == 1 es true).', 'eqeqeq');
       if ((m = /^class\s+(\w+)/.exec(t)) && !isPascal(m[1])) warn(L, `La clase «${m[1]}» debería ir en PascalCase.`, 'naming');
+    } else if (lang === 'csharp') {
+      // Convenciones de .NET: métodos y tipos en PascalCase, variables locales en camelCase.
+      if ((m = /^(?:(?:public|private|protected|internal|static|virtual|override|abstract|async|sealed)\s+)+[\w<>[\],\s]*?\s(\w+)\s*\(/.exec(t)) && !/^(if|for|foreach|while|switch|catch|using|lock|return|new)$/.test(m[1]) && !isPascal(m[1])) warn(L, `C#: el método «${m[1]}» debería ir en PascalCase (${m[1][0].toUpperCase()}${m[1].slice(1)}).`, 'naming');
+      if ((m = /^(?:const\s+)?(?:int|long|double|float|decimal|bool|char|string|var|byte|short|object|List<[^>]*>|Dictionary<[^>]*>|HashSet<[^>]*>|int\[\]|string\[\]|double\[\])\s+([A-Za-z_]\w*)\s*[=;]/.exec(t)) && !/^const/.test(t) && !isCamel(m[1])) warn(L, `C#: la variable «${m[1]}» debería ir en camelCase.`, 'naming');
+      if ((m = /\b(?:class|struct|interface|enum|record)\s+(\w+)/.exec(t)) && !isPascal(m[1])) warn(L, `C#: el tipo «${m[1]}» debería ir en PascalCase.`, 'naming');
+      if (/\b(if|for|foreach|while|switch)\(/.test(t)) warn(L, 'Deja un espacio entre la palabra clave y el paréntesis.', 'keyword-space');
     } else if (lang === 'rust') {
       if ((m = /^(?:pub\s+)?fn\s+(\w+)/.exec(t)) && !isSnake(m[1])) warn(L, `Rust: la función «${m[1]}» debería ir en snake_case.`, 'naming');
       if ((m = /^let\s+(?:mut\s+)?(\w+)/.exec(t)) && !isSnake(m[1])) warn(L, `Rust: la variable «${m[1]}» debería ir en snake_case.`, 'naming');
@@ -145,6 +151,35 @@ export function analyzeClasses(code, lang) {
         methods[mm[1]] = { line: lineOf(src, m.index) + body.slice(0, mm.index).split('\n').length - 1, override: false, body: braceBody(body, mm.index + mm[0].length - 1).body, superCall: /super\.\w+\(/.test(mm[0]) };
       }
       classes[m[1]] = { name: m[1], parent: m[2] || null, line: lineOf(src, m.index), open: true, abstract: false, methods, fields: [] };
+    }
+  } else if (lang === 'csharp') {
+    // C#: herencia con «:», virtual en la base y override OBLIGATORIO en la hija (si no, lo oculta).
+    for (const m of src.matchAll(/((?:(?:public|private|protected|internal|abstract|sealed|static|partial)\s+)*)(class|interface|struct)\s+(\w+)\s*(?::\s*([\w,\s]+?))?\s*\{/g)) {
+      const { body } = braceBody(src, m.index + m[0].length - 1);
+      const startLine = lineOf(src, m.index);
+      const iface = m[2] === 'interface';
+      const methods = {};
+      const mre = iface
+        ? /(?:void|int|bool|double|float|string)\s+(\w+)\s*\([^)]*\)\s*;/g
+        : /((?:(?:public|private|protected|internal|static|virtual|override|abstract|sealed|new|async)\s+)*)(?:void|int|bool|double|float|long|string|Task(?:<\w+>)?)\s+(\w+)\s*\([^)]*\)\s*(\{|;)/g;
+      for (const mm of body.matchAll(mre)) {
+        const name = iface ? mm[1] : mm[2];
+        const mods = iface ? 'abstract' : mm[1] || '';
+        const hasBody = !iface && mm[3] === '{';
+        const mb = hasBody ? braceBody(body, mm.index + mm[0].length - 1).body : '';
+        methods[name[0].toLowerCase() + name.slice(1)] = {
+          line: startLine + body.slice(0, mm.index).split('\n').length - 1,
+          override: /\boverride\b/.test(mods),
+          virtual: /\b(virtual|abstract|override)\b/.test(mods),
+          hides: /\bnew\b/.test(mods),
+          body: mb,
+          superCall: /base\.\w+\(/.test(mb),
+          name,
+        };
+      }
+      const parents = (m[4] || '').split(',').map((x) => x.trim()).filter(Boolean);
+      const fields = [...new Set([...body.matchAll(/(?:protected|public|private|internal)?\s*(?:double|int|float|string|bool)\s+(\w+)\s*(?:,\s*(\w+)\s*)?[;=]/g)].flatMap((x) => [x[1], x[2]]).filter(Boolean))];
+      classes[m[3]] = { name: m[3], parent: parents[0] || null, interfaces: parents.slice(1), line: startLine, open: !/sealed/.test(m[1] || ''), abstract: /abstract/.test(m[1] || '') || iface, methods, fields, iface };
     }
   } else if (lang === 'go') {
     // Go no tiene clases ni herencia: structs + métodos + interfaces implícitas.
@@ -265,6 +300,8 @@ export function analyzeClasses(code, lang) {
     if (!c.parent || !classes[c.parent]) continue;
     for (const [name, md] of Object.entries(c.methods)) {
       if (classes[c.parent].methods[name] && (lang === 'python' || lang === 'java' || lang === 'js' || (lang === 'cpp' && classes[c.parent].methods[name].virtual))) md.override = true;
+      // C#: «override» sobre un método que no es virtual no compila (CS0506): no hay polimorfismo.
+      if (lang === 'csharp' && md.override && classes[c.parent].methods[name] && !classes[c.parent].methods[name].virtual) { md.override = false; md.badOverride = true; }
     }
   }
   return { classes };
@@ -282,6 +319,8 @@ const SPAWN = {
   go: /\bgo\s+(func\b|\w+\()/,
   js: /Promise\.(all|allSettled|race)\(/,
   cpp: /\bthread\s+\w+\s*\(|std::thread|std::async\(/,
+  // C#: Task.Run, o llamar a un método async SIN await (la tarea arranca ya: «hot task»).
+  csharp: /Task\.Run\(|Task\.Factory\.StartNew\(|new\s+Thread\(|\.Add\(\s*\w*[Ss]can\w*\(|(?:Task<\w+>|var)\s+\w+\s*=\s*(?!await\b)\w*[Ss]can\w*\(|\.Select\(\s*\w+\s*=>\s*\w*[Ss]can\w*\(/,
 };
 const JOIN = {
   python: /\bawait\b|\.join\(/,
@@ -293,6 +332,7 @@ const JOIN = {
   go: /\.Wait\(\)|(?:^|[=(,]|\+=)\s*<-\s*\w+/,
   js: /\bawait\b/,
   cpp: /\.join\(\)|\.get\(\)/,
+  csharp: /\bawait\b|\.Wait\(\)|\.Result\b|Task\.WaitAll\(|\.Join\(\)/,
 };
 const PROTECT = {
   python: /asyncio\.Lock|threading\.Lock|with\s+\w*lock/i,
@@ -304,6 +344,7 @@ const PROTECT = {
   go: /sync\.Mutex|\.Lock\(\)|atomic\./,
   js: /Atomics\./,
   cpp: /atomic<|mutex|lock_guard/,
+  csharp: /\block\s*\(|Interlocked\.|Concurrent\w+|SemaphoreSlim|Monitor\.Enter/,
 };
 
 /**
@@ -318,7 +359,7 @@ export function analyzeConcurrency(code, lang) {
   const loops = []; // { id, from, to }
   const closures = []; // rangos de líneas dentro de una tarea lanzada
   // 1. Bucles (rango de líneas) por sangría (Python) o llaves (resto).
-  const loopRe = lang === 'python' ? /^(for|while)\b/ : /^(for|while)\b|\brepeat\s*\(\s*\d+\s*\)\s*\{|\.forEach\s*\{|\.map\s*\{|\.map\(\s*(move\s*)?\|/;
+  const loopRe = lang === 'python' ? /^(for|while)\b/ : /^(for|foreach|while)\b|\brepeat\s*\(\s*\d+\s*\)\s*\{|\.forEach\s*\{|\.map\s*\{|\.map\(\s*(move\s*)?\|/;
   lines.forEach((l, i) => {
     const t = l.trim();
     if (!loopRe.test(t) && !(lang !== 'python' && /\.(forEach|map)\s*\{/.test(t))) return;
@@ -336,13 +377,14 @@ export function analyzeConcurrency(code, lang) {
       let count = 1;
       if (lang === 'python' && /gather\(/.test(t)) count = /gather\(\s*\*/.test(t) || /\bfor\b/.test(t) ? 3 : (t.match(/\w*scan\w*\(/g) || []).length || 1;
       if (lang === 'js' && /Promise\./.test(t)) count = /\.map\(/.test(t) ? 3 : (t.match(/\w*scan\w*\(/g) || []).length || 1;
+      if (lang === 'csharp' && /\.Select\(/.test(t)) count = 3;
       if (loopOf(L) || /\.(map|forEach)\s*\{|repeat\s*\(|\.map\(\s*(move\s*)?\|/.test(t)) count = 3;
       spawns.push({ line: L, count, loop: loopOf(L), gather: /gather\(/.test(t) });
       if (/\{/.test(t)) closures.push({ from: L, to: blockEnd(lines, i, lang) });
     } else if (lang === 'java' && /\.start\(\)/.test(t)) {
       spawns.push({ line: L, count: 0, loop: loopOf(L), start: true });
     }
-    const directAwait = /\bawait\s+\w*scan\w*\(/.test(t) && !/async\s+let|gather|addTask/.test(t);
+    const directAwait = /\bawait\s+\w*scan\w*\(/i.test(t) && !/async\s+let|gather|addTask/.test(t);
     if (directAwait) joins.push({ line: L, direct: true, loop: loopOf(L) });
     else if (!SPAWN[lang].test(t) && JOIN[lang].test(t)) joins.push({ line: L, loop: loopOf(L) });
     else if (SPAWN[lang].test(t) && JOIN[lang].test(t) && !['python', 'swift', 'js'].includes(lang)) joins.push({ line: L, loop: loopOf(L), sameLine: true });
@@ -416,7 +458,7 @@ export function loopNesting(code, lang) {
   const stack = [];
   for (const l of lines) {
     const t = l.trim();
-    const isLoop = /^(for|while)\b/.test(t) || /\}\s*while/.test(t) === false && /^do\b/.test(t);
+    const isLoop = /^(for|foreach|while)\b/.test(t) || /\}\s*while/.test(t) === false && /^do\b/.test(t);
     const opens = (t.match(/\{/g) || []).length;
     const closes = (t.match(/\}/g) || []).length;
     depth -= Math.min(closes, depth);
@@ -429,7 +471,7 @@ export function loopNesting(code, lang) {
 
 export function usesLoop(code, lang) {
   const src = stripComments(code, lang);
-  return /\b(for|while|repeat)\b/.test(src);
+  return /\b(for|foreach|while|repeat)\b/.test(src);
 }
 
 export function usesConditional(code, lang) {
