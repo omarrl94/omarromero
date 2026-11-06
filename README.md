@@ -9,7 +9,7 @@ consiga plaza de **Formación en Empresa (FFE)** y encuentre ofertas de su perfi
 - **Tutores** (`#/tutores`): escribir a las empresas del ciclo desde la cuenta del tutor, en CCO y por lotes, uno a uno personalizado o con combinación de correspondencia (CSV).
 - **Privacidad:** sin analítica. Perfil y seguimiento en la cuenta del usuario (Firestore, solo accesibles por él), con borrado de cuenta. El directorio solo se entrega a cuentas verificadas con rol y no se indexa.
 
-Las reglas del proyecto están en [CLAUDE.md](CLAUDE.md). **Para publicar, sigue [docs/DESPLIEGUE.md](docs/DESPLIEGUE.md)** (paso a paso, solo con el navegador).
+Las reglas del proyecto están en [CLAUDE.md](CLAUDE.md). **Para ponerla en marcha, sigue [docs/PUESTA-EN-MARCHA.md](docs/PUESTA-EN-MARCHA.md)** (todas las partes, con los archivos y enlaces directos) (paso a paso, solo con el navegador).
 
 ## Stack
 

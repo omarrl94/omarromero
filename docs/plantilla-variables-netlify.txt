@@ -1,0 +1,55 @@
+CONECTA FFE · VARIABLES DE NETLIFY
+Netlify → tu proyecto → Project configuration → Environment variables → Add a variable → Add a single variable
+En TODAS: Scopes = «All scopes» · Values = «Same value for all deploy contexts».
+Rellena el valor a la derecha de cada «=» en este archivo (solo en tu ordenador) y luego cópialo a Netlify.
+NO envíes este archivo relleno por correo ni lo subas a GitHub.
+
+==================================================================
+A) FIREBASE WEB · NO marcar «Contains secret values»
+   (salen de Firebase → ⚙️ Configuración del proyecto → General → Tus apps → Configuración del SDK)
+==================================================================
+VITE_FIREBASE_API_KEY      =
+VITE_FIREBASE_AUTH_DOMAIN  =
+VITE_FIREBASE_PROJECT_ID   =
+VITE_FIREBASE_APP_ID       =
+
+==================================================================
+B) FIREBASE SERVIDOR · SÍ marcar «Contains secret values»
+   (contenido COMPLETO del .json de Firebase → ⚙️ → Cuentas de servicio → Generar nueva clave privada)
+==================================================================
+FIREBASE_SERVICE_ACCOUNT   = (pega el .json entero, de la { a la })
+
+   Solo si Netlify dice que las variables superan 4 KB: borra la anterior y usa estas tres
+   (valores sacados del mismo .json):
+   FIREBASE_PROJECT_ID     = (valor de "project_id")
+   FIREBASE_CLIENT_EMAIL   = (valor de "client_email")
+   FIREBASE_PRIVATE_KEY    = (valor de "private_key", desde -----BEGIN PRIVATE KEY----- ) · SECRETA
+
+==================================================================
+C) CORREO DEL CENTRO (las mismas que en ColaboraFP / web de exámenes)
+==================================================================
+SMTP_HOST   = smtp.office365.com
+SMTP_PORT   = 587
+SMTP_USER   = omar.romero@jrotero.es
+SMTP_PASS   =                                   ← SECRETA (marcar «Contains secret values»)
+MAIL_FROM   = Conecta FFE · C.F.P. José Ramón Otero <omar.romero@jrotero.es>
+
+==================================================================
+D) RECOMENDADA
+==================================================================
+APP_URL     = https://TU-PROYECTO.netlify.app   (sin barra al final)
+
+==================================================================
+E) OPCIONALES (ofertas de empleo) · SECRETAS
+==================================================================
+ADZUNA_APP_ID           =
+ADZUNA_APP_KEY          =
+INFOJOBS_CLIENT_ID      =
+INFOJOBS_CLIENT_SECRET  =
+
+==================================================================
+F) BORRAR (ya no se usan)
+==================================================================
+ACCESS_CODE
+TUTOR_ACCESS_CODE
+(SESSION_SECRET se puede dejar o borrar: es opcional)
