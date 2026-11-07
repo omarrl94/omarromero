@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { BUGS, STARTERS, daemonSprite, daemonName, daemonType, maxHpOf, xpToNext, EVOLVE_AT } from './species.js';
 import { ITEMS, fmtTime } from './save.js';
-import { MEDALS } from './world.js';
+import { MEDALS, ZONES } from './world.js';
+import { CHAPTERS, LESSON_NO, lessonTitle, nextInCourse } from './curriculum.js';
+import { DRILL_LESSONS } from '../curriculum/drill-challenges.js';
+import { BUG } from './species.js';
 import { LANGUAGES } from '../core/languages.js';
 import { sfx } from './assets.js';
 import { Creature, CreatureFace, HpBar, Modal, TypeChip, Face } from './ui.jsx';
@@ -10,6 +13,7 @@ import { Creature, CreatureFace, HpBar, Modal, TypeChip, Face } from './ui.jsx';
 /** Menú de pausa. */
 export function PauseMenu({ game, onClose, onOpen, onSave, onQuit }) {
   const items = [
+    ['course', 'Temario', `${Object.keys(game.solved || {}).length}/32 lecciones`],
     ['team', 'Equipo', `${game.team.length} daemon${game.team.length === 1 ? '' : 's'}`],
     ['dex', 'Bitdex', `${Object.keys(game.dex.caught).length}/32 depurados`],
     ['bag', 'Mochila', `${(game.bag.cafe || 0) + (game.bag.expreso || 0)} objetos`],
@@ -197,6 +201,58 @@ export function ShopView({ game, update, onClose }) {
           <button type="button" disabled={game.bits < it.price} onClick={() => buy(id)} className="pp-btn shrink-0">{it.price} bits</button>
         </div>
       ))}
+    </Modal>
+  );
+}
+
+/** Temario: el curso completo en orden, con el estado de cada lección y su repaso. */
+export function CourseView({ game, onClose }) {
+  const [open, setOpen] = useState(null);
+  const solved = game.solved || {};
+  const next = nextInCourse(game);
+  const reached = (ch) => ch.n === 1 || !!game.flags[`medal${ch.n - 1}`];
+  const examOk = (ch) => !!game.flags[ch.exam.trainer === 'boss' ? 'boss' : `medal${ch.n}`];
+  const lesson = open ? DRILL_LESSONS[open] : null;
+  const row = (id, exam) => {
+    const done = !!solved[id];
+    const isNext = id === next;
+    return (
+      <button key={id} type="button" disabled={!done} onClick={() => setOpen(id)} className={`course-row ${done ? 'course-done' : isNext ? 'course-next' : 'course-locked'}`}>
+        <span className="course-no">{LESSON_NO[id]}</span>
+        <span className="min-w-0 flex-1 truncate text-left">{lessonTitle(id)}{exam && <span className="ml-1 text-[11px] font-bold text-[#b5651d]">EXAMEN</span>}</span>
+        {(done || game.dex.seen[id]) && <CreatureFace sprite={BUG[id].sprite} size={24} />}
+        <span className="w-20 shrink-0 text-right text-[12px] font-bold">{done ? 'Aprendido' : isNext ? 'Siguiente' : '—'}</span>
+      </button>
+    );
+  };
+  return (
+    <Modal title={`Temario · ${Object.keys(solved).length} de 32 lecciones`} onClose={onClose} wide>
+      {lesson ? (
+        <div>
+          <button type="button" className="pp-btn mb-3" onClick={() => setOpen(null)}>◂ Volver al temario</button>
+          <div className="pixel-title text-2xl text-[#7a3b1e]">Lección {LESSON_NO[open]} · {lesson.steps[0].title}</div>
+          <p className="mt-2 text-[15px] leading-relaxed">{lesson.steps[0].text}</p>
+          {lesson.steps[0].code && lesson.steps[0].code[game.lang] && <pre className="code-dark mt-3 text-[13px]">{lesson.steps[0].code[game.lang]}</pre>}
+          <div className="case-card mt-3 p-3 text-sm"><b>Reto de la lección:</b> {lesson.mission[game.lang]}</div>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          <p className="text-sm text-[#6b4a35]">El curso va de lo sencillo a lo complejo. Cada capítulo se aprende en una zona y termina con un examen en el gimnasio. Pulsa una lección aprendida para repasarla.</p>
+          {CHAPTERS.map((ch) => (
+            <div key={ch.id} className={`case-card p-2.5 ${reached(ch) ? '' : 'opacity-60'}`}>
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <div className="pixel-title text-xl text-[#7a3b1e]">Capítulo {ch.n} · {ch.title}</div>
+                <span className="text-xs font-bold">{reached(ch) ? (examOk(ch) ? '✔ Superado' : ZONES.find((z) => z.id === ch.zone).name) : 'Bloqueado'}</span>
+              </div>
+              <p className="mb-1.5 text-[13px] text-[#6b4a35]">{ch.summary}</p>
+              <div className="space-y-1">
+                {ch.lessons.map((id) => row(id, false))}
+                {ch.exam.drills.map((id) => row(id, true))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </Modal>
   );
 }

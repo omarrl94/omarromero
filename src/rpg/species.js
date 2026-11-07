@@ -4,6 +4,7 @@
 //   y puede unirse a tu equipo.
 // Sprites: pack «Ninja Adventure» (Pixel-boy & AAA, CC0).
 import { DRILLS } from '../curriculum/drills.js';
+import { ORDER } from './curriculum.js';
 
 const mon = (key) => ({ kind: 'mon', key });
 const boss = (key) => ({ kind: 'boss', key });
@@ -87,7 +88,10 @@ const TYPE_COLOR = {
 };
 export const typeColor = (t) => TYPE_COLOR[t] || '#8a7a6a';
 
-export const BUGS = DRILLS.map((d, i) => {
+const DRILL = Object.fromEntries(DRILLS.map((d) => [d.id, d]));
+/** Bugs en el orden del temario (es también su número en la Bitdex). */
+export const BUGS = ORDER.map((id, i) => {
+  const d = DRILL[id];
   const [name, type, entry] = BUG_INFO[d.id];
   return { id: d.id, dex: i + 1, name, type, entry, module: d.module, xp: d.xp, sprite: mon(BUG_SPRITE[d.id]) };
 });

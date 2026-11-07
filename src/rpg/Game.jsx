@@ -3,11 +3,12 @@ import { AnimatePresence, motion, MotionConfig } from 'framer-motion';
 import Overworld, { TouchPad } from './Overworld.jsx';
 import Battle from './Battle.jsx';
 import { Title, StarterPick } from './Title.jsx';
-import { PauseMenu, TeamView, DexView, BagView, CardView, OptionsView, ShopView } from './Menus.jsx';
+import { PauseMenu, TeamView, DexView, BagView, CardView, OptionsView, ShopView, CourseView } from './Menus.jsx';
 import { DialogBox, Creature, CreatureFace, HpBar } from './ui.jsx';
 import { newGame, saveSlot, makeDaemon, healAll, fmtTime } from './save.js';
-import { BUGS, STARTERS, daemonSprite, daemonName, maxHpOf, creaturePaths } from './species.js';
-import { TRAINERS, MEDALS, CENTERS, CHARACTERS, zoneAt, tileAt } from './world.js';
+import { STARTERS, daemonSprite, daemonName, maxHpOf, creaturePaths } from './species.js';
+import { TRAINERS, MEDALS, CENTERS, CHARACTERS, ZONES, zoneAt, tileAt } from './world.js';
+import { CHAPTERS, chapterOfZone, chapterOfTrainer, pendingLessons, nextLesson, lessonTitle, wildPool, missingBefore } from './curriculum.js';
 import { playMusic, unlockAudio, setAudio, sfx, preload } from './assets.js';
 import { TILE_PATHS } from './art.js';
 import { LANGUAGES, LANG_ORDER } from '../core/languages.js';
@@ -16,16 +17,21 @@ import { appReady } from '../core/native.js';
 const say = (who, look, lines) => lines.map((s) => ({ say: s, who, look }));
 const PROF = ['Profesora Lambda', 'prof'];
 
+const examDone = (g, c) => !!g.flags[c.exam.trainer === 'boss' ? 'boss' : `medal${c.n}`];
+const pendingList = (ids) => ids.map((id) => `«${lessonTitle(id)}»`).join(', ');
+
 /** Objetivo actual, para no perderse nunca. */
 function objective(g) {
   const f = g.flags;
   if (!f.starter) return 'Ve al laboratorio de la Profesora Lambda (el edificio del tejado verde).';
   if (!f.rival1) return 'Vuelve al laboratorio: Kai quiere la revancha.';
-  if (!f.medal1) return 'Sube por la Ruta 1 hasta Ciudad Byte y gana la Medalla Variable.';
-  if (!f.medal2) return 'Cruza el Bosque Bucle y vence a Bruno en Ciudad Bucle.';
-  if (!f.medal3) return 'Cruza el puente del Lago Array y vence a Ingrid en Pueblo Índice.';
-  if (!f.medal4) return 'Entra en la Torre Recursiva y vence a Rémi.';
-  if (!f.boss) return 'Sube a la Cumbre Algoritmo y entra en la Cueva Null.';
+  const ch = CHAPTERS.find((c) => !examDone(g, c));
+  if (ch) {
+    const next = nextLesson(g, ch);
+    const zone = ZONES.find((z) => z.id === ch.zone).name;
+    if (next) return `Capítulo ${ch.n} · ${ch.title}. Siguiente lección: «${lessonTitle(next)}». Búscala en la hierba alta de ${zone}.`;
+    return `Capítulo ${ch.n} · ${ch.title}. ¡Lecciones completadas! Ve al examen final: ${ch.exam.place}.`;
+  }
   const left = 32 - Object.keys(g.dex.caught).length;
   return left ? `¡Has salvado Bitlandia! Completa la Bitdex: faltan ${left} bugs por depurar.` : '¡Bitdex completa! Eres una leyenda de Bitlandia.';
 }
@@ -105,7 +111,16 @@ export default function Game() {
     const tr = b.trainer ? TRAINERS[b.trainer] : null;
     if (!tr) return b.after || [];
     const steps = [...say(tr.name, tr.look, tr.win), { set: tr.flag }];
-    if (tr.medal) steps.push({ medal: tr.medal }, { say: `¡Has conseguido la ${MEDALS[tr.medal - 1]}!`, sfx: 'levelup' });
+    if (tr.medal) {
+      const ch = chapterOfTrainer(b.trainer);
+      const nextCh = CHAPTERS[ch.n];
+      steps.push(
+        { medal: tr.medal },
+        { say: `¡Has conseguido la ${MEDALS[tr.medal - 1]}!`, sfx: 'levelup' },
+        { say: `Capítulo ${ch.n} completado: ${ch.title}. A partir de ahora esto se da por sabido: lo vas a necesitar en lo que viene.` },
+        ...(nextCh ? [{ say: `Siguiente capítulo: ${nextCh.title}. El cortafuegos del norte ya está abierto.` }] : []),
+      );
+    }
     if (b.trainer === 'boss') {
       steps.push(
         { say: '...', who: PROF[0], look: PROF[1] },
@@ -191,9 +206,11 @@ export default function Game() {
           ]),
           { give: 'cafe', n: 2 },
           ...say(PROF[0], PROF[1], [
-            'Los bugs que depures en la hierba alta podrán unirse a tu equipo. Se registran en tu Bitdex.',
-            'Tu primer objetivo: sube por la Ruta 1 hasta Ciudad Byte. Allí está el Gimnasio Variable.',
-            '¡Buen viaje! Y recuerda: un error no es un fracaso. Es una pista.',
+            'Acabas de aprender la idea más importante de la programación: una función recibe datos y devuelve un resultado.',
+            'A partir de ahora aprenderás paso a paso. Cada zona es un capítulo del temario y cada bug de la hierba alta, una lección.',
+            'Los bugs aparecen en orden: primero lo sencillo y luego lo más complejo. Cada concepto nuevo viene con su lección.',
+            'Al terminar las lecciones de una zona, el líder del gimnasio te pondrá un examen. Si lo superas, se abre la siguiente zona.',
+            'Abre el menú y mira el Temario: ahí está todo el curso, en orden. ¡Buen viaje! Y recuerda: un error no es un fracaso, es una pista.',
           ]),
         ];
       },
@@ -211,6 +228,15 @@ export default function Game() {
     if (door.startsWith('gym')) {
       const tr = TRAINERS[door];
       if (g.flags[tr.flag]) return say(tr.name, tr.look, [`Ya tienes la ${MEDALS[tr.medal - 1]}. ¡Sigue tu camino!`]);
+      const ch = chapterOfTrainer(door);
+      const pending = pendingLessons(g, ch);
+      if (pending.length) {
+        return say(tr.name, tr.look, [
+          `¡Hola, ${g.name}! Aún no estás preparado para mi examen.`,
+          `Antes tienes que dominar las lecciones del capítulo ${ch.n}. Te ${pending.length === 1 ? 'falta' : 'faltan'}: ${pendingList(pending)}.`,
+          `Los bugs salvajes de ${ZONES.find((z) => z.id === ch.zone).name} te las enseñarán en orden. ¡Vuelve cuando las tengas todas!`,
+        ]);
+      }
       return [...say(tr.name, tr.look, tr.intro), { battle: door }];
     }
     if (door === 'house-byte') return say('Vecino', 'elder', ['Mi nieta dice que en Python no hacen falta llaves { }, que basta con la sangría.', '¡En mis tiempos todo llevaba punto y coma!']);
@@ -233,6 +259,18 @@ export default function Game() {
       if (n.trainer) {
         const tr = TRAINERS[n.trainer];
         if (g.flags[tr.flag]) return run(say(tr.name, tr.look, [tr.win[tr.win.length - 1]]));
+        if (n.trainer === 'rival3') {
+          const pending = pendingLessons(g, CHAPTERS[4]);
+          if (pending.length) return run(say(tr.name, tr.look, [`Ahí dentro está el Comandante Null. No entres todavía: te ${pending.length === 1 ? 'falta' : 'faltan'} ${pendingList(pending)}.`, 'Entrena en la hierba de la Cumbre y vuelve cuando lo domines todo.']));
+        }
+        // Los entrenadores no se adelantan al temario: primero hay que aprender lo anterior.
+        const missing = missingBefore(g, tr.team[0]);
+        if (missing.length && n.trainer !== 'rival3') {
+          return run(say(tr.name, tr.look, [
+            tr.title === 'Rival' ? `¡${g.name}! Te reto... bueno, cuando sepas un poco más.` : '¡Ja! Aún no sabes ni lo básico. Así no tiene gracia.',
+            `Antes te ${missing.length === 1 ? 'falta aprender' : 'faltan'} ${pendingList(missing)}. Búscalo en la hierba alta y vuelve.`,
+          ]));
+        }
         return run([...say(tr.name, tr.look, tr.intro), { battle: n.trainer }]);
       }
       const lines = typeof n.lines === 'function' ? n.lines(g) : n.lines;
@@ -244,25 +282,37 @@ export default function Game() {
   const onMoved = useCallback((x, y, dir) => {
     update((g) => ({ ...g, pos: { x, y, dir } }));
     const z = zoneAt(y);
+    const g = gameRef.current;
     if (lastZone.current !== z.id) {
       lastZone.current = z.id;
       setBanner(z.name);
       setTimeout(() => setBanner((b) => (b === z.name ? null : b)), 2600);
-    }
-    const ch = tileAt(x, y);
-    const g = gameRef.current;
-    if ((ch === ',' || ch === 'k') && g.team.length && z.modules.length) {
-      sinceEncounter.current += 1;
-      if (sinceEncounter.current >= 3 && Math.random() < 0.13) {
-        sinceEncounter.current = 0;
-        const pool = BUGS.filter((b) => z.modules.includes(b.module));
-        const fresh = pool.filter((b) => !g.dex.caught[b.id]);
-        const pickFrom = fresh.length && Math.random() < 0.7 ? fresh : pool;
-        const b = pickFrom[Math.floor(Math.random() * pickFrom.length)];
-        startBattle({ queue: [b.id] });
+      // Clase de la profesora al llegar a un capítulo nuevo del temario
+      const chap = chapterOfZone(z.id);
+      if (chap && g.flags.rival1 && !g.flags[`intro_${chap.id}`]) {
+        run([
+          { say: '¡Bip, bip! Te llama la Profesora Lambda por el Bitófono.' },
+          { say: `Capítulo ${chap.n} del temario: ${chap.title}.`, who: PROF[0], look: PROF[1] },
+          ...say(PROF[0], PROF[1], chap.intro),
+          { set: `intro_${chap.id}` },
+        ]);
+        return;
       }
     }
-  }, [update, startBattle]);
+    const ch = tileAt(x, y);
+    if ((ch === ',' || ch === 'k') && g.team.length && z.wild) {
+      const pool = wildPool(g, z.id);
+      if (!pool.length) return;
+      const learning = pool.length === 1 && !(g.solved && g.solved[pool[0]]);
+      sinceEncounter.current += 1;
+      if (sinceEncounter.current >= 3 && Math.random() < (learning ? 0.2 : 0.12)) {
+        sinceEncounter.current = 0;
+        const fresh = pool.filter((id) => !g.dex.caught[id]);
+        const pickFrom = fresh.length && Math.random() < 0.7 ? fresh : pool;
+        startBattle({ queue: [pickFrom[Math.floor(Math.random() * pickFrom.length)]] });
+      }
+    }
+  }, [update, startBattle, run]);
 
   const endBattle = (res) => {
     const b = battle;
@@ -405,6 +455,7 @@ export default function Game() {
         {panel === 'bag' && <BagView game={game} onClose={() => setPanel('pause')} />}
         {panel === 'card' && game.lang && <CardView game={game} onClose={() => setPanel('pause')} />}
         {panel === 'card' && !game.lang && <BagView game={game} onClose={() => setPanel('pause')} />}
+        {panel === 'course' && <CourseView game={game} onClose={() => setPanel('pause')} />}
         {panel === 'options' && <OptionsView game={game} update={update} onClose={() => setPanel('pause')} />}
         {panel === 'shop' && <ShopView game={game} update={update} onClose={() => { setPanel(null); const r = shopAfter; setShopAfter(null); if (r && r.length) run(r); }} />}
         {credits && <Credits game={game} onClose={() => { setCredits(false); }} />}

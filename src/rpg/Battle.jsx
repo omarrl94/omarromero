@@ -12,11 +12,17 @@ import { useMedia, PHONE } from '../core/useMedia.js';
 import { BUG, daemonSprite, daemonName, maxHpOf, xpToNext } from './species.js';
 import { gainXp, makeDaemon, bugLevel, ITEMS } from './save.js';
 import { TRAINERS } from './world.js';
+import { LESSON_NO, chapterOf, guideLevel, linesToWrite } from './curriculum.js';
 import { HpBar, Face, TypeChip, Modal } from './ui.jsx';
 
 const CH = Object.fromEntries(DRILL_CHALLENGES.map((c) => [c.id, c]));
 const SPEC = Object.fromEntries(DRILLS.map((d) => [d.id, d]));
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+/** Quita la sangría común para mostrar unas líneas de código sueltas. */
+const dedent = (lines) => {
+  const ind = Math.min(...lines.map((l) => l.match(/^\s*/)[0].length));
+  return lines.map((l) => l.slice(ind)).join('\n');
+};
 
 /**
  * Batalla contra un bug: el ataque es tu código. Cada caso de prueba que pasa le quita vida;
@@ -32,6 +38,8 @@ export default function Battle({ game, update, battle, onEnd }) {
   const ch = CH[bugId];
   const spec = SPEC[bugId];
   const lesson = DRILL_LESSONS[bugId];
+  const chap = chapterOf(bugId);
+  const isExam = !!chap && chap.exam.drills.includes(bugId);
 
   const [code, setCode] = useState(() => game.drafts[bugId] || ch.starter[lang]);
   const [enemyHp, setEnemyHp] = useState(100);
@@ -40,7 +48,14 @@ export default function Battle({ game, update, battle, onEnd }) {
   const [phase, setPhase] = useState('fight'); // fight | purified | capture | done | lost
   const [evalRes, setEvalRes] = useState(null);
   const [fx, setFx] = useState({ enemy: 0, me: 0, purify: false });
-  const [modal, setModal] = useState(battle.tutorial ? 'tutorial' : null); // lesson | hint | bag | tutorial
+  const [modal, setModal] = useState(null); // lesson | newlesson | hint | bag | tutorial
+  const modalQueue = useRef([]);
+  const [guide] = useState(() => guideLevel(game));
+  const closeModal = useCallback(() => {
+    if (modal === 'newlesson') update((g) => ({ ...g, learned: { ...(g.learned || {}), [bugId]: true } }));
+    const nextModal = modalQueue.current.shift();
+    setModal(nextModal || null);
+  }, [modal, bugId, update]);
   const [fails, setFails] = useState(0);
   const [used, setUsed] = useState({ hint: false, solution: false });
   const [tab, setTab] = useState('code');
@@ -63,6 +78,12 @@ export default function Battle({ game, update, battle, onEnd }) {
       ? (index === 0 ? `¡${trainer.name} te reta! Lanza a ${BUG[bugId].name}.` : `¡${trainer.name} lanza a ${BUG[bugId].name}!`)
       : `¡Un ${BUG[bugId].name} salvaje apareció! Ha corrompido una función.`);
     update((g) => ({ ...g, dex: { ...g.dex, seen: { ...g.dex.seen, [bugId]: true } } }));
+    // Antes de luchar: cómo funciona un combate (la primera vez) y la lección de cada concepto nuevo.
+    const q = [];
+    if (battle.tutorial && index === 0) q.push('tutorial');
+    if (!(gameRef.current.learned && gameRef.current.learned[bugId])) q.push('newlesson');
+    modalQueue.current = q;
+    setModal(modalQueue.current.shift() || null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bugId]);
 
@@ -333,13 +354,33 @@ export default function Battle({ game, update, battle, onEnd }) {
   const mission = (
     <div className="pp-panel !py-2.5">
       <div className="flex items-center justify-between gap-2">
-        <span className="pixel-title text-lg text-[#7a3b1e]">Función corrupta</span>
+        <span className="pixel-title text-lg text-[#7a3b1e]">{isExam ? `Examen · Lección ${LESSON_NO[bugId]}` : `Lección ${LESSON_NO[bugId]}`} · {lesson.steps[0].title}</span>
         <span className="lang-chip" style={{ background: LANGUAGES[lang].color }}>{LANGUAGES[lang].name}</span>
       </div>
       <p className="mt-0.5 text-[14px] leading-snug">{spec.objective}</p>
       {fnSig && <code className="mt-1 block truncate font-mono text-[12.5px] text-[#2a5d8f]">{fnSig}</code>}
     </div>
   );
+
+  const solvedBefore = !!(game.solved && game.solved[bugId]);
+  const toWrite = guide === 2 && !solvedBefore ? linesToWrite(ch.starter[lang], ch.solution[lang]) : [];
+  const guideBox = !solvedBefore && guide > 0 && phase === 'fight' ? (
+    <div className="guide-box p-2.5 text-[14px] leading-snug">
+      <div className="pixel-title text-lg text-[#c0561f]">{guide === 2 ? 'Modo guiado · paso a paso' : 'Ayuda para empezar'}</div>
+      {guide === 2 ? (
+        <ol className="mt-1 list-decimal space-y-0.5 pl-5">
+          <li>Lee arriba qué tiene que hacer la función.</li>
+          <li>En el editor, busca la línea marcada con ✎ y la que dice <code className="font-mono">return 0</code>: ese 0 es el error del bug.</li>
+          <li>Cambia esa línea por esta (escríbela tú, así se aprende):
+            <pre className="code-dark mt-1 text-[13px]">{dedent(toWrite)}</pre>
+          </li>
+          <li>Pulsa <b>⚔ ¡Atacar!</b> para probarla con los casos de prueba.</li>
+        </ol>
+      ) : (
+        <p className="mt-1">Cambia las líneas marcadas con ✎ para que la función haga lo que pide la misión. Pista: {spec.hint}</p>
+      )}
+    </div>
+  ) : null;
 
   const editor = (
     <div className="editor-shell flex min-h-0 flex-1 flex-col">
@@ -363,6 +404,7 @@ export default function Battle({ game, update, battle, onEnd }) {
       </div>
       <div className="flex min-h-0 flex-1 flex-col gap-2.5">
         {mission}
+        {guideBox}
         {phone ? (
           <>
             <div className="tabbar flex gap-1 p-1 text-sm">
@@ -415,8 +457,28 @@ export default function Battle({ game, update, battle, onEnd }) {
           ))}
         </Modal>
       )}
+      {modal === 'newlesson' && (
+        <Modal title={`Nuevo concepto · Lección ${LESSON_NO[bugId]}`} onClose={closeModal} wide>
+          {chap && <div className="mb-1 text-xs font-bold uppercase tracking-wider text-[#b5651d]">Capítulo {chap.n} · {chap.title}{isExam ? ' · examen' : ''}</div>}
+          <div className="pixel-title text-3xl text-[#7a3b1e]">{lesson.steps[0].title}</div>
+          <div className="mt-2 grid gap-4 md:grid-cols-2">
+            <div>
+              <p className="text-[16px] leading-relaxed">{lesson.steps[0].text}</p>
+              {lesson.steps[0].code && lesson.steps[0].code[lang] && (
+                <>
+                  <div className="mt-3 text-xs font-bold uppercase tracking-wider text-[#7a4a2e]">Ejemplo en {LANGUAGES[lang].name}</div>
+                  <pre className="code-dark mt-1 text-[13px]">{lesson.steps[0].code[lang]}</pre>
+                </>
+              )}
+              <div className="case-card case-warn mt-3 p-3 text-sm"><b>Ahora te toca:</b> {lesson.mission[lang]}</div>
+            </div>
+            <div className="min-h-[220px] overflow-hidden rounded-lg bg-[#1d1611]"><LessonVisual kind={lesson.steps[0].visual} lang={lang} /></div>
+          </div>
+          <button type="button" onClick={closeModal} className="act-btn act-attack mt-4 w-full">¡A programar!</button>
+        </Modal>
+      )}
       {modal === 'tutorial' && (
-        <Modal title="¡Tu primer combate!" onClose={() => setModal(null)}>
+        <Modal title="¡Tu primer combate!" onClose={closeModal}>
           <ol className="space-y-2.5 text-[15px] leading-relaxed">
             <li><b className="text-[#c0561f]">1.</b> Este bug ha corrompido una función. En «Función corrupta» tienes lo que debe hacer.</li>
             <li><b className="text-[#c0561f]">2.</b> Escribe el código en el editor. Las líneas con ✎ son las que tienes que cambiar.</li>
@@ -424,7 +486,7 @@ export default function Battle({ game, update, battle, onEnd }) {
             <li><b className="text-[#c0561f]">4.</b> Si algo falla, el bug contraataca. Mira qué esperaba y qué ha dado tu función, y vuelve a intentarlo.</li>
             <li><b className="text-[#c0561f]">5.</b> ¿No sabes por dónde empezar? <b>Lección</b> te lo explica con un ejemplo.</li>
           </ol>
-          <button type="button" onClick={() => setModal(null)} className="act-btn act-attack mt-4 w-full">¡Entendido!</button>
+          <button type="button" onClick={closeModal} className="act-btn act-attack mt-4 w-full">¡Entendido!</button>
         </Modal>
       )}
     </div>

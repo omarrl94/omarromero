@@ -132,17 +132,17 @@ export function walkable(x, y, flags) {
   return !SOLID.has(t);
 }
 
-/** Zonas (de norte a sur). `modules`: de qué módulos salen los bugs salvajes. */
+/** Zonas (de norte a sur). `wild`: hay bugs salvajes (su orden lo marca el temario, curriculum.js). */
 export const ZONES = [
-  { id: 'cave', name: 'Cueva Null', y0: 0, y1: 7, music: 'cave', modules: [] },
-  { id: 'peak', name: 'Cumbre Algoritmo', y0: 8, y1: 16, music: 'route', modules: [5, 7] },
-  { id: 'rec', name: 'Ciudad Recursiva', y0: 17, y1: 28, music: 'town', modules: [6] },
-  { id: 'lake', name: 'Lago Array', y0: 29, y1: 43, music: 'route', modules: [3] },
-  { id: 'loop', name: 'Ciudad Bucle', y0: 44, y1: 53, music: 'town', modules: [] },
-  { id: 'forest', name: 'Bosque Bucle', y0: 54, y1: 63, music: 'forest', modules: [2] },
-  { id: 'byte', name: 'Ciudad Byte', y0: 64, y1: 73, music: 'town', modules: [] },
-  { id: 'r1', name: 'Ruta 1', y0: 74, y1: 83, music: 'route', modules: [1] },
-  { id: 'origin', name: 'Pueblo Origen', y0: 84, y1: 95, music: 'town', modules: [] },
+  { id: 'cave', name: 'Cueva Null', y0: 0, y1: 7, music: 'cave' },
+  { id: 'peak', name: 'Cumbre Algoritmo', y0: 8, y1: 16, music: 'route', wild: true },
+  { id: 'rec', name: 'Ciudad Recursiva', y0: 17, y1: 28, music: 'town', wild: true },
+  { id: 'lake', name: 'Lago Array', y0: 29, y1: 43, music: 'route', wild: true },
+  { id: 'loop', name: 'Ciudad Bucle', y0: 44, y1: 53, music: 'town' },
+  { id: 'forest', name: 'Bosque Bucle', y0: 54, y1: 63, music: 'forest', wild: true },
+  { id: 'byte', name: 'Ciudad Byte', y0: 64, y1: 73, music: 'town' },
+  { id: 'r1', name: 'Ruta 1', y0: 74, y1: 83, music: 'route', wild: true },
+  { id: 'origin', name: 'Pueblo Origen', y0: 84, y1: 95, music: 'town' },
 ];
 export const zoneAt = (y) => ZONES.find((z) => y >= z.y0 && y <= z.y1) || ZONES[ZONES.length - 1];
 
@@ -221,7 +221,7 @@ export const TRAINERS = {
   gym1: {
     name: 'Vera', title: 'Líder · Gimnasio Variable', look: 'leader1', flag: 'medal1', bits: 300, medal: 1,
     team: ['d1-cells', 'd1-leftover'],
-    intro: ['¡Bienvenida, bienvenido al Gimnasio Variable! Soy Vera.', 'Aquí todo empieza por lo básico: números, operaciones y cajas con nombre.', 'Mis bugs no saben repartir: cortan con decimales y pierden lo que sobra. ¿Sabrás dividir de verdad?'],
+    intro: ['¡Bienvenida, bienvenido al Gimnasio Variable! Soy Vera.', 'Ya sabes usar funciones, operar con números y guardar resultados en variables. Hoy subimos un escalón.', 'Mis bugs no saben repartir: cortan con decimales y pierden lo que sobra. Te enseñaré la división entera y el resto... ¡y luego tendrás que usarlos!'],
     win: ['¡Impresionante! Has dominado la división entera y el resto.', 'Toma la Medalla Variable. Con ella, el cortafuegos del norte te dejará pasar al Bosque Bucle.'],
   },
   gym2: {

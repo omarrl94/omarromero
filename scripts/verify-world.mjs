@@ -3,6 +3,7 @@
 import { W, H, MAP, walkable, NPCS, DOORS, SIGNS, TRAINERS, ZONES, START, CENTERS, FIREWALLS, tileAt } from '../src/rpg/world.js';
 import { BUGS, BUG } from '../src/rpg/species.js';
 import { DRILL_CHALLENGES } from '../src/curriculum/drill-challenges.js';
+import { CHAPTERS, ORDER, wildPool } from '../src/rpg/curriculum.js';
 
 let fails = 0;
 const ok = (cond, msg) => { if (!cond) { fails++; console.log(`✗ ${msg}`); } };
@@ -10,12 +11,24 @@ const ok = (cond, msg) => { if (!cond) { fails++; console.log(`✗ ${msg}`); } }
 ok(MAP.length === H && MAP.every((r) => r.length === W), 'el mapa tiene el tamaño correcto');
 ok(BUGS.length === 32 && BUGS.length === DRILL_CHALLENGES.length, '32 bugs, uno por nivel');
 for (const [id, t] of Object.entries(TRAINERS)) for (const b of t.team) ok(BUG[b], `${id}: el bug ${b} existe`);
-for (const z of ZONES) for (const m of z.modules) ok(BUGS.some((b) => b.module === m), `zona ${z.id}: hay bugs del módulo ${m}`);
-// Todos los bugs pueden aparecer en estado salvaje (para completar la Bitdex).
-for (const b of BUGS) {
-  const zs = ZONES.filter((z) => z.modules.includes(b.module));
-  const grass = zs.some((z) => MAP.slice(z.y0, z.y1 + 1).some((r) => /[,k]/.test(r)));
-  ok(grass, `el bug ${b.name} (módulo ${b.module}) aparece en alguna hierba`);
+// Temario: los 32 niveles, cada uno una sola vez, y cada capítulo en una zona con hierba alta.
+ok(ORDER.length === 32 && new Set(ORDER).size === 32 && ORDER.every((id) => BUG[id]), 'el temario cubre los 32 niveles una vez');
+for (const ch of CHAPTERS) {
+  const z = ZONES.find((k) => k.id === ch.zone);
+  ok(z && z.wild && MAP.slice(z.y0, z.y1 + 1).some((r) => /[,k]/.test(r)), `capítulo ${ch.n}: su zona tiene hierba alta`);
+  ok(TRAINERS[ch.exam.trainer], `capítulo ${ch.n}: el examen tiene entrenador`);
+  ok(JSON.stringify(TRAINERS[ch.exam.trainer].team) === JSON.stringify(ch.exam.drills), `capítulo ${ch.n}: el examen usa sus retos`);
+  // Los bugs salvajes salen en el orden del temario.
+  const g = { solved: {}, flags: {} };
+  for (const id of ch.lessons) { const p = wildPool(g, ch.zone); ok(p.length === 1 && p[0] === id, `capítulo ${ch.n}: la siguiente lección salvaje es ${id}`); g.solved[id] = true; }
+}
+// Ningún entrenador usa un reto de un capítulo posterior al de su zona.
+const zoneChapter = (y) => CHAPTERS.findIndex((c) => { const z = ZONES.find((k) => k.id === c.zone); return y >= z.y0 && y <= z.y1; });
+for (const n of NPCS.filter((k) => k.trainer)) {
+  const ci = zoneChapter(n.y);
+  if (ci < 0) continue;
+  const limit = ORDER.indexOf(CHAPTERS[ci].exam.drills[CHAPTERS[ci].exam.drills.length - 1]);
+  for (const id of TRAINERS[n.trainer].team) ok(ORDER.indexOf(id) <= limit, `${n.trainer}: ${id} pertenece a su capítulo o anteriores`);
 }
 for (const n of NPCS) {
   ok(walkable(n.x, n.y, Object.fromEntries(Object.values(FIREWALLS).map((f) => [f, true]))) || tileAt(n.x, n.y) === 'X', `NPC ${n.id} está sobre una casilla transitable (${tileAt(n.x, n.y)})`);

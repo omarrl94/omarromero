@@ -21,6 +21,8 @@ export function newGame(name) {
     bag: { cafe: 3, expreso: 0 },
     bits: 100,
     drafts: {},
+    solved: {},
+    learned: {},
     stats: { wins: 0, attacks: 0, solved: 0 },
     settings: { music: true, sound: true },
   };

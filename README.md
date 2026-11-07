@@ -14,6 +14,26 @@ npm test             # currículo en 10 lenguajes + mundo de Bitlandia
 npm run test:world   # solo el mundo: mapa, historia y alcanzabilidad
 ```
 
+## Un temario de verdad
+
+El juego es un curso ordenado de **32 lecciones en 5 capítulos**, de lo sencillo a lo complejo
+([`src/rpg/curriculum.js`](src/rpg/curriculum.js)). Cada capítulo ocurre en una zona y acaba con un
+examen en su gimnasio:
+
+| Capítulo | Zona | Lecciones (en orden) | Examen |
+|---|---|---|---|
+| 1 · Funciones y operaciones | Ruta 1 | funciones, operaciones, paréntesis, variables | Vera: división entera y resto |
+| 2 · Decisiones y bucles | Bosque Bucle | booleanos, if, acumular en un bucle, y / o | Bruno: while y salir antes con return |
+| 3 · Listas y colecciones | Lago Array | recorrer, máximo, contar, buscar, invertir | Ingrid: diccionarios y conjuntos |
+| 4 · Recursión | Ciudad Recursiva | desmontar números, factorial, potencia | Rémi: Fibonacci y Euclides |
+| 5 · Bits y algoritmos | Cumbre Algoritmo | %, binario, potencias de dos, vecinos, dos récords | Comandante Null: búsqueda binaria, Kadane, inserción |
+
+- **Los bugs salvajes salen en el orden del temario:** en cada zona aparece siempre la siguiente lección pendiente.
+- **Cada concepto nuevo trae su lección** (explicación, animación y ejemplo en tu lenguaje) antes de luchar.
+- **Ayuda que se retira:** el primer combate es guiado paso a paso; los dos siguientes indican qué cambiar; después se da por sabido (la pista sigue disponible).
+- **Los gimnasios exigen el capítulo completo** y los entrenadores no se adelantan a lo que aún no has aprendido.
+- **La Profesora Lambda presenta cada capítulo** al llegar a su zona, y el menú **Temario** muestra el curso con lo aprendido, lo siguiente y el repaso de cada lección.
+
 ## Cómo se juega
 
 - **Tu daemon inicial es tu lenguaje.** Eliges entre 10 daemons (Pyxi · Python, Chispi · JavaScript,
