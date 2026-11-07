@@ -1,7 +1,112 @@
 {
   "logicalis-espana": {
-    "correosRechazados": ["info@logicalis.com"],
+    "correosRechazados": [
+      "info@logicalis.com"
+    ],
     "motivo": "buzón global del grupo (la página lo publica junto a la sede de Reino Unido), no el de la oficina de Madrid",
+    "fecha": "2026-11-07"
+  },
+  "atento-espana": {
+    "formulariosRechazados": [
+      "https://atento.com/es/contacto-para-ventas"
+    ],
+    "motivo": "formulario del equipo de ventas, no para candidaturas",
+    "fecha": "2026-11-07"
+  },
+  "babel": {
+    "formulariosRechazados": [
+      "https://babelgroup.com/en/sectores/empleo-y-seguridad-social/"
+    ],
+    "motivo": "página de un sector de negocio (Empleo y Seguridad Social), no de empleo",
+    "fecha": "2026-11-07"
+  },
+  "bme": {
+    "formulariosRechazados": [
+      "https://www.bolsasymercados.es/en/contact/epm.html"
+    ],
+    "motivo": "contacto de un producto (Pre Market Environment)",
+    "fecha": "2026-11-07"
+  },
+  "cabify": {
+    "formulariosRechazados": [
+      "https://cabify.com/es/flotas/contacto"
+    ],
+    "motivo": "formulario comercial para flotas",
+    "fecha": "2026-11-07"
+  },
+  "calidad-pascual": {
+    "formulariosRechazados": [
+      "https://www.calidadpascual.com/contacto/"
+    ],
+    "motivo": "formulario para establecimientos clientes",
+    "fecha": "2026-11-07"
+  },
+  "civitatis": {
+    "formulariosRechazados": [
+      "https://www.civitatis.com/es/contactar/"
+    ],
+    "motivo": "atención al cliente de actividades y reservas",
+    "fecha": "2026-11-07"
+  },
+  "cosacor": {
+    "formulariosRechazados": [
+      "https://cosacor.com/contacto.html"
+    ],
+    "motivo": "solicitud de presupuesto de envases",
+    "fecha": "2026-11-07"
+  },
+  "cuatroochenta": {
+    "formulariosRechazados": [
+      "https://cuatroochenta.com/practicas-rrhh/"
+    ],
+    "motivo": "candidatura a unas prácticas concretas de RR. HH. (no del ciclo)",
+    "fecha": "2026-11-07"
+  },
+  "ifema": {
+    "formulariosRechazados": [
+      "https://www.ifema.es/en/sociocare/contact"
+    ],
+    "motivo": "contacto de una feria concreta para expositores",
+    "fecha": "2026-11-07"
+  },
+  "plain-concepts": {
+    "formulariosRechazados": [
+      "https://www.plainconcepts.com/es/becas-mujeres-data-science-ml/"
+    ],
+    "motivo": "artículo sobre unas becas concretas",
+    "fecha": "2026-11-07"
+  },
+  "prosegur-cipher": {
+    "formulariosRechazados": [
+      "https://www.prosegur.es/empresas/externalizacion/servicios-bpo-bpaas/contact-center"
+    ],
+    "motivo": "página de un servicio (contact center)",
+    "fecha": "2026-11-07"
+  },
+  "red-es": {
+    "formulariosRechazados": [
+      "https://www.red.es/es/accesibilidad/contacto"
+    ],
+    "motivo": "buzón de accesibilidad de la web",
+    "fecha": "2026-11-07"
+  },
+  "skin-ai": {
+    "formulariosRechazados": [
+      "https://skinai.tech/contact"
+    ],
+    "motivo": "solicitud de demostración del producto",
+    "fecha": "2026-11-07"
+  },
+  "witrey": {
+    "formulariosRechazados": [
+      "https://witrey.com/contacto-witrey/"
+    ],
+    "motivo": "solicitud de presupuesto de proyectos",
+    "fecha": "2026-11-07"
+  },
+  "cibersafety": {
+    "descartar": true,
+    "motivo": "empresa de Murcia: su dirección y sus oficinas están en Murcia y Alicante; «Madrid» solo aparece en páginas de posicionamiento",
     "fecha": "2026-11-07"
   }
 }

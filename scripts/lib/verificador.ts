@@ -199,7 +199,7 @@ export type TipoPagina = 'empleo' | 'contacto' | 'legal' | 'articulo' | 'otra';
 
 const RE_LEGAL = /(aviso-?legal|legal-?notice|\/legal|privac|privacy|terminos|t[eé]rminos|terms|condiciones|cookie|proteccion-de-datos|rgpd|gdpr|imprint|impressum)/i;
 /** Entradas de blog, noticias, prensa, entrevistas o páginas comerciales (ebooks, casos de éxito, servicios…). */
-const RE_ARTICULO = /(\/blog\/|\/blogs?\b|\/noticias?\/|\/news\/|\/actualidad|\/prensa\/|\/press\/|\/articulos?\/|\/post\/|\/posts\/|\/entrevista|\/opinion\/|\/consejos\/|\/20\d\d\/\d\d\/|\/\d{4}\/\d{2}\/\d{2}\/|\/ebooks?\/|\/guias?\/|\/whitepapers?\/|\/descargas?\/|\/webinars?\/|\/casos?(-de-exito)?\/|\/case-stud|\/servicios\/|\/services\/|\/soluciones\/|\/solutions\/|\/productos?\/|\/products?\/|\/software-|\/recursos\/|\/resources\/|\/catalogo|\/advisory\/|\/proyectos\/|\/proyectos-|\/media\/|\/ads\/)/i;
+const RE_ARTICULO = /(\/blog\/|\/blogs?\b|\/noticias?\/|\/news\/|\/actualidad|\/prensa\/|\/press\/|\/articulos?\/|\/post\/|\/posts\/|\/entrevista|\/opinion\/|\/consejos\/|\/20\d\d\/\d\d\/|\/\d{4}\/\d{2}\/\d{2}\/|\/ebooks?\/|\/guias?\/|\/whitepapers?\/|\/descargas?\/|\/webinars?\/|\/casos?(-de-exito)?\/|\/case-stud|\/servicios\/|\/services\/|\/soluciones\/|\/solutions\/|\/productos?\/|\/products?\/|\/software-|\/recursos\/|\/resources\/|\/catalogo|\/advisory\/|\/proyectos\/|\/proyectos-|\/media\/|\/ads\/|\/sectores?\/|\/sectors?\/|\/industrias?\/|\/flotas\/|\/accesibilidad\/|\/externalizacion\/|para-ventas|\/sales\/|\/ventas\/)/i;
 
 /** Segmentos de URL que SÍ son la página de empleo (el segmento entero, no una palabra dentro del título de un artículo). */
 const SEG_EMPLEO = /^(trabaja|trabajar|trabaje|unete|join|careers?|carreras?|jobs?|empleos?|talento|talent|candidatura|candidaturas|seleccion|equipo-humano|bolsa|practicas|becas|vacantes|ofertas-de-empleo|ofertas-empleo|buscamos|trabajaconnosotros|work-with-us|workwithus|join-us|joinus)(-|$)/;
@@ -235,7 +235,7 @@ export function tipoPagina(url: string): TipoPagina {
   const segs = segmentos(u.pathname);
   // Un segmento corto (máx. 5 palabras) que empieza por una palabra de empleo: «trabaja-con-nosotros», «unete-a-nuestro-equipo»,
   // «join-our-team», «talento-y-cultura». Un título largo de artículo («trabajar-con-una-wifi-publica-segura») no cuenta.
-  const esEmpleo = (s: string) => ['rrhh', 'recursos-humanos', 'people', 'personas', 'seleccion'].includes(s) || (SEG_EMPLEO.test(s) && s.split('-').length <= 5) || /^(buscamos|nuestro|forma-parte|quieres-trabajar|trabaja)-?.*(talento|equipo|nosotros)$/.test(s) && s.split('-').length <= 5;
+  const esEmpleo = (s: string) => ['rrhh', 'recursos-humanos', 'people', 'personas', 'seleccion'].includes(s) || /^(trabaja-con-nosotros|trabaja-en-|trabajar-en-|unete|join-|careers|empleo$)/.test(s) || (SEG_EMPLEO.test(s) && s.split('-').length <= 4) || /^(buscamos|nuestro|forma-parte|quieres-trabajar|trabaja)-?.*(talento|equipo|nosotros)$/.test(s) && s.split('-').length <= 5;
   if (SUB_EMPLEO.test(u.hostname) || segs.some(esEmpleo)) return 'empleo';
   if (segs.some((s) => SEG_CONTACTO.test(s))) return 'contacto';
   return 'otra';

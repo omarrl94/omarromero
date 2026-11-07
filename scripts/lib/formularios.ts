@@ -41,6 +41,8 @@ const RE_BUSCADOR = /(buscar|search|busqueda|búsqueda|^q$|^s$)/i;
 const RE_COMENTARIOS = /(guarda mi nombre|save my name|deja un comentario|leave a reply|publicar (el )?comentario)/i;
 /** Formularios de clientes (pedidos, envíos, reservas, consumo): no son un canal para pedir prácticas. */
 const RE_ATENCION_CLIENTE = /(n[uú]mero de pedido|order number|order-number|\bpedido\b|\blote\b|caducidad|shipment|pickup|recogida|seguimiento del env|n[uú]mero de env|destino o pa[ií]s|viajeros|fecha de salida|n[uú]mero de stand|stand number|n[uú]mero de cliente|matr[ií]cula)/i;
+/** Formularios comerciales: presupuestos, demostraciones o clientes profesionales. */
+const RE_COMERCIAL = /(presupuesto|solicitar (una )?demo|request a demo|book a demo|tipo de proyecto|producto a envasar|nombre de(l)? establecimiento|\bpax\b|n[º°o] de personas)/i;
 const RE_BOLETIN = /(newsletter|bolet[ií]n|suscri|subscribe)/i;
 
 export function esFormularioValido(f: FormularioEncontrado): { valido: boolean; motivo: string } {
@@ -50,6 +52,7 @@ export function esFormularioValido(f: FormularioEncontrado): { valido: boolean; 
   if (f.campos.some((c) => ['comment', 'wp-comment-cookies-consent', 'author'].includes(c.nombre) || RE_COMENTARIOS.test(c.etiqueta)))
     return { valido: false, motivo: 'es el formulario de comentarios de una entrada del blog' };
   if (visibles.some((c) => RE_ATENCION_CLIENTE.test(texto(c)))) return { valido: false, motivo: 'es un formulario de atención al cliente o de pedidos' };
+  if (visibles.some((c) => RE_COMERCIAL.test(texto(c)))) return { valido: false, motivo: 'es un formulario comercial (presupuestos, demostraciones o clientes)' };
   if (visibles.length > 0 && visibles.every((c) => c.tipo === 'search' || RE_BUSCADOR.test(c.nombre) || RE_BUSCADOR.test(c.etiqueta))) return { valido: false, motivo: 'es un buscador' };
   const email = visibles.some((c) => c.tipo === 'email' || RE_EMAIL.test(texto(c)));
   const mensaje = visibles.some((c) => c.tipo === 'textarea' || c.tipo === 'file' || (c.tipo === 'text' && RE_MENSAJE.test(texto(c))));
