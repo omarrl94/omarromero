@@ -188,6 +188,10 @@ export async function verificar(c: Candidata, retiradas: Retirada[], deps: Depen
   }
 
   // 2 bis. Presencia en Madrid: alguna página revisada menciona Madrid, un municipio de la región o un CP 28xxx.
+  // Si no aparece, se mira el aviso legal (ahí está el domicilio social), también en tiendas Shopify (/pages/…).
+  if (!paginas.some((p) => mencionaMadrid(p.html, MUNICIPIOS))) {
+    await revisar(['/aviso-legal', '/aviso-legal/', '/legal', '/pages/aviso-legal', '/pages/legal', '/es/aviso-legal', '/politica-de-privacidad', '/pages/contacto', '/contacto', '/contact'].map((r) => origen + r), 6);
+  }
   if (!paginas.some((p) => mencionaMadrid(p.html, MUNICIPIOS))) {
     r.motivo = 'Su web no menciona ninguna sede ni oficina en la Comunidad de Madrid';
     return { r };
@@ -487,7 +491,10 @@ async function main() {
 
   console.log(`Verificando ${lista.length} candidatas…`);
   const salida = await enSerie(lista, Number(args.concurrencia ?? 4), async (c, i) => {
-    const res = await conLimite(verificar(c, retiradas, deps, extra), 240_000, () => ({
+    const fallo = (e: unknown): { r: ResultadoVerificacion; empresa?: Empresa } => ({
+      r: { id: c.id, nombre: c.nombre, web: c.web, estado: 'descartada' as const, motivo: `Error al verificar (${(e as Error).message?.slice(0, 80)}); se reintentará en la próxima`, paginasRevisadas: [], correosEncontrados: [] },
+    });
+    const res = await conLimite<{ r: ResultadoVerificacion; empresa?: Empresa }>(verificar(c, retiradas, deps, extra).catch(fallo), 240_000, () => ({
       r: { id: c.id, nombre: c.nombre, web: c.web, estado: 'descartada' as const, motivo: 'La verificación superó 4 minutos (web muy lenta); se reintentará en la próxima', paginasRevisadas: [], correosEncontrados: [] },
     }));
     console.log(`${String(i + 1).padStart(3)}/${lista.length} ${res.r.estado === 'valida' ? '✔' : '✖'} ${c.nombre}${res.r.motivo ? ` — ${res.r.motivo}` : ` — ${res.r.contacto}`}`);

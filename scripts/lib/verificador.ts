@@ -211,7 +211,14 @@ function segmentos(pathname: string): string[] {
   return pathname
     .split('/')
     .filter(Boolean)
-    .map((s) => decodeURIComponent(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/_/g, '-').replace(/\.(html?|php|aspx?)$/, ''));
+    .map((s) => {
+      try {
+        return decodeURIComponent(s);
+      } catch {
+        return s;
+      }
+    })
+    .map((s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/_/g, '-').replace(/\.(html?|php|aspx?)$/, ''));
 }
 
 /** Tipo de página según su URL: el mismo correo vale más en la página de empleo que en el aviso legal. */
