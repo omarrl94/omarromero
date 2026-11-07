@@ -9039,5 +9039,43 @@
       "https://www.pasteleriamallorca.com"
     ],
     "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "ietres",
+    "nombre": "ietres informática",
+    "web": "https://www.ietres.com",
+    "sector": "Servicios informáticos",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-sistemas",
+      "asir-soporte",
+      "dam-web"
+    ],
+    "motivoEncaje": "Empresa de servicios informáticos que publica un buzón de RR. HH. en su página de empleo.",
+    "paginasContacto": [
+      "https://www.ietres.com",
+      "https://www.ietres.com/empleo/"
+    ],
+    "tipoContactoEsperado": "rrhh",
+    "empleoUrl": "https://www.ietres.com/empleo/"
+  },
+  {
+    "id": "shana",
+    "nombre": "Shana",
+    "web": "https://www.shana.com",
+    "sector": "Moda (cadena de tiendas)",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-visual",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Cadena de moda con tiendas en Madrid.",
+    "paginasContacto": [
+      "https://www.shana.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
   }
 ]
