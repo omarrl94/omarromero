@@ -8369,5 +8369,236 @@
       "https://www.mrdrebin.com"
     ],
     "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "atsistemas",
+    "nombre": "atSistemas",
+    "web": "https://www.atsistemas.com",
+    "sector": "Consultoría tecnológica y desarrollo de software",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-datos-ia",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Consultora tecnológica con oficina en Madrid.",
+    "paginasContacto": [
+      "https://www.atsistemas.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "deimos-space",
+    "nombre": "Deimos Space",
+    "web": "https://www.deimos-space.com",
+    "sector": "Ingeniería y software espacial",
+    "tamano": "gran-empresa",
+    "zona": "norte",
+    "perfiles": [
+      "dam-backend",
+      "dam-escritorio",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Empresa de ingeniería y software espacial con sede en Tres Cantos.",
+    "paginasContacto": [
+      "https://www.deimos-space.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "minsait",
+    "nombre": "Minsait",
+    "web": "https://www.minsait.com",
+    "sector": "Consultoría y tecnología (Indra Group)",
+    "tamano": "gran-empresa",
+    "zona": "norte",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-erp",
+      "asir-ciberseguridad",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Filial tecnológica de Indra con sede en Alcobendas.",
+    "paginasContacto": [
+      "https://www.minsait.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "softtek-espana",
+    "nombre": "Softtek",
+    "web": "https://www.softtek.com",
+    "sector": "Servicios TI y desarrollo de software",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "asir-soporte"
+    ],
+    "motivoEncaje": "Servicios TI con oficina en Madrid.",
+    "paginasContacto": [
+      "https://www.softtek.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "multiopticas",
+    "nombre": "Multiópticas",
+    "web": "https://www.multiopticas.com",
+    "sector": "Ópticas: venta y atención al cliente",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-atencion-cliente",
+      "acom-visual"
+    ],
+    "motivoEncaje": "Grupo de ópticas con sede en la Comunidad de Madrid.",
+    "paginasContacto": [
+      "https://www.multiopticas.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "la-casa-de-las-carcasas",
+    "nombre": "La Casa de las Carcasas",
+    "web": "https://www.lacasadelascarcasas.es",
+    "sector": "Comercio de accesorios de telefonía",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-visual",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Cadena de tiendas de accesorios de telefonía con sede en la Comunidad de Madrid.",
+    "paginasContacto": [
+      "https://www.lacasadelascarcasas.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "muebles-boom",
+    "nombre": "Muebles Boom",
+    "web": "https://www.mueblesboom.com",
+    "sector": "Comercio de mobiliario",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-visual",
+      "acom-logistica"
+    ],
+    "motivoEncaje": "Cadena madrileña de tiendas de muebles.",
+    "paginasContacto": [
+      "https://www.mueblesboom.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "merkamueble",
+    "nombre": "Merkamueble",
+    "web": "https://www.merkamueble.com",
+    "sector": "Comercio de mobiliario",
+    "tamano": "gran-empresa",
+    "zona": "sur",
+    "perfiles": [
+      "acom-venta",
+      "acom-visual",
+      "acom-logistica",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Cadena de tiendas de muebles con sede en Pinto.",
+    "paginasContacto": [
+      "https://www.merkamueble.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "moldtrans",
+    "nombre": "Moldtrans",
+    "web": "https://www.moldtrans.com",
+    "sector": "Transporte y logística",
+    "tamano": "gran-empresa",
+    "zona": "este",
+    "perfiles": [
+      "acom-logistica",
+      "acom-atencion-cliente"
+    ],
+    "motivoEncaje": "Operador de transporte y logística con plataformas en Madrid.",
+    "paginasContacto": [
+      "https://www.moldtrans.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "sunmedia",
+    "nombre": "SunMedia",
+    "web": "https://www.sunmedia.tv",
+    "sector": "Publicidad digital en vídeo",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "dam-web"
+    ],
+    "motivoEncaje": "Empresa madrileña de publicidad digital.",
+    "paginasContacto": [
+      "https://www.sunmedia.tv"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "herraiz-soto",
+    "nombre": "Herraiz Soto & Co",
+    "web": "https://www.herraizsoto.com",
+    "sector": "Agencia de comunicación y marketing",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Agencia de comunicación con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.herraizsoto.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "wanaleads",
+    "nombre": "Wanaleads",
+    "web": "https://www.wanaleads.com",
+    "sector": "Agencia de marketing digital (inbound)",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Agencia madrileña de inbound marketing.",
+    "paginasContacto": [
+      "https://www.wanaleads.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "social-mood",
+    "nombre": "Social Mood",
+    "web": "https://www.socialmood.com",
+    "sector": "Agencia de marketing digital y redes sociales",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Agencia de redes sociales con oficina en Madrid.",
+    "paginasContacto": [
+      "https://www.socialmood.com"
+    ],
+    "tipoContactoEsperado": "general"
   }
 ]
