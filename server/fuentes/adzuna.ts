@@ -27,6 +27,10 @@ export const CATEGORIAS_ADZUNA = [
   { categoria: 'pr-advertising-marketing-jobs', paginas: 1, obligatoria: false },
   { categoria: 'customer-services-jobs', paginas: 1, obligatoria: false },
   { categoria: 'logistics-warehouse-jobs', paginas: 1, obligatoria: false },
+  // Sector eléctrico (SEA)
+  { categoria: 'engineering-jobs', paginas: 1, obligatoria: false },
+  { categoria: 'maintenance-jobs', paginas: 1, obligatoria: false },
+  { categoria: 'trade-construction-jobs', paginas: 1, obligatoria: false },
 ];
 
 export function urlAdzuna(pagina: number, appId: string, appKey: string, categoria = 'it-jobs'): string {

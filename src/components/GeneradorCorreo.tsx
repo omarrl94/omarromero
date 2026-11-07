@@ -19,6 +19,7 @@ export function GeneradorCorreo({ empresa, alumno }: { empresa: Empresa; alumno:
       ? generarBorrador(empresa, {
           nombre: alumno.nombre.trim(),
           ciclo: alumno.ciclo,
+          curso: alumno.curso ?? null,
           perfiles: alumno.perfiles,
           modalidad: alumno.modalidad,
           github: enlaceUsuario(alumno.github),

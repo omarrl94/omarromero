@@ -16,7 +16,7 @@ export function Portada() {
         <div aria-hidden="true" className="pointer-events-none absolute -right-10 -top-10 size-48 rounded-full bg-terracota sm:size-72" />
         <div aria-hidden="true" className="pointer-events-none absolute -bottom-16 right-24 size-40 rounded-full bg-salvia sm:size-56" />
         <div className="relative max-w-2xl">
-          <p className="chip mb-4 border-tinta bg-papel">{config.ciclos.map((c) => `2.º ${c.corto}`).join(' · ')} · Curso {config.curso}</p>
+          <p className="chip mb-4 border-tinta bg-papel">{config.ciclos.map((c) => `${(c.cursosFFE ?? [2]).map((n) => `${n}.º`).join(' y ')} ${c.corto}`).join(' · ')} · Curso {config.curso}</p>
           <h1 className="text-4xl leading-[1.05] font-extrabold sm:text-6xl">Tu plaza de Formación en Empresa empieza aquí.</h1>
           <p className="mt-4 max-w-xl text-lg">
             Empresas de Madrid revisadas una a una, un correo de presentación listo para editar y ofertas de prácticas y primer empleo de tu perfil.

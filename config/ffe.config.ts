@@ -6,7 +6,7 @@
  * así que aquí NO puede haber secretos ni correos de empresas.
  */
 
-export type Ciclo = 'DAM' | 'ASIR' | 'ACOM';
+export type Ciclo = 'DAM' | 'ASIR' | 'ACOM' | 'SEA';
 export type ModalidadId = 'A' | 'B';
 
 export interface Modalidad {
@@ -30,6 +30,8 @@ export interface InfoCiclo {
   enCorreo: string;
   /** Clase de color de la marca (Tailwind) para el selector. */
   color: string;
+  /** Cursos con Formación en Empresa (por defecto, solo 2.º). */
+  cursosFFE?: readonly (1 | 2)[];
 }
 
 export interface Tutor {
@@ -86,6 +88,7 @@ export const config = {
   ciclos: [
     { id: 'DAM', corto: 'DAM', nombre: 'Desarrollo de Aplicaciones Multiplataforma', grado: 'superior', familia: 'Informática y Comunicaciones', enCorreo: 'Desarrollo de Aplicaciones Multiplataforma (DAM)', color: 'bg-salvia' },
     { id: 'ASIR', corto: 'ASIR', nombre: 'Administración de Sistemas Informáticos en Red', grado: 'superior', familia: 'Informática y Comunicaciones', enCorreo: 'Administración de Sistemas Informáticos en Red (ASIR)', color: 'bg-terracota' },
+    { id: 'SEA', corto: 'SEA', nombre: 'Sistemas Electrotécnicos y Automatizados', grado: 'superior', familia: 'Electricidad y Electrónica', enCorreo: 'Sistemas Electrotécnicos y Automatizados (SEA)', color: 'bg-salvia-claro', cursosFFE: [1, 2] },
     { id: 'ACOM', corto: 'Actividades Comerciales', nombre: 'Técnico en Actividades Comerciales', grado: 'medio', familia: 'Comercio y Marketing', enCorreo: 'Actividades Comerciales (ciclo de grado medio de Comercio y Marketing)', color: 'bg-amarillo' },
   ] satisfies InfoCiclo[],
 
@@ -103,15 +106,25 @@ export const config = {
      * (Decreto 102/2024). Pon aquí las horas del periodo en el que se usa la aplicación.
      */
     ACOM: 500,
+    /** SEA hace FFE en 1.º y 2.º: total del ciclo; las horas de cada curso, en `horasPorCurso`. */
+    SEA: 500,
   } satisfies Record<Ciclo, number>,
+  /**
+   * Horas de FFE de cada curso cuando el ciclo la hace en 1.º y 2.º. `null` = pendiente: el correo no
+   * indica el total de horas hasta que se confirme.
+   */
+  horasPorCurso: {
+    SEA: { 1: null, 2: null },
+  } as Partial<Record<Ciclo, Record<1 | 2, number | null>>>,
   /** Marca para mostrar «pendiente de confirmar» junto a las horas. */
-  horasPendientesDeConfirmar: { DAM: false, ASIR: true, ACOM: true } satisfies Record<Ciclo, boolean>,
+  horasPendientesDeConfirmar: { DAM: false, ASIR: true, ACOM: true, SEA: true } satisfies Record<Ciclo, boolean>,
 
   /** Tutor de FFE de cada ciclo. `null` = pendiente: el correo se genera sin copia y se avisa. */
   tutores: {
     DAM: { nombre: 'Omar Romero', email: 'omar.romero@jrotero.es' },
     ASIR: null,
     ACOM: null,
+    SEA: null,
   } satisfies Record<Ciclo, Tutor | null>,
 
   /** Máximo orientativo de contactos (correos) a la misma empresa desde el mismo dispositivo. */
@@ -155,6 +168,26 @@ export const config = {
           'Mantener a punto los equipos y el software de la empresa.',
         ],
         ia: 'En ASIR se apoyan en ella para analizar registros, investigar incidentes de seguridad, diagnosticar problemas y reforzar la protección de los sistemas.',
+      },
+      // Basado en los resultados de aprendizaje del Real Decreto 1127/2010 (actualizado por el RD 401/2023) y en el
+      // plan del centro (docs/CICLO-SISTEMAS-ELECTROTECNICOS.md).
+      SEA: {
+        titulo: 'SISTEMAS ELECTROTÉCNICOS Y AUTOMATIZADOS (SEA)',
+        intro:
+          'Nuestro alumnado de SEA llegará a las prácticas preparado para montar, mantener y supervisar instalaciones eléctricas, domóticas, automáticas y de telecomunicaciones, con una formación muy práctica en taller. Somos centro oficial de formación del sistema domótico KNX y el alumnado obtiene las certificaciones KNX Basic y KNX Advanced. Podrá colaborar en tareas como:',
+        tareas: [
+          'Montaje y mantenimiento de instalaciones eléctricas de baja tensión en viviendas, locales e industria, conforme al REBT.',
+          'Diagnóstico y reparación de averías eléctricas, y mantenimiento preventivo y predictivo de instalaciones.',
+          'Instalación, programación y puesta en marcha de sistemas domóticos e inmóticos (KNX).',
+          'Automatización industrial: montaje de cuadros, programación de autómatas (PLC) y puesta en servicio.',
+          'Infraestructuras comunes de telecomunicaciones (ICT): antenas, fibra óptica y cableado, con medidas y ajustes.',
+          'Instalaciones solares fotovoltaicas y de autoconsumo.',
+          'Redes de distribución en baja tensión, alumbrado exterior y apoyo en centros de transformación.',
+          'Oficina técnica: planos y esquemas con CAD, cálculos, presupuestos y documentación de proyectos.',
+          'Planificación y supervisión del montaje, aprovisionamiento de materiales y documentación de la puesta en servicio.',
+          'Trabajo seguro: prevención de riesgos laborales y gestión de residuos.',
+        ],
+        ia: 'En SEA la utilizan para apoyar los cálculos y la documentación técnica, preparar presupuestos, consultar la normativa y programar y depurar automatismos.',
       },
       // Basado en los resultados de aprendizaje del Real Decreto 1688/2011 y el plan de Madrid (docs/CICLO-ACTIVIDADES-COMERCIALES.md).
       ACOM: {
@@ -204,6 +237,11 @@ export const config = {
           'Llegaré a las prácticas preparado/a para proteger, administrar y mantener en marcha la infraestructura tecnológica de una empresa, con los certificados CCNA, AWS Foundation y Cisco CyberOps y una sólida formación en ciberseguridad. Podré colaborar en objetivos como:',
         ia: 'Me apoyo en ella para analizar registros, investigar incidentes de seguridad, diagnosticar problemas y reforzar la protección de los sistemas.',
       },
+      SEA: {
+        intro:
+          'Llegaré a las prácticas preparado/a para montar, mantener y supervisar instalaciones eléctricas, domóticas, automáticas y de telecomunicaciones, con una formación muy práctica en taller y las certificaciones KNX Basic y KNX Advanced. Puedo colaborar en tareas como:',
+        ia: 'La utilizo para apoyar los cálculos y la documentación técnica, preparar presupuestos, consultar la normativa y programar y depurar automatismos.',
+      },
       ACOM: {
         intro:
           'Llegaré a las prácticas preparado/a para vender, atender al cliente y dinamizar un comercio, tanto en tienda física como en el canal online. Mi formación abarca todo el ciclo comercial, desde la compra, el almacén y la venta hasta el marketing y el comercio electrónico, e incluye inglés profesional y digitalización aplicada. Puedo colaborar en tareas como:',
@@ -248,6 +286,15 @@ export const config = {
     { id: 'asir-cloud', ciclo: 'ASIR', nombre: 'Cloud y AWS', descripcion: 'AWS, Azure, DevOps, contenedores e infraestructura como código.', palabrasClave: ['cloud', 'aws', 'azure', 'gcp', 'devops', 'docker', 'kubernetes', 'terraform', 'nube'], busqueda: 'cloud AWS devops junior' },
     { id: 'asir-soporte', ciclo: 'ASIR', nombre: 'Soporte técnico', descripcion: 'Helpdesk, atención a usuarios, ITSM.', palabrasClave: ['soporte', 'helpdesk', 'help desk', 'service desk', 'microinformatica', 'atencion al usuario', 'tecnico it', 'itil', 'cau'], busqueda: 'soporte técnico informático junior' },
     { id: 'asir-datos-ia-seguridad', ciclo: 'ASIR', nombre: 'Datos e IA aplicada a la seguridad', descripcion: 'Automatización, scripting, detección con datos e IA.', palabrasClave: ['python', 'automatizacion', 'scripting', 'detection', 'deteccion', 'ia', 'ai', 'machine learning', 'threat', 'datos'], busqueda: 'python ciberseguridad automatización junior' },
+    // SEA (grado superior): un perfil por área de los módulos del título
+    { id: 'sea-instalaciones', ciclo: 'SEA', nombre: 'Instalaciones eléctricas', descripcion: 'Montaje y mantenimiento en baja tensión según el REBT (Técnicas y procesos en instalaciones eléctricas).', palabrasClave: ['electricista', 'instalaciones electricas', 'instalador electrico', 'baja tension', 'rebt', 'cuadros electricos', 'montaje electrico', 'oficial electricista', 'tecnico electricista'], busqueda: 'técnico electricista prácticas' },
+    { id: 'sea-domotica', ciclo: 'SEA', nombre: 'Domótica e inmótica (KNX)', descripcion: 'Sistemas domóticos e inmóticos y control de edificios (KNX).', palabrasClave: ['domotica', 'inmotica', 'knx', 'smart home', 'hogar digital', 'control de edificios', 'bms', 'automatizacion de edificios'], busqueda: 'técnico domótica KNX' },
+    { id: 'sea-automatizacion', ciclo: 'SEA', nombre: 'Automatización industrial y PLC', descripcion: 'Autómatas programables, cuadros de control y puesta en marcha.', palabrasClave: ['automatizacion', 'automatismos', 'plc', 'automata', 'automatas', 'scada', 'tia portal', 'programador plc', 'puesta en marcha'], busqueda: 'técnico automatización PLC prácticas' },
+    { id: 'sea-telecomunicaciones', ciclo: 'SEA', nombre: 'Telecomunicaciones e ICT', descripcion: 'Antenas, fibra óptica y cableado (Infraestructuras comunes de telecomunicaciones).', palabrasClave: ['ict', 'infraestructuras comunes de telecomunicaciones', 'antenas', 'antenista', 'fibra optica', 'ftth', 'instalador de telecomunicaciones', 'cableado estructurado', 'fusionador'], busqueda: 'instalador telecomunicaciones fibra óptica' },
+    { id: 'sea-fotovoltaica', ciclo: 'SEA', nombre: 'Fotovoltaica y autoconsumo', descripcion: 'Instalaciones solares fotovoltaicas, autoconsumo y puntos de recarga.', palabrasClave: ['fotovoltaica', 'fotovoltaico', 'autoconsumo', 'placas solares', 'energia solar', 'renovables', 'instalador fotovoltaico', 'puntos de recarga', 'vehiculo electrico'], busqueda: 'instalador fotovoltaica prácticas' },
+    { id: 'sea-redes-ct', ciclo: 'SEA', nombre: 'Redes eléctricas y centros de transformación', descripcion: 'Redes de distribución, media tensión, alumbrado exterior y CT.', palabrasClave: ['centros de transformacion', 'centro de transformacion', 'media tension', 'alta tension', 'redes de distribucion', 'subestaciones', 'alumbrado publico', 'alumbrado exterior', 'lineas electricas'], busqueda: 'técnico media tensión centros de transformación' },
+    { id: 'sea-oficina-tecnica', ciclo: 'SEA', nombre: 'Oficina técnica y proyectos', descripcion: 'Planos y esquemas con CAD, cálculos y presupuestos (Documentación técnica y Configuración).', palabrasClave: ['oficina tecnica', 'proyectista', 'delineante', 'autocad', 'dialux', 'presupuestos electricos', 'ingenieria electrica', 'esquemas electricos'], busqueda: 'delineante proyectista eléctrico junior' },
+    { id: 'sea-mantenimiento', ciclo: 'SEA', nombre: 'Mantenimiento de instalaciones y edificios', descripcion: 'Mantenimiento eléctrico de edificios, industria e infraestructuras.', palabrasClave: ['tecnico de mantenimiento', 'mantenimiento electrico', 'mantenimiento de edificios', 'mantenimiento industrial', 'mantenimiento preventivo', 'facility', 'ascensores'], busqueda: 'técnico de mantenimiento eléctrico prácticas' },
     // Actividades Comerciales (grado medio): un perfil por área de los módulos del título
     { id: 'acom-venta', ciclo: 'ACOM', nombre: 'Venta y atención en tienda', descripcion: 'Dependiente/a, asesor/a de ventas, caja y TPV (Procesos de venta).', palabrasClave: ['dependiente', 'dependienta', 'vendedor', 'vendedora', 'asesor de ventas', 'asesora de ventas', 'ayudante de tienda', 'auxiliar de tienda', 'cajero', 'cajera', 'retail', 'tienda', 'store'], busqueda: 'dependiente prácticas' },
     { id: 'acom-venta-tecnica', ciclo: 'ACOM', nombre: 'Venta técnica y comercial', descripcion: 'Comercial, telemarketing, productos tecnológicos, alta gama e inmobiliaria (Venta técnica).', palabrasClave: ['comercial', 'agente comercial', 'gestor comercial', 'ventas', 'televenta', 'telemarketing', 'inmobiliaria', 'asesor inmobiliario', 'captacion', 'key account', 'b2b'], busqueda: 'comercial junior prácticas' },

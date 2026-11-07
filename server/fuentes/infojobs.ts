@@ -24,6 +24,8 @@ interface RespuestaInfojobs {
 export const TERMINOS_INFOJOBS = ['prácticas', 'becario', 'junior'];
 /** Categorías del sector comercial (Actividades Comerciales): una llamada de «prácticas» por categoría. */
 export const CATEGORIAS_COMERCIO_INFOJOBS = ['comercial-ventas', 'venta-al-detalle', 'marketing-comunicacion', 'atencion-a-clientes', 'compras-logistica-almacen'];
+/** Categorías del sector eléctrico (SEA). */
+export const CATEGORIAS_ELECTRICIDAD_INFOJOBS = ['ingenieros-y-tecnicos', 'profesiones-artes-y-oficios'];
 
 export function urlInfojobs(q: string, categoria = 'informatica-telecomunicaciones'): string {
   const p = new URLSearchParams({
@@ -47,6 +49,7 @@ export const infojobs: Fuente = {
     const consultas = [
       ...TERMINOS_INFOJOBS.map((q) => ({ q, categoria: 'informatica-telecomunicaciones', obligatoria: true })),
       ...CATEGORIAS_COMERCIO_INFOJOBS.map((categoria) => ({ q: 'prácticas', categoria, obligatoria: false })),
+      ...CATEGORIAS_ELECTRICIDAD_INFOJOBS.map((categoria) => ({ q: 'prácticas', categoria, obligatoria: false })),
     ];
     for (const { q, categoria, obligatoria } of consultas) {
       let r: RespuestaInfojobs;

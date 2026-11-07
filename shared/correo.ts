@@ -4,6 +4,8 @@ import { cicloPorId, config, modalidadPorId, perfilPorId } from '../config/ffe.c
 export interface DatosAlumno {
   nombre: string;
   ciclo: Ciclo;
+  /** Curso del alumno (solo cambia en ciclos con FFE en 1.º y 2.º, como SEA). Por defecto, 2.º. */
+  curso?: 1 | 2 | null;
   perfiles: string[];
   modalidad: ModalidadId;
   github?: string;
@@ -33,6 +35,25 @@ export const NOMBRE_CICLO = Object.fromEntries(config.ciclos.map((c) => [c.id, c
 
 /** Nombre corto del ciclo para asuntos y firmas («2.º DAM», «2.º Actividades Comerciales»). */
 export const cortoCiclo = (ciclo: Ciclo) => cicloPorId(ciclo).corto;
+
+/** Cursos con FFE del ciclo (2.º, salvo ciclos como SEA, que la hacen en 1.º y 2.º). */
+export const cursosFFE = (ciclo: Ciclo): readonly (1 | 2)[] => cicloPorId(ciclo).cursosFFE ?? [2];
+
+/** Curso efectivo del alumno: el que ha elegido si su ciclo tiene FFE en ese curso; si no, el último. */
+export function cursoDe(ciclo: Ciclo, curso?: 1 | 2 | null): 1 | 2 {
+  const cursos = cursosFFE(ciclo);
+  return curso && cursos.includes(curso) ? curso : cursos[cursos.length - 1];
+}
+
+/** Horas de FFE del curso (o del ciclo). `null` si están pendientes de confirmar. */
+export function horasFFE(ciclo: Ciclo, curso?: 1 | 2 | null): number | null {
+  const porCurso = config.horasPorCurso[ciclo];
+  if (porCurso) return porCurso[cursoDe(ciclo, curso)];
+  return config.horas[ciclo];
+}
+
+/** «2.º», o «1.º y 2.º» para los correos de tutores de ciclos con FFE en los dos cursos. */
+export const textoCursos = (ciclo: Ciclo) => cursosFFE(ciclo).map((c) => `${c}.º`).join(' y ');
 
 /** Cierre del apartado de IA: el del ciclo si lo tiene, si no el común. */
 export function cierreIa(bloque: object, comun: string): string {
@@ -66,15 +87,16 @@ function saludo(tipoContacto: string): string {
 /** Genera el borrador de correo. Es un punto de partida: el alumno lo revisa y edita siempre. */
 export function generarBorrador(empresa: EmpresaCorreo, alumno: DatosAlumno): Borrador {
   const modalidad = modalidadPorId(alumno.modalidad);
-  const horas = config.horas[alumno.ciclo];
+  const curso = cursoDe(alumno.ciclo, alumno.curso);
+  const horas = horasFFE(alumno.ciclo, alumno.curso);
   const tutor = config.tutores[alumno.ciclo];
   const perfilesAlumno = alumno.perfiles.map((p) => perfilPorId(p)?.nombre.toLowerCase()).filter(Boolean) as string[];
   const comunes = alumno.perfiles.filter((p) => empresa.perfiles.includes(p)).map((p) => perfilPorId(p)?.nombre.toLowerCase()).filter(Boolean) as string[];
   const intereses = comunes.length ? comunes : perfilesAlumno;
 
   const asunto = empresa.programaPracticas
-    ? `Candidatura a ${empresa.programaPracticas.titulo} · Alumno/a de 2.º ${cortoCiclo(alumno.ciclo)}`
-    : `Candidatura espontánea para Formación en Empresa (FFE) · 2.º ${cortoCiclo(alumno.ciclo)}`;
+    ? `Candidatura a ${empresa.programaPracticas.titulo} · Alumno/a de ${curso}.º ${cortoCiclo(alumno.ciclo)}`
+    : `Candidatura espontánea para Formación en Empresa (FFE) · ${curso}.º ${cortoCiclo(alumno.ciclo)}`;
 
   const enlaces = [
     alumno.github && `GitHub: ${alumno.github}`,
@@ -89,7 +111,7 @@ export function generarBorrador(empresa: EmpresaCorreo, alumno: DatosAlumno): Bo
   const lineas = [
     saludo(empresa.contacto.tipoContacto),
     '',
-    `Me llamo ${alumno.nombre || '[tu nombre]'} y estoy cursando 2.º de ${NOMBRE_CICLO[alumno.ciclo]} en el ${config.centro.nombre} (${config.centro.ciudad}).`,
+    `Me llamo ${alumno.nombre || '[tu nombre]'} y estoy cursando ${curso}.º de ${NOMBRE_CICLO[alumno.ciclo]} en el ${config.centro.nombre} (${config.centro.ciudad}).`,
     '',
     empresa.programaPracticas
       ? `He visto que ${empresa.nombre} ofrece «${empresa.programaPracticas.titulo}» y me gustaría presentar mi candidatura para realizar con vosotros mi periodo de Formación en Empresa (FFE).`
@@ -111,7 +133,7 @@ export function generarBorrador(empresa: EmpresaCorreo, alumno: DatosAlumno): Bo
     '',
     'Datos del periodo de formación:',
     `- Fechas: del ${fechaLarga(modalidad.inicio)} al ${fechaLarga(modalidad.fin)} (${modalidad.nombre}).`,
-    `- Horario: ${modalidad.horasDia} horas al día, ${horas} horas en total.`,
+    horas ? `- Horario: ${modalidad.horasDia} horas al día, ${horas} horas en total.` : `- Horario: ${modalidad.horasDia} horas al día.`,
     '- Es una formación sin coste para la empresa, con convenio con el centro y seguimiento de un tutor o tutora.',
     '',
     ...(enlaces.length ? ['Puedes ver algunos de mis proyectos aquí:', ...enlaces.map((e) => `- ${e}`), ''] : []),
@@ -123,7 +145,7 @@ export function generarBorrador(empresa: EmpresaCorreo, alumno: DatosAlumno): Bo
     'Un saludo,',
     '',
     alumno.nombre || '[tu nombre]',
-    `2.º ${cortoCiclo(alumno.ciclo)} · ${config.centro.nombre}`,
+    `${curso}.º ${cortoCiclo(alumno.ciclo)} · ${config.centro.nombre}`,
     ...(alumno.telefono ? [`Tel.: ${alumno.telefono}`] : []),
   ];
 

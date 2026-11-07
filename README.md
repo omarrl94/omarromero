@@ -1,6 +1,6 @@
 # Conecta FFE
 
-Aplicación web del **C.F.P. José Ramón Otero** (Madrid) para que el alumnado de 2.º de **DAM**, **ASIR** y **Actividades Comerciales** (grado medio)
+Aplicación web del **C.F.P. José Ramón Otero** (Madrid) para que el alumnado de **DAM**, **ASIR**, **SEA** (Sistemas Electrotécnicos y Automatizados, FFE en 1.º y 2.º) y **Actividades Comerciales** (grado medio)
 consiga plaza de **Formación en Empresa (FFE)** y encuentre ofertas de su perfil.
 
 - **Empresas para FFE:** directorio de empresas de Madrid **verificadas** (fuente y fecha), con buscador, filtros, orden por encaje, generador de correo editable (Outlook web, Gmail, app de correo o copiar), tutor en copia, aviso de CV y seguimiento local.
@@ -61,7 +61,7 @@ Todas se explican paso a paso en [docs/DESPLIEGUE.md](docs/DESPLIEGUE.md) (plant
 
 ## Configuración editable
 
-Todo lo que cambia de un curso a otro está en **[config/ffe.config.ts](config/ffe.config.ts)**: ciclos (DAM, ASIR y Actividades Comerciales), modalidades y fechas, horas por ciclo, tutores, perfiles, zonas, máximo de contactos por empresa, días de vigencia de las ofertas, enlaces profundos (con su marca `probado`) y límites de acceso.
+Todo lo que cambia de un curso a otro está en **[config/ffe.config.ts](config/ffe.config.ts)**: ciclos (DAM, ASIR, SEA y Actividades Comerciales), modalidades y fechas, horas por ciclo, tutores, perfiles, zonas, máximo de contactos por empresa, días de vigencia de las ofertas, enlaces profundos (con su marca `probado`) y límites de acceso.
 
 ## Despliegue en Netlify
 
@@ -96,6 +96,7 @@ tests/unit · tests/e2e    Vitest · Playwright
 ## Documentación
 
 - [docs/PENDIENTES.md](docs/PENDIENTES.md): qué falta y qué tienes que hacer tú
+- [docs/CICLO-SISTEMAS-ELECTROTECNICOS.md](docs/CICLO-SISTEMAS-ELECTROTECNICOS.md): objetivos generales y resultados de aprendizaje de SEA (base de sus perfiles y correos)
 - [docs/CICLO-ACTIVIDADES-COMERCIALES.md](docs/CICLO-ACTIVIDADES-COMERCIALES.md): objetivos generales y resultados de aprendizaje de cada módulo de Actividades Comerciales (base de sus perfiles y correos)
 - [docs/INVESTIGACION-FUENTES.md](docs/INVESTIGACION-FUENTES.md): informe de investigación y fuentes
 - [docs/GUIA-EMPRESAS.md](docs/GUIA-EMPRESAS.md): cómo añadir, revisar y retirar empresas

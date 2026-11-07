@@ -602,7 +602,8 @@
     "zona": "madrid",
     "perfiles": [
       "asir-redes",
-      "asir-sistemas"
+      "asir-sistemas",
+      "sea-telecomunicaciones"
     ],
     "motivoEncaje": "Operador neutro de fibra con sede en Madrid: perfil de redes.",
     "paginasContacto": [
@@ -2859,7 +2860,8 @@
       "asir-ciberseguridad",
       "asir-cloud",
       "dam-backend",
-      "dam-datos-ia"
+      "dam-datos-ia",
+      "sea-telecomunicaciones"
     ],
     "motivoEncaje": "Gran empleador TIC en Distrito Telefónica (Las Tablas).",
     "paginasContacto": [
@@ -2898,7 +2900,8 @@
       "asir-soporte",
       "asir-sistemas",
       "acom-venta-tecnica",
-      "acom-atencion-cliente"
+      "acom-atencion-cliente",
+      "sea-telecomunicaciones"
     ],
     "motivoEncaje": "Operador con fuerte despliegue de red en Madrid.",
     "paginasContacto": [
@@ -2916,7 +2919,10 @@
     "perfiles": [
       "asir-sistemas",
       "asir-redes",
-      "asir-ciberseguridad"
+      "asir-ciberseguridad",
+      "sea-redes-ct",
+      "sea-mantenimiento",
+      "sea-oficina-tecnica"
     ],
     "motivoEncaje": "Grupo de Red Eléctrica con sede en Alcobendas y áreas TIC.",
     "paginasContacto": [
@@ -2971,7 +2977,10 @@
     "perfiles": [
       "dam-datos-ia",
       "asir-sistemas",
-      "asir-cloud"
+      "asir-cloud",
+      "sea-instalaciones",
+      "sea-mantenimiento",
+      "sea-oficina-tecnica"
     ],
     "motivoEncaje": "Grupo con sede en Madrid y área digital.",
     "paginasContacto": [
@@ -3282,7 +3291,8 @@
     "zona": "madrid",
     "perfiles": [
       "asir-redes",
-      "asir-sistemas"
+      "asir-sistemas",
+      "sea-telecomunicaciones"
     ],
     "motivoEncaje": "Operador de fibra con sede en Madrid.",
     "paginasContacto": [
@@ -3374,7 +3384,10 @@
     "perfiles": [
       "asir-sistemas",
       "asir-redes",
-      "asir-ciberseguridad"
+      "asir-ciberseguridad",
+      "sea-mantenimiento",
+      "sea-instalaciones",
+      "sea-automatizacion"
     ],
     "motivoEncaje": "Gestor aeroportuario con sede en Madrid y área TIC.",
     "paginasContacto": [
@@ -3392,7 +3405,10 @@
     "perfiles": [
       "asir-sistemas",
       "asir-redes",
-      "dam-web"
+      "dam-web",
+      "sea-mantenimiento",
+      "sea-instalaciones",
+      "sea-automatizacion"
     ],
     "motivoEncaje": "Empresa pública con sistemas y comunicaciones.",
     "paginasContacto": [
@@ -3410,7 +3426,10 @@
     "perfiles": [
       "asir-sistemas",
       "asir-redes",
-      "dam-datos-ia"
+      "dam-datos-ia",
+      "sea-mantenimiento",
+      "sea-automatizacion",
+      "sea-instalaciones"
     ],
     "motivoEncaje": "Empresa pública madrileña con área de sistemas.",
     "paginasContacto": [
@@ -3428,7 +3447,10 @@
     "perfiles": [
       "asir-sistemas",
       "dam-web",
-      "dam-android"
+      "dam-android",
+      "sea-mantenimiento",
+      "sea-instalaciones",
+      "sea-fotovoltaica"
     ],
     "motivoEncaje": "Empresa municipal con apps y sistemas propios.",
     "paginasContacto": [
@@ -3482,7 +3504,10 @@
     "perfiles": [
       "asir-sistemas",
       "dam-datos-ia",
-      "asir-ciberseguridad"
+      "asir-ciberseguridad",
+      "sea-redes-ct",
+      "sea-mantenimiento",
+      "sea-fotovoltaica"
     ],
     "motivoEncaje": "Energética con sede en Madrid y área digital.",
     "paginasContacto": [
@@ -3500,7 +3525,10 @@
     "perfiles": [
       "asir-sistemas",
       "dam-datos-ia",
-      "asir-ciberseguridad"
+      "asir-ciberseguridad",
+      "sea-redes-ct",
+      "sea-mantenimiento",
+      "sea-fotovoltaica"
     ],
     "motivoEncaje": "Energética con sede en Madrid y área digital.",
     "paginasContacto": [
@@ -3589,7 +3617,10 @@
     "perfiles": [
       "dam-escritorio",
       "dam-videojuegos",
-      "asir-sistemas"
+      "asir-sistemas",
+      "sea-automatizacion",
+      "sea-mantenimiento",
+      "sea-oficina-tecnica"
     ],
     "motivoEncaje": "Simuladores y software con sede en San Sebastián de los Reyes.",
     "paginasContacto": [
@@ -4907,7 +4938,8 @@
     "perfiles": [
       "acom-logistica",
       "acom-gestion-comercio",
-      "acom-marketing-digital"
+      "acom-marketing-digital",
+      "sea-mantenimiento"
     ],
     "motivoEncaje": "Gran mercado mayorista de Madrid: logística, comercio y comunicación.",
     "paginasContacto": [
@@ -5505,7 +5537,8 @@
       "asir-ciberseguridad",
       "asir-sistemas",
       "asir-redes",
-      "dam-backend"
+      "dam-backend",
+      "sea-oficina-tecnica"
     ],
     "motivoEncaje": "Empresa pública de ingeniería y ciberseguridad con sede en Madrid.",
     "paginasContacto": [
@@ -5524,7 +5557,9 @@
       "dam-backend",
       "dam-bbdd",
       "asir-sistemas",
-      "asir-ciberseguridad"
+      "asir-ciberseguridad",
+      "sea-oficina-tecnica",
+      "sea-redes-ct"
     ],
     "motivoEncaje": "Ingeniería pública con sede en Madrid y equipos de sistemas y desarrollo.",
     "paginasContacto": [
@@ -5874,7 +5909,9 @@
     "perfiles": [
       "acom-marketing-digital",
       "acom-atencion-cliente",
-      "acom-venta-tecnica"
+      "acom-venta-tecnica",
+      "sea-mantenimiento",
+      "sea-instalaciones"
     ],
     "motivoEncaje": "Institución ferial de Madrid: comercialización, marketing y atención a expositores.",
     "paginasContacto": [
@@ -6429,7 +6466,8 @@
     "zona": "madrid",
     "perfiles": [
       "dam-web",
-      "dam-datos-ia"
+      "dam-datos-ia",
+      "sea-fotovoltaica"
     ],
     "motivoEncaje": "Software de gestión energética para consumidores (vivero de Puente de Vallecas). Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
     "paginasContacto": [
@@ -6860,7 +6898,8 @@
       "acom-venta-tecnica",
       "acom-ecommerce",
       "acom-logistica",
-      "asir-redes"
+      "asir-redes",
+      "sea-telecomunicaciones"
     ],
     "motivoEncaje": "Comercio madrileño de material de telecomunicaciones y electrónica. Colabora en la Formación en Empresa de Actividades Comerciales del IES Palomeras Vallecas (programación oficial del ciclo, curso 2025-2026).",
     "paginasContacto": [
@@ -6878,7 +6917,8 @@
     "perfiles": [
       "dam-escritorio",
       "dam-backend",
-      "acom-venta-tecnica"
+      "acom-venta-tecnica",
+      "sea-automatizacion"
     ],
     "motivoEncaje": "Empresa tecnológica de la Comunidad de Madrid. Colabora en la Formación en Empresa de Actividades Comerciales del IES Palomeras Vallecas (programación oficial del ciclo, curso 2025-2026).",
     "paginasContacto": [
@@ -8313,7 +8353,9 @@
     "zona": "madrid",
     "perfiles": [
       "acom-venta-tecnica",
-      "acom-logistica"
+      "acom-logistica",
+      "sea-fotovoltaica",
+      "sea-instalaciones"
     ],
     "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de San Blas). Fuente: datos abiertos del Ayuntamiento de Madrid.",
     "paginasContacto": [
@@ -9075,6 +9117,483 @@
     "motivoEncaje": "Cadena de moda con tiendas en Madrid.",
     "paginasContacto": [
       "https://www.shana.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "elecnor",
+    "nombre": "Elecnor",
+    "web": "https://www.elecnor.com",
+    "sector": "Infraestructuras eléctricas, energía y telecomunicaciones",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-instalaciones",
+      "sea-redes-ct",
+      "sea-telecomunicaciones",
+      "sea-fotovoltaica",
+      "sea-mantenimiento"
+    ],
+    "motivoEncaje": "Grupo de infraestructuras eléctricas y de telecomunicaciones con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.elecnor.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "grupo-cobra",
+    "nombre": "Grupo Cobra",
+    "web": "https://www.grupocobra.com",
+    "sector": "Instalaciones eléctricas e infraestructuras energéticas",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-instalaciones",
+      "sea-redes-ct",
+      "sea-mantenimiento",
+      "sea-automatizacion"
+    ],
+    "motivoEncaje": "Grupo de ingeniería e instalaciones con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.grupocobra.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "imesapi",
+    "nombre": "Imesapi",
+    "web": "https://www.imesapi.es",
+    "sector": "Alumbrado público, instalaciones eléctricas y mantenimiento",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-redes-ct",
+      "sea-instalaciones",
+      "sea-mantenimiento"
+    ],
+    "motivoEncaje": "Empresa madrileña de alumbrado público, semáforos e instalaciones eléctricas.",
+    "paginasContacto": [
+      "https://www.imesapi.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "engie-espana",
+    "nombre": "ENGIE España",
+    "web": "https://www.engie.es",
+    "sector": "Energía y servicios de mantenimiento de instalaciones",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-mantenimiento",
+      "sea-fotovoltaica",
+      "sea-instalaciones",
+      "sea-automatizacion"
+    ],
+    "motivoEncaje": "Servicios energéticos y mantenimiento de instalaciones con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.engie.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "clece",
+    "nombre": "Clece",
+    "web": "https://www.clece.es",
+    "sector": "Servicios y mantenimiento integral de edificios",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-mantenimiento",
+      "sea-instalaciones"
+    ],
+    "motivoEncaje": "Mantenimiento de edificios e instalaciones con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.clece.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "eulen",
+    "nombre": "Grupo EULEN",
+    "web": "https://www.eulen.com",
+    "sector": "Facility services y mantenimiento técnico",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-mantenimiento",
+      "sea-instalaciones"
+    ],
+    "motivoEncaje": "Mantenimiento técnico de edificios con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.eulen.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "otis-espana",
+    "nombre": "Otis España",
+    "web": "https://www.otis.com/es/es",
+    "sector": "Ascensores: instalación y mantenimiento",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-mantenimiento",
+      "sea-automatizacion",
+      "sea-instalaciones"
+    ],
+    "motivoEncaje": "Fabricante de ascensores con sede en Madrid; muchos técnicos de mantenimiento eléctrico.",
+    "paginasContacto": [
+      "https://www.otis.com/es/es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "tk-elevator-espana",
+    "nombre": "TK Elevator España",
+    "web": "https://www.tkelevator.com/es-es",
+    "sector": "Ascensores: instalación y mantenimiento",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-mantenimiento",
+      "sea-automatizacion",
+      "sea-instalaciones"
+    ],
+    "motivoEncaje": "Ascensores con sede en Madrid; técnicos de montaje y mantenimiento.",
+    "paginasContacto": [
+      "https://www.tkelevator.com/es-es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "orona",
+    "nombre": "Orona",
+    "web": "https://www.orona-group.com/es-es",
+    "sector": "Ascensores: instalación y mantenimiento",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-mantenimiento",
+      "sea-automatizacion"
+    ],
+    "motivoEncaje": "Ascensores con delegaciones en Madrid.",
+    "paginasContacto": [
+      "https://www.orona-group.com/es-es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "schindler-espana",
+    "nombre": "Schindler España",
+    "web": "https://www.schindler.com/es/es.html",
+    "sector": "Ascensores: instalación y mantenimiento",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-mantenimiento",
+      "sea-automatizacion"
+    ],
+    "motivoEncaje": "Ascensores con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.schindler.com/es/es.html"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "adif",
+    "nombre": "Adif",
+    "web": "https://www.adif.es",
+    "sector": "Infraestructura ferroviaria: electrificación y mantenimiento",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-redes-ct",
+      "sea-mantenimiento",
+      "sea-telecomunicaciones"
+    ],
+    "motivoEncaje": "Administrador de infraestructuras ferroviarias con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.adif.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "ezentis",
+    "nombre": "Ezentis",
+    "web": "https://www.ezentis.com",
+    "sector": "Servicios de telecomunicaciones y electricidad",
+    "tamano": "gran-empresa",
+    "zona": "norte",
+    "perfiles": [
+      "sea-telecomunicaciones",
+      "sea-instalaciones",
+      "sea-mantenimiento"
+    ],
+    "motivoEncaje": "Servicios de despliegue y mantenimiento de redes con sede en Alcobendas.",
+    "paginasContacto": [
+      "https://www.ezentis.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "televes",
+    "nombre": "Televés",
+    "web": "https://www.televes.com/es",
+    "sector": "Telecomunicaciones: antenas, ICT y fibra",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-telecomunicaciones"
+    ],
+    "motivoEncaje": "Fabricante de equipos de telecomunicaciones colaborador del ciclo (Skills Alliance), con delegación en Madrid.",
+    "paginasContacto": [
+      "https://www.televes.com/es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "rexel-espana",
+    "nombre": "Rexel España",
+    "web": "https://www.rexel.es",
+    "sector": "Distribución de material eléctrico",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-instalaciones",
+      "sea-fotovoltaica",
+      "acom-venta-tecnica",
+      "acom-logistica"
+    ],
+    "motivoEncaje": "Distribuidor de material eléctrico con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.rexel.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "electro-stocks",
+    "nombre": "Electro Stocks",
+    "web": "https://www.electrostocks.es",
+    "sector": "Distribución de material eléctrico",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-instalaciones",
+      "sea-fotovoltaica",
+      "acom-venta-tecnica"
+    ],
+    "motivoEncaje": "Distribuidor de material eléctrico con almacenes en Madrid.",
+    "paginasContacto": [
+      "https://www.electrostocks.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "sonepar-espana",
+    "nombre": "Sonepar España",
+    "web": "https://www.sonepar.es",
+    "sector": "Distribución de material eléctrico",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-instalaciones",
+      "sea-automatizacion",
+      "acom-venta-tecnica"
+    ],
+    "motivoEncaje": "Distribuidor de material eléctrico con delegaciones en Madrid.",
+    "paginasContacto": [
+      "https://www.sonepar.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "baobab-solar",
+    "nombre": "Baobab Solar Works",
+    "web": "https://www.baobabsolar.com",
+    "sector": "Instalaciones fotovoltaicas de autoconsumo y recarga",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-fotovoltaica",
+      "sea-instalaciones"
+    ],
+    "motivoEncaje": "Instalador fotovoltaico madrileño (vivero municipal de Madrid Emprende).",
+    "paginasContacto": [
+      "https://www.baobabsolar.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "mobe-energy",
+    "nombre": "More and Better Energy (MOBE)",
+    "web": "https://www.mobeenergy.com",
+    "sector": "Energías renovables",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-fotovoltaica",
+      "sea-redes-ct"
+    ],
+    "motivoEncaje": "Empresa de renovables del vivero municipal de Vicálvaro.",
+    "paginasContacto": [
+      "https://www.mobeenergy.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "energya-vm",
+    "nombre": "Energya VM",
+    "web": "https://www.energyavm.es",
+    "sector": "Autoconsumo y gestión de la energía",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-fotovoltaica",
+      "sea-instalaciones"
+    ],
+    "motivoEncaje": "Autoconsumo eléctrico; colaboradora de FFE de un instituto madrileño.",
+    "paginasContacto": [
+      "https://www.energyavm.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "miretel",
+    "nombre": "Miretel",
+    "web": "https://www.miretel.es",
+    "sector": "Instalaciones térmicas y eléctricas en edificios",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-instalaciones",
+      "sea-mantenimiento"
+    ],
+    "motivoEncaje": "Instalaciones eléctricas y térmicas en edificios (vivero municipal de Madrid Emprende).",
+    "paginasContacto": [
+      "https://www.miretel.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "sotysolar",
+    "nombre": "SotySolar",
+    "web": "https://sotysolar.es",
+    "sector": "Instalaciones solares de autoconsumo",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-fotovoltaica",
+      "acom-venta-tecnica"
+    ],
+    "motivoEncaje": "Instalaciones fotovoltaicas de autoconsumo.",
+    "paginasContacto": [
+      "https://sotysolar.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "otovo-espana",
+    "nombre": "Otovo España",
+    "web": "https://www.otovo.es",
+    "sector": "Instalaciones solares residenciales",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-fotovoltaica",
+      "sea-oficina-tecnica"
+    ],
+    "motivoEncaje": "Plataforma de instalaciones solares con oficina en Madrid.",
+    "paginasContacto": [
+      "https://www.otovo.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "veolia-espana",
+    "nombre": "Veolia España",
+    "web": "https://www.veolia.es",
+    "sector": "Servicios energéticos y mantenimiento",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-mantenimiento",
+      "sea-automatizacion"
+    ],
+    "motivoEncaje": "Servicios energéticos y de mantenimiento con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.veolia.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "dalkia-espana",
+    "nombre": "Dalkia España",
+    "web": "https://www.dalkia.es",
+    "sector": "Servicios energéticos y mantenimiento de instalaciones",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-mantenimiento",
+      "sea-instalaciones",
+      "sea-automatizacion"
+    ],
+    "motivoEncaje": "Servicios energéticos con oficina en Madrid.",
+    "paginasContacto": [
+      "https://www.dalkia.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "ingeteam",
+    "nombre": "Ingeteam",
+    "web": "https://www.ingeteam.com",
+    "sector": "Electrónica de potencia y automatización",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-automatizacion",
+      "sea-fotovoltaica",
+      "sea-mantenimiento"
+    ],
+    "motivoEncaje": "Ingeniería eléctrica con delegación en Madrid.",
+    "paginasContacto": [
+      "https://www.ingeteam.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "ikusi",
+    "nombre": "Ikusi",
+    "web": "https://www.ikusi.com",
+    "sector": "Tecnología, redes y sistemas para edificios e infraestructuras",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-telecomunicaciones",
+      "sea-automatizacion",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Integrador tecnológico con oficina en Madrid.",
+    "paginasContacto": [
+      "https://www.ikusi.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "sertec",
+    "nombre": "Sertec",
+    "web": "https://www.sertec.es",
+    "sector": "Ingeniería y servicios técnicos",
+    "tamano": "pyme",
+    "zona": "sur",
+    "perfiles": [
+      "sea-oficina-tecnica",
+      "sea-automatizacion"
+    ],
+    "motivoEncaje": "Ingeniería con sede en el parque Tecnogetafe.",
+    "paginasContacto": [
+      "https://www.sertec.es"
     ],
     "tipoContactoEsperado": "rrhh"
   }

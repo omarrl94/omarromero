@@ -56,3 +56,9 @@
 - [ ] **Fechas**: el ciclo usa las mismas modalidades A y B que DAM y ASIR. Si en grado medio son otras, avísame para separarlas.
 - [ ] **Revisar los textos del correo** (`textosCorreoTutor.ciclos.ACOM` y `textosCorreoAlumno.ciclos.ACOM`), sobre todo el apartado de inteligencia artificial, que es una propuesta.
 
+## SEA · Sistemas Electrotécnicos y Automatizados (FFE en 1.º y 2.º)
+
+- [ ] **Horas de FFE de cada curso**: `config/ffe.config.ts` → `horasPorCurso.SEA` (1.º y 2.º están en `null`). Hasta que se rellenen, los correos no indican el total de horas.
+- [ ] **Fechas de la FFE de 1.º**: el ciclo usa las modalidades A y B (fechas de 2.º). Si en 1.º son otras, avísame para separarlas.
+- [ ] **Tutor/a de FFE de SEA**: `tutores.SEA` está en `null`.
+- [ ] **Revisar los textos del correo** (`textosCorreoTutor.ciclos.SEA` y `textosCorreoAlumno.ciclos.SEA`), sobre todo la mención a KNX y el apartado de IA.

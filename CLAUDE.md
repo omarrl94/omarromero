@@ -1,6 +1,7 @@
 # CLAUDE.md · Reglas del proyecto Conecta FFE
 
-Aplicación web del C.F.P. José Ramón Otero (Madrid) para que el alumnado de 2.º de DAM, ASIR y Actividades Comerciales (grado medio)
+Aplicación web del C.F.P. José Ramón Otero (Madrid) para que el alumnado de DAM, ASIR, SEA (Sistemas Electrotécnicos y Automatizados; FFE en 1.º y 2.º)
+y Actividades Comerciales (grado medio)
 consiga plaza de Formación en Empresa (FFE) y encuentre ofertas relacionadas con su perfil.
 Idioma de la interfaz, el código de dominio y la documentación: **español de España**.
 

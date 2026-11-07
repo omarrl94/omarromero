@@ -16,7 +16,7 @@ const empresa = {
 
 describe('ciclo de Actividades Comerciales (grado medio)', () => {
   it('está en la configuración con sus perfiles, horas y tutor pendiente', () => {
-    expect(config.ciclos.map((c) => c.id)).toEqual(['DAM', 'ASIR', 'ACOM']);
+    expect(config.ciclos.map((c) => c.id)).toEqual(['DAM', 'ASIR', 'SEA', 'ACOM']);
     expect(perfilesDe('ACOM').map((p) => p.id)).toContain('acom-marketing-digital');
     expect(perfilesDe('ACOM')).toHaveLength(8);
     expect(config.horasPendientesDeConfirmar.ACOM).toBe(true);

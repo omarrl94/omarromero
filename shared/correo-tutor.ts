@@ -1,6 +1,6 @@
 import type { Ciclo } from '../config/ffe.config';
 import { config } from '../config/ffe.config';
-import { cierreIa, cortoCiclo, fechaLarga, NOMBRE_CICLO } from './correo';
+import { cierreIa, cortoCiclo, cursosFFE, fechaLarga, horasFFE, NOMBRE_CICLO, textoCursos } from './correo';
 
 export interface DatosTutor {
   nombre: string;
@@ -30,13 +30,15 @@ export function generarCorreoTutor(t: DatosTutor, empresa?: { nombre: string; se
   const ciclo = t.ciclo;
   const textos = config.textosCorreoTutor;
   const bloque = textos.ciclos[ciclo];
-  const horas = config.horas[ciclo];
+  // Con FFE en 1.º y 2.º, solo se indica la duración si está confirmada para los dos cursos.
+  const horas = cursosFFE(ciclo).length > 1 ? null : horasFFE(ciclo);
+  const cursos = textoCursos(ciclo);
   const nombre = t.nombre.trim() || '[tu nombre]';
 
   const lineas = [
     empresa ? saludoEmpresa(empresa.nombre) : 'Hola:',
     '',
-    `Me llamo ${nombre} y soy tutor/a de Formación en Empresa (FFE) de 2.º de ${NOMBRE_CICLO[ciclo]} en el ${config.centro.nombre} (${config.centro.ciudad}).`,
+    `Me llamo ${nombre} y soy tutor/a de Formación en Empresa (FFE) de ${cursos} de ${NOMBRE_CICLO[ciclo]} en el ${config.centro.nombre} (${config.centro.ciudad}).`,
     '',
     empresa
       ? `Me pongo en contacto con ${empresa.nombre}${empresa.sector ? `, por vuestra actividad en ${empresa.sector.toLowerCase()},` : ''} para preguntarte si podríais acoger a alumnado de nuestro ciclo durante su periodo de Formación en Empresa, la formación práctica obligatoria del ciclo.`
@@ -57,7 +59,7 @@ export function generarCorreoTutor(t: DatosTutor, empresa?: { nombre: string; se
     '',
     'Periodos de formación:',
     ...config.modalidades.map((m) => `- ${m.nombre}: del ${fechaLarga(m.inicio)} al ${fechaLarga(m.fin)}, ${m.horasDia} horas al día.`),
-    `- Duración total: ${horas} horas.`,
+    ...(horas ? [`- Duración total: ${horas} horas.`] : cursosFFE(ciclo).length > 1 ? [`- La Formación en Empresa se realiza en ${cursos} curso.`] : []),
     '',
     'Cómo funciona:',
     '- No tiene coste para la empresa y no supone relación laboral.',
@@ -72,7 +74,7 @@ export function generarCorreoTutor(t: DatosTutor, empresa?: { nombre: string; se
     'Muchas gracias por tu atención. Un saludo,',
     '',
     nombre,
-    `Tutor/a de FFE · 2.º ${cortoCiclo(ciclo)} · ${config.centro.nombre}`,
+    `Tutor/a de FFE · ${cursos} ${cortoCiclo(ciclo)} · ${config.centro.nombre}`,
     ...(t.email.trim() ? [t.email.trim()] : []),
     ...(t.telefono?.trim() ? [`Tel.: ${t.telefono.trim()}`] : []),
     '',
@@ -80,7 +82,7 @@ export function generarCorreoTutor(t: DatosTutor, empresa?: { nombre: string; se
     LINEA_BAJA,
   ];
   return {
-    asunto: `Colaboración en la Formación en Empresa de 2.º ${cortoCiclo(ciclo)} · ${config.centro.nombre}`,
+    asunto: `Colaboración en la Formación en Empresa de ${cursos} ${cortoCiclo(ciclo)} · ${config.centro.nombre}`,
     cuerpo: lineas.join('\n'),
   };
 }

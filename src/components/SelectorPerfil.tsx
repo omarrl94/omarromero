@@ -29,7 +29,7 @@ function Paso({ n, titulo, numerado, children }: { n: number; titulo: string; nu
 export function SelectorPerfil({ alumno, cambiar, numerado }: Props) {
   const elegirCiclo = (ciclo: Ciclo) => {
     if (ciclo === alumno.ciclo) return;
-    cambiar({ ciclo, perfiles: [] });
+    cambiar({ ciclo, perfiles: [], curso: null });
   };
   const alternarPerfil = (id: string) => {
     const ya = alumno.perfiles.includes(id);
@@ -39,7 +39,7 @@ export function SelectorPerfil({ alumno, cambiar, numerado }: Props) {
   return (
     <div className="grid gap-8">
       <Paso n={1} titulo="¿Qué ciclo estudias?" numerado={numerado}>
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {config.ciclos.map((info) => {
             const c = info.id as Ciclo;
             const activo = alumno.ciclo === c;
@@ -58,6 +58,20 @@ export function SelectorPerfil({ alumno, cambiar, numerado }: Props) {
           })}
         </div>
       </Paso>
+
+      {alumno.ciclo && (cicloPorId(alumno.ciclo).cursosFFE ?? [2]).length > 1 && (
+        <fieldset className="-mt-4 min-w-0">
+          <legend className="etiqueta">¿En qué curso estás? (en {cicloPorId(alumno.ciclo).corto} hay Formación en Empresa en los dos cursos)</legend>
+          <div className="flex flex-wrap gap-2">
+            {(cicloPorId(alumno.ciclo).cursosFFE ?? [2]).map((c) => (
+              <label key={c} className={`flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border-2 px-4 py-2 font-bold has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-tinta ${alumno.curso === c ? 'border-tinta bg-amarillo' : 'border-linea bg-white'}`}>
+                <input type="radio" name="curso" className="sr-only" checked={alumno.curso === c} onChange={() => cambiar({ curso: c })} />
+                {c}.º curso
+              </label>
+            ))}
+          </div>
+        </fieldset>
+      )}
 
       {alumno.ciclo && (
         <Paso n={2} titulo="¿Qué te gustaría hacer? Elige uno o varios" numerado={numerado}>
@@ -105,8 +119,9 @@ export function SelectorPerfil({ alumno, cambiar, numerado }: Props) {
               ))}
             </div>
             <p className="mt-2 text-sm text-tinta-suave">
-              FFE de {cicloPorId(alumno.ciclo).corto}: {config.horas[alumno.ciclo]} horas
-              {config.horasPendientesDeConfirmar[alumno.ciclo] ? ' (pendiente de confirmar)' : ''}.
+              {(cicloPorId(alumno.ciclo).cursosFFE ?? [2]).length > 1
+                ? `FFE de ${cicloPorId(alumno.ciclo).corto}: en 1.º y 2.º curso (horas pendientes de confirmar).`
+                : `FFE de ${cicloPorId(alumno.ciclo).corto}: ${config.horas[alumno.ciclo]} horas${config.horasPendientesDeConfirmar[alumno.ciclo] ? ' (pendiente de confirmar)' : ''}.`}
             </p>
           </Paso>
         </div>

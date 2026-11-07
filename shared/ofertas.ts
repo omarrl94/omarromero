@@ -54,9 +54,17 @@ export function esDelSectorComercio(texto: string): boolean {
   return TERMINOS_COMERCIO.some((s) => contieneTermino(t, s));
 }
 
-/** ¿La oferta es de alguno de los sectores de los ciclos del centro (informática o comercio y marketing)? */
+/** Términos del sector eléctrico (SEA: Sistemas Electrotécnicos y Automatizados). */
+const TERMINOS_ELECTRICIDAD = ['electricista', 'electrico', 'electrica', 'electricidad', 'electrotecnico', 'baja tension', 'media tension', 'domotica', 'knx', 'automatizacion', 'automatismos', 'plc', 'fotovoltaica', 'fotovoltaico', 'autoconsumo', 'telecomunicaciones', 'antenista', 'fibra optica', 'instalador', 'mantenimiento electrico', 'cuadros electricos', 'centros de transformacion'];
+
+export function esDelSectorElectrico(texto: string): boolean {
+  const t = normalizar(texto);
+  return TERMINOS_ELECTRICIDAD.some((s) => contieneTermino(t, s));
+}
+
+/** ¿La oferta es de alguno de los sectores de los ciclos del centro (informática, electricidad o comercio y marketing)? */
 export function esDeLosCiclos(texto: string): boolean {
-  return esDelSectorTic(texto) || esDelSectorComercio(texto);
+  return esDelSectorTic(texto) || esDelSectorElectrico(texto) || esDelSectorComercio(texto);
 }
 
 /** Clasifica el tipo de oferta. `null` si no es de prácticas, beca, junior ni primer empleo. */
