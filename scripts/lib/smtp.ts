@@ -105,6 +105,26 @@ function conectar(host: string, timeoutMs: number): Promise<net.Socket> {
 
 const cache = new Map<string, Promise<ComprobacionBuzon>>();
 
+/**
+ * Nombre con el que se presenta la comprobación (EHLO). Muchos servidores exigen un nombre de dominio completo:
+ * se usa el nombre inverso (PTR) de la IP pública de la máquina o, si no tiene, la IP entre corchetes (RFC 5321).
+ */
+let helo: Promise<string> | null = null;
+export function nombreHelo(): Promise<string> {
+  helo ??= (async () => {
+    if (process.env.SMTP_HELO) return process.env.SMTP_HELO;
+    try {
+      const ip = (await (await fetch('https://api.ipify.org', { signal: AbortSignal.timeout(10_000) })).text()).trim();
+      if (!/^\d+\.\d+\.\d+\.\d+$/.test(ip)) throw new Error('IP no válida');
+      const ptr = await dns.reverse(ip).catch(() => [] as string[]);
+      return ptr[0]?.includes('.') ? ptr[0] : `[${ip}]`;
+    } catch {
+      return hostname().includes('.') ? hostname() : 'localhost.localdomain';
+    }
+  })();
+  return helo;
+}
+
 /** Comprueba un buzón (con caché por dirección). Requiere salida al puerto 25 (GitHub Actions la tiene). */
 export function comprobarBuzon(email: string): Promise<ComprobacionBuzon> {
   const clave = email.toLowerCase();
@@ -115,16 +135,8 @@ export function comprobarBuzon(email: string): Promise<ComprobacionBuzon> {
   return cache.get(clave)!;
 }
 
-async function comprobarSinCache(email: string): Promise<ComprobacionBuzon> {
-  const dominio = email.split('@')[1];
-  let mx: { exchange: string; priority: number }[];
-  try {
-    mx = (await dns.resolveMx(dominio)).sort((a, b) => a.priority - b.priority);
-  } catch {
-    return { resultado: 'indeterminado', respuesta: 'sin registros MX consultables' };
-  }
-  if (!mx.length || mx[0].exchange === '' || mx[0].exchange === '.') return { resultado: 'no-existe', respuesta: 'el dominio declara que no recibe correo (MX nulo)' };
-
+/** Una sesión SMTP que pregunta por UNA dirección (EHLO, MAIL FROM:<>, RCPT TO, QUIT). Nunca llega a DATA. */
+async function preguntar(email: string, mx: { exchange: string }[]): Promise<{ v: ReturnType<typeof interpretarRcpt>; texto: string; servidor?: string }> {
   let ultimoError = '';
   for (const { exchange } of mx.slice(0, 2)) {
     let socket: net.Socket | null = null;
@@ -136,25 +148,37 @@ async function comprobarSinCache(email: string): Promise<ComprobacionBuzon> {
         ultimoError = saludo.texto;
         continue;
       }
-      const ehlo = await s.comando(`EHLO ${hostname() || 'verificador.local'}`);
-      if (ehlo.codigo !== 250) await s.comando(`HELO ${hostname() || 'verificador.local'}`);
+      const nombre = await nombreHelo();
+      const ehlo = await s.comando(`EHLO ${nombre}`);
+      if (ehlo.codigo !== 250) await s.comando(`HELO ${nombre}`);
       const from = await s.comando('MAIL FROM:<>');
-      if (from.codigo !== 250) return { resultado: 'indeterminado', respuesta: `MAIL FROM rechazado: ${from.texto}`, servidor: exchange };
-      const real = await s.comando(`RCPT TO:<${email}>`);
-      const vReal = interpretarRcpt(real.codigo, real.texto);
-      let vAleatorio: ReturnType<typeof interpretarRcpt> | null = null;
-      if (vReal === 'aceptado') {
-        const inventado = `no-existe-${Math.random().toString(36).slice(2, 10)}@${dominio}`;
-        const r2 = await s.comando(`RCPT TO:<${inventado}>`);
-        vAleatorio = interpretarRcpt(r2.codigo, r2.texto);
-      }
+      if (from.codigo !== 250) return { v: 'indeterminado', texto: `MAIL FROM rechazado: ${from.texto}`, servidor: exchange };
+      const r = await s.comando(`RCPT TO:<${email}>`);
       await s.comando('QUIT', 5_000).catch(() => undefined);
-      return { resultado: combinar(vReal, vAleatorio), respuesta: real.texto.slice(0, 300), servidor: exchange };
+      return { v: interpretarRcpt(r.codigo, r.texto), texto: r.texto.slice(0, 300), servidor: exchange };
     } catch (e) {
       ultimoError = (e as Error).message;
     } finally {
       socket?.destroy();
     }
   }
-  return { resultado: 'indeterminado', respuesta: `sin respuesta del servidor de correo (${ultimoError})` };
+  return { v: 'indeterminado', texto: `sin respuesta del servidor de correo (${ultimoError})` };
+}
+
+const aleatorios = new Map<string, Promise<ReturnType<typeof interpretarRcpt>>>();
+
+async function comprobarSinCache(email: string): Promise<ComprobacionBuzon> {
+  const dominio = email.split('@')[1];
+  let mx: { exchange: string; priority: number }[];
+  try {
+    mx = (await dns.resolveMx(dominio)).sort((a, b) => a.priority - b.priority);
+  } catch {
+    return { resultado: 'indeterminado', respuesta: 'sin registros MX consultables' };
+  }
+  if (!mx.length || mx[0].exchange === '' || mx[0].exchange === '.') return { resultado: 'no-existe', respuesta: 'el dominio declara que no recibe correo (MX nulo)' };
+  const real = await preguntar(email, mx);
+  if (real.v !== 'aceptado') return { resultado: combinar(real.v, null), respuesta: real.texto, servidor: real.servidor };
+  // Buzón inventado del mismo dominio, en otra conexión (una por dominio): ¿el servidor lo acepta todo?
+  if (!aleatorios.has(dominio)) aleatorios.set(dominio, preguntar(`no-existe-${Math.random().toString(36).slice(2, 10)}@${dominio}`, mx).then((x) => x.v));
+  return { resultado: combinar(real.v, await aleatorios.get(dominio)!), respuesta: real.texto, servidor: real.servidor };
 }

@@ -38,12 +38,18 @@ export const RE_PROVEEDOR_FORMULARIO = /(hsforms\.(com|net)|share\.hsforms|typef
 const RE_EMAIL = /(e-?mail|correo|mail)/i;
 const RE_MENSAJE = /(mensaje|message|comentario|comment|consulta|motivo|observaciones|cu[ée]ntanos|cv|curr[ií]cul|resume|adjunt|carta|presentaci[oó]n)/i;
 const RE_BUSCADOR = /(buscar|search|busqueda|búsqueda|^q$|^s$)/i;
+const RE_COMENTARIOS = /(guarda mi nombre|save my name|deja un comentario|leave a reply|publicar (el )?comentario)/i;
+/** Formularios de clientes (pedidos, envíos, reservas, consumo): no son un canal para pedir prácticas. */
+const RE_ATENCION_CLIENTE = /(n[uú]mero de pedido|order number|order-number|\bpedido\b|\blote\b|caducidad|shipment|pickup|recogida|seguimiento del env|n[uú]mero de env|destino o pa[ií]s|viajeros|fecha de salida|n[uú]mero de stand|stand number|n[uú]mero de cliente|matr[ií]cula)/i;
 const RE_BOLETIN = /(newsletter|bolet[ií]n|suscri|subscribe)/i;
 
 export function esFormularioValido(f: FormularioEncontrado): { valido: boolean; motivo: string } {
   const visibles = f.campos.filter((c) => !['hidden', 'submit', 'button', 'reset', 'image'].includes(c.tipo));
   const texto = (c: Campo) => `${c.etiqueta} ${c.nombre}`;
   if (visibles.some((c) => c.tipo === 'password')) return { valido: false, motivo: 'es un formulario de acceso (tiene contraseña)' };
+  if (f.campos.some((c) => ['comment', 'wp-comment-cookies-consent', 'author'].includes(c.nombre) || RE_COMENTARIOS.test(c.etiqueta)))
+    return { valido: false, motivo: 'es el formulario de comentarios de una entrada del blog' };
+  if (visibles.some((c) => RE_ATENCION_CLIENTE.test(texto(c)))) return { valido: false, motivo: 'es un formulario de atención al cliente o de pedidos' };
   if (visibles.length > 0 && visibles.every((c) => c.tipo === 'search' || RE_BUSCADOR.test(c.nombre) || RE_BUSCADOR.test(c.etiqueta))) return { valido: false, motivo: 'es un buscador' };
   const email = visibles.some((c) => c.tipo === 'email' || RE_EMAIL.test(texto(c)));
   const mensaje = visibles.some((c) => c.tipo === 'textarea' || c.tipo === 'file' || (c.tipo === 'text' && RE_MENSAJE.test(texto(c))));

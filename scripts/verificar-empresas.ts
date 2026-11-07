@@ -12,6 +12,8 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { CandidatasSchema, EmpresaSchema, EmpresasSchema, type Candidata, type Empresa } from '../shared/schemas';
 import { descargar as descargarRed, enSerie, hayRed, tieneMx as tieneMxRed, type Pagina } from './lib/red';
 import { pathToFileURL } from 'node:url';
+import { config } from '../config/ffe.config';
+import { esOfertaConcreta, mencionaMadrid } from './lib/verificador';
 import { detectarAts, enlacesDeInteres, extraerCorreos, leerSitemap, mencionaPracticas, paginasEmpleoDeSitemap, PENALIZACION_BUZON_NO_CONFIRMADO, priorizarUrls, RANGO_FORMULARIO, rangoCorreo, RE_PORTAL_EMPLEO, RUTAS_HABITUALES, tipoPagina, tituloDe, esRutaDeOtroPais, valorarCorreos, type CorreoValorado, type TipoPagina } from './lib/verificador';
 import { analizarHtml, conLimite, crearComprobadorNavegador, type ResultadoFormulario } from './lib/formularios';
 import { comprobarBuzon as comprobarBuzonRed, type ComprobacionBuzon } from './lib/smtp';
@@ -58,6 +60,7 @@ export function fragmentoCon(html: string, email: string): string {
   return i === -1 ? '(el correo está en un enlace mailto, no en el texto visible)' : texto.slice(Math.max(0, i - 140), i + email.length + 80).trim();
 }
 
+const MUNICIPIOS = config.zonas.flatMap((z) => z.incluye).filter((m) => m !== 'Madrid');
 const hoy = () => new Date().toISOString().slice(0, 10);
 const args = Object.fromEntries(process.argv.slice(2).map((a) => a.replace(/^--/, '').split('=')).map(([k, v]) => [k, v ?? 'true']));
 
@@ -181,6 +184,12 @@ export async function verificar(c: Candidata, retiradas: Retirada[], deps: Depen
     await revisar(deEmpleo.flatMap((p) => enlacesDeInteres(p.html, p.urlFinal, 8)), 6);
   }
 
+  // 2 bis. Presencia en Madrid: alguna página revisada menciona Madrid, un municipio de la región o un CP 28xxx.
+  if (!paginas.some((p) => mencionaMadrid(p.html, MUNICIPIOS))) {
+    r.motivo = 'Su web no menciona ninguna sede ni oficina en la Comunidad de Madrid';
+    return { r };
+  }
+
   // 3. Correos publicados en esas páginas: dónde aparece cada uno y en qué tipo de página.
   const dondeAparece = new Map<string, { url: string; tipos: TipoPagina[] }>();
   const preferencia: TipoPagina[] = ['empleo', 'contacto', 'otra', 'legal', 'articulo'];
@@ -273,8 +282,9 @@ export async function verificar(c: Candidata, retiradas: Retirada[], deps: Depen
       return false;
     }
   };
+  const formularioAdmisible = (u: string) => !esRutaDeOtroPais(u) && propioOAts(u) && ['empleo', 'contacto'].includes(tipoPagina(u)) && !esOfertaConcreta(u);
   const posibles = paginas
-    .filter((p) => !esRutaDeOtroPais(p.urlFinal) && propioOAts(p.urlFinal) && !['legal', 'articulo'].includes(tipoPagina(p.urlFinal)))
+    .filter((p) => (c.formularioUrl && p.url === c.formularioUrl) || formularioAdmisible(p.urlFinal))
     .filter((p) => (c.formularioUrl && p.url === c.formularioUrl) || /<form\b|<iframe\b|hsforms|typeform|jotform/i.test(p.html) || analizarHtml(p.urlFinal, p.html).enlacesCandidatura?.length)
     .filter((p) => p !== raiz || c.formularioUrl === p.url || RE_URL_EMPLEO.test(p.urlFinal) || /contact/i.test(p.urlFinal))
     .sort((a, b) => Number(!RE_URL_EMPLEO.test(b.urlFinal)) - Number(!RE_URL_EMPLEO.test(a.urlFinal)) || 0);
@@ -309,7 +319,7 @@ export async function verificar(c: Candidata, retiradas: Retirada[], deps: Depen
         }
       }
     }
-    if (!valido || !propioOAts(valido.url)) continue;
+    if (!valido || !propioOAts(valido.url) || esRutaDeOtroPais(valido.url) || esOfertaConcreta(valido.url)) continue;
     const encontrado = { url: valido.url, campos: valido.campos ?? [] };
     if (empleoReal || RE_URL_EMPLEO.test(valido.url)) formEmpleo = encontrado;
     else formContacto ??= encontrado;

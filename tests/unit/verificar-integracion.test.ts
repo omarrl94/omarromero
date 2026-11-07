@@ -4,9 +4,9 @@ import type { Pagina } from '../../scripts/lib/red';
 import type { Candidata } from '../../shared/schemas';
 import type { ResultadoBuzon } from '../../scripts/lib/smtp';
 
-function webs(mapa: Record<string, string>): Dependencias['descargar'] {
+function webs(mapa: Record<string, string>, sinMadrid = false): Dependencias['descargar'] {
   return async (url: string): Promise<Pagina> =>
-    url in mapa ? { url, urlFinal: url, estado: 200, html: mapa[url] } : { url, urlFinal: url, estado: 404, html: '' };
+    url in mapa ? { url, urlFinal: url, estado: 200, html: `${mapa[url]}${sinMadrid ? '' : ' <footer>Oficina: Madrid</footer>'}` } : { url, urlFinal: url, estado: 404, html: '' };
 }
 const FORM_REAL = '<form action="/candidatura"><label for="n">Nombre</label><input id="n" name="nombre"><label for="e">Correo electrónico</label><input id="e" type="email" name="email"><label for="cv">CV</label><input id="cv" type="file" name="cv"><button>Enviar</button></form>';
 const deps = (mapa: Record<string, string>, mx: Record<string, boolean> = {}, buzones: Record<string, ResultadoBuzon> = {}): Dependencias => ({
@@ -159,6 +159,26 @@ describe('verificar (integración sin red)', () => {
       'https://www.acme.test/es/rrhh/seleccion': 'Candidaturas: seleccion@acme.test',
     }));
     expect(empresa?.contacto).toMatchObject({ tipo: 'email', email: 'seleccion@acme.test', tipoContacto: 'rrhh' });
+  });
+
+  it('descarta empresas sin presencia en Madrid y webs que no son de la empresa', async () => {
+    const d = deps({});
+    d.descargar = webs({ 'https://www.acme.test': '<p>Acme · Calle Mayor 1, Murcia</p><a href="/contacto">Contacto</a>', 'https://www.acme.test/contacto': 'info@acme.test' }, true);
+    expect((await verificar(base, [], d)).r.motivo).toMatch(/Comunidad de Madrid/);
+    const otra = await verificar({ ...base, nombre: 'Kanito Marketing Group', web: 'https://www.acme.test' }, [], deps({ 'https://www.acme.test': '<p>Somos Acme</p>' }));
+    expect(otra.r.motivo).toMatch(/otra empresa/);
+  });
+
+  it('no acepta comentarios del blog, formularios de pedidos ni la candidatura a una oferta concreta', async () => {
+    const { r, empresa } = await verificar(base, [], deps({
+      'https://www.acme.test': '<a href="/talento">Talento</a><a href="/contacto">Contacto</a><a href="/jobs/apply/comercial-senior-madrid">Oferta</a>',
+      'https://www.acme.test/talento': '<form action="/wp-comments-post.php"><label for="comment">Comentario</label><textarea id="comment" name="comment"></textarea><label for="author">Nombre</label><input id="author" name="author"><label for="email">Correo electrónico</label><input id="email" name="email" type="email"><input id="wp-comment-cookies-consent" name="wp-comment-cookies-consent" type="checkbox"></form>',
+      'https://www.acme.test/contacto': '<form><label for="a">Nombre</label><input id="a"><label for="b">Correo</label><input id="b" type="email"><label for="c">Número de pedido</label><input id="c"><textarea name="mensaje"></textarea></form>',
+      'https://www.acme.test/jobs/apply/comercial-senior-madrid': FORM_REAL,
+    }));
+    expect(empresa).toBeUndefined();
+    expect(r.motivo).toMatch(/comentarios/);
+    expect(r.motivo).toMatch(/atención al cliente/);
   });
 
   it('respeta las retiradas', async () => {

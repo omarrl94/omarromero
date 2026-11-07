@@ -142,3 +142,23 @@ describe('buzones de regiones extranjeras', () => {
     }
   });
 });
+
+describe('página de empleo: el segmento entero, no una palabra dentro de un título', () => {
+  it('no confunde artículos ni páginas de producto con la página de empleo', async () => {
+    const { tipoPagina, esOfertaConcreta } = await import('../../scripts/lib/verificador');
+    expect(tipoPagina('https://ackcent.com/ackcent-joins-cybersecurity-awareness-month/')).toBe('otra');
+    expect(tipoPagina('https://a.test/trabajar-con-una-wifi-publica-segura/')).toBe('otra');
+    expect(tipoPagina('https://a.test/seo-local-y-buenas-practicas/')).toBe('otra');
+    expect(tipoPagina('https://a.test/control-horario-trabajadores/')).toBe('otra');
+    expect(tipoPagina('https://a.test/rrhh-20/')).toBe('otra');
+    expect(tipoPagina('https://a.test/ebook/guia-recursos-humanos/')).toBe('articulo');
+    expect(tipoPagina('https://careers.a.test/cookie-policy')).toBe('legal');
+    expect(tipoPagina('https://a.test/unete-a-nuestro-ecosistema/')).toBe('empleo');
+    expect(tipoPagina('https://a.test/join_our_team.html')).toBe('empleo');
+    expect(tipoPagina('https://a.test/buscamos-talento/')).toBe('empleo');
+    expect(esOfertaConcreta('https://a.test/ofertas-de-empleo/vp-of-design')).toBe(true);
+    expect(esOfertaConcreta('https://a.test/jobs/apply/comercial-odoo-outbound-6')).toBe(true);
+    expect(esOfertaConcreta('https://a.test/trabaja-en-econocom/candidatura-espontanea')).toBe(false);
+    expect(esOfertaConcreta('https://a.test/jobs/')).toBe(false);
+  });
+});

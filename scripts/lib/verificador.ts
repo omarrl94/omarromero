@@ -197,24 +197,40 @@ export function priorizarUrls(urls: string[]): string[] {
 
 export type TipoPagina = 'empleo' | 'contacto' | 'legal' | 'articulo' | 'otra';
 
-const RE_LEGAL = /(aviso-?legal|legal-?notice|\/legal|privac|privacy|terminos|t[eé]rminos|terms|condiciones|cookies|proteccion-de-datos|rgpd|gdpr|imprint|impressum)/i;
-/** Entradas de blog, noticias, prensa o entrevistas: un correo citado ahí no es el canal de candidaturas. */
-const RE_ARTICULO = /(\/blog\/|\/blogs?\b|\/noticias?\/|\/news\/|\/actualidad|\/prensa\/|\/press\/|\/articulos?\/|\/post\/|\/posts\/|\/entrevista|\/20\d\d\/\d\d\/|\/\d{4}\/\d{2}\/\d{2}\/)/i;
-const RE_PAGINA_EMPLEO = /(trabaja|empleo|talent|career|jobs|unete|[uú]nete|join|rrhh|recursos-humanos|seleccion|equipo-humano|people|personas|practicas|becas|candidat)/i;
+const RE_LEGAL = /(aviso-?legal|legal-?notice|\/legal|privac|privacy|terminos|t[eé]rminos|terms|condiciones|cookie|proteccion-de-datos|rgpd|gdpr|imprint|impressum)/i;
+/** Entradas de blog, noticias, prensa, entrevistas o páginas comerciales (ebooks, casos de éxito, servicios…). */
+const RE_ARTICULO = /(\/blog\/|\/blogs?\b|\/noticias?\/|\/news\/|\/actualidad|\/prensa\/|\/press\/|\/articulos?\/|\/post\/|\/posts\/|\/entrevista|\/opinion\/|\/consejos\/|\/20\d\d\/\d\d\/|\/\d{4}\/\d{2}\/\d{2}\/|\/ebooks?\/|\/guias?\/|\/whitepapers?\/|\/descargas?\/|\/webinars?\/|\/casos?(-de-exito)?\/|\/case-stud|\/servicios\/|\/services\/|\/soluciones\/|\/solutions\/|\/productos?\/|\/products?\/|\/software-|\/recursos\/|\/resources\/|\/catalogo|\/advisory\/|\/proyectos\/|\/proyectos-|\/media\/|\/ads\/)/i;
+
+/** Segmentos de URL que SÍ son la página de empleo (el segmento entero, no una palabra dentro del título de un artículo). */
+const SEG_EMPLEO = /^(trabaja|trabajar|trabaje|unete|join|careers?|carreras?|jobs?|empleos?|talento|talent|candidatura|candidaturas|seleccion|equipo-humano|bolsa|practicas|becas|vacantes|ofertas-de-empleo|ofertas-empleo|buscamos|trabajaconnosotros|work-with-us|workwithus|join-us|joinus)(-|$)/;
+const SUB_EMPLEO = /^(careers?|jobs?|empleo|talento|talent|trabajaconnosotros|trabaja|join|people|seleccion)\./;
+const SEG_CONTACTO = /^(contact|contacto|contacta|contactar|contactanos|contactenos|contact-us|hablemos|escribenos)/;
+
+/** Segmentos de la ruta, normalizados (sin acentos, sin extensión, «_» como «-»). */
+function segmentos(pathname: string): string[] {
+  return pathname
+    .split('/')
+    .filter(Boolean)
+    .map((s) => decodeURIComponent(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/_/g, '-').replace(/\.(html?|php|aspx?)$/, ''));
+}
 
 /** Tipo de página según su URL: el mismo correo vale más en la página de empleo que en el aviso legal. */
 export function tipoPagina(url: string): TipoPagina {
-  let ruta = url;
+  let u: URL;
   try {
-    const u = new URL(url);
-    ruta = u.hostname + u.pathname;
+    u = new URL(url);
   } catch {
-    /* URL relativa */
+    return 'otra';
   }
-  if (RE_ARTICULO.test(ruta)) return 'articulo';
+  const ruta = u.hostname + u.pathname;
+  if (RE_ARTICULO.test(u.pathname)) return 'articulo';
   if (RE_LEGAL.test(ruta)) return 'legal';
-  if (RE_PAGINA_EMPLEO.test(ruta)) return 'empleo';
-  if (/contact/i.test(ruta)) return 'contacto';
+  const segs = segmentos(u.pathname);
+  // Un segmento corto (máx. 5 palabras) que empieza por una palabra de empleo: «trabaja-con-nosotros», «unete-a-nuestro-equipo»,
+  // «join-our-team», «talento-y-cultura». Un título largo de artículo («trabajar-con-una-wifi-publica-segura») no cuenta.
+  const esEmpleo = (s: string) => ['rrhh', 'recursos-humanos', 'people', 'personas', 'seleccion'].includes(s) || (SEG_EMPLEO.test(s) && s.split('-').length <= 5) || /^(buscamos|nuestro|forma-parte|quieres-trabajar|trabaja)-?.*(talento|equipo|nosotros)$/.test(s) && s.split('-').length <= 5;
+  if (SUB_EMPLEO.test(u.hostname) || segs.some(esEmpleo)) return 'empleo';
+  if (segs.some((s) => SEG_CONTACTO.test(s))) return 'contacto';
   return 'otra';
 }
 
@@ -240,6 +256,24 @@ export function rangoCorreo(v: CorreoValorado, paginas: TipoPagina[]): number | 
 
 /** Penalización si el buzón no está confirmado por su servidor de correo. */
 export const PENALIZACION_BUZON_NO_CONFIRMADO = 1.5;
+
+/** La candidatura a UNA oferta concreta caduca: no sirve como canal estable (salvo la candidatura espontánea). */
+export function esOfertaConcreta(url: string): boolean {
+  try {
+    const ruta = new URL(url).pathname.toLowerCase();
+    if (/espont|spontan|open-application|general-application/.test(ruta)) return false;
+    return /\/(ofertas?-de-empleo|ofertas?|jobs?|careers?|empleos?|vacantes?|job-offers?|posiciones)\/(apply\/)?[a-z0-9][a-z0-9-]{9,}\/?$/.test(ruta);
+  } catch {
+    return false;
+  }
+}
+
+/** ¿La web muestra presencia en la Comunidad de Madrid? (la palabra «Madrid», un municipio de la región o un código postal 28xxx) */
+export function mencionaMadrid(html: string, municipios: string[]): boolean {
+  const texto = html.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/gi, ' ').replace(/<[^>]+>/g, ' ');
+  if (/madrid/i.test(texto) || /\b28[0-9]{3}\b/.test(texto)) return true;
+  return municipios.some((m) => new RegExp(`\\b${m}\\b`, 'i').test(texto));
+}
 
 export const RANGO_FORMULARIO = { empleo: 1, contacto: 4 } as const;
 
@@ -276,6 +310,7 @@ export function esRutaDeOtroPais(url: string): boolean {
   } catch {
     return false;
   }
+  if (['pb', 'int', 'en-int', 'intl', 'global', 'latam', 'mx', 'br', 'us', 'uk'].includes(primero) || /^[a-z]{2}-int$/.test(primero)) return true;
   const locale = /^([a-z]{2})[-_]([a-z]{2})$/.exec(primero);
   if (locale) return locale[1] !== 'es' && locale[2] !== 'es';
   return PAISES_EXTRANJEROS.includes(primero);

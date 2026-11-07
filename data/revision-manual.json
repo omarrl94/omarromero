@@ -1,1 +1,7 @@
-{}
+{
+  "logicalis-espana": {
+    "correosRechazados": ["info@logicalis.com"],
+    "motivo": "buzón global del grupo (la página lo publica junto a la sede de Reino Unido), no el de la oficina de Madrid",
+    "fecha": "2026-11-07"
+  }
+}
