@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import CodeEditor from '../components/CodeEditor.jsx';
 import LessonVisual from '../components/LessonVisuals.jsx';
 import { DRILL_CHALLENGES, DRILL_LESSONS } from '../curriculum/drill-challenges.js';
@@ -7,12 +6,13 @@ import { DRILLS } from '../curriculum/drills.js';
 import { evaluate } from '../core/engine.js';
 import { plainError } from '../core/explain.js';
 import { LANGUAGES } from '../core/languages.js';
-import { play } from '../core/sound.js';
+import { sfx } from './assets.js';
+import BattleScene from './BattleScene.jsx';
 import { useMedia, PHONE } from '../core/useMedia.js';
-import { BUG, daemonLook, daemonName, maxHpOf, xpToNext } from './species.js';
+import { BUG, daemonSprite, daemonName, maxHpOf, xpToNext } from './species.js';
 import { gainXp, makeDaemon, bugLevel, ITEMS } from './save.js';
 import { TRAINERS } from './world.js';
-import { Creature, HpBar, Person, TypeChip, Modal } from './ui.jsx';
+import { HpBar, Face, TypeChip, Modal } from './ui.jsx';
 
 const CH = Object.fromEntries(DRILL_CHALLENGES.map((c) => [c.id, c]));
 const SPEC = Object.fromEntries(DRILLS.map((d) => [d.id, d]));
@@ -53,6 +53,7 @@ export default function Battle({ game, update, battle, onEnd }) {
   // Presentación del bug.
   useEffect(() => {
     setEnemyHp(100);
+    setFx((f) => ({ ...f, purify: false }));
     setPhase('fight');
     setEvalRes(null);
     setFails(0);
@@ -101,7 +102,7 @@ export default function Battle({ game, update, battle, onEnd }) {
   const attack = useCallback(async () => {
     if (busy || phase !== 'fight') return;
     setBusy(true);
-    play('run');
+    sfx('magic', 0.5);
     const res = evaluate(ch, code, lang);
     setEvalRes(res);
     update((g) => ({ ...g, stats: { ...g.stats, attacks: (g.stats.attacks || 0) + 1 } }));
@@ -113,7 +114,7 @@ export default function Battle({ game, update, battle, onEnd }) {
     const shields = res.checks.filter((c) => c.id !== 'tests' && !c.ok);
 
     if (res.error) {
-      play('error');
+      sfx('cancel');
       setMsg(`¡${me} intenta atacar, pero el código ${res.error.kind === 'syntax' ? 'no compila' : 'se detiene'}!`);
       if (phone) setTab('code');
       if (res.error.line) setFocus({ line: res.error.line, t: Date.now() });
@@ -123,7 +124,7 @@ export default function Battle({ game, update, battle, onEnd }) {
       await wait(700);
       if (okCount) {
         setFx((f) => ({ ...f, enemy: f.enemy + 1 }));
-        play('pass');
+        sfx('impact');
         const target = Math.round(((n - okCount) / n) * 85 + (shields.length ? 15 : 0));
         setEnemyHp(res.passed ? 0 : Math.max(target, 4));
         setMsg(okCount === n ? `¡Golpe crítico! Pasa los ${n} casos de prueba.` : `¡Golpe! Pasa ${okCount} de ${n} casos.`);
@@ -137,7 +138,7 @@ export default function Battle({ game, update, battle, onEnd }) {
     if (res.passed) {
       setFx((f) => ({ ...f, purify: true }));
       setMsg(`¡${bug.name} ha sido depurado! Su código vuelve a funcionar.`);
-      play('xp');
+      sfx('explosion');
       await wait(1300);
       // experiencia
       const g0 = gameRef.current;
@@ -159,8 +160,8 @@ export default function Battle({ game, update, battle, onEnd }) {
       setMsg(`${gotName} gana ${xp} puntos de experiencia.`);
       await wait(1200);
       for (const m of lvlMsgs) {
-        if (m.kind === 'level') { play('rankup'); setMsg(`¡${gotName} sube al nivel ${m.level}!`); await wait(1300); }
-        if (m.kind === 'evolve') { setMsg(`¿Qué? ¡${m.from} está evolucionando!`); await wait(1400); play('rankup'); setMsg(`¡${m.from} ha evolucionado en ${m.to}!`); gotName = m.to; await wait(1700); }
+        if (m.kind === 'level') { sfx('levelup'); setMsg(`¡${gotName} sube al nivel ${m.level}!`); await wait(1300); }
+        if (m.kind === 'evolve') { setMsg(`¿Qué? ¡${m.from} está evolucionando!`); await wait(1400); sfx('levelup'); setMsg(`¡${m.from} ha evolucionado en ${m.to}!`); gotName = m.to; await wait(1700); }
       }
       setBusy(false);
       if (!trainer) {
@@ -193,7 +194,7 @@ export default function Battle({ game, update, battle, onEnd }) {
       await wait(1600);
     }
     setMsg(`¡${bug.name} contraataca y causa ${dmg} de daño!`);
-    play('glitch');
+    sfx('hit');
     setFx((f) => ({ ...f, me: f.me + 1 }));
     const { fainted, next } = hitMe(dmg);
     await wait(1000);
@@ -225,7 +226,7 @@ export default function Battle({ game, update, battle, onEnd }) {
         const d = makeDaemon('bug', bugId, bugLevel(bugId));
         return { ...g, team: [...g.team, d], dex: { ...g.dex, caught: { ...g.dex.caught, [bugId]: true } } };
       });
-      play('rankup');
+      sfx('success');
       setMsg(`¡${bug.name} se une a tu equipo! Datos registrados en la Bitdex.`);
     } else {
       update((g) => ({ ...g, dex: { ...g.dex, caught: { ...g.dex.caught, [bugId]: true } } }));
@@ -242,7 +243,7 @@ export default function Battle({ game, update, battle, onEnd }) {
       team[i].hp = Math.min(maxHpOf(team[i].level), team[i].hp + ITEMS[item].heal);
       return { ...g, team, bag: { ...g.bag, [item]: g.bag[item] - 1 } };
     });
-    play('xp');
+    sfx('heal');
     setMsg(`${daemonName(active)} se toma un ${ITEMS[item].name.toLowerCase()} y recupera fuerzas.`);
     setModal(null);
   };
@@ -252,115 +253,99 @@ export default function Battle({ game, update, battle, onEnd }) {
   const cases = (evalRes && evalRes.scene && evalRes.scene.cases) || null;
   const bossFight = battle.trainer === 'boss';
 
+
   // ── Escena
+  const enemyLevel = bug.module * 2 + 1;
   const scene = (
-    <div className={`battle-scene ${bossFight ? 'battle-boss' : ''} relative overflow-hidden rounded-xl`}>
-      {/* rival */}
-      <div className="absolute left-3 top-3 w-[46%] max-w-[260px] rounded-lg border-2 border-slate-800 bg-slate-50/95 px-3 py-2 text-slate-900 shadow-lg">
+    <div className="battle-frame relative h-full overflow-hidden">
+      <BattleScene enemy={bug.sprite} mine={{ ...daemonSprite(active), uid: active.uid }} fx={fx} boss={bossFight} />
+      <div className="hud-card absolute left-2 top-2 w-[48%] max-w-[250px]">
         <div className="flex items-center justify-between gap-2">
-          <span className="truncate text-sm font-extrabold">{bug.name}</span>
-          <span className="text-[11px] font-bold">Nv{bug.module * 2 + 1}</span>
+          <span className="truncate font-bold">{bug.name}</span>
+          <span className="text-xs font-bold text-[#7a4a2e]">Nv{enemyLevel}</span>
         </div>
-        <div className="mb-1 mt-0.5 flex items-center gap-1"><TypeChip type={bug.type} />{game.dex.caught[bugId] && <span title="Ya en tu Bitdex" className="text-xs">◓</span>}</div>
-        <div className="battle-hp"><HpBar value={enemyHp} max={100} showNumbers={false} light /></div>
+        <div className="my-0.5 flex items-center gap-1"><TypeChip type={bug.type} />{game.dex.caught[bugId] && <span title="Ya en tu Bitdex" className="text-xs text-[#2f7d32]">● Bitdex</span>}</div>
+        <HpBar value={enemyHp} max={100} showNumbers={false} />
       </div>
-      <div className="absolute right-[6%] top-[12%] flex flex-col items-center">
-        <motion.div key={`e${fx.enemy}`} animate={fx.enemy ? { x: [0, -8, 8, -5, 5, 0], opacity: [1, 0.3, 1, 0.3, 1] } : {}} transition={{ duration: 0.5 }}>
-          <Creature look={{ ...bug.look, fangs: !fx.purify }} size={phone ? 104 : 136} glitch={fx.purify ? 0 : 1} />
-        </motion.div>
-        <div className="platform -mt-4" />
-      </div>
-      {trainer && (
-        <div className="absolute right-[34%] top-[8%] opacity-80 max-sm:hidden"><Person look={trainer.look} size={44} /></div>
-      )}
-      {/* tu daemon */}
-      <div className="absolute bottom-[6%] left-[6%] flex flex-col items-center">
-        <motion.div key={`m${fx.me}-${active.uid}`} initial={{ x: -30, opacity: 0 }} animate={fx.me ? { x: [0, 6, -6, 4, 0], opacity: [1, 0.4, 1, 0.4, 1] } : { x: 0, opacity: 1 }} transition={{ duration: 0.5 }}>
-          <Creature look={daemonLook(active)} size={phone ? 112 : 150} flip />
-        </motion.div>
-        <div className="platform -mt-5" />
-      </div>
-      <div className="absolute bottom-3 right-3 w-[48%] max-w-[270px] rounded-lg border-2 border-slate-800 bg-slate-50/95 px-3 py-2 text-slate-900 shadow-lg">
+      {trainer && <div className="absolute right-2 top-2 max-sm:hidden"><Face look={trainer.look} size={40} /></div>}
+      <div className="hud-card absolute bottom-2 right-2 w-[50%] max-w-[260px]">
         <div className="flex items-center justify-between gap-2">
-          <span className="truncate text-sm font-extrabold">{daemonName(active)}</span>
-          <span className="text-[11px] font-bold">Nv{active.level}</span>
+          <span className="truncate font-bold">{daemonName(active)}</span>
+          <span className="text-xs font-bold text-[#7a4a2e]">Nv{active.level}</span>
         </div>
-        <div className="battle-hp mt-1"><HpBar value={active.hp} max={maxHpOf(active.level)} light /></div>
-        <div className="mt-1 h-1 overflow-hidden rounded bg-slate-300"><div className="h-full bg-sky-500" style={{ width: `${(active.xp / xpToNext(active.level)) * 100}%` }} /></div>
+        <HpBar value={active.hp} max={maxHpOf(active.level)} />
+        <div className="xp-track mt-1"><div className="xp-fill" style={{ width: `${(active.xp / xpToNext(active.level)) * 100}%` }} /></div>
       </div>
-      <AnimatePresence>
-        {fx.purify && <motion.div key="flash" className="pointer-events-none absolute inset-0 bg-white" initial={{ opacity: 0.9 }} animate={{ opacity: 0 }} transition={{ duration: 0.9 }} />}
-      </AnimatePresence>
     </div>
   );
 
   const actions = phase === 'fight' ? (
     <div className="grid grid-cols-4 gap-2">
-      <button type="button" disabled={busy} onClick={attack} className="btn-action col-span-2 bg-rose-500 hover:bg-rose-400" title="Ctrl + Enter">⚔ ¡Atacar!<span className="block text-[10px] font-normal opacity-80">ejecuta tu código</span></button>
-      <button type="button" disabled={busy} onClick={() => setModal('lesson')} className="btn-action bg-sky-600 hover:bg-sky-500">📖<span className="block text-[11px]">Lección</span></button>
-      <button type="button" disabled={busy} onClick={() => { setUsed((u) => ({ ...u, hint: true })); setModal('hint'); }} className="btn-action bg-amber-500 text-slate-900 hover:bg-amber-400">💡<span className="block text-[11px]">Pista</span></button>
-      <button type="button" disabled={busy} onClick={() => setModal('bag')} className="btn-action col-span-2 bg-emerald-600 hover:bg-emerald-500">🎒 Mochila</button>
+      <button type="button" disabled={busy} onClick={attack} className="act-btn act-attack col-span-2" title="Ctrl + Enter">⚔ ¡Atacar!<span className="block text-[11px] font-normal opacity-90">ejecuta tu código</span></button>
+      <button type="button" disabled={busy} onClick={() => setModal('lesson')} className="act-btn act-blue">Lección</button>
+      <button type="button" disabled={busy} onClick={() => { setUsed((u) => ({ ...u, hint: true })); setModal('hint'); }} className="act-btn act-yellow">Pista</button>
+      <button type="button" disabled={busy} onClick={() => setModal('bag')} className="act-btn act-green col-span-2">Mochila</button>
       {trainer
-        ? <button type="button" disabled className="btn-action col-span-2 bg-slate-700 opacity-50" title="No se puede huir de un combate contra un entrenador">🚫 No puedes huir</button>
-        : <button type="button" disabled={busy} onClick={() => onEnd({ outcome: 'flee' })} className="btn-action col-span-2 bg-slate-600 hover:bg-slate-500">🏃 Huir</button>}
+        ? <button type="button" disabled className="act-btn act-grey col-span-2" title="No se puede huir de un combate contra un entrenador">No puedes huir</button>
+        : <button type="button" disabled={busy} onClick={() => { sfx('cancel'); onEnd({ outcome: 'flee' }); }} className="act-btn act-grey col-span-2">Huir</button>}
     </div>
   ) : phase === 'capture' ? (
     <div className="grid grid-cols-2 gap-2">
-      <button type="button" onClick={() => capture(true)} className="btn-action bg-emerald-600 hover:bg-emerald-500">◓ ¡Únete al equipo!</button>
-      <button type="button" onClick={() => capture(false)} className="btn-action bg-slate-600 hover:bg-slate-500">Solo registrarlo</button>
+      <button type="button" onClick={() => capture(true)} className="act-btn act-green">¡Únete al equipo!</button>
+      <button type="button" onClick={() => capture(false)} className="act-btn act-grey">Solo registrarlo</button>
     </div>
   ) : phase === 'purified' ? (
-    <button type="button" onClick={() => setIndex((i) => i + 1)} className="btn-action w-full bg-rose-500 hover:bg-rose-400">Siguiente bug ▶</button>
+    <button type="button" onClick={() => setIndex((i) => i + 1)} className="act-btn act-attack w-full">Siguiente bug ▸</button>
   ) : phase === 'lost' ? (
-    <button type="button" onClick={() => onEnd({ outcome: 'lose' })} className="btn-action w-full bg-slate-600 hover:bg-slate-500">Volver al Centro Daemon</button>
+    <button type="button" onClick={() => onEnd({ outcome: 'lose' })} className="act-btn act-grey w-full">Volver al Centro Daemon</button>
   ) : (
-    <button type="button" onClick={() => onEnd({ outcome: 'win' })} className="btn-action w-full bg-emerald-600 hover:bg-emerald-500">Continuar ▶</button>
+    <button type="button" onClick={() => onEnd({ outcome: 'win' })} className="act-btn act-green w-full">Continuar ▸</button>
   );
 
   const casesPanel = (
     <div className="space-y-1.5">
-      {!cases && !err && <p className="text-sm text-slate-400">Pulsa <b className="text-rose-300">¡Atacar!</b> para ejecutar tu función con los casos de prueba. Cada caso que pase es un golpe.</p>}
+      {!cases && !err && <p className="pp-note">Pulsa <b>¡Atacar!</b> para ejecutar tu función con los casos de prueba. Cada caso que pase es un golpe.</p>}
       {pe && (
-        <div className="rounded-lg border border-rose-500/50 bg-rose-950/40 p-3 text-sm">
-          <div className="font-bold text-rose-300">{pe.title}</div>
-          <p className="mt-1 text-slate-200">{pe.what}</p>
-          <p className="mt-1 text-amber-200">→ {pe.fix}</p>
-          <pre className="mt-2 overflow-x-auto whitespace-pre-wrap rounded bg-black/40 p-2 text-[11px] text-rose-200/80">{err.trace || err.message}</pre>
+        <div className="case-card case-bad p-3 text-sm">
+          <div className="font-bold text-[#b3261e]">{pe.title}</div>
+          <p className="mt-1">{pe.what}</p>
+          <p className="mt-1 font-bold text-[#7a4a2e]">→ {pe.fix}</p>
+          <pre className="code-dark mt-2 whitespace-pre-wrap text-[11px]">{err.trace || err.message}</pre>
         </div>
       )}
       {cases && !err && cases.map((c, i) => (
-        <div key={i} className={`flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-[12.5px] ${c.ok ? 'border-emerald-500/40 bg-emerald-950/30' : 'border-rose-500/40 bg-rose-950/30'}`}>
-          <span className={c.ok ? 'text-emerald-400' : 'text-rose-400'}>{c.ok ? '✔' : '✘'}</span>
-          <code className="min-w-0 flex-1 truncate text-slate-200">{evalRes.scene.fnName}({c.input})</code>
-          <span className="shrink-0 text-slate-400">espera <b className="text-slate-100">{c.expected}</b></span>
-          {!c.ok && <span className="shrink-0 text-rose-300">da <b>{c.got}</b></span>}
+        <div key={i} className={`case-card flex items-center gap-2 px-2.5 py-1.5 text-[13px] ${c.ok ? 'case-ok' : 'case-bad'}`}>
+          <span className="font-bold">{c.ok ? '✔' : '✘'}</span>
+          <code className="min-w-0 flex-1 truncate font-mono text-[12px]">{evalRes.scene.fnName}({c.input})</code>
+          <span className="shrink-0">espera <b>{c.expected}</b></span>
+          {!c.ok && <span className="shrink-0 text-[#b3261e]">da <b>{c.got}</b></span>}
         </div>
       ))}
       {evalRes && evalRes.checks.filter((c) => c.id !== 'tests').map((c) => (
-        <div key={c.id} className={`rounded-lg border px-2.5 py-1.5 text-[12.5px] ${c.ok ? 'border-emerald-500/40 text-emerald-300' : 'border-amber-500/50 text-amber-200'}`}>{c.ok ? '🛡 Escudo roto: ' : '🛡 Escudo activo: '}{c.label}{!c.ok && c.help ? ` — ${c.help}` : ''}</div>
+        <div key={c.id} className={`case-card px-2.5 py-1.5 text-[13px] ${c.ok ? 'case-ok' : 'case-warn'}`}>{c.ok ? 'Escudo roto: ' : 'Escudo activo: '}{c.label}{!c.ok && c.help ? ` — ${c.help}` : ''}</div>
       ))}
       {evalRes && evalRes.output && evalRes.output.length > 0 && (
-        <pre className="max-h-28 overflow-auto rounded bg-black/40 p-2 text-[11px] text-slate-300">{evalRes.output.slice(0, 20).join('\n')}</pre>
+        <pre className="code-dark max-h-28 overflow-auto text-[11px]">{evalRes.output.slice(0, 20).join('\n')}</pre>
       )}
     </div>
   );
 
   const mission = (
-    <div className="rounded-xl border-2 border-slate-700 bg-slate-900/80 p-3">
+    <div className="pp-panel !py-2.5">
       <div className="flex items-center justify-between gap-2">
-        <span className="pixel-font text-[9px] text-amber-300">Función corrupta</span>
-        <span className="rounded bg-slate-800 px-1.5 py-0.5 text-[10px] text-slate-300" style={{ color: LANGUAGES[lang].color }}>{LANGUAGES[lang].name}</span>
+        <span className="pixel-title text-lg text-[#7a3b1e]">Función corrupta</span>
+        <span className="lang-chip" style={{ background: LANGUAGES[lang].color }}>{LANGUAGES[lang].name}</span>
       </div>
-      <p className="mt-1.5 text-[13.5px] leading-snug text-slate-100">{spec.objective}</p>
-      {fnSig && <code className="mt-1.5 block truncate text-[12px] text-sky-300">{fnSig}</code>}
+      <p className="mt-0.5 text-[14px] leading-snug">{spec.objective}</p>
+      {fnSig && <code className="mt-1 block truncate font-mono text-[12.5px] text-[#2a5d8f]">{fnSig}</code>}
     </div>
   );
 
   const editor = (
-    <div className="flex min-h-0 flex-1 flex-col">
-      <div className="mb-1.5 flex items-center justify-between text-[11px] text-slate-400">
+    <div className="editor-shell flex min-h-0 flex-1 flex-col">
+      <div className="mb-1.5 flex items-center justify-between gap-2 px-1 text-[12px] text-[#f3e3c8]">
         <span>✎ Las líneas marcadas son las que tienes que cambiar</span>
-        <button type="button" className="rounded bg-slate-800 px-2 py-0.5 hover:bg-slate-700" onClick={() => { if (window.confirm('¿Volver al código inicial? Perderás tus cambios.')) setCode(ch.starter[lang]); }}>↺ Reiniciar</button>
+        <button type="button" className="shrink-0 rounded bg-[#5a3a28] px-2 py-0.5 hover:bg-[#6d4732]" onClick={() => { if (window.confirm('¿Volver al código inicial? Perderás tus cambios.')) setCode(ch.starter[lang]); }}>↺ Reiniciar</button>
       </div>
       <div className={`min-h-0 flex-1 ${phone ? 'h-[46vh]' : ''}`}>
         <CodeEditor code={code} onChange={setCode} lang={lang} errorLine={err ? err.line : null} lintLines={[]} focus={focus} onRun={attack} keypad={phone} />
@@ -370,19 +355,19 @@ export default function Battle({ game, update, battle, onEnd }) {
 
   return (
     <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-3 p-2 sm:p-3 lg:h-full lg:flex-row">
-      <div className="flex flex-col gap-3 lg:w-[46%] lg:min-w-[420px]">
-        <div className="h-[230px] sm:h-[300px]">{scene}</div>
-        <div className="battle-msg">{msg}</div>
+      <div className="flex flex-col gap-2.5 lg:w-[46%] lg:min-w-[440px]">
+        <div className="aspect-[256/150] w-full">{scene}</div>
+        <div className="pp-panel battle-text">{msg}</div>
         {actions}
-        {!phone && <div className="min-h-0 flex-1 overflow-y-auto">{casesPanel}</div>}
+        {!phone && <div className="min-h-0 flex-1 overflow-y-auto pr-1">{casesPanel}</div>}
       </div>
-      <div className="flex min-h-0 flex-1 flex-col gap-3">
+      <div className="flex min-h-0 flex-1 flex-col gap-2.5">
         {mission}
         {phone ? (
           <>
-            <div className="flex gap-1 rounded-lg bg-slate-900 p-1 text-sm">
+            <div className="tabbar flex gap-1 p-1 text-sm">
               {[['code', 'Código'], ['cases', `Casos${cases ? ` (${cases.filter((c) => c.ok).length}/${cases.length})` : ''}`]].map(([id, label]) => (
-                <button key={id} type="button" onClick={() => setTab(id)} className={`flex-1 rounded-md py-1.5 font-bold ${tab === id ? 'bg-slate-700 text-white' : 'text-slate-400'}`}>{label}{id === 'cases' && err ? ' ⚠' : ''}</button>
+                <button key={id} type="button" onClick={() => setTab(id)} className={`flex-1 rounded-md py-1.5 font-bold ${tab === id ? 'tab-on' : 'tab-off'}`}>{label}{id === 'cases' && err ? ' ⚠' : ''}</button>
               ))}
             </div>
             {tab === 'code' ? editor : casesPanel}
@@ -394,52 +379,52 @@ export default function Battle({ game, update, battle, onEnd }) {
         <Modal title={`Lección · ${lesson.steps[0].title}`} onClose={() => setModal(null)} wide>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <p className="text-[15px] leading-relaxed text-slate-100">{lesson.steps[0].text}</p>
+              <p className="text-[15px] leading-relaxed">{lesson.steps[0].text}</p>
               {lesson.steps[0].code && lesson.steps[0].code[lang] && (
                 <>
-                  <div className="mt-3 text-[11px] uppercase tracking-wider text-slate-400">Ejemplo en {LANGUAGES[lang].name}</div>
-                  <pre className="mt-1 overflow-x-auto rounded-lg bg-black/50 p-3 text-[13px] text-sky-200">{lesson.steps[0].code[lang]}</pre>
+                  <div className="mt-3 text-xs font-bold uppercase tracking-wider text-[#7a4a2e]">Ejemplo en {LANGUAGES[lang].name}</div>
+                  <pre className="code-dark mt-1 text-[13px]">{lesson.steps[0].code[lang]}</pre>
                 </>
               )}
-              <div className="mt-3 rounded-lg border border-amber-400/40 bg-amber-950/30 p-3 text-sm text-amber-100"><b>Tu misión:</b> {lesson.mission[lang]}</div>
+              <div className="case-card case-warn mt-3 p-3 text-sm"><b>Tu misión:</b> {lesson.mission[lang]}</div>
             </div>
-            <div className="min-h-[220px] overflow-hidden rounded-xl bg-slate-950/70"><LessonVisual kind={lesson.steps[0].visual} lang={lang} /></div>
+            <div className="min-h-[220px] overflow-hidden rounded-lg bg-[#1d1611]"><LessonVisual kind={lesson.steps[0].visual} lang={lang} /></div>
           </div>
         </Modal>
       )}
       {modal === 'hint' && (
         <Modal title="Pista" onClose={() => setModal(null)}>
-          <p className="text-[15px] text-slate-100">{spec.hint}</p>
-          <p className="mt-2 text-sm text-slate-300">{ch.polyglot[lang]}</p>
-          <p className="mt-3 text-xs text-slate-500">Usar la pista reduce un poco la experiencia que ganas.</p>
+          <p className="text-[15px]">{spec.hint}</p>
+          <p className="mt-2 text-sm text-[#6b4a35]">{ch.polyglot[lang]}</p>
+          <p className="mt-3 text-xs text-[#8a6a55]">Usar la pista reduce un poco la experiencia que ganas.</p>
           {fails >= 2 ? (
-            <div className="mt-4 rounded-lg border border-slate-700 p-3">
-              <p className="text-sm text-slate-300">¿Atascada, atascado? Puedes ver la solución explicada. Ganarás mucha menos experiencia, pero aprenderás cómo se hace.</p>
-              <button type="button" className="mt-2 rounded-md bg-slate-700 px-3 py-1.5 text-sm font-bold hover:bg-slate-600" onClick={() => { setUsed((u) => ({ ...u, solution: true })); setCode(ch.solution[lang]); setModal(null); setMsg('Has cargado la solución. Léela con calma y luego ataca.'); }}>Ver la solución</button>
+            <div className="case-card mt-4 p-3">
+              <p className="text-sm">¿Te has atascado? Puedes ver la solución. Ganarás mucha menos experiencia, pero aprenderás cómo se hace.</p>
+              <button type="button" className="pp-btn mt-2" onClick={() => { setUsed((u) => ({ ...u, solution: true })); setCode(ch.solution[lang]); setModal(null); setMsg('Has cargado la solución. Léela con calma y luego ataca.'); }}>Ver la solución</button>
             </div>
-          ) : <p className="mt-4 text-xs text-slate-500">Si fallas dos ataques, aquí podrás ver la solución.</p>}
+          ) : <p className="mt-4 text-xs text-[#8a6a55]">Si fallas dos ataques, aquí podrás ver la solución.</p>}
         </Modal>
       )}
       {modal === 'bag' && (
         <Modal title="Mochila" onClose={() => setModal(null)}>
           {Object.entries(ITEMS).map(([id, it]) => (
-            <div key={id} className="mb-2 flex items-center justify-between gap-3 rounded-lg bg-slate-800/70 p-3">
-              <div><div className="font-bold">{it.name} ×{game.bag[id] || 0}</div><div className="text-xs text-slate-400">{it.desc}</div></div>
-              <button type="button" disabled={!game.bag[id] || active.hp >= maxHpOf(active.level)} onClick={() => useItem(id)} className="rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-bold disabled:opacity-40">Usar</button>
+            <div key={id} className="case-card mb-2 flex items-center justify-between gap-3 p-3">
+              <div><div className="font-bold">{it.name} ×{game.bag[id] || 0}</div><div className="text-xs text-[#6b4a35]">{it.desc}</div></div>
+              <button type="button" disabled={!game.bag[id] || active.hp >= maxHpOf(active.level)} onClick={() => useItem(id)} className="pp-btn">Usar</button>
             </div>
           ))}
         </Modal>
       )}
       {modal === 'tutorial' && (
-        <Modal title="¡Tu primera batalla!" onClose={() => setModal(null)}>
-          <ol className="space-y-3 text-[15px] leading-relaxed text-slate-100">
-            <li><b className="text-amber-300">1.</b> Este bug ha corrompido una función. Arriba a la derecha tienes qué debe hacer.</li>
-            <li><b className="text-amber-300">2.</b> Escribe el código en el editor. Las líneas con <span className="text-amber-300">✎</span> son las que tienes que cambiar.</li>
-            <li><b className="text-amber-300">3.</b> Pulsa <b className="text-rose-300">⚔ ¡Atacar!</b> Tu función se ejecuta con varios casos de prueba: cada uno que pasa es un golpe.</li>
-            <li><b className="text-amber-300">4.</b> Si algo falla, el bug contraataca. Mira qué esperaba y qué ha dado tu función, y vuelve a intentarlo.</li>
-            <li><b className="text-amber-300">5.</b> ¿No sabes por dónde empezar? <b className="text-sky-300">📖 Lección</b> te lo explica con un ejemplo.</li>
+        <Modal title="¡Tu primer combate!" onClose={() => setModal(null)}>
+          <ol className="space-y-2.5 text-[15px] leading-relaxed">
+            <li><b className="text-[#c0561f]">1.</b> Este bug ha corrompido una función. En «Función corrupta» tienes lo que debe hacer.</li>
+            <li><b className="text-[#c0561f]">2.</b> Escribe el código en el editor. Las líneas con ✎ son las que tienes que cambiar.</li>
+            <li><b className="text-[#c0561f]">3.</b> Pulsa <b>⚔ ¡Atacar!</b> Tu función se ejecuta con varios casos de prueba: cada uno que pasa es un golpe.</li>
+            <li><b className="text-[#c0561f]">4.</b> Si algo falla, el bug contraataca. Mira qué esperaba y qué ha dado tu función, y vuelve a intentarlo.</li>
+            <li><b className="text-[#c0561f]">5.</b> ¿No sabes por dónde empezar? <b>Lección</b> te lo explica con un ejemplo.</li>
           </ol>
-          <button type="button" onClick={() => setModal(null)} className="btn-action mt-4 w-full bg-rose-500">¡Entendido!</button>
+          <button type="button" onClick={() => setModal(null)} className="act-btn act-attack mt-4 w-full">¡Entendido!</button>
         </Modal>
       )}
     </div>

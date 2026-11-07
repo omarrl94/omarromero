@@ -2,7 +2,9 @@
 @import '@fontsource/jetbrains-mono/500.css';
 @import '@fontsource/jetbrains-mono/700.css';
 @import '@fontsource/jetbrains-mono/800.css';
-@import '@fontsource/press-start-2p/400.css';
+@import '@fontsource/pixelify-sans/400.css';
+@import '@fontsource/pixelify-sans/600.css';
+@import '@fontsource/pixelify-sans/700.css';
 
 @tailwind base;
 @tailwind components;
@@ -127,135 +129,233 @@ body {
 /* Con el teclado en pantalla abierto se esconden las barras inferiores (más sitio para el código). */
 .kb-open .kb-hide { display: none !important; }
 
-/* ───────────── CodeForge II: Bitlandia ───────────── */
-.pixel-font { font-family: 'Press Start 2P', 'JetBrains Mono', monospace; letter-spacing: 0.02em; }
-.pixelated { image-rendering: pixelated; image-rendering: crisp-edges; }
 
-.title-bg {
-  background:
-    radial-gradient(800px 420px at 50% 30%, rgba(255, 196, 61, 0.16), transparent 65%),
-    radial-gradient(1000px 600px at 10% 110%, rgba(61, 220, 132, 0.14), transparent 60%),
-    radial-gradient(900px 600px at 100% 0%, rgba(99, 102, 241, 0.22), transparent 60%),
-    #0b1020;
-}
+/* ───────────── CodeForge II: Bitlandia ─────────────
+   Interfaz con los marcos del pack «Ninja Adventure» (CC0): pergamino claro con borde
+   naranja y marrón, botones naranjas y retratos enmarcados. */
+.pixelated { image-rendering: pixelated; image-rendering: crisp-edges; }
+.pixel-title { font-family: 'Pixelify Sans', 'JetBrains Mono', monospace; font-weight: 700; letter-spacing: 0.01em; line-height: 1.05; }
 .title-logo {
-  color: #ffd34d;
-  text-shadow: 3px 3px 0 #c2410c, 6px 6px 0 #1e1b4b;
+  color: #ffd25a;
+  -webkit-text-stroke: 2px #4a1f0e;
+  paint-order: stroke fill;
+  text-shadow: 0 4px 0 #b4471c, 0 7px 0 #4a1f0e, 0 12px 18px rgba(0, 0, 0, 0.45);
 }
 .game-bg {
+  font-family: 'Pixelify Sans', 'JetBrains Mono', monospace;
+  color: #3b2418;
   background:
-    radial-gradient(1000px 500px at 50% -10%, rgba(99, 102, 241, 0.18), transparent 60%),
-    linear-gradient(180deg, #0e1428, #0a0f1f);
-  color: #e5e9ff;
+    radial-gradient(900px 480px at 50% -10%, rgba(255, 196, 120, 0.18), transparent 60%),
+    linear-gradient(180deg, #3a2a20 0%, #241812 100%);
 }
-.panel {
-  background: linear-gradient(180deg, rgba(30, 41, 72, 0.92), rgba(17, 24, 45, 0.95));
-  border: 2px solid #3b4a75;
-  border-radius: 14px;
-  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.35);
+#root { font-family: 'Pixelify Sans', 'JetBrains Mono', monospace; }
+.game-bg header { color: #fff3dc; }
+
+.pp-panel {
+  border-style: solid;
+  border-width: 12px;
+  border-image: url('./rpg/ui-img/DialogueBoxSimple.png') 6 fill / 12px / 0 stretch;
+  image-rendering: pixelated;
+  padding: 2px 6px;
+  color: #3b2418;
+  filter: drop-shadow(0 4px 0 rgba(0, 0, 0, 0.35));
 }
+.modal-panel { padding: 4px 8px 8px; }
+.pp-btn {
+  font-family: 'Pixelify Sans', sans-serif;
+  font-weight: 700;
+  color: #fff;
+  padding: 6px 14px;
+  border-style: solid;
+  border-width: 6px 6px 8px;
+  border-image: url('./rpg/ui-img/button_normal.png') 3 3 4 fill / 6px 6px 8px stretch;
+  image-rendering: pixelated;
+  text-shadow: 0 2px 0 #8a2f12;
+  transition: transform 0.06s;
+}
+.pp-btn:hover:not(:disabled) { border-image-source: url('./rpg/ui-img/button_hover.png'); }
+.pp-btn:active:not(:disabled) { border-image-source: url('./rpg/ui-img/button_pressed.png'); transform: translateY(2px); }
+.pp-btn:disabled { filter: grayscale(0.8) brightness(0.9); opacity: 0.6; cursor: not-allowed; }
+.pp-btn-on { filter: brightness(1.12); outline: 3px solid #ffd25a; outline-offset: 1px; }
+.pp-input {
+  font-family: 'Pixelify Sans', sans-serif;
+  font-size: 22px;
+  color: #3b2418;
+  background: #fffaf2;
+  border: 3px solid #965340;
+  border-radius: 4px;
+  padding: 6px 10px;
+  outline: none;
+}
+.pp-input:focus { border-color: #f06733; box-shadow: 0 0 0 3px rgba(240, 103, 51, 0.25); }
+.pp-note { font-size: 14px; color: #fff3dc; }
+
+.face-frame {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-style: solid;
+  border-width: 6px;
+  border-image: url('./rpg/ui-img/FacesetBox.png') 6 fill / 6px stretch;
+  image-rendering: pixelated;
+}
+.creature-stage {
+  border-radius: 50%;
+  padding: 8px 18px 4px;
+  background: radial-gradient(ellipse at 50% 85%, rgba(122, 160, 60, 0.45) 0 38%, transparent 40%), radial-gradient(circle at 50% 45%, #fff6e6, #f2e3c8 70%);
+  box-shadow: inset 0 0 0 3px #d9b28c;
+}
+
+.hp-label { font-family: 'Pixelify Sans', sans-serif; font-weight: 700; font-size: 12px; color: #c0561f; }
+.hp-track { height: 10px; background: #3b2418; border: 2px solid #3b2418; border-radius: 3px; overflow: hidden; box-shadow: inset 0 0 0 1px #6d4732; }
+.hp-fill { height: 100%; border-radius: 1px; transition: width 0.7s ease-out, background 0.3s; box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.18), inset 0 2px 0 rgba(255, 255, 255, 0.35); }
+.xp-track { height: 5px; background: #d9c3a3; border-radius: 3px; overflow: hidden; }
+.xp-fill { height: 100%; background: #3d8fd1; }
+.type-chip, .lang-chip {
+  display: inline-block;
+  border-radius: 4px;
+  padding: 0 7px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+}
+.lang-chip { color: #1d140f; text-shadow: none; }
+
+/* Diálogos */
+.dialog-wrap { position: relative; cursor: pointer; }
+.dialog-name {
+  display: inline-block;
+  margin-left: 14px;
+  margin-bottom: -6px;
+  position: relative;
+  z-index: 1;
+  padding: 2px 12px 4px;
+  font-family: 'Pixelify Sans', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: #fff;
+  background: #c0561f;
+  border: 3px solid #3b2418;
+  border-radius: 6px 6px 2px 2px;
+  text-shadow: 0 2px 0 #7a2c0e;
+}
+.dialog-body { padding: 6px 10px; }
+.dialog-text { font-size: 19px; line-height: 1.35; color: #3b2418; }
+.dialog-next { position: absolute; right: 22px; bottom: 14px; color: #c0561f; font-size: 13px; animation: dialog-bounce 0.8s infinite; }
+@keyframes dialog-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(3px); } }
+
+.menu-tile {
+  display: block;
+  text-align: left;
+  padding: 10px 12px;
+  color: #3b2418;
+  background: #fff8ec;
+  border: 3px solid #d9b28c;
+  border-radius: 8px;
+  box-shadow: 0 3px 0 #c9a27c;
+  transition: transform 0.06s, border-color 0.15s;
+}
+.menu-tile:hover { border-color: #f0a35a; }
+.menu-tile-on { border-color: #f06733; background: #fff1dc; box-shadow: 0 3px 0 #c0561f; }
+.medal { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; font-size: 20px; font-weight: 700; color: #8a7564; background: #e8dccb; border: 3px solid #b9a48c; }
+.medal-on { color: #fff; background: radial-gradient(circle at 35% 30%, #ffe08a, #f0a020 60%, #b8650c); border-color: #6d3a10; text-shadow: 0 2px 0 #8a4b10; box-shadow: 0 3px 0 #6d3a10; }
+
+/* Exploración */
 .overworld-frame {
   position: relative;
   overflow: hidden;
-  border-radius: 14px;
-  border: 4px solid #1e2744;
-  box-shadow: 0 0 0 2px #3b4a75, 0 12px 30px rgba(0, 0, 0, 0.5);
-  background: #000;
-  max-height: calc(100vh - 90px);
+  border-radius: 6px;
+  border: 6px solid #3b2418;
+  box-shadow: 0 0 0 3px #c0561f, 0 0 0 6px #3b2418, 0 16px 30px rgba(0, 0, 0, 0.5);
+  background: #2b4a2b;
+  max-height: calc(100vh - 96px);
   aspect-ratio: 15 / 11;
-  margin: 0 auto;
+  margin: 6px auto 0;
 }
 .overworld-frame > canvas { width: 100%; height: 100%; }
 .zone-banner {
   position: absolute;
-  top: 10px;
+  top: 12px;
   left: 50%;
   transform: translateX(-50%);
-  padding: 8px 14px;
-  font-size: 11px;
-  color: #1e1b4b;
-  background: #fef3c7;
-  border: 3px solid #1e1b4b;
-  border-radius: 8px;
+  padding: 6px 18px 8px;
+  font-size: 22px;
+  color: #3b2418;
+  background: #f2eaf1;
+  border: 4px solid #3b2418;
+  box-shadow: inset 0 0 0 3px #ffad5d, 0 4px 0 rgba(0, 0, 0, 0.35);
+  border-radius: 6px;
   white-space: nowrap;
-  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.35);
 }
-.dialog-box {
-  position: relative;
-  background: linear-gradient(180deg, #1e2a52, #141c38);
-  border: 3px solid #f8fafc;
-  outline: 3px solid #1e1b4b;
-  border-radius: 12px;
-  padding: 12px 16px 14px;
-  cursor: pointer;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
-}
-.dialog-next {
-  position: absolute;
-  right: 14px;
-  bottom: 6px;
-  color: #fbbf24;
-  font-size: 12px;
-  animation: dialog-bounce 0.8s infinite;
-}
-@keyframes dialog-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(3px); } }
-
-.battle-scene {
-  height: 100%;
-  border: 4px solid #1e2744;
-  box-shadow: 0 0 0 2px #3b4a75;
-  background:
-    radial-gradient(60% 35% at 72% 52%, rgba(255, 255, 255, 0.35), transparent 70%),
-    linear-gradient(180deg, #8fd3ff 0%, #c8ecff 45%, #9be37d 46%, #6cc256 100%);
-}
-.battle-boss {
-  background:
-    radial-gradient(60% 35% at 72% 52%, rgba(255, 61, 240, 0.25), transparent 70%),
-    linear-gradient(180deg, #1a1030 0%, #3a1d5c 45%, #2a2440 46%, #1b1530 100%);
-}
-.platform {
-  width: 150px;
-  height: 26px;
-  border-radius: 50%;
-  background: radial-gradient(ellipse at center, rgba(40, 90, 40, 0.55), rgba(40, 90, 40, 0.15) 70%, transparent 72%);
-}
-.battle-boss .platform { background: radial-gradient(ellipse at center, rgba(255, 61, 240, 0.4), transparent 72%); }
-.battle-hp .h-2\.5 { height: 0.5rem; }
-.battle-msg {
-  min-height: 3.6em;
-  background: #f8fafc;
-  color: #0f172a;
-  border: 3px solid #1e1b4b;
-  border-radius: 12px;
-  padding: 10px 14px;
+.hdr-chip {
+  font-weight: 700;
   font-size: 15px;
-  font-weight: 600;
-  line-height: 1.4;
+  color: #fff3dc;
+  background: rgba(20, 12, 8, 0.55);
+  border: 2px solid #6d4732;
+  border-radius: 6px;
+  padding: 2px 10px;
 }
-.btn-action {
-  border-radius: 12px;
-  padding: 10px 12px;
-  font-weight: 800;
-  color: #fff;
-  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.35);
-  transition: transform 0.08s, filter 0.15s;
-}
-.btn-action:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0, 0, 0, 0.35); }
-.btn-action:disabled { opacity: 0.5; cursor: not-allowed; }
 
+/* Combate */
+.battle-frame { border: 5px solid #3b2418; border-radius: 6px; box-shadow: 0 0 0 3px #c0561f, 0 0 0 5px #3b2418; background: #2b4a2b; }
+.hud-card {
+  padding: 5px 9px 7px;
+  color: #3b2418;
+  background: #f2eaf1;
+  border: 3px solid #3b2418;
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 2px #ffad5d, 0 3px 0 rgba(0, 0, 0, 0.35);
+}
+.battle-text { min-height: 3.4em; font-size: 18px; line-height: 1.3; font-weight: 600; }
+.act-btn {
+  font-family: 'Pixelify Sans', sans-serif;
+  font-weight: 700;
+  font-size: 17px;
+  color: #fff;
+  padding: 8px 10px;
+  border: 3px solid #3b2418;
+  border-radius: 8px;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+  box-shadow: inset 0 -4px 0 rgba(0, 0, 0, 0.22), inset 0 3px 0 rgba(255, 255, 255, 0.25), 0 3px 0 #3b2418;
+  transition: transform 0.06s, filter 0.15s;
+}
+.act-btn:hover:not(:disabled) { filter: brightness(1.08); }
+.act-btn:active:not(:disabled) { transform: translateY(3px); box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.22), 0 0 0 #3b2418; }
+.act-btn:disabled { filter: grayscale(0.7); opacity: 0.6; cursor: not-allowed; }
+.act-attack { background: #e0533a; font-size: 20px; }
+.act-blue { background: #3d8fd1; }
+.act-yellow { background: #e9a23b; }
+.act-green { background: #4f9a3c; }
+.act-grey { background: #8a7564; }
+.case-card { color: #3b2418; background: #fff8ec; border: 2px solid #d9b28c; border-radius: 6px; }
+.case-ok { background: #eef8e4; border-color: #8cc46a; }
+.case-bad { background: #fdecea; border-color: #e59a8f; }
+.case-warn { background: #fff4dc; border-color: #f0b55a; }
+.code-dark { font-family: 'JetBrains Mono', monospace; overflow-x: auto; background: #1d1611; color: #f3d7b0; border-radius: 6px; padding: 8px 10px; }
+.editor-shell { background: #2a1d15; border: 4px solid #3b2418; border-radius: 8px; padding: 6px; box-shadow: 0 0 0 2px #6d4732; }
+.tabbar { background: #2a1d15; border: 3px solid #3b2418; border-radius: 8px; }
+.tab-on { background: #f06733; color: #fff; }
+.tab-off { color: #e8d5b5; }
+
+/* Controles táctiles */
 .dpad { position: relative; width: 138px; height: 138px; }
 .dpad-btn {
   position: absolute;
   width: 46px;
   height: 46px;
-  background: #334155;
-  color: #cbd5e1;
-  border-radius: 10px;
+  background: #5a3a28;
+  color: #f3e3c8;
+  border: 3px solid #2a1d15;
+  border-radius: 8px;
   font-size: 16px;
   touch-action: none;
-  box-shadow: 0 3px 0 #0f172a;
+  box-shadow: 0 3px 0 #2a1d15;
 }
-.dpad-btn:active { background: #475569; transform: translateY(2px); box-shadow: 0 1px 0 #0f172a; }
+.dpad-btn:active { background: #7a5038; transform: translateY(2px); box-shadow: 0 1px 0 #2a1d15; }
 .dpad-up { left: 46px; top: 0; }
 .dpad-down { left: 46px; bottom: 0; }
 .dpad-left { left: 0; top: 46px; }
@@ -265,9 +365,15 @@ body {
   height: 58px;
   border-radius: 50%;
   color: #fff;
-  font-weight: 900;
-  font-size: 18px;
+  font-weight: 700;
+  font-size: 20px;
+  border: 3px solid #2a1d15;
   touch-action: none;
-  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.45);
+  box-shadow: inset 0 -4px 0 rgba(0, 0, 0, 0.25), 0 4px 0 #2a1d15;
 }
-.ab-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0, 0, 0, 0.45); }
+.ab-a { background: #e0533a; }
+.ab-b { background: #8a7564; }
+.ab-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #2a1d15; }
+.editor-shell { color: #e6e1ff; font-family: 'JetBrains Mono', monospace; }
+.editor-shell pre.editor-layer { color: #e6e1ff; }
+.editor-shell > div:first-child { font-family: 'Pixelify Sans', sans-serif; }

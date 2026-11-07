@@ -11,12 +11,25 @@ const hline = (x1, x2, y, ch) => rect(x1, y, x2 - x1 + 1, 1, ch);
 const vline = (x, y1, y2, ch) => rect(x, y1, 1, y2 - y1 + 1, ch);
 const put = (x, y, ch) => { grid[y][x] = ch; };
 export const DOORS = {};
-/** Edificio: 2 filas de tejado y 1 de fachada con ventanas y una puerta. */
-function house(x, y, w, roof, dx, door) {
-  rect(x, y, w, 2, roof);
-  for (let i = 0; i < w; i++) put(x + i, y + 2, i === 0 || i === w - 1 ? 'W' : i % 2 ? 'w' : 'W');
-  put(x + dx, y + 2, 'D');
-  DOORS[`${x + dx},${y + 2}`] = door;
+export const BUILDINGS = [];
+/** Tipos de edificio: posición en TilesetHouse, ancho y columna de la puerta. */
+export const BUILDING_TYPES = {
+  home: { sx: 0, w: 4, door: 1 },
+  house: { sx: 8, w: 4, door: 1 },
+  house2: { sx: 4, w: 4, door: 1 },
+  gym: { sx: 12, w: 4, door: 1 },
+  lab: { sx: 19, w: 4, door: 2 },
+  center: { sx: 16, w: 3, door: 1 },
+  tower: { sx: 23, w: 3, door: 1 },
+};
+/** Edificio de 3 filas: se dibuja con su sprite; su huella es sólida salvo la puerta. */
+function house(x, y, type, door) {
+  const b = BUILDING_TYPES[type];
+  rect(x, y, b.w, 3, 'B');
+  put(x + b.door, y + 2, 'D');
+  DOORS[`${x + b.door},${y + 2}`] = door;
+  BUILDINGS.push({ x, y, type, door });
+  return x + b.door;
 }
 
 // ── bordes
@@ -27,9 +40,9 @@ vline(W - 1, 0, H - 1, 'T');
 hline(1, 28, 84, 'T'); put(15, 84, '=');
 hline(1, 28, 95, 'T');
 vline(14, 85, 90, '='); vline(15, 85, 90, '=');
-house(3, 86, 5, 'R', 2, 'home');
-house(19, 86, 7, 'A', 3, 'lab');
-hline(5, 22, 90, '='); vline(5, 89, 90, '='); vline(22, 89, 90, '=');
+house(3, 86, 'home', 'home');
+house(19, 86, 'lab', 'lab');
+hline(4, 21, 90, '='); vline(4, 89, 90, '='); vline(21, 89, 90, '=');
 rect(19, 92, 6, 2, '~');
 rect(2, 92, 4, 2, '*'); put(27, 85, '*'); put(1, 85, '*'); put(10, 87, '*'); put(11, 88, '*');
 hline(8, 13, 93, 'F');
@@ -44,12 +57,12 @@ put(16, 82, 'S');
 // ════════ Zona 7 · Ciudad Byte (y 64-73) ════════
 hline(1, 28, 64, 'T'); put(15, 64, 'X');
 vline(14, 65, 73, '='); vline(15, 65, 73, '=');
-house(3, 66, 5, 'H', 2, 'center');
-house(19, 65, 7, 'G', 3, 'gym1');
-hline(3, 26, 69, '='); vline(22, 68, 69, '=');
-house(4, 70, 4, 'R', 1, 'house-byte');
-house(21, 70, 5, 'R', 2, 'house-byte2');
-vline(5, 73, 73, '='); vline(23, 73, 73, '=');
+house(3, 66, 'center', 'center');
+house(19, 65, 'gym', 'gym1');
+hline(3, 26, 69, '='); vline(20, 68, 69, '=');
+house(4, 70, 'house', 'house-byte');
+house(21, 70, 'house2', 'house-byte2');
+vline(5, 73, 73, '='); vline(22, 73, 73, '=');
 put(12, 66, 'S'); put(10, 72, '*'); put(11, 72, '*'); put(17, 72, '*'); put(17, 71, '*');
 
 // ════════ Zona 6 · Bosque Bucle (y 54-63) ════════
@@ -64,9 +77,9 @@ put(14, 62, 'S');
 hline(1, 28, 44, 'T'); put(15, 44, 'X');
 hline(1, 28, 53, 'T'); put(15, 53, '=');
 hline(1, 28, 52, 'T'); put(15, 52, '=');
-house(4, 45, 7, 'G', 3, 'gym2');
-house(20, 45, 5, 'H', 2, 'center');
-hline(3, 26, 48, '='); vline(7, 48, 48, '='); vline(14, 45, 51, '='); vline(15, 45, 51, '=');
+house(4, 45, 'gym', 'gym2');
+house(20, 45, 'center', 'center');
+hline(3, 26, 48, '='); vline(14, 45, 51, '='); vline(15, 45, 51, '=');
 rect(10, 49, 3, 2, '*'); rect(17, 49, 3, 2, '*'); put(12, 46, 'S');
 rect(22, 49, 5, 2, '~');
 
@@ -78,19 +91,19 @@ hline(16, 19, 37, 'b');
 rect(20, 35, 8, 5, ':'); rect(21, 35, 6, 4, ',');
 vline(14, 41, 43, '='); vline(15, 41, 43, '=');
 rect(2, 41, 10, 2, ','); rect(18, 41, 10, 2, ',');
-house(3, 30, 7, 'G', 3, 'gym3');
-house(21, 30, 5, 'H', 2, 'center');
+house(3, 30, 'gym', 'gym3');
+house(21, 30, 'center', 'center');
 hline(2, 27, 33, '='); vline(14, 30, 33, '='); vline(15, 30, 33, '=');
 put(12, 31, 'S'); put(17, 42, 'S');
 
 // ════════ Zona 3 · Ciudad Recursiva (y 17-28) ════════
 hline(1, 28, 17, 'T'); put(4, 17, 'X');
-hline(10, 19, 18, 'N'); rect(10, 19, 10, 5, '#'); put(15, 23, 'D'); DOORS['15,23'] = 'gym4';
-vline(14, 24, 28, '='); vline(15, 24, 28, '=');
+house(14, 20, 'tower', 'gym4');
+vline(14, 23, 28, '='); vline(15, 23, 28, '=');
 hline(4, 25, 26, '='); vline(4, 18, 26, '=');
 rect(1, 27, 9, 2, 'k'); rect(20, 27, 9, 2, 'k'); rect(5, 19, 4, 5, 'k');
-house(22, 19, 5, 'H', 2, 'center');
-vline(24, 22, 26, '=');
+house(22, 19, 'center', 'center');
+vline(23, 22, 26, '=');
 put(13, 25, 'S');
 
 // ════════ Zona 2 · Cumbre Algoritmo (y 8-16) ════════
@@ -112,7 +125,7 @@ export const tileAt = (x, y) => (x < 0 || y < 0 || x >= W || y >= H ? 'T' : MAP[
 // Cortafuegos: se abren con una medalla.
 export const FIREWALLS = { '15,64': 'medal1', '15,44': 'medal2', '15,29': 'medal3', '4,17': 'medal4' };
 
-const SOLID = new Set(['T', '~', 'M', 'r', 'F', 'S', 'W', 'w', 'D', '#', 'R', 'H', 'G', 'A', 'N']);
+const SOLID = new Set(['T', '~', 'M', 'r', 'F', 'S', 'B', 'D']);
 export function walkable(x, y, flags) {
   const t = tileAt(x, y);
   if (t === 'X') return !!flags[FIREWALLS[`${x},${y}`]];
@@ -121,26 +134,26 @@ export function walkable(x, y, flags) {
 
 /** Zonas (de norte a sur). `modules`: de qué módulos salen los bugs salvajes. */
 export const ZONES = [
-  { id: 'cave', name: 'Cueva Null', y0: 0, y1: 7, music: 'boss', modules: [] },
+  { id: 'cave', name: 'Cueva Null', y0: 0, y1: 7, music: 'cave', modules: [] },
   { id: 'peak', name: 'Cumbre Algoritmo', y0: 8, y1: 16, music: 'route', modules: [5, 7] },
   { id: 'rec', name: 'Ciudad Recursiva', y0: 17, y1: 28, music: 'town', modules: [6] },
   { id: 'lake', name: 'Lago Array', y0: 29, y1: 43, music: 'route', modules: [3] },
   { id: 'loop', name: 'Ciudad Bucle', y0: 44, y1: 53, music: 'town', modules: [] },
-  { id: 'forest', name: 'Bosque Bucle', y0: 54, y1: 63, music: 'route', modules: [2] },
+  { id: 'forest', name: 'Bosque Bucle', y0: 54, y1: 63, music: 'forest', modules: [2] },
   { id: 'byte', name: 'Ciudad Byte', y0: 64, y1: 73, music: 'town', modules: [] },
   { id: 'r1', name: 'Ruta 1', y0: 74, y1: 83, music: 'route', modules: [1] },
   { id: 'origin', name: 'Pueblo Origen', y0: 84, y1: 95, music: 'town', modules: [] },
 ];
 export const zoneAt = (y) => ZONES.find((z) => y >= z.y0 && y <= z.y1) || ZONES[ZONES.length - 1];
 
-export const START = { x: 5, y: 89, dir: 'down' };
+export const START = { x: 4, y: 89, dir: 'down' };
 /** Centros Daemon: dónde reapareces si tu equipo se debilita (la casilla delante de la puerta). */
 export const CENTERS = [
-  { x: 5, y: 89, minY: 74 }, // casa
-  { x: 5, y: 69, minY: 54 },
-  { x: 22, y: 48, minY: 34 },
-  { x: 23, y: 33, minY: 22 },
-  { x: 24, y: 22, minY: 0 },
+  { x: 4, y: 89, minY: 74 }, // casa
+  { x: 4, y: 69, minY: 54 },
+  { x: 21, y: 48, minY: 34 },
+  { x: 22, y: 33, minY: 22 },
+  { x: 23, y: 22, minY: 0 },
 ];
 
 // ─────────────────────────── Entrenadores ───────────────────────────
@@ -274,6 +287,12 @@ export const SIGNS = {
   '17,42': ['LAGO ARRAY', 'El puente es el índice 15. Bueno, más o menos.'],
   '12,31': ['PUEBLO ÍNDICE', 'Gimnasio Índice · Líder: Ingrid', 'Aquí se cuenta desde el 0.'],
   '13,25': ['CIUDAD RECURSIVA', 'Torre Recursiva · Líder: Rémi', '«Para entender la recursión, lee este cartel.»'],
+};
+
+/** Personajes del pack: clave de aspecto → hoja de sprites. */
+export const CHARACTERS = {
+  hero: 'Boy', rival: 'Hunter', prof: 'Master', aide: 'Monk', mom: 'Woman', nurse: 'Princess', grunt: 'NinjaDark', boss: 'Vampire',
+  leader1: 'Cavegirl', leader2: 'FighterWhite', leader3: 'EggGirl', leader4: 'Shaman', kid: 'Child', elder: 'OldMan', girl: 'Villager4', coder: 'Villager3',
 };
 
 export const MEDALS = ['Medalla Variable', 'Medalla Bucle', 'Medalla Índice', 'Medalla Recursión'];

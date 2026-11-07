@@ -25,7 +25,7 @@
     "@capacitor/splash-screen": "8.0.2",
     "@capacitor/status-bar": "8.0.4",
     "@fontsource/jetbrains-mono": "5.1.1",
-    "@fontsource/press-start-2p": "5.1.0",
+    "@fontsource/pixelify-sans": "5.1.1",
     "firebase": "11.10.0",
     "framer-motion": "11.11.17",
     "lucide-react": "0.460.0",

@@ -1,32 +1,23 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { W, H, MAP, tileAt, walkable, NPCS, SIGNS, DOORS } from './world.js';
-import { drawTile, drawAnimTile, drawPerson, drawCreature, ANIMATED, PEOPLE } from './sprites.js';
+import { W, H, tileAt, walkable, NPCS, SIGNS, DOORS, CHARACTERS } from './world.js';
+import { buildGround, buildObjects, drawCharacter, drawTallGrass, T } from './art.js';
+import { drawCreatureSprite, ready } from './assets.js';
 
 export const VW = 15;
 export const VH = 11;
-const T = 16;
 const DIRS = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
 const KEYS = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right', w: 'up', s: 'down', a: 'left', d: 'right', W: 'up', S: 'down', A: 'left', D: 'right' };
 
 export const visibleNpcs = (g) => NPCS.filter((n) => (!n.hideIf || !g.flags[n.hideIf]) && (!n.showIf || g.flags[n.showIf]));
 
-/** Mapa estático precalculado (las casillas animadas se pintan en cada frame). */
-function buildMapCanvas() {
-  const c = document.createElement('canvas');
-  c.width = W * T;
-  c.height = H * T;
-  const g = c.getContext('2d');
-  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) drawTile(g, MAP[y][x], x * T, y * T, x, y);
-  return c;
-}
-
 /**
  * Exploración del mundo: movimiento por casillas con interpolación suave, cámara, NPCs,
  * tu daemon siguiéndote y controles de teclado o táctiles.
  */
-export default function Overworld({ game, locked, warp, followerLook, onMoved, onAction, onMenu, controlsRef }) {
+export default function Overworld({ game, locked, warp, followerSprite, onMoved, onAction, onMenu, controlsRef }) {
   const canvasRef = useRef(null);
-  const mapCanvas = useMemo(() => buildMapCanvas(), []);
+  const ground = useMemo(() => buildGround(), []);
+  const objects = useMemo(() => buildObjects(), []);
   const me = useRef({ x: game.pos.x, y: game.pos.y, dir: game.pos.dir || 'down', moving: null, step: 0 });
   const follower = useRef({ x: game.pos.x, y: game.pos.y + 1, from: null });
   const held = useRef([]);
@@ -39,8 +30,8 @@ export default function Overworld({ game, locked, warp, followerLook, onMoved, o
   lockedRef.current = locked;
   const cb = useRef({ onMoved, onAction, onMenu });
   cb.current = { onMoved, onAction, onMenu };
-  const lookRef = useRef(followerLook);
-  lookRef.current = followerLook;
+  const spriteRef = useRef(followerSprite);
+  spriteRef.current = followerSprite;
 
   // Teletransporte (reaparecer en un centro, nueva partida...).
   useEffect(() => {
@@ -177,52 +168,45 @@ export default function Overworld({ game, locked, warp, followerLook, onMoved, o
       // ── cámara
       const camX = Math.round(Math.max(0, Math.min(W * T - VW * T, px - (VW * T) / 2 + T / 2)));
       const camY = Math.round(Math.max(0, Math.min(H * T - VH * T, py - (VH * T) / 2 + T / 2)));
-      g.drawImage(mapCanvas, camX, camY, VW * T, VH * T, 0, 0, VW * T, VH * T);
-      const x0 = Math.floor(camX / T);
-      const y0 = Math.floor(camY / T);
-      for (let y = y0; y <= y0 + VH; y++) {
-        for (let x = x0; x <= x0 + VW; x++) {
-          const ch = tileAt(x, y);
-          if (ANIMATED.has(ch) && x < W && y < H) {
-            const open = ch === 'X' && walkable(x, y, game.flags);
-            drawAnimTile(g, ch, x * T - camX, y * T - camY, x, y, t, open);
-          }
+      g.fillStyle = '#2b4a2b';
+      g.fillRect(0, 0, VW * T, VH * T);
+      g.drawImage(ground, camX, camY, VW * T, VH * T, 0, 0, VW * T, VH * T);
+      // ── objetos y personajes ordenados por profundidad
+      const x0 = camX / T - 3;
+      const x1 = camX / T + VW + 3;
+      const y0 = camY / T - 2;
+      const y1 = camY / T + VH + 4;
+      const list = [];
+      for (const o of objects) if (o.x + (o.w || 1) >= x0 && o.x <= x1 && o.y >= y0 - 3 && o.y <= y1) list.push(o);
+      const npcs = visibleNpcs(game);
+      for (const n of npcs) list.push({ base: (n.y + 1) * T, draw: () => drawCharacter(g, CHARACTERS[n.look], n.x * T - camX, n.y * T - camY, npcFacing.current[n.id] || n.dir, 0), feet: [n.x, n.y] });
+      const frame = p.moving ? (Math.floor(prog * 2) + (p.step ? 2 : 0)) : 0;
+      list.push({ base: py + T + 0.5, draw: () => drawCharacter(g, CHARACTERS.hero, px - camX, py - camY, p.dir, frame), feet: [Math.round(px / T), Math.round(py / T)] });
+      if (spriteRef.current && !f.hidden && !(f.x === p.x && f.y === p.y && !p.moving)) {
+        const fdir = f.from ? (f.x > f.from.x ? 'right' : f.x < f.from.x ? 'left' : f.y > f.from.y ? 'down' : 'up') : (f.dir || 'down');
+        if (f.from) f.dir = fdir;
+        list.push({ base: fy + T + 0.4, draw: () => drawCreatureSprite(g, spriteRef.current, fx - camX + 8, fy - camY + 15, 1, { t: p.moving ? t : t * 0.4, dir: fdir }), feet: [Math.round(fx / T), Math.round(fy / T)] });
+      }
+      list.sort((a, b) => a.base - b.base);
+      for (const o of list) {
+        o.draw(g, camX, camY, t, game.flags);
+        if (o.feet) {
+          const ch = tileAt(o.feet[0], o.feet[1]);
+          if (ch === ',' || ch === 'k') drawTallGrass(g, ch, o.feet[0] * T - camX, o.feet[1] * T - camY, 7);
         }
       }
-      // ── entidades ordenadas por profundidad
-      const ents = visibleNpcs(game).map((n) => ({ y: n.y * T, draw: () => drawPerson(g, PEOPLE[n.look], n.x * T - camX, n.y * T - camY - 2, npcFacing.current[n.id] || n.dir, 0), tx: n.x, ty: n.y }));
-      const walking = p.moving ? (prog < 0.5 ? p.step : p.step ^ 1) : 0;
-      ents.push({ y: py, draw: () => drawPerson(g, PEOPLE.hero, Math.round(px) - camX, Math.round(py) - camY - 2, p.dir, p.moving ? walking : 0), tx: Math.round(px / T), ty: Math.round(py / T) });
-      if (lookRef.current && !f.hidden && !(f.x === p.x && f.y === p.y && !p.moving)) {
-        ents.push({ y: fy - 1, draw: () => drawCreature(g, lookRef.current, Math.round(fx) - camX - 2, Math.round(fy) - camY - 6, 0.5, { t }), tx: Math.round(fx / T), ty: Math.round(fy / T) });
-      }
-      ents.sort((a, b) => a.y - b.y).forEach((e) => {
-        e.draw();
-        // la hierba alta tapa los pies
-        const ch = tileAt(e.tx, e.ty);
-        if (ch === ',' || ch === 'k') {
-          g.save();
-          g.beginPath();
-          g.rect(e.tx * T - camX, e.ty * T - camY + 10, T, 6);
-          g.clip();
-          drawAnimTile(g, ch, e.tx * T - camX, e.ty * T - camY, e.tx, e.ty, t);
-          g.restore();
-        }
-      });
-      // marcas de «!» sobre los entrenadores que aún no has vencido y están cerca
-      for (const n of visibleNpcs(game)) {
-        if (n.trainer && !game.flags[n.trainer] && Math.abs(n.x - p.x) + Math.abs(n.y - p.y) <= 3) {
-          const bx = n.x * T - camX + 5;
-          const by = n.y * T - camY - 12 + Math.round(Math.sin(t * 6));
-          g.fillStyle = '#fff'; g.fillRect(bx, by, 6, 8);
-          g.fillStyle = '#e5484d'; g.fillRect(bx + 2, by + 1, 2, 4); g.fillRect(bx + 2, by + 6, 2, 1);
+      // «!» sobre los entrenadores cercanos que aún no has vencido
+      const alert = ready('ui/emote-alert.png');
+      for (const n of npcs) {
+        if (alert && n.trainer && !game.flags[n.trainer] && Math.abs(n.x - p.x) + Math.abs(n.y - p.y) <= 3) {
+          g.drawImage(alert, n.x * T - camX + 1, n.y * T - camY - 16 + Math.round(Math.sin(t * 6)));
         }
       }
       raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
-  }, [mapCanvas, npcAt]);
+  }, [ground, objects, npcAt]);
 
   return <canvas ref={canvasRef} width={VW * T} height={VH * T} className="pixelated block h-auto w-full" aria-label="Mapa de Bitlandia" />;
 }
@@ -251,10 +235,10 @@ export function TouchPad({ controlsRef, onMenu }) {
         {btn('down', 'Abajo', 'dpad-down')}
       </div>
       <div className="flex flex-col items-center gap-3">
-        <button type="button" onClick={onMenu} className="rounded-full bg-slate-700 px-4 py-1.5 text-[10px] font-bold tracking-widest text-slate-200">MENÚ</button>
+        <button type="button" onClick={onMenu} className="pp-btn !rounded-full !px-4 !py-1 text-xs tracking-widest">MENÚ</button>
         <div className="flex items-end gap-3">
-          <button type="button" aria-label="Correr (mantén pulsado)" className="ab-btn bg-slate-600" onPointerDown={() => controlsRef.current?.run(true)} onPointerUp={() => controlsRef.current?.run(false)} onPointerCancel={() => controlsRef.current?.run(false)}>B</button>
-          <button type="button" aria-label="Hablar o interactuar" className="ab-btn -translate-y-4 bg-rose-500" onClick={() => controlsRef.current?.a()}>A</button>
+          <button type="button" aria-label="Correr (mantén pulsado)" className="ab-btn ab-b" onPointerDown={() => controlsRef.current?.run(true)} onPointerUp={() => controlsRef.current?.run(false)} onPointerCancel={() => controlsRef.current?.run(false)}>B</button>
+          <button type="button" aria-label="Hablar o interactuar" className="ab-btn ab-a -translate-y-4" onClick={() => controlsRef.current?.a()}>A</button>
         </div>
       </div>
     </div>

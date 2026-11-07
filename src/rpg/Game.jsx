@@ -4,12 +4,12 @@ import Overworld, { TouchPad } from './Overworld.jsx';
 import Battle from './Battle.jsx';
 import { Title, StarterPick } from './Title.jsx';
 import { PauseMenu, TeamView, DexView, BagView, CardView, OptionsView, ShopView } from './Menus.jsx';
-import { DialogBox, Creature, HpBar } from './ui.jsx';
+import { DialogBox, Creature, CreatureFace, HpBar } from './ui.jsx';
 import { newGame, saveSlot, makeDaemon, healAll, fmtTime } from './save.js';
-import { BUGS, STARTERS, daemonLook, daemonName, maxHpOf } from './species.js';
-import { TRAINERS, MEDALS, CENTERS, zoneAt, tileAt } from './world.js';
-import { playMusic, stopMusic, setMusicEnabled } from './music.js';
-import { configureSound, play } from '../core/sound.js';
+import { BUGS, STARTERS, daemonSprite, daemonName, maxHpOf, creaturePaths } from './species.js';
+import { TRAINERS, MEDALS, CENTERS, CHARACTERS, zoneAt, tileAt } from './world.js';
+import { playMusic, unlockAudio, setAudio, sfx, preload } from './assets.js';
+import { TILE_PATHS } from './art.js';
 import { LANGUAGES, LANG_ORDER } from '../core/languages.js';
 import { appReady } from '../core/native.js';
 
@@ -58,13 +58,23 @@ export default function Game() {
 
   useEffect(() => { appReady(); }, []);
 
+  // ── precarga de gráficos
+  const [loaded, setLoaded] = useState(0);
+  useEffect(() => {
+    const paths = [
+      ...TILE_PATHS, ...creaturePaths(),
+      ...Object.values(CHARACTERS).flatMap((c) => [`char/${c}.png`, `char/${c}-face.png`]),
+      'ui/emote-alert.png', 'ui/DialogueBoxSimple.png', 'fx/slash.png', 'fx/explosion.png', 'fx/spark.png', 'fx/smoke.png',
+    ];
+    preload(paths, (k) => setLoaded(Math.min(0.99, k))).then(() => setLoaded(1));
+  }, []);
+
   // ── sonido y música
   const settings = game ? game.settings : { music: true, sound: true };
-  useEffect(() => { configureSound({ sound: settings.sound, keys: false }); setMusicEnabled(settings.music); }, [settings.sound, settings.music]);
+  useEffect(() => { setAudio({ music: settings.music, sound: settings.sound }); }, [settings.sound, settings.music]);
   const zone = game ? zoneAt(game.pos.y) : null;
-  const track = !game ? 'title' : credits ? 'victory' : battle ? (battle.trainer === 'boss' ? 'boss' : 'battle') : zone.music;
-  useEffect(() => { if (settings.music) playMusic(track); else stopMusic(); }, [track, settings.music]);
-  const unlockAudio = useCallback(() => { if (settings.music) { stopMusic(); playMusic(track); } }, [settings.music, track]);
+  const track = !game ? 'title' : credits ? 'ending' : battle ? (battle.trainer === 'boss' ? 'boss' : 'battle') : zone.music;
+  useEffect(() => { playMusic(track); }, [track]);
   useEffect(() => {
     const once = () => { unlockAudio(); window.removeEventListener('pointerdown', once); window.removeEventListener('keydown', once); };
     window.addEventListener('pointerdown', once);
@@ -95,7 +105,7 @@ export default function Game() {
     const tr = b.trainer ? TRAINERS[b.trainer] : null;
     if (!tr) return b.after || [];
     const steps = [...say(tr.name, tr.look, tr.win), { set: tr.flag }];
-    if (tr.medal) steps.push({ medal: tr.medal }, { say: `¡Has conseguido la ${MEDALS[tr.medal - 1]}!`, sfx: 'rankup' });
+    if (tr.medal) steps.push({ medal: tr.medal }, { say: `¡Has conseguido la ${MEDALS[tr.medal - 1]}!`, sfx: 'levelup' });
     if (b.trainer === 'boss') {
       steps.push(
         { say: '...', who: PROF[0], look: PROF[1] },
@@ -110,7 +120,7 @@ export default function Game() {
     const g = gameRef.current;
     const tutorial = !g.flags.tutorial;
     if (tutorial) update((x) => ({ ...x, flags: { ...x.flags, tutorial: true } }));
-    play('glitch');
+    sfx('alert');
     setBattle({ ...desc, tutorial, key: Date.now() });
   }, [update]);
 
@@ -123,7 +133,7 @@ export default function Game() {
     const next = () => setScript(rest.length ? { queue: rest } : null);
     if (head.dyn) { setScript({ queue: [...head.dyn(gameRef.current), ...rest] }); return; }
     if (head.set) { update((g) => ({ ...g, flags: { ...g.flags, [head.set]: true } })); next(); return; }
-    if (head.heal) { update(healAll); play('pass'); next(); return; }
+    if (head.heal) { update(healAll); sfx('heal'); next(); return; }
     if (head.give) { update((g) => ({ ...g, bag: { ...g.bag, [head.give]: (g.bag[head.give] || 0) + head.n } })); next(); return; }
     if (head.medal) { update((g) => ({ ...g, medals: [...new Set([...(g.medals || []), head.medal])] })); next(); return; }
     if (head.battle) { setScript(null); startBattle({ trainer: head.battle, queue: TRAINERS[head.battle].team, after: rest }); return; }
@@ -135,13 +145,13 @@ export default function Game() {
 
   const advance = () => {
     const [head, ...rest] = script.queue;
-    if (head && head.sfx) play(head.sfx);
-    play('click');
+    if (head && head.sfx) sfx(head.sfx);
+    sfx('move', 0.35);
     setScript(rest.length ? { queue: rest } : null);
   };
   const choose = (i) => {
     const [head, ...rest] = script.queue;
-    play('click');
+    sfx('accept');
     setScript({ queue: [...head.options[i][1], ...rest] });
   };
 
@@ -211,7 +221,7 @@ export default function Game() {
   const onAction = useCallback((a) => {
     const g = gameRef.current;
     if (script || battle || panel) return;
-    play('click');
+    sfx('accept', 0.4);
     if (a.type === 'sign') return run(a.lines.map((s) => ({ say: s })));
     if (a.type === 'firewall') {
       const need = { '15,64': 1, '15,44': 2, '15,29': 3, '4,17': 4 }[`${a.x},${a.y}`];
@@ -275,7 +285,7 @@ export default function Game() {
   const pickStarter = (lang) => {
     const rest = picking;
     setPicking(null);
-    play('rankup');
+    sfx('success');
     update((g) => ({ ...g, lang, team: [makeDaemon('starter', lang, 1)], flags: { ...g.flags, starter: true } }));
     run(rest);
   };
@@ -298,6 +308,16 @@ export default function Game() {
   const quit = () => { if (slot !== null && game) saveSlot(slot, game); setPanel(null); setGame(null); gameRef.current = null; setSlot(null); setScript(null); setBattle(null); };
 
   // ───────────────────────── render ─────────────────────────
+  if (loaded < 1) {
+    return (
+      <div className="flex min-h-full flex-col items-center justify-center gap-4 bg-[#1a120e] p-6">
+        <div className="title-logo pixel-title text-5xl">Bitlandia</div>
+        <div className="hp-track w-64"><div className="hp-fill" style={{ width: `${loaded * 100}%`, background: '#f0b53a' }} /></div>
+        <div className="text-sm text-[#e8d5b5]">Cargando el mundo…</div>
+      </div>
+    );
+  }
+
   if (!game) {
     return (
       <MotionConfig reducedMotion="user">
@@ -322,24 +342,24 @@ export default function Game() {
           <>
             <header className="flex items-center justify-between gap-2 px-3 py-2 sm:px-5">
               <div className="flex min-w-0 items-center gap-2">
-                <span className="pixel-font hidden text-[10px] text-amber-300 sm:inline">BITLANDIA</span>
-                <span className="truncate rounded-md bg-slate-800/80 px-2 py-1 text-xs text-slate-200">📍 {zone.name}</span>
+                <span className="pixel-title hidden text-2xl text-[#ffd98a] drop-shadow sm:inline">Bitlandia</span>
+                <span className="hdr-chip truncate">{zone.name}</span>
               </div>
               <div className="flex items-center gap-2 text-xs">
-                <span className="rounded-md bg-slate-800/80 px-2 py-1 text-amber-300">◈ {game.bits}</span>
-                <span className="rounded-md bg-slate-800/80 px-2 py-1">{[1, 2, 3, 4].map((m) => <span key={m} className={(game.medals || []).includes(m) ? 'text-amber-300' : 'text-slate-600'}>{['⬢', '⟳', '▦', '∞'][m - 1]}</span>)}</span>
-                <button type="button" onClick={() => !locked && setPanel('pause')} className="hidden rounded-md bg-rose-500 px-3 py-1 font-bold text-white sm:inline">Menú</button>
+                <span className="hdr-chip">{game.bits} bits</span>
+                <span className="hdr-chip">{(game.medals || []).length}/4 medallas</span>
+                <button type="button" onClick={() => !locked && setPanel('pause')} className="pp-btn hidden sm:inline">Menú</button>
               </div>
             </header>
             <main className="mx-auto flex w-full max-w-[1280px] flex-1 flex-col gap-4 px-2 pb-2 sm:px-4 lg:flex-row lg:items-start">
               <div className="relative w-full lg:flex-1">
                 <div className="overworld-frame">
-                  <Overworld game={game} locked={locked} warp={warp} followerLook={leadMon ? daemonLook(leadMon) : null} onMoved={onMoved} onAction={onAction} onMenu={() => !locked && setPanel('pause')} controlsRef={controls} />
+                  <Overworld game={game} locked={locked} warp={warp} followerSprite={leadMon ? daemonSprite(leadMon) : null} onMoved={onMoved} onAction={onAction} onMenu={() => !locked && setPanel('pause')} controlsRef={controls} />
                   <AnimatePresence>
                     {banner && (
-                      <motion.div key={banner} initial={{ y: -40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -40, opacity: 0 }} className="zone-banner pixel-font">{banner}</motion.div>
+                      <motion.div key={banner} initial={{ y: -40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -40, opacity: 0 }} className="zone-banner pixel-title">{banner}</motion.div>
                     )}
-                    {toast && <motion.div key={toast} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-lg bg-slate-900/90 px-3 py-1.5 text-sm">{toast}</motion.div>}
+                    {toast && <motion.div key={toast} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="pp-panel absolute bottom-3 left-1/2 -translate-x-1/2 !py-1.5 text-sm font-bold">{toast}</motion.div>}
                   </AnimatePresence>
                   {dialog && (
                     <div className="absolute inset-x-1 bottom-1 sm:inset-x-3 sm:bottom-3">
@@ -350,26 +370,26 @@ export default function Game() {
                 <TouchPad controlsRef={controls} onMenu={() => !locked && setPanel('pause')} />
               </div>
               <aside className="hidden w-[300px] shrink-0 flex-col gap-3 lg:flex">
-                <div className="panel p-3">
-                  <div className="pixel-font text-[9px] text-amber-300">Objetivo</div>
-                  <p className="mt-1.5 text-sm leading-snug text-slate-100">{objective(game)}</p>
+                <div className="pp-panel">
+                  <div className="pixel-title text-lg text-[#7a3b1e]">Objetivo</div>
+                  <p className="mt-0.5 text-[15px] leading-snug">{objective(game)}</p>
                 </div>
-                <div className="panel p-3">
-                  <div className="pixel-font mb-2 text-[9px] text-amber-300">Equipo · {game.lang ? LANGUAGES[game.lang].name : '—'}</div>
-                  {game.team.length === 0 && <p className="text-sm text-slate-400">Aún no tienes daemons.</p>}
+                <div className="pp-panel">
+                  <div className="pixel-title mb-1 text-lg text-[#7a3b1e]">Equipo · {game.lang ? LANGUAGES[game.lang].name : '—'}</div>
+                  {game.team.length === 0 && <p className="text-sm">Aún no tienes daemons.</p>}
                   {game.team.slice(0, 6).map((m) => (
                     <div key={m.uid} className="mb-1.5 flex items-center gap-2">
-                      <Creature look={daemonLook(m)} size={36} still />
+                      <div className="face-frame shrink-0"><CreatureFace sprite={daemonSprite(m)} size={32} /></div>
                       <div className="min-w-0 flex-1">
-                        <div className="flex justify-between text-xs"><span className="truncate font-bold">{daemonName(m)}</span><span className="text-slate-400">Nv{m.level}</span></div>
+                        <div className="flex justify-between text-sm"><span className="truncate font-bold">{daemonName(m)}</span><span>Nv{m.level}</span></div>
                         <HpBar value={m.hp} max={maxHpOf(m.level)} showNumbers={false} />
                       </div>
                     </div>
                   ))}
-                  {game.team.length > 6 && <p className="text-xs text-slate-400">+{game.team.length - 6} más</p>}
+                  {game.team.length > 6 && <p className="text-xs">+{game.team.length - 6} más</p>}
                 </div>
-                <div className="panel p-3 text-xs leading-relaxed text-slate-400">
-                  <b className="text-slate-200">Controles:</b> flechas/WASD · Mayús corre · Z/Espacio habla · X/Esc menú
+                <div className="pp-panel text-xs leading-relaxed">
+                  <b>Controles:</b> flechas/WASD · Mayús corre · Z/Espacio habla · X/Esc menú
                   <div className="mt-1">Bitdex {Object.keys(game.dex.caught).length}/32 · {fmtTime(game.playMs)}</div>
                 </div>
               </aside>
@@ -396,20 +416,20 @@ export default function Game() {
 function Credits({ game, onClose }) {
   const lead = game.team[0];
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/95 p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-[#1a120e]/95 p-4">
       <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring' }} className="max-w-lg text-center">
-        <div className="pixel-font text-[10px] text-sky-300">FIN... ¿O NO?</div>
-        <h2 className="pixel-font title-logo mt-3 text-2xl sm:text-3xl">¡BITLANDIA A SALVO!</h2>
-        {lead && <div className="my-4 flex justify-center"><Creature look={daemonLook(lead)} size={150} /></div>}
-        <p className="text-slate-200">{game.name} y {lead ? daemonName(lead) : 'su equipo'} han derrotado a la Legión Null programando en {LANGUAGES[game.lang].name}.</p>
+        <div className="pixel-title text-xl text-[#ffe2b0]">Fin... ¿o no?</div>
+        <h2 className="pixel-title title-logo mt-2 text-5xl sm:text-6xl">¡Bitlandia a salvo!</h2>
+        {lead && <div className="my-4 flex justify-center"><div className="creature-stage"><Creature sprite={daemonSprite(lead)} size={150} /></div></div>}
+        <p className="text-lg text-[#fff3dc]">{game.name} y {lead ? daemonName(lead) : 'su equipo'} han derrotado a la Legión Null programando en {LANGUAGES[game.lang].name}.</p>
         <div className="mx-auto mt-4 grid max-w-sm grid-cols-2 gap-2 text-sm">
-          <div className="panel p-2">Funciones arregladas<br /><b className="text-amber-300">{Object.keys(game.solved || {}).length}</b></div>
-          <div className="panel p-2">Bitdex<br /><b className="text-amber-300">{Object.keys(game.dex.caught).length}/32</b></div>
-          <div className="panel p-2">Ataques<br /><b className="text-amber-300">{game.stats.attacks || 0}</b></div>
-          <div className="panel p-2">Tiempo<br /><b className="text-amber-300">{fmtTime(game.playMs)}</b></div>
+          <div className="pp-panel !p-2">Funciones arregladas<br /><b className="text-[#b5651d]">{Object.keys(game.solved || {}).length}</b></div>
+          <div className="pp-panel !p-2">Bitdex<br /><b className="text-[#b5651d]">{Object.keys(game.dex.caught).length}/32</b></div>
+          <div className="pp-panel !p-2">Ataques<br /><b className="text-[#b5651d]">{game.stats.attacks || 0}</b></div>
+          <div className="pp-panel !p-2">Tiempo<br /><b className="text-[#b5651d]">{fmtTime(game.playMs)}</b></div>
         </div>
-        <p className="mt-4 text-sm text-slate-400">La aventura continúa: aún quedan bugs salvajes por depurar. ¿Completarás la Bitdex? ¿Y si empiezas otra partida con un lenguaje distinto?</p>
-        <button type="button" onClick={onClose} className="btn-action mt-5 bg-rose-500 px-8">Seguir explorando</button>
+        <p className="mt-4 text-sm text-[#e8d5b5]">La aventura continúa: aún quedan bugs salvajes por depurar. ¿Completarás la Bitdex? ¿Y si empiezas otra partida con un lenguaje distinto?</p>
+        <button type="button" onClick={onClose} className="act-btn act-attack mt-5 px-8">Seguir explorando</button>
       </motion.div>
     </div>
   );

@@ -31,8 +31,10 @@ npm run test:world   # solo el mundo: mapa, historia y alcanzabilidad
   Ciudad Recursiva (Rémi, recursión) → Cumbre Algoritmo → Cueva Null (Comandante Null, algoritmos).
   Con rival (Kai), reclutas de la Legión Null, cortafuegos que se abren con medallas, Centros Daemon,
   tienda, objetivo siempre visible y créditos finales.
-- **Todo generado en el navegador:** pixel-art procedural (criaturas, personajes y mapa) y música
-  chiptune con WebAudio; sin archivos de imagen ni audio.
+- **Arte y sonido profesionales:** tilesets, más de 50 criaturas animadas, personajes con retrato,
+  interfaz, efectos, música y sonidos del pack **«Ninja Adventure»** de Pixel-boy & AAA, con licencia
+  **CC0** (dominio público: uso comercial libre). Licencia en `public/game/LICENSE-NinjaAdventure.txt`;
+  `scripts/import-assets.py` documenta qué ficheros se usan.
 - **Controles:** teclado (flechas/WASD, Mayús corre, Z habla, X menú, Ctrl+Enter ataca) o cruceta
   táctil con botones A/B en el móvil. Tres ranuras de partida guardadas en el dispositivo.
 
