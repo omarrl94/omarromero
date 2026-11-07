@@ -2998,7 +2998,11 @@
     "perfiles": [
       "asir-sistemas",
       "dam-datos-ia",
-      "dam-web"
+      "dam-web",
+      "sea-fotovoltaica",
+      "sea-mantenimiento",
+      "sea-instalaciones",
+      "sea-oficina-tecnica"
     ],
     "motivoEncaje": "Grupo con sede en Alcobendas y área digital.",
     "paginasContacto": [
@@ -9594,6 +9598,998 @@
     "motivoEncaje": "Ingeniería con sede en el parque Tecnogetafe.",
     "paginasContacto": [
       "https://www.sertec.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "grupo-portersa",
+    "nombre": "Grupo Portersa",
+    "web": "https://www.portersa.com",
+    "sector": "Instalaciones eléctricas",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-instalaciones",
+      "sea-mantenimiento",
+      "sea-fotovoltaica"
+    ],
+    "motivoEncaje": "Empresa madrileña de instalaciones eléctricas con más de 30 años.",
+    "paginasContacto": [
+      "https://www.portersa.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "mgh-electricidad",
+    "nombre": "MGH Electricidad",
+    "web": "https://mghelectricidad.com",
+    "sector": "Instalaciones eléctricas industriales",
+    "tamano": "pyme",
+    "zona": "este",
+    "perfiles": [
+      "sea-instalaciones",
+      "sea-automatizacion",
+      "sea-mantenimiento"
+    ],
+    "motivoEncaje": "Instalaciones eléctricas industriales con sede en Arganda del Rey.",
+    "paginasContacto": [
+      "https://mghelectricidad.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "isse-electricidad",
+    "nombre": "ISSE Electricidad",
+    "web": "https://isselectricidad.com",
+    "sector": "Instalaciones eléctricas",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-instalaciones",
+      "sea-mantenimiento"
+    ],
+    "motivoEncaje": "Empresa instaladora autorizada en la Comunidad de Madrid.",
+    "paginasContacto": [
+      "https://isselectricidad.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "jeca-electricidad",
+    "nombre": "Instalaciones Eléctricas JECA",
+    "web": "https://electricidadjeca.com",
+    "sector": "Instalaciones eléctricas",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-instalaciones",
+      "sea-fotovoltaica",
+      "sea-mantenimiento"
+    ],
+    "motivoEncaje": "Empresa instaladora de categoría especialista autorizada en Madrid.",
+    "paginasContacto": [
+      "https://electricidadjeca.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "voltahispan",
+    "nombre": "Voltahispan",
+    "web": "https://www.voltahispan.es",
+    "sector": "Instalaciones eléctricas, reformas e iluminación LED",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-instalaciones",
+      "sea-mantenimiento"
+    ],
+    "motivoEncaje": "Instaladora eléctrica de la Comunidad de Madrid.",
+    "paginasContacto": [
+      "https://www.voltahispan.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "econergia",
+    "nombre": "Econergia",
+    "web": "https://www.econergia.es",
+    "sector": "Instalaciones eléctricas y eficiencia energética",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-instalaciones",
+      "sea-fotovoltaica",
+      "sea-mantenimiento"
+    ],
+    "motivoEncaje": "Empresa de instalaciones eléctricas en Madrid.",
+    "paginasContacto": [
+      "https://www.econergia.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "kuint-electricistas",
+    "nombre": "Kuint Electricistas",
+    "web": "https://www.kuintelectricistas.com",
+    "sector": "Instalaciones eléctricas",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-instalaciones",
+      "sea-mantenimiento"
+    ],
+    "motivoEncaje": "Empresa de electricistas en Madrid.",
+    "paginasContacto": [
+      "https://www.kuintelectricistas.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "electricidad-perez-montero",
+    "nombre": "Electricidad Pérez Montero",
+    "web": "https://www.electricidadperezmontero.com",
+    "sector": "Instalaciones eléctricas",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-instalaciones",
+      "sea-mantenimiento"
+    ],
+    "motivoEncaje": "Instaladora eléctrica de Madrid.",
+    "paginasContacto": [
+      "https://www.electricidadperezmontero.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "grupo-lasser",
+    "nombre": "Grupo Lasser",
+    "web": "https://grupolasser.com",
+    "sector": "Instalaciones eléctricas y puntos de recarga",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-instalaciones",
+      "sea-fotovoltaica",
+      "sea-mantenimiento"
+    ],
+    "motivoEncaje": "Instalaciones eléctricas y cargadores de vehículo eléctrico en Madrid.",
+    "paginasContacto": [
+      "https://grupolasser.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "alderan-control",
+    "nombre": "Alderan Control y Sistemas",
+    "web": "https://www.alderancontrol.com",
+    "sector": "Automatización industrial",
+    "tamano": "pyme",
+    "zona": "norte",
+    "perfiles": [
+      "sea-automatizacion",
+      "sea-instalaciones",
+      "sea-oficina-tecnica"
+    ],
+    "motivoEncaje": "Integradora de automatización en Colmenar Viejo que pide candidaturas por correo.",
+    "paginasContacto": [
+      "https://www.alderancontrol.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "bama-sistemas",
+    "nombre": "BAMA Sistemas",
+    "web": "https://bama.es",
+    "sector": "Automatización y programación de PLC",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-automatizacion",
+      "sea-oficina-tecnica"
+    ],
+    "motivoEncaje": "Automatización de líneas de producción y PLC, con página de empleo.",
+    "paginasContacto": [
+      "https://bama.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "cronexa",
+    "nombre": "Cronexa",
+    "web": "https://cronexa.com",
+    "sector": "Automatización industrial, PLC y SCADA",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-automatizacion",
+      "sea-oficina-tecnica"
+    ],
+    "motivoEncaje": "Integradora de automatización para fabricantes de la Comunidad de Madrid.",
+    "paginasContacto": [
+      "https://cronexa.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "semsur",
+    "nombre": "Semsur",
+    "web": "https://semsur.es",
+    "sector": "Automatización industrial y control",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-automatizacion",
+      "sea-instalaciones"
+    ],
+    "motivoEncaje": "Integradora de automatización industrial en Madrid.",
+    "paginasContacto": [
+      "https://semsur.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "promart-automatizaciones",
+    "nombre": "Promart Automatizaciones",
+    "web": "https://promartautomatizaciones.es",
+    "sector": "Automatización industrial",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-automatizacion"
+    ],
+    "motivoEncaje": "Empresa de automatización industrial de Madrid.",
+    "paginasContacto": [
+      "https://promartautomatizaciones.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "creacontrol",
+    "nombre": "CreaControl",
+    "web": "https://creacontrol.es",
+    "sector": "Automatización industrial",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-automatizacion",
+      "sea-oficina-tecnica"
+    ],
+    "motivoEncaje": "Integradora de automatización en Madrid.",
+    "paginasContacto": [
+      "https://creacontrol.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "fusebox",
+    "nombre": "Fusebox",
+    "web": "https://aifusebox.com",
+    "sector": "Cuadros eléctricos y automatización",
+    "tamano": "pyme",
+    "zona": "oeste",
+    "perfiles": [
+      "sea-automatizacion",
+      "sea-instalaciones"
+    ],
+    "motivoEncaje": "Fabricación de cuadros eléctricos y PLC con sede en Boadilla del Monte.",
+    "paginasContacto": [
+      "https://aifusebox.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "elecproy",
+    "nombre": "Elecproy",
+    "web": "https://elecproy.com",
+    "sector": "Ingeniería eléctrica y automatización",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-automatizacion",
+      "sea-oficina-tecnica",
+      "sea-instalaciones"
+    ],
+    "motivoEncaje": "Ingeniería eléctrica y automatización industrial en Madrid.",
+    "paginasContacto": [
+      "https://elecproy.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "serlet-sistemas",
+    "nombre": "Serlet Sistemas",
+    "web": "https://domoticasistemas.com",
+    "sector": "Ingeniería e instalación de domótica (KNX Partner)",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-domotica",
+      "sea-instalaciones"
+    ],
+    "motivoEncaje": "Integrador domótico certificado KNX Partner que trabaja en Madrid.",
+    "paginasContacto": [
+      "https://domoticasistemas.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "domotica-integrada",
+    "nombre": "Domótica Integrada",
+    "web": "https://domoticaintegrada.com",
+    "sector": "Integración de domótica KNX",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-domotica",
+      "sea-instalaciones"
+    ],
+    "motivoEncaje": "Integradores de domótica KNX en Madrid.",
+    "paginasContacto": [
+      "https://domoticaintegrada.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "indomotiq",
+    "nombre": "INDOMOTIQ",
+    "web": "https://www.indomotiq.es",
+    "sector": "Domótica KNX",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-domotica",
+      "sea-oficina-tecnica"
+    ],
+    "motivoEncaje": "Partners KNX certificados con proyectos en Madrid.",
+    "paginasContacto": [
+      "https://www.indomotiq.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "mg-electricidad",
+    "nombre": "MG Electricidad",
+    "web": "https://www.mgelectricidad.es",
+    "sector": "Instalaciones eléctricas y domótica KNX",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-domotica",
+      "sea-instalaciones"
+    ],
+    "motivoEncaje": "KNX Partner con técnicos KNX Advanced.",
+    "paginasContacto": [
+      "https://www.mgelectricidad.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "octopus-energy-espana",
+    "nombre": "Octopus Energy España",
+    "web": "https://octopusenergy.es",
+    "sector": "Comercializadora eléctrica, solar y aerotermia",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-fotovoltaica",
+      "sea-instalaciones",
+      "acom-atencion-cliente"
+    ],
+    "motivoEncaje": "Comercializadora con instaladores propios de solar en Getafe (Madrid).",
+    "paginasContacto": [
+      "https://octopusenergy.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "domestiko",
+    "nombre": "Doméstiko",
+    "web": "https://www.domestiko.com",
+    "sector": "Instalación de puntos de recarga y fotovoltaica",
+    "tamano": "pyme",
+    "zona": "norte",
+    "perfiles": [
+      "sea-fotovoltaica",
+      "sea-instalaciones"
+    ],
+    "motivoEncaje": "Instaladora de puntos de recarga y fotovoltaica con sede en Alcobendas.",
+    "paginasContacto": [
+      "https://www.domestiko.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "solarprofit",
+    "nombre": "SolarProfit",
+    "web": "https://solarprofit.es",
+    "sector": "Instalaciones solares de autoconsumo",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-fotovoltaica",
+      "acom-venta-tecnica"
+    ],
+    "motivoEncaje": "Instaladora de autoconsumo con delegación en Madrid.",
+    "paginasContacto": [
+      "https://solarprofit.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "acciona-energia",
+    "nombre": "Acciona Energía",
+    "web": "https://www.acciona-energia.com",
+    "sector": "Energías renovables",
+    "tamano": "gran-empresa",
+    "zona": "norte",
+    "perfiles": [
+      "sea-fotovoltaica",
+      "sea-mantenimiento",
+      "sea-oficina-tecnica"
+    ],
+    "motivoEncaje": "Renovables con sede en Alcobendas.",
+    "paginasContacto": [
+      "https://www.acciona-energia.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "solaria",
+    "nombre": "Solaria Energía",
+    "web": "https://www.solariaenergia.com",
+    "sector": "Energía solar fotovoltaica",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-fotovoltaica",
+      "sea-redes-ct",
+      "sea-oficina-tecnica"
+    ],
+    "motivoEncaje": "Productor fotovoltaico con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.solariaenergia.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "grenergy",
+    "nombre": "Grenergy",
+    "web": "https://www.grenergy.eu",
+    "sector": "Energía solar, eólica y almacenamiento",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-fotovoltaica",
+      "sea-redes-ct",
+      "sea-oficina-tecnica"
+    ],
+    "motivoEncaje": "Renovables con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.grenergy.eu"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "x-elio",
+    "nombre": "X-Elio",
+    "web": "https://www.x-elio.com",
+    "sector": "Energía solar fotovoltaica",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-fotovoltaica",
+      "sea-oficina-tecnica"
+    ],
+    "motivoEncaje": "Desarrollador fotovoltaico con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.x-elio.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "opdenergy",
+    "nombre": "Opdenergy",
+    "web": "https://www.opdenergy.com",
+    "sector": "Energías renovables",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-fotovoltaica",
+      "sea-oficina-tecnica"
+    ],
+    "motivoEncaje": "Renovables con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.opdenergy.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "ignis",
+    "nombre": "Ignis",
+    "web": "https://www.ignisgroup.com",
+    "sector": "Energías renovables",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-fotovoltaica",
+      "sea-oficina-tecnica"
+    ],
+    "motivoEncaje": "Grupo de renovables con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.ignisgroup.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "capital-energy",
+    "nombre": "Capital Energy",
+    "web": "https://www.capitalenergy.com",
+    "sector": "Energías renovables",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-fotovoltaica",
+      "sea-redes-ct",
+      "sea-oficina-tecnica"
+    ],
+    "motivoEncaje": "Renovables con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.capitalenergy.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "enel-green-power-espana",
+    "nombre": "Enel Green Power España",
+    "web": "https://www.enelgreenpower.com/es",
+    "sector": "Energías renovables",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-fotovoltaica",
+      "sea-mantenimiento"
+    ],
+    "motivoEncaje": "Renovables con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.enelgreenpower.com/es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "cox-energy",
+    "nombre": "Cox",
+    "web": "https://www.coxenergy.com",
+    "sector": "Energía e infraestructuras",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-fotovoltaica",
+      "sea-redes-ct"
+    ],
+    "motivoEncaje": "Grupo de energía con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.coxenergy.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "gransolar",
+    "nombre": "Gransolar (GRS)",
+    "web": "https://www.gransolar.com",
+    "sector": "Construcción de plantas fotovoltaicas",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-fotovoltaica",
+      "sea-instalaciones",
+      "sea-oficina-tecnica"
+    ],
+    "motivoEncaje": "Constructora fotovoltaica con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.gransolar.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "totalenergies-espana",
+    "nombre": "TotalEnergies España",
+    "web": "https://www.totalenergies.es",
+    "sector": "Comercializadora de electricidad y gas",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-fotovoltaica",
+      "acom-atencion-cliente"
+    ],
+    "motivoEncaje": "Comercializadora con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.totalenergies.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "holaluz",
+    "nombre": "Holaluz",
+    "web": "https://www.holaluz.com",
+    "sector": "Electricidad verde y autoconsumo",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-fotovoltaica",
+      "acom-atencion-cliente"
+    ],
+    "motivoEncaje": "Comercializadora e instaladora solar con actividad en Madrid.",
+    "paginasContacto": [
+      "https://www.holaluz.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "i-de-redes",
+    "nombre": "i-DE Redes Eléctricas Inteligentes",
+    "web": "https://www.i-de.es",
+    "sector": "Distribución eléctrica (Iberdrola)",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-redes-ct",
+      "sea-mantenimiento",
+      "sea-telecomunicaciones"
+    ],
+    "motivoEncaje": "Distribuidora eléctrica de Iberdrola en la Comunidad de Madrid.",
+    "paginasContacto": [
+      "https://www.i-de.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "ufd",
+    "nombre": "UFD (Naturgy)",
+    "web": "https://www.ufd.es",
+    "sector": "Distribución eléctrica",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-redes-ct",
+      "sea-mantenimiento"
+    ],
+    "motivoEncaje": "Distribuidora eléctrica de Naturgy con redes en Madrid.",
+    "paginasContacto": [
+      "https://www.ufd.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "e-distribucion",
+    "nombre": "e-distribución (Endesa)",
+    "web": "https://www.edistribucion.com",
+    "sector": "Distribución eléctrica",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-redes-ct",
+      "sea-mantenimiento"
+    ],
+    "motivoEncaje": "Distribuidora eléctrica de Endesa.",
+    "paginasContacto": [
+      "https://www.edistribucion.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "legrand-espana",
+    "nombre": "Legrand España",
+    "web": "https://www.legrand.es",
+    "sector": "Material eléctrico y domótica",
+    "tamano": "gran-empresa",
+    "zona": "norte",
+    "perfiles": [
+      "sea-instalaciones",
+      "sea-domotica",
+      "acom-venta-tecnica"
+    ],
+    "motivoEncaje": "Fabricante de material eléctrico con sede en Alcobendas.",
+    "paginasContacto": [
+      "https://www.legrand.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "omron-iberia",
+    "nombre": "Omron Electronics Iberia",
+    "web": "https://industrial.omron.es",
+    "sector": "Automatización industrial",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-automatizacion",
+      "acom-venta-tecnica"
+    ],
+    "motivoEncaje": "Fabricante de automatización con sede en Madrid.",
+    "paginasContacto": [
+      "https://industrial.omron.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "grupo-ortiz",
+    "nombre": "Grupo Ortiz (Ortiz Energía)",
+    "web": "https://www.ortizenergia.com",
+    "sector": "Instalaciones eléctricas y energía",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-instalaciones",
+      "sea-redes-ct",
+      "sea-fotovoltaica",
+      "sea-mantenimiento"
+    ],
+    "motivoEncaje": "Ingeniería e instalaciones de energía con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.ortizenergia.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "comsa",
+    "nombre": "COMSA Corporación",
+    "web": "https://www.comsa.com",
+    "sector": "Instalaciones, ferrocarril y energía",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-instalaciones",
+      "sea-redes-ct",
+      "sea-mantenimiento"
+    ],
+    "motivoEncaje": "Infraestructuras e instalaciones con oficina en Madrid.",
+    "paginasContacto": [
+      "https://www.comsa.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "eiffage-energia",
+    "nombre": "Eiffage Energía",
+    "web": "https://www.eiffageenergia.es",
+    "sector": "Instalaciones eléctricas y renovables",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-instalaciones",
+      "sea-fotovoltaica",
+      "sea-redes-ct",
+      "sea-mantenimiento"
+    ],
+    "motivoEncaje": "Instalaciones eléctricas con delegación en Madrid.",
+    "paginasContacto": [
+      "https://www.eiffageenergia.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "sacyr",
+    "nombre": "Sacyr",
+    "web": "https://www.sacyr.com",
+    "sector": "Infraestructuras, servicios y mantenimiento",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-mantenimiento",
+      "sea-instalaciones",
+      "sea-oficina-tecnica"
+    ],
+    "motivoEncaje": "Grupo de infraestructuras y servicios con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.sacyr.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "mf-telecomunicaciones",
+    "nombre": "MF Telecomunicaciones",
+    "web": "https://mftelecomunicaciones.es",
+    "sector": "Instalaciones de telecomunicaciones, fibra y cableado",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-telecomunicaciones",
+      "sea-instalaciones"
+    ],
+    "motivoEncaje": "Instaladora de telecomunicaciones de Madrid con página de empleo.",
+    "paginasContacto": [
+      "https://mftelecomunicaciones.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "cotelux",
+    "nombre": "Cotelux",
+    "web": "https://www.cotelux.es",
+    "sector": "Instalaciones de telecomunicaciones y electricidad",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-telecomunicaciones",
+      "sea-instalaciones"
+    ],
+    "motivoEncaje": "Instaladora de telecomunicaciones habilitada en Madrid con página de empleo.",
+    "paginasContacto": [
+      "https://www.cotelux.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "telemaster",
+    "nombre": "Telemaster",
+    "web": "https://telemaster.es",
+    "sector": "Antenas, fibra óptica y porteros",
+    "tamano": "pyme",
+    "zona": "sur",
+    "perfiles": [
+      "sea-telecomunicaciones"
+    ],
+    "motivoEncaje": "Instaladora de telecomunicaciones en Getafe.",
+    "paginasContacto": [
+      "https://telemaster.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "ittec",
+    "nombre": "ITTEC Soluciones Técnicas",
+    "web": "https://www.ittec.es",
+    "sector": "ICT, electricidad y telecomunicaciones",
+    "tamano": "pyme",
+    "zona": "sur",
+    "perfiles": [
+      "sea-telecomunicaciones",
+      "sea-instalaciones"
+    ],
+    "motivoEncaje": "Instaladora de ICT y REBT en Leganés.",
+    "paginasContacto": [
+      "https://www.ittec.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "insicon",
+    "nombre": "INSICON",
+    "web": "https://insicon.es",
+    "sector": "Antenas, porteros, cámaras y redes",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-telecomunicaciones",
+      "sea-instalaciones"
+    ],
+    "motivoEncaje": "Instaladora de telecomunicaciones de la Comunidad de Madrid.",
+    "paginasContacto": [
+      "https://insicon.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "serinel",
+    "nombre": "SERINEL",
+    "web": "https://www.serinel.es",
+    "sector": "Instalaciones eléctricas y mantenimiento",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-instalaciones",
+      "sea-mantenimiento"
+    ],
+    "motivoEncaje": "Instalaciones y mantenimiento eléctrico en baja tensión en Madrid.",
+    "paginasContacto": [
+      "https://www.serinel.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "sunergia-sistemas",
+    "nombre": "Sunergia Sistemas",
+    "web": "https://www.sunergiasistemas.es",
+    "sector": "Mantenimiento eléctrico y centros de transformación",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-mantenimiento",
+      "sea-redes-ct",
+      "sea-instalaciones"
+    ],
+    "motivoEncaje": "Mantenimiento eléctrico de industrias y centros de transformación en Madrid.",
+    "paginasContacto": [
+      "https://www.sunergiasistemas.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "intelma",
+    "nombre": "Intelma",
+    "web": "https://www.intelma.es",
+    "sector": "Instalaciones industriales, mantenimiento y telecomunicaciones",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-instalaciones",
+      "sea-mantenimiento",
+      "sea-telecomunicaciones"
+    ],
+    "motivoEncaje": "Instalaciones y mantenimiento eléctrico en Madrid.",
+    "paginasContacto": [
+      "https://www.intelma.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "aseyma",
+    "nombre": "AseymA",
+    "web": "https://aseyma.com",
+    "sector": "Instalaciones eléctricas",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-instalaciones",
+      "sea-mantenimiento"
+    ],
+    "motivoEncaje": "Instaladora eléctrica con 30 años en Madrid.",
+    "paginasContacto": [
+      "https://aseyma.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "energias-electricas-y-proyectos",
+    "nombre": "Energías Eléctricas y Proyectos",
+    "web": "https://www.energiaselectricasyproyectos.com",
+    "sector": "Instalaciones eléctricas",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-instalaciones",
+      "sea-oficina-tecnica"
+    ],
+    "motivoEncaje": "Instaladora autorizada (APIEM) en la Comunidad de Madrid.",
+    "paginasContacto": [
+      "https://www.energiaselectricasyproyectos.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "samaluz-proyectos",
+    "nombre": "Samaluz Proyectos",
+    "web": "https://samaluzproyectos.es",
+    "sector": "Instalaciones eléctricas",
+    "tamano": "pyme",
+    "zona": "sur",
+    "perfiles": [
+      "sea-instalaciones",
+      "sea-mantenimiento"
+    ],
+    "motivoEncaje": "Instaladora eléctrica en Leganés.",
+    "paginasContacto": [
+      "https://samaluzproyectos.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "semi",
+    "nombre": "SEMI (Sociedad Española de Montajes Industriales)",
+    "web": "https://www.semi.es",
+    "sector": "Montajes eléctricos industriales e infraestructuras",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-instalaciones",
+      "sea-redes-ct",
+      "sea-mantenimiento",
+      "sea-automatizacion"
+    ],
+    "motivoEncaje": "Gran empresa de montajes eléctricos con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.semi.es"
     ],
     "tipoContactoEsperado": "rrhh"
   }
