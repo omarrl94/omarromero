@@ -109,6 +109,33 @@
     }
   },
   {
+    "id": "adif",
+    "nombre": "Adif",
+    "web": "https://www.adif.es",
+    "sector": "Infraestructura ferroviaria: electrificación y mantenimiento",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-redes-ct",
+      "sea-mantenimiento",
+      "sea-telecomunicaciones"
+    ],
+    "motivoEncaje": "Administrador de infraestructuras ferroviarias con sede en Madrid.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.adif.es/sobre-adif/contacto",
+      "formularioUrl": "https://www.adif.es/sobre-adif/contacto",
+      "tipoContacto": "general"
+    },
+    "empleoUrl": "https://www.adif.es/empleo",
+    "verificacion": {
+      "fecha": "2026-11-07",
+      "confianza": "media",
+      "mx": null,
+      "notas": "Verificación automática: 14 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Nombre Formulario, Asunto, Nombre Emisor, Emisor, Seleccione una opción,  Nombre*)."
+    }
+  },
+  {
     "id": "aena",
     "nombre": "Aena",
     "web": "https://www.aena.es",
@@ -118,7 +145,10 @@
     "perfiles": [
       "asir-sistemas",
       "asir-redes",
-      "asir-ciberseguridad"
+      "asir-ciberseguridad",
+      "sea-mantenimiento",
+      "sea-instalaciones",
+      "sea-automatizacion"
     ],
     "motivoEncaje": "Gestor aeroportuario con sede en Madrid y área TIC.",
     "contacto": {
@@ -239,6 +269,33 @@
       "confianza": "media",
       "mx": null,
       "notas": "Verificación automática: 9 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Seleccione una opci&oacute;n, Seleccione una opci&oacute;n, Seleccione una opci&oacute;n, Seleccione una opci&oacute;n, Seleccione una opci&oacute;n, Seleccione una opci&oacute;n)."
+    }
+  },
+  {
+    "id": "aiuken",
+    "nombre": "Aiuken",
+    "web": "https://www.aiuken.com",
+    "sector": "Ciberseguridad y SOC",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-sistemas",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Empresa de ciberseguridad con SOC y servicios gestionados.",
+    "contacto": {
+      "tipo": "email",
+      "email": "info@aiuken.com",
+      "fuenteUrl": "https://www.aiuken.com/contacto/",
+      "tipoContacto": "general"
+    },
+    "verificacion": {
+      "fecha": "2026-11-07",
+      "confianza": "media",
+      "mx": true,
+      "buzon": "existe",
+      "notas": "Verificación automática: 3 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto; buzón confirmado por su servidor de correo."
     }
   },
   {
@@ -437,18 +494,17 @@
     ],
     "motivoEncaje": "Consultora madrileña de desarrollo y datos.",
     "contacto": {
-      "tipo": "email",
-      "email": "talent.acquisition@atmira.com",
+      "tipo": "formulario",
       "fuenteUrl": "https://www.atmira.com/unete-a-nuestro-ecosistema/",
+      "formularioUrl": "https://www.atmira.com/unete-a-nuestro-ecosistema/",
       "tipoContacto": "talento"
     },
     "empleoUrl": "https://www.atmira.com/unete-a-nuestro-ecosistema/",
     "verificacion": {
       "fecha": "2026-11-07",
       "confianza": "alta",
-      "mx": true,
-      "buzon": "existe",
-      "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón confirmado por su servidor de correo."
+      "mx": null,
+      "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); formulario de empleo comprobado en el navegador (campos: your-name, your-email, text-460, your-subject, your-message, file-121)."
     }
   },
   {
@@ -532,7 +588,7 @@
       "fecha": "2026-11-07",
       "confianza": "media",
       "mx": null,
-      "notas": "Verificación automática: 10 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: your-name, your-apellido, your-email, menu-348, menu-349, your-empresa)."
+      "notas": "Verificación automática: 11 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: your-name, your-apellido, your-email, menu-348, menu-349, your-empresa)."
     }
   },
   {
@@ -720,6 +776,32 @@
       "confianza": "media",
       "mx": null,
       "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: iframe: https://js.hsforms.net/forms/embed/v2.js?ver=11.3.75)."
+    }
+  },
+  {
+    "id": "clece",
+    "nombre": "Clece",
+    "web": "https://www.clece.es",
+    "sector": "Servicios y mantenimiento integral de edificios",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-mantenimiento",
+      "sea-instalaciones"
+    ],
+    "motivoEncaje": "Mantenimiento de edificios e instalaciones con sede en Madrid.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://clece.es/es/contacto/",
+      "formularioUrl": "https://clece.es/es/contacto/",
+      "tipoContacto": "general"
+    },
+    "empleoUrl": "https://clece.es/es/empleo/",
+    "verificacion": {
+      "fecha": "2026-11-07",
+      "confianza": "media",
+      "mx": null,
+      "notas": "Verificación automática: 6 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Nombre y Apellidos*, Correo electrónico*, Teléfono, business, service, reason)."
     }
   },
   {
@@ -955,7 +1037,7 @@
       "fecha": "2026-11-07",
       "confianza": "media",
       "mx": null,
-      "notas": "Verificación automática: 16 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Asunto*, Nombre*, Apellidos*, Correo electrónico*, Compañía / Organización*, Cargo*)."
+      "notas": "Verificación automática: 15 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Asunto*, Nombre*, Apellidos*, Correo electrónico*, Compañía / Organización*, Cargo*)."
     }
   },
   {
@@ -1100,17 +1182,16 @@
     ],
     "motivoEncaje": "Servicios de marketing (vivero de Carabanchel). Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
     "contacto": {
-      "tipo": "email",
-      "email": "info@emergyamarketing.com",
+      "tipo": "formulario",
       "fuenteUrl": "https://emergyamarketing.com/contacto",
+      "formularioUrl": "https://emergyamarketing.com/contacto",
       "tipoContacto": "general"
     },
     "verificacion": {
       "fecha": "2026-11-07",
       "confianza": "media",
-      "mx": true,
-      "buzon": "existe",
-      "notas": "Verificación automática: 3 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto; buzón confirmado por su servidor de correo."
+      "mx": null,
+      "notas": "Verificación automática: 3 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: name, email, company, Cuéntanos dónde está tu negocio y qué quieres conseguir.)."
     }
   },
   {
@@ -1150,7 +1231,9 @@
     "zona": "madrid",
     "perfiles": [
       "acom-venta-tecnica",
-      "acom-logistica"
+      "acom-logistica",
+      "sea-fotovoltaica",
+      "sea-instalaciones"
     ],
     "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de San Blas). Fuente: datos abiertos del Ayuntamiento de Madrid.",
     "contacto": {
@@ -1165,6 +1248,34 @@
       "confianza": "alta",
       "mx": null,
       "notas": "Verificación automática: 8 páginas revisadas (incluido el mapa del sitio); formulario de empleo comprobado en el navegador (campos: Tu Nombre, Tu E-mail, Tu Teléfono, Tu Ciudad, Mensaje, He leído y acepto la política de privacidad .)."
+    }
+  },
+  {
+    "id": "engie-espana",
+    "nombre": "ENGIE España",
+    "web": "https://www.engie.es",
+    "sector": "Energía y servicios de mantenimiento de instalaciones",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-mantenimiento",
+      "sea-fotovoltaica",
+      "sea-instalaciones",
+      "sea-automatizacion"
+    ],
+    "motivoEncaje": "Servicios energéticos y mantenimiento de instalaciones con sede en Madrid.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://engie.es/somos-engie/unete-a-nosotros/",
+      "formularioUrl": "https://engie.es/somos-engie/unete-a-nosotros/",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://engie.es/somos-engie/unete-a-nosotros/",
+    "verificacion": {
+      "fecha": "2026-11-07",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 7 páginas revisadas (incluido el mapa del sitio); formulario de empleo comprobado en el navegador (campos: iframe: https://js.hsforms.net/forms/v2.js)."
     }
   },
   {
@@ -1279,6 +1390,33 @@
     }
   },
   {
+    "id": "ezentis",
+    "nombre": "Ezentis",
+    "web": "https://www.ezentis.com",
+    "sector": "Servicios de telecomunicaciones y electricidad",
+    "tamano": "gran-empresa",
+    "zona": "norte",
+    "perfiles": [
+      "sea-telecomunicaciones",
+      "sea-instalaciones",
+      "sea-mantenimiento"
+    ],
+    "motivoEncaje": "Servicios de despliegue y mantenimiento de redes con sede en Alcobendas.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.ezentis.com/trabaja-con-nosotros/",
+      "formularioUrl": "https://www.ezentis.com/trabaja-con-nosotros/",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.ezentis.com/trabaja-con-nosotros/ofertas-de-empleo/operador-a-soporte-n2/",
+    "verificacion": {
+      "fecha": "2026-11-07",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 10 páginas revisadas (incluido el mapa del sitio); formulario de empleo comprobado en el navegador (campos: Nombre *, Apellidos *, Correo electrónico *, Selecciona un país *, Adjunta tu currículum *, He leído y acepto la cláusula informativa a candidatos *)."
+    }
+  },
+  {
     "id": "factor-libre",
     "nombre": "Factor Libre",
     "web": "https://factorlibre.com",
@@ -1307,6 +1445,34 @@
     }
   },
   {
+    "id": "factum",
+    "nombre": "Factum",
+    "web": "https://www.factum.es",
+    "sector": "Ciberseguridad y sistemas",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-sistemas",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Pyme madrileña de ciberseguridad e infraestructura.",
+    "contacto": {
+      "tipo": "email",
+      "email": "rrhh@factum.es",
+      "fuenteUrl": "https://www.factum.es/unete-al-equipo/",
+      "tipoContacto": "rrhh"
+    },
+    "empleoUrl": "https://www.factum.es/unete-al-equipo/",
+    "verificacion": {
+      "fecha": "2026-11-07",
+      "confianza": "media",
+      "mx": true,
+      "buzon": "sin-confirmar",
+      "notas": "Verificación automática: 5 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón sin confirmar."
+    }
+  },
+  {
     "id": "ferrovial",
     "nombre": "Ferrovial",
     "web": "https://www.ferrovial.com",
@@ -1316,7 +1482,10 @@
     "perfiles": [
       "dam-datos-ia",
       "asir-sistemas",
-      "asir-cloud"
+      "asir-cloud",
+      "sea-instalaciones",
+      "sea-mantenimiento",
+      "sea-oficina-tecnica"
     ],
     "motivoEncaje": "Grupo con sede en Madrid y área digital.",
     "contacto": {
@@ -1401,17 +1570,16 @@
     ],
     "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
     "contacto": {
-      "tipo": "email",
-      "email": "info@ficharpresencia.es",
+      "tipo": "formulario",
       "fuenteUrl": "https://ficharpresencia.es/contacto/",
+      "formularioUrl": "https://ficharpresencia.es/contacto/",
       "tipoContacto": "general"
     },
     "verificacion": {
       "fecha": "2026-11-07",
       "confianza": "media",
-      "mx": true,
-      "buzon": "existe",
-      "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto; buzón confirmado por su servidor de correo."
+      "mx": null,
+      "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: your-name, your-email, tel-152, Soluciones[], your-subject, your-message)."
     }
   },
   {
@@ -1462,7 +1630,7 @@
       "fecha": "2026-11-07",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 10 páginas revisadas (incluido el mapa del sitio); formulario de empleo comprobado en el navegador (campos: firstName *, lastName *, jobtitle *, email *, country *, message)."
+      "notas": "Verificación automática: 9 páginas revisadas (incluido el mapa del sitio); formulario de empleo comprobado en el navegador (campos: firstName *, lastName *, jobtitle *, email *, country *, message)."
     }
   },
   {
@@ -1804,7 +1972,8 @@
       "acom-venta-tecnica",
       "acom-ecommerce",
       "acom-logistica",
-      "asir-redes"
+      "asir-redes",
+      "sea-telecomunicaciones"
     ],
     "motivoEncaje": "Comercio madrileño de material de telecomunicaciones y electrónica. Colabora en la Formación en Empresa de Actividades Comerciales del IES Palomeras Vallecas (programación oficial del ciclo, curso 2025-2026).",
     "contacto": {
@@ -1872,6 +2041,61 @@
     }
   },
   {
+    "id": "ietres",
+    "nombre": "ietres informática",
+    "web": "https://www.ietres.com",
+    "sector": "Servicios informáticos",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-sistemas",
+      "asir-soporte",
+      "dam-web"
+    ],
+    "motivoEncaje": "Empresa de servicios informáticos que publica un buzón de RR. HH. en su página de empleo.",
+    "contacto": {
+      "tipo": "email",
+      "email": "rrhh@ietres.com",
+      "fuenteUrl": "https://www.ietres.com/empleo/",
+      "tipoContacto": "rrhh"
+    },
+    "empleoUrl": "https://www.ietres.com/empleo/",
+    "verificacion": {
+      "fecha": "2026-11-07",
+      "confianza": "alta",
+      "mx": true,
+      "buzon": "existe",
+      "notas": "Verificación automática: 7 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón confirmado por su servidor de correo."
+    }
+  },
+  {
+    "id": "ikusi",
+    "nombre": "Ikusi",
+    "web": "https://www.ikusi.com",
+    "sector": "Tecnología, redes y sistemas para edificios e infraestructuras",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-telecomunicaciones",
+      "sea-automatizacion",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Integrador tecnológico con oficina en Madrid.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.ikusi.com/en/contact/",
+      "formularioUrl": "https://www.ikusi.com/en/contact/",
+      "tipoContacto": "general"
+    },
+    "empleoUrl": "https://www.ikusi.com/es/trabaja-con-nosotros/",
+    "verificacion": {
+      "fecha": "2026-11-07",
+      "confianza": "media",
+      "mx": null,
+      "notas": "Verificación automática: 6 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Full name *, Email *, Company, Phone *, Position, Message *)."
+    }
+  },
+  {
     "id": "ilitia",
     "nombre": "Ilitia Technologies",
     "web": "https://www.ilitia.com",
@@ -1901,34 +2125,6 @@
     }
   },
   {
-    "id": "ilunion-tecnologia-y-accesibilidad",
-    "nombre": "Ilunion Tecnología y Accesibilidad",
-    "web": "https://www.ilunion.com",
-    "sector": "Servicios tecnológicos (grupo social ONCE)",
-    "tamano": "gran-empresa",
-    "zona": "madrid",
-    "perfiles": [
-      "asir-soporte",
-      "asir-sistemas",
-      "dam-web"
-    ],
-    "motivoEncaje": "Grupo de economía social con servicios TI, soporte y accesibilidad web.",
-    "contacto": {
-      "tipo": "email",
-      "email": "contacto@ilunion.com",
-      "fuenteUrl": "https://www.ilunion.com/es/unete-al-equipo",
-      "tipoContacto": "general"
-    },
-    "empleoUrl": "https://www.ilunion.com/es/unete-al-equipo",
-    "verificacion": {
-      "fecha": "2026-11-07",
-      "confianza": "alta",
-      "mx": true,
-      "buzon": "existe",
-      "notas": "Verificación automática: 11 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón confirmado por su servidor de correo."
-    }
-  },
-  {
     "id": "imagar-solutions",
     "nombre": "Imagar Solutions",
     "web": "https://www.imagar.com",
@@ -1952,6 +2148,33 @@
       "confianza": "media",
       "mx": null,
       "notas": "Verificación automática: 9 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: your-name, your-email, your-phone, your-company, your-message, privacidad)."
+    }
+  },
+  {
+    "id": "imesapi",
+    "nombre": "Imesapi",
+    "web": "https://www.imesapi.es",
+    "sector": "Alumbrado público, instalaciones eléctricas y mantenimiento",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-redes-ct",
+      "sea-instalaciones",
+      "sea-mantenimiento"
+    ],
+    "motivoEncaje": "Empresa madrileña de alumbrado público, semáforos e instalaciones eléctricas.",
+    "contacto": {
+      "tipo": "email",
+      "email": "info@imesapi.es",
+      "fuenteUrl": "https://www.imesapi.es/recursos-humanos/",
+      "tipoContacto": "general"
+    },
+    "verificacion": {
+      "fecha": "2026-11-07",
+      "confianza": "media",
+      "mx": true,
+      "buzon": "sin-confirmar",
+      "notas": "Verificación automática: 6 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón sin confirmar."
     }
   },
   {
@@ -2038,6 +2261,32 @@
       "mx": true,
       "buzon": "sin-confirmar",
       "notas": "Verificación automática: 5 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón sin confirmar."
+    }
+  },
+  {
+    "id": "ingeteam",
+    "nombre": "Ingeteam",
+    "web": "https://www.ingeteam.com",
+    "sector": "Electrónica de potencia y automatización",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-automatizacion",
+      "sea-fotovoltaica",
+      "sea-mantenimiento"
+    ],
+    "motivoEncaje": "Ingeniería eléctrica con delegación en Madrid.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.ingeteam.com/en/contact-locations",
+      "formularioUrl": "https://www.ingeteam.com/en/contact-locations",
+      "tipoContacto": "general"
+    },
+    "verificacion": {
+      "fecha": "2026-11-07",
+      "confianza": "media",
+      "mx": null,
+      "notas": "Verificación automática: 6 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: First name*, Last name*, Email*, Country*, Company name, Telephone number)."
     }
   },
   {
@@ -2533,7 +2782,8 @@
     "zona": "madrid",
     "perfiles": [
       "asir-redes",
-      "asir-sistemas"
+      "asir-sistemas",
+      "sea-telecomunicaciones"
     ],
     "motivoEncaje": "Operador neutro de fibra con sede en Madrid: perfil de redes.",
     "contacto": {
@@ -2631,7 +2881,7 @@
       "fecha": "2026-11-07",
       "confianza": "media",
       "mx": null,
-      "notas": "Verificación automática: 10 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Nombre *, Número de telefóno *, Email *, Empresa, Cargo, País)."
+      "notas": "Verificación automática: 12 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Nombre *, Número de telefóno *, Email *, Empresa, Cargo, País)."
     }
   },
   {
@@ -2700,7 +2950,8 @@
     "perfiles": [
       "acom-logistica",
       "acom-gestion-comercio",
-      "acom-marketing-digital"
+      "acom-marketing-digital",
+      "sea-mantenimiento"
     ],
     "motivoEncaje": "Gran mercado mayorista de Madrid: logística, comercio y comunicación.",
     "contacto": {
@@ -2879,6 +3130,32 @@
       "confianza": "media",
       "mx": null,
       "notas": "Verificación automática: 15 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Nombre y apellidos, Correo electrónico, Seleccionar país, Consulta, He leído y acepto la Política de privacidad, clicado_empleo)."
+    }
+  },
+  {
+    "id": "mobe-energy",
+    "nombre": "More and Better Energy (MOBE)",
+    "web": "https://www.mobeenergy.com",
+    "sector": "Energías renovables",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-fotovoltaica",
+      "sea-redes-ct"
+    ],
+    "motivoEncaje": "Empresa de renovables del vivero municipal de Vicálvaro.",
+    "contacto": {
+      "tipo": "email",
+      "email": "info@mobeenergy.com",
+      "fuenteUrl": "https://mobeenergy.com/contacto/",
+      "tipoContacto": "general"
+    },
+    "verificacion": {
+      "fecha": "2026-11-07",
+      "confianza": "media",
+      "mx": true,
+      "buzon": "existe",
+      "notas": "Verificación automática: 3 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto; buzón confirmado por su servidor de correo."
     }
   },
   {
@@ -3092,7 +3369,7 @@
       "fecha": "2026-11-07",
       "confianza": "media",
       "mx": null,
-      "notas": "Verificación automática: 5 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Correo Electrónico*, Nombre*, Apellido*, Motivo de la consulta, Detalles de la consulta. ¿cómo podemos ayudarte?, Estoy de acuerdo con la pol&iacute;tica de privacidad de Nexo Professional Community, SL.)."
+      "notas": "Verificación automática: 6 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Correo Electrónico*, Nombre*, Apellido*, Motivo de la consulta, Detalles de la consulta. ¿cómo podemos ayudarte?, Estoy de acuerdo con la pol&iacute;tica de privacidad de Nexo Professional Community, SL.)."
     }
   },
   {
@@ -3260,6 +3537,60 @@
       "confianza": "media",
       "mx": null,
       "notas": "Verificación automática: 17 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: ¿Cómo te llamas?, ¿Tu primer apellido?, Tu email de trabajo, Teléfono con prefijo+, mauticform[pais], mauticform[tipo_de_contacto])."
+    }
+  },
+  {
+    "id": "orona",
+    "nombre": "Orona",
+    "web": "https://www.orona-group.com/es-es",
+    "sector": "Ascensores: instalación y mantenimiento",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-mantenimiento",
+      "sea-automatizacion"
+    ],
+    "motivoEncaje": "Ascensores con delegaciones en Madrid.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.orona-group.com/es-es/contacto/",
+      "formularioUrl": "https://www.orona-group.com/es-es/contacto/",
+      "tipoContacto": "general"
+    },
+    "empleoUrl": "https://www.orona-group.com/es-es/empleo/equipo/",
+    "verificacion": {
+      "fecha": "2026-11-07",
+      "confianza": "media",
+      "mx": null,
+      "notas": "Verificación automática: 16 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Nombre, Apellidos, E-Mail, Teléfono, Provincia / Región, Ciudad / Localidad)."
+    }
+  },
+  {
+    "id": "otis-espana",
+    "nombre": "Otis España",
+    "web": "https://www.otis.com/es/es",
+    "sector": "Ascensores: instalación y mantenimiento",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-mantenimiento",
+      "sea-automatizacion",
+      "sea-instalaciones"
+    ],
+    "motivoEncaje": "Fabricante de ascensores con sede en Madrid; muchos técnicos de mantenimiento eléctrico.",
+    "contacto": {
+      "tipo": "email",
+      "email": "careers@otis.com",
+      "fuenteUrl": "https://www.otis.com/es/es/careers",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.otis.com/es/es/careers",
+    "verificacion": {
+      "fecha": "2026-11-07",
+      "confianza": "media",
+      "mx": true,
+      "buzon": "acepta-todo",
+      "notas": "Verificación automática: 6 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón no confirmable (el servidor acepta cualquier dirección)."
     }
   },
   {
@@ -3455,6 +3786,33 @@
       "mx": true,
       "buzon": "existe",
       "notas": "Verificación automática: 7 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto; buzón confirmado por su servidor de correo."
+    }
+  },
+  {
+    "id": "problemas-cero",
+    "nombre": "Problemas Cero",
+    "web": "https://problemascero.com",
+    "sector": "Servicios informáticos",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-soporte",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Servicios informáticos con página de empleo.",
+    "contacto": {
+      "tipo": "email",
+      "email": "info@problemascero.com",
+      "fuenteUrl": "https://problemascero.com/trabaja-con-nosotros/",
+      "tipoContacto": "general"
+    },
+    "empleoUrl": "https://problemascero.com/trabaja-con-nosotros/",
+    "verificacion": {
+      "fecha": "2026-11-07",
+      "confianza": "media",
+      "mx": true,
+      "buzon": "sin-confirmar",
+      "notas": "Verificación automática: 3 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón sin confirmar."
     }
   },
   {
@@ -3860,7 +4218,7 @@
       "fecha": "2026-11-07",
       "confianza": "media",
       "mx": null,
-      "notas": "Verificación automática: 17 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: TU NOMBRE, DIRECCIÓN DE EMAIL, MENSAJE, form_fields[field_a88666a])."
+      "notas": "Verificación automática: 16 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: TU NOMBRE, DIRECCIÓN DE EMAIL, MENSAJE, form_fields[field_a88666a])."
     }
   },
   {
@@ -3998,6 +4356,34 @@
     }
   },
   {
+    "id": "sonepar-espana",
+    "nombre": "Sonepar España",
+    "web": "https://www.sonepar.es",
+    "sector": "Distribución de material eléctrico",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-instalaciones",
+      "sea-automatizacion",
+      "acom-venta-tecnica"
+    ],
+    "motivoEncaje": "Distribuidor de material eléctrico con delegaciones en Madrid.",
+    "contacto": {
+      "tipo": "email",
+      "email": "rrhh@sonepar.es",
+      "fuenteUrl": "https://sonepar.es/es-es/static/empleo",
+      "tipoContacto": "rrhh"
+    },
+    "empleoUrl": "https://sonepar.es/es-es/static/empleo",
+    "verificacion": {
+      "fecha": "2026-11-07",
+      "confianza": "media",
+      "mx": true,
+      "buzon": "sin-confirmar",
+      "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón sin confirmar."
+    }
+  },
+  {
     "id": "sothis",
     "nombre": "Sothis",
     "web": "https://www.sothis.tech",
@@ -4023,6 +4409,33 @@
       "mx": true,
       "buzon": "existe",
       "notas": "Verificación automática: 9 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto; buzón confirmado por su servidor de correo."
+    }
+  },
+  {
+    "id": "sotysolar",
+    "nombre": "SotySolar",
+    "web": "https://sotysolar.es",
+    "sector": "Instalaciones solares de autoconsumo",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "sea-fotovoltaica",
+      "acom-venta-tecnica"
+    ],
+    "motivoEncaje": "Instalaciones fotovoltaicas de autoconsumo.",
+    "contacto": {
+      "tipo": "email",
+      "email": "rrhh@sotysolar.es",
+      "fuenteUrl": "https://sotysolar.es/energia-solar/empleo",
+      "tipoContacto": "rrhh"
+    },
+    "empleoUrl": "https://sotysolar.es/trabaja-con-nosotros",
+    "verificacion": {
+      "fecha": "2026-11-07",
+      "confianza": "alta",
+      "mx": true,
+      "buzon": "existe",
+      "notas": "Verificación automática: 5 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón confirmado por su servidor de correo."
     }
   },
   {
@@ -4165,7 +4578,8 @@
     "perfiles": [
       "dam-escritorio",
       "dam-backend",
-      "acom-venta-tecnica"
+      "acom-venta-tecnica",
+      "sea-automatizacion"
     ],
     "motivoEncaje": "Empresa tecnológica de la Comunidad de Madrid. Colabora en la Formación en Empresa de Actividades Comerciales del IES Palomeras Vallecas (programación oficial del ciclo, curso 2025-2026).",
     "contacto": {
@@ -4192,7 +4606,10 @@
     "perfiles": [
       "dam-escritorio",
       "dam-videojuegos",
-      "asir-sistemas"
+      "asir-sistemas",
+      "sea-automatizacion",
+      "sea-mantenimiento",
+      "sea-oficina-tecnica"
     ],
     "motivoEncaje": "Simuladores y software con sede en San Sebastián de los Reyes.",
     "contacto": {
@@ -4279,17 +4696,16 @@
     ],
     "motivoEncaje": "Compraventa de vivienda con procesos digitales (vivero de Carabanchel). Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
     "contacto": {
-      "tipo": "email",
-      "email": "info@templo-inmobiliario.com",
+      "tipo": "formulario",
       "fuenteUrl": "https://templo-inmobiliario.com/contacto/",
+      "formularioUrl": "https://templo-inmobiliario.com/contacto/",
       "tipoContacto": "general"
     },
     "verificacion": {
       "fecha": "2026-11-07",
       "confianza": "media",
-      "mx": true,
-      "buzon": "existe",
-      "notas": "Verificación automática: 3 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto; buzón confirmado por su servidor de correo."
+      "mx": null,
+      "notas": "Verificación automática: 3 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Nombre, Email, Asunto)."
     }
   },
   {
