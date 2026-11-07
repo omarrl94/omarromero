@@ -1,6 +1,6 @@
 # Comprobación de enlaces
 
-Fecha: 2026-11-07T14:08:04.954Z · Enlaces de empresas: 404 · rotos: 4
+Fecha: 2026-11-07T14:30:12.491Z · Enlaces de empresas: 388 · rotos: 3
 
 ## Enlaces rotos del directorio
 
@@ -9,7 +9,6 @@ Fecha: 2026-11-07T14:08:04.954Z · Enlaces de empresas: 404 · rotos: 4
 | Arte Y Tecnología Dinámica | web | https://www.artdinamica.com | ERR_TLS_CERT_ALTNAME_INVALID |
 | Secure&IT | empleo | https://talento.secureit.es/ | 403 |
 | Taquion | web | https://taquion.es | 403 |
-| Taquion | formulario | https://taquion.es/contacto/ | 403 |
 
 ## Portales (enlaces profundos)
 

@@ -1,31 +1,5 @@
 [
   {
-    "id": "ac2sc",
-    "nombre": "Ac2 Systems Consultancy",
-    "web": "https://ac2sc.es",
-    "sector": "Consultoría de sistemas",
-    "tamano": "pyme",
-    "zona": "madrid",
-    "perfiles": [
-      "asir-sistemas",
-      "asir-redes"
-    ],
-    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
-    "contacto": {
-      "tipo": "formulario",
-      "fuenteUrl": "https://ac2sc.es/trabaja-con-nosotros",
-      "formularioUrl": "https://ac2sc.es/trabaja-con-nosotros",
-      "tipoContacto": "talento"
-    },
-    "empleoUrl": "https://ac2sc.es/trabaja-con-nosotros",
-    "verificacion": {
-      "fecha": "2026-11-07",
-      "confianza": "alta",
-      "mx": null,
-      "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); formulario de empleo comprobado en el navegador (campos: Nombre, Email, Mensaje, MailAttachmentFile, AceptoTerminos, movil)."
-    }
-  },
-  {
     "id": "acens",
     "nombre": "Acens",
     "web": "https://www.acens.com",
@@ -96,16 +70,16 @@
     "contacto": {
       "tipo": "email",
       "email": "info@ackcent.com",
-      "fuenteUrl": "https://ackcent.com/careers/",
+      "fuenteUrl": "https://ackcent.com/join-ackcents-cybersecurity-awareness-month-to-keep-your-team-cybersecure/",
       "tipoContacto": "general"
     },
-    "empleoUrl": "https://ackcent.com/careers/",
+    "empleoUrl": "https://ackcent.com/join-ackcents-cybersecurity-awareness-month-to-keep-your-team-cybersecure/",
     "verificacion": {
       "fecha": "2026-11-07",
       "confianza": "media",
       "mx": true,
       "buzon": "acepta-todo",
-      "notas": "Verificación automática: 6 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón no confirmable (el servidor acepta cualquier dirección)."
+      "notas": "Verificación automática: 7 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón no confirmable (el servidor acepta cualquier dirección)."
     }
   },
   {
@@ -211,34 +185,7 @@
       "fecha": "2026-11-07",
       "confianza": "media",
       "mx": null,
-      "notas": "Verificación automática: 11 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Seleccione una opci&oacute;n, Seleccione una opci&oacute;n, Seleccione una opci&oacute;n, Seleccione una opci&oacute;n, Seleccione una opci&oacute;n, Seleccione una opci&oacute;n)."
-    }
-  },
-  {
-    "id": "aiuken",
-    "nombre": "Aiuken",
-    "web": "https://www.aiuken.com",
-    "sector": "Ciberseguridad y SOC",
-    "tamano": "pyme",
-    "zona": "madrid",
-    "perfiles": [
-      "asir-ciberseguridad",
-      "asir-sistemas",
-      "asir-redes"
-    ],
-    "motivoEncaje": "Empresa de ciberseguridad con SOC y servicios gestionados.",
-    "contacto": {
-      "tipo": "email",
-      "email": "info@aiuken.com",
-      "fuenteUrl": "https://www.aiuken.com/contacto/",
-      "tipoContacto": "general"
-    },
-    "verificacion": {
-      "fecha": "2026-11-07",
-      "confianza": "media",
-      "mx": true,
-      "buzon": "existe",
-      "notas": "Verificación automática: 3 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto; buzón confirmado por su servidor de correo."
+      "notas": "Verificación automática: 9 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Seleccione una opci&oacute;n, Seleccione una opci&oacute;n, Seleccione una opci&oacute;n, Seleccione una opci&oacute;n, Seleccione una opci&oacute;n, Seleccione una opci&oacute;n)."
     }
   },
   {
@@ -409,8 +356,8 @@
     "motivoEncaje": "Centros de atención al cliente y telemarketing en Madrid.",
     "contacto": {
       "tipo": "formulario",
-      "fuenteUrl": "https://atento.com/es/contacto-para-ventas",
-      "formularioUrl": "https://atento.com/es/contacto-para-ventas",
+      "fuenteUrl": "https://atento.com/es/contacto-para-medios",
+      "formularioUrl": "https://atento.com/es/contacto-para-medios",
       "tipoContacto": "general"
     },
     "empleoUrl": "https://atento.com/es/trabaja-con-nosotros",
@@ -418,7 +365,7 @@
       "fecha": "2026-11-07",
       "confianza": "media",
       "mx": null,
-      "notas": "Verificación automática: 16 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Nombre, Apellido, Email, País, Teléfono, Empresa)."
+      "notas": "Verificación automática: 16 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Nombre, Apellido, Email, Teléfono, Medio, Cargo)."
     }
   },
   {
@@ -435,18 +382,17 @@
     ],
     "motivoEncaje": "Consultora madrileña de desarrollo y datos.",
     "contacto": {
-      "tipo": "email",
-      "email": "talent.acquisition@atmira.com",
+      "tipo": "formulario",
       "fuenteUrl": "https://www.atmira.com/unete-a-nuestro-ecosistema/",
+      "formularioUrl": "https://www.atmira.com/unete-a-nuestro-ecosistema/",
       "tipoContacto": "talento"
     },
     "empleoUrl": "https://www.atmira.com/unete-a-nuestro-ecosistema/",
     "verificacion": {
       "fecha": "2026-11-07",
       "confianza": "alta",
-      "mx": true,
-      "buzon": "existe",
-      "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón confirmado por su servidor de correo."
+      "mx": null,
+      "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); formulario de empleo comprobado en el navegador (campos: your-name, your-email, text-460, your-subject, your-message, file-121)."
     }
   },
   {
@@ -521,16 +467,16 @@
     "motivoEncaje": "Consultora española mediana con desarrollo, cloud y datos.",
     "contacto": {
       "tipo": "formulario",
-      "fuenteUrl": "https://babelgroup.com/en/sectores/empleo-y-seguridad-social/",
-      "formularioUrl": "https://babelgroup.com/en/sectores/empleo-y-seguridad-social/",
-      "tipoContacto": "talento"
+      "fuenteUrl": "https://babelgroup.com/contacto/",
+      "formularioUrl": "https://babelgroup.com/contacto/",
+      "tipoContacto": "general"
     },
     "empleoUrl": "https://babelgroup.com/en/sectores/empleo-y-seguridad-social/",
     "verificacion": {
       "fecha": "2026-11-07",
-      "confianza": "alta",
+      "confianza": "media",
       "mx": null,
-      "notas": "Verificación automática: 10 páginas revisadas (incluido el mapa del sitio); formulario de empleo comprobado en el navegador (campos: your-name, your-apellido, your-email, menu-348, menu-349, your-empresa)."
+      "notas": "Verificación automática: 11 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: your-name, your-apellido, your-email, menu-348, menu-349, your-empresa)."
     }
   },
   {
@@ -654,8 +600,8 @@
     "motivoEncaje": "Bolsas y Mercados Españoles, con área tecnológica en Las Rozas.",
     "contacto": {
       "tipo": "formulario",
-      "fuenteUrl": "https://www.bolsasymercados.es/en/contact/epm.html",
-      "formularioUrl": "https://www.bolsasymercados.es/en/contact/epm.html",
+      "fuenteUrl": "https://www.bolsasymercados.es/es/contacto/bolsa-bilbao.html",
+      "formularioUrl": "https://www.bolsasymercados.es/es/contacto/bolsa-bilbao.html",
       "tipoContacto": "general"
     },
     "empleoUrl": "https://www.bolsasymercados.es/es/sobre-bme/empleo.html",
@@ -663,35 +609,7 @@
       "fecha": "2026-11-07",
       "confianza": "media",
       "mx": null,
-      "notas": "Verificación automática: 20 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Name, Company, E-mail, Select, Select, Select)."
-    }
-  },
-  {
-    "id": "cabify",
-    "nombre": "Cabify",
-    "web": "https://cabify.com",
-    "sector": "Movilidad (producto digital)",
-    "tamano": "startup",
-    "zona": "madrid",
-    "perfiles": [
-      "dam-backend",
-      "dam-android",
-      "dam-web",
-      "dam-datos-ia"
-    ],
-    "motivoEncaje": "Producto digital madrileño con equipos de ingeniería móvil, backend y datos.",
-    "contacto": {
-      "tipo": "formulario",
-      "fuenteUrl": "https://cabify.com/es/flotas/contacto",
-      "formularioUrl": "https://cabify.com/es/flotas/contacto",
-      "tipoContacto": "general"
-    },
-    "empleoUrl": "https://cabify.careers/en/",
-    "verificacion": {
-      "fecha": "2026-11-07",
-      "confianza": "media",
-      "mx": null,
-      "notas": "Verificación automática: 9 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: iframe: https://cabify.jotform.com/241414741743857)."
+      "notas": "Verificación automática: 20 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Nombre, Empresa, E-mail, Apellidos, Teléfono, Mensaje)."
     }
   },
   {
@@ -709,15 +627,15 @@
     "motivoEncaje": "Sede en Madrid y red comercial y de distribución propia.",
     "contacto": {
       "tipo": "formulario",
-      "fuenteUrl": "https://www.calidadpascual.com/contacto/",
-      "formularioUrl": "https://www.calidadpascual.com/contacto/",
+      "fuenteUrl": "https://www.calidadpascual.com/en/contact/",
+      "formularioUrl": "https://www.calidadpascual.com/en/contact/",
       "tipoContacto": "general"
     },
     "verificacion": {
       "fecha": "2026-11-07",
       "confianza": "media",
       "mx": null,
-      "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Nombre de establecimiento *, Email *, Teléfono *, Código Postal *, Población *, Mensaje *)."
+      "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Name of establishment *, Email *, Phone *, Postcode *, City *, Write here *)."
     }
   },
   {
@@ -772,59 +690,6 @@
       "confianza": "alta",
       "mx": null,
       "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); formulario de empleo comprobado en el navegador (campos: Nombre *, Email *, Teléfono, Años de experiencia, Mensaje, checkbox)."
-    }
-  },
-  {
-    "id": "cibersafety",
-    "nombre": "Cibersafety",
-    "web": "https://cibersafety.com",
-    "sector": "Ciberseguridad para pymes",
-    "tamano": "pyme",
-    "zona": "madrid",
-    "perfiles": [
-      "asir-ciberseguridad",
-      "asir-soporte"
-    ],
-    "motivoEncaje": "Ciberseguridad para pequeñas y medianas empresas.",
-    "contacto": {
-      "tipo": "email",
-      "email": "info@cibersafety.com",
-      "fuenteUrl": "https://cibersafety.com/contacto/",
-      "tipoContacto": "general"
-    },
-    "verificacion": {
-      "fecha": "2026-11-07",
-      "confianza": "media",
-      "mx": true,
-      "buzon": "existe",
-      "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto; buzón confirmado por su servidor de correo."
-    }
-  },
-  {
-    "id": "civitatis",
-    "nombre": "Civitatis",
-    "web": "https://www.civitatis.com",
-    "sector": "Turismo (plataforma web)",
-    "tamano": "startup",
-    "zona": "madrid",
-    "perfiles": [
-      "dam-web",
-      "dam-backend",
-      "dam-datos-ia"
-    ],
-    "motivoEncaje": "Plataforma madrileña de actividades con equipos de desarrollo.",
-    "contacto": {
-      "tipo": "formulario",
-      "fuenteUrl": "https://www.civitatis.com/es/contactar/",
-      "formularioUrl": "https://www.civitatis.com/es/contactar/",
-      "tipoContacto": "general"
-    },
-    "empleoUrl": "https://empleo.civitatis.com/",
-    "verificacion": {
-      "fecha": "2026-11-07",
-      "confianza": "media",
-      "mx": null,
-      "notas": "Verificación automática: 10 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Elige asunto, Actividad o destino, Nombre, Correo electrónico, Repite email, Mensaje)."
     }
   },
   {
@@ -906,31 +771,6 @@
     }
   },
   {
-    "id": "cosacor",
-    "nombre": "Cosacor",
-    "web": "https://cosacor.com",
-    "sector": "Fabricación y venta al por mayor de bolsas de papel",
-    "tamano": "pyme",
-    "zona": "madrid",
-    "perfiles": [
-      "acom-venta-tecnica",
-      "acom-logistica"
-    ],
-    "motivoEncaje": "Distribución mayorista (vivero de Vicálvaro). Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
-    "contacto": {
-      "tipo": "formulario",
-      "fuenteUrl": "https://cosacor.com/contacto.html",
-      "formularioUrl": "https://cosacor.com/contacto.html",
-      "tipoContacto": "general"
-    },
-    "verificacion": {
-      "fecha": "2026-11-07",
-      "confianza": "media",
-      "mx": null,
-      "notas": "Verificación automática: 3 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: website, Empresa *, Nombre *, Email *, Teléfono, Producto a envasar *)."
-    }
-  },
-  {
     "id": "cuatroochenta",
     "nombre": "Cuatroochenta",
     "web": "https://cuatroochenta.com",
@@ -945,8 +785,8 @@
     "motivoEncaje": "Tecnológica de apps y ciberseguridad con oficina en Madrid.",
     "contacto": {
       "tipo": "formulario",
-      "fuenteUrl": "https://cuatroochenta.com/practicas-rrhh/",
-      "formularioUrl": "https://cuatroochenta.com/practicas-rrhh/",
+      "fuenteUrl": "https://cuatroochenta.com/trabaja-en-cuatroochenta/",
+      "formularioUrl": "https://cuatroochenta.com/trabaja-en-cuatroochenta/",
       "tipoContacto": "talento"
     },
     "empleoUrl": "https://cuatroochenta.com/trabaja-en-cuatroochenta/",
@@ -954,7 +794,7 @@
       "fecha": "2026-11-07",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 17 páginas revisadas (incluido el mapa del sitio); formulario de empleo comprobado en el navegador (campos: iframe: https://form.typeform.com/to/LTpIpPFz?typeform-source=soluciones480.typeform.com#puesto=HR)."
+      "notas": "Verificación automática: 17 páginas revisadas (incluido el mapa del sitio); formulario de empleo comprobado en el navegador (campos: iframe: https://form.typeform.com/to/vLyvcjNj?typeform-source=soluciones480.typeform.com#&amp;fuente=Web%20General)."
     }
   },
   {
@@ -1090,6 +930,32 @@
     }
   },
   {
+    "id": "devaim",
+    "nombre": "Devaim",
+    "web": "https://www.devaim.com",
+    "sector": "Consultoría ERP (Business Central)",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-erp",
+      "dam-bbdd"
+    ],
+    "motivoEncaje": "Consultora madrileña que implanta Dynamics NAV y Business Central.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.devaim.com/trabaja-con-nosotros-unete-al-equipo-devaim/",
+      "formularioUrl": "https://www.devaim.com/trabaja-con-nosotros-unete-al-equipo-devaim/",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.devaim.com/trabaja-con-nosotros-unete-al-equipo-devaim/",
+    "verificacion": {
+      "fecha": "2026-11-07",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 6 páginas revisadas (incluido el mapa del sitio); formulario de empleo comprobado en el navegador (campos: your-name, your-surname, tel-818, your-email, file-393, your-message)."
+    }
+  },
+  {
     "id": "digital-menta",
     "nombre": "Digital Menta",
     "web": "https://digitalmenta.com",
@@ -1221,32 +1087,6 @@
     }
   },
   {
-    "id": "enchufauto",
-    "nombre": "Enchufauto",
-    "web": "https://www.enchufauto.es",
-    "sector": "Comercio al por mayor de equipos electrónicos y de telecomunicaciones",
-    "tamano": "pyme",
-    "zona": "madrid",
-    "perfiles": [
-      "acom-venta-tecnica",
-      "acom-logistica"
-    ],
-    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de San Blas). Fuente: datos abiertos del Ayuntamiento de Madrid.",
-    "contacto": {
-      "tipo": "formulario",
-      "fuenteUrl": "https://www.enchufauto.es/trabaja-con-nosotros.php?lang=es",
-      "formularioUrl": "https://www.enchufauto.es/trabaja-con-nosotros.php?lang=es",
-      "tipoContacto": "talento"
-    },
-    "empleoUrl": "https://www.enchufauto.es/trabaja-con-nosotros.php?lang=es",
-    "verificacion": {
-      "fecha": "2026-11-07",
-      "confianza": "alta",
-      "mx": null,
-      "notas": "Verificación automática: 8 páginas revisadas (incluido el mapa del sitio); formulario de empleo comprobado en el navegador (campos: Tu Nombre, Tu E-mail, Tu Teléfono, Tu Ciudad, Mensaje, He leído y acepto la política de privacidad .)."
-    }
-  },
-  {
     "id": "entelgy",
     "nombre": "Entelgy",
     "web": "https://www.entelgy.com",
@@ -1299,7 +1139,7 @@
       "confianza": "media",
       "mx": true,
       "buzon": "sin-confirmar",
-      "notas": "Verificación automática: 10 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto; buzón sin confirmar."
+      "notas": "Verificación automática: 11 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto; buzón sin confirmar."
     }
   },
   {
@@ -1558,18 +1398,17 @@
     ],
     "motivoEncaje": "Servicio inmobiliario de subastas (vivero de Vicálvaro). Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
     "contacto": {
-      "tipo": "email",
-      "email": "empleo@ghcasas.es",
+      "tipo": "formulario",
       "fuenteUrl": "https://www.ghcasas.es/trabaja-con-nosotros/",
+      "formularioUrl": "https://www.ghcasas.es/trabaja-con-nosotros/",
       "tipoContacto": "talento"
     },
     "empleoUrl": "https://www.ghcasas.es/trabaja-con-nosotros/",
     "verificacion": {
       "fecha": "2026-11-07",
       "confianza": "alta",
-      "mx": true,
-      "buzon": "existe",
-      "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón confirmado por su servidor de correo."
+      "mx": null,
+      "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); formulario de empleo comprobado en el navegador (campos: Nombre, Apellidos, E-mail, Teléfono, Ciudad, Dirección)."
     }
   },
   {
@@ -1939,8 +1778,8 @@
     "motivoEncaje": "Institución ferial de Madrid: comercialización, marketing y atención a expositores.",
     "contacto": {
       "tipo": "formulario",
-      "fuenteUrl": "https://www.ifema.es/en/sociocare/contact",
-      "formularioUrl": "https://www.ifema.es/en/sociocare/contact",
+      "fuenteUrl": "https://www.ifema.es/en/exposager/contact",
+      "formularioUrl": "https://www.ifema.es/en/exposager/contact",
       "tipoContacto": "general"
     },
     "empleoUrl": "https://www.ifema.es/nosotros/personas-talento",
@@ -2005,7 +1844,7 @@
       "confianza": "alta",
       "mx": true,
       "buzon": "existe",
-      "notas": "Verificación automática: 8 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón confirmado por su servidor de correo."
+      "notas": "Verificación automática: 11 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón confirmado por su servidor de correo."
     }
   },
   {
@@ -2248,8 +2087,8 @@
       "fecha": "2026-11-07",
       "confianza": "media",
       "mx": true,
-      "buzon": "acepta-todo",
-      "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto; buzón no confirmable (el servidor acepta cualquier dirección)."
+      "buzon": "sin-confirmar",
+      "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto; buzón sin confirmar."
     }
   },
   {
@@ -2358,8 +2197,8 @@
       "fecha": "2026-11-07",
       "confianza": "media",
       "mx": true,
-      "buzon": "acepta-todo",
-      "notas": "Verificación automática: 3 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto; buzón no confirmable (el servidor acepta cualquier dirección)."
+      "buzon": "sin-confirmar",
+      "notas": "Verificación automática: 3 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto; buzón sin confirmar."
     }
   },
   {
@@ -2712,7 +2551,7 @@
       "confianza": "alta",
       "mx": true,
       "buzon": "existe",
-      "notas": "Verificación automática: 8 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón confirmado por su servidor de correo."
+      "notas": "Verificación automática: 9 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón confirmado por su servidor de correo."
     }
   },
   {
@@ -3139,16 +2978,43 @@
     "contacto": {
       "tipo": "email",
       "email": "info@nunsys.com",
-      "fuenteUrl": "https://www.nunsys.com/personas/",
+      "fuenteUrl": "https://www.nunsys.com/unete-a-zoom-lider-en-soluciones-de-reuniones-con-zoom/",
       "tipoContacto": "general"
     },
-    "empleoUrl": "https://www.nunsys.com/personas/talento/",
+    "empleoUrl": "https://www.nunsys.com/unete-a-zoom-lider-en-soluciones-de-reuniones-con-zoom/",
     "verificacion": {
       "fecha": "2026-11-07",
       "confianza": "alta",
       "mx": true,
       "buzon": "existe",
-      "notas": "Verificación automática: 18 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón confirmado por su servidor de correo."
+      "notas": "Verificación automática: 17 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón confirmado por su servidor de correo."
+    }
+  },
+  {
+    "id": "one-esecurity",
+    "nombre": "One eSecurity",
+    "web": "https://www.one-esecurity.com",
+    "sector": "Ciberseguridad y respuesta a incidentes",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-datos-ia-seguridad"
+    ],
+    "motivoEncaje": "Especialistas en respuesta a incidentes y análisis forense.",
+    "contacto": {
+      "tipo": "email",
+      "email": "recruitment@one-esecurity.com",
+      "fuenteUrl": "http://www.one-esecurity.com/join_our_team.html",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "http://www.one-esecurity.com/join_our_team.html",
+    "verificacion": {
+      "fecha": "2026-11-07",
+      "confianza": "media",
+      "mx": true,
+      "buzon": "acepta-todo",
+      "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón no confirmable (el servidor acepta cualquier dirección)."
     }
   },
   {
@@ -3278,8 +3144,8 @@
     "motivoEncaje": "Desarrollo .NET, IA y realidad mixta: encaja con DAM web, backend y videojuegos.",
     "contacto": {
       "tipo": "formulario",
-      "fuenteUrl": "https://www.plainconcepts.com/es/becas-mujeres-data-science-ml/",
-      "formularioUrl": "https://www.plainconcepts.com/es/becas-mujeres-data-science-ml/",
+      "fuenteUrl": "https://www.plainconcepts.com/contact/",
+      "formularioUrl": "https://www.plainconcepts.com/contact/",
       "tipoContacto": "general"
     },
     "empleoUrl": "https://www.plainconcepts.com/careers/",
@@ -3287,7 +3153,7 @@
       "fecha": "2026-11-07",
       "confianza": "media",
       "mx": null,
-      "notas": "Verificación automática: 14 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Email Corporativo, Nombre, Teléfono, ¿En qué podemos ayudarte?, condiciones[], _wpcf7_ak_hp_textarea)."
+      "notas": "Verificación automática: 13 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Business Email, First Name, Phone, What can we do for you?, condiciones[], _wpcf7_ak_hp_textarea)."
     }
   },
   {
@@ -3342,32 +3208,6 @@
       "mx": true,
       "buzon": "existe",
       "notas": "Verificación automática: 7 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto; buzón confirmado por su servidor de correo."
-    }
-  },
-  {
-    "id": "prosegur-cipher",
-    "nombre": "Prosegur Cipher",
-    "web": "https://www.prosegur.es",
-    "sector": "Ciberseguridad (grupo Prosegur)",
-    "tamano": "gran-empresa",
-    "zona": "madrid",
-    "perfiles": [
-      "asir-ciberseguridad",
-      "asir-sistemas"
-    ],
-    "motivoEncaje": "SOC en la sede madrileña de Prosegur.",
-    "contacto": {
-      "tipo": "formulario",
-      "fuenteUrl": "https://www.prosegur.es/empresas/externalizacion/servicios-bpo-bpaas/contact-center",
-      "formularioUrl": "https://www.prosegur.es/empresas/externalizacion/servicios-bpo-bpaas/contact-center",
-      "tipoContacto": "general"
-    },
-    "empleoUrl": "https://www.prosegur.es/trabaja-con-nosotros",
-    "verificacion": {
-      "fecha": "2026-11-07",
-      "confianza": "media",
-      "mx": null,
-      "notas": "Verificación automática: 13 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Your url here, Nombre y Apellidos *, Compañía *, Correo Electrónico *, Teléfono *, ¿En qué podemos ayudarte?)."
     }
   },
   {
@@ -3476,33 +3316,6 @@
       "mx": true,
       "buzon": "existe",
       "notas": "Verificación automática: 8 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto; buzón confirmado por su servidor de correo."
-    }
-  },
-  {
-    "id": "red-es",
-    "nombre": "Red.es",
-    "web": "https://www.red.es",
-    "sector": "Entidad pública de transformación digital",
-    "tamano": "gran-empresa",
-    "zona": "madrid",
-    "perfiles": [
-      "asir-sistemas",
-      "asir-ciberseguridad",
-      "dam-web"
-    ],
-    "motivoEncaje": "Entidad pública con sede en Madrid.",
-    "contacto": {
-      "tipo": "formulario",
-      "fuenteUrl": "https://www.red.es/es/accesibilidad/contacto",
-      "formularioUrl": "https://www.red.es/es/accesibilidad/contacto",
-      "tipoContacto": "general"
-    },
-    "empleoUrl": "https://www.red.es/es/iniciativas/talento-digital",
-    "verificacion": {
-      "fecha": "2026-11-07",
-      "confianza": "media",
-      "mx": null,
-      "notas": "Verificación automática: 14 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Nombre, Apellidos, Organizaci&oacute;n, Email, Asunto, Mensaje)."
     }
   },
   {
@@ -3776,6 +3589,34 @@
     }
   },
   {
+    "id": "seresco",
+    "nombre": "Seresco",
+    "web": "https://www.seresco.es",
+    "sector": "Software de gestión, ERP y RR. HH.",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-erp",
+      "dam-bbdd",
+      "dam-backend",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Software de gestión y ERP con presencia en Madrid.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://seresco.es/contacto/",
+      "formularioUrl": "https://seresco.es/contacto/",
+      "tipoContacto": "general"
+    },
+    "empleoUrl": "https://seresco.es/talento/ofertas-empleo/",
+    "verificacion": {
+      "fecha": "2026-11-07",
+      "confianza": "media",
+      "mx": null,
+      "notas": "Verificación automática: 17 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: TU NOMBRE, DIRECCIÓN DE EMAIL, MENSAJE, form_fields[field_a88666a])."
+    }
+  },
+  {
     "id": "shakers",
     "nombre": "Shakers",
     "web": "https://www.shakersworks.com",
@@ -3815,15 +3656,15 @@
     "motivoEncaje": "Herramientas de IA para profesionales sanitarios (vivero de Carabanchel). Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
     "contacto": {
       "tipo": "formulario",
-      "fuenteUrl": "https://skinai.tech/contact",
-      "formularioUrl": "https://skinai.tech/contact",
+      "fuenteUrl": "https://skinai.tech/en/contact",
+      "formularioUrl": "https://skinai.tech/en/contact",
       "tipoContacto": "general"
     },
     "verificacion": {
       "fecha": "2026-11-07",
       "confianza": "media",
       "mx": null,
-      "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: _honey, Nombre *, Email *, Organización, Interés, Mensaje *)."
+      "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: _honey, Name *, Email *, Organization, Interest, Message *)."
     }
   },
   {
@@ -3956,12 +3797,12 @@
       "formularioUrl": "https://join.smartrecruiters.com/SopraSteria1/d57cb8c9-7a26-49e8-86e1-33eede9fbfea-espont-neos",
       "tipoContacto": "talento"
     },
-    "empleoUrl": "https://careers.soprasteria.es/",
+    "empleoUrl": "https://careers.soprasteria.es/job/bid-manager-in-madrid-spain-jid-10285",
     "verificacion": {
       "fecha": "2026-11-07",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 14 páginas revisadas (incluido el mapa del sitio); formulario de empleo comprobado en el navegador (campos: Añade tu currículum, Nombre, Apellidos, Correo electrónico, Country/region code, Número de teléfono)."
+      "notas": "Verificación automática: 11 páginas revisadas (incluido el mapa del sitio); formulario de empleo comprobado en el navegador (campos: Añade tu currículum, Nombre, Apellidos, Correo electrónico, Country/region code, Número de teléfono)."
     }
   },
   {
@@ -4013,8 +3854,8 @@
       "fecha": "2026-11-07",
       "confianza": "media",
       "mx": true,
-      "buzon": "acepta-todo",
-      "notas": "Verificación automática: 3 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto; buzón no confirmable (el servidor acepta cualquier dirección)."
+      "buzon": "sin-confirmar",
+      "notas": "Verificación automática: 3 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto; buzón sin confirmar."
     }
   },
   {
@@ -4360,8 +4201,8 @@
       "fecha": "2026-11-07",
       "confianza": "media",
       "mx": true,
-      "buzon": "acepta-todo",
-      "notas": "Verificación automática: 15 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón no confirmable (el servidor acepta cualquier dirección)."
+      "buzon": "sin-confirmar",
+      "notas": "Verificación automática: 15 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón sin confirmar."
     }
   },
   {
@@ -4542,15 +4383,15 @@
     "motivoEncaje": "Agencia madrileña de desarrollo web, apps y ecommerce.",
     "contacto": {
       "tipo": "formulario",
-      "fuenteUrl": "https://witrey.com/contacto-witrey/",
-      "formularioUrl": "https://witrey.com/contacto-witrey/",
+      "fuenteUrl": "https://witrey.com/en/contact-witrey/",
+      "formularioUrl": "https://witrey.com/en/contact-witrey/",
       "tipoContacto": "general"
     },
     "verificacion": {
       "fecha": "2026-11-07",
       "confianza": "media",
       "mx": null,
-      "notas": "Verificación automática: 3 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Nombre, Teléfono (WhatsApp), Email, Presupuesto, Tipo de proyecto, Cuéntanos sobre tu proyecto)."
+      "notas": "Verificación automática: 3 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Name, Phone (WhatsApp), Email, Budget, Project type, Tell us about your project)."
     }
   },
   {

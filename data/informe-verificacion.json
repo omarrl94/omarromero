@@ -1,5 +1,5 @@
 {
-  "fecha": "2026-11-07T14:06:41.003Z",
+  "fecha": "2026-11-07T14:28:33.011Z",
   "resultados": [
     {
       "id": "indra-group",
@@ -730,54 +730,46 @@
       "paginasRevisadas": [
         {
           "url": "https://www.soprasteria.es",
-          "estado": 200
+          "estado": 502
         },
         {
-          "url": "https://www.soprasteria.es/sala-de-prensa/notas-de-prensa/details/sopra-steria-contratara-mas-de-8500-personas-en-2026",
-          "estado": 200
+          "url": "https://soprasteria.es/",
+          "estado": "UND_ERR_CONNECT_TIMEOUT"
+        },
+        {
+          "url": "https://empleo.soprasteria.es/",
+          "estado": "ENOTFOUND"
+        },
+        {
+          "url": "https://trabajaconnosotros.soprasteria.es/",
+          "estado": "ENOTFOUND"
         },
         {
           "url": "https://careers.soprasteria.es/",
           "estado": 200
         },
         {
-          "url": "https://www.soprasteria.es/footer/contactenos",
+          "url": "https://careers.soprasteria.es/job/bid-manager-in-madrid-spain-jid-10285",
           "estado": 200
         },
         {
-          "url": "https://www.soprasteria.es/footer/aviso-legal",
+          "url": "https://careers.soprasteria.es/job/agente-de-cau-in-bilbao-spain-jid-7358",
           "estado": 200
         },
         {
-          "url": "https://www.soprasteria.es/trabaja-con-nosotros",
+          "url": "https://careers.soprasteria.es/job/tech-lead-java-in-madrid-spain-jid-9838",
           "estado": 200
         },
         {
-          "url": "https://www.soprasteria.es/trabaja-con-nosotros/",
+          "url": "https://careers.soprasteria.es/job/consultor-a-grc-in-madrid-spain-jid-9145",
           "estado": 200
         },
         {
-          "url": "https://www.soprasteria.es/empleo",
+          "url": "https://careers.soprasteria.es/job/ingeniero-cloud-in-madrid-spain-jid-9559",
           "estado": 200
         },
         {
-          "url": "https://www.soprasteria.es/talento",
-          "estado": 200
-        },
-        {
-          "url": "https://www.soprasteria.es/careers",
-          "estado": 200
-        },
-        {
-          "url": "https://www.soprasteria.es/unete",
-          "estado": 200
-        },
-        {
-          "url": "https://www.soprasteria.es/unete-al-equipo",
-          "estado": 200
-        },
-        {
-          "url": "https://www.soprasteria.es/rrhh",
+          "url": "https://careers.soprasteria.es/job/devops-engineer-in-madrid-spain-jid-9687",
           "estado": 200
         },
         {
@@ -795,16 +787,51 @@
         {
           "url": "https://careers.soprasteria.es/aviso-legal",
           "estado": 200
+        },
+        {
+          "url": "https://careers.soprasteria.es/trabaja-con-nosotros",
+          "estado": 404
+        },
+        {
+          "url": "https://careers.soprasteria.es/trabaja-con-nosotros/",
+          "estado": 404
+        },
+        {
+          "url": "https://careers.soprasteria.es/empleo",
+          "estado": 404
+        },
+        {
+          "url": "https://careers.soprasteria.es/talento",
+          "estado": 404
+        },
+        {
+          "url": "https://careers.soprasteria.es/careers",
+          "estado": 404
+        },
+        {
+          "url": "https://careers.soprasteria.es/unete",
+          "estado": 404
+        },
+        {
+          "url": "https://careers.soprasteria.es/unete-al-equipo",
+          "estado": 404
+        },
+        {
+          "url": "https://careers.soprasteria.es/rrhh",
+          "estado": 404
+        },
+        {
+          "url": "https://www.soprasteria.es/trabaja-con-nosotros",
+          "estado": 502
+        },
+        {
+          "url": "https://careers.soprasteria.es/politica-de-d%20y%20la%20https://careers.soprasteria.es/politica-de-cookies%20conforman%20los%20t%C3%A9rminos%20y%20condiciones%20que%20rigen%20el%20acceso%20y%20uso%20de%20la%20web.&lt;br&gt;%20%20%20%20&lt;/p&gt;%20%20%20%20&lt;p%20class=",
+          "estado": 404
         }
       ],
       "correosEncontrados": [
         {
           "email": "info_es@soprasteria.com",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "webmaster@soprasteria.com",
           "tipo": "general",
           "motivoRechazo": "dominio distinto al de la web"
         },
@@ -815,11 +842,6 @@
         }
       ],
       "formulariosRevisados": [
-        {
-          "url": "https://www.soprasteria.es/footer/contactenos",
-          "valido": false,
-          "motivo": "ningún formulario sirve (no pide el correo electrónico)"
-        },
         {
           "url": "https://careers.soprasteria.es/",
           "valido": false,
@@ -1307,6 +1329,10 @@
           "estado": 200
         },
         {
+          "url": "https://babelgroup.com/en/contacto/",
+          "estado": 200
+        },
+        {
           "url": "https://babelgroup.com/aviso-legal/",
           "estado": 200
         },
@@ -1359,11 +1385,11 @@
           "estado": 200
         },
         {
-          "url": "https://babelgroup.com/en/contacto/",
+          "url": "https://babelgroup.com/en/babelievers/",
           "estado": 200
         },
         {
-          "url": "https://babelgroup.com/en/babelievers/",
+          "url": "https://babelgroup.com/en/aviso-legal/",
           "estado": 200
         }
       ],
@@ -1398,30 +1424,11 @@
             "honeypot-755",
             "_wpcf7_ak_hp_textarea"
           ]
-        },
-        {
-          "url": "https://babelgroup.com/en/sectores/empleo-y-seguridad-social/",
-          "valido": true,
-          "motivo": "formulario con correo y mensaje o CV",
-          "campos": [
-            "your-name",
-            "your-apellido",
-            "your-email",
-            "menu-348",
-            "menu-349",
-            "your-empresa",
-            "menu-840",
-            "your-pais",
-            "textarea-209",
-            "checkbox-470[]",
-            "honeypot-755",
-            "_wpcf7_ak_hp_textarea"
-          ]
         }
       ],
       "evidencia": {
-        "url": "https://babelgroup.com/en/sectores/empleo-y-seguridad-social/",
-        "titulo": "Babel | Employment & Social Security | Technology consultant",
+        "url": "https://babelgroup.com/contacto/",
+        "titulo": "Babel | Business acceleration by technology | Cotacto",
         "campos": [
           "your-name",
           "your-apellido",
@@ -1437,8 +1444,8 @@
           "_wpcf7_ak_hp_textarea"
         ]
       },
-      "contacto": "formulario: https://babelgroup.com/en/sectores/empleo-y-seguridad-social/",
-      "confianza": "alta"
+      "contacto": "formulario: https://babelgroup.com/contacto/",
+      "confianza": "media"
     },
     {
       "id": "hiberus",
@@ -1679,7 +1686,7 @@
         {
           "email": "info@paradigmadigital.com",
           "resultado": "existe",
-          "respuesta": "250 2.1.5 OK 956f58d0204a3-67c1354a9edsi4152622d50.56 - gsmtp",
+          "respuesta": "250 2.1.5 OK 586e51a60fabf-4ad979c173csi6802053fac.47 - gsmtp",
           "servidor": "aspmx.l.google.com"
         }
       ],
@@ -1726,10 +1733,6 @@
       "paginasRevisadas": [
         {
           "url": "https://www.plainconcepts.com",
-          "estado": 200
-        },
-        {
-          "url": "https://www.plainconcepts.com/es/becas-mujeres-data-science-ml/",
           "estado": 200
         },
         {
@@ -1818,32 +1821,32 @@
       ],
       "formulariosRevisados": [
         {
-          "url": "https://www.plainconcepts.com/es/becas-mujeres-data-science-ml/",
+          "url": "https://www.plainconcepts.com/contact/",
           "valido": true,
           "motivo": "formulario con correo y mensaje o CV",
           "campos": [
-            "Email Corporativo",
-            "Nombre",
-            "Teléfono",
-            "¿En qué podemos ayudarte?",
+            "Business Email",
+            "First Name",
+            "Phone",
+            "What can we do for you?",
             "condiciones[]",
             "_wpcf7_ak_hp_textarea"
           ]
         }
       ],
       "evidencia": {
-        "url": "https://www.plainconcepts.com/es/becas-mujeres-data-science-ml/",
-        "titulo": "Lanzamos dos becas para mujeres en Data Science y ML | Plain Concepts",
+        "url": "https://www.plainconcepts.com/contact/",
+        "titulo": "Talk to Us | Request Custom Consulting or IT Services – Plain Concepts",
         "campos": [
-          "Email Corporativo",
-          "Nombre",
-          "Teléfono",
-          "¿En qué podemos ayudarte?",
+          "Business Email",
+          "First Name",
+          "Phone",
+          "What can we do for you?",
           "condiciones[]",
           "_wpcf7_ak_hp_textarea"
         ]
       },
-      "contacto": "formulario: https://www.plainconcepts.com/es/becas-mujeres-data-science-ml/",
+      "contacto": "formulario: https://www.plainconcepts.com/contact/",
       "confianza": "media"
     },
     {
@@ -2278,9 +2281,8 @@
       "buzones": [
         {
           "email": "people@keepler.io",
-          "resultado": "acepta-todo",
-          "respuesta": "250 2.1.5 Recipient ok",
-          "servidor": "mxa-00593801.gslb.pphosted.com"
+          "resultado": "indeterminado",
+          "respuesta": "sin respuesta del servidor de correo (554 Blocked - see https://ipcheck.proofpoint.com/?ip=20.98.158.84)"
         }
       ],
       "formulariosRevisados": [
@@ -2297,7 +2299,7 @@
         "url": "https://keepler.io/contact/",
         "titulo": "Keepler | Contact us to talk about your Data",
         "fragmento": "(el correo está en un enlace mailto, no en el texto visible)",
-        "buzon": "acepta-todo: 250 2.1.5 Recipient ok"
+        "buzon": "indeterminado: sin respuesta del servidor de correo (554 Blocked - see https://ipcheck.proofpoint.com/?ip=20.98.158.84)"
       },
       "contacto": "people@keepler.io (https://keepler.io/contact/)",
       "confianza": "media"
@@ -4382,7 +4384,7 @@
         {
           "email": "rrhh@mnemo.com",
           "resultado": "existe",
-          "respuesta": "250 2.1.5 OK 71dfb90a1353d-5ecc64f6a13si5066342e0c.21 - gsmtp",
+          "respuesta": "250 2.1.5 OK 00721157ae682-8b33f606020si33757247b3.178 - gsmtp",
           "servidor": "ALT2.ASPMX.L.GOOGLE.com"
         }
       ],
@@ -4415,7 +4417,7 @@
         "url": "https://mnemo.com/talento-y-cultura/",
         "titulo": "Talento & Cultura",
         "fragmento": "mación técnica y en habilidades Orientación y desarrollo en tu carrera profesional Networking entre los profesionales de MNEMO Escríbenos a rrhh@mnemo.com Profesionales con experiencia Si has llegado hasta aquí es porque buscas nuevos",
-        "buzon": "existe: 250 2.1.5 OK 71dfb90a1353d-5ecc64f6a13si5066342e0c.21 - gsmtp"
+        "buzon": "existe: 250 2.1.5 OK 00721157ae682-8b33f606020si33757247b3.178 - gsmtp"
       },
       "contacto": "rrhh@mnemo.com (https://mnemo.com/talento-y-cultura/)",
       "confianza": "alta"
@@ -4570,7 +4572,7 @@
         },
         {
           "url": "https://www.secureit.es/trabaja-con-nosotros",
-          "estado": 403
+          "estado": 200
         },
         {
           "url": "https://www.secureit.es/trabaja-con-nosotros/",
@@ -4756,7 +4758,7 @@
       "id": "prosegur-cipher",
       "nombre": "Prosegur Cipher",
       "web": "https://www.prosegur.es",
-      "estado": "valida",
+      "estado": "descartada",
       "paginasRevisadas": [
         {
           "url": "https://www.prosegur.es",
@@ -4867,20 +4869,6 @@
           "motivo": "ningún formulario sirve (es un buscador)"
         },
         {
-          "url": "https://www.prosegur.es/empresas/externalizacion/servicios-bpo-bpaas/contact-center",
-          "valido": true,
-          "motivo": "formulario con correo y mensaje o CV",
-          "campos": [
-            "Your url here",
-            "Nombre y Apellidos *",
-            "Compañía *",
-            "Correo Electrónico *",
-            "Teléfono *",
-            "¿En qué podemos ayudarte?",
-            "He le&iacute;do y acepto la Pol&iacute;tica de Privacidad ."
-          ]
-        },
-        {
           "url": "https://www.prosegur.es/landings/rrhh",
           "valido": false,
           "motivo": "la página no tiene ningún formulario"
@@ -4889,23 +4877,19 @@
           "url": "https://www.prosegur.es/trabaja-con-nosotros",
           "valido": false,
           "motivo": "ningún formulario sirve (es un buscador)"
+        },
+        {
+          "url": "https://www.prosegur.es/trabaja-con-nosotros/talento",
+          "valido": false,
+          "motivo": "ningún formulario sirve (es un buscador)"
+        },
+        {
+          "url": "https://www.prosegur.es/trabaja-con-nosotros/curso-vigilante-seguridad",
+          "valido": false,
+          "motivo": "ningún formulario sirve (es un buscador)"
         }
       ],
-      "evidencia": {
-        "url": "https://www.prosegur.es/empresas/externalizacion/servicios-bpo-bpaas/contact-center",
-        "titulo": "Contact Center | Servicios de BPO y BPaaS | AVOS Tech",
-        "campos": [
-          "Your url here",
-          "Nombre y Apellidos *",
-          "Compañía *",
-          "Correo Electrónico *",
-          "Teléfono *",
-          "¿En qué podemos ayudarte?",
-          "He le&iacute;do y acepto la Pol&iacute;tica de Privacidad ."
-        ]
-      },
-      "contacto": "formulario: https://www.prosegur.es/empresas/externalizacion/servicios-bpo-bpaas/contact-center",
-      "confianza": "media"
+      "motivo": "Sin correo válido para candidaturas (clientes.security@prosegur.com: dominio distinto al de la web; contacto@cipher.com: dominio distinto al de la web; contacto.avos@prosegur.com: dominio distinto al de la web) ni formulario real; formularios: https://www.prosegur.es/contacto → ningún formulario sirve (es un buscador); https://www.prosegur.es/landings/rrhh → la página no tiene ningún formulario; https://www.prosegur.es/trabaja-con-nosotros → ningún formulario sirve (es un buscador); https://www.prosegur.es/trabaja-con-nosotros/talento → ningún formulario sirve (es un buscador); https://www.prosegur.es/trabaja-con-nosotros/curso-vigilante-seguridad → ningún formulario sirve (es un buscador)"
     },
     {
       "id": "bedisruptive",
@@ -4925,18 +4909,22 @@
       "id": "cabify",
       "nombre": "Cabify",
       "web": "https://cabify.com",
-      "estado": "valida",
+      "estado": "descartada",
       "paginasRevisadas": [
         {
           "url": "https://cabify.com",
           "estado": 200
         },
         {
-          "url": "https://cabify.com/es/flotas/contacto",
+          "url": "https://cabify.com/en/business/contact",
           "estado": 200
         },
         {
           "url": "https://cabify.com/es/empresas/contactanos",
+          "estado": 200
+        },
+        {
+          "url": "https://cabify.com/es/flotas/contacto",
           "estado": 200
         },
         {
@@ -5001,23 +4989,17 @@
       ],
       "formulariosRevisados": [
         {
-          "url": "https://cabify.com/es/flotas/contacto",
-          "valido": true,
-          "motivo": "formulario incrustado (cabify.jotform.com)",
-          "campos": [
-            "iframe: https://cabify.jotform.com/241414741743857"
-          ]
+          "url": "https://cabify.com/en/business/contact",
+          "valido": false,
+          "motivo": "ningún formulario sirve (no tiene campo de mensaje ni para adjuntar el CV)"
+        },
+        {
+          "url": "https://cabify.com/es/empresas/contactanos",
+          "valido": false,
+          "motivo": "ningún formulario sirve (no tiene campo de mensaje ni para adjuntar el CV; no pide el correo electrónico)"
         }
       ],
-      "evidencia": {
-        "url": "https://cabify.com/es/flotas/contacto",
-        "titulo": "Maximiza hoy mismo la rentabilidad de tu flota | Cabify",
-        "campos": [
-          "iframe: https://cabify.jotform.com/241414741743857"
-        ]
-      },
-      "contacto": "formulario: https://cabify.com/es/flotas/contacto",
-      "confianza": "media"
+      "motivo": "Sin correo válido para candidaturas (accesibilidad@cabify.com: buzón no destinado a candidaturas) ni formulario real; formularios: https://cabify.com/en/business/contact → ningún formulario sirve (no tiene campo de mensaje ni para adjuntar el CV); https://cabify.com/es/empresas/contactanos → ningún formulario sirve (no tiene campo de mensaje ni para adjuntar el CV; no pide el correo electrónico)"
     },
     {
       "id": "idealista",
@@ -5106,15 +5088,15 @@
           "estado": 200
         },
         {
-          "url": "https://careers.idealista.com/es/people/2832445-javier",
+          "url": "https://careers.idealista.com/es/people/4077684-sara",
           "estado": 200
         },
         {
-          "url": "https://careers.idealista.com/es/people/2832450-elena",
+          "url": "https://careers.idealista.com/es/people/2832437-thais",
           "estado": 200
         },
         {
-          "url": "https://careers.idealista.com/es/people/3249824-marietta",
+          "url": "https://careers.idealista.com/es/people/2832452-antonella",
           "estado": 200
         },
         {
@@ -5717,7 +5699,7 @@
         {
           "email": "info@seedtag.com",
           "resultado": "existe",
-          "respuesta": "250 2.1.5 OK 00721157ae682-8b33f588aa4si33551467b3.125 - gsmtp",
+          "respuesta": "250 2.1.5 OK 006d021491bc7-716ea2e9625si6122942eaf.72 - gsmtp",
           "servidor": "aspmx.l.google.com"
         }
       ],
@@ -5737,7 +5719,7 @@
         "url": "https://www.seedtag.com/contact",
         "titulo": "Contact us",
         "fragmento": "(el correo está en un enlace mailto, no en el texto visible)",
-        "buzon": "existe: 250 2.1.5 OK 00721157ae682-8b33f588aa4si33551467b3.125 - gsmtp"
+        "buzon": "existe: 250 2.1.5 OK 006d021491bc7-716ea2e9625si6122942eaf.72 - gsmtp"
       },
       "contacto": "info@seedtag.com (https://www.seedtag.com/contact)",
       "confianza": "media"
@@ -5801,10 +5783,6 @@
           "estado": 200
         },
         {
-          "url": "https://jobs.lingokids.com/jobs/8592957-game-technical-artist",
-          "estado": 200
-        },
-        {
           "url": "https://jobs.lingokids.com/jobs/8584835-sr-application-security-engineer",
           "estado": 200
         },
@@ -5815,6 +5793,10 @@
         {
           "url": "https://jobs.lingokids.com/jobs/8498811-head-of-content-performance",
           "estado": 200
+        },
+        {
+          "url": "https://jobs.lingokids.com/jobs/8373955-senior-crm-manager-automation-ai",
+          "estado": 410
         }
       ],
       "correosEncontrados": [],
@@ -6354,7 +6336,7 @@
         {
           "email": "info@binhex.cloud",
           "resultado": "acepta-todo",
-          "respuesta": "250 2.1.5 OK 00721157ae682-8b33f649602si33786067b3.208 - gsmtp",
+          "respuesta": "250 2.1.5 OK 46e09a7af769-85f1d957178si7545841a34.14 - gsmtp",
           "servidor": "smtp.google.com"
         }
       ],
@@ -6374,7 +6356,7 @@
         "url": "https://www.binhex.cloud/es_ES/jobs",
         "titulo": "Jobs | Binhex",
         "fragmento": "Recursos Blog Servicios de migración Diseño web Más servicios Localidades Miami Texas Nueva York Tenerife Las Palmas Madrid Málaga Contacto info@binhex.cloud Síguenos Social Media Copyright © Binhex Systems Solutions Sl. Política de Cook",
-        "buzon": "acepta-todo: 250 2.1.5 OK 00721157ae682-8b33f649602si33786067b3.208 - gsmtp"
+        "buzon": "acepta-todo: 250 2.1.5 OK 46e09a7af769-85f1d957178si7545841a34.14 - gsmtp"
       },
       "contacto": "info@binhex.cloud (https://www.binhex.cloud/es_ES/jobs)",
       "confianza": "media"
@@ -6395,10 +6377,6 @@
         },
         {
           "url": "https://www.aitana.es/aitana/trabaja-en-aitana/gracias-empleo/",
-          "estado": 200
-        },
-        {
-          "url": "https://www.aitana.es/evento/trabajar-bc-desde-microsoft-teams/",
           "estado": 200
         },
         {
@@ -6610,7 +6588,7 @@
           "estado": 200
         },
         {
-          "url": "https://empleo.integratecnologia.es/?blackhole=5d2ace1f69",
+          "url": "https://empleo.integratecnologia.es/?blackhole=83a9ae93d5",
           "estado": 200
         },
         {
@@ -6699,7 +6677,7 @@
       "id": "devaim",
       "nombre": "Devaim",
       "web": "https://www.devaim.com",
-      "estado": "descartada",
+      "estado": "valida",
       "paginasRevisadas": [
         {
           "url": "https://www.devaim.com",
@@ -6757,8 +6735,7 @@
       "correosEncontrados": [
         {
           "email": "info@devaim.com",
-          "tipo": "general",
-          "motivoRechazo": "solo aparece en la portada, un artículo o el aviso legal (no es el canal de candidaturas)"
+          "tipo": "general"
         },
         {
           "email": "comercial@devaim.com",
@@ -6766,8 +6743,49 @@
           "motivoRechazo": "buzón no destinado a candidaturas"
         }
       ],
-      "formulariosRevisados": [],
-      "motivo": "Sin correo válido para candidaturas (info@devaim.com: solo aparece en la portada, un artículo o el aviso legal (no es el canal de candidaturas); comercial@devaim.com: buzón no destinado a candidaturas) ni formulario real"
+      "buzones": [
+        {
+          "email": "info@devaim.com",
+          "resultado": "existe",
+          "respuesta": "250 2.1.5 Recipient OK",
+          "servidor": "devaim-com.mail.protection.outlook.com"
+        }
+      ],
+      "formulariosRevisados": [
+        {
+          "url": "https://www.devaim.com/trabaja-con-nosotros-unete-al-equipo-devaim/",
+          "valido": true,
+          "motivo": "formulario con correo y mensaje o CV",
+          "campos": [
+            "your-name",
+            "your-surname",
+            "tel-818",
+            "your-email",
+            "file-393",
+            "your-message",
+            "acceptance-804",
+            "acceptance-804",
+            "_wpcf7_ak_hp_textarea"
+          ]
+        }
+      ],
+      "evidencia": {
+        "url": "https://www.devaim.com/trabaja-con-nosotros-unete-al-equipo-devaim/",
+        "titulo": "Trabaja con nosotros : Únete a nuestro equipo Devaim",
+        "campos": [
+          "your-name",
+          "your-surname",
+          "tel-818",
+          "your-email",
+          "file-393",
+          "your-message",
+          "acceptance-804",
+          "acceptance-804",
+          "_wpcf7_ak_hp_textarea"
+        ]
+      },
+      "contacto": "formulario: https://www.devaim.com/trabaja-con-nosotros-unete-al-equipo-devaim/",
+      "confianza": "alta"
     },
     {
       "id": "goom-spain",
@@ -7239,7 +7257,7 @@
         },
         {
           "url": "https://mobivery.com/como-desarrollar-una-aplicacion-movil-con-ia-proceso-fases-y-buenas-practicas",
-          "estado": 200
+          "estado": "tiempo agotado"
         }
       ],
       "correosEncontrados": [],
@@ -7455,38 +7473,43 @@
         {
           "email": "hello@witrey.com",
           "resultado": "indeterminado",
-          "respuesta": "MAIL FROM rechazado: 550 HELO contains an IP address and does not match PTR: [134.138.41.2]",
+          "respuesta": "MAIL FROM rechazado: 550 HELO contains an IP address and does not match PTR: [20.98.158.84]",
           "servidor": "mail.witrey.com"
         }
       ],
       "formulariosRevisados": [
         {
           "url": "https://witrey.com/contacto-witrey/",
+          "valido": false,
+          "motivo": "rechazado en la revisión manual: solicitud de presupuesto de proyectos"
+        },
+        {
+          "url": "https://witrey.com/en/contact-witrey/",
           "valido": true,
           "motivo": "formulario con correo y mensaje o CV",
           "campos": [
-            "Nombre",
-            "Teléfono (WhatsApp)",
+            "Name",
+            "Phone (WhatsApp)",
             "Email",
-            "Presupuesto",
-            "Tipo de proyecto",
-            "Cuéntanos sobre tu proyecto"
+            "Budget",
+            "Project type",
+            "Tell us about your project"
           ]
         }
       ],
       "evidencia": {
-        "url": "https://witrey.com/contacto-witrey/",
-        "titulo": "Contacto - Witrey",
+        "url": "https://witrey.com/en/contact-witrey/",
+        "titulo": "Contact - Witrey",
         "campos": [
-          "Nombre",
-          "Teléfono (WhatsApp)",
+          "Name",
+          "Phone (WhatsApp)",
           "Email",
-          "Presupuesto",
-          "Tipo de proyecto",
-          "Cuéntanos sobre tu proyecto"
+          "Budget",
+          "Project type",
+          "Tell us about your project"
         ]
       },
-      "contacto": "formulario: https://witrey.com/contacto-witrey/",
+      "contacto": "formulario: https://witrey.com/en/contact-witrey/",
       "confianza": "media"
     },
     {
@@ -7820,7 +7843,7 @@
         },
         {
           "url": "https://www.ea.com/careers/why-ea",
-          "estado": "tiempo agotado"
+          "estado": 200
         },
         {
           "url": "https://www.ea.com/commitments/inclusion-and-diversity",
@@ -8123,7 +8146,7 @@
         },
         {
           "url": "https://www.vodafone.es/talento",
-          "estado": 404
+          "estado": "tiempo agotado"
         },
         {
           "url": "https://www.vodafone.es/careers",
@@ -8143,7 +8166,7 @@
         },
         {
           "url": "https://www.vodafone.es/c/conocenos/es/vodafone-espana/trabaja-con-nosotros/?changeLanguage=ca&changeLanguageRedirect=true",
-          "estado": 200
+          "estado": "tiempo agotado"
         },
         {
           "url": "https://www.vodafone.es/c/conocenos/es/vodafone-espana/trabaja-con-nosotros/oportunidad-laboral/",
@@ -8185,6 +8208,30 @@
           "estado": 200
         },
         {
+          "url": "https://www.ibm.com/careers",
+          "estado": 200
+        },
+        {
+          "url": "https://www.ibm.com/careers/cloud",
+          "estado": 200
+        },
+        {
+          "url": "https://www.ibm.com/careers/sales",
+          "estado": 200
+        },
+        {
+          "url": "https://www.ibm.com/careers/areas",
+          "estado": 200
+        },
+        {
+          "url": "https://www.ibm.com/careers/search",
+          "estado": 200
+        },
+        {
+          "url": "https://www.ibm.com/careers/culture",
+          "estado": "tiempo agotado"
+        },
+        {
           "url": "https://www.ibm.com/careers?lnk=hpii5es",
           "estado": 200
         },
@@ -8194,7 +8241,7 @@
         },
         {
           "url": "https://www.ibm.com/trabaja-con-nosotros/",
-          "estado": "tiempo agotado"
+          "estado": 404
         },
         {
           "url": "https://www.ibm.com/empleo",
@@ -8203,10 +8250,6 @@
         {
           "url": "https://www.ibm.com/talento",
           "estado": 404
-        },
-        {
-          "url": "https://www.ibm.com/careers",
-          "estado": 200
         },
         {
           "url": "https://www.ibm.com/unete",
@@ -8221,27 +8264,31 @@
           "estado": 404
         },
         {
-          "url": "https://www.ibm.com/careers/search",
-          "estado": 200
-        },
-        {
-          "url": "https://www.ibm.com/careers/areas",
-          "estado": 200
+          "url": "https://www.ibm.com/recursos-humanos",
+          "estado": 404
         },
         {
           "url": "https://www.ibm.com/careers/career-opportunities",
-          "estado": 200
+          "estado": "tiempo agotado"
         },
         {
           "url": "https://www.ibm.com/careers/application-process",
           "estado": 200
         },
         {
-          "url": "https://www.ibm.com/careers/culture",
+          "url": "https://www.ibm.com/careers/blog",
           "estado": 200
         },
         {
-          "url": "https://www.ibm.com/careers/blog",
+          "url": "https://www.ibm.com/careers/locations",
+          "estado": 200
+        },
+        {
+          "url": "https://www.ibm.com/careers/blog/once-an-ibmer-always-an-ibmer",
+          "estado": 200
+        },
+        {
+          "url": "https://www.ibm.com/careers/search?field_keyword_08%5B0%5D=Cloud&source=WEB_Cloud_NA",
           "estado": 200
         }
       ],
@@ -8254,19 +8301,19 @@
       ],
       "formulariosRevisados": [
         {
-          "url": "https://www.ibm.com/careers?lnk=hpii5es",
-          "valido": false,
-          "motivo": "la página no tiene ningún formulario"
-        },
-        {
           "url": "https://www.ibm.com/careers",
           "valido": false,
           "motivo": "la página no tiene ningún formulario"
         },
         {
-          "url": "https://www.ibm.com/careers/search",
+          "url": "https://www.ibm.com/careers/cloud",
           "valido": false,
-          "motivo": "ningún formulario sirve (es un buscador)"
+          "motivo": "la página no tiene ningún formulario"
+        },
+        {
+          "url": "https://www.ibm.com/careers/sales",
+          "valido": false,
+          "motivo": "la página no tiene ningún formulario"
         },
         {
           "url": "https://www.ibm.com/careers/areas",
@@ -8274,7 +8321,7 @@
           "motivo": "la página no tiene ningún formulario"
         }
       ],
-      "motivo": "Sin correo válido para candidaturas (recrops@ca.ibm.com: posible correo personal) ni formulario real; formularios: https://www.ibm.com/careers?lnk=hpii5es → la página no tiene ningún formulario; https://www.ibm.com/careers → la página no tiene ningún formulario; https://www.ibm.com/careers/search → ningún formulario sirve (es un buscador); https://www.ibm.com/careers/areas → la página no tiene ningún formulario"
+      "motivo": "Sin correo válido para candidaturas (recrops@ca.ibm.com: posible correo personal) ni formulario real; formularios: https://www.ibm.com/careers → la página no tiene ningún formulario; https://www.ibm.com/careers/cloud → la página no tiene ningún formulario; https://www.ibm.com/careers/sales → la página no tiene ningún formulario; https://www.ibm.com/careers/areas → la página no tiene ningún formulario"
     },
     {
       "id": "kyndryl-espana",
@@ -8396,15 +8443,19 @@
       "id": "aiuken",
       "nombre": "Aiuken",
       "web": "https://www.aiuken.com",
-      "estado": "valida",
+      "estado": "descartada",
       "paginasRevisadas": [
         {
           "url": "https://www.aiuken.com",
+          "estado": "tiempo agotado"
+        },
+        {
+          "url": "https://aiuken.com/",
           "estado": 200
         },
         {
           "url": "https://www.aiuken.com/contacto/",
-          "estado": 200
+          "estado": "tiempo agotado"
         },
         {
           "url": "https://www.aiuken.com/terminos-de-uso-y-condiciones/",
@@ -8420,7 +8471,7 @@
         },
         {
           "url": "https://www.aiuken.com/empleo",
-          "estado": 404
+          "estado": "tiempo agotado"
         },
         {
           "url": "https://www.aiuken.com/talento",
@@ -8432,7 +8483,7 @@
         },
         {
           "url": "https://www.aiuken.com/unete",
-          "estado": "tiempo agotado"
+          "estado": 404
         },
         {
           "url": "https://www.aiuken.com/unete-al-equipo",
@@ -8446,59 +8497,17 @@
       "correosEncontrados": [
         {
           "email": "info@aiuken.com",
-          "tipo": "general"
-        },
-        {
-          "email": "name@company.com",
           "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
+          "motivoRechazo": "solo aparece en la portada, un artículo o el aviso legal (no es el canal de candidaturas)"
         },
         {
           "email": "lopd@aiuken.com",
           "tipo": "general",
           "motivoRechazo": "buzón no destinado a candidaturas"
-        },
-        {
-          "email": "info-chile@aiuken.com",
-          "tipo": "general",
-          "motivoRechazo": "buzón no destinado a candidaturas"
-        },
-        {
-          "email": "info-uae@aiuken.com",
-          "tipo": "general",
-          "motivoRechazo": "buzón no destinado a candidaturas"
         }
       ],
-      "buzones": [
-        {
-          "email": "info@aiuken.com",
-          "resultado": "existe",
-          "respuesta": "250 Recipient OK [FIYEhfwMMQ-hIrs6CyPwRg.de9]",
-          "servidor": "de-smtp-inbound-1.mimecast.com"
-        }
-      ],
-      "formulariosRevisados": [
-        {
-          "url": "https://www.aiuken.com/contacto/",
-          "valido": true,
-          "motivo": "formulario con correo y mensaje o CV",
-          "campos": [
-            "Nombre",
-            "Apellido",
-            "Correo electrónico",
-            "Mensaje",
-            "Doy mi consentimiento y estoy de acuerdo con el aviso legal y la política de privacidad ."
-          ]
-        }
-      ],
-      "evidencia": {
-        "url": "https://www.aiuken.com/contacto/",
-        "titulo": "Contacto – Aiuken",
-        "fragmento": "uestra Política de protección de datos. Europa Calle Francisco Tomás y Valiente nº 2 Boadilla del Monte 28660 Madrid España +34 912 909 805 info@aiuken.com América del Norte & el Caribe 13306 sw 144 ter Miami FL, 33186 +1-787-479-8001",
-        "buzon": "existe: 250 Recipient OK [FIYEhfwMMQ-hIrs6CyPwRg.de9]"
-      },
-      "contacto": "info@aiuken.com (https://www.aiuken.com/contacto/)",
-      "confianza": "media"
+      "formulariosRevisados": [],
+      "motivo": "Sin correo válido para candidaturas (info@aiuken.com: solo aparece en la portada, un artículo o el aviso legal (no es el canal de candidaturas); lopd@aiuken.com: buzón no destinado a candidaturas) ni formulario real"
     },
     {
       "id": "factum",
@@ -8516,7 +8525,7 @@
         },
         {
           "url": "https://www.factum.es/unete-al-equipo",
-          "estado": 200
+          "estado": "tiempo agotado"
         },
         {
           "url": "https://www.factum.es/contacto/",
@@ -8555,7 +8564,8 @@
         {
           "email": "rrhh@factum.es",
           "resultado": "indeterminado",
-          "respuesta": "el servidor de correo no respondió en 60 s"
+          "respuesta": "550 5.7.1 Service unavailable; client [20.98.158.84] blocked using Proofpoint Dynamic Reputation (Visit https://ipcheck.proofpoint.com/ if you feel this is in error.). Please provide the following IP address when reporting problems: 20.98.158.84",
+          "servidor": "mx2-eu1.ppe-hosted.com"
         }
       ],
       "formulariosRevisados": [
@@ -8572,7 +8582,7 @@
         "url": "https://www.factum.es/unete-al-equipo/",
         "titulo": "Únete a nuestro equipo - Factum: especialistas en ciberseguridad",
         "fragmento": "(el correo está en un enlace mailto, no en el texto visible)",
-        "buzon": "indeterminado: el servidor de correo no respondió en 60 s"
+        "buzon": "indeterminado: 550 5.7.1 Service unavailable; client [20.98.158.84] blocked using Proofpoint Dynamic Reputation (Visit https://ipcheck.proofpoint.com/ if you feel this is in error.). Please provide the following IP address when reporting problems: 20.98.158.84"
       },
       "contacto": "rrhh@factum.es (https://www.factum.es/unete-al-equipo/)",
       "confianza": "media"
@@ -8581,51 +8591,61 @@
       "id": "one-esecurity",
       "nombre": "One eSecurity",
       "web": "https://www.one-esecurity.com",
-      "estado": "descartada",
+      "estado": "valida",
       "paginasRevisadas": [
         {
           "url": "https://www.one-esecurity.com",
-          "estado": 200
-        },
-        {
-          "url": "https://www.one-esecurity.com/join_our_team.html",
-          "estado": 200
-        },
-        {
-          "url": "https://www.one-esecurity.com/contact_report_incident.html",
-          "estado": 200
-        },
-        {
-          "url": "https://www.one-esecurity.com/contact_contact_us.html",
           "estado": "tiempo agotado"
         },
         {
-          "url": "https://www.one-esecurity.com/pages/contacto",
-          "estado": 404
+          "url": "https://one-esecurity.com/",
+          "estado": 200
         },
         {
-          "url": "https://www.one-esecurity.com/contacto",
-          "estado": 404
+          "url": "http://www.one-esecurity.com/join_our_team.html",
+          "estado": 200
         },
         {
-          "url": "https://www.one-esecurity.com/contact",
-          "estado": 404
+          "url": "http://www.one-esecurity.com/contact_report_incident.html",
+          "estado": 200
         },
         {
-          "url": "https://www.one-esecurity.com/aviso-legal",
-          "estado": 404
-        },
-        {
-          "url": "https://www.one-esecurity.com/aviso-legal/",
-          "estado": 404
-        },
-        {
-          "url": "https://www.one-esecurity.com/legal",
-          "estado": 404
+          "url": "http://www.one-esecurity.com/contact_contact_us.html",
+          "estado": 200
         }
       ],
-      "correosEncontrados": [],
-      "motivo": "Su web no menciona ninguna sede ni oficina en la Comunidad de Madrid"
+      "correosEncontrados": [
+        {
+          "email": "recruitment@one-esecurity.com",
+          "tipo": "talento"
+        },
+        {
+          "email": "incident@one-esecurity.com",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "info@one-esecurity.com",
+          "tipo": "general"
+        }
+      ],
+      "buzones": [
+        {
+          "email": "recruitment@one-esecurity.com",
+          "resultado": "acepta-todo",
+          "respuesta": "250 2.1.5 Destination address valid: Recipient ok",
+          "servidor": "mail.one-esecurity.com"
+        }
+      ],
+      "formulariosRevisados": [],
+      "evidencia": {
+        "url": "http://www.one-esecurity.com/join_our_team.html",
+        "titulo": "One eSecurity",
+        "fragmento": ", providing you with a meaningful hands-on work experience right from the start. The Recruitment Process Stage 1: Please send us your CV to recruitment@one-esecurity.com Stage 2: Learn more about each other Stage 3: Meet & greet Stage 4: Challenges",
+        "buzon": "acepta-todo: 250 2.1.5 Destination address valid: Recipient ok"
+      },
+      "contacto": "recruitment@one-esecurity.com (http://www.one-esecurity.com/join_our_team.html)",
+      "confianza": "media"
     },
     {
       "id": "dotforce",
@@ -8643,7 +8663,7 @@
         },
         {
           "url": "https://empleo.dotforce.es/",
-          "estado": "tiempo agotado"
+          "estado": "UND_ERR_SOCKET"
         },
         {
           "url": "https://trabajaconnosotros.dotforce.es/",
@@ -8651,7 +8671,7 @@
         },
         {
           "url": "https://careers.dotforce.es/",
-          "estado": "UND_ERR_SOCKET"
+          "estado": "tiempo agotado"
         },
         {
           "url": "https://jobs.dotforce.es/",
@@ -8669,7 +8689,7 @@
       "id": "seresco",
       "nombre": "Seresco",
       "web": "https://www.seresco.es",
-      "estado": "descartada",
+      "estado": "valida",
       "paginasRevisadas": [
         {
           "url": "https://www.seresco.es",
@@ -8677,31 +8697,154 @@
         },
         {
           "url": "https://seresco.es/",
-          "estado": "tiempo agotado"
+          "estado": 200
         },
         {
-          "url": "https://empleo.seresco.es/",
-          "estado": 403
+          "url": "https://seresco.es/talento/ofertas-empleo/",
+          "estado": 200
         },
         {
-          "url": "https://trabajaconnosotros.seresco.es/",
-          "estado": "ENOTFOUND"
+          "url": "https://seresco.es/recursos-humanos-rrhh/empleos-raros-mundo/",
+          "estado": 200
         },
         {
-          "url": "https://careers.seresco.es/",
-          "estado": "ENOTFOUND"
+          "url": "https://seresco.es/recursos-humanos-rrhh/talento-renuncia-cambio/",
+          "estado": 200
         },
         {
-          "url": "https://jobs.seresco.es/",
-          "estado": "ENOTFOUND"
+          "url": "https://seresco.es/recursos-humanos-rrhh/empleos-raros-mundo/?utm_source=blogmasquenomina210823&utm_medium=blog&utm_content=enlacepostIARRHH&utm_campaign=postsemanal",
+          "estado": 200
         },
         {
-          "url": "https://talento.seresco.es/",
-          "estado": "ENOTFOUND"
+          "url": "https://seresco.es/recursos-humanos-rrhh/empleos-raros-mundo/?utm_source=blogmasquenomina241022&utm_medium=blog&utm_content=enlacepostgeneracionz&utm_campaign=postsemanal",
+          "estado": 200
+        },
+        {
+          "url": "https://seresco.es/recursos-humanos-rrhh/empleos-raros-mundo/?utm_source=blogmasquenomina030723&utm_medium=blog&utm_content=enlacepostmalacontratacion&utm_campaign=postsemanal",
+          "estado": 200
+        },
+        {
+          "url": "https://seresco.es/gestion-de-personas/",
+          "estado": 200
+        },
+        {
+          "url": "https://seresco.es/gestion-de-personas/outsourcing-de-nomina/",
+          "estado": 200
+        },
+        {
+          "url": "https://seresco.es/gestion-de-personas/control-de-presencia/",
+          "estado": 200
+        },
+        {
+          "url": "https://seresco.es/gestion-de-personas/control-de-tareas/",
+          "estado": 200
+        },
+        {
+          "url": "https://seresco.es/seresco/seresco-participa-en-una-jornada-de-randstad-sobre-transparencia-salarial-y-gestion-del-talento/",
+          "estado": 200
+        },
+        {
+          "url": "https://seresco.es/seresco/seresco-patrocina-la-xvi-semana-de-impulso-tic-sitic2026-para-apoyar-la-innovacion-y-el-talento-tecnologico-en-asturias/",
+          "estado": 200
+        },
+        {
+          "url": "https://seresco.es/contacto/",
+          "estado": 200
+        },
+        {
+          "url": "https://seresco.es/trabaja-con-nosotros",
+          "estado": 200
+        },
+        {
+          "url": "https://seresco.es/trabaja-con-nosotros/",
+          "estado": 200
+        },
+        {
+          "url": "https://seresco.es/empleo",
+          "estado": 200
+        },
+        {
+          "url": "https://seresco.es/talento",
+          "estado": 200
+        },
+        {
+          "url": "https://seresco.es/careers",
+          "estado": 200
+        },
+        {
+          "url": "https://seresco.es/unete",
+          "estado": 200
+        },
+        {
+          "url": "https://seresco.es/unete-al-equipo",
+          "estado": 200
+        },
+        {
+          "url": "https://seresco.es/rrhh",
+          "estado": 200
+        },
+        {
+          "url": "https://seresco.es/gestion-personas/",
+          "estado": 200
         }
       ],
-      "correosEncontrados": [],
-      "motivo": "La web no responde (tiempo agotado)"
+      "correosEncontrados": [
+        {
+          "email": "soluciones@seresco.es",
+          "tipo": "general",
+          "motivoRechazo": "posible correo personal"
+        },
+        {
+          "email": "dpo@seresco.es",
+          "tipo": "general",
+          "motivoRechazo": "buzón no destinado a candidaturas"
+        }
+      ],
+      "formulariosRevisados": [
+        {
+          "url": "https://seresco.es/contacto/",
+          "valido": true,
+          "motivo": "formulario con correo y mensaje o CV",
+          "campos": [
+            "TU NOMBRE",
+            "DIRECCIÓN DE EMAIL",
+            "MENSAJE",
+            "form_fields[field_a88666a]"
+          ]
+        },
+        {
+          "url": "https://seresco.es/talento/ofertas-empleo/",
+          "valido": false,
+          "motivo": "ningún formulario sirve (es un buscador)"
+        },
+        {
+          "url": "https://empleo.seresco.es/autocandidatura-espana-y-portugal-xoWGlX710didTg1j/",
+          "valido": false,
+          "motivo": "la página no tiene ningún formulario"
+        },
+        {
+          "url": "https://seresco.es/gestion-personas/empleos-raros-mundo/",
+          "valido": false,
+          "motivo": "ningún formulario sirve (es un buscador)"
+        },
+        {
+          "url": "https://seresco.es/gestion-personas/talento-renuncia-cambio/",
+          "valido": false,
+          "motivo": "ningún formulario sirve (es un buscador)"
+        }
+      ],
+      "evidencia": {
+        "url": "https://seresco.es/contacto/",
+        "titulo": "Ponte en contacto con nosotros – Líder en soluciones tecnológicas y servicios BPO | SERESCO",
+        "campos": [
+          "TU NOMBRE",
+          "DIRECCIÓN DE EMAIL",
+          "MENSAJE",
+          "form_fields[field_a88666a]"
+        ]
+      },
+      "contacto": "formulario: https://seresco.es/contacto/",
+      "confianza": "media"
     },
     {
       "id": "ilunion-tecnologia-y-accesibilidad",
@@ -8718,15 +8861,27 @@
           "estado": 200
         },
         {
+          "url": "https://www.ilunion.com/es/compromiso/personas",
+          "estado": 200
+        },
+        {
           "url": "https://www.ilunion.com/es/unete-al-equipo/por-que-ilunion",
           "estado": 200
         },
         {
-          "url": "https://www.ilunion.com/es/unete-al-equipo/beneficios-empleado-ilunion",
-          "estado": "tiempo agotado"
+          "url": "https://www.ilunion.com/es/compromiso/personas/diversidad-social",
+          "estado": 200
         },
         {
-          "url": "https://www.ilunion.com/es/compromiso/personas",
+          "url": "https://www.ilunion.com/es/compromiso/personas/sentimiento-ilunion",
+          "estado": 200
+        },
+        {
+          "url": "https://www.ilunion.com/es/compromiso/personas/iniciativas-sociales",
+          "estado": 200
+        },
+        {
+          "url": "https://www.ilunion.com/es/unete-al-equipo/beneficios-empleado-ilunion",
           "estado": 200
         },
         {
@@ -8772,10 +8927,6 @@
         {
           "url": "https://empleo.ilunion.com/",
           "estado": 200
-        },
-        {
-          "url": "https://www.ilunion.com/es/compromiso/personas/sentimiento-ilunion",
-          "estado": 200
         }
       ],
       "correosEncontrados": [
@@ -8804,7 +8955,7 @@
           "motivo": "ningún formulario sirve (no pide el correo electrónico; no tiene campo de mensaje ni para adjuntar el CV)"
         },
         {
-          "url": "https://www.ilunion.com/es/contacto",
+          "url": "https://www.ilunion.com/es/compromiso/personas/diversidad-social",
           "valido": false,
           "motivo": "ningún formulario sirve (no pide el correo electrónico; no tiene campo de mensaje ni para adjuntar el CV)"
         },
@@ -8814,7 +8965,7 @@
           "motivo": "ningún formulario sirve (no pide el correo electrónico; no tiene campo de mensaje ni para adjuntar el CV)"
         },
         {
-          "url": "https://www.ilunion.com/es/unete-al-equipo",
+          "url": "https://www.ilunion.com/es/compromiso/personas/iniciativas-sociales",
           "valido": false,
           "motivo": "ningún formulario sirve (no pide el correo electrónico; no tiene campo de mensaje ni para adjuntar el CV)"
         }
@@ -8860,7 +9011,7 @@
         },
         {
           "url": "https://www.gft.com/trabaja-con-nosotros",
-          "estado": "tiempo agotado"
+          "estado": 404
         },
         {
           "url": "https://www.gft.com/trabaja-con-nosotros/",
@@ -8872,7 +9023,7 @@
         },
         {
           "url": "https://www.gft.com/talento",
-          "estado": "tiempo agotado"
+          "estado": 404
         },
         {
           "url": "https://www.gft.com/careers",
@@ -8993,10 +9144,6 @@
       "paginasRevisadas": [
         {
           "url": "https://www.avanade.com/es-es",
-          "estado": "tiempo agotado"
-        },
-        {
-          "url": "https://avanade.com/es-es",
           "estado": 200
         },
         {
@@ -9005,7 +9152,7 @@
         },
         {
           "url": "https://www.avanade.com/es-es/career",
-          "estado": "tiempo agotado"
+          "estado": 200
         },
         {
           "url": "https://www.avanade.com/es-es/career/area-of-expertise",
@@ -9303,10 +9450,6 @@
       "paginasRevisadas": [
         {
           "url": "https://www.managementsolutions.com",
-          "estado": "tiempo agotado"
-        },
-        {
-          "url": "https://managementsolutions.com/",
           "estado": 200
         },
         {
@@ -9921,7 +10064,7 @@
       ],
       "formulariosRevisados": [
         {
-          "url": "https://webforms.pipedrive.com/f/ofkTr9pyRQXlFfMQmZAUbBzFsMSImTgyBdEhgUsJgE5qKZgw1Xn1OXxqWstKFij?embeded=1&uuid=id03bdv",
+          "url": "https://webforms.pipedrive.com/f/ofkTr9pyRQXlFfMQmZAUbBzFsMSImTgyBdEhgUsJgE5qKZgw1Xn1OXxqWstKFij?embeded=1&uuid=id3pc1t4",
           "valido": true,
           "motivo": "formulario con correo y mensaje o CV",
           "campos": [
@@ -9935,7 +10078,7 @@
           ]
         },
         {
-          "url": "https://webforms.pipedrive.com/f/ofkTr9pyRQXlFfMQmZAUbBzFsMSImTgyBdEhgUsJgE5qKZgw1Xn1OXxqWstKFij?embeded=1&uuid=idxhwq4",
+          "url": "https://webforms.pipedrive.com/f/ofkTr9pyRQXlFfMQmZAUbBzFsMSImTgyBdEhgUsJgE5qKZgw1Xn1OXxqWstKFij?embeded=1&uuid=id96nmwr",
           "valido": true,
           "motivo": "formulario con correo y mensaje o CV",
           "campos": [
@@ -9949,7 +10092,7 @@
           ]
         }
       ],
-      "motivo": "Sin correo válido para candidaturas (info@gigas.com: solo aparece en la portada, un artículo o el aviso legal (no es el canal de candidaturas); dpo.gigas@gigas.com: buzón no destinado a candidaturas; authorities@gigas.com: posible correo personal) ni formulario real; formularios: https://webforms.pipedrive.com/f/ofkTr9pyRQXlFfMQmZAUbBzFsMSImTgyBdEhgUsJgE5qKZgw1Xn1OXxqWstKFij?embeded=1&uuid=id03bdv → formulario con correo y mensaje o CV; https://webforms.pipedrive.com/f/ofkTr9pyRQXlFfMQmZAUbBzFsMSImTgyBdEhgUsJgE5qKZgw1Xn1OXxqWstKFij?embeded=1&uuid=idxhwq4 → formulario con correo y mensaje o CV"
+      "motivo": "Sin correo válido para candidaturas (info@gigas.com: solo aparece en la portada, un artículo o el aviso legal (no es el canal de candidaturas); dpo.gigas@gigas.com: buzón no destinado a candidaturas; authorities@gigas.com: posible correo personal) ni formulario real; formularios: https://webforms.pipedrive.com/f/ofkTr9pyRQXlFfMQmZAUbBzFsMSImTgyBdEhgUsJgE5qKZgw1Xn1OXxqWstKFij?embeded=1&uuid=id3pc1t4 → formulario con correo y mensaje o CV; https://webforms.pipedrive.com/f/ofkTr9pyRQXlFfMQmZAUbBzFsMSImTgyBdEhgUsJgE5qKZgw1Xn1OXxqWstKFij?embeded=1&uuid=id96nmwr → formulario con correo y mensaje o CV"
     },
     {
       "id": "stackscale",
@@ -10355,6 +10498,10 @@
           "estado": 200
         },
         {
+          "url": "https://www.nunsys.com/unete-a-zoom-lider-en-soluciones-de-reuniones-con-zoom/",
+          "estado": 200
+        },
+        {
           "url": "https://www.nunsys.com/personas/",
           "estado": 200
         },
@@ -10368,10 +10515,6 @@
         },
         {
           "url": "https://www.nunsys.com/personas/talento/",
-          "estado": 200
-        },
-        {
-          "url": "https://www.nunsys.com/personas/nosotros/",
           "estado": 200
         },
         {
@@ -10501,11 +10644,6 @@
           "motivo": "ningún formulario sirve (es un buscador; no pide el correo electrónico)"
         },
         {
-          "url": "https://www.nunsys.com/personas/nosotros/",
-          "valido": false,
-          "motivo": "ningún formulario sirve (es un buscador)"
-        },
-        {
           "url": "https://www.nunsys.com/personas/nosotros/historia/",
           "valido": true,
           "motivo": "formulario incrustado (js.hsforms.net)",
@@ -10515,12 +10653,12 @@
         }
       ],
       "evidencia": {
-        "url": "https://www.nunsys.com/personas/",
-        "titulo": "Personas - Nunsys",
+        "url": "https://www.nunsys.com/unete-a-zoom-lider-en-soluciones-de-reuniones-con-zoom/",
+        "titulo": "&quot;Únete a Zoom, líder en soluciones de reuniones&quot;, con ZOOM - Nunsys",
         "fragmento": "00 631 WhatsApp: 960 500 631 no dudes en CONTACTARNOS Calle Gustave Eiffel, 3. Parque Tecnológico. 46980 Paterna (Valencia) | 960 500 631 | info@nunsys.com Inscríbete a nuestra Newsletter SOPORTE NUNSYS . Aviso Legal | Política de Priv",
         "buzon": "existe: 250 2.1.5 Recipient OK"
       },
-      "contacto": "info@nunsys.com (https://www.nunsys.com/personas/)",
+      "contacto": "info@nunsys.com (https://www.nunsys.com/unete-a-zoom-lider-en-soluciones-de-reuniones-con-zoom/)",
       "confianza": "alta"
     },
     {
@@ -11268,7 +11406,7 @@
       "id": "cibersafety",
       "nombre": "Cibersafety",
       "web": "https://cibersafety.com",
-      "estado": "valida",
+      "estado": "descartada",
       "paginasRevisadas": [
         {
           "url": "https://cibersafety.com",
@@ -11348,14 +11486,7 @@
           ]
         }
       ],
-      "evidencia": {
-        "url": "https://cibersafety.com/contacto/",
-        "titulo": "Contacto | Cibersafety",
-        "fragmento": "ga Ciberseguridad para empresas en Murcia Ciberseguridad para empresas en Alicante Calle Vereda de Tabala nº63 - 30580 - Alquerías - Murcia info@cibersafety.com 868202458 Linkedin © 2026 | Cibersafety | Diseñado y desarrollado por delefant.",
-        "buzon": "existe: 250 recipient <info@cibersafety.com> OK"
-      },
-      "contacto": "info@cibersafety.com (https://cibersafety.com/contacto/)",
-      "confianza": "media"
+      "motivo": "Descartada en la revisión manual: empresa de Murcia: su dirección y sus oficinas están en Murcia y Alicante; «Madrid» solo aparece en páginas de posicionamiento"
     },
     {
       "id": "seintec",
@@ -12076,8 +12207,8 @@
       "buzones": [
         {
           "email": "talent.acquisition@atmira.com",
-          "resultado": "existe",
-          "respuesta": "250 2.1.5 Ok",
+          "resultado": "indeterminado",
+          "respuesta": "550 5.7.1 Service unavailable; client [20.98.158.84] blocked using Proofpoint Dynamic Reputation (Visit https://ipcheck.proofpoint.com/ if you feel this is in error.). Please provide the following IP address when reporting problems: 20.98.158.84",
           "servidor": "mx1-eu1.ppe-hosted.com"
         }
       ],
@@ -12112,10 +12243,17 @@
       "evidencia": {
         "url": "https://www.atmira.com/unete-a-nuestro-ecosistema/",
         "titulo": "Únete | Talent | Construye tu futuro",
-        "fragmento": "to con nosotros, estaremos encantados de ver contigo las posibilidades de crecimiento que te podemos ofrecer en atmira. . #HablaConNosotros talent.acquisition@atmira.com ¿Te gustaría trabajar con nosotr _ s? ¡Escríbenos! Tu nombre (requerido) Tu cor",
-        "buzon": "existe: 250 2.1.5 Ok"
+        "campos": [
+          "your-name",
+          "your-email",
+          "text-460",
+          "your-subject",
+          "your-message",
+          "file-121",
+          "checkbox-81[]"
+        ]
       },
-      "contacto": "talent.acquisition@atmira.com (https://www.atmira.com/unete-a-nuestro-ecosistema/)",
+      "contacto": "formulario: https://www.atmira.com/unete-a-nuestro-ecosistema/",
       "confianza": "alta"
     },
     {
@@ -13309,7 +13447,7 @@
         {
           "email": "info@trey.es",
           "resultado": "acepta-todo",
-          "respuesta": "250 2.1.5 OK 956f58d0204a3-67c135dac5asi4132294d50.126 - gsmtp",
+          "respuesta": "250 2.1.5 OK 586e51a60fabf-4ad97047832si6659124fac.0 - gsmtp",
           "servidor": "aspmx.l.google.com"
         }
       ],
@@ -13324,7 +13462,7 @@
         "url": "https://www.trey.es/hablemos",
         "titulo": "Hablemos | Trey, Kilobytes de Soluciones",
         "fragmento": "(el correo está en un enlace mailto, no en el texto visible)",
-        "buzon": "acepta-todo: 250 2.1.5 OK 956f58d0204a3-67c135dac5asi4132294d50.126 - gsmtp"
+        "buzon": "acepta-todo: 250 2.1.5 OK 586e51a60fabf-4ad97047832si6659124fac.0 - gsmtp"
       },
       "contacto": "info@trey.es (https://www.trey.es/hablemos)",
       "confianza": "media"
@@ -13402,7 +13540,7 @@
         {
           "email": "equipo@factorlibre.com",
           "resultado": "acepta-todo",
-          "respuesta": "250 2.1.5 OK 956f58d0204a3-67c13649da1si4134603d50.195 - gsmtp",
+          "respuesta": "250 2.1.5 OK 586e51a60fabf-4ad97a86b46si6879011fac.189 - gsmtp",
           "servidor": "aspmx.l.google.com"
         }
       ],
@@ -13428,7 +13566,7 @@
         "url": "https://factorlibre.com/trabaja-con-nosotros/",
         "titulo": "Trabaja con nosotros | Factor Libre",
         "fragmento": "y teambuilding trimestrales, torneos de pádel y club de lectura Cómo unirte al equipo Un proceso de selección 100% remoto Envíanos tu CV a equipo@factorlibre.com . Sea cual sea tu experiencia o formación, te contaremos las oportunidades segú",
-        "buzon": "acepta-todo: 250 2.1.5 OK 956f58d0204a3-67c13649da1si4134603d50.195 - gsmtp"
+        "buzon": "acepta-todo: 250 2.1.5 OK 586e51a60fabf-4ad97a86b46si6879011fac.189 - gsmtp"
       },
       "contacto": "equipo@factorlibre.com (https://factorlibre.com/trabaja-con-nosotros/)",
       "confianza": "media"
@@ -13934,7 +14072,7 @@
         {
           "url": "https://app.shakersworks.com/talent/login",
           "valido": false,
-          "motivo": "la página no terminó de cargar en 60 s"
+          "motivo": "la página no tiene ningún formulario"
         }
       ],
       "evidencia": {
@@ -13951,7 +14089,7 @@
       "id": "civitatis",
       "nombre": "Civitatis",
       "web": "https://www.civitatis.com",
-      "estado": "valida",
+      "estado": "descartada",
       "paginasRevisadas": [
         {
           "url": "https://www.civitatis.com",
@@ -14068,40 +14206,15 @@
         {
           "url": "https://www.civitatis.com/es/medellin/practicas-tiro-rionegro/",
           "valido": false,
-          "motivo": "no se pudo cargar (page.goto: Timeout 30000ms exceeded.)"
+          "motivo": "ningún formulario sirve (no pide el correo electrónico)"
         },
         {
           "url": "https://www.civitatis.com/es/contactar/",
-          "valido": true,
-          "motivo": "formulario con correo y mensaje o CV",
-          "campos": [
-            "Elige asunto",
-            "Actividad o destino",
-            "Nombre",
-            "Correo electrónico",
-            "Repite email",
-            "Mensaje",
-            "Puedes detallarnos el nº pax, día de la actividad y cualquier especificación adicional",
-            "Acepto la política de privacidad"
-          ]
+          "valido": false,
+          "motivo": "rechazado en la revisión manual: atención al cliente de actividades y reservas"
         }
       ],
-      "evidencia": {
-        "url": "https://www.civitatis.com/es/contactar/",
-        "titulo": "Contacta con Civitatis – Email, chat, teléfono y WhatsApp",
-        "campos": [
-          "Elige asunto",
-          "Actividad o destino",
-          "Nombre",
-          "Correo electrónico",
-          "Repite email",
-          "Mensaje",
-          "Puedes detallarnos el nº pax, día de la actividad y cualquier especificación adicional",
-          "Acepto la política de privacidad"
-        ]
-      },
-      "contacto": "formulario: https://www.civitatis.com/es/contactar/",
-      "confianza": "media"
+      "motivo": "Sin correo válido para candidaturas (jess.cronjager@therangeaustin.com: dominio distinto al de la web; head@funinprague.eu: dominio distinto al de la web; genovaveintimilla1994@gmail.com: proveedor gratuito; dsa-authorities@civitatis.com: posible correo personal; consumo@civitatis.com: posible correo personal; copyright@civitatis.com: posible correo personal) ni formulario real; formularios: https://www.civitatis.com/es/austin/practicas-tiro-austin/ → ningún formulario sirve (no pide el correo electrónico); https://www.civitatis.com/es/praga/practicas-tiro-kalashnikov/ → ningún formulario sirve (no pide el correo electrónico); https://www.civitatis.com/es/medellin/practicas-tiro-rionegro/ → ningún formulario sirve (no pide el correo electrónico); https://www.civitatis.com/es/contactar/ → rechazado en la revisión manual: atención al cliente de actividades y reservas"
     },
     {
       "id": "savana",
@@ -14373,7 +14486,7 @@
         {
           "url": "https://www.telefonica.com/es/junta/contacto/",
           "valido": false,
-          "motivo": "no se pudo cargar (page.goto: Timeout 30000ms exceeded.)"
+          "motivo": "ningún formulario sirve (es un buscador)"
         },
         {
           "url": "https://www.telefonica.com/es/contacto/telefonica-en-redes-sociales/",
@@ -14386,7 +14499,7 @@
           "motivo": "ningún formulario sirve (es un buscador)"
         }
       ],
-      "motivo": "Sin correo válido para candidaturas (usuario@telefonica.com: posible correo personal; accionistas@telefonica.com: buzón no destinado a candidaturas; prensatelefonica@telefonica.com: buzón no destinado a candidaturas; contacto@fundaciontelefonica.com: dominio distinto al de la web; partnerships@telefonica.com: buzón no destinado a candidaturas; tefpublicpolicy@telefonica.com: posible correo personal; ir@telefonica.com: buzón no destinado a candidaturas; propiedadintelectual@telefonica.com: posible correo personal) ni formulario real; formularios: https://www.telefonica.com/es/contacto/ → ningún formulario sirve (es un buscador); https://www.telefonica.com/es/junta/contacto/ → no se pudo cargar (page.goto: Timeout 30000ms exceeded.); https://www.telefonica.com/es/contacto/telefonica-en-redes-sociales/ → ningún formulario sirve (es un buscador); https://www.telefonica.com/es/empleo/ → ningún formulario sirve (es un buscador)"
+      "motivo": "Sin correo válido para candidaturas (usuario@telefonica.com: posible correo personal; accionistas@telefonica.com: buzón no destinado a candidaturas; prensatelefonica@telefonica.com: buzón no destinado a candidaturas; contacto@fundaciontelefonica.com: dominio distinto al de la web; partnerships@telefonica.com: buzón no destinado a candidaturas; tefpublicpolicy@telefonica.com: posible correo personal; ir@telefonica.com: buzón no destinado a candidaturas; propiedadintelectual@telefonica.com: posible correo personal) ni formulario real; formularios: https://www.telefonica.com/es/contacto/ → ningún formulario sirve (es un buscador); https://www.telefonica.com/es/junta/contacto/ → ningún formulario sirve (es un buscador); https://www.telefonica.com/es/contacto/telefonica-en-redes-sociales/ → ningún formulario sirve (es un buscador); https://www.telefonica.com/es/empleo/ → ningún formulario sirve (es un buscador)"
     },
     {
       "id": "masorange",
@@ -14527,12 +14640,20 @@
           "estado": 200
         },
         {
+          "url": "https://www.redeia.com/en/sustainability/people",
+          "estado": 200
+        },
+        {
           "url": "https://www.redeia.com/es/sostenibilidad/personas",
           "estado": 200
         },
         {
+          "url": "https://www.redeia.com/es/trabaja-con-nosotros/que-buscamos",
+          "estado": 200
+        },
+        {
           "url": "https://www.redeia.com/es/sostenibilidad/personas/formacion-desarrollo",
-          "estado": "tiempo agotado"
+          "estado": 200
         },
         {
           "url": "https://www.redeia.com/es/sostenibilidad/personas/diversidad-e-igualdad",
@@ -14540,7 +14661,7 @@
         },
         {
           "url": "https://www.redeia.com/es/sostenibilidad/personas/dialogo-transparencia",
-          "estado": "tiempo agotado"
+          "estado": 200
         },
         {
           "url": "https://www.redeia.com/es/sostenibilidad/personas/conciliacion-laboral-personal",
@@ -14568,6 +14689,18 @@
         },
         {
           "url": "https://www.redeia.com/es/accionistas-e-inversores/contacto-accionistas-inversores",
+          "estado": 200
+        },
+        {
+          "url": "https://www.redeia.com/en/work-with-us/send-us-your-cv",
+          "estado": 200
+        },
+        {
+          "url": "https://www.redeia.com/en/work-with-us/why-work-with-us",
+          "estado": 200
+        },
+        {
+          "url": "https://www.redeia.com/en/work-with-us/what-are-we-looking-for",
           "estado": 200
         },
         {
@@ -14650,7 +14783,17 @@
       ],
       "formulariosRevisados": [
         {
+          "url": "https://www.redeia.com/en/sustainability/people",
+          "valido": false,
+          "motivo": "ningún formulario sirve (es un buscador)"
+        },
+        {
           "url": "https://www.redeia.com/es/sostenibilidad/personas",
+          "valido": false,
+          "motivo": "ningún formulario sirve (es un buscador)"
+        },
+        {
+          "url": "https://www.redeia.com/es/sostenibilidad/personas/formacion-desarrollo",
           "valido": false,
           "motivo": "ningún formulario sirve (es un buscador)"
         },
@@ -14658,19 +14801,9 @@
           "url": "https://www.redeia.com/es/sostenibilidad/personas/diversidad-e-igualdad",
           "valido": false,
           "motivo": "ningún formulario sirve (es un buscador)"
-        },
-        {
-          "url": "https://www.redeia.com/es/sostenibilidad/personas/conciliacion-laboral-personal",
-          "valido": false,
-          "motivo": "ningún formulario sirve (es un buscador)"
-        },
-        {
-          "url": "https://www.redeia.com/es/sostenibilidad/personas/organizacion-saludable",
-          "valido": false,
-          "motivo": "ningún formulario sirve (es un buscador)"
         }
       ],
-      "motivo": "Sin correo válido para candidaturas (gabinetedeprensa@redeia.com: posible correo personal; investor.relations@redeia.com: buzón no destinado a candidaturas; accionistas@redeia.com: buzón no destinado a candidaturas; accionistas@ree.es: dominio distinto al de la web; digame@redeia.com: posible correo personal; dpd@redeia.com: buzón no destinado a candidaturas; contacto@redeia.com: solo aparece en la portada, un artículo o el aviso legal (no es el canal de candidaturas)) ni formulario real; formularios: https://www.redeia.com/es/sostenibilidad/personas → ningún formulario sirve (es un buscador); https://www.redeia.com/es/sostenibilidad/personas/diversidad-e-igualdad → ningún formulario sirve (es un buscador); https://www.redeia.com/es/sostenibilidad/personas/conciliacion-laboral-personal → ningún formulario sirve (es un buscador); https://www.redeia.com/es/sostenibilidad/personas/organizacion-saludable → ningún formulario sirve (es un buscador)"
+      "motivo": "Sin correo válido para candidaturas (gabinetedeprensa@redeia.com: posible correo personal; investor.relations@redeia.com: buzón no destinado a candidaturas; accionistas@redeia.com: buzón no destinado a candidaturas; accionistas@ree.es: dominio distinto al de la web; digame@redeia.com: posible correo personal; dpd@redeia.com: buzón no destinado a candidaturas; contacto@redeia.com: solo aparece en la portada, un artículo o el aviso legal (no es el canal de candidaturas)) ni formulario real; formularios: https://www.redeia.com/en/sustainability/people → ningún formulario sirve (es un buscador); https://www.redeia.com/es/sostenibilidad/personas → ningún formulario sirve (es un buscador); https://www.redeia.com/es/sostenibilidad/personas/formacion-desarrollo → ningún formulario sirve (es un buscador); https://www.redeia.com/es/sostenibilidad/personas/diversidad-e-igualdad → ningún formulario sirve (es un buscador)"
     },
     {
       "id": "iberdrola",
@@ -14680,7 +14813,7 @@
       "paginasRevisadas": [
         {
           "url": "https://www.iberdrola.com",
-          "estado": "tiempo agotado"
+          "estado": 403
         },
         {
           "url": "https://iberdrola.com/",
@@ -14708,7 +14841,7 @@
         }
       ],
       "correosEncontrados": [],
-      "motivo": "La web no responde (tiempo agotado)"
+      "motivo": "La web no responde (403)"
     },
     {
       "id": "repsol",
@@ -14750,7 +14883,7 @@
         },
         {
           "url": "https://www.repsol.com/es/conocenos/donde-trabajamos/sedes-repsol/index.cshtml",
-          "estado": "tiempo agotado"
+          "estado": 200
         },
         {
           "url": "https://www.repsol.com/es/conocenos/donde-trabajamos/repsol-mundo/index.cshtml",
@@ -14923,11 +15056,11 @@
           "estado": 200
         },
         {
-          "url": "https://www.ferrovial.com/es/empleo/ofertas/ventas/",
+          "url": "https://www.ferrovial.com/es/empleo/ofertas/calidad/",
           "estado": 200
         },
         {
-          "url": "https://www.ferrovial.com/es/empleo/ofertas/calidad/",
+          "url": "https://www.ferrovial.com/es/empleo/ofertas/compras/",
           "estado": 200
         },
         {
@@ -15244,27 +15377,71 @@
         },
         {
           "url": "https://empleo.elcorteingles.es/",
-          "estado": "tiempo agotado"
+          "estado": 200
         },
         {
-          "url": "https://trabajaconnosotros.elcorteingles.es/",
-          "estado": "ENOTFOUND"
+          "url": "https://empleo.elcorteingles.es/",
+          "estado": 200
         },
         {
-          "url": "https://careers.elcorteingles.es/",
-          "estado": "ENOTFOUND"
+          "url": "https://empleo.elcorteingles.es/trabaja-con-nosotros",
+          "estado": 200
         },
         {
-          "url": "https://jobs.elcorteingles.es/",
-          "estado": "ENOTFOUND"
+          "url": "https://empleo.elcorteingles.es/trabaja-con-nosotros/",
+          "estado": 200
         },
         {
-          "url": "https://talento.elcorteingles.es/",
-          "estado": "ENOTFOUND"
+          "url": "https://empleo.elcorteingles.es/empleo",
+          "estado": 200
+        },
+        {
+          "url": "https://empleo.elcorteingles.es/talento",
+          "estado": 200
+        },
+        {
+          "url": "https://empleo.elcorteingles.es/careers",
+          "estado": 200
+        },
+        {
+          "url": "https://empleo.elcorteingles.es/unete",
+          "estado": 200
+        },
+        {
+          "url": "https://empleo.elcorteingles.es/unete-al-equipo",
+          "estado": 200
+        },
+        {
+          "url": "https://empleo.elcorteingles.es/rrhh",
+          "estado": 200
+        },
+        {
+          "url": "https://empleo.elcorteingles.es/aviso-legal",
+          "estado": 200
+        },
+        {
+          "url": "https://empleo.elcorteingles.es/aviso-legal/",
+          "estado": 200
+        },
+        {
+          "url": "https://empleo.elcorteingles.es/legal",
+          "estado": 200
+        },
+        {
+          "url": "https://empleo.elcorteingles.es/pages/aviso-legal",
+          "estado": 200
+        },
+        {
+          "url": "https://empleo.elcorteingles.es/pages/legal",
+          "estado": 200
+        },
+        {
+          "url": "https://empleo.elcorteingles.es/es/aviso-legal",
+          "estado": 200
         }
       ],
       "correosEncontrados": [],
-      "motivo": "La web no responde (403)"
+      "motivo": "Su web no menciona ninguna sede ni oficina en la Comunidad de Madrid"
     },
     {
       "id": "leroy-merlin-espana",
@@ -15948,7 +16125,7 @@
       "id": "red-es",
       "nombre": "Red.es",
       "web": "https://www.red.es",
-      "estado": "valida",
+      "estado": "descartada",
       "paginasRevisadas": [
         {
           "url": "https://www.red.es",
@@ -15968,10 +16145,6 @@
         },
         {
           "url": "https://www.red.es/es/contacto",
-          "estado": 200
-        },
-        {
-          "url": "https://www.red.es/es/accesibilidad/contacto",
           "estado": 200
         },
         {
@@ -16069,16 +16242,6 @@
           "email": "prensa@red.es",
           "tipo": "general",
           "motivoRechazo": "buzón no destinado a candidaturas"
-        },
-        {
-          "email": "nombre@dominio.ext",
-          "tipo": "general",
-          "motivoRechazo": "dominio distinto al de la web"
-        },
-        {
-          "email": "minombre@red.es",
-          "tipo": "general",
-          "motivoRechazo": "posible correo personal"
         }
       ],
       "formulariosRevisados": [
@@ -16086,20 +16249,6 @@
           "url": "https://www.red.es/es/contacto",
           "valido": false,
           "motivo": "ningún formulario sirve (no pide el correo electrónico)"
-        },
-        {
-          "url": "https://www.red.es/es/accesibilidad/contacto",
-          "valido": true,
-          "motivo": "formulario con correo y mensaje o CV",
-          "campos": [
-            "Nombre",
-            "Apellidos",
-            "Organizaci&oacute;n",
-            "Email",
-            "Asunto",
-            "Mensaje",
-            "Acepto los T&eacute;rminos y Condiciones ."
-          ]
         },
         {
           "url": "https://www.red.es/es/iniciativas/talento-digital",
@@ -16112,21 +16261,7 @@
           "motivo": "ningún formulario sirve (no pide el correo electrónico)"
         }
       ],
-      "evidencia": {
-        "url": "https://www.red.es/es/accesibilidad/contacto",
-        "titulo": "Formulario de Contacto. Accesibilidad | Red.es",
-        "campos": [
-          "Nombre",
-          "Apellidos",
-          "Organizaci&oacute;n",
-          "Email",
-          "Asunto",
-          "Mensaje",
-          "Acepto los T&eacute;rminos y Condiciones ."
-        ]
-      },
-      "contacto": "formulario: https://www.red.es/es/accesibilidad/contacto",
-      "confianza": "media"
+      "motivo": "Sin correo válido para candidaturas (empleo2026@red.es: posible correo personal; empleo2024@red.es: posible correo personal; empleo2023@red.es: posible correo personal; empleo2021@red.es: posible correo personal; soporte.sede@red.es: buzón no destinado a candidaturas; prensa@red.es: buzón no destinado a candidaturas) ni formulario real; formularios: https://www.red.es/es/contacto → ningún formulario sirve (no pide el correo electrónico); https://www.red.es/es/iniciativas/talento-digital → ningún formulario sirve (no pide el correo electrónico); https://www.red.es/es/sobre-nosotros/trabaja-con-nosotros → ningún formulario sirve (no pide el correo electrónico)"
     },
     {
       "id": "tragsatec",
@@ -16213,9 +16348,8 @@
       "buzones": [
         {
           "email": "seleccion@tragsa.es",
-          "resultado": "acepta-todo",
-          "respuesta": "250 2.1.5 Recipient ok",
-          "servidor": "antispam33.tragsa.es"
+          "resultado": "indeterminado",
+          "respuesta": "sin respuesta del servidor de correo (554 Blocked - see https://ipcheck.proofpoint.com/?ip=20.98.158.84)"
         }
       ],
       "formulariosRevisados": [
@@ -16243,7 +16377,7 @@
         "url": "https://www.tragsa.es/es/equipo-humano/unete-a-nuestro-equipo/Paginas/default.aspx",
         "titulo": "Empleo en Grupo Tragsa | Tragsa",
         "fragmento": "a del Portal del Empleo .&#160; Descárgatela aquí .&#160;Si necesitas ayuda puedes contactar con nosotros vía e-mail en el buzón&#58;&#160; seleccion@tragsa.es Accede a nuestras ofertas de empleo ​​ ​ Accesibilidad --> Aviso Legal Política",
-        "buzon": "acepta-todo: 250 2.1.5 Recipient ok"
+        "buzon": "indeterminado: sin respuesta del servidor de correo (554 Blocked - see https://ipcheck.proofpoint.com/?ip=20.98.158.84)"
       },
       "contacto": "seleccion@tragsa.es (https://www.tragsa.es/es/equipo-humano/unete-a-nuestro-equipo/Paginas/default.aspx)",
       "confianza": "media"
@@ -16482,7 +16616,7 @@
         {
           "email": "info@intelygenz.com",
           "resultado": "indeterminado",
-          "respuesta": "450 4.7.1 Client host rejected: cannot find your reverse hostname, [134.138.41.2]",
+          "respuesta": "450 4.7.1 Client host rejected: cannot find your reverse hostname, [20.98.158.84]",
           "servidor": "poster4i.iberlayer.com"
         }
       ],
@@ -16502,7 +16636,7 @@
         "url": "https://intelygenz.com/talent-as-a-service/",
         "titulo": "Talent as a service - Intelygenz Vass",
         "fragmento": "ts Palantir consultants Data visualization developers Newsletter Stay up to date with the latest news at Intelygenz Madrid +34 915 35 96 12 info@intelygenz.com San Francisco +1 (415) 917-1500 info@intelygenz.com &copy; 2026 Intelygenz Vass",
-        "buzon": "indeterminado: 450 4.7.1 Client host rejected: cannot find your reverse hostname, [134.138.41.2]"
+        "buzon": "indeterminado: 450 4.7.1 Client host rejected: cannot find your reverse hostname, [20.98.158.84]"
       },
       "contacto": "info@intelygenz.com (https://intelygenz.com/talent-as-a-service/)",
       "confianza": "media"
@@ -16928,6 +17062,10 @@
           "estado": 200
         },
         {
+          "url": "https://www.rtve.es/deportes/20200907/seleccion-espanola-reguilon-lesionado/2041557.shtml",
+          "estado": 200
+        },
+        {
           "url": "https://stories.rtve.es/noticias/newstory/stories/la-inteligencia-artificial-podria-destruir-400-000-empleos-en-espana-en-la-proxima-decada-segun-un-estudio?r=MATSPC",
           "estado": 200
         },
@@ -16949,10 +17087,6 @@
         },
         {
           "url": "https://www.rtve.es/corporacion/ofertas-empleo/",
-          "estado": 200
-        },
-        {
-          "url": "https://www.rtve.es/deportes/20240511/carrera-sprint-motogp-francia-2024/16095905.shtml",
           "estado": 200
         },
         {
@@ -17050,11 +17184,6 @@
       ],
       "formulariosRevisados": [
         {
-          "url": "https://www.rtve.es/deportes/20240511/carrera-sprint-motogp-francia-2024/16095905.shtml",
-          "valido": false,
-          "motivo": "la página no tiene ningún formulario"
-        },
-        {
           "url": "https://www.rtve.es/deportes/20210614/talento-joven-eurocopa-2020/2103594.shtml",
           "valido": false,
           "motivo": "la página no tiene ningún formulario"
@@ -17068,9 +17197,14 @@
           "url": "https://www.rtve.es/deportes/20160808/seleccion-femenina-baloncesto/1383283.shtml",
           "valido": false,
           "motivo": "la página no tiene ningún formulario"
+        },
+        {
+          "url": "https://www.rtve.es/deportes/20201115/seleccion-espanola-sevilla-alemania/2056311.shtml",
+          "valido": false,
+          "motivo": "la página no tiene ningún formulario"
         }
       ],
-      "motivo": "Sin correo válido para candidaturas (rtve.dircom@rtve.es: posible correo personal; verificartve@rtve.es: posible correo personal) ni formulario real; formularios: https://www.rtve.es/deportes/20240511/carrera-sprint-motogp-francia-2024/16095905.shtml → la página no tiene ningún formulario; https://www.rtve.es/deportes/20210614/talento-joven-eurocopa-2020/2103594.shtml → la página no tiene ningún formulario; https://www.rtve.es/deportes/20220923/seleccion-femenina-comunicado/2403462.shtml → la página no tiene ningún formulario; https://www.rtve.es/deportes/20160808/seleccion-femenina-baloncesto/1383283.shtml → la página no tiene ningún formulario"
+      "motivo": "Sin correo válido para candidaturas (rtve.dircom@rtve.es: posible correo personal; verificartve@rtve.es: posible correo personal) ni formulario real; formularios: https://www.rtve.es/deportes/20210614/talento-joven-eurocopa-2020/2103594.shtml → la página no tiene ningún formulario; https://www.rtve.es/deportes/20220923/seleccion-femenina-comunicado/2403462.shtml → la página no tiene ningún formulario; https://www.rtve.es/deportes/20160808/seleccion-femenina-baloncesto/1383283.shtml → la página no tiene ningún formulario; https://www.rtve.es/deportes/20201115/seleccion-espanola-sevilla-alemania/2056311.shtml → la página no tiene ningún formulario"
     },
     {
       "id": "aena",
@@ -17302,7 +17436,7 @@
         },
         {
           "url": "https://canaldeisabelsegunda.es/",
-          "estado": "tiempo agotado"
+          "estado": "UND_ERR_CONNECT_TIMEOUT"
         },
         {
           "url": "https://empleo.canaldeisabelsegunda.es/",
@@ -17612,7 +17746,7 @@
         {
           "url": "https://www.moeveglobal.com/es/empleo/la-vida-en-moeve/formacion-y-desarrollo",
           "valido": false,
-          "motivo": "la página responde 403"
+          "motivo": "ningún formulario sirve (es un buscador)"
         }
       ],
       "evidencia": {
@@ -17742,7 +17876,7 @@
       ],
       "formulariosRevisados": [
         {
-          "url": "https://validate.perfdrive.com/?ssa=62dd88fd-1ed1-4964-a688-f76faec0cbe8&ssb=44414340099&ssc=https%3A%2F%2Fwww.naturgy.com%2Fpersonas%2F&ssi=1851df24-cld7-40e4-9d62-9e7e67352642&ssk=botmanager_support@radware.com&ssm=92792166291303805109509147444128&ssn=f4e3d63a12ca754eb74933272cb4119f8bafb4af2090-0c7c-4888-84c3a5&sso=5f3d52c6-31397f6e0915e23abdd1ad8e8196afd04cab6efd471c80ca&ssp=17389187101794063452179407593556299&ssq=30707385984007519257959840324842518441681&ssr=MTM0LjEzOC40MS4y&sst=Mozilla/5.0%20(compatible;%20ConectaFFE-verificador/1.2;%20+https://www.jrotero.es)&ssu=&ssv=&ssw=&ssx=eyJ1em14IjoiN2ZjMDAwMGQ0NGY5M2UtYzg0NC00NzIxLTlkYWYtY2Q0ZjE1NGUzZGU2MS0xNzk0MDU5ODQwOTQwMC0wMGM1ZDVkYjI2NDg1YjkwNWUwMTAiLCJyZCI6Im5hdHVyZ3kuY29tIiwiX191em1mIjoiN2Y5MDAwYjRhZjIwOTAtMGM3Yy00ODg4LTgyYzYtMzEzOTdmNmUwOTE1MS0xNzk0MDU5ODQwOTQwMC0wMDU3ZDgyNTY3ZDdmMmYwMmJiMTAifQ==",
+          "url": "https://validate.perfdrive.com/?ssa=0d6d9c2c-720f-41b9-8062-00ede503ec84&ssb=95128330124&ssc=https%3A%2F%2Fwww.naturgy.com%2Fpersonas%2F&ssi=eb35627f-cld7-44e8-a5cb-8b1c124baad6&ssk=botmanager_support@radware.com&ssm=20958412520677033100552651666969&ssn=9d8ef700b5a6a6ba8ac795d39f1a942bf55ea0dbb26f-6546-4283-a409a1&sso=d63382cf-5234b59a31f3cf5d87c8e8279d2950783e716471189b68c3&ssp=39739349991794058294179408562319245&ssq=94214546114287165988261142777380505405383&ssr=MjAuOTguMTU4Ljg0&sst=Mozilla/5.0%20(compatible;%20ConectaFFE-verificador/1.2;%20+https://www.jrotero.es)&ssu=&ssv=&ssw=&ssx=eyJfX3V6bWYiOiI3ZjkwMDBhMGRiYjI2Zi02NTQ2LTQyODMtYTJjZi01MjM0YjU5YTMxZjMxLTE3OTQwNjExNDI5ODYwLTAwNTEwMWQ2MjNhZmI0ZGU2MDExMCIsInJkIjoibmF0dXJneS5jb20iLCJ1em14IjoiN2ZjMDAwOGQyODhjZjEtZDVlMy00MDNjLTliMTctYzg0YTAxOWM4ZTliMS0xNzk0MDYxMTQyOTg2MC0wMGM2MjEwNzFlNGQ0ZTFiYzM4MTAifQ==",
           "valido": false,
           "motivo": "ningún formulario sirve (no pide el correo electrónico)"
         },
@@ -17757,7 +17891,7 @@
           "motivo": "ningún formulario sirve (no pide el correo electrónico)"
         }
       ],
-      "motivo": "Sin correo válido para candidaturas (botmanager_support@radware.com: dominio distinto al de la web) ni formulario real; formularios: https://validate.perfdrive.com/?ssa=62dd88fd-1ed1-4964-a688-f76faec0cbe8&ssb=44414340099&ssc=https%3A%2F%2Fwww.naturgy.com%2Fpersonas%2F&ssi=1851df24-cld7-40e4-9d62-9e7e67352642&ssk=botmanager_support@radware.com&ssm=92792166291303805109509147444128&ssn=f4e3d63a12ca754eb74933272cb4119f8bafb4af2090-0c7c-4888-84c3a5&sso=5f3d52c6-31397f6e0915e23abdd1ad8e8196afd04cab6efd471c80ca&ssp=17389187101794063452179407593556299&ssq=30707385984007519257959840324842518441681&ssr=MTM0LjEzOC40MS4y&sst=Mozilla/5.0%20(compatible;%20ConectaFFE-verificador/1.2;%20+https://www.jrotero.es)&ssu=&ssv=&ssw=&ssx=eyJ1em14IjoiN2ZjMDAwMGQ0NGY5M2UtYzg0NC00NzIxLTlkYWYtY2Q0ZjE1NGUzZGU2MS0xNzk0MDU5ODQwOTQwMC0wMGM1ZDVkYjI2NDg1YjkwNWUwMTAiLCJyZCI6Im5hdHVyZ3kuY29tIiwiX191em1mIjoiN2Y5MDAwYjRhZjIwOTAtMGM3Yy00ODg4LTgyYzYtMzEzOTdmNmUwOTE1MS0xNzk0MDU5ODQwOTQwMC0wMDU3ZDgyNTY3ZDdmMmYwMmJiMTAifQ== → ningún formulario sirve (no pide el correo electrónico); https://www.naturgy.com/trabaja-con-nosotros/ → la página no tiene ningún formulario; https://career5.successfactors.eu/career?career%5fns=job%5flisting&company=C0000880172P&navBarLevel=JOB%5fSEARCH&rcm%5fsite%5flocale=es%5fES&career_job_req_id=11306&selected_lang=es_ES&jobAlertController_jobAlertId=&jobAlertController_jobAlertName=&browserTimeZone=Europe/Madrid&_s.crb=9eVBLXpq62RJ6QKwMyi40MHd2BUK1lsjgHZEKjG5lW0%3d → ningún formulario sirve (no pide el correo electrónico)"
+      "motivo": "Sin correo válido para candidaturas (botmanager_support@radware.com: dominio distinto al de la web) ni formulario real; formularios: https://validate.perfdrive.com/?ssa=0d6d9c2c-720f-41b9-8062-00ede503ec84&ssb=95128330124&ssc=https%3A%2F%2Fwww.naturgy.com%2Fpersonas%2F&ssi=eb35627f-cld7-44e8-a5cb-8b1c124baad6&ssk=botmanager_support@radware.com&ssm=20958412520677033100552651666969&ssn=9d8ef700b5a6a6ba8ac795d39f1a942bf55ea0dbb26f-6546-4283-a409a1&sso=d63382cf-5234b59a31f3cf5d87c8e8279d2950783e716471189b68c3&ssp=39739349991794058294179408562319245&ssq=94214546114287165988261142777380505405383&ssr=MjAuOTguMTU4Ljg0&sst=Mozilla/5.0%20(compatible;%20ConectaFFE-verificador/1.2;%20+https://www.jrotero.es)&ssu=&ssv=&ssw=&ssx=eyJfX3V6bWYiOiI3ZjkwMDBhMGRiYjI2Zi02NTQ2LTQyODMtYTJjZi01MjM0YjU5YTMxZjMxLTE3OTQwNjExNDI5ODYwLTAwNTEwMWQ2MjNhZmI0ZGU2MDExMCIsInJkIjoibmF0dXJneS5jb20iLCJ1em14IjoiN2ZjMDAwOGQyODhjZjEtZDVlMy00MDNjLTliMTctYzg0YTAxOWM4ZTliMS0xNzk0MDYxMTQyOTg2MC0wMGM2MjEwNzFlNGQ0ZTFiYzM4MTAifQ== → ningún formulario sirve (no pide el correo electrónico); https://www.naturgy.com/trabaja-con-nosotros/ → la página no tiene ningún formulario; https://career5.successfactors.eu/career?career%5fns=job%5flisting&company=C0000880172P&navBarLevel=JOB%5fSEARCH&rcm%5fsite%5flocale=es%5fES&career_job_req_id=11306&selected_lang=es_ES&jobAlertController_jobAlertId=&jobAlertController_jobAlertName=&browserTimeZone=Europe/Madrid&_s.crb=9eVBLXpq62RJ6QKwMyi40MHd2BUK1lsjgHZEKjG5lW0%3d → ningún formulario sirve (no pide el correo electrónico)"
     },
     {
       "id": "endesa",
@@ -20171,7 +20305,7 @@
           "email": "cv@redsys.es",
           "resultado": "existe",
           "respuesta": "250 recipient <cv@redsys.es> ok",
-          "servidor": "aspamyec.redsys.es"
+          "servidor": "aspamfs.redsys.es"
         }
       ],
       "formulariosRevisados": [
@@ -20377,39 +20511,38 @@
       "formulariosRevisados": [
         {
           "url": "https://www.bolsasymercados.es/en/contact/epm.html",
+          "valido": false,
+          "motivo": "rechazado en la revisión manual: contacto de un producto (Pre Market Environment)"
+        },
+        {
+          "url": "https://www.bolsasymercados.es/es/contacto/bolsa-bilbao.html",
           "valido": true,
           "motivo": "formulario con correo y mensaje o CV",
           "campos": [
-            "Name",
-            "Company",
+            "Nombre",
+            "Empresa",
             "E-mail",
-            "Select",
-            "Select",
-            "Select",
-            "Last-name",
-            "Phone",
-            "Message",
+            "Apellidos",
+            "Teléfono",
+            "Mensaje",
             "privacy"
           ]
         }
       ],
       "evidencia": {
-        "url": "https://www.bolsasymercados.es/en/contact/epm.html",
-        "titulo": "Pre Market Environment (EpM) | BME Bolsas y Mercados Españoles",
+        "url": "https://www.bolsasymercados.es/es/contacto/bolsa-bilbao.html",
+        "titulo": "Bolsa de Bilbao | BME Bolsas y Mercados Españoles",
         "campos": [
-          "Name",
-          "Company",
+          "Nombre",
+          "Empresa",
           "E-mail",
-          "Select",
-          "Select",
-          "Select",
-          "Last-name",
-          "Phone",
-          "Message",
+          "Apellidos",
+          "Teléfono",
+          "Mensaje",
           "privacy"
         ]
       },
-      "contacto": "formulario: https://www.bolsasymercados.es/en/contact/epm.html",
+      "contacto": "formulario: https://www.bolsasymercados.es/es/contacto/bolsa-bilbao.html",
       "confianza": "media"
     },
     {
@@ -20653,7 +20786,7 @@
         {
           "email": "info@nalcom.com",
           "resultado": "acepta-todo",
-          "respuesta": "250 2.1.5 OK 956f58d0204a3-67c13692188si4129946d50.256 - gsmtp",
+          "respuesta": "250 2.1.5 OK 586e51a60fabf-4ad97a8f49esi7012900fac.196 - gsmtp",
           "servidor": "aspmx.l.google.com"
         }
       ],
@@ -20735,7 +20868,7 @@
         {
           "email": "rrhh@melit.es",
           "resultado": "acepta-todo",
-          "respuesta": "250 2.1.5 OK 956f58d0204a3-67c13353946si4184965d50.33 - gsmtp",
+          "respuesta": "250 2.1.5 OK 586e51a60fabf-4ad97e2bba1si6476441fac.294 - gsmtp",
           "servidor": "aspmx.l.google.com"
         }
       ],
@@ -20758,7 +20891,7 @@
         "url": "https://www.melit.es/empleo/encontrar-trabajo-programador-informatico",
         "titulo": "Trabajo de programador en Madrid | Empleo",
         "fragmento": "Otros servicios Mensaje Sube tu curriculum Acepto la Política de Privacidad Enviar Mándanos un email No olvides adjuntar tu CV y portfolio. rrhh@melit.es Ven a visitarnos Calle Julián Camarillo, 29 2D, 4 Izq. 28037 Madrid Llámanos po",
-        "buzon": "acepta-todo: 250 2.1.5 OK 956f58d0204a3-67c13353946si4184965d50.33 - gsmtp"
+        "buzon": "acepta-todo: 250 2.1.5 OK 586e51a60fabf-4ad97e2bba1si6476441fac.294 - gsmtp"
       },
       "contacto": "rrhh@melit.es (https://www.melit.es/empleo/encontrar-trabajo-programador-informatico)",
       "confianza": "media"
@@ -21743,10 +21876,10 @@
           "valido": true,
           "motivo": "formulario con correo y mensaje o CV",
           "campos": [
+            "quién Nombre Email",
             "¿Con quién deseas contactar? *",
             "Nombre / Empresa *",
             "Email *",
-            "Mensaje protección datos",
             "Asunto *",
             "Mensaje",
             "He leído y acepto la Política de Privacidad y la Política de Cookies ."
@@ -22182,8 +22315,8 @@
         {
           "email": "info@ingecom.net",
           "resultado": "indeterminado",
-          "respuesta": "451 Internal resource temporarily unavailable - https://community.mimecast.com/docs/DOC-1369#451 [SnIV-wZYOi2LHRyC5pfe4A.de91]",
-          "servidor": "de-smtp-inbound-2.mimecast.com"
+          "respuesta": "451 Internal resource temporarily unavailable - https://community.mimecast.com/docs/DOC-1369#451 [uspWG3q-Ppm4SIMNaQNJqA.de36]",
+          "servidor": "de-smtp-inbound-1.mimecast.com"
         }
       ],
       "formulariosRevisados": [
@@ -22212,7 +22345,7 @@
         "url": "https://www.ingecom.net/trabaja-en-ingecom/",
         "titulo": "Únete a nuestro equipo - Trabaja con Nosotros",
         "fragmento": "ciberseguridad y ciberinteligencia. SÍGUENOS NEWSLETTER Suscríbete aquí españa Bilbao Elcano 9, 3ª planta 48008 Bilbao Tel. +34 944 395 678 info@ingecom.net Madrid Torre Ombú C/ Ombú, 3 – Planta 12 28045 Madrid Tel. +34 915 715 196 Barc",
-        "buzon": "indeterminado: 451 Internal resource temporarily unavailable - https://community.mimecast.com/docs/DOC-1369#451 [SnIV-wZYOi2LHRyC5pfe4A.de91]"
+        "buzon": "indeterminado: 451 Internal resource temporarily unavailable - https://community.mimecast.com/docs/DOC-1369#451 [uspWG3q-Ppm4SIMNaQNJqA.de36]"
       },
       "contacto": "info@ingecom.net (https://www.ingecom.net/trabaja-en-ingecom/)",
       "confianza": "media"
@@ -22471,21 +22604,26 @@
         },
         {
           "url": "https://cuatroochenta.com/practicas-rrhh/",
+          "valido": false,
+          "motivo": "rechazado en la revisión manual: candidatura a unas prácticas concretas de RR. HH. (no del ciclo)"
+        },
+        {
+          "url": "https://cuatroochenta.com/trabaja-en-cuatroochenta/",
           "valido": true,
           "motivo": "formulario incrustado (form.typeform.com)",
           "campos": [
-            "iframe: https://form.typeform.com/to/LTpIpPFz?typeform-source=soluciones480.typeform.com#puesto=HR"
+            "iframe: https://form.typeform.com/to/vLyvcjNj?typeform-source=soluciones480.typeform.com#&amp;fuente=Web%20General"
           ]
         }
       ],
       "evidencia": {
-        "url": "https://cuatroochenta.com/practicas-rrhh/",
-        "titulo": "Prácticas RRHH - 480",
+        "url": "https://cuatroochenta.com/trabaja-en-cuatroochenta/",
+        "titulo": "Trabaja en Cuatroochenta | Empleo en ciberseguridad y software",
         "campos": [
-          "iframe: https://form.typeform.com/to/LTpIpPFz?typeform-source=soluciones480.typeform.com#puesto=HR"
+          "iframe: https://form.typeform.com/to/vLyvcjNj?typeform-source=soluciones480.typeform.com#&amp;fuente=Web%20General"
         ]
       },
-      "contacto": "formulario: https://cuatroochenta.com/practicas-rrhh/",
+      "contacto": "formulario: https://cuatroochenta.com/trabaja-en-cuatroochenta/",
       "confianza": "alta"
     },
     {
@@ -22899,14 +23037,6 @@
           "estado": 200
         },
         {
-          "url": "https://www.compraonline.alcampo.es/categories/hogar-y-decoración/orden-en-la-cocina/bolsa-y-cajas-de-regalo/OCBR",
-          "estado": 200
-        },
-        {
-          "url": "https://www.compraonline.alcampo.es/promotions/hogar-y-decoración/orden-en-la-cocina/bolsa-y-cajas-de-regalo/OCBR",
-          "estado": 200
-        },
-        {
           "url": "https://www.compraonline.alcampo.es/categories/hogar-y-decoración/orden-en-la-cocina/botes-de-cocina-y-recipientes/bolsa-porta-alimentos/OC59040631",
           "estado": 200
         },
@@ -22978,19 +23108,9 @@
       ],
       "formulariosRevisados": [
         {
-          "url": "https://www.compraonline.alcampo.es/categories/hogar-y-decoraci%C3%B3n/orden-en-la-cocina/bolsa-y-cajas-de-regalo/OCBR",
-          "valido": false,
-          "motivo": "ningún formulario sirve (es un buscador; es un formulario de acceso (tiene contraseña))"
-        },
-        {
-          "url": "https://www.compraonline.alcampo.es/promotions/hogar-y-decoraci%C3%B3n/orden-en-la-cocina/bolsa-y-cajas-de-regalo/OCBR",
-          "valido": false,
-          "motivo": "ningún formulario sirve (es un buscador; es un formulario de acceso (tiene contraseña))"
-        },
-        {
           "url": "https://www.compraonline.alcampo.es/categories/hogar-y-decoraci%C3%B3n/orden-en-la-cocina/botes-de-cocina-y-recipientes/bolsa-porta-alimentos/OC59040631",
           "valido": false,
-          "motivo": "la página responde 405"
+          "motivo": "ningún formulario sirve (es un buscador; es un formulario de acceso (tiene contraseña))"
         },
         {
           "url": "https://www.compraonline.alcampo.es/promotions/hogar-y-decoraci%C3%B3n/orden-en-la-cocina/botes-de-cocina-y-recipientes/bolsa-porta-alimentos/OC59040631",
@@ -22998,7 +23118,7 @@
           "motivo": "ningún formulario sirve (es un buscador; es un formulario de acceso (tiene contraseña))"
         }
       ],
-      "motivo": "Sin correo válido para candidaturas (u002f@alcampo.supermercado: dominio distinto al de la web; atencioncliente@alcampo.es: posible correo personal; u003eatencioncliente@alcampo.es: posible correo personal) ni formulario real; formularios: https://www.compraonline.alcampo.es/categories/hogar-y-decoraci%C3%B3n/orden-en-la-cocina/bolsa-y-cajas-de-regalo/OCBR → ningún formulario sirve (es un buscador; es un formulario de acceso (tiene contraseña)); https://www.compraonline.alcampo.es/promotions/hogar-y-decoraci%C3%B3n/orden-en-la-cocina/bolsa-y-cajas-de-regalo/OCBR → ningún formulario sirve (es un buscador; es un formulario de acceso (tiene contraseña)); https://www.compraonline.alcampo.es/categories/hogar-y-decoraci%C3%B3n/orden-en-la-cocina/botes-de-cocina-y-recipientes/bolsa-porta-alimentos/OC59040631 → la página responde 405; https://www.compraonline.alcampo.es/promotions/hogar-y-decoraci%C3%B3n/orden-en-la-cocina/botes-de-cocina-y-recipientes/bolsa-porta-alimentos/OC59040631 → ningún formulario sirve (es un buscador; es un formulario de acceso (tiene contraseña))"
+      "motivo": "Sin correo válido para candidaturas (u002f@alcampo.supermercado: dominio distinto al de la web; atencioncliente@alcampo.es: posible correo personal; u003eatencioncliente@alcampo.es: posible correo personal) ni formulario real; formularios: https://www.compraonline.alcampo.es/categories/hogar-y-decoraci%C3%B3n/orden-en-la-cocina/botes-de-cocina-y-recipientes/bolsa-porta-alimentos/OC59040631 → ningún formulario sirve (es un buscador; es un formulario de acceso (tiene contraseña)); https://www.compraonline.alcampo.es/promotions/hogar-y-decoraci%C3%B3n/orden-en-la-cocina/botes-de-cocina-y-recipientes/bolsa-porta-alimentos/OC59040631 → ningún formulario sirve (es un buscador; es un formulario de acceso (tiene contraseña))"
     },
     {
       "id": "ahorramas",
@@ -23016,14 +23136,6 @@
         },
         {
           "url": "https://www.ahorramas.com/contacta-con-nosotros",
-          "estado": 200
-        },
-        {
-          "url": "https://www.ahorramas.com/bolsa-de-rafia-grande-12312.html",
-          "estado": 200
-        },
-        {
-          "url": "https://www.ahorramas.com/bolsa-reciclada-rpet-ahorramas-29223.html",
           "estado": 200
         },
         {
@@ -23124,6 +23236,16 @@
           "url": "https://empleo.ahorramas.com/",
           "valido": false,
           "motivo": "ningún formulario sirve (es un buscador; no pide el correo electrónico)"
+        },
+        {
+          "url": "https://empleo.ahorramas.com/viewalljobs/",
+          "valido": false,
+          "motivo": "ningún formulario sirve (es un buscador)"
+        },
+        {
+          "url": "https://career55.sapsf.eu/careers?company=ahorramass",
+          "valido": false,
+          "motivo": "ningún formulario sirve (es un formulario de acceso (tiene contraseña))"
         }
       ],
       "evidencia": {
@@ -23539,14 +23661,6 @@
           "estado": 202
         },
         {
-          "url": "https://www.elganso.com/es/bolsa-deporte-marino-136956-136956.html",
-          "estado": 202
-        },
-        {
-          "url": "https://www.elganso.com/es_cn/bolsa-deporte-marino-136956-136956.html",
-          "estado": 202
-        },
-        {
           "url": "https://www.elganso.com/intl_cl/bolsa-deporte-rojo-125636.html",
           "estado": 202
         },
@@ -23762,7 +23876,7 @@
         {
           "email": "contact@pompeiibrand.com",
           "resultado": "existe",
-          "respuesta": "250 2.1.5 OK 00721157ae682-8b33f64af41si33500817b3.213 - gsmtp",
+          "respuesta": "250 2.1.5 OK 5614622812f47-567e7f76c92si5996038b6e.78 - gsmtp",
           "servidor": "aspmx.l.google.com"
         }
       ],
@@ -23799,7 +23913,7 @@
         "url": "https://pompeiibrand.com/pages/contacto-1",
         "titulo": "Contacto &ndash; Pompeii",
         "fragmento": "viernes, de 9:00 a 18:00, a través del canal que te resulte más cómodo: Teléfono: 930 47 71 77 (horario de 9:00-14:00) Correo electrónico: contact@pompeiibrand.com Whatsapp: 917 569 102 También puedes consultar nuestras preguntas frecuentes aq",
-        "buzon": "existe: 250 2.1.5 OK 00721157ae682-8b33f64af41si33500817b3.213 - gsmtp"
+        "buzon": "existe: 250 2.1.5 OK 5614622812f47-567e7f76c92si5996038b6e.78 - gsmtp"
       },
       "contacto": "contact@pompeiibrand.com (https://pompeiibrand.com/pages/contacto-1)",
       "confianza": "media"
@@ -24666,6 +24780,10 @@
           "estado": 200
         },
         {
+          "url": "https://atento.com/es/trabaja-con-nosotros-peru",
+          "estado": 200
+        },
+        {
           "url": "https://atento.com/es/trabaja-con-nosotros/",
           "estado": 200
         },
@@ -24715,10 +24833,6 @@
         },
         {
           "url": "https://atento.com/en/work-with-us-spain",
-          "estado": 200
-        },
-        {
-          "url": "https://atento.com/en/work-with-us-puerto-rico",
           "estado": 200
         },
         {
@@ -24788,44 +24902,44 @@
           "motivo": "la página no tiene ningún formulario"
         },
         {
-          "url": "https://atento.com/es/contacto-para-ventas",
+          "url": "https://atento.com/es/contacto-para-medios",
           "valido": true,
           "motivo": "formulario con correo y mensaje o CV",
           "campos": [
             "Nombre",
             "Apellido",
             "Email",
-            "País",
             "Teléfono",
-            "Empresa",
+            "Medio",
             "Cargo",
-            "Página Web",
-            "¿Cuántos agentes necesitas?",
-            "¿Dónde nos has conocido? *",
-            "Industria *",
-            "Sub Industria"
+            "País",
+            "Otro país",
+            "Página web",
+            "Comentarios",
+            "He leído y acepto el tratamiento de mis datos de acuerdo con lo establecido en la Política de Privacidad .",
+            "form_fields[no_rellenar]"
           ]
         }
       ],
       "evidencia": {
-        "url": "https://atento.com/es/contacto-para-ventas",
-        "titulo": "Atento | Contacta Nuestro Equipo de Ventas",
+        "url": "https://atento.com/es/contacto-para-medios",
+        "titulo": "Atento | Contacto de Medios",
         "campos": [
           "Nombre",
           "Apellido",
           "Email",
-          "País",
           "Teléfono",
-          "Empresa",
+          "Medio",
           "Cargo",
-          "Página Web",
-          "¿Cuántos agentes necesitas?",
-          "¿Dónde nos has conocido? *",
-          "Industria *",
-          "Sub Industria"
+          "País",
+          "Otro país",
+          "Página web",
+          "Comentarios",
+          "He leído y acepto el tratamiento de mis datos de acuerdo con lo establecido en la Política de Privacidad .",
+          "form_fields[no_rellenar]"
         ]
       },
-      "contacto": "formulario: https://atento.com/es/contacto-para-ventas",
+      "contacto": "formulario: https://atento.com/es/contacto-para-medios",
       "confianza": "media"
     },
     {
@@ -25136,7 +25250,7 @@
         {
           "email": "info@antevenio.com",
           "resultado": "existe",
-          "respuesta": "250 2.1.5 OK 956f58d0204a3-67c13353a84si4102582d50.3 - gsmtp",
+          "respuesta": "250 2.1.5 OK 46e09a7af769-85f1deb0aa9si7490906a34.74 - gsmtp",
           "servidor": "ASPMX.L.GOOGLE.com"
         }
       ],
@@ -25163,7 +25277,7 @@
         "url": "https://www.antevenio.com/contacto/",
         "titulo": "Contáctanos - Solicita Más Información | Antevenio",
         "fragmento": "ses de Datos Portales Especializados Avatares Digitales Quiénes somos Blog Contacto ¿Buscas impulsar tus ventas con leads de calidad? Email info@antevenio.com Redes Sociales LinkedIn Facebook Contáctanos País* España México Argentina Colo",
-        "buzon": "existe: 250 2.1.5 OK 956f58d0204a3-67c13353a84si4102582d50.3 - gsmtp"
+        "buzon": "existe: 250 2.1.5 OK 46e09a7af769-85f1deb0aa9si7490906a34.74 - gsmtp"
       },
       "contacto": "info@antevenio.com (https://www.antevenio.com/contacto/)",
       "confianza": "media"
@@ -25210,7 +25324,7 @@
         {
           "email": "rrhh@neoattack.com",
           "resultado": "existe",
-          "respuesta": "250 2.1.5 OK 00721157ae682-8b33f51c5b0si34348827b3.54 - gsmtp",
+          "respuesta": "250 2.1.5 OK 46e09a7af769-85f1dd0bb70si7440099a34.39 - gsmtp",
           "servidor": "ASPMX.L.GOOGLE.com"
         }
       ],
@@ -25251,7 +25365,7 @@
         "url": "https://neoattack.com/buscamos-talento/",
         "titulo": "Trabaja con Nosotros | Empleo en NeoAttack",
         "fragmento": "(el correo está en un enlace mailto, no en el texto visible)",
-        "buzon": "existe: 250 2.1.5 OK 00721157ae682-8b33f51c5b0si34348827b3.54 - gsmtp"
+        "buzon": "existe: 250 2.1.5 OK 46e09a7af769-85f1dd0bb70si7440099a34.39 - gsmtp"
       },
       "contacto": "rrhh@neoattack.com (https://neoattack.com/buscamos-talento/)",
       "confianza": "alta"
@@ -25391,7 +25505,7 @@
         {
           "email": "info@nestrategia.com",
           "resultado": "existe",
-          "respuesta": "250 2.1.5 OK 956f58d0204a3-67c133535e9si4181841d50.23 - gsmtp",
+          "respuesta": "250 2.1.5 OK 586e51a60fabf-4ad97e89711si6971066fac.337 - gsmtp",
           "servidor": "ASPMX.L.GOOGLE.com"
         }
       ],
@@ -25415,7 +25529,7 @@
         "url": "https://nestrategia.com/contacto/",
         "titulo": "Contacto | Agencia de Marketing Digital en Madrid - Nestrategia",
         "fragmento": "Contacto | Agencia de Marketing Digital en Madrid - Nestrategia (+34) 633 849 012 info@nestrategia.com Quienes Somos Blog Reserva consultoría gratuita Inbound Marketing Consultoría M",
-        "buzon": "existe: 250 2.1.5 OK 956f58d0204a3-67c133535e9si4181841d50.23 - gsmtp"
+        "buzon": "existe: 250 2.1.5 OK 586e51a60fabf-4ad97e89711si6971066fac.337 - gsmtp"
       },
       "contacto": "info@nestrategia.com (https://nestrategia.com/contacto/)",
       "confianza": "media"
@@ -26202,7 +26316,7 @@
         },
         {
           "url": "https://www.mercamadrid.es/contacto/",
-          "estado": "tiempo agotado"
+          "estado": 200
         },
         {
           "url": "https://www.mercamadrid.es/mercamadrid10k/carrera/",
@@ -26244,6 +26358,11 @@
           "tipo": "rrhh"
         },
         {
+          "email": "comunicacion@mercamadrid.es",
+          "tipo": "general",
+          "motivoRechazo": "buzón no destinado a candidaturas"
+        },
+        {
           "email": "marathinez@marathinez.es",
           "tipo": "general",
           "motivoRechazo": "dominio distinto al de la web"
@@ -26264,24 +26383,15 @@
       ],
       "formulariosRevisados": [
         {
-          "url": "https://www.mercamadrid.es/mercamadrid10k/carrera/",
-          "valido": false,
-          "motivo": "la página no tiene ningún formulario"
-        },
-        {
-          "url": "https://www.mercamadrid.es/mercamadrid10k/carrera/premios/",
-          "valido": false,
-          "motivo": "la página no tiene ningún formulario"
-        },
-        {
-          "url": "https://www.mercamadrid.es/mercamadrid10k/carrera/recorrido/",
-          "valido": false,
-          "motivo": "la página no tiene ningún formulario"
-        },
-        {
-          "url": "https://www.mercamadrid.es/mercamadrid10k/carrera/reglamento/",
-          "valido": false,
-          "motivo": "la página no tiene ningún formulario"
+          "url": "https://www.mercamadrid.es/contacto/",
+          "valido": true,
+          "motivo": "formulario con correo y mensaje o CV",
+          "campos": [
+            "Nombre *",
+            "email *",
+            "Asunto *",
+            "Mensaje *"
+          ]
         }
       ],
       "evidencia": {
@@ -26467,14 +26577,6 @@
           "estado": 200
         },
         {
-          "url": "https://www.decimas.com/es-es/bolsa-futbol-adidas-hombre-adi7240004.html",
-          "estado": 200
-        },
-        {
-          "url": "https://www.decimas.com/es-es/bolsa-training-adidas-hombre-adi7230113.html",
-          "estado": 200
-        },
-        {
           "url": "https://www.decimas.com/es-es/faq/legal",
           "estado": 200
         },
@@ -26538,22 +26640,12 @@
       ],
       "formulariosRevisados": [
         {
-          "url": "https://www.decimas.com/es-es/bolsa-futbol-adidas-hombre-adi7240004.html",
-          "valido": false,
-          "motivo": "ningún formulario sirve (no tiene campo de mensaje ni para adjuntar el CV)"
-        },
-        {
-          "url": "https://www.decimas.com/es-es/bolsa-training-adidas-hombre-adi7230113.html",
-          "valido": false,
-          "motivo": "ningún formulario sirve (no tiene campo de mensaje ni para adjuntar el CV)"
-        },
-        {
           "url": "https://www.decimas.com/es-es/trabaja-con-nosotros",
           "valido": false,
           "motivo": "ningún formulario sirve (es el formulario de comentarios de una entrada del blog; no tiene campo de mensaje ni para adjuntar el CV)"
         }
       ],
-      "motivo": "Sin correo válido para candidaturas (atencionalcliente@decimas.es: dominio distinto al de la web; atencionalcliente@decimas.com: posible correo personal; sucorreo@ejemplo.com: dominio distinto al de la web) ni formulario real; formularios: https://www.decimas.com/es-es/bolsa-futbol-adidas-hombre-adi7240004.html → ningún formulario sirve (no tiene campo de mensaje ni para adjuntar el CV); https://www.decimas.com/es-es/bolsa-training-adidas-hombre-adi7230113.html → ningún formulario sirve (no tiene campo de mensaje ni para adjuntar el CV); https://www.decimas.com/es-es/trabaja-con-nosotros → ningún formulario sirve (es el formulario de comentarios de una entrada del blog; no tiene campo de mensaje ni para adjuntar el CV)"
+      "motivo": "Sin correo válido para candidaturas (atencionalcliente@decimas.es: dominio distinto al de la web; atencionalcliente@decimas.com: posible correo personal; sucorreo@ejemplo.com: dominio distinto al de la web) ni formulario real; formularios: https://www.decimas.com/es-es/trabaja-con-nosotros → ningún formulario sirve (es el formulario de comentarios de una entrada del blog; no tiene campo de mensaje ni para adjuntar el CV)"
     },
     {
       "id": "kiabi-espana",
@@ -27681,7 +27773,7 @@
         {
           "email": "info@flexicar.es",
           "resultado": "existe",
-          "respuesta": "250 2.1.5 OK 956f58d0204a3-67c1354a735si4175632d50.42 - gsmtp",
+          "respuesta": "250 2.1.5 OK 586e51a60fabf-4ad97df9373si6632633fac.266 - gsmtp",
           "servidor": "aspmx.l.google.com"
         }
       ],
@@ -27696,7 +27788,7 @@
         "url": "https://www.flexicar.es/contacto/",
         "titulo": "▷ Contacto Flexicar | Trabajamos para usted",
         "fragmento": "(el correo está en un enlace mailto, no en el texto visible)",
-        "buzon": "existe: 250 2.1.5 OK 956f58d0204a3-67c1354a735si4175632d50.42 - gsmtp"
+        "buzon": "existe: 250 2.1.5 OK 586e51a60fabf-4ad97df9373si6632633fac.266 - gsmtp"
       },
       "contacto": "info@flexicar.es (https://www.flexicar.es/contacto/)",
       "confianza": "media"
@@ -28184,7 +28276,7 @@
         {
           "email": "contacto@kelisto.es",
           "resultado": "existe",
-          "respuesta": "250 2.1.5 OK 956f58d0204a3-67c13545dd5si4138000d50.88 - gsmtp",
+          "respuesta": "250 2.1.5 OK 586e51a60fabf-4ad97e73eecsi6487962fac.323 - gsmtp",
           "servidor": "aspmx.l.google.com"
         }
       ],
@@ -28193,7 +28285,7 @@
         "url": "https://www.kelisto.es/contacto-2088",
         "titulo": "Kelisto | Contacto",
         "fragmento": "(el correo está en un enlace mailto, no en el texto visible)",
-        "buzon": "existe: 250 2.1.5 OK 956f58d0204a3-67c13545dd5si4138000d50.88 - gsmtp"
+        "buzon": "existe: 250 2.1.5 OK 586e51a60fabf-4ad97e73eecsi6487962fac.323 - gsmtp"
       },
       "contacto": "contacto@kelisto.es (https://www.kelisto.es/contacto-2088)",
       "confianza": "media"
@@ -28786,9 +28878,8 @@
       "buzones": [
         {
           "email": "jobs@srarushmore.com",
-          "resultado": "acepta-todo",
-          "respuesta": "250 2.1.5 Recipient ok",
-          "servidor": "mxa-00173601.gslb.pphosted.com"
+          "resultado": "indeterminado",
+          "respuesta": "sin respuesta del servidor de correo (554 Blocked - see https://ipcheck.proofpoint.com/?ip=20.98.158.84)"
         }
       ],
       "formulariosRevisados": [],
@@ -28796,7 +28887,7 @@
         "url": "https://srarushmore.com/es/contacto/",
         "titulo": "Contacto",
         "fragmento": "BALCÓN --> EL BALCÓN --> + ENCUENTRANOS EN + --> --> --> --> English Login --> + CONTACTO + NEW BUSINESS newbusiness@srarushmore.com + JOBS jobs@srarushmore.com + INFO info@srarushmore.com + ENCUENTRANOS EN + Gran Vía, 27 + 9 Dcha. + 28013",
-        "buzon": "acepta-todo: 250 2.1.5 Recipient ok"
+        "buzon": "indeterminado: sin respuesta del servidor de correo (554 Blocked - see https://ipcheck.proofpoint.com/?ip=20.98.158.84)"
       },
       "contacto": "jobs@srarushmore.com (https://srarushmore.com/es/contacto/)",
       "confianza": "media"
@@ -30337,9 +30428,8 @@
       "buzones": [
         {
           "email": "empleos@ipsos.com",
-          "resultado": "acepta-todo",
-          "respuesta": "250 2.1.5 Recipient ok",
-          "servidor": "mxb-00322403.gslb.pphosted.com"
+          "resultado": "indeterminado",
+          "respuesta": "sin respuesta del servidor de correo (554 Blocked - see https://ipcheck.proofpoint.com/?ip=20.98.158.84)"
         }
       ],
       "formulariosRevisados": [
@@ -30367,7 +30457,7 @@
         "url": "https://www.ipsos.com/es-es/contactanos",
         "titulo": "Contáctanos | Ipsos",
         "fragmento": "(el correo está en un enlace mailto, no en el texto visible)",
-        "buzon": "acepta-todo: 250 2.1.5 Recipient ok"
+        "buzon": "indeterminado: sin respuesta del servidor de correo (554 Blocked - see https://ipcheck.proofpoint.com/?ip=20.98.158.84)"
       },
       "contacto": "empleos@ipsos.com (https://www.ipsos.com/es-es/contactanos)",
       "confianza": "media"
@@ -30426,6 +30516,10 @@
         },
         {
           "url": "https://www.europapress.es/internacional/noticia-menos-dos-menores-mueren-accidente-autobus-francia-deja-otras-16-personas-heridas-20261106120706.html",
+          "estado": 200
+        },
+        {
+          "url": "https://www.europapress.es/economia/laboral-00346/noticia-ccoo-situa-juventud-trabajadora-principal-protagonista-huelga-general-20261107151742.html",
           "estado": 200
         },
         {
@@ -30517,7 +30611,7 @@
         {
           "email": "empleo@europapress.es",
           "resultado": "indeterminado",
-          "respuesta": "450 4.7.1 Client host rejected: cannot find your reverse hostname, [134.138.41.2]",
+          "respuesta": "450 4.7.1 Client host rejected: cannot find your reverse hostname, [20.98.158.84]",
           "servidor": "poster1i.iberlayer.com"
         }
       ],
@@ -30532,7 +30626,7 @@
         "url": "https://www.europapress.es/contacto/",
         "titulo": "Agencia Europa Press | Contacto",
         "fragmento": "cto Departamento Comercial comercial@europapress.es 91 359 26 00 Departamento Técnico sistemas@europapress.es 91 350 76 98 Recursos Humanos empleo@europapress.es 91 359 26 00 Europa Press Comunicación comunicacion@europapress.es 91 359 26 00",
-        "buzon": "indeterminado: 450 4.7.1 Client host rejected: cannot find your reverse hostname, [134.138.41.2]"
+        "buzon": "indeterminado: 450 4.7.1 Client host rejected: cannot find your reverse hostname, [20.98.158.84]"
       },
       "contacto": "empleo@europapress.es (https://www.europapress.es/contacto/)",
       "confianza": "media"
@@ -30557,7 +30651,7 @@
         },
         {
           "url": "https://efe.com/espana/2026-11-07/canarias-llegada-migrantes/",
-          "estado": 200
+          "estado": 429
         },
         {
           "url": "https://efe.com/aviso-legal/",
@@ -30585,7 +30679,7 @@
         },
         {
           "url": "https://efe.com/unete",
-          "estado": 404
+          "estado": 429
         },
         {
           "url": "https://efe.com/unete-al-equipo",
@@ -30652,6 +30746,10 @@
         },
         {
           "url": "https://www.20minutos.es/nacional/rocio-meer-vox-hay-13-millones-personas-riesgo-pobreza-bajo-un-gobierno-que-se-vanagloria-escudo-social_7057160_0.html",
+          "estado": 200
+        },
+        {
+          "url": "https://www.20minutos.es/lainformacion/economia-y-finanzas/consumo-abre-un-expediente-sancionador-una-empresa-autobuses-por-practicas-enganosas-precio-sus-billetes_7058316_0.html",
           "estado": 200
         },
         {
@@ -32607,6 +32705,10 @@
           "estado": 200
         },
         {
+          "url": "https://ackcent.com/join-ackcents-cybersecurity-awareness-month-to-keep-your-team-cybersecure/",
+          "estado": 200
+        },
+        {
           "url": "https://ackcent.com/careers/",
           "estado": 200
         },
@@ -32690,18 +32792,18 @@
           "motivo": "la página no tiene ningún formulario"
         },
         {
-          "url": "https://ackcent.com/careers/",
+          "url": "https://ackcent.com/join-ackcents-cybersecurity-awareness-month-to-keep-your-team-cybersecure/",
           "valido": false,
           "motivo": "la página no tiene ningún formulario"
         }
       ],
       "evidencia": {
-        "url": "https://ackcent.com/careers/",
-        "titulo": "Careers - Ackcent",
+        "url": "https://ackcent.com/join-ackcents-cybersecurity-awareness-month-to-keep-your-team-cybersecure/",
+        "titulo": "Join Ackcent's Cybersecurity Awareness Month to keep your team cybersecure - Ackcent",
         "fragmento": "(el correo está en un enlace mailto, no en el texto visible)",
         "buzon": "acepta-todo: 250 2.1.5 Recipient OK"
       },
-      "contacto": "info@ackcent.com (https://ackcent.com/careers/)",
+      "contacto": "info@ackcent.com (https://ackcent.com/join-ackcents-cybersecurity-awareness-month-to-keep-your-team-cybersecure/)",
       "confianza": "media"
     },
     {
@@ -33233,25 +33335,25 @@
         {
           "url": "https://www.vinoseleccion.com/seleccion-thyssen-2026",
           "valido": false,
-          "motivo": "ningún formulario sirve (es un buscador; no pide el correo electrónico)"
+          "motivo": "ningún formulario sirve (es un buscador; no pide el correo electrónico; no tiene campo de mensaje ni para adjuntar el CV)"
         },
         {
           "url": "https://www.vinoseleccion.com/seleccion-privada-mayo-2025",
           "valido": false,
-          "motivo": "ningún formulario sirve (es un buscador; no pide el correo electrónico)"
+          "motivo": "ningún formulario sirve (es un buscador; no pide el correo electrónico; no tiene campo de mensaje ni para adjuntar el CV)"
         },
         {
           "url": "https://www.vinoseleccion.com/seleccion-mensual-mayo-2026",
           "valido": false,
-          "motivo": "ningún formulario sirve (es un buscador; no pide el correo electrónico)"
+          "motivo": "ningún formulario sirve (es un buscador; no pide el correo electrónico; no tiene campo de mensaje ni para adjuntar el CV)"
         },
         {
           "url": "https://www.vinoseleccion.com/seleccion-blancos-mayo-2026",
           "valido": false,
-          "motivo": "ningún formulario sirve (es un buscador; no pide el correo electrónico)"
+          "motivo": "ningún formulario sirve (es un buscador; no pide el correo electrónico; no tiene campo de mensaje ni para adjuntar el CV)"
         }
       ],
-      "motivo": "Sin correo válido para candidaturas (sociosvs@vinoseleccion.com: posible correo personal; ejemplo@gmail.com: proveedor gratuito) ni formulario real; formularios: https://www.vinoseleccion.com/seleccion-thyssen-2026 → ningún formulario sirve (es un buscador; no pide el correo electrónico); https://www.vinoseleccion.com/seleccion-privada-mayo-2025 → ningún formulario sirve (es un buscador; no pide el correo electrónico); https://www.vinoseleccion.com/seleccion-mensual-mayo-2026 → ningún formulario sirve (es un buscador; no pide el correo electrónico); https://www.vinoseleccion.com/seleccion-blancos-mayo-2026 → ningún formulario sirve (es un buscador; no pide el correo electrónico)"
+      "motivo": "Sin correo válido para candidaturas (sociosvs@vinoseleccion.com: posible correo personal; ejemplo@gmail.com: proveedor gratuito) ni formulario real; formularios: https://www.vinoseleccion.com/seleccion-thyssen-2026 → ningún formulario sirve (es un buscador; no pide el correo electrónico; no tiene campo de mensaje ni para adjuntar el CV); https://www.vinoseleccion.com/seleccion-privada-mayo-2025 → ningún formulario sirve (es un buscador; no pide el correo electrónico; no tiene campo de mensaje ni para adjuntar el CV); https://www.vinoseleccion.com/seleccion-mensual-mayo-2026 → ningún formulario sirve (es un buscador; no pide el correo electrónico; no tiene campo de mensaje ni para adjuntar el CV); https://www.vinoseleccion.com/seleccion-blancos-mayo-2026 → ningún formulario sirve (es un buscador; no pide el correo electrónico; no tiene campo de mensaje ni para adjuntar el CV)"
     },
     {
       "id": "lavinia",
@@ -33472,37 +33574,42 @@
       "formulariosRevisados": [
         {
           "url": "https://www.calidadpascual.com/contacto/",
+          "valido": false,
+          "motivo": "rechazado en la revisión manual: formulario para establecimientos clientes"
+        },
+        {
+          "url": "https://www.calidadpascual.com/en/contact/",
           "valido": true,
           "motivo": "formulario con correo y mensaje o CV",
           "campos": [
-            "Nombre de establecimiento *",
+            "Name of establishment *",
             "Email *",
-            "Teléfono *",
-            "Código Postal *",
-            "Población *",
-            "Mensaje *",
-            "Introduce el código de la imagen",
+            "Phone *",
+            "Postcode *",
+            "City *",
+            "Write here *",
+            "Write the security code you can see in the previous image *",
             "comunicaciones",
             "privacidad"
           ]
         }
       ],
       "evidencia": {
-        "url": "https://www.calidadpascual.com/contacto/",
-        "titulo": "Contacto - Calidad Pascual",
+        "url": "https://www.calidadpascual.com/en/contact/",
+        "titulo": "Contact - Calidad Pascual",
         "campos": [
-          "Nombre de establecimiento *",
+          "Name of establishment *",
           "Email *",
-          "Teléfono *",
-          "Código Postal *",
-          "Población *",
-          "Mensaje *",
-          "Introduce el código de la imagen",
+          "Phone *",
+          "Postcode *",
+          "City *",
+          "Write here *",
+          "Write the security code you can see in the previous image *",
           "comunicaciones",
           "privacidad"
         ]
       },
-      "contacto": "formulario: https://www.calidadpascual.com/contacto/",
+      "contacto": "formulario: https://www.calidadpascual.com/en/contact/",
       "confianza": "media"
     },
     {
@@ -33835,6 +33942,11 @@
       "formulariosRevisados": [
         {
           "url": "https://www.ifema.es/en/sociocare/contact",
+          "valido": false,
+          "motivo": "rechazado en la revisión manual: contacto de una feria concreta para expositores"
+        },
+        {
+          "url": "https://www.ifema.es/en/exposager/contact",
           "valido": true,
           "motivo": "formulario con correo y mensaje o CV",
           "campos": [
@@ -33851,8 +33963,8 @@
         }
       ],
       "evidencia": {
-        "url": "https://www.ifema.es/en/sociocare/contact",
-        "titulo": "Contact | SOCIOCARE",
+        "url": "https://www.ifema.es/en/exposager/contact",
+        "titulo": "Contact | EXPOSAGER",
         "campos": [
           "Name *",
           "Surname *",
@@ -33865,7 +33977,7 @@
           "I have read and accept the Privacy policy *"
         ]
       },
-      "contacto": "formulario: https://www.ifema.es/en/sociocare/contact",
+      "contacto": "formulario: https://www.ifema.es/en/exposager/contact",
       "confianza": "media"
     },
     {
@@ -33956,7 +34068,7 @@
         {
           "email": "info@makingscience.com",
           "resultado": "acepta-todo",
-          "respuesta": "250 2.1.5 OK 00721157ae682-8b33f3487fcsi33820907b3.20 - gsmtp",
+          "respuesta": "250 2.1.5 OK 586e51a60fabf-4ad97dcbb39si6520491fac.234 - gsmtp",
           "servidor": "aspmx.l.google.com"
         }
       ],
@@ -33991,7 +34103,7 @@
         "url": "https://www.makingscience.com/careers/",
         "titulo": "Careers - Making Science",
         "fragmento": "re than 800 employees with a direct presence and technological development in 18 markets, and in another 10 through partnerships. Locations info@makingscience.com Linkedin Youtube Instagram Agentic AI Platform Capabilities Contact Agentic AI",
-        "buzon": "acepta-todo: 250 2.1.5 OK 00721157ae682-8b33f3487fcsi33820907b3.20 - gsmtp"
+        "buzon": "acepta-todo: 250 2.1.5 OK 586e51a60fabf-4ad97dcbb39si6520491fac.234 - gsmtp"
       },
       "contacto": "info@makingscience.com (https://www.makingscience.com/careers/)",
       "confianza": "media"
@@ -34328,7 +34440,7 @@
         {
           "email": "talento@darwinverne.com",
           "resultado": "acepta-todo",
-          "respuesta": "250 2.1.5 OK 00721157ae682-8b33f55cb11si33688727b3.102 - gsmtp",
+          "respuesta": "250 2.1.5 OK 5614622812f47-567e799e6c3si6083944b6e.18 - gsmtp",
           "servidor": "aspmx.l.google.com"
         }
       ],
@@ -34533,7 +34645,7 @@
         {
           "email": "info@grantipo.com",
           "resultado": "indeterminado",
-          "respuesta": "sin respuesta del servidor de correo (554-kundenserver.de (mxeue103) Nemesis ESMTP Service not available 554-No SMTP service 554-Invalid DNS PTR resource record 554 For explanation visit https://postmaster.1und1.de/en/case?c=r0602&i=ip&v=134.138.41.2&r=1N7PMB-1wR62y3WyD-010EBV)"
+          "respuesta": "sin respuesta del servidor de correo (554-kundenserver.de (mxeue003) Nemesis ESMTP Service not available 554-No SMTP service 554-Invalid DNS PTR resource record 554 For explanation visit https://postmaster.1und1.de/en/case?c=r0602&i=ip&v=20.98.158.84&r=1MQwXX-1xAcnO2MfX-00WoG4)"
         }
       ],
       "formulariosRevisados": [
@@ -34627,7 +34739,7 @@
         {
           "email": "gestion@ideametrics.es",
           "resultado": "indeterminado",
-          "respuesta": "sin respuesta del servidor de correo (554-kundenserver.de (mxeue002) Nemesis ESMTP Service not available 554-No SMTP service 554-Invalid DNS PTR resource record 554 For explanation visit https://postmaster.1und1.de/en/case?c=r0602&i=ip&v=134.138.41.2&r=1MxoaM-1wZecZ0vCI-0183hQ)"
+          "respuesta": "sin respuesta del servidor de correo (554-kundenserver.de (mxeue003) Nemesis ESMTP Service not available 554-No SMTP service 554-Invalid DNS PTR resource record 554 For explanation visit https://postmaster.1und1.de/en/case?c=r0602&i=ip&v=20.98.158.84&r=1N0paX-1wc6zK04FZ-015bjF)"
         }
       ],
       "formulariosRevisados": [
@@ -34724,7 +34836,7 @@
         {
           "email": "info@iotlike.es",
           "resultado": "indeterminado",
-          "respuesta": "sin respuesta del servidor de correo (554-kundenserver.de (mxeue103) Nemesis ESMTP Service not available 554-No SMTP service 554-Invalid DNS PTR resource record 554 For explanation visit https://postmaster.1und1.de/en/case?c=r0602&i=ip&v=134.138.41.2&r=1N2TP7-1wM7xn36C7-01460Q)"
+          "respuesta": "sin respuesta del servidor de correo (554-kundenserver.de (mxeue001) Nemesis ESMTP Service not available 554-No SMTP service 554-Invalid DNS PTR resource record 554 For explanation visit https://postmaster.1und1.de/en/case?c=r0602&i=ip&v=20.98.158.84&r=1Mlcjy-1whFv749J4-00qhOU)"
         }
       ],
       "formulariosRevisados": [
@@ -35013,38 +35125,43 @@
         {
           "email": "info@skinai.tech",
           "resultado": "acepta-todo",
-          "respuesta": "250 2.1.5 OK 956f58d0204a3-67c136d10c5si4040187d50.316 - gsmtp",
+          "respuesta": "250 2.1.5 OK 46e09a7af769-85f1def2ae6si7431755a34.93 - gsmtp",
           "servidor": "aspmx.l.google.com"
         }
       ],
       "formulariosRevisados": [
         {
           "url": "https://skinai.tech/contact",
+          "valido": false,
+          "motivo": "rechazado en la revisión manual: solicitud de demostración del producto"
+        },
+        {
+          "url": "https://skinai.tech/en/contact",
           "valido": true,
           "motivo": "formulario con correo y mensaje o CV",
           "campos": [
             "_honey",
-            "Nombre *",
+            "Name *",
             "Email *",
-            "Organización",
-            "Interés",
-            "Mensaje *"
+            "Organization",
+            "Interest",
+            "Message *"
           ]
         }
       ],
       "evidencia": {
-        "url": "https://skinai.tech/contact",
-        "titulo": "Solicitar Demo · Contacto · SkinAI",
+        "url": "https://skinai.tech/en/contact",
+        "titulo": "Request a Demo · Contact · SkinAI",
         "campos": [
           "_honey",
-          "Nombre *",
+          "Name *",
           "Email *",
-          "Organización",
-          "Interés",
-          "Mensaje *"
+          "Organization",
+          "Interest",
+          "Message *"
         ]
       },
-      "contacto": "formulario: https://skinai.tech/contact",
+      "contacto": "formulario: https://skinai.tech/en/contact",
       "confianza": "media"
     },
     {
@@ -35233,7 +35350,7 @@
         {
           "email": "hola@reservacoyote.com",
           "resultado": "existe",
-          "respuesta": "250 2.1.5 OK 956f58d0204a3-67c136515d5si4118972d50.206 - gsmtp",
+          "respuesta": "250 2.1.5 OK 586e51a60fabf-4ad97a3f727si7016089fac.136 - gsmtp",
           "servidor": "aspmx.l.google.com"
         }
       ],
@@ -35262,7 +35379,7 @@
         "url": "https://reservacoyote.com/contact",
         "titulo": "COYOTE",
         "fragmento": "y única que conocemos. MENÚ PRINCIPAL RESERVA COYOTE proyectos Nosotros contacto CONTÁCTANOS Calle del camino de los Vinateros, 106, Madrid hola@reservacoyote.com Política de cookies | Política de privacidad BIENVENIDO A LA RESERVA WE ARE COY",
-        "buzon": "existe: 250 2.1.5 OK 956f58d0204a3-67c136515d5si4118972d50.206 - gsmtp"
+        "buzon": "existe: 250 2.1.5 OK 586e51a60fabf-4ad97a3f727si7016089fac.136 - gsmtp"
       },
       "contacto": "hola@reservacoyote.com (https://reservacoyote.com/contact)",
       "confianza": "media"
@@ -35546,7 +35663,7 @@
         {
           "email": "contacto@komorebi.ai",
           "resultado": "acepta-todo",
-          "respuesta": "250 2.1.5 OK 956f58d0204a3-67c1354a706si4161862d50.83 - gsmtp",
+          "respuesta": "250 2.1.5 OK 586e51a60fabf-4ad97dcb892si6930931fac.230 - gsmtp",
           "servidor": "aspmx.l.google.com"
         }
       ],
@@ -35659,7 +35776,7 @@
         {
           "email": "hola@pangostudio.com",
           "resultado": "acepta-todo",
-          "respuesta": "250 2.1.5 OK 956f58d0204a3-67c1354a6fasi4158473d50.54 - gsmtp",
+          "respuesta": "250 2.1.5 OK 5614622812f47-567eb6dcaacsi5556734b6e.42 - gsmtp",
           "servidor": "aspmx.l.google.com"
         }
       ],
@@ -35900,7 +36017,7 @@
         {
           "email": "info@andrea-lab.com",
           "resultado": "acepta-todo",
-          "respuesta": "250 2.1.5 OK 956f58d0204a3-67c13698272si4125322d50.268 - gsmtp",
+          "respuesta": "250 2.1.5 OK 46e09a7af769-85f1df5a822si7414408a34.114 - gsmtp",
           "servidor": "smtp.google.com"
         }
       ],
@@ -36176,7 +36293,7 @@
         {
           "email": "empleo@secur0.com",
           "resultado": "acepta-todo",
-          "respuesta": "250 2.1.5 OK 956f58d0204a3-67c1335313csi4158324d50.20 - gsmtp",
+          "respuesta": "250 2.1.5 OK 5614622812f47-567f7f052dfsi3823945b6e.108 - gsmtp",
           "servidor": "aspmx.l.google.com"
         }
       ],
@@ -36209,7 +36326,7 @@
         "url": "https://secur0.com/es/jobs",
         "titulo": "Roles en Secur0",
         "fragmento": "e marcador, para que solo cuente el pb-6 de aquí y luego el pt del footer. --> Ahora mismo no tenemos posiciones abiertas Pero escríbenos a empleo@secur0.com si quieres trabajar con nosotros. Ver más Casos de éxito CocoAI ZeroNet Servici",
-        "buzon": "acepta-todo: 250 2.1.5 OK 956f58d0204a3-67c1335313csi4158324d50.20 - gsmtp"
+        "buzon": "acepta-todo: 250 2.1.5 OK 5614622812f47-567f7f052dfsi3823945b6e.108 - gsmtp"
       },
       "contacto": "empleo@secur0.com (https://secur0.com/es/jobs)",
       "confianza": "media"
@@ -36379,7 +36496,7 @@
         {
           "email": "hello@dedomena.ai",
           "resultado": "existe",
-          "respuesta": "250 2.1.5 OK 956f58d0204a3-67c1354a789si4071956d50.74 - gsmtp",
+          "respuesta": "250 2.1.5 OK 46e09a7af769-85f1de4e0b1si7859059a34.52 - gsmtp",
           "servidor": "aspmx.l.google.com"
         }
       ],
@@ -36403,7 +36520,7 @@
         "url": "https://dedomena.ai/es/contact",
         "titulo": "Solicita una demo | Dedomena AI | Dedomena AI",
         "fragmento": "s de IA seguras, explicables y gobernadas. En la demo podrás conocer nuestra plataforma y explorar cómo aplicarla a tus casos de uso. Email hello@dedomena.ai Oficina C. del Camino de los Vinateros, 106, Moratalaz, 28030 Madrid, Spain Con",
-        "buzon": "existe: 250 2.1.5 OK 956f58d0204a3-67c1354a789si4071956d50.74 - gsmtp"
+        "buzon": "existe: 250 2.1.5 OK 46e09a7af769-85f1de4e0b1si7859059a34.52 - gsmtp"
       },
       "contacto": "hello@dedomena.ai (https://dedomena.ai/es/contact)",
       "confianza": "media"
@@ -36725,7 +36842,7 @@
       "id": "cosacor",
       "nombre": "Cosacor",
       "web": "https://cosacor.com",
-      "estado": "valida",
+      "estado": "descartada",
       "paginasRevisadas": [
         {
           "url": "https://cosacor.com",
@@ -36782,40 +36899,11 @@
       "formulariosRevisados": [
         {
           "url": "https://cosacor.com/contacto.html",
-          "valido": true,
-          "motivo": "formulario con correo y mensaje o CV",
-          "campos": [
-            "website",
-            "Empresa *",
-            "Nombre *",
-            "Email *",
-            "Teléfono",
-            "Producto a envasar *",
-            "Peso por saco aproximado",
-            "Envase utilizado actualmente",
-            "Cuéntanos cualquier detalle adicional",
-            "privacy_read"
-          ]
+          "valido": false,
+          "motivo": "rechazado en la revisión manual: solicitud de presupuesto de envases"
         }
       ],
-      "evidencia": {
-        "url": "https://cosacor.com/contacto.html",
-        "titulo": "Contacto | Sacos de papel industriales | COSACOR",
-        "campos": [
-          "website",
-          "Empresa *",
-          "Nombre *",
-          "Email *",
-          "Teléfono",
-          "Producto a envasar *",
-          "Peso por saco aproximado",
-          "Envase utilizado actualmente",
-          "Cuéntanos cualquier detalle adicional",
-          "privacy_read"
-        ]
-      },
-      "contacto": "formulario: https://cosacor.com/contacto.html",
-      "confianza": "media"
+      "motivo": "Sin correo válido para candidaturas (info@cosacor.es: dominio distinto al de la web) ni formulario real; formularios: https://cosacor.com/contacto.html → rechazado en la revisión manual: solicitud de presupuesto de envases"
     },
     {
       "id": "gh-casas",
@@ -36883,8 +36971,8 @@
       "buzones": [
         {
           "email": "empleo@ghcasas.es",
-          "resultado": "existe",
-          "respuesta": "250 2.1.5 Ok",
+          "resultado": "indeterminado",
+          "respuesta": "451 4.7.1 Greylisting in action, please come back later",
           "servidor": "mx01.dondominio.com"
         }
       ],
@@ -36908,10 +36996,18 @@
       "evidencia": {
         "url": "https://www.ghcasas.es/trabaja-con-nosotros/",
         "titulo": "Pisos en venta / Inmobiliaria Gh Casas",
-        "fragmento": "plan remunerado escalado acorde a tu dedicaci&oacute;n y esfuerzo. T&uacute; marcas tus objetivos. No lo dudes y envianos tu curriculum a: empleo@ghcasas.es o rellena nuestro formulario Te estamos esperando!! Introduce tus datos Nombre",
-        "buzon": "existe: 250 2.1.5 Ok"
+        "campos": [
+          "Nombre",
+          "Apellidos",
+          "E-mail",
+          "Teléfono",
+          "Ciudad",
+          "Dirección",
+          "CV",
+          "Tus Comentarios"
+        ]
       },
-      "contacto": "empleo@ghcasas.es (https://www.ghcasas.es/trabaja-con-nosotros/)",
+      "contacto": "formulario: https://www.ghcasas.es/trabaja-con-nosotros/",
       "confianza": "alta"
     },
     {
@@ -37157,6 +37253,14 @@
           "estado": 200
         },
         {
+          "url": "https://www.inprosec.com/trabaja-con-nosotros-nueva-beca-de-formacion/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.inprosec.com/trabaja-con-nosotros-desarrolla-tu-carrera-en-sap/",
+          "estado": 200
+        },
+        {
           "url": "https://talent.inprosec.com/jobs",
           "estado": 200
         },
@@ -37177,19 +37281,67 @@
           "estado": 200
         },
         {
-          "url": "https://www.inprosec.com/en/job-offer-corporate-support-manager/",
-          "estado": 200
-        },
-        {
-          "url": "https://www.inprosec.com/en/job-offer-project-management-manager/",
-          "estado": 200
-        },
-        {
           "url": "https://www.inprosec.com/equipo-inprosec/",
           "estado": 200
         },
         {
           "url": "https://www.inprosec.com/aviso-legal/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.inprosec.com/trabaja-con-nosotros",
+          "estado": 200
+        },
+        {
+          "url": "https://www.inprosec.com/trabaja-con-nosotros/",
+          "estado": 200
+        },
+        {
+          "url": "https://www.inprosec.com/empleo",
+          "estado": 404
+        },
+        {
+          "url": "https://www.inprosec.com/talento",
+          "estado": 404
+        },
+        {
+          "url": "https://www.inprosec.com/careers",
+          "estado": 404
+        },
+        {
+          "url": "https://www.inprosec.com/unete",
+          "estado": 404
+        },
+        {
+          "url": "https://www.inprosec.com/unete-al-equipo",
+          "estado": 404
+        },
+        {
+          "url": "https://www.inprosec.com/rrhh",
+          "estado": 404
+        },
+        {
+          "url": "https://www.inprosec.com/en/trabaja-con-nosotros-desarrolla-tu-carrera-en-sap/",
+          "estado": 200
+        },
+        {
+          "url": "https://talent.inprosec.com/jobs/beca-departamento-soporte-53a8e021-f69e-41ae-bc92-2e19503528cd",
+          "estado": 200
+        },
+        {
+          "url": "https://talent.inprosec.com/jobs/software-developer-desarrollador-a-ecac2162-a977-44fc-ad02-677bc6dacb4a",
+          "estado": 200
+        },
+        {
+          "url": "https://talent.inprosec.com/jobs/beca-comercial-b2b-y-desarrollo-de-negocio-700ccd89-65c2-4625-8b9f-da33a2a2d52a",
+          "estado": 200
+        },
+        {
+          "url": "https://talent.inprosec.com/jobs/no-esta-tu-oferta-crea-tu-propio-camino",
+          "estado": 200
+        },
+        {
+          "url": "https://talent.inprosec.com/jobs/project-manager-pm-c6eb93e7-cfda-4cc2-8fb9-703cde66df42",
           "estado": 200
         },
         {
@@ -37634,7 +37786,7 @@
         {
           "email": "jobs@platonicgames.com",
           "resultado": "acepta-todo",
-          "respuesta": "250 2.1.5 OK 956f58d0204a3-67c135db277si4149465d50.129 - gsmtp",
+          "respuesta": "250 2.1.5 OK 5614622812f47-5680205d075si1598830b6e.127 - gsmtp",
           "servidor": "ASPMX.L.GOOGLE.com"
         }
       ],
@@ -37649,7 +37801,7 @@
         "url": "https://www.platonicgames.com/jobs",
         "titulo": "Jobs",
         "fragmento": "(el correo está en un enlace mailto, no en el texto visible)",
-        "buzon": "acepta-todo: 250 2.1.5 OK 956f58d0204a3-67c135db277si4149465d50.129 - gsmtp"
+        "buzon": "acepta-todo: 250 2.1.5 OK 5614622812f47-5680205d075si1598830b6e.127 - gsmtp"
       },
       "contacto": "jobs@platonicgames.com (https://www.platonicgames.com/jobs)",
       "confianza": "media"
@@ -37821,10 +37973,6 @@
           "estado": 200
         },
         {
-          "url": "https://sepiia.com/en/pages/trabaja-con-nosotro-sepiia-careers",
-          "estado": 200
-        },
-        {
           "url": "https://sepiia.com/pages/contacto",
           "estado": 200
         },
@@ -37875,22 +38023,6 @@
         {
           "url": "https://sepiia.com/rrhh",
           "estado": 404
-        },
-        {
-          "url": "https://sepiia.com/en/pages/contacto?chat",
-          "estado": 200
-        },
-        {
-          "url": "https://sepiia.com/en/pages/reviews",
-          "estado": 200
-        },
-        {
-          "url": "https://sepiia.com/en/pages/bases-legales-sorteos",
-          "estado": 200
-        },
-        {
-          "url": "https://sepiia.com/en/pages/aviso-legal",
-          "estado": 200
         }
       ],
       "correosEncontrados": [
@@ -37930,14 +38062,9 @@
           "url": "https://sepiia.com/pages/contacto?chat",
           "valido": false,
           "motivo": "ningún formulario sirve (no pide el correo electrónico; es un buscador; es un formulario de atención al cliente o de pedidos; no tiene campo de mensaje ni para adjuntar el CV)"
-        },
-        {
-          "url": "https://sepiia.com/en/pages/contacto?chat",
-          "valido": false,
-          "motivo": "ningún formulario sirve (no pide el correo electrónico; es un buscador; es un formulario de atención al cliente o de pedidos; no tiene campo de mensaje ni para adjuntar el CV)"
         }
       ],
-      "motivo": "Sin correo válido para candidaturas (clientes@sepiia.com: buzón no destinado a candidaturas; b2b@sepiia.com: posible correo personal; teresa@sepiia.com: posible correo personal; mireia.gil@sepiia.com: posible correo personal) ni formulario real; formularios: https://sepiia.com/pages/contacto → ningún formulario sirve (no pide el correo electrónico; es un buscador; es un formulario de atención al cliente o de pedidos; no tiene campo de mensaje ni para adjuntar el CV); https://sepiia.com/en/pages/contacto → ningún formulario sirve (no pide el correo electrónico; es un buscador; es un formulario de atención al cliente o de pedidos; no tiene campo de mensaje ni para adjuntar el CV); https://sepiia.com/pages/contacto?chat → ningún formulario sirve (no pide el correo electrónico; es un buscador; es un formulario de atención al cliente o de pedidos; no tiene campo de mensaje ni para adjuntar el CV); https://sepiia.com/en/pages/contacto?chat → ningún formulario sirve (no pide el correo electrónico; es un buscador; es un formulario de atención al cliente o de pedidos; no tiene campo de mensaje ni para adjuntar el CV)"
+      "motivo": "Sin correo válido para candidaturas (clientes@sepiia.com: buzón no destinado a candidaturas; b2b@sepiia.com: posible correo personal; teresa@sepiia.com: posible correo personal; mireia.gil@sepiia.com: posible correo personal) ni formulario real; formularios: https://sepiia.com/pages/contacto → ningún formulario sirve (no pide el correo electrónico; es un buscador; es un formulario de atención al cliente o de pedidos; no tiene campo de mensaje ni para adjuntar el CV); https://sepiia.com/en/pages/contacto → ningún formulario sirve (no pide el correo electrónico; es un buscador; es un formulario de atención al cliente o de pedidos; no tiene campo de mensaje ni para adjuntar el CV); https://sepiia.com/pages/contacto?chat → ningún formulario sirve (no pide el correo electrónico; es un buscador; es un formulario de atención al cliente o de pedidos; no tiene campo de mensaje ni para adjuntar el CV)"
     },
     {
       "id": "viajes-catai",
@@ -39501,115 +39628,39 @@
       "id": "ac2sc",
       "nombre": "Ac2 Systems Consultancy",
       "web": "https://ac2sc.es",
-      "estado": "valida",
+      "estado": "descartada",
       "paginasRevisadas": [
         {
           "url": "https://ac2sc.es",
-          "estado": 200
+          "estado": "UND_ERR_CONNECT_TIMEOUT"
         },
         {
-          "url": "https://ac2sc.es/trabaja-con-nosotros",
-          "estado": 200
+          "url": "https://www.ac2sc.es/",
+          "estado": "UND_ERR_CONNECT_TIMEOUT"
         },
         {
-          "url": "https://ac2sc.es/contacto",
-          "estado": 200
+          "url": "https://empleo.ac2sc.es/",
+          "estado": "ENOTFOUND"
         },
         {
-          "url": "https://ac2sc.es/trabaja-con-nosotros/",
-          "estado": 404
+          "url": "https://trabajaconnosotros.ac2sc.es/",
+          "estado": "ENOTFOUND"
         },
         {
-          "url": "https://ac2sc.es/empleo",
-          "estado": 404
+          "url": "https://careers.ac2sc.es/",
+          "estado": "ENOTFOUND"
         },
         {
-          "url": "https://ac2sc.es/talento",
-          "estado": 404
+          "url": "https://jobs.ac2sc.es/",
+          "estado": "ENOTFOUND"
         },
         {
-          "url": "https://ac2sc.es/careers",
-          "estado": 404
-        },
-        {
-          "url": "https://ac2sc.es/unete",
-          "estado": 404
-        },
-        {
-          "url": "https://ac2sc.es/unete-al-equipo",
-          "estado": 404
-        },
-        {
-          "url": "https://ac2sc.es/rrhh",
-          "estado": 404
-        },
-        {
-          "url": "https://ac2sc.es/recursos-humanos",
-          "estado": 404
-        },
-        {
-          "url": "https://ac2sc.es/condiciones-de-la-lopd",
-          "estado": 200
+          "url": "https://talento.ac2sc.es/",
+          "estado": "ENOTFOUND"
         }
       ],
-      "correosEncontrados": [
-        {
-          "email": "info@ac2sc.es",
-          "tipo": "general"
-        }
-      ],
-      "buzones": [
-        {
-          "email": "info@ac2sc.es",
-          "resultado": "existe",
-          "respuesta": "250 2.1.5 Recipient OK",
-          "servidor": "ac2sc-es.mail.protection.outlook.com"
-        }
-      ],
-      "formulariosRevisados": [
-        {
-          "url": "https://ac2sc.es/contacto",
-          "valido": true,
-          "motivo": "formulario con correo y mensaje o CV",
-          "campos": [
-            "Nombre",
-            "Email",
-            "Mensaje",
-            "AceptoTerminos",
-            "movil",
-            "g-recaptcha-response"
-          ]
-        },
-        {
-          "url": "https://ac2sc.es/trabaja-con-nosotros",
-          "valido": true,
-          "motivo": "formulario con correo y mensaje o CV",
-          "campos": [
-            "Nombre",
-            "Email",
-            "Mensaje",
-            "MailAttachmentFile",
-            "AceptoTerminos",
-            "movil",
-            "g-recaptcha-response"
-          ]
-        }
-      ],
-      "evidencia": {
-        "url": "https://ac2sc.es/trabaja-con-nosotros",
-        "titulo": "Trabaja con nosotros",
-        "campos": [
-          "Nombre",
-          "Email",
-          "Mensaje",
-          "MailAttachmentFile",
-          "AceptoTerminos",
-          "movil",
-          "g-recaptcha-response"
-        ]
-      },
-      "contacto": "formulario: https://ac2sc.es/trabaja-con-nosotros",
-      "confianza": "alta"
+      "correosEncontrados": [],
+      "motivo": "La web no responde (UND_ERR_CONNECT_TIMEOUT)"
     },
     {
       "id": "datatrends",
@@ -39672,7 +39723,7 @@
         {
           "email": "contacto@datatrends.es",
           "resultado": "existe",
-          "respuesta": "250 2.1.5 OK 956f58d0204a3-67c1363c8edsi4164284d50.182 - gsmtp",
+          "respuesta": "250 2.1.5 OK 586e51a60fabf-4ad97e35be2si6505758fac.305 - gsmtp",
           "servidor": "aspmx.l.google.com"
         }
       ],
@@ -39697,7 +39748,7 @@
         "url": "https://www.datatrends.es/unete-a-nosotros/",
         "titulo": "Únete a nosotros - DATATRENDS - Technology consulting",
         "fragmento": "s Legal Condiciones de uso Accesibilidad Cookies Privacidad Head Office C/ Gamonal 20, 4ºE 28031 – Madrid Spain Contacto T. +34 915 937 277 contacto@datatrends.es Linkedin Twitter Facebook «Financiado por la Unión Europea – Next Generation EU",
-        "buzon": "existe: 250 2.1.5 OK 956f58d0204a3-67c1363c8edsi4164284d50.182 - gsmtp"
+        "buzon": "existe: 250 2.1.5 OK 586e51a60fabf-4ad97e35be2si6505758fac.305 - gsmtp"
       },
       "contacto": "contacto@datatrends.es (https://www.datatrends.es/unete-a-nosotros/)",
       "confianza": "alta"
@@ -40369,7 +40420,7 @@
       "paginasRevisadas": [
         {
           "url": "https://www.dialevo.com",
-          "estado": 525
+          "estado": 521
         },
         {
           "url": "https://dialevo.com/",
@@ -40397,7 +40448,7 @@
         }
       ],
       "correosEncontrados": [],
-      "motivo": "La web no responde (525)"
+      "motivo": "La web no responde (521)"
     },
     {
       "id": "inmersive",
@@ -40534,7 +40585,7 @@
         {
           "email": "talento@nextdigital.es",
           "resultado": "existe",
-          "respuesta": "250 2.1.5 OK 00721157ae682-8b33f6495f7si33850507b3.209 - gsmtp",
+          "respuesta": "250 2.1.5 OK 586e51a60fabf-4ad973e31d6si6694611fac.15 - gsmtp",
           "servidor": "ASPMX.L.GOOGLE.COM"
         }
       ],
@@ -40556,7 +40607,7 @@
         "url": "https://www.nextdigital.es/en/talent/",
         "titulo": "Talent - Next Digital",
         "fragmento": "e Submit your resume If you think you can add value to our team, check out the available job openings on LinkedIn or send us your resume at talento@nextdigital.es We look forward to meeting you! Together, we build We are Next P.º de La Habana",
-        "buzon": "existe: 250 2.1.5 OK 00721157ae682-8b33f6495f7si33850507b3.209 - gsmtp"
+        "buzon": "existe: 250 2.1.5 OK 586e51a60fabf-4ad973e31d6si6694611fac.15 - gsmtp"
       },
       "contacto": "talento@nextdigital.es (https://www.nextdigital.es/en/talent/)",
       "confianza": "alta"
@@ -40701,7 +40752,7 @@
         },
         {
           "url": "https://talento.codetofit.com/",
-          "estado": "EAI_AGAIN"
+          "estado": "UND_ERR_CONNECT_TIMEOUT"
         }
       ],
       "correosEncontrados": [],
@@ -41114,7 +41165,7 @@
         {
           "email": "hola@uniendonodos.com",
           "resultado": "existe",
-          "respuesta": "250 2.1.5 OK 956f58d0204a3-67c13614770si4056124d50.158 - gsmtp",
+          "respuesta": "250 2.1.5 OK 5614622812f47-567e7ebfa83si6084013b6e.60 - gsmtp",
           "servidor": "aspmx.l.google.com"
         }
       ],
@@ -41143,7 +41194,7 @@
         "url": "https://www.uniendonodos.com/contacta",
         "titulo": "Solicita información - Uniendo nodos",
         "fragmento": "ón Calle de Paseo de las Delicias, 30 Arganzuela, 28045 Madrid Contacto LLámanos al número 919 99 51 84 Correo electrónico Contacto directo hola@uniendonodos.com Dedicados a ayudarte a tener éxito con Smartsheet hola@uniendonodos.com Formaci",
-        "buzon": "existe: 250 2.1.5 OK 956f58d0204a3-67c13614770si4056124d50.158 - gsmtp"
+        "buzon": "existe: 250 2.1.5 OK 5614622812f47-567e7ebfa83si6084013b6e.60 - gsmtp"
       },
       "contacto": "hola@uniendonodos.com (https://www.uniendonodos.com/contacta)",
       "confianza": "media"
@@ -41706,7 +41757,7 @@
         {
           "email": "info@xtrategy.digital",
           "resultado": "acepta-todo",
-          "respuesta": "250 2.1.5 OK 00721157ae682-8b33f563971si33772967b3.96 - gsmtp",
+          "respuesta": "250 2.1.5 OK 586e51a60fabf-4ad973f0027si6450578fac.22 - gsmtp",
           "servidor": "aspmx.l.google.com"
         }
       ],
@@ -41892,7 +41943,7 @@
         {
           "email": "hola@clicategia.es",
           "resultado": "acepta-todo",
-          "respuesta": "250 2.1.5 OK 00721157ae682-8b33f51a966si34535557b3.51 - gsmtp",
+          "respuesta": "250 2.1.5 OK 006d021491bc7-716e9f9a1d6si6026611eaf.4 - gsmtp",
           "servidor": "aspmx.l.google.com"
         }
       ],
@@ -42224,7 +42275,7 @@
         {
           "email": "info@socialnius.com",
           "resultado": "existe",
-          "respuesta": "250 2.1.5 OK 00721157ae682-8b33f6682fbsi33495027b3.223 - gsmtp",
+          "respuesta": "250 2.1.5 OK 006d021491bc7-716ea429135si6184400eaf.81 - gsmtp",
           "servidor": "aspmx.l.google.com"
         }
       ],
@@ -42249,7 +42300,7 @@
         "url": "https://socialnius.com/contacto/",
         "titulo": "Contacto - Social Nius",
         "fragmento": "Contacto Contacto PONTE EN CONTACTO CON NOSOTROS Calle Vandergoten, 1 28014, Madrid Teléfono +34 910 22 43 67 Móvil +34 653 32 40 73 Mail: info@socialnius.com Dirección LOOM Tapices: Calle Vandergoten, 1, 28014, Madrid info@socialnius.com",
-        "buzon": "existe: 250 2.1.5 OK 00721157ae682-8b33f6682fbsi33495027b3.223 - gsmtp"
+        "buzon": "existe: 250 2.1.5 OK 006d021491bc7-716ea429135si6184400eaf.81 - gsmtp"
       },
       "contacto": "info@socialnius.com (https://socialnius.com/contacto/)",
       "confianza": "media"
@@ -43091,128 +43142,39 @@
       "id": "enchufauto",
       "nombre": "Enchufauto",
       "web": "https://www.enchufauto.es",
-      "estado": "valida",
+      "estado": "descartada",
       "paginasRevisadas": [
         {
           "url": "https://www.enchufauto.es",
-          "estado": 200
+          "estado": "UND_ERR_CONNECT_TIMEOUT"
         },
         {
-          "url": "https://www.enchufauto.es/trabaja-con-nosotros.php?lang=es",
-          "estado": 200
+          "url": "https://enchufauto.es/",
+          "estado": "UND_ERR_CONNECT_TIMEOUT"
         },
         {
-          "url": "https://www.enchufauto.es/trabaja-con-nosotros.php?lang=en",
-          "estado": 200
+          "url": "https://empleo.enchufauto.es/",
+          "estado": "ENOTFOUND"
         },
         {
-          "url": "https://www.enchufauto.es/trabaja-con-nosotros.php",
-          "estado": 200
+          "url": "https://trabajaconnosotros.enchufauto.es/",
+          "estado": "ENOTFOUND"
         },
         {
-          "url": "https://www.enchufauto.es/contacto.php?lang=es",
-          "estado": 200
+          "url": "https://careers.enchufauto.es/",
+          "estado": "ENOTFOUND"
         },
         {
-          "url": "https://www.enchufauto.es/contacto.php?lang=en",
-          "estado": 200
+          "url": "https://jobs.enchufauto.es/",
+          "estado": "ENOTFOUND"
         },
         {
-          "url": "https://www.enchufauto.es/contacto.php",
-          "estado": 200
-        },
-        {
-          "url": "https://www.enchufauto.es/aviso-legal.php",
-          "estado": 200
-        },
-        {
-          "url": "https://www.enchufauto.es/trabaja-con-nosotros",
-          "estado": 404
-        },
-        {
-          "url": "https://www.enchufauto.es/trabaja-con-nosotros/",
-          "estado": 404
-        },
-        {
-          "url": "https://www.enchufauto.es/empleo",
-          "estado": 404
-        },
-        {
-          "url": "https://www.enchufauto.es/talento",
-          "estado": 404
-        },
-        {
-          "url": "https://www.enchufauto.es/careers",
-          "estado": 404
-        },
-        {
-          "url": "https://www.enchufauto.es/unete",
-          "estado": 404
-        },
-        {
-          "url": "https://www.enchufauto.es/unete-al-equipo",
-          "estado": 404
-        },
-        {
-          "url": "https://www.enchufauto.es/rrhh",
-          "estado": 404
+          "url": "https://talento.enchufauto.es/",
+          "estado": "ENOTFOUND"
         }
       ],
-      "correosEncontrados": [
-        {
-          "email": "info@enchufauto.es",
-          "tipo": "general"
-        }
-      ],
-      "buzones": [
-        {
-          "email": "info@enchufauto.es",
-          "resultado": "indeterminado",
-          "respuesta": "550 5.7.0 Your server IP address [134.138.41.2] is missing a reverse DNS entry. See http://spamauditor.org/best-practices/check-ip-reverse-dns/ for more information. Protection provided by MagicSpam 2.0.18-1 http://www.magicspam.com",
-          "servidor": "mail.enchufauto.es"
-        }
-      ],
-      "formulariosRevisados": [
-        {
-          "url": "https://www.enchufauto.es/contacto.php?lang=es",
-          "valido": true,
-          "motivo": "formulario con correo y mensaje o CV",
-          "campos": [
-            "Tu Nombre",
-            "Tu E-mail",
-            "Tu Teléfono",
-            "Mensaje",
-            "He leído y acepto la política de privacidad ."
-          ]
-        },
-        {
-          "url": "https://www.enchufauto.es/trabaja-con-nosotros.php?lang=es",
-          "valido": true,
-          "motivo": "formulario con correo y mensaje o CV",
-          "campos": [
-            "Tu Nombre",
-            "Tu E-mail",
-            "Tu Teléfono",
-            "Tu Ciudad",
-            "Mensaje",
-            "He leído y acepto la política de privacidad ."
-          ]
-        }
-      ],
-      "evidencia": {
-        "url": "https://www.enchufauto.es/trabaja-con-nosotros.php?lang=es",
-        "titulo": "Recarga coches eléctricos Madrid | Trabaja con nosotros | Enchufauto",
-        "campos": [
-          "Tu Nombre",
-          "Tu E-mail",
-          "Tu Teléfono",
-          "Tu Ciudad",
-          "Mensaje",
-          "He leído y acepto la política de privacidad ."
-        ]
-      },
-      "contacto": "formulario: https://www.enchufauto.es/trabaja-con-nosotros.php?lang=es",
-      "confianza": "alta"
+      "correosEncontrados": [],
+      "motivo": "La web no responde (UND_ERR_CONNECT_TIMEOUT)"
     },
     {
       "id": "influencialia",
@@ -43226,7 +43188,7 @@
         },
         {
           "url": "https://influencialia.com/",
-          "estado": "EAI_AGAIN"
+          "estado": "UND_ERR_CONNECT_TIMEOUT"
         },
         {
           "url": "https://empleo.influencialia.com/",
@@ -43720,11 +43682,11 @@
           "estado": 200
         },
         {
-          "url": "https://empleo.multiopticas.com/es/people/4017822-alexis-pereda",
+          "url": "https://empleo.multiopticas.com/es/people/1954447-esther-pla",
           "estado": 200
         },
         {
-          "url": "https://empleo.multiopticas.com/es/people/1954447-esther-pla",
+          "url": "https://empleo.multiopticas.com/es/people/4017822-alexis-pereda",
           "estado": 200
         }
       ],
@@ -43735,12 +43697,12 @@
           "motivoRechazo": "posible correo personal"
         },
         {
-          "email": "alexis.pereda@multiopticas.com",
+          "email": "esther.pla@multiopticas.com",
           "tipo": "general",
           "motivoRechazo": "posible correo personal"
         },
         {
-          "email": "esther.pla@multiopticas.com",
+          "email": "alexis.pereda@multiopticas.com",
           "tipo": "general",
           "motivoRechazo": "posible correo personal"
         }
@@ -43767,7 +43729,7 @@
           "motivo": "ningún formulario sirve (es un buscador; no pide el correo electrónico; es una suscripción al boletín)"
         }
       ],
-      "motivo": "Sin correo válido para candidaturas (atencioncliente@multiopticas.com: posible correo personal; alexis.pereda@multiopticas.com: posible correo personal; esther.pla@multiopticas.com: posible correo personal) ni formulario real; formularios: https://www.multiopticas.com/es/bolsa-masai-beige/49810682.html → ningún formulario sirve (es un buscador; no pide el correo electrónico; es una suscripción al boletín); https://www.multiopticas.com/es/bolsa-studio-tela/55210077.html → ningún formulario sirve (es un buscador; no pide el correo electrónico; es una suscripción al boletín); https://www.multiopticas.com/es/bolsa-salitre-azul/49810607.html → ningún formulario sirve (es un buscador; no pide el correo electrónico; es una suscripción al boletín); https://www.multiopticas.com/es/bolsa-masai-verde-/49810683.html → ningún formulario sirve (es un buscador; no pide el correo electrónico; es una suscripción al boletín)"
+      "motivo": "Sin correo válido para candidaturas (atencioncliente@multiopticas.com: posible correo personal; esther.pla@multiopticas.com: posible correo personal; alexis.pereda@multiopticas.com: posible correo personal) ni formulario real; formularios: https://www.multiopticas.com/es/bolsa-masai-beige/49810682.html → ningún formulario sirve (es un buscador; no pide el correo electrónico; es una suscripción al boletín); https://www.multiopticas.com/es/bolsa-studio-tela/55210077.html → ningún formulario sirve (es un buscador; no pide el correo electrónico; es una suscripción al boletín); https://www.multiopticas.com/es/bolsa-salitre-azul/49810607.html → ningún formulario sirve (es un buscador; no pide el correo electrónico; es una suscripción al boletín); https://www.multiopticas.com/es/bolsa-masai-verde-/49810683.html → ningún formulario sirve (es un buscador; no pide el correo electrónico; es una suscripción al boletín)"
     },
     {
       "id": "la-casa-de-las-carcasas",
@@ -43934,7 +43896,7 @@
         {
           "email": "rrhh@mueblesboom.com",
           "resultado": "existe",
-          "respuesta": "250 2.1.5 OK 00721157ae682-8b33f67890bsi33544497b3.239 - gsmtp",
+          "respuesta": "250 2.1.5 OK 5614622812f47-567e7e02179si6100009b6e.36 - gsmtp",
           "servidor": "aspmx.l.google.com"
         }
       ],
@@ -43965,7 +43927,7 @@
         "url": "https://www.mueblesboom.com/empleo?solicitud=258",
         "titulo": "Inscripci&oacute;n en oferta de VENDEDOR/A en CORU&Ntilde;A - Muebles BOOM &reg;",
         "fragmento": "(el correo está en un enlace mailto, no en el texto visible)",
-        "buzon": "existe: 250 2.1.5 OK 00721157ae682-8b33f67890bsi33544497b3.239 - gsmtp"
+        "buzon": "existe: 250 2.1.5 OK 5614622812f47-567e7e02179si6100009b6e.36 - gsmtp"
       },
       "contacto": "rrhh@mueblesboom.com (https://www.mueblesboom.com/empleo?solicitud=258)",
       "confianza": "alta"
@@ -44060,10 +44022,6 @@
         },
         {
           "url": "https://www.moldtrans.com/ofertas-de-empleo/",
-          "estado": 200
-        },
-        {
-          "url": "https://www.moldtrans.com/trabajar-con-moldtrans-enviar-cv/",
           "estado": 200
         },
         {
@@ -44486,7 +44444,7 @@
         {
           "email": "info@wanaleads.com",
           "resultado": "acepta-todo",
-          "respuesta": "250 2.1.5 OK 956f58d0204a3-67c136dc139si4051321d50.318 - gsmtp",
+          "respuesta": "250 2.1.5 OK 586e51a60fabf-4ad979c1677si6621933fac.43 - gsmtp",
           "servidor": "aspmx.l.google.com"
         }
       ],
@@ -44570,7 +44528,7 @@
         {
           "email": "people@socialmood.com",
           "resultado": "existe",
-          "respuesta": "250 2.1.5 OK 00721157ae682-8b33f51c569si33813657b3.71 - gsmtp",
+          "respuesta": "250 2.1.5 OK 46e09a7af769-85f1df5e52esi7436830a34.118 - gsmtp",
           "servidor": "smtp.google.com"
         }
       ],
@@ -44579,7 +44537,7 @@
         "url": "https://socialmood.com/",
         "titulo": "Socialmood · · agencia Creativa Social First",
         "fragmento": "lo. O sí. Si eres Anti IA, no te escondas Leer Decir agencia es solo una forma de verlo CONTACTA New Business: hola@socialmood.com Careers: people@socialmood.com AQUÍ ESTAMOS Ortega y Gasset 100, 6A, 28006, Madrid Madrid Carrer de la Reina C",
-        "buzon": "existe: 250 2.1.5 OK 00721157ae682-8b33f51c569si33813657b3.71 - gsmtp"
+        "buzon": "existe: 250 2.1.5 OK 46e09a7af769-85f1df5e52esi7436830a34.118 - gsmtp"
       },
       "contacto": "people@socialmood.com (https://socialmood.com/)",
       "confianza": "media"
