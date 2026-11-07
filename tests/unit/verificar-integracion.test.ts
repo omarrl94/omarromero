@@ -23,7 +23,7 @@ const base: Candidata = {
 
 describe('verificar (integración sin red)', () => {
   it('si la portada bloquea a los robots, verifica desde el portal de empleo del mismo dominio', async () => {
-    expect(portalesDeEmpleo({ web: 'https://www.acme.test' })[0]).toBe('https://empleo.acme.test/');
+    expect(portalesDeEmpleo({ web: 'https://www.acme.test' }).slice(0, 2)).toEqual(['https://acme.test/', 'https://empleo.acme.test/']);
     const { r, empresa } = await verificar(base, [], deps({
       'https://empleo.acme.test/': '<p>Envía tu candidatura a <a href="mailto:seleccion@acme.test">seleccion@acme.test</a></p>',
     }));

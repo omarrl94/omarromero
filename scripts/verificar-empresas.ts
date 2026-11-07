@@ -85,8 +85,11 @@ const DEPS: Dependencias = { descargar: descargarRed, tieneMx: tieneMxRed, hoy }
 
 /** Portales de empleo que se prueban si la portada no responde: el de la investigación y subdominios habituales. */
 export function portalesDeEmpleo(c: Pick<Candidata, 'web' | 'empleoUrl'>): string[] {
-  const dominio = new URL(c.web).hostname.replace(/^www\./, '');
-  return [...new Set([...(c.empleoUrl ? [c.empleoUrl] : []), ...['empleo', 'trabajaconnosotros', 'careers', 'jobs', 'talento'].map((s) => `https://${s}.${dominio}/`)])];
+  const u = new URL(c.web);
+  const dominio = u.hostname.replace(/^www\./, '');
+  // La misma web con y sin «www» (muchas webs solo responden con una de las dos).
+  const alterna = `${u.protocol}//${u.hostname.startsWith('www.') ? dominio : `www.${dominio}`}${u.pathname}`;
+  return [...new Set([alterna, ...(c.empleoUrl ? [c.empleoUrl] : []), ...['empleo', 'trabajaconnosotros', 'careers', 'jobs', 'talento'].map((s) => `https://${s}.${dominio}/`)])];
 }
 
 export async function verificar(c: Candidata, retiradas: Retirada[], deps: Dependencias = DEPS, extra: DatosExtra = {}): Promise<{ r: ResultadoVerificacion; empresa?: Empresa }> {
