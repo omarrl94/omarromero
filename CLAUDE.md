@@ -11,8 +11,14 @@ Idioma de la interfaz, el código de dominio y la documentación: **español de 
 3. **Nunca** deducir ni construir correos a partir de patrones (`nombre.apellido@`, `rrhh@` «porque suele existir», etc.).
 4. **Nunca** correos personales de empleados (nombre y apellido en la parte local).
 5. Sin correo verificable → formulario oficial de contacto o empleo. Sin ninguno → la empresa se descarta.
-6. Una empresa solo pasa a `data/empresas.json` si `npm run verificar:empresas` la ha validado:
-   la URL responde, el correo aparece literalmente en esa URL y el dominio tiene registros MX.
+6. Una empresa solo pasa a `data/empresas.json` si `npm run verificar:empresas` la ha validado (en GitHub Actions,
+   con `--smtp --navegador`): la web es de la empresa y menciona la Comunidad de Madrid; el correo aparece literalmente
+   en su página de empleo o de contacto (no en un artículo, la portada ni el aviso legal), el dominio tiene MX, su
+   servidor de correo no dice que el buzón no exista (RCPT TO, sin enviar nada) y no ha rebotado nunca; o hay un
+   formulario REAL (correo + mensaje o CV, comprobado en Chromium; no buscadores, boletines, comentarios, pedidos,
+   presupuestos ni ofertas concretas).
+6 bis. Todo contacto publicado se revisa a mano con `docs/AUDITORIA-CONTACTOS.md`. Las decisiones van en
+   `data/revision-manual.json` y los rebotes reales en `data/correos-rebotados.json`.
 7. Nunca presentar como «oferta de prácticas» lo que la empresa no ha publicado: es **candidatura espontánea**.
 8. Nada de ofertas simuladas en producción. Los datos de `tests/fixtures/` usan dominios reservados
    (`.test`, `example.com`) y el servidor se niega a cargarlos fuera del modo de pruebas.

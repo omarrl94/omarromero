@@ -54,18 +54,34 @@ Revisa el diff de `data/empresas.json` antes de hacer commit. Si una empresa cam
 
 ## Qué hace el verificador (y qué no)
 
+Se ejecuta en GitHub Actions (necesita Internet, el puerto 25 y Chromium): `npm run verificar:empresas -- --smtp --navegador`.
+
 | Comprueba | No comprueba (revisión humana) |
 |---|---|
-| Que la web responde | Que la empresa sigue activa en el Registro Mercantil (BORME). Si tienes dudas, búscala en el BORME o en informa.es |
-| Que el correo aparece literalmente en la URL indicada | Que el sector, el tamaño y la zona son correctos |
-| Que el correo es del mismo dominio, genérico y no de privacidad, prensa o ventas | Que la empresa acoge alumnado de FP (pregúntalo en el primer correo) |
-| Que el dominio tiene registros MX | |
-| Si hay formulario oficial de empleo o contacto | |
+| Que la web responde (con y sin «www»; si la portada bloquea robots, su portal de empleo del mismo dominio) | Que la empresa sigue activa en el Registro Mercantil (BORME) |
+| Que la web es de la empresa (su nombre está en el dominio o en la portada) y menciona la Comunidad de Madrid | Que el sector, el tamaño y la zona son correctos |
+| Que el correo aparece literalmente en su **página de empleo o de contacto** (no en la portada, un artículo, el blog ni el aviso legal) | Que la empresa acoge alumnado de FP (pregúntalo en el primer correo) |
+| Que el correo es del mismo dominio, genérico, no de otro país y no de privacidad, prensa o ventas | |
+| Que el dominio tiene MX y que **su servidor de correo no dice que el buzón no exista** (RCPT TO, sin enviar nada) | |
+| Que el correo no ha rebotado nunca (`data/correos-rebotados.json`) | |
+| Que el formulario es **real** al cargar la página en Chromium: pide correo y mensaje o CV; no es buscador, boletín, acceso, comentarios del blog, pedidos, presupuestos, demos ni una oferta concreta | |
 | Feeds públicos de Greenhouse, Lever y Ashby enlazados desde su web | |
 
+**Buzón** (en la ficha de la empresa): `existe` = confirmado por su servidor; `acepta-todo` = el servidor acepta cualquier dirección (no se puede confirmar); `sin-confirmar` = no respondió.
+
 **Confianza:**
-- `alta`: buzón de prácticas, talento o RR. HH. publicado por la empresa.
-- `media`: buzón general (`info@`, `contacto@`) o solo formulario.
+- `alta`: buzón de prácticas, talento o RR. HH. confirmado, o correo general confirmado en la página de empleo, o formulario de empleo.
+- `media`: el resto (correo sin confirmar o formulario de contacto).
+
+## Revisión manual (obligatoria tras cada verificación)
+
+1. Abre `docs/AUDITORIA-CONTACTOS.md`: cada contacto publicado con su prueba (texto de la página donde aparece el correo, respuesta del servidor de correo, campos del formulario).
+2. Si algo no sirve, anótalo en `data/revision-manual.json`:
+   ```json
+   { "id-de-la-empresa": { "correosRechazados": ["info@empresa.es"], "formulariosRechazados": ["https://…"], "descartar": false, "motivo": "…", "fecha": "AAAA-MM-DD" } }
+   ```
+3. Si un correo **rebota** al escribirle, añádelo a `data/correos-rebotados.json` con la fecha y la respuesta del servidor. También lo pueden avisar alumnos y tutores desde la ficha («Avisar de un problema»).
+4. Al subir cualquiera de los dos archivos, GitHub vuelve a verificar y publica el resultado.
 
 ## Retirar una empresa
 
