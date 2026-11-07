@@ -1,0 +1,188 @@
+// =============================================================================
+// PawsMatch — Esquema de base de datos (PostgreSQL + Prisma 7)
+// =============================================================================
+// Convenciones:
+//  - Campos en camelCase en el código y snake_case en la base de datos (@map).
+//  - Los campos que alimentan el algoritmo de matching están agrupados bajo
+//    el comentario "Variables de matching" en Adopter y Animal.
+//  - Un Boolean opcional (Boolean?) significa "desconocido / no evaluado":
+//    p. ej. un animal recién llegado al que aún no se ha probado con niños.
+// =============================================================================
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  // La URL de conexión se define en prisma.config.ts (Prisma 7).
+}
+
+// -----------------------------------------------------------------------------
+// Enums
+// -----------------------------------------------------------------------------
+
+/// Escala de 3 niveles reutilizada para actividad, energía y ansiedad.
+enum Nivel {
+  BAJO
+  MEDIO
+  ALTO
+}
+
+enum Especie {
+  PERRO
+  GATO
+  OTRO
+}
+
+enum Tamano {
+  PEQUENO
+  MEDIANO
+  GRANDE
+}
+
+enum Sexo {
+  MACHO
+  HEMBRA
+}
+
+enum TipoVivienda {
+  PISO
+  CASA
+}
+
+enum EstadoAnimal {
+  DISPONIBLE
+  EN_PROCESO // Hay una solicitud de adopción en curso
+  ADOPTADO
+}
+
+/// Gesto del adoptante en la tarjeta del animal (swipe).
+enum Accion {
+  LIKE
+  DISLIKE
+}
+
+/// Ciclo de vida de un match tras el LIKE del adoptante.
+enum EstadoMatch {
+  PENDIENTE // Like enviado, la protectora aún no ha respondido
+  ACEPTADO // La protectora acepta iniciar el proceso
+  RECHAZADO // La protectora descarta la solicitud
+  ADOPTADO // Adopción formalizada
+  DEVUELTO // El animal fue devuelto: métrica clave a minimizar
+}
+
+// -----------------------------------------------------------------------------
+// Modelos
+// -----------------------------------------------------------------------------
+
+/// Protectora / refugio que publica animales en adopción.
+model Shelter {
+  id          String   @id @default(cuid())
+  nombre      String
+  email       String   @unique
+  telefono    String?
+  ciudad      String
+  descripcion String?
+  web         String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  animales Animal[]
+
+  @@map("shelters")
+}
+
+/// Persona que quiere adoptar. Sus respuestas al cuestionario de estilo de vida
+/// son las "Variables de matching".
+model Adopter {
+  id           String        @id @default(cuid())
+  nombre       String
+  email        String        @unique
+  ciudad       String
+  tipoVivienda TipoVivienda? @map("tipo_vivienda")
+  bio          String?
+
+  // --- Variables de matching ---------------------------------------------
+  /// Horas al día que el animal pasaría solo en casa (0-24).
+  horasFuera     Int     @map("horas_fuera")
+  tieneJardin    Boolean @map("tiene_jardin")
+  /// ¿Convive ya con otros animales?
+  otrosAnimales  Boolean @map("otros_animales")
+  tieneNinos     Boolean @map("tiene_ninos")
+  /// Nivel de actividad física del adoptante (paseos, deporte, excursiones).
+  nivelActividad Nivel   @map("nivel_actividad")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  matches Match[]
+
+  @@map("adopters")
+}
+
+/// Animal en adopción publicado por una protectora.
+model Animal {
+  id          String       @id @default(cuid())
+  nombre      String
+  especie     Especie
+  raza        String?
+  edadMeses   Int          @map("edad_meses")
+  tamano      Tamano
+  sexo        Sexo
+  descripcion String?
+  fotos       String[]
+  estado      EstadoAnimal @default(DISPONIBLE)
+
+  // --- Variables de matching ---------------------------------------------
+  requiereJardin   Boolean  @map("requiere_jardin")
+  nivelEnergia     Nivel    @map("nivel_energia")
+  /// null = no evaluado todavía con otros animales.
+  sociableAnimales Boolean? @map("sociable_animales")
+  /// null = no evaluado todavía con niños.
+  sociableNinos    Boolean? @map("sociable_ninos")
+  /// Ansiedad por separación / estrés general.
+  nivelAnsiedad    Nivel    @map("nivel_ansiedad")
+  /// Máximo de horas que puede quedarse solo según la protectora.
+  /// Si es null, el algoritmo lo deriva de nivelAnsiedad.
+  horasMaxSolo     Int?     @map("horas_max_solo")
+
+  shelterId String  @map("shelter_id")
+  shelter   Shelter @relation(fields: [shelterId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  matches Match[]
+
+  @@index([shelterId])
+  @@index([estado])
+  @@map("animals")
+}
+
+/// Registro de cada swipe del adoptante sobre un animal, con la compatibilidad
+/// calculada en ese momento (se guarda como "foto" para análisis posterior:
+/// p. ej. correlacionar % de compatibilidad con devoluciones).
+model Match {
+  id            String       @id @default(cuid())
+  adopterId     String       @map("adopter_id")
+  animalId      String       @map("animal_id")
+  accion        Accion
+  /// Porcentaje de compatibilidad 0-100 calculado por matchingAlgorithm.ts.
+  compatibilidad Int
+  /// Desglose por criterio (JSON) para explicar el % al usuario y auditarlo.
+  desglose      Json?
+  estado        EstadoMatch? // Solo aplica a LIKE; null en DISLIKE
+
+  adopter Adopter @relation(fields: [adopterId], references: [id], onDelete: Cascade)
+  animal  Animal  @relation(fields: [animalId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  /// Un adoptante solo puede hacer swipe una vez por animal.
+  @@unique([adopterId, animalId])
+  @@index([animalId, accion])
+  @@map("matches")
+}

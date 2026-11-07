@@ -1,0 +1,13 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: paws
+      POSTGRES_PASSWORD: paws
+      POSTGRES_DB: pawsmatch
+    ports:
+      - "5432:5432"
+    volumes:
+      - pawsmatch-db:/var/lib/postgresql/data
+volumes:
+  pawsmatch-db:
