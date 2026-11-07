@@ -160,7 +160,7 @@ export function detectarAts(html: string): FeedDetectado[] {
   return [...r.values()];
 }
 
-const RE_PORTAL_EMPLEO = /(greenhouse\.io|lever\.co|ashbyhq\.com|myworkdayjobs\.com|smartrecruiters\.com|teamtailor\.com|personio\.(?:de|com|es)|successfactors\.(?:com|eu)|bamboohr\.com|recruitee\.com|join\.com|factorialhr\.com|jobs\.|careers\.|empleo\.|trabajaen|kenjo\.io|talentclue\.com|softgarden|icims\.com|taleo\.net|eightfold\.ai|csod\.com)/i;
+export const RE_PORTAL_EMPLEO = /(greenhouse\.io|lever\.co|ashbyhq\.com|myworkdayjobs\.com|smartrecruiters\.com|teamtailor\.com|personio\.(?:de|com|es)|successfactors\.(?:com|eu)|bamboohr\.com|recruitee\.com|join\.com|factorialhr\.com|jobs\.|careers\.|empleo\.|trabajaen|kenjo\.io|talentclue\.com|softgarden|icims\.com|taleo\.net|eightfold\.ai|csod\.com)/i;
 
 /** ¿La página es un portal o formulario oficial de empleo/contacto? */
 export function esPaginaFormulario(url: string, html: string): boolean {
@@ -195,9 +195,11 @@ export function priorizarUrls(urls: string[]): string[] {
   return [...urls].sort((a, b) => puntos(a) - puntos(b));
 }
 
-export type TipoPagina = 'empleo' | 'contacto' | 'legal' | 'otra';
+export type TipoPagina = 'empleo' | 'contacto' | 'legal' | 'articulo' | 'otra';
 
 const RE_LEGAL = /(aviso-?legal|legal-?notice|\/legal|privac|privacy|terminos|t[eé]rminos|terms|condiciones|cookies|proteccion-de-datos|rgpd|gdpr|imprint|impressum)/i;
+/** Entradas de blog, noticias, prensa o entrevistas: un correo citado ahí no es el canal de candidaturas. */
+const RE_ARTICULO = /(\/blog\/|\/blogs?\b|\/noticias?\/|\/news\/|\/actualidad|\/prensa\/|\/press\/|\/articulos?\/|\/post\/|\/posts\/|\/entrevista|\/20\d\d\/\d\d\/|\/\d{4}\/\d{2}\/\d{2}\/)/i;
 const RE_PAGINA_EMPLEO = /(trabaja|empleo|talent|career|jobs|unete|[uú]nete|join|rrhh|recursos-humanos|seleccion|equipo-humano|people|personas|practicas|becas|candidat)/i;
 
 /** Tipo de página según su URL: el mismo correo vale más en la página de empleo que en el aviso legal. */
@@ -209,6 +211,7 @@ export function tipoPagina(url: string): TipoPagina {
   } catch {
     /* URL relativa */
   }
+  if (RE_ARTICULO.test(ruta)) return 'articulo';
   if (RE_LEGAL.test(ruta)) return 'legal';
   if (RE_PAGINA_EMPLEO.test(ruta)) return 'empleo';
   if (/contact/i.test(ruta)) return 'contacto';
@@ -217,18 +220,26 @@ export function tipoPagina(url: string): TipoPagina {
 
 /**
  * Orden de preferencia del canal de candidatura (menor = mejor), o null si no sirve:
- *   0 correo de RR. HH./talento/prácticas · 1 formulario o portal de empleo
- *   2 correo general en la página de empleo · 3 correo general de contacto o de la web
- *   4 formulario de contacto general. Un correo general que SOLO aparece en el aviso legal,
- *   la privacidad o las condiciones no se usa: es el contacto legal, no el de candidaturas.
+ *   0 correo de RR. HH./talento/prácticas publicado en la página de empleo o de contacto
+ *   1 formulario de empleo comprobado · 2 correo general en la página de empleo
+ *   3 correo general en la página de contacto · 4 formulario de contacto comprobado
+ *   5 correo de RR. HH. que solo aparece en otras páginas (blog, aviso legal…): SOLO si el
+ *     servidor de correo confirma que el buzón existe.
+ * Un correo general que solo aparece en la portada, un artículo o el aviso legal no se usa.
+ * Si el servidor de correo no confirma el buzón, el correo baja 1,5 puestos (el formulario
+ * comprobado pasa delante). Si el servidor dice que NO existe, se descarta.
  */
 export function rangoCorreo(v: CorreoValorado, paginas: TipoPagina[]): number | null {
   if (v.motivoRechazo) return null;
-  if (v.tipo !== 'general') return 0;
+  const fiable = paginas.includes('empleo') || paginas.includes('contacto');
+  if (v.tipo !== 'general') return fiable ? 0 : 5;
   if (paginas.includes('empleo')) return 2;
-  if (paginas.includes('contacto') || paginas.includes('otra')) return 3;
+  if (paginas.includes('contacto')) return 3;
   return null;
 }
+
+/** Penalización si el buzón no está confirmado por su servidor de correo. */
+export const PENALIZACION_BUZON_NO_CONFIRMADO = 1.5;
 
 export const RANGO_FORMULARIO = { empleo: 1, contacto: 4 } as const;
 

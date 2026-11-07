@@ -83,7 +83,7 @@ export function FichaEmpresa({ id, seccion }: { id: string; seccion?: string }) 
                 <dd className="break-all">{e.contacto.tipo === 'email' ? e.contacto.email : <a className="enlace" href={e.contacto.formularioUrl} target="_blank" rel="noopener noreferrer">Abrir formulario</a>}</dd></div>
               <div><dt className="font-semibold text-tinta-suave">Tipo de contacto</dt><dd>{NOMBRE_TIPO_CONTACTO[e.contacto.tipoContacto]}</dd></div>
               <div><dt className="font-semibold text-tinta-suave">Dónde aparece</dt><dd className="break-all"><a className="enlace" href={e.contacto.fuenteUrl} target="_blank" rel="noopener noreferrer">{e.contacto.fuenteUrl}</a></dd></div>
-              <div><dt className="font-semibold text-tinta-suave">Verificado</dt><dd>{fecha(e.verificacion.fecha)} · confianza {NOMBRE_CONFIANZA[e.verificacion.confianza].toLowerCase()}{e.verificacion.mx ? ' · dominio con correo activo (MX)' : ''}</dd></div>
+              <div><dt className="font-semibold text-tinta-suave">Verificado</dt><dd>{fecha(e.verificacion.fecha)} · confianza {NOMBRE_CONFIANZA[e.verificacion.confianza].toLowerCase()}{e.verificacion.buzon === 'existe' ? ' · buzón confirmado por su servidor de correo' : e.verificacion.mx ? ' · dominio con correo activo (MX)' : ''}{e.contacto.tipo === 'formulario' ? ' · formulario comprobado (pide correo y mensaje o CV)' : ''}</dd></div>
             </dl>
             <div className="mt-3"><AvisoEmpresa empresaId={e.id} nombre={e.nombre} /></div>
             <p className="mt-3 text-xs text-tinta-suave">Si representas a la empresa, puedes <a className="enlace" href="#/privacidad">pedir la retirada</a>.</p>

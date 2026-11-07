@@ -1,0 +1,157 @@
+import { promises as dns } from 'node:dns';
+import net from 'node:net';
+import { hostname } from 'node:os';
+
+/**
+ * Comprobación de buzón SIN enviar ningún mensaje: se conecta al servidor de correo del dominio,
+ * se presenta (EHLO), indica remitente vacío (MAIL FROM:<>, como un aviso de entrega) y pregunta por el
+ * destinatario (RCPT TO). Después cierra con QUIT. Nunca llega a DATA, así que no se envía nada.
+ *
+ * Para distinguir «el buzón existe» de «el servidor lo acepta todo», también pregunta por un buzón
+ * inventado y aleatorio del mismo dominio.
+ */
+export type ResultadoBuzon = 'existe' | 'no-existe' | 'acepta-todo' | 'indeterminado';
+
+export interface ComprobacionBuzon {
+  resultado: ResultadoBuzon;
+  /** Respuesta literal del servidor a RCPT TO (para el informe). */
+  respuesta: string;
+  servidor?: string;
+}
+
+/** Interpreta la respuesta a RCPT TO. Pura y probada. */
+export function interpretarRcpt(codigo: number, texto: string): 'aceptado' | 'no-existe' | 'indeterminado' {
+  if (codigo === 250 || codigo === 251) return 'aceptado';
+  if (codigo >= 500) {
+    const t = texto.toLowerCase();
+    // Buzón inexistente: códigos ampliados 5.1.x, 5.4.1 de Microsoft 365 (bloqueo de destinatarios desconocidos)
+    // o frases típicas. Los rechazos por reputación de IP, spam o política NO dicen nada del buzón.
+    if (/\b5\.1\.[0-9]\b|\b5\.4\.1\b/.test(t)) return 'no-existe';
+    if (/(user unknown|unknown user|no such user|does not exist|doesn'?t exist|not exist|mailbox unavailable|mailbox not found|address not found|invalid recipient|recipient not found|no mailbox|unknown recipient|recipient address rejected|no existe|desconocid)/.test(t)) {
+      if (/(spamhaus|blocked|block list|blacklist|listed|reputation|policy|rbl|access denied - ip|client host)/.test(t) && !/\b5\.4\.1\b/.test(t)) return 'indeterminado';
+      return 'no-existe';
+    }
+    if (codigo === 550 && /(5\.7\.|spam|block|policy|reputation|denied|rbl|listed)/.test(t)) return 'indeterminado';
+    if (codigo === 550 || codigo === 551 || codigo === 553) return 'no-existe';
+    return 'indeterminado';
+  }
+  return 'indeterminado';
+}
+
+/** Combina el resultado del buzón real con el del buzón aleatorio. */
+export function combinar(real: ReturnType<typeof interpretarRcpt>, aleatorio: ReturnType<typeof interpretarRcpt> | null): ResultadoBuzon {
+  if (real === 'no-existe') return 'no-existe';
+  if (real === 'indeterminado') return 'indeterminado';
+  if (aleatorio === 'aceptado') return 'acepta-todo';
+  if (aleatorio === 'no-existe') return 'existe';
+  return 'indeterminado';
+}
+
+class Sesion {
+  private buffer = '';
+  private esperando: ((r: { codigo: number; texto: string }) => void) | null = null;
+  constructor(private socket: net.Socket) {
+    socket.setEncoding('utf8');
+    socket.on('data', (d: string) => {
+      this.buffer += d;
+      this.intentar();
+    });
+  }
+  private intentar() {
+    // Respuesta completa: última línea «NNN texto» (sin guion tras el código).
+    const lineas = this.buffer.split(/\r?\n/);
+    const idx = lineas.findIndex((l) => /^\d{3} /.test(l) || /^\d{3}$/.test(l));
+    if (idx === -1 || !this.esperando) return;
+    const bloque = lineas.slice(0, idx + 1);
+    this.buffer = lineas.slice(idx + 1).join('\n');
+    const codigo = Number(bloque[idx].slice(0, 3));
+    const cb = this.esperando;
+    this.esperando = null;
+    cb({ codigo, texto: bloque.join(' ').trim() });
+  }
+  respuesta(timeoutMs: number): Promise<{ codigo: number; texto: string }> {
+    return new Promise((resolve, reject) => {
+      const t = setTimeout(() => reject(new Error('tiempo agotado')), timeoutMs);
+      this.esperando = (r) => {
+        clearTimeout(t);
+        resolve(r);
+      };
+      this.intentar();
+    });
+  }
+  async comando(linea: string, timeoutMs = 15_000) {
+    this.socket.write(`${linea}\r\n`);
+    return this.respuesta(timeoutMs);
+  }
+}
+
+function conectar(host: string, timeoutMs: number): Promise<net.Socket> {
+  return new Promise((resolve, reject) => {
+    const s = net.connect({ host, port: 25 });
+    const t = setTimeout(() => {
+      s.destroy();
+      reject(new Error('tiempo agotado al conectar'));
+    }, timeoutMs);
+    s.once('connect', () => {
+      clearTimeout(t);
+      resolve(s);
+    });
+    s.once('error', (e) => {
+      clearTimeout(t);
+      reject(e);
+    });
+  });
+}
+
+const cache = new Map<string, Promise<ComprobacionBuzon>>();
+
+/** Comprueba un buzón (con caché por dirección). Requiere salida al puerto 25 (GitHub Actions la tiene). */
+export function comprobarBuzon(email: string): Promise<ComprobacionBuzon> {
+  const clave = email.toLowerCase();
+  if (!cache.has(clave)) cache.set(clave, comprobarSinCache(clave));
+  return cache.get(clave)!;
+}
+
+async function comprobarSinCache(email: string): Promise<ComprobacionBuzon> {
+  const dominio = email.split('@')[1];
+  let mx: { exchange: string; priority: number }[];
+  try {
+    mx = (await dns.resolveMx(dominio)).sort((a, b) => a.priority - b.priority);
+  } catch {
+    return { resultado: 'indeterminado', respuesta: 'sin registros MX consultables' };
+  }
+  if (!mx.length || mx[0].exchange === '' || mx[0].exchange === '.') return { resultado: 'no-existe', respuesta: 'el dominio declara que no recibe correo (MX nulo)' };
+
+  let ultimoError = '';
+  for (const { exchange } of mx.slice(0, 2)) {
+    let socket: net.Socket | null = null;
+    try {
+      socket = await conectar(exchange, 15_000);
+      const s = new Sesion(socket);
+      const saludo = await s.respuesta(20_000);
+      if (saludo.codigo !== 220) {
+        ultimoError = saludo.texto;
+        continue;
+      }
+      const ehlo = await s.comando(`EHLO ${hostname() || 'verificador.local'}`);
+      if (ehlo.codigo !== 250) await s.comando(`HELO ${hostname() || 'verificador.local'}`);
+      const from = await s.comando('MAIL FROM:<>');
+      if (from.codigo !== 250) return { resultado: 'indeterminado', respuesta: `MAIL FROM rechazado: ${from.texto}`, servidor: exchange };
+      const real = await s.comando(`RCPT TO:<${email}>`);
+      const vReal = interpretarRcpt(real.codigo, real.texto);
+      let vAleatorio: ReturnType<typeof interpretarRcpt> | null = null;
+      if (vReal === 'aceptado') {
+        const inventado = `no-existe-${Math.random().toString(36).slice(2, 10)}@${dominio}`;
+        const r2 = await s.comando(`RCPT TO:<${inventado}>`);
+        vAleatorio = interpretarRcpt(r2.codigo, r2.texto);
+      }
+      await s.comando('QUIT', 5_000).catch(() => undefined);
+      return { resultado: combinar(vReal, vAleatorio), respuesta: real.texto.slice(0, 300), servidor: exchange };
+    } catch (e) {
+      ultimoError = (e as Error).message;
+    } finally {
+      socket?.destroy();
+    }
+  }
+  return { resultado: 'indeterminado', respuesta: `sin respuesta del servidor de correo (${ultimoError})` };
+}

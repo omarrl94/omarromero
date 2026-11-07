@@ -2,15 +2,18 @@ import { describe, expect, it } from 'vitest';
 import { portalesDeEmpleo, verificar, type Dependencias } from '../../scripts/verificar-empresas';
 import type { Pagina } from '../../scripts/lib/red';
 import type { Candidata } from '../../shared/schemas';
+import type { ResultadoBuzon } from '../../scripts/lib/smtp';
 
 function webs(mapa: Record<string, string>): Dependencias['descargar'] {
   return async (url: string): Promise<Pagina> =>
     url in mapa ? { url, urlFinal: url, estado: 200, html: mapa[url] } : { url, urlFinal: url, estado: 404, html: '' };
 }
-const deps = (mapa: Record<string, string>, mx: Record<string, boolean> = {}): Dependencias => ({
+const FORM_REAL = '<form action="/candidatura"><label for="n">Nombre</label><input id="n" name="nombre"><label for="e">Correo electrónico</label><input id="e" type="email" name="email"><label for="cv">CV</label><input id="cv" type="file" name="cv"><button>Enviar</button></form>';
+const deps = (mapa: Record<string, string>, mx: Record<string, boolean> = {}, buzones: Record<string, ResultadoBuzon> = {}): Dependencias => ({
   descargar: webs(mapa),
   tieneMx: async (d) => mx[d] ?? true,
   hoy: () => '2026-11-05',
+  comprobarBuzon: async (e) => ({ resultado: buzones[e] ?? 'existe', respuesta: buzones[e] === 'no-existe' ? '550 5.1.1 User unknown' : '250 OK' }),
 });
 
 const base: Candidata = {
@@ -46,7 +49,7 @@ describe('verificar (integración sin red)', () => {
     }));
     expect(r.estado).toBe('valida');
     expect(empresa?.contacto).toEqual({ tipo: 'email', email: 'talento@acme.test', fuenteUrl: 'https://www.acme.test/trabaja-con-nosotros', tipoContacto: 'talento' });
-    expect(empresa?.verificacion).toMatchObject({ fecha: '2026-11-05', confianza: 'alta', mx: true });
+    expect(empresa?.verificacion).toMatchObject({ fecha: '2026-11-05', confianza: 'alta', mx: true, buzon: 'existe' });
     expect(empresa?.feedAts).toEqual({ proveedor: 'lever', identificador: 'acme' });
     expect(empresa?.empleoUrl).toBe('https://www.acme.test/trabaja-con-nosotros');
     expect(empresa?.programaPracticas).toBeUndefined();
@@ -56,7 +59,7 @@ describe('verificar (integración sin red)', () => {
     const { empresa } = await verificar(base, [], deps(
       {
         'https://www.acme.test': '<a href="/empleo">Empleo</a> rrhh@acme.test',
-        'https://www.acme.test/empleo': '<form action="/candidatura"><input name="cv"></form>',
+        'https://www.acme.test/empleo': FORM_REAL,
       },
       { 'acme.test': false },
     ));
@@ -83,7 +86,7 @@ describe('verificar (integración sin red)', () => {
     const { empresa, r } = await verificar(base, [], deps({
       'https://www.acme.test': '<a href="/aviso-legal">Aviso legal</a><a href="/trabaja-con-nosotros">Trabaja con nosotros</a>',
       'https://www.acme.test/aviso-legal': 'Contacto: info@acme.test',
-      'https://www.acme.test/trabaja-con-nosotros': '<form action="/cv"><input name="cv"></form>',
+      'https://www.acme.test/trabaja-con-nosotros': FORM_REAL,
     }));
     expect(r.correosEncontrados.find((c) => c.email === 'info@acme.test')?.motivoRechazo).toMatch(/aviso legal/);
     expect(empresa?.contacto).toMatchObject({ tipo: 'formulario', formularioUrl: 'https://www.acme.test/trabaja-con-nosotros' });
@@ -92,9 +95,51 @@ describe('verificar (integración sin red)', () => {
   it('el formulario de empleo va por delante de un info@ de la portada', async () => {
     const { empresa } = await verificar(base, [], deps({
       'https://www.acme.test': '<p>info@acme.test</p><a href="/empleo">Empleo</a>',
-      'https://www.acme.test/empleo': '<form><input name="cv"></form>',
+      'https://www.acme.test/empleo': FORM_REAL,
     }));
     expect(empresa?.contacto.tipo).toBe('formulario');
+  });
+
+  it('no acepta como formulario un buscador, un boletín ni una página sin formulario', async () => {
+    const { r, empresa } = await verificar(base, [], deps({
+      'https://www.acme.test': '<a href="/empleo">Empleo</a><a href="/contacto">Contacto</a>',
+      'https://www.acme.test/empleo': '<form role="search"><input type="search" name="q"><button>Buscar</button></form>',
+      'https://www.acme.test/contacto': '<p>Escríbenos</p><form><input type="email" name="email" placeholder="Suscríbete a la newsletter"><button>Enviar</button></form>',
+    }));
+    expect(empresa).toBeUndefined();
+    expect(r.motivo).toMatch(/buscador|boletín|mensaje/);
+  });
+
+  it('descarta el correo si el servidor dice que el buzón no existe, y usa el formulario', async () => {
+    const { r, empresa } = await verificar(base, [], deps(
+      {
+        'https://www.acme.test': '<a href="/empleo">Empleo</a>',
+        'https://www.acme.test/empleo': `rrhh@acme.test ${FORM_REAL}`,
+      },
+      {},
+      { 'rrhh@acme.test': 'no-existe' },
+    ));
+    expect(r.correosEncontrados[0].motivoRechazo).toMatch(/no existe/);
+    expect(empresa?.contacto.tipo).toBe('formulario');
+  });
+
+  it('no usa correos que ya rebotaron ni los rechazados en la revisión manual', async () => {
+    const mapa = { 'https://www.acme.test': '<a href="/empleo">Empleo</a>', 'https://www.acme.test/empleo': 'rrhh@acme.test talento@acme.test' };
+    const { r } = await verificar(base, [], deps(mapa), {
+      rebotes: [{ email: 'rrhh@acme.test', fecha: '2026-11-06', respuesta: '550 5.4.1' }],
+      revision: { acme: { correosRechazados: ['talento@acme.test'], motivo: 'buzón antiguo', fecha: '2026-11-07' } },
+    });
+    expect(r.estado).toBe('descartada');
+    expect(r.motivo).toMatch(/rebotó/);
+    expect(r.motivo).toMatch(/revisión manual/);
+  });
+
+  it('no usa correos citados en un artículo del blog, salvo que el buzón de RR. HH. esté confirmado', async () => {
+    const mapa = { 'https://www.acme.test': '<a href="/blog/2022/03/trabaja-con-nosotros">Trabaja con nosotros</a>', 'https://www.acme.test/blog/2022/03/trabaja-con-nosotros': 'info@acme.test y people@acme.test' };
+    const confirmado = await verificar(base, [], deps(mapa));
+    expect(confirmado.empresa?.contacto).toMatchObject({ email: 'people@acme.test' });
+    const sinConfirmar = await verificar(base, [], deps(mapa, {}, { 'people@acme.test': 'acepta-todo' }));
+    expect(sinConfirmar.empresa).toBeUndefined();
   });
 
   it('acepta un correo general si la empresa lo publica en su página de empleo', async () => {

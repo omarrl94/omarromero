@@ -103,10 +103,16 @@ describe('tipo de página y rango del canal', () => {
     expect(tipoPagina('https://careers.a.test/')).toBe('empleo');
     expect(tipoPagina('https://a.test/contacto')).toBe('contacto');
     expect(tipoPagina('https://a.test/')).toBe('otra');
+    expect(tipoPagina('https://keepler.io/2022/03/29/it-job-opportunities')).toBe('articulo');
+    expect(tipoPagina('https://a.test/blog/practicas-seo')).toBe('articulo');
+    expect(tipoPagina('https://a.test/actualidad-es/entrevista-a-x')).toBe('articulo');
   });
   it('ordena: RR. HH. > formulario de empleo > general en empleo > general de contacto > formulario de contacto', async () => {
     const { rangoCorreo, RANGO_FORMULARIO } = await import('../../scripts/lib/verificador');
-    expect(rangoCorreo({ email: 'rrhh@a.test', tipo: 'rrhh' }, ['legal'])).toBe(0);
+    expect(rangoCorreo({ email: 'rrhh@a.test', tipo: 'rrhh' }, ['empleo'])).toBe(0);
+    expect(rangoCorreo({ email: 'rrhh@a.test', tipo: 'rrhh' }, ['legal'])).toBe(5);
+    expect(rangoCorreo({ email: 'info@a.test', tipo: 'general' }, ['otra'])).toBeNull();
+    expect(rangoCorreo({ email: 'info@a.test', tipo: 'general' }, ['articulo'])).toBeNull();
     expect(RANGO_FORMULARIO.empleo).toBe(1);
     expect(rangoCorreo({ email: 'info@a.test', tipo: 'general' }, ['empleo', 'legal'])).toBe(2);
     expect(rangoCorreo({ email: 'info@a.test', tipo: 'general' }, ['contacto'])).toBe(3);

@@ -1,0 +1,6 @@
+[
+  { "email": "rrhh@sothis.tech", "fecha": "2026-11-06", "respuesta": "550 5.4.1 Recipient address rejected: Access denied (rrhh no se encontró en sothis.tech)" },
+  { "email": "talento@grupoica.com", "fecha": "2026-11-06", "respuesta": "No se encontró talento en grupoica.com" },
+  { "email": "info@the-cocktail.com", "fecha": "2026-11-06", "respuesta": "550 5.1.1 User unknown" },
+  { "email": "hola@cobee.io", "fecha": "2026-11-06", "respuesta": "Address not found (The email account that you tried to reach does not exist)" }
+]

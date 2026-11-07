@@ -115,6 +115,8 @@ export const EmpresaSchema = z
       confianza: ConfianzaSchema,
       /** Resultado de la consulta MX del dominio del correo (null si es solo formulario). */
       mx: z.boolean().nullable(),
+      /** Respuesta del servidor de correo al preguntar por el buzón (sin enviar nada). */
+      buzon: z.enum(['existe', 'acepta-todo', 'sin-confirmar']).optional(),
       notas: z.string().optional(),
     }),
   })
