@@ -9,7 +9,7 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "test": "node --import tsx --test src/utils/matchingAlgorithm.test.ts",
+    "test": "node --import tsx --test src/utils/matchingAlgorithm.test.ts src/lib/auth.test.ts",
     "db:up": "docker compose up -d db",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
@@ -24,7 +24,9 @@
     "next": "^15.5.29",
     "pg": "^8.23.1",
     "react": "^19.3.1",
-    "react-dom": "^19.3.1"
+    "react-dom": "^19.3.1",
+    "server-only": "^0.0.1",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/node": "^22.20.5",

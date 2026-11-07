@@ -21,17 +21,23 @@
  *
  * Pesos (suman 100) y por qué
  * ---------------------------
- *  - 30  Ansiedad ↔ horas fuera de casa. La ansiedad por separación es una de
+ *  - 25  Ansiedad ↔ horas fuera de casa. La ansiedad por separación es una de
  *        las causas más citadas de devolución (destrozos, ladridos, quejas de
  *        vecinos). Es el criterio de más peso.
- *  - 25  Energía del animal ↔ actividad del adoptante. Un animal muy enérgico
+ *  - 20  Energía del animal ↔ actividad del adoptante. Un animal muy enérgico
  *        con un adoptante sedentario acumula frustración y problemas de
  *        conducta; es la segunda causa más habitual.
- *  - 20  Niños en casa ↔ sociabilidad con niños. Afecta a la seguridad; por eso
+ *  - 15  Niños en casa ↔ sociabilidad con niños. Afecta a la seguridad; por eso
  *        además es dealbreaker si el animal NO es apto con niños.
  *  - 15  Otros animales ↔ sociabilidad con animales. También dealbreaker si el
  *        animal no tolera a otros animales.
- *  - 10  Jardín. Importa, pero un adoptante muy activo puede compensarlo con
+ *  - 10  Experiencia. Animales con miedos o reactividad necesitan a alguien que
+ *        sepa manejarlos; un primerizo con un caso difícil es devolución segura.
+ *  - 10  Preferencias del test (especie, tamaño, edad y necesidades especiales).
+ *        Pesan poco a propósito: lo que la persona "quiere" importa menos que lo
+ *        que el animal "necesita", pero una adopción contra los gustos del
+ *        adoptante tampoco suele durar.
+ *  -  5  Jardín. Importa, pero un adoptante muy activo puede compensarlo con
  *        paseos; por eso pesa menos y admite puntuación parcial.
  *
  * Valores desconocidos (Boolean null = "no evaluado por la protectora") puntúan
@@ -43,7 +49,7 @@
  * =============================================================================
  */
 
-import type { Adopter, Animal, Nivel } from "../generated/prisma/client";
+import type { Adopter, Animal, EdadRango, Nivel } from "../generated/prisma/client";
 
 // -----------------------------------------------------------------------------
 // Tipos
@@ -52,7 +58,16 @@ import type { Adopter, Animal, Nivel } from "../generated/prisma/client";
 /** Solo los campos que el algoritmo necesita (permite testear sin BD). */
 export type AdopterProfile = Pick<
   Adopter,
-  "horasFuera" | "tieneJardin" | "otrosAnimales" | "tieneNinos" | "nivelActividad"
+  | "horasFuera"
+  | "tieneJardin"
+  | "otrosAnimales"
+  | "tieneNinos"
+  | "nivelActividad"
+  | "experiencia"
+  | "especiePreferida"
+  | "tamanosPreferidos"
+  | "edadesPreferidas"
+  | "aceptaNecesidadesEspeciales"
 >;
 
 export type AnimalProfile = Pick<
@@ -63,9 +78,14 @@ export type AnimalProfile = Pick<
   | "sociableNinos"
   | "nivelAnsiedad"
   | "horasMaxSolo"
+  | "requiereExperiencia"
+  | "necesidadesEspeciales"
+  | "especie"
+  | "tamano"
+  | "edadMeses"
 >;
 
-export type CriterionKey = "ansiedad" | "energia" | "ninos" | "animales" | "jardin";
+export type CriterionKey = "ansiedad" | "energia" | "ninos" | "animales" | "experiencia" | "preferencias" | "jardin";
 
 export interface CriterionResult {
   key: CriterionKey;
@@ -94,11 +114,13 @@ export interface CompatibilityResult {
 // -----------------------------------------------------------------------------
 
 export const WEIGHTS: Record<CriterionKey, number> = {
-  ansiedad: 30,
-  energia: 25,
-  ninos: 20,
+  ansiedad: 25,
+  energia: 20,
+  ninos: 15,
   animales: 15,
-  jardin: 10,
+  experiencia: 10,
+  preferencias: 10,
+  jardin: 5,
 };
 
 /** Nota máxima posible cuando existe al menos un dealbreaker. */
@@ -126,7 +148,7 @@ const NIVEL_NUM: Record<Nivel, number> = { BAJO: 1, MEDIO: 2, ALTO: 3 };
 // Criterios individuales (funciones puras, 0-1)
 // -----------------------------------------------------------------------------
 
-/** 30 % — ¿Puede el animal quedarse solo las horas que el adoptante está fuera? */
+/** 25 % — ¿Puede el animal quedarse solo las horas que el adoptante está fuera? */
 function scoreAnsiedad(ad: AdopterProfile, an: AnimalProfile): [number, string] {
   const tolerancia = an.horasMaxSolo ?? HORAS_TOLERADAS_POR_ANSIEDAD[an.nivelAnsiedad];
   if (ad.horasFuera <= tolerancia) {
@@ -139,7 +161,7 @@ function scoreAnsiedad(ad: AdopterProfile, an: AnimalProfile): [number, string] 
 }
 
 /**
- * 25 % — Energía del animal vs. actividad del adoptante.
+ * 20 % — Energía del animal vs. actividad del adoptante.
  * Es ASIMÉTRICO: que el animal tenga MÁS energía que el adoptante es peor que
  * lo contrario (un perro tranquilo con un dueño deportista se adapta; un perro
  * hiperactivo con un dueño sedentario, no).
@@ -160,7 +182,7 @@ function scoreEnergia(ad: AdopterProfile, an: AnimalProfile): [number, string] {
     : [0.3, `El animal es mucho más tranquilo que el ritmo del adoptante (${nivelTxt}).`];
 }
 
-/** 20 % — Niños. Dealbreaker si hay niños y el animal NO es apto. */
+/** 15 % — Niños. Dealbreaker si hay niños y el animal NO es apto. */
 function scoreNinos(ad: AdopterProfile, an: AnimalProfile): [number, string, "dealbreaker" | "unknown" | null] {
   if (!ad.tieneNinos) return [1, "No hay niños en casa.", null];
   if (an.sociableNinos === true) return [1, "Hay niños y el animal es sociable con ellos.", null];
@@ -178,7 +200,41 @@ function scoreAnimales(ad: AdopterProfile, an: AnimalProfile): [number, string, 
 }
 
 /**
- * 10 % — Jardín. Si el animal lo requiere y no hay jardín, un adoptante con
+ * 10 % — Experiencia. Solo cuenta si la protectora marca que el animal la
+ * requiere: un primerizo puntúa 0, "alguna" experiencia 0.6, "mucha" 1.
+ */
+function scoreExperiencia(ad: AdopterProfile, an: AnimalProfile): [number, string] {
+  if (!an.requiereExperiencia) return [1, "No requiere experiencia previa."];
+  if (ad.experiencia === "MUCHA") return [1, "Requiere experiencia y tienes mucha."];
+  if (ad.experiencia === "ALGUNA") return [0.6, "Requiere experiencia; tienes algo, la protectora te orientará."];
+  return [0, "Requiere un adoptante con experiencia y sería tu primera vez."];
+}
+
+/** Rango de edad a partir de los meses (mismos cortes que el enum EdadRango). */
+export function edadRango(edadMeses: number): EdadRango {
+  if (edadMeses < 12) return "CACHORRO";
+  if (edadMeses < 36) return "JOVEN";
+  if (edadMeses < 96) return "ADULTO";
+  return "SENIOR";
+}
+
+/**
+ * 10 % — Preferencias del test. Media de 4 comprobaciones de sí/no:
+ * especie, tamaño, edad y necesidades especiales. Una lista vacía de
+ * preferencias significa "me da igual" y cuenta como acierto.
+ */
+function scorePreferencias(ad: AdopterProfile, an: AnimalProfile): [number, string] {
+  const fallos: string[] = [];
+  if (ad.especiePreferida !== "INDIFERENTE" && ad.especiePreferida !== an.especie) fallos.push("especie");
+  if (ad.tamanosPreferidos.length && !ad.tamanosPreferidos.includes(an.tamano)) fallos.push("tamaño");
+  if (ad.edadesPreferidas.length && !ad.edadesPreferidas.includes(edadRango(an.edadMeses))) fallos.push("edad");
+  if (an.necesidadesEspeciales && !ad.aceptaNecesidadesEspeciales) fallos.push("necesidades especiales");
+  const score = (4 - fallos.length) / 4;
+  return [score, fallos.length ? `No encaja con lo que buscas en: ${fallos.join(", ")}.` : "Encaja con lo que buscas."];
+}
+
+/**
+ * 5 % — Jardín. Si el animal lo requiere y no hay jardín, un adoptante con
  * actividad ALTA puede compensarlo parcialmente con paseos largos (0.3).
  */
 function scoreJardin(ad: AdopterProfile, an: AnimalProfile): [number, string] {
@@ -204,6 +260,8 @@ export function computeCompatibility(adopter: AdopterProfile, animal: AnimalProf
   const [eneS, eneR] = scoreEnergia(adopter, animal);
   const [ninS, ninR, ninFlag] = scoreNinos(adopter, animal);
   const [aniS, aniR, aniFlag] = scoreAnimales(adopter, animal);
+  const [expS, expR] = scoreExperiencia(adopter, animal);
+  const [prefS, prefR] = scorePreferencias(adopter, animal);
   const [jarS, jarR] = scoreJardin(adopter, animal);
 
   for (const [flag, reason] of [
@@ -219,6 +277,8 @@ export function computeCompatibility(adopter: AdopterProfile, animal: AnimalProf
     ["energia", "Energía vs. actividad", eneS, eneR],
     ["ninos", "Convivencia con niños", ninS, ninR],
     ["animales", "Convivencia con animales", aniS, aniR],
+    ["experiencia", "Experiencia", expS, expR],
+    ["preferencias", "Lo que buscas", prefS, prefR],
     ["jardin", "Jardín", jarS, jarR],
   ];
 

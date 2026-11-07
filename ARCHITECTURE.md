@@ -23,7 +23,8 @@ Para un MVP cuya hipótesis es *"el matching reduce devoluciones"*, la velocidad
 | ORM | **Prisma 7** con driver adapter `@prisma/adapter-pg` | Cliente generado en `src/generated/prisma` (no se versiona) |
 | Tests | `node:test` + `tsx` | Sin dependencias extra; se puede migrar a Vitest si crece |
 | UI (Fase 2) | Tailwind CSS + Framer Motion | Tarjetas con swipe |
-| Auth (Fase 2) | Auth.js (email mágico) | Dos roles: `ADOPTER` y `SHELTER` |
+| Auth | Propia: scrypt + cookie firmada con HMAC (`src/lib/auth.ts`) | Sin dependencias. Roles `ADOPTER` / `SHELTER` en `User`. Migrar a Auth.js si hace falta login social o revocar sesiones |
+| Validación | Zod | Mismo esquema en el formulario y en la server action |
 | Imágenes (Fase 2) | Almacenamiento S3-compatible (Supabase Storage / R2) | `Animal.fotos` guarda URLs |
 | Despliegue | Vercel / Netlify + Postgres gestionado | |
 
@@ -49,8 +50,10 @@ Para un MVP cuya hipótesis es *"el matching reduce devoluciones"*, la velocidad
 ## Modelo de datos
 
 ```
-Shelter 1 ──── n Animal 1 ──── n Match n ──── 1 Adopter
+Shelter 1 ──── n Animal 1 ──── n Match n ──── 1 Adopter 1 ──── 1 User
 ```
+
+- **User**: la cuenta (email, hash de contraseña, rol). Se crea al registrarse; el `Adopter` se crea al terminar el test.
 
 - **Shelter** — la protectora.
 - **Adopter** — el adoptante y sus *variables de matching*: `horasFuera`, `tieneJardin`, `otrosAnimales`, `tieneNinos`, `nivelActividad`.
@@ -67,12 +70,11 @@ Las columnas en BD usan `snake_case` (`horas_fuera`, `tiene_jardin`, …) median
 - `getCompatibility(adopterId, animalId)` — carga ambos por ID y devuelve `{ percentage, breakdown, dealbreakers, warnings }`.
 - `calculateCompatibility(adopterId, animalId)` — atajo que devuelve solo el número 0-100.
 
-Pesos (suman 100): ansiedad vs. horas solo **30** · energía vs. actividad **25** · niños **20** · otros animales **15** · jardín **10**. Un *dealbreaker* (niños o animales en casa con un animal que no los tolera) limita la nota a **25 %**. El razonamiento de cada peso está comentado en el propio archivo.
+Pesos (suman 100): ansiedad vs. horas solo **25** · energía vs. actividad **20** · niños **15** · otros animales **15** · experiencia **10** · preferencias del test (especie, tamaño, edad, necesidades especiales) **10** · jardín **5**. Además, si el adoptante elige una especie concreta, el feed no le enseña la otra. Un *dealbreaker* (niños o animales en casa con un animal que no los tolera) limita la nota a **25 %**. El razonamiento de cada peso está comentado en el propio archivo.
 
 ## Próximos pasos (Fase 2)
 
-1. Auth con roles adoptante / protectora.
-2. Onboarding del adoptante (cuestionario → `Adopter`).
+1. ~~Auth~~ y ~~test de estilo de vida~~ ✅
 3. Feed de swipe: animales `DISPONIBLE` no vistos, ordenados por compatibilidad, con el desglose visible.
 4. Panel de protectora: alta de animales y bandeja de *likes* ordenados por %.
 5. Service worker (offline + Web Push).

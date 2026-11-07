@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   computeCompatibility,
+  edadRango,
   calculateCompatibility,
   DEALBREAKER_CAP,
   WEIGHTS,
@@ -15,6 +16,11 @@ const adopterBase: AdopterProfile = {
   otrosAnimales: false,
   tieneNinos: false,
   nivelActividad: "MEDIO",
+  experiencia: "ALGUNA",
+  especiePreferida: "INDIFERENTE",
+  tamanosPreferidos: [],
+  edadesPreferidas: [],
+  aceptaNecesidadesEspeciales: false,
 };
 const animalBase: AnimalProfile = {
   requiereJardin: false,
@@ -23,6 +29,11 @@ const animalBase: AnimalProfile = {
   sociableNinos: true,
   nivelAnsiedad: "BAJO",
   horasMaxSolo: null,
+  requiereExperiencia: false,
+  necesidadesEspeciales: false,
+  especie: "PERRO",
+  tamano: "MEDIANO",
+  edadMeses: 36,
 };
 
 test("los pesos suman 100", () => {
@@ -34,9 +45,9 @@ test("encaje perfecto = 100%", () => {
 });
 
 test("las horas fuera por encima de la tolerancia restan de forma lineal", () => {
-  // ALTO tolera 3 h; 5 h → 2 h de exceso → 0.5 × 30 = 15 → 85 %
+  // ALTO tolera 3 h; 5 h → 2 h de exceso → 0.5 × 25 = 12.5 → 87.5 → 88 %
   const r = computeCompatibility({ ...adopterBase, horasFuera: 5 }, { ...animalBase, nivelAnsiedad: "ALTO" });
-  assert.equal(r.percentage, 85);
+  assert.equal(r.percentage, 88);
 });
 
 test("horasMaxSolo explícito tiene prioridad sobre la ansiedad", () => {
@@ -79,4 +90,25 @@ test("calculateCompatibility(adopterId, animalId) carga por ID", async () => {
   };
   assert.equal(await calculateCompatibility("a1", "x1", db), 100);
   await assert.rejects(() => calculateCompatibility("nope", "x1", db), /Adopter no encontrado/);
+});
+
+test("experiencia: un primerizo con un animal que la requiere puntúa 0 en ese criterio", () => {
+  const animal = { ...animalBase, requiereExperiencia: true };
+  const exp = (e: AdopterProfile["experiencia"]) =>
+    computeCompatibility({ ...adopterBase, experiencia: e }, animal).breakdown.find((c) => c.key === "experiencia")!.score;
+  assert.deepEqual([exp("NINGUNA"), exp("ALGUNA"), exp("MUCHA")], [0, 0.6, 1]);
+});
+
+test("preferencias: cada preferencia incumplida resta un cuarto del criterio", () => {
+  const pref = (ad: Partial<AdopterProfile>, an: Partial<AnimalProfile> = {}) =>
+    computeCompatibility({ ...adopterBase, ...ad }, { ...animalBase, ...an }).breakdown.find((c) => c.key === "preferencias")!.score;
+  assert.equal(pref({}), 1); // listas vacías = me da igual
+  assert.equal(pref({ especiePreferida: "GATO" }), 0.75);
+  assert.equal(pref({ especiePreferida: "GATO", tamanosPreferidos: ["PEQUENO"] }), 0.5);
+  assert.equal(pref({ edadesPreferidas: ["CACHORRO"] }, { necesidadesEspeciales: true }), 0.5);
+  assert.equal(pref({ aceptaNecesidadesEspeciales: true }, { necesidadesEspeciales: true }), 1);
+});
+
+test("edadRango usa los cortes del enum", () => {
+  assert.deepEqual([5, 12, 35, 36, 95, 96].map(edadRango), ["CACHORRO", "JOVEN", "JOVEN", "ADULTO", "ADULTO", "SENIOR"]);
 });

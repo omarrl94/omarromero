@@ -7,8 +7,12 @@
  *
  * Es idempotente: borra los datos existentes y vuelve a crearlos con IDs fijos,
  * así los IDs se pueden usar en pruebas manuales (p. ej. "adopter_lucia").
+ *
+ * Cuentas de prueba (contraseña "paws1234"):
+ *   lucia@example.com · familia.martin@example.com
  */
 import { prisma } from "../src/lib/prisma";
+import { hashPassword } from "../src/lib/auth";
 import { getCompatibility } from "../src/utils/matchingAlgorithm";
 
 async function main() {
@@ -17,6 +21,9 @@ async function main() {
   await prisma.animal.deleteMany();
   await prisma.adopter.deleteMany();
   await prisma.shelter.deleteMany();
+  await prisma.user.deleteMany();
+
+  const passwordHash = await hashPassword("paws1234");
 
   // --- Protectora ------------------------------------------------------------
   const shelter = await prisma.shelter.create({
@@ -45,6 +52,12 @@ async function main() {
       otrosAnimales: false,
       tieneNinos: false,
       nivelActividad: "BAJO",
+      experiencia: "NINGUNA",
+      especiePreferida: "INDIFERENTE",
+      tamanosPreferidos: ["PEQUENO", "MEDIANO"],
+      edadesPreferidas: [],
+      aceptaNecesidadesEspeciales: false,
+      user: { create: { email: "lucia@example.com", nombre: "Lucía", ciudad: "Madrid", passwordHash } },
     },
   });
 
@@ -62,6 +75,12 @@ async function main() {
       otrosAnimales: true,
       tieneNinos: true,
       nivelActividad: "ALTO",
+      experiencia: "MUCHA",
+      especiePreferida: "PERRO",
+      tamanosPreferidos: [],
+      edadesPreferidas: ["CACHORRO", "JOVEN", "ADULTO"],
+      aceptaNecesidadesEspeciales: true,
+      user: { create: { email: "familia.martin@example.com", nombre: "Familia Martín", ciudad: "Alcobendas", passwordHash } },
     },
   });
 
@@ -127,12 +146,32 @@ async function main() {
       sociableNinos: false,
       nivelAnsiedad: "ALTO",
       horasMaxSolo: 3,
+      requiereExperiencia: true, // Miedos: necesita alguien que sepa manejarlos
     },
   });
 
+  // Extra (los mismos que en la preview): perfiles fáciles y algún caso especial.
+  const extras = await Promise.all(
+    [
+      { id: "animal_bruno", nombre: "Bruno", especie: "PERRO", raza: "Labrador", edadMeses: 72, tamano: "GRANDE", sexo: "MACHO",
+        descripcion: "Un osito de peluche con patas. Se adapta a cualquier ritmo, siempre que haya una pelota.",
+        requiereJardin: false, nivelEnergia: "MEDIO", sociableAnimales: true, sociableNinos: true, nivelAnsiedad: "BAJO" },
+      { id: "animal_coco", nombre: "Coco", especie: "PERRO", raza: "Beagle", edadMeses: 14, tamano: "MEDIANO", sexo: "MACHO",
+        descripcion: "Pura energía y nariz. Le encanta robar zapatillas y jugar con niños.",
+        requiereJardin: false, nivelEnergia: "ALTO", sociableAnimales: true, sociableNinos: true, nivelAnsiedad: "MEDIO" },
+      { id: "animal_luna", nombre: "Luna", especie: "GATO", raza: "Gata negra", edadMeses: 26, tamano: "PEQUENO", sexo: "HEMBRA",
+        descripcion: "Curiosa, independiente y muy limpia. Convive sin problema con otros gatos.",
+        requiereJardin: false, nivelEnergia: "MEDIO", sociableAnimales: true, sociableNinos: true, nivelAnsiedad: "BAJO" },
+      { id: "animal_nala", nombre: "Nala", especie: "GATO", raza: "Gatita carey", edadMeses: 4, tamano: "PEQUENO", sexo: "HEMBRA",
+        descripcion: "Cuatro meses de travesuras. Le falta un ojo, pero no se entera. Aún no probada con otros animales.",
+        requiereJardin: false, nivelEnergia: "ALTO", sociableAnimales: null, sociableNinos: true, nivelAnsiedad: "MEDIO",
+        necesidadesEspeciales: true },
+    ].map((data) => prisma.animal.create({ data: { ...data, fotos: [], shelterId: shelter.id } as Parameters<typeof prisma.animal.create>[0]["data"] })),
+  );
+
   // --- Matriz de compatibilidad ----------------------------------------------
   const adopters = [lucia, martin];
-  const animals = [toby, misha, rocky];
+  const animals = [toby, misha, rocky, ...extras];
 
   console.log("\n🐾 Matriz de compatibilidad\n");
   const table: Record<string, Record<string, string>> = {};

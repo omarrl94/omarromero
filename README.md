@@ -20,7 +20,15 @@ Una parte importante de las adopciones fracasan y terminan en **devolución**: e
 - [x] Esquema de base de datos: [`prisma/schema.prisma`](./prisma/schema.prisma) (Shelter, Adopter, Animal, Match) + migración inicial
 - [x] Algoritmo de compatibilidad comentado: [`src/utils/matchingAlgorithm.ts`](./src/utils/matchingAlgorithm.ts) + tests
 - [x] Seed con datos falsos: [`prisma/seed.ts`](./prisma/seed.ts) (1 protectora, 2 adoptantes, 3 animales)
-- [ ] Fase 2: pantallas (onboarding/cuestionario, swipe, detalle, panel de protectora), autenticación
+
+## Fase 2 — en curso
+
+- [x] Registro e inicio de sesión con email y contraseña (`/registro`, `/login`)
+- [x] Test de estilo de vida de 11 preguntas tras registrarse (`/test`), repetible
+- [x] Feed provisional ordenado por compatibilidad (`/descubrir`)
+- [ ] Feed con swipe (como en la preview), detalle del animal y panel de protectora
+
+Cuentas de prueba del seed (contraseña `paws1234`): `lucia@example.com` y `familia.martin@example.com`.
 
 ## Puesta en marcha
 
@@ -33,20 +41,10 @@ npm run db:up               # (opcional) levanta PostgreSQL con docker compose
 npm run db:migrate          # crea las tablas
 npm run db:seed             # datos de prueba + imprime la matriz de compatibilidad
 npm test                    # tests unitarios del algoritmo
-npm run dev                 # http://localhost:3000 → matriz de compatibilidad (provisional)
+npm run dev                 # http://localhost:3000 → registro, test y feed
 ```
 
-Salida del seed:
-
-```
-┌─────────────────┬────────┬────────────┬──────────┐
-│ (index)         │ Toby   │ Misha      │ Rocky    │
-├─────────────────┼────────┼────────────┼──────────┤
-│ Lucía Fernández │ '43%'  │ '93%'      │ '55%'    │
-│ Familia Martín  │ '100%' │ '25% ⛔ ⚠️' │ '25% ⛔' │
-└─────────────────┴────────┴────────────┴──────────┘
-⛔ = dealbreaker (nota limitada)   ⚠️ = dato sin evaluar
-```
+El seed imprime la matriz de compatibilidad de los 2 adoptantes con los 7 animales.
 
 ## Scripts
 
