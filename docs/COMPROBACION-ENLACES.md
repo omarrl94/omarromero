@@ -1,15 +1,15 @@
 # Comprobación de enlaces
 
-Fecha: 2026-11-07T11:38:02.873Z · Enlaces de empresas: 491 · rotos: 4
+Fecha: 2026-11-07T14:08:04.954Z · Enlaces de empresas: 404 · rotos: 4
 
 ## Enlaces rotos del directorio
 
 | Empresa | Tipo | URL | Estado |
 |---|---|---|---|
-| idealista | web | https://www.idealista.com | 403 |
-| Secure&IT | web | https://www.secureit.es | tiempo agotado |
-| Secure&IT | formulario | https://www.secureit.es/contacto/ | tiempo agotado |
-| Secure&IT | empleo | https://www.secureit.es/aumenta-el-numero-de-mujeres-que-trabaja-en-ciberseguridad/ | tiempo agotado |
+| Arte Y Tecnología Dinámica | web | https://www.artdinamica.com | ERR_TLS_CERT_ALTNAME_INVALID |
+| Secure&IT | empleo | https://talento.secureit.es/ | 403 |
+| Taquion | web | https://taquion.es | 403 |
+| Taquion | formulario | https://taquion.es/contacto/ | 403 |
 
 ## Portales (enlaces profundos)
 
