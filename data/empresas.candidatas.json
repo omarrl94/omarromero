@@ -5985,5 +5985,941 @@
       "https://www.supermercadosladespensa.es"
     ],
     "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "estratel-marketing",
+    "nombre": "Estratel Marketing",
+    "web": "https://estratel.net",
+    "sector": "Distribución autorizada de Orange: captación y fidelización de clientes",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta-tecnica",
+      "acom-atencion-cliente",
+      "acom-venta"
+    ],
+    "motivoEncaje": "Distribuidor autorizado de Orange en Madrid (vivero de Carabanchel): venta y atención al cliente. Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
+    "paginasContacto": [
+      "https://estratel.net"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "grantipo",
+    "nombre": "Grantipo",
+    "web": "https://grantipo.com",
+    "sector": "Diseño estratégico, branding y soluciones digitales",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "dam-web"
+    ],
+    "motivoEncaje": "Estudio madrileño de branding, packaging y soluciones digitales (vivero de Carabanchel). Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
+    "paginasContacto": [
+      "https://grantipo.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "ideametrics",
+    "nombre": "Ideametrics",
+    "web": "https://www.ideametrics.es",
+    "sector": "Protección de datos de sistemas de información",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Servicios de protección de los datos de los sistemas de información (vivero de Carabanchel). Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
+    "paginasContacto": [
+      "https://www.ideametrics.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "iotlike",
+    "nombre": "IoTLike",
+    "web": "https://iotlike.es",
+    "sector": "Soluciones IoT e inteligencia artificial",
+    "tamano": "startup",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "dam-datos-ia",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Desarrollo de soluciones de Internet de las Cosas e IA (vivero de Carabanchel). Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
+    "paginasContacto": [
+      "https://iotlike.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "mas-mayor-tech",
+    "nombre": "Más Mayor Tech",
+    "web": "https://masmayor.com",
+    "sector": "Productos tecnológicos para personas mayores",
+    "tamano": "startup",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-android",
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Startup madrileña de productos digitales para mayores (vivero de Carabanchel). Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
+    "paginasContacto": [
+      "https://masmayor.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "meta-global-creator",
+    "nombre": "Meta Global Creator (Mixreal)",
+    "web": "https://www.mixreal.com",
+    "sector": "Metaverso, realidad extendida y software",
+    "tamano": "startup",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-videojuegos",
+      "dam-web",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Metaverso, realidad extendida, software y cloud (vivero de Carabanchel). Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
+    "paginasContacto": [
+      "https://www.mixreal.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "poolcomet",
+    "nombre": "Poolcomet",
+    "web": "https://poolcomet.com",
+    "sector": "Venta de productos y servicios para piscinas y spas",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-ecommerce",
+      "acom-atencion-cliente"
+    ],
+    "motivoEncaje": "Comercio de equipamiento para piscinas y spas (vivero de Carabanchel). Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
+    "paginasContacto": [
+      "https://poolcomet.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "skin-ai",
+    "nombre": "Skin AI",
+    "web": "https://skinai.tech",
+    "sector": "Inteligencia artificial para profesionales sanitarios",
+    "tamano": "startup",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-datos-ia",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Herramientas de IA para profesionales sanitarios (vivero de Carabanchel). Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
+    "paginasContacto": [
+      "https://skinai.tech"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "templo-inmobiliario",
+    "nombre": "Templo Consultoría Inmobiliaria",
+    "web": "https://www.templo-inmobiliario.com",
+    "sector": "Intermediación inmobiliaria",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta-tecnica",
+      "acom-atencion-cliente"
+    ],
+    "motivoEncaje": "Compraventa de vivienda con procesos digitales (vivero de Carabanchel). Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
+    "paginasContacto": [
+      "https://www.templo-inmobiliario.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "netspot-flipresto",
+    "nombre": "Netspot (Flipresto)",
+    "web": "https://www.netspot.es",
+    "sector": "Plataforma de marketing para restaurantes",
+    "tamano": "startup",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "dam-web",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Plataforma de soluciones de marketing para restauración (vivero de Moratalaz). Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
+    "paginasContacto": [
+      "https://www.netspot.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "reserva-coyote",
+    "nombre": "Reserva Coyote",
+    "web": "https://reservacoyote.com",
+    "sector": "Marketing y publicidad",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Departamento externo de marketing y campañas publicitarias (vivero de Moratalaz). Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
+    "paginasContacto": [
+      "https://reservacoyote.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "cofana-labs",
+    "nombre": "Cofana Labs",
+    "web": "https://cofana-labs.com",
+    "sector": "Desarrollo de software y aplicaciones",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-android"
+    ],
+    "motivoEncaje": "Desarrollo de software, aplicaciones y webs (vivero de Puente de Vallecas). Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
+    "paginasContacto": [
+      "https://cofana-labs.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "generacion-ads",
+    "nombre": "Generación Ads",
+    "web": "https://www.generacionads.com",
+    "sector": "Marketing digital y publicidad online",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Gestión de campañas en Google Ads y redes sociales (vivero de Puente de Vallecas). Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
+    "paginasContacto": [
+      "https://www.generacionads.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "komorebi-ai",
+    "nombre": "Komorebi AI Technologies",
+    "web": "https://komorebi.ai/es/",
+    "sector": "Soluciones de inteligencia artificial",
+    "tamano": "startup",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-datos-ia",
+      "dam-backend"
+    ],
+    "motivoEncaje": "IA para resolver problemas de negocio (vivero de Puente de Vallecas); colabora en FFE de comercio en Madrid. Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
+    "paginasContacto": [
+      "https://komorebi.ai/es/"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "pango-studio",
+    "nombre": "Pango Studio (Pholidota Studio)",
+    "web": "https://pangostudio.com",
+    "sector": "Desarrollo de comercio electrónico (Shopify)",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "acom-ecommerce",
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Desarrollo de tiendas online en Shopify (vivero de Puente de Vallecas). Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
+    "paginasContacto": [
+      "https://pangostudio.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "quantum-mads",
+    "nombre": "Quantum MADS",
+    "web": "https://quantum-mads.com",
+    "sector": "Análisis de datos para la toma de decisiones",
+    "tamano": "startup",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-datos-ia",
+      "dam-bbdd"
+    ],
+    "motivoEncaje": "Soluciones de datos para la toma de decisiones (vivero de Puente de Vallecas). Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
+    "paginasContacto": [
+      "https://quantum-mads.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "xeoris",
+    "nombre": "Xeoris",
+    "web": "https://www.xeoris.com",
+    "sector": "Ciberseguridad para autónomos y pymes",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-soporte",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Ciberseguridad para pymes (vivero de Puente de Vallecas). Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
+    "paginasContacto": [
+      "https://www.xeoris.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "andrea-lab",
+    "nombre": "Andrea Lab",
+    "web": "https://andrea-lab.com",
+    "sector": "Equipos de ingeniería y desarrollo de software",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Equipos de ingeniería de software para empresas (vivero de San Blas). Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
+    "paginasContacto": [
+      "https://andrea-lab.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "agencia-nous",
+    "nombre": "Agencia Nous",
+    "web": "https://agencianous.com",
+    "sector": "Comunicación, publicidad y marketing digital",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Agencia de comunicación y marketing digital (vivero de San Blas). Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
+    "paginasContacto": [
+      "https://agencianous.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "pifie-energy",
+    "nombre": "Pifie Energy",
+    "web": "https://www.pifienergy.com",
+    "sector": "Inteligencia artificial aplicada",
+    "tamano": "startup",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-datos-ia",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Sistemas de IA aplicados al mundo real (vivero de San Blas). Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
+    "paginasContacto": [
+      "https://www.pifienergy.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "skiller-academy",
+    "nombre": "Skiller Academy",
+    "web": "https://www.skiller.education",
+    "sector": "Consultoría y formación en blockchain, datos y marketing",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-datos-ia",
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Formación y consultoría en datos, blockchain y marketing (vivero de San Blas). Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
+    "paginasContacto": [
+      "https://www.skiller.education"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "3byt-consorcio",
+    "nombre": "3BYT Consorcio",
+    "web": "https://3byt.com",
+    "sector": "Comercio de muebles e iluminación",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-ecommerce",
+      "acom-logistica"
+    ],
+    "motivoEncaje": "Intermediación y comercio de mobiliario e iluminación (vivero de Vicálvaro). Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
+    "paginasContacto": [
+      "https://3byt.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "secur0",
+    "nombre": "Secur0 (Hack 4 Bounty)",
+    "web": "https://secur0.com",
+    "sector": "Ciberseguridad: bug bounty y hacking ético",
+    "tamano": "startup",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-datos-ia-seguridad"
+    ],
+    "motivoEncaje": "Bug bounty y hacking ético (vivero de Vicálvaro). Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
+    "paginasContacto": [
+      "https://secur0.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "being-tech",
+    "nombre": "Being Innovation",
+    "web": "https://www.being.tech",
+    "sector": "Optimización sostenible de recursos digitales",
+    "tamano": "startup",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-cloud",
+      "asir-sistemas",
+      "dam-web"
+    ],
+    "motivoEncaje": "Tecnología para un uso sostenible de los recursos digitales (vivero de Villaverde). Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
+    "paginasContacto": [
+      "https://www.being.tech"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "dedomena-ai",
+    "nombre": "Dedomena AI",
+    "web": "https://dedomena.ai",
+    "sector": "Inteligencia artificial y datos sintéticos",
+    "tamano": "startup",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-datos-ia",
+      "dam-bbdd"
+    ],
+    "motivoEncaje": "Soluciones de inteligencia artificial (vivero de Villaverde). Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
+    "paginasContacto": [
+      "https://dedomena.ai"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "wattual",
+    "nombre": "Wattual",
+    "web": "https://www.wattual.com",
+    "sector": "Tecnología de gestión de la energía",
+    "tamano": "startup",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-datos-ia"
+    ],
+    "motivoEncaje": "Software de gestión energética para consumidores (vivero de Puente de Vallecas). Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
+    "paginasContacto": [
+      "https://www.wattual.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "distrito17",
+    "nombre": "Distrito 17 (Sánchez Ramos Estudio Inmobiliario)",
+    "web": "https://www.distrito17.es",
+    "sector": "Intermediación inmobiliaria",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta-tecnica",
+      "acom-atencion-cliente"
+    ],
+    "motivoEncaje": "Inmobiliaria del distrito de Villaverde (vivero de Villaverde). Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
+    "paginasContacto": [
+      "https://www.distrito17.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "emergya-marketing",
+    "nombre": "Emergya Marketing (Citadelia)",
+    "web": "https://emergyamarketing.com",
+    "sector": "Servicios profesionales de marketing",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Servicios de marketing (vivero de Carabanchel). Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
+    "paginasContacto": [
+      "https://emergyamarketing.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "prinsem",
+    "nombre": "Prinsem",
+    "web": "https://www.prinsem.net",
+    "sector": "Soporte IT",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-soporte",
+      "asir-sistemas",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Consultora especializada en servicios de soporte IT (vivero de Vicálvaro). Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
+    "paginasContacto": [
+      "https://www.prinsem.net"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "acierta-laboral",
+    "nombre": "Acierta Laboral (Genifusión)",
+    "web": "https://www.aciertalaboral.com",
+    "sector": "Distribución de vestuario laboral y EPI",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta-tecnica",
+      "acom-logistica",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Venta y distribución de vestuario laboral y EPI (vivero de Puente de Vallecas). Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
+    "paginasContacto": [
+      "https://www.aciertalaboral.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "cosacor",
+    "nombre": "Cosacor",
+    "web": "https://cosacor.com",
+    "sector": "Fabricación y venta al por mayor de bolsas de papel",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta-tecnica",
+      "acom-logistica"
+    ],
+    "motivoEncaje": "Distribución mayorista (vivero de Vicálvaro). Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
+    "paginasContacto": [
+      "https://cosacor.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "gh-casas",
+    "nombre": "GH Casas (GH Invest Auctions)",
+    "web": "https://www.ghcasas.es",
+    "sector": "Subastas e intermediación inmobiliaria",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta-tecnica",
+      "acom-atencion-cliente",
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Servicio inmobiliario de subastas (vivero de Vicálvaro). Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
+    "paginasContacto": [
+      "https://www.ghcasas.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "alten-espana",
+    "nombre": "ALTEN España",
+    "web": "https://www.alten.es",
+    "sector": "Ingeniería y consultoría tecnológica",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-escritorio",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Consultora de ingeniería y tecnología con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.alten.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "wairbut",
+    "nombre": "Wairbut",
+    "web": "https://www.wairbut.com",
+    "sector": "Servicios TI y consultoría",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-soporte",
+      "asir-sistemas",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Consultora de servicios TI con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.wairbut.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "cibernos",
+    "nombre": "Grupo Cibernos",
+    "web": "https://www.cibernos.com",
+    "sector": "Servicios TI y transformación digital",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-soporte",
+      "asir-sistemas",
+      "dam-web"
+    ],
+    "motivoEncaje": "Grupo de servicios tecnológicos con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.cibernos.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "mtp",
+    "nombre": "MTP (Métodos y Tecnología)",
+    "web": "https://www.mtp.es",
+    "sector": "Calidad del software, pruebas y negocio digital",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-bbdd"
+    ],
+    "motivoEncaje": "Consultora madrileña especializada en pruebas y calidad del software.",
+    "paginasContacto": [
+      "https://www.mtp.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "s2-grupo",
+    "nombre": "S2 Grupo",
+    "web": "https://s2grupo.es",
+    "sector": "Ciberseguridad",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-datos-ia-seguridad",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Empresa de ciberseguridad con centro en Madrid.",
+    "paginasContacto": [
+      "https://s2grupo.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "inprosec",
+    "nombre": "Inprosec",
+    "web": "https://www.inprosec.com",
+    "sector": "Ciberseguridad",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Consultora madrileña de ciberseguridad.",
+    "paginasContacto": [
+      "https://www.inprosec.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "secure-and-it",
+    "nombre": "Secure&IT",
+    "web": "https://www.secureandit.es",
+    "sector": "Ciberseguridad y cumplimiento",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-sistemas",
+      "asir-soporte"
+    ],
+    "motivoEncaje": "Ciberseguridad y cumplimiento normativo con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.secureandit.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "bnext",
+    "nombre": "Bnext",
+    "web": "https://bnext.es",
+    "sector": "Banca digital",
+    "tamano": "startup",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-android",
+      "dam-backend",
+      "acom-atencion-cliente"
+    ],
+    "motivoEncaje": "Neobanco madrileño: producto digital y atención al cliente.",
+    "paginasContacto": [
+      "https://bnext.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "ontruck",
+    "nombre": "Ontruck",
+    "web": "https://www.ontruck.com",
+    "sector": "Logística y transporte digital",
+    "tamano": "startup",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "acom-logistica"
+    ],
+    "motivoEncaje": "Plataforma madrileña de transporte de mercancías.",
+    "paginasContacto": [
+      "https://www.ontruck.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "bdeo",
+    "nombre": "Bdeo",
+    "web": "https://bdeo.io",
+    "sector": "Inteligencia artificial para seguros",
+    "tamano": "startup",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-datos-ia",
+      "dam-backend",
+      "dam-web"
+    ],
+    "motivoEncaje": "Startup madrileña de IA visual para aseguradoras.",
+    "paginasContacto": [
+      "https://bdeo.io"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "tuio",
+    "nombre": "Tuio",
+    "web": "https://tuio.com",
+    "sector": "Seguros digitales",
+    "tamano": "startup",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "acom-atencion-cliente",
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Aseguradora digital con sede en Madrid.",
+    "paginasContacto": [
+      "https://tuio.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "housers",
+    "nombre": "Housers",
+    "web": "https://www.housers.com",
+    "sector": "Plataforma de inversión inmobiliaria",
+    "tamano": "startup",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Plataforma madrileña de inversión inmobiliaria.",
+    "paginasContacto": [
+      "https://www.housers.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "platonic-games",
+    "nombre": "Platonic Games",
+    "web": "https://platonicgames.com",
+    "sector": "Desarrollo de videojuegos",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-videojuegos",
+      "dam-android"
+    ],
+    "motivoEncaje": "Estudio madrileño de videojuegos para móvil.",
+    "paginasContacto": [
+      "https://platonicgames.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "teldat",
+    "nombre": "Teldat",
+    "web": "https://www.teldat.com",
+    "sector": "Equipos y software de comunicaciones",
+    "tamano": "gran-empresa",
+    "zona": "norte",
+    "perfiles": [
+      "asir-redes",
+      "asir-sistemas",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Fabricante de equipos de red con sede en Tres Cantos.",
+    "paginasContacto": [
+      "https://www.teldat.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "milbby",
+    "nombre": "Milbby",
+    "web": "https://www.milbby.com",
+    "sector": "Comercio de mobiliario y decoración (online y tiendas)",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-ecommerce",
+      "acom-visual",
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Tienda madrileña de mobiliario y decoración. Colabora en la Formación en Empresa de Actividades Comerciales del IES Palomeras Vallecas (programación oficial del ciclo, curso 2025-2026).",
+    "paginasContacto": [
+      "https://www.milbby.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "sepiia",
+    "nombre": "Sepiia",
+    "web": "https://sepiia.com",
+    "sector": "Moda técnica (marca madrileña)",
+    "tamano": "startup",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-ecommerce",
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Marca de moda con tienda online y tienda física en Madrid. Colabora en la Formación en Empresa de Actividades Comerciales del IES Palomeras Vallecas (programación oficial del ciclo, curso 2025-2026).",
+    "paginasContacto": [
+      "https://sepiia.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "viajes-catai",
+    "nombre": "Viajes Catai",
+    "web": "https://www.catai.es",
+    "sector": "Turoperador y agencia de viajes",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta-tecnica",
+      "acom-atencion-cliente",
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Turoperador con sede en Madrid: venta de viajes y atención al cliente. Colabora en la Formación en Empresa de Actividades Comerciales del IES Palomeras Vallecas (programación oficial del ciclo, curso 2025-2026).",
+    "paginasContacto": [
+      "https://www.catai.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "hiper-antena",
+    "nombre": "Hiper Antena",
+    "web": "https://www.hiperantena.com",
+    "sector": "Comercio de electrónica y telecomunicaciones",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta-tecnica",
+      "acom-ecommerce",
+      "acom-logistica",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Comercio madrileño de material de telecomunicaciones y electrónica. Colabora en la Formación en Empresa de Actividades Comerciales del IES Palomeras Vallecas (programación oficial del ciclo, curso 2025-2026).",
+    "paginasContacto": [
+      "https://www.hiperantena.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "technaid",
+    "nombre": "Technaid",
+    "web": "https://www.technaid.com",
+    "sector": "Tecnología: sensores y exoesqueletos",
+    "tamano": "pyme",
+    "zona": "este",
+    "perfiles": [
+      "dam-escritorio",
+      "dam-backend",
+      "acom-venta-tecnica"
+    ],
+    "motivoEncaje": "Empresa tecnológica de la Comunidad de Madrid. Colabora en la Formación en Empresa de Actividades Comerciales del IES Palomeras Vallecas (programación oficial del ciclo, curso 2025-2026).",
+    "paginasContacto": [
+      "https://www.technaid.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "proyecta",
+    "nombre": "Proyecta Sistemas de Información",
+    "web": "https://www.proyecta.es",
+    "sector": "Servicios de software (turismo y banca)",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-bbdd"
+    ],
+    "motivoEncaje": "Empresa madrileña de servicios de software.",
+    "paginasContacto": [
+      "https://www.proyecta.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "microsyscom",
+    "nombre": "Grupo Microsyscom",
+    "web": "https://www.microsyscom.com",
+    "sector": "Consultoría informática e ingeniería de sistemas",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-sistemas",
+      "asir-soporte",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Consultoría y gestión de instalaciones informáticas en Madrid. Colabora en la Formación en Empresa de Actividades Comerciales del IES Palomeras Vallecas (programación oficial del ciclo, curso 2025-2026).",
+    "paginasContacto": [
+      "https://www.microsyscom.com"
+    ],
+    "tipoContactoEsperado": "general"
   }
 ]

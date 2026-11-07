@@ -44,3 +44,12 @@ describe('formulario real (no una página genérica)', () => {
     expect(r.enlacesCandidatura).toEqual(['https://a.test/empleo/candidatura']);
   });
 });
+
+describe('la web es de la empresa', () => {
+  it('acepta si el nombre está en el dominio o en la portada, y rechaza otra empresa', async () => {
+    const { webEsDeLaEmpresa } = await import('../../scripts/verificar-empresas');
+    expect(webEsDeLaEmpresa('Grupo Microsyscom', 'https://www.microsyscom.com/', '')).toBe(true);
+    expect(webEsDeLaEmpresa('Tragsatec', 'https://www.tragsa.es/', '<p>Grupo Tragsa: Tragsa y Tragsatec</p>')).toBe(true);
+    expect(webEsDeLaEmpresa('Kanito Marketing Group', 'https://www.otra-agencia.test/', '<p>Somos Otra Agencia</p>')).toBe(false);
+  });
+});

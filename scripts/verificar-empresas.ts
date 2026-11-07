@@ -128,6 +128,12 @@ export async function verificar(c: Candidata, retiradas: Retirada[], deps: Depen
     return { r };
   }
 
+  // 1 bis. La web es de ESTA empresa: alguna palabra distintiva del nombre aparece en el dominio o en la portada.
+  if (!webEsDeLaEmpresa(c.nombre, raiz.urlFinal, raiz.html)) {
+    r.motivo = `La web no menciona a «${c.nombre}» ni su dominio coincide: puede ser otra empresa, revisar a mano`;
+    return { r };
+  }
+
   // 2. Páginas a revisar: las indicadas en la investigación, los enlaces de empleo/contacto/legal de la portada
   //    y las rutas habituales de empleo, empezando por las de empleo y RR. HH.
   const origen = new URL(raiz.urlFinal).origin;
@@ -372,6 +378,18 @@ export async function verificar(c: Candidata, retiradas: Retirada[], deps: Depen
   r.contacto = contacto.tipo === 'email' ? `${contacto.email} (${contacto.fuenteUrl})` : `formulario: ${contacto.formularioUrl}`;
   r.confianza = confianza;
   return { r, empresa: val.data };
+}
+
+const PALABRAS_GENERICAS = new Set(['grupo', 'group', 'espana', 'spain', 'iberia', 'iberica', 'europe', 'technologies', 'technology', 'tecnologias', 'tecnologia', 'consulting', 'consultoria', 'solutions', 'soluciones', 'servicios', 'services', 'sistemas', 'systems', 'marketing', 'digital', 'studio', 'studios', 'agencia', 'empresa', 'portal', 'empleo', 'antes', 'the', 'and', 'del', 'los', 'las', 'sociedad', 'limitada', 'anonima']);
+
+/** ¿La web corresponde a la empresa? Evita publicar el contacto de otra empresa con un nombre o dominio parecido. */
+export function webEsDeLaEmpresa(nombre: string, url: string, html: string): boolean {
+  const norm = (t: string) => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const palabras = norm(nombre).split(/[^a-z0-9]+/).filter((p) => p.length >= 3 && !PALABRAS_GENERICAS.has(p));
+  if (!palabras.length) return true;
+  const dominio = norm(new URL(url).hostname).replace(/[^a-z0-9]/g, '');
+  const texto = norm(html.slice(0, 600_000).replace(/<[^>]+>/g, ' '));
+  return palabras.some((p) => dominio.includes(p) || texto.includes(p));
 }
 
 /** Pruebas de cada contacto publicado, para revisarlas a mano (docs/AUDITORIA-CONTACTOS.md). */
