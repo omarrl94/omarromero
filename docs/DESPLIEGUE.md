@@ -21,7 +21,7 @@ del buzón del centro (los mismos que en ColaboraFP, la web de exámenes y el cu
 
 ## 2. Comprobar las empresas (GitHub Actions)
 
-Ya está hecho: hay 162 empresas verificadas con reglas estrictas (93 de DAM, 82 de ASIR y 50 de Actividades Comerciales). El flujo «Verificar empresas» se repite solo cada mes y cada vez que cambian las candidatas (ver `docs/GUIA-EMPRESAS.md`).
+Ya está hecho: hay 190 empresas verificadas con reglas estrictas (102 de DAM, 95 de ASIR, 20 de SEA y 54 de Actividades Comerciales). El flujo «Verificar empresas» se repite solo cada mes y cada vez que cambian las candidatas (ver `docs/GUIA-EMPRESAS.md`).
 
 ## 3. Crear el sitio en Netlify
 

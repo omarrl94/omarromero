@@ -102,5 +102,24 @@
     "descartar": true,
     "motivo": "empresa de Murcia: su dirección y sus oficinas están en Murcia y Alicante; «Madrid» solo aparece en páginas de posicionamiento",
     "fecha": "2026-11-07"
+  },
+  "otis-espana": {
+    "correosRechazados": [
+      "careers@otis.com"
+    ],
+    "motivo": "buzón global de Otis para solicitar adaptaciones por discapacidad en el proceso, no para enviar candidaturas",
+    "fecha": "2026-11-07"
+  },
+  "problemas-cero": {
+    "descartar": true,
+    "motivo": "es la misma empresa que FMG Consulting (su página de empleo remite a fmgconsulting.es); se mantiene solo FMG Consulting",
+    "fecha": "2026-11-07"
+  },
+  "emergya-marketing": {
+    "formulariosRechazados": [
+      "https://emergyamarketing.com/contacto"
+    ],
+    "motivo": "formulario comercial («Cuéntanos tu proyecto»), no para candidaturas",
+    "fecha": "2026-11-07"
   }
 }
