@@ -108,7 +108,10 @@ const cache = new Map<string, Promise<ComprobacionBuzon>>();
 /** Comprueba un buzón (con caché por dirección). Requiere salida al puerto 25 (GitHub Actions la tiene). */
 export function comprobarBuzon(email: string): Promise<ComprobacionBuzon> {
   const clave = email.toLowerCase();
-  if (!cache.has(clave)) cache.set(clave, comprobarSinCache(clave));
+  if (!cache.has(clave)) {
+    const limite = new Promise<ComprobacionBuzon>((resolve) => setTimeout(() => resolve({ resultado: 'indeterminado', respuesta: 'el servidor de correo no respondió en 60 s' }), 60_000).unref());
+    cache.set(clave, Promise.race([comprobarSinCache(clave), limite]));
+  }
   return cache.get(clave)!;
 }
 

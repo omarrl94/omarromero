@@ -117,6 +117,12 @@ export function enlacesDeCandidatura(html: string, base: string): string[] {
   return [...new Set(salida)].slice(0, 3);
 }
 
+/** Resuelve con `valor` si la promesa no termina en `ms` (ninguna comprobación puede colgar la verificación). */
+export function conLimite<T>(promesa: Promise<T>, ms: number, valor: () => T): Promise<T> {
+  let t: ReturnType<typeof setTimeout>;
+  return Promise.race([promesa.finally(() => clearTimeout(t)), new Promise<T>((resolve) => (t = setTimeout(() => resolve(valor()), ms)))]);
+}
+
 /** Comprobador con navegador real (Playwright). Solo en GitHub Actions (necesita Chromium). */
 export interface ComprobadorFormularios {
   comprobar(url: string): Promise<ResultadoFormulario>;
@@ -137,10 +143,10 @@ export async function crearComprobadorNavegador(): Promise<ComprobadorFormulario
       await pagina.waitForTimeout(1_500);
       const formularios: FormularioEncontrado[] = [];
       const iframes: string[] = [];
-      for (const frame of pagina.frames()) {
+      for (const frame of pagina.frames().slice(0, 8)) {
         if (frame !== pagina.mainFrame()) iframes.push(frame.url());
         try {
-          const datos = await frame.evaluate(() =>
+          const datos = await conLimite(frame.evaluate(() =>
             [...document.querySelectorAll('form')].map((f) => ({
               campos: [...f.querySelectorAll('input, textarea, select')].map((e) => {
                 const el = e as HTMLInputElement;
@@ -149,24 +155,24 @@ export async function crearComprobadorNavegador(): Promise<ComprobadorFormulario
                 return { tipo: visible ? (el.tagName === 'INPUT' ? (el.type || 'text').toLowerCase() : el.tagName.toLowerCase()) : 'hidden', nombre: el.name || el.id || '', etiqueta };
               }),
             })),
-          );
+          ), 10_000, () => []);
           for (const d of datos) formularios.push({ url: frame.url(), campos: d.campos });
         } catch {
           /* iframe inaccesible */
         }
       }
       const r = elegirFormulario(pagina.url(), formularios, iframes);
-      if (!r.valido) r.enlacesCandidatura = enlacesDeCandidatura(await pagina.content(), pagina.url());
+      if (!r.valido) r.enlacesCandidatura = enlacesDeCandidatura(await conLimite(pagina.content(), 10_000, () => ''), pagina.url());
       return r;
     } catch (e) {
       return { valido: false, motivo: `no se pudo cargar (${(e as Error).message.split('\n')[0].slice(0, 80)})`, url };
     } finally {
-      await pagina.close().catch(() => undefined);
+      void conLimite(pagina.close().catch(() => undefined), 5_000, () => undefined);
     }
   };
   return {
     comprobar(url) {
-      if (!cache.has(url)) cache.set(url, comprobarUna(url));
+      if (!cache.has(url)) cache.set(url, conLimite(comprobarUna(url), 60_000, () => ({ valido: false, motivo: 'la página no terminó de cargar en 60 s', url })));
       return cache.get(url)!;
     },
     async cerrar() {

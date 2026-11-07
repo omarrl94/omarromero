@@ -15,6 +15,11 @@ on:
       - scripts/lib/**
       - .github/workflows/verificar-empresas.yml
   workflow_dispatch:
+    inputs:
+      solo:
+        description: 'Ids de empresas separados por comas (vacío = todas)'
+        required: false
+        default: ''
   schedule:
     - cron: '23 5 1 * *'
 
@@ -45,7 +50,9 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Verificar empresas (web, correo en la fuente, MX, buzón y formulario real)
-        run: npm run verificar:empresas -- --concurrencia=6 --smtp --navegador
+        env:
+          SOLO: ${{ github.event.inputs.solo }}
+        run: npm run verificar:empresas -- --concurrencia=8 --smtp --navegador ${SOLO:+--solo=$SOLO}
 
       - name: Validar datos
         run: npm run validar:datos

@@ -13,7 +13,7 @@ import { CandidatasSchema, EmpresaSchema, EmpresasSchema, type Candidata, type E
 import { descargar as descargarRed, enSerie, hayRed, tieneMx as tieneMxRed, type Pagina } from './lib/red';
 import { pathToFileURL } from 'node:url';
 import { detectarAts, enlacesDeInteres, extraerCorreos, leerSitemap, mencionaPracticas, paginasEmpleoDeSitemap, PENALIZACION_BUZON_NO_CONFIRMADO, priorizarUrls, RANGO_FORMULARIO, rangoCorreo, RE_PORTAL_EMPLEO, RUTAS_HABITUALES, tipoPagina, tituloDe, esRutaDeOtroPais, valorarCorreos, type CorreoValorado, type TipoPagina } from './lib/verificador';
-import { analizarHtml, crearComprobadorNavegador, type ResultadoFormulario } from './lib/formularios';
+import { analizarHtml, conLimite, crearComprobadorNavegador, type ResultadoFormulario } from './lib/formularios';
 import { comprobarBuzon as comprobarBuzonRed, type ComprobacionBuzon } from './lib/smtp';
 
 interface Retirada { id?: string; dominio?: string; fecha: string }
@@ -89,12 +89,14 @@ export function portalesDeEmpleo(c: Pick<Candidata, 'web' | 'empleoUrl'>): strin
 export async function verificar(c: Candidata, retiradas: Retirada[], deps: Dependencias = DEPS, extra: DatosExtra = {}): Promise<{ r: ResultadoVerificacion; empresa?: Empresa }> {
   const { descargar, tieneMx } = deps;
   const comprobarBuzon = deps.comprobarBuzon ?? sinComprobar;
-  const comprobarFormulario =
-    deps.comprobarFormulario ??
-    (async (url: string, html?: string) => {
-      const h = html ?? (await descargar(url)).html;
-      return analizarHtml(url, h);
-    });
+  // Primero el HTML tal cual (rápido); el navegador solo si ahí no hay un formulario válido (formularios con JavaScript).
+  const comprobarFormulario = async (url: string, html?: string): Promise<ResultadoFormulario> => {
+    const h = html ?? (await descargar(url)).html;
+    const estatico = analizarHtml(url, h);
+    if (estatico.valido || !deps.comprobarFormulario) return estatico;
+    const r2 = await deps.comprobarFormulario(url);
+    return r2.valido ? r2 : { ...r2, enlacesCandidatura: [...new Set([...(r2.enlacesCandidatura ?? []), ...(estatico.enlacesCandidatura ?? [])])] };
+  };
   const r: ResultadoVerificacion = { id: c.id, nombre: c.nombre, web: c.web, estado: 'descartada', paginasRevisadas: [], correosEncontrados: [] };
   const host = new URL(c.web).hostname.replace(/^www\./, '');
   if (retiradas.some((x) => x.id === c.id || (x.dominio && host.endsWith(x.dominio)))) {
@@ -289,7 +291,7 @@ export async function verificar(c: Candidata, retiradas: Retirada[], deps: Depen
     r.formulariosRevisados!.push({ url: res.url, valido: res.valido, motivo: res.motivo, campos: res.campos });
     return res;
   };
-  for (const p of posibles.slice(0, 6)) {
+  for (const p of posibles.slice(0, 4)) {
     if (formEmpleo) break;
     const esEmpleo = RE_URL_EMPLEO.test(p.urlFinal);
     if (!esEmpleo && formContacto) continue;
@@ -472,7 +474,9 @@ async function main() {
 
   console.log(`Verificando ${lista.length} candidatas…`);
   const salida = await enSerie(lista, Number(args.concurrencia ?? 4), async (c, i) => {
-    const res = await verificar(c, retiradas, deps, extra);
+    const res = await conLimite(verificar(c, retiradas, deps, extra), 240_000, () => ({
+      r: { id: c.id, nombre: c.nombre, web: c.web, estado: 'descartada' as const, motivo: 'La verificación superó 4 minutos (web muy lenta); se reintentará en la próxima', paginasRevisadas: [], correosEncontrados: [] },
+    }));
     console.log(`${String(i + 1).padStart(3)}/${lista.length} ${res.r.estado === 'valida' ? '✔' : '✖'} ${c.nombre}${res.r.motivo ? ` — ${res.r.motivo}` : ` — ${res.r.contacto}`}`);
     return res;
   });
