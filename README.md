@@ -1,4 +1,47 @@
-# CodeForge: The Living Engine
+# CodeForge II: Bitlandia
+
+> Un RPG de criaturas donde **cada combate es un reto de programación real**.
+
+Bitlandia es un mundo de daemons, criaturas hechas de código. La **Legión Null** está soltando
+**bugs** que corrompen las funciones de todo lo que tocan, y la única forma de detenerlos es
+**depurarlos: arreglar su función programando**.
+
+```bash
+npm install
+npm run dev          # http://localhost:5173
+npm run build        # dist/ estático (Netlify, Firebase, GitHub Pages)
+npm test             # currículo en 10 lenguajes + mundo de Bitlandia
+npm run test:world   # solo el mundo: mapa, historia y alcanzabilidad
+```
+
+## Cómo se juega
+
+- **Tu daemon inicial es tu lenguaje.** Eliges entre 10 daemons (Pyxi · Python, Chispi · JavaScript,
+  Cafeto · Java, Notín · C#, Kotti · Kotlin, Vencejo · Swift, Punterín · C, Duplín · C++, Topín · Go y
+  Oxidín · Rust). Evolucionan a los niveles 5 y 10.
+- **Combates = código.** Cada bug trae una función rota y su enunciado. Al pulsar **⚔ ¡Atacar!** tu
+  código se compila de verdad (Forge VM) y se ejecuta con los casos de prueba: cada caso que pasa es
+  un golpe; si algo falla, el bug contraataca y te enseña qué esperaba y qué dio tu función. Algunos
+  bugs tienen **escudos** (usar un bucle, usar recursión, ordenar sin `sort`).
+- **Ayudas:** 📖 Lección con animación y ejemplo en tu lenguaje, 💡 Pista y, tras dos fallos, la
+  solución explicada (a cambio de menos experiencia). Errores traducidos «en cristiano».
+- **Bitdex:** 32 bugs, uno por concepto. Depurados en la hierba alta, se unen a tu equipo.
+- **Historia:** Pueblo Origen → Ruta 1 → Ciudad Byte (Vera, variables) → Bosque Bucle →
+  Ciudad Bucle (Bruno, bucles) → Lago Array → Pueblo Índice (Ingrid, listas y diccionarios) →
+  Ciudad Recursiva (Rémi, recursión) → Cumbre Algoritmo → Cueva Null (Comandante Null, algoritmos).
+  Con rival (Kai), reclutas de la Legión Null, cortafuegos que se abren con medallas, Centros Daemon,
+  tienda, objetivo siempre visible y créditos finales.
+- **Todo generado en el navegador:** pixel-art procedural (criaturas, personajes y mapa) y música
+  chiptune con WebAudio; sin archivos de imagen ni audio.
+- **Controles:** teclado (flechas/WASD, Mayús corre, Z habla, X menú, Ctrl+Enter ataca) o cruceta
+  táctil con botones A/B en el móvil. Tres ranuras de partida guardadas en el dispositivo.
+
+Código del juego en [`src/rpg/`](src/rpg/); reutiliza el motor de CodeForge (transpilador,
+runtime, editor y los 32 niveles en 10 lenguajes).
+
+---
+
+## El motor original: CodeForge — The Living Engine
 
 > Aquí no se hacen ejercicios. **Se programa el mundo.**
 

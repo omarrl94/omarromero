@@ -1,19 +1,20 @@
 {
-  "name": "codeforge-living-engine",
+  "name": "codeforge-bitlandia",
   "version": "1.0.0",
   "private": true,
-  "description": "CodeForge: The Living Engine — aprende Python, Java, Kotlin, Swift y C programando las físicas, la IA y las reglas de un motor de juego vivo.",
+  "description": "CodeForge II: Bitlandia — un RPG de criaturas donde aprendes a programar depurando bugs en 10 lenguajes.",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "node scripts/verify-curriculum.mjs",
+    "test": "node scripts/verify-curriculum.mjs && node scripts/verify-world.mjs",
     "test:rules": "firebase emulators:exec --only firestore --project demo-codeforge \"node scripts/test-firestore-rules.mjs\"",
     "emuladores": "firebase emulators:start --only auth,firestore --project demo-codeforge",
     "dev:emuladores": "VITE_FIREBASE_EMULATORS=1 VITE_FIREBASE_API_KEY=demo-key VITE_FIREBASE_PROJECT_ID=demo-codeforge VITE_FIREBASE_AUTH_DOMAIN=demo-codeforge.firebaseapp.com VITE_FIREBASE_APP_ID=demo vite",
     "desplegar:reglas": "firebase deploy --only firestore",
-    "desplegar:hosting": "npm run build && firebase deploy --only hosting"
+    "desplegar:hosting": "npm run build && firebase deploy --only hosting",
+    "test:world": "node scripts/verify-world.mjs"
   },
   "dependencies": {
     "@capacitor/android": "8.5.3",
@@ -24,6 +25,7 @@
     "@capacitor/splash-screen": "8.0.2",
     "@capacitor/status-bar": "8.0.4",
     "@fontsource/jetbrains-mono": "5.1.1",
+    "@fontsource/press-start-2p": "5.1.0",
     "firebase": "11.10.0",
     "framer-motion": "11.11.17",
     "lucide-react": "0.460.0",
