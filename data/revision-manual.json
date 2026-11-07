@@ -8,9 +8,10 @@
   },
   "atento-espana": {
     "formulariosRechazados": [
-      "https://atento.com/es/contacto-para-ventas"
+      "https://atento.com/es/contacto-para-ventas",
+      "https://atento.com/es/contacto-para-medios"
     ],
-    "motivo": "formulario del equipo de ventas, no para candidaturas",
+    "motivo": "formularios de ventas y de prensa, no para candidaturas",
     "fecha": "2026-11-07"
   },
   "babel": {
@@ -21,10 +22,8 @@
     "fecha": "2026-11-07"
   },
   "bme": {
-    "formulariosRechazados": [
-      "https://www.bolsasymercados.es/en/contact/epm.html"
-    ],
-    "motivo": "contacto de un producto (Pre Market Environment)",
+    "descartar": true,
+    "motivo": "solo publica formularios de productos y mercados concretos (EpM, Bolsa de Bilbao); ningún canal de candidaturas",
     "fecha": "2026-11-07"
   },
   "cabify": {
@@ -35,10 +34,8 @@
     "fecha": "2026-11-07"
   },
   "calidad-pascual": {
-    "formulariosRechazados": [
-      "https://www.calidadpascual.com/contacto/"
-    ],
-    "motivo": "formulario para establecimientos clientes",
+    "descartar": true,
+    "motivo": "su formulario es para establecimientos clientes; ningún canal de candidaturas",
     "fecha": "2026-11-07"
   },
   "civitatis": {
@@ -63,10 +60,8 @@
     "fecha": "2026-11-07"
   },
   "ifema": {
-    "formulariosRechazados": [
-      "https://www.ifema.es/en/sociocare/contact"
-    ],
-    "motivo": "contacto de una feria concreta para expositores",
+    "descartar": true,
+    "motivo": "solo publica formularios de ferias concretas para expositores y visitantes; ningún canal de candidaturas",
     "fecha": "2026-11-07"
   },
   "plain-concepts": {
@@ -91,17 +86,16 @@
     "fecha": "2026-11-07"
   },
   "skin-ai": {
-    "formulariosRechazados": [
-      "https://skinai.tech/contact"
-    ],
-    "motivo": "solicitud de demostración del producto",
+    "descartar": true,
+    "motivo": "su único formulario es para solicitar una demostración del producto",
     "fecha": "2026-11-07"
   },
   "witrey": {
     "formulariosRechazados": [
-      "https://witrey.com/contacto-witrey/"
+      "https://witrey.com/contacto-witrey/",
+      "https://witrey.com/en/contact-witrey/"
     ],
-    "motivo": "solicitud de presupuesto de proyectos",
+    "motivo": "solicitud de presupuesto de proyectos (en español y en inglés)",
     "fecha": "2026-11-07"
   },
   "cibersafety": {

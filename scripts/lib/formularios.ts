@@ -42,7 +42,7 @@ const RE_COMENTARIOS = /(guarda mi nombre|save my name|deja un comentario|leave 
 /** Formularios de clientes (pedidos, envíos, reservas, consumo): no son un canal para pedir prácticas. */
 const RE_ATENCION_CLIENTE = /(n[uú]mero de pedido|order number|order-number|\bpedido\b|\blote\b|caducidad|shipment|pickup|recogida|seguimiento del env|n[uú]mero de env|destino o pa[ií]s|viajeros|fecha de salida|n[uú]mero de stand|stand number|n[uú]mero de cliente|matr[ií]cula)/i;
 /** Formularios comerciales: presupuestos, demostraciones o clientes profesionales. */
-const RE_COMERCIAL = /(presupuesto|solicitar (una )?demo|request a demo|book a demo|tipo de proyecto|producto a envasar|nombre de(l)? establecimiento|\bpax\b|n[º°o] de personas)/i;
+const RE_COMERCIAL = /(presupuesto|budget|project type|name of (the )?establishment|media outlet|medio de comunicaci|^medio$|solicitar (una )?demo|request a demo|book a demo|tipo de proyecto|producto a envasar|nombre de(l)? establecimiento|\bpax\b|n[º°o] de personas)/i;
 const RE_BOLETIN = /(newsletter|bolet[ií]n|suscri|subscribe)/i;
 
 export function esFormularioValido(f: FormularioEncontrado): { valido: boolean; motivo: string } {
