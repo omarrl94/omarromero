@@ -1,15 +1,15 @@
 # Comprobación de enlaces
 
-Fecha: 2026-11-07T14:50:08.768Z · Enlaces de empresas: 377 · rotos: 4
+Fecha: 2026-11-07T17:04:31.951Z · Enlaces de empresas: 406 · rotos: 4
 
 ## Enlaces rotos del directorio
 
 | Empresa | Tipo | URL | Estado |
 |---|---|---|---|
 | Arte Y Tecnología Dinámica | web | https://www.artdinamica.com | ERR_TLS_CERT_ALTNAME_INVALID |
+| M2 Sistemas Informáticos | web | https://www.m2sistemas.com | 403 |
 | Secure&IT | empleo | https://talento.secureit.es/ | 403 |
 | Taquion | web | https://taquion.es | 403 |
-| Taquion | formulario | https://taquion.es/contacto/ | 403 |
 
 ## Portales (enlaces profundos)
 

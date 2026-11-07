@@ -188,6 +188,33 @@
     }
   },
   {
+    "id": "agioglobal",
+    "nombre": "AgioGlobal Technology",
+    "web": "https://www.agioglobal.com",
+    "sector": "Servicios TI y ciberseguridad",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-redes",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Proyectos de ciberseguridad y redes en Madrid.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.agioglobal.com/Contacto/index.php",
+      "formularioUrl": "https://www.agioglobal.com/Contacto/index.php",
+      "tipoContacto": "general"
+    },
+    "empleoUrl": "https://portalempleo.agioglobal.com/Home/index.php",
+    "verificacion": {
+      "fecha": "2026-11-07",
+      "confianza": "media",
+      "mx": null,
+      "notas": "Verificación automática: 15 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Nombre *, Teléfono *, Email *, Provincia *, Código Postal *, Comentarios *)."
+    }
+  },
+  {
     "id": "ahorramas",
     "nombre": "Ahorramas",
     "web": "https://www.ahorramas.com",
@@ -212,6 +239,34 @@
       "confianza": "media",
       "mx": null,
       "notas": "Verificación automática: 9 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Seleccione una opci&oacute;n, Seleccione una opci&oacute;n, Seleccione una opci&oacute;n, Seleccione una opci&oacute;n, Seleccione una opci&oacute;n, Seleccione una opci&oacute;n)."
+    }
+  },
+  {
+    "id": "alamo-consulting",
+    "nombre": "ÁlamoConsulting",
+    "web": "https://www.alamoconsulting.com",
+    "sector": "Consultoría tecnológica",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "dam-web",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Consultora con oficina en la Castellana que busca perfiles con menos de tres años de experiencia y publica un buzón de RR. HH.",
+    "contacto": {
+      "tipo": "email",
+      "email": "rrhh@alamoconsulting.com",
+      "fuenteUrl": "https://www.alamoconsulting.com/trabaja-con-nosotros-menu/trabaja-con-nosotros/cv",
+      "tipoContacto": "rrhh"
+    },
+    "empleoUrl": "https://www.alamoconsulting.com/trabaja-con-nosotros-menu/trabaja-con-nosotros/cv",
+    "verificacion": {
+      "fecha": "2026-11-07",
+      "confianza": "alta",
+      "mx": true,
+      "buzon": "existe",
+      "notas": "Verificación automática: 6 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón confirmado por su servidor de correo."
     }
   },
   {
@@ -477,7 +532,7 @@
       "fecha": "2026-11-07",
       "confianza": "media",
       "mx": null,
-      "notas": "Verificación automática: 11 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: your-name, your-apellido, your-email, menu-348, menu-349, your-empresa)."
+      "notas": "Verificación automática: 10 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: your-name, your-apellido, your-email, menu-348, menu-349, your-empresa)."
     }
   },
   {
@@ -719,6 +774,32 @@
     }
   },
   {
+    "id": "comunicare",
+    "nombre": "Comunicare",
+    "web": "https://www.comunicare.es",
+    "sector": "Agencia de marketing digital",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "dam-web"
+    ],
+    "motivoEncaje": "Agencia de marketing digital en el Paseo de la Castellana con página de empleo.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.comunicare.es/trabaja-con-nosotros/",
+      "formularioUrl": "https://www.comunicare.es/trabaja-con-nosotros/",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.comunicare.es/trabaja-con-nosotros/",
+    "verificacion": {
+      "fecha": "2026-11-07",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 6 páginas revisadas (incluido el mapa del sitio); formulario de empleo comprobado en el navegador (campos: Nombre y apellidos *, Correo electrónico *, Teléfono *, Mensaje *, contacto-cv, Por favor, deja este campo vacío.)."
+    }
+  },
+  {
     "id": "cuatroochenta",
     "nombre": "Cuatroochenta",
     "web": "https://cuatroochenta.com",
@@ -875,6 +956,32 @@
       "confianza": "media",
       "mx": null,
       "notas": "Verificación automática: 16 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Asunto*, Nombre*, Apellidos*, Correo electrónico*, Compañía / Organización*, Cargo*)."
+    }
+  },
+  {
+    "id": "desarrollo-web-total",
+    "nombre": "Desarrollo Web Total",
+    "web": "https://desarrollowebtotal.com",
+    "sector": "Desarrollo web y aplicaciones móviles",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-android"
+    ],
+    "motivoEncaje": "Desarrollo web y de apps que publica un buzón de RR. HH.",
+    "contacto": {
+      "tipo": "email",
+      "email": "info@desarrollowebtotal.com",
+      "fuenteUrl": "https://desarrollowebtotal.com/contacto/",
+      "tipoContacto": "general"
+    },
+    "verificacion": {
+      "fecha": "2026-11-07",
+      "confianza": "media",
+      "mx": true,
+      "buzon": "existe",
+      "notas": "Verificación automática: 2 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto; buzón confirmado por su servidor de correo."
     }
   },
   {
@@ -1113,7 +1220,7 @@
       "confianza": "media",
       "mx": true,
       "buzon": "sin-confirmar",
-      "notas": "Verificación automática: 11 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto; buzón sin confirmar."
+      "notas": "Verificación automática: 10 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto; buzón sin confirmar."
     }
   },
   {
@@ -1218,12 +1325,12 @@
       "formularioUrl": "https://www.ferrovial.com/en/contact/",
       "tipoContacto": "general"
     },
-    "empleoUrl": "https://www.ferrovial.com/en/careers/",
+    "empleoUrl": "https://www.ferrovial.com/es/empleo/ofertas/rrhh/",
     "verificacion": {
       "fecha": "2026-11-07",
       "confianza": "media",
       "mx": null,
-      "notas": "Verificación automática: 11 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: name, email, recipient, txaContent, checkbox, checkbox2)."
+      "notas": "Verificación automática: 15 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: name, email, recipient, txaContent, checkbox, checkbox2)."
     }
   },
   {
@@ -1251,6 +1358,34 @@
       "mx": true,
       "buzon": "existe",
       "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto; buzón confirmado por su servidor de correo."
+    }
+  },
+  {
+    "id": "fmg-consulting",
+    "nombre": "FMG Consulting",
+    "web": "https://fmgconsulting.es",
+    "sector": "Soporte y mantenimiento informático en centros educativos",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-soporte",
+      "asir-sistemas",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Soporte informático a colegios de la Comunidad de Madrid; publica un buzón de RR. HH.",
+    "contacto": {
+      "tipo": "email",
+      "email": "rrhh@fmgconsulting.es",
+      "fuenteUrl": "https://fmgconsulting.es/trabaja-con-nosotros/",
+      "tipoContacto": "rrhh"
+    },
+    "empleoUrl": "https://fmgconsulting.es/trabaja-con-nosotros/",
+    "verificacion": {
+      "fecha": "2026-11-07",
+      "confianza": "media",
+      "mx": true,
+      "buzon": "sin-confirmar",
+      "notas": "Verificación automática: 3 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón sin confirmar."
     }
   },
   {
@@ -1599,6 +1734,33 @@
       "confianza": "media",
       "mx": null,
       "notas": "Verificación automática: 12 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Nombre *, Apellido *, Email *, Prefijo del país, Teléfono * Opcional, Empresa *)."
+    }
+  },
+  {
+    "id": "trevenque",
+    "nombre": "Grupo Trevenque",
+    "web": "https://www.trevenque.es",
+    "sector": "Servicios TI, sistemas y desarrollo",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-sistemas",
+      "dam-web",
+      "dam-erp"
+    ],
+    "motivoEncaje": "Grupo de servicios TI con oficina en Madrid.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.trevenque.es/quienes-somos/trabaja-con-nosotros/",
+      "formularioUrl": "https://www.trevenque.es/quienes-somos/trabaja-con-nosotros/",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.trevenque.es/quienes-somos/trabaja-con-nosotros/",
+    "verificacion": {
+      "fecha": "2026-11-07",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 6 páginas revisadas (incluido el mapa del sitio); formulario de empleo comprobado en el navegador (campos: form_fields[email], form_fields[cv], Cuéntanos tus expectativas para saber más sobre ti, form_fields[area], form_fields[field_1c90e0b])."
     }
   },
   {
@@ -2011,6 +2173,33 @@
     }
   },
   {
+    "id": "iteggo",
+    "nombre": "iteggo",
+    "web": "https://www.iteggo.com",
+    "sector": "Consultoría tecnológica y PMO",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Consultora tecnológica que publica un buzón de RR. HH.",
+    "contacto": {
+      "tipo": "email",
+      "email": "rrhh@iteggo.com",
+      "fuenteUrl": "https://www.iteggo.com/empleo.html",
+      "tipoContacto": "rrhh"
+    },
+    "empleoUrl": "https://www.iteggo.com/empleo.html",
+    "verificacion": {
+      "fecha": "2026-11-07",
+      "confianza": "alta",
+      "mx": true,
+      "buzon": "existe",
+      "notas": "Verificación automática: 5 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón confirmado por su servidor de correo."
+    }
+  },
+  {
     "id": "izertis",
     "nombre": "Izertis",
     "web": "https://www.izertis.com",
@@ -2362,6 +2551,34 @@
     }
   },
   {
+    "id": "m2-sistemas",
+    "nombre": "M2 Sistemas Informáticos",
+    "web": "https://www.m2sistemas.com",
+    "sector": "Servicios y sistemas informáticos",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-sistemas",
+      "asir-soporte",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Empresa madrileña de sistemas informáticos con buzón de RR. HH. en su página de empleo.",
+    "contacto": {
+      "tipo": "email",
+      "email": "rrhh@m2sistemas.com",
+      "fuenteUrl": "https://www.m2sistemas.com/trabaja-con-nosotros/",
+      "tipoContacto": "rrhh"
+    },
+    "empleoUrl": "https://www.m2sistemas.com/trabaja-con-nosotros/",
+    "verificacion": {
+      "fecha": "2026-11-07",
+      "confianza": "alta",
+      "mx": true,
+      "buzon": "existe",
+      "notas": "Verificación automática: 5 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón confirmado por su servidor de correo."
+    }
+  },
+  {
     "id": "making-science",
     "nombre": "Making Science",
     "web": "https://www.makingscience.com",
@@ -2415,6 +2632,34 @@
       "confianza": "media",
       "mx": null,
       "notas": "Verificación automática: 10 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Nombre *, Número de telefóno *, Email *, Empresa, Cargo, País)."
+    }
+  },
+  {
+    "id": "marketalia",
+    "nombre": "Marketalia",
+    "web": "https://marketalia.com",
+    "sector": "Agencia de marketing digital (Google Premier Partner)",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "acom-ecommerce",
+      "dam-datos-ia"
+    ],
+    "motivoEncaje": "Agencia en el centro de Madrid que ofrece becas de prácticas con convenio.",
+    "contacto": {
+      "tipo": "email",
+      "email": "cv@marketalia.com",
+      "fuenteUrl": "https://marketalia.com/talento/",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://marketalia.com/talento/",
+    "verificacion": {
+      "fecha": "2026-11-07",
+      "confianza": "alta",
+      "mx": true,
+      "buzon": "existe",
+      "notas": "Verificación automática: 3 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón confirmado por su servidor de correo."
     }
   },
   {
@@ -2496,7 +2741,7 @@
       "fecha": "2026-11-07",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 10 páginas revisadas (incluido el mapa del sitio); formulario de empleo comprobado en el navegador (campos: Company, Tu nombre *, Email *, Teléfono, Ciudad, Curriculum *)."
+      "notas": "Verificación automática: 10 páginas revisadas (incluido el mapa del sitio); formulario de empleo comprobado en el navegador (campos: Instagram, Tu nombre *, Email *, Teléfono, Ciudad, Curriculum *)."
     }
   },
   {
@@ -2745,6 +2990,33 @@
     }
   },
   {
+    "id": "ncs-spain",
+    "nombre": "NCS Spain",
+    "web": "https://www.ncs-spain.com",
+    "sector": "Consultoría tecnológica",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "dam-web",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Consultora tecnológica con formulario para enviar el CV.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.ncs-spain.com/contacto/",
+      "formularioUrl": "https://www.ncs-spain.com/contacto/",
+      "tipoContacto": "general"
+    },
+    "empleoUrl": "https://www.ncs-spain.com/unete/",
+    "verificacion": {
+      "fecha": "2026-11-07",
+      "confianza": "media",
+      "mx": null,
+      "notas": "Verificación automática: 10 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: ${ parent.decodeEntities(`Nombre`) } , ${ parent.decodeEntities(`Teléfono`) } , ${ parent.decodeEntities(`Email`) } , ${ parent.decodeEntities(`Asunto`) } , ${ parent.decodeEntities(`Escriba su mensaje.....`) } , mf-checkbox)."
+    }
+  },
+  {
     "id": "neoattack",
     "nombre": "NeoAttack",
     "web": "https://neoattack.com",
@@ -2848,6 +3120,33 @@
       "mx": true,
       "buzon": "existe",
       "notas": "Verificación automática: 5 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón confirmado por su servidor de correo."
+    }
+  },
+  {
+    "id": "nologin",
+    "nombre": "Nologin",
+    "web": "https://www.nologin.es",
+    "sector": "Consultoría y desarrollo de software",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Consultora tecnológica con oficina en Madrid.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.nologin.es/es/contact",
+      "formularioUrl": "https://www.nologin.es/es/contact",
+      "tipoContacto": "general"
+    },
+    "empleoUrl": "https://www.nologin.es/es/careers",
+    "verificacion": {
+      "fecha": "2026-11-07",
+      "confianza": "media",
+      "mx": null,
+      "notas": "Verificación automática: 7 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Nombre, Email, Asunto, Mensaje, terms)."
     }
   },
   {
@@ -3100,6 +3399,35 @@
       "mx": true,
       "buzon": "acepta-todo",
       "notas": "Verificación automática: 2 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón no confirmable (el servidor acepta cualquier dirección)."
+    }
+  },
+  {
+    "id": "plexus",
+    "nombre": "Plexus Tech",
+    "web": "https://www.plexus.es",
+    "sector": "Consultoría tecnológica",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "asir-sistemas",
+      "asir-ciberseguridad"
+    ],
+    "motivoEncaje": "Consultora tecnológica con oficina en Madrid.",
+    "contacto": {
+      "tipo": "email",
+      "email": "talento@plexus.es",
+      "fuenteUrl": "https://www.plexus.es/unete-al-equipo/",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.plexus.es/empleo-juvenil-ourense/",
+    "verificacion": {
+      "fecha": "2026-11-07",
+      "confianza": "alta",
+      "mx": true,
+      "buzon": "existe",
+      "notas": "Verificación automática: 5 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón confirmado por su servidor de correo."
     }
   },
   {
@@ -3667,36 +3995,6 @@
       "confianza": "alta",
       "mx": null,
       "notas": "Verificación automática: 9 páginas revisadas (incluido el mapa del sitio); formulario de empleo comprobado en el navegador (campos: ${ parent.decodeEntities(`Nombre y apellidos`) } , ${ parent.decodeEntities(`Email`) } , ${ parent.decodeEntities(`Teléfono`) } , ${ parent.decodeEntities(`¿A qué puesto te gustaría optar? `) } , mf-Adjuntar-CV, mf-aceptar-condiciones)."
-    }
-  },
-  {
-    "id": "sopra-steria-espana",
-    "nombre": "Sopra Steria España",
-    "web": "https://www.soprasteria.es",
-    "sector": "Consultoría y servicios TI",
-    "tamano": "consultora",
-    "zona": "madrid",
-    "perfiles": [
-      "dam-web",
-      "dam-backend",
-      "dam-bbdd",
-      "asir-sistemas",
-      "asir-soporte",
-      "asir-ciberseguridad"
-    ],
-    "motivoEncaje": "Consultora con proyectos de desarrollo, soporte y sistemas para banca y Administración.",
-    "contacto": {
-      "tipo": "formulario",
-      "fuenteUrl": "https://join.smartrecruiters.com/SopraSteria1/d57cb8c9-7a26-49e8-86e1-33eede9fbfea-espont-neos",
-      "formularioUrl": "https://join.smartrecruiters.com/SopraSteria1/d57cb8c9-7a26-49e8-86e1-33eede9fbfea-espont-neos",
-      "tipoContacto": "talento"
-    },
-    "empleoUrl": "https://careers.soprasteria.es/",
-    "verificacion": {
-      "fecha": "2026-11-07",
-      "confianza": "alta",
-      "mx": null,
-      "notas": "Verificación automática: 14 páginas revisadas (incluido el mapa del sitio); formulario de empleo comprobado en el navegador (campos: Añade tu currículum, Nombre, Apellidos, Correo electrónico, Country/region code, Número de teléfono)."
     }
   },
   {
@@ -4290,6 +4588,33 @@
     }
   },
   {
+    "id": "x25-informatica",
+    "nombre": "X25 Informática",
+    "web": "https://www.x25informatica.es",
+    "sector": "Desarrollo de software con tecnologías Microsoft",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "dam-escritorio",
+      "dam-bbdd"
+    ],
+    "motivoEncaje": "Empresa de software con oficina en Madrid que publica un buzón de RR. HH. para candidaturas.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://x25informatica.es/unete-a-nosotros/",
+      "formularioUrl": "https://x25informatica.es/unete-a-nosotros/",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://x25informatica.es/unete-a-nosotros/",
+    "verificacion": {
+      "fecha": "2026-11-07",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 3 páginas revisadas (incluido el mapa del sitio); formulario de empleo comprobado en el navegador (campos: Nombre, Correo electrónico, Mensaje, form_fields[file_CV], He leído y acepto el Aviso legal y la Política de privacidad .)."
+    }
+  },
+  {
     "id": "xtrategy",
     "nombre": "Xtrategy Digital",
     "web": "https://www.xtrategy.digital",
@@ -4312,6 +4637,33 @@
       "confianza": "media",
       "mx": null,
       "notas": "Verificación automática: 3 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: your-name, your-email, your-subject, your-message)."
+    }
+  },
+  {
+    "id": "ymant",
+    "nombre": "Ymant",
+    "web": "https://www.ymant.com",
+    "sector": "Mantenimiento informático para empresas",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-soporte",
+      "asir-sistemas",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Mantenimiento informático de empresas en Madrid.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://www.ymant.com/trabaja-con-nosotros/",
+      "formularioUrl": "https://www.ymant.com/trabaja-con-nosotros/",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://www.ymant.com/trabaja-con-nosotros/",
+    "verificacion": {
+      "fecha": "2026-11-07",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 8 páginas revisadas (incluido el mapa del sitio); formulario de empleo comprobado en el navegador (campos: Nombre*, Email*, Puesto al que optas, Teléfono, file-upload-input-1, acceptance-424)."
     }
   },
   {

@@ -1,18 +1,18 @@
 # Auditoría de una muestra al azar
 
-Fecha: 2026-11-07T14:48:53.558Z · Muestra: 10 de 162 · Con problemas: 0
+Fecha: 2026-11-07T17:03:05.657Z · Muestra: 10 de 175 · Con problemas: 0
 
 | Empresa | Contacto | Fuente | Resultado |
 |---|---|---|---|
-| Century 21 España | formulario | https://century21.es/unete-a-nosotros | ✔ OK |
-| Grantipo | formulario | https://grantipo.com/contacto/ | ✔ OK |
-| Ideametrics | formulario | https://ideametrics.es/contacto/ | ✔ OK |
-| Kanlli | formulario | http://kanlli.com/empleo/ | ✔ OK |
-| Kyndryl España | formulario | https://www.kyndryl.com/es/es/contact-us | ✔ OK |
-| Kyocera Document Solutions España | formulario | https://www.kyoceradocumentsolutions.es/es/about-us/contact-us.html | ✔ OK |
-| Trey | info@trey.es | https://www.trey.es/hablemos | ✔ OK |
+| Pango Studio (Pholidota Studio) | formulario | https://pangostudio.com/contacto/ | ✔ OK |
 | Ipsos España | empleos@ipsos.com | https://www.ipsos.com/es-es/contactanos | ✔ OK |
-| Bluetab | formulario | https://www.bluetab.net/unete-a-bluetab/ | ✔ OK |
-| Pompeii | contact@pompeiibrand.com | https://pompeiibrand.com/pages/contacto-1 | ✔ OK |
+| Aggity | formulario | https://aggity.com/unete-a-aggity/ | ✔ OK |
+| Dedomena AI | hello@dedomena.ai | https://dedomena.ai/es/contact | ✔ OK |
+| GFT España | formulario | https://www.gft.com/es/es/career | ✔ OK |
+| Keepler Data Tech | people@keepler.io | https://keepler.io/contact/ | ✔ OK |
+| Babel | formulario | https://babelgroup.com/contacto/ | ✔ OK |
+| Ilunion Tecnología y Accesibilidad | contacto@ilunion.com | https://www.ilunion.com/es/unete-al-equipo | ✔ OK |
+| Imagar Solutions | formulario | https://www.imagar.com/contacto/ | ✔ OK |
+| Bdeo | formulario | https://bdeo.io/contacto/ | ✔ OK |
 
 Si alguna falla: vuelve a ejecutar `npm run verificar:empresas -- --solo=<id>` o retírala.
