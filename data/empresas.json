@@ -1,31 +1,5 @@
 [
   {
-    "id": "ac2sc",
-    "nombre": "Ac2 Systems Consultancy",
-    "web": "https://ac2sc.es",
-    "sector": "Consultoría de sistemas",
-    "tamano": "pyme",
-    "zona": "madrid",
-    "perfiles": [
-      "asir-sistemas",
-      "asir-redes"
-    ],
-    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
-    "contacto": {
-      "tipo": "formulario",
-      "fuenteUrl": "https://ac2sc.es/trabaja-con-nosotros",
-      "formularioUrl": "https://ac2sc.es/trabaja-con-nosotros",
-      "tipoContacto": "talento"
-    },
-    "empleoUrl": "https://ac2sc.es/trabaja-con-nosotros",
-    "verificacion": {
-      "fecha": "2026-11-07",
-      "confianza": "alta",
-      "mx": null,
-      "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); formulario de empleo comprobado en el navegador (campos: Nombre, Email, Mensaje, MailAttachmentFile, AceptoTerminos, movil)."
-    }
-  },
-  {
     "id": "acens",
     "nombre": "Acens",
     "web": "https://www.acens.com",
@@ -494,17 +468,18 @@
     ],
     "motivoEncaje": "Consultora madrileña de desarrollo y datos.",
     "contacto": {
-      "tipo": "formulario",
+      "tipo": "email",
+      "email": "talent.acquisition@atmira.com",
       "fuenteUrl": "https://www.atmira.com/unete-a-nuestro-ecosistema/",
-      "formularioUrl": "https://www.atmira.com/unete-a-nuestro-ecosistema/",
       "tipoContacto": "talento"
     },
     "empleoUrl": "https://www.atmira.com/unete-a-nuestro-ecosistema/",
     "verificacion": {
       "fecha": "2026-11-07",
       "confianza": "alta",
-      "mx": null,
-      "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); formulario de empleo comprobado en el navegador (campos: your-name, your-email, text-460, your-subject, your-message, file-121)."
+      "mx": true,
+      "buzon": "existe",
+      "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón confirmado por su servidor de correo."
     }
   },
   {
@@ -1037,7 +1012,7 @@
       "fecha": "2026-11-07",
       "confianza": "media",
       "mx": null,
-      "notas": "Verificación automática: 15 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Asunto*, Nombre*, Apellidos*, Correo electrónico*, Compañía / Organización*, Cargo*)."
+      "notas": "Verificación automática: 16 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Asunto*, Nombre*, Apellidos*, Correo electrónico*, Compañía / Organización*, Cargo*)."
     }
   },
   {
@@ -1182,16 +1157,17 @@
     ],
     "motivoEncaje": "Servicios de marketing (vivero de Carabanchel). Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
     "contacto": {
-      "tipo": "formulario",
+      "tipo": "email",
+      "email": "info@emergyamarketing.com",
       "fuenteUrl": "https://emergyamarketing.com/contacto",
-      "formularioUrl": "https://emergyamarketing.com/contacto",
       "tipoContacto": "general"
     },
     "verificacion": {
       "fecha": "2026-11-07",
       "confianza": "media",
-      "mx": null,
-      "notas": "Verificación automática: 3 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: name, email, company, Cuéntanos dónde está tu negocio y qué quieres conseguir.)."
+      "mx": true,
+      "buzon": "existe",
+      "notas": "Verificación automática: 3 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto; buzón confirmado por su servidor de correo."
     }
   },
   {
@@ -1220,34 +1196,6 @@
       "mx": true,
       "buzon": "acepta-todo",
       "notas": "Verificación automática: 12 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón no confirmable (el servidor acepta cualquier dirección)."
-    }
-  },
-  {
-    "id": "enchufauto",
-    "nombre": "Enchufauto",
-    "web": "https://www.enchufauto.es",
-    "sector": "Comercio al por mayor de equipos electrónicos y de telecomunicaciones",
-    "tamano": "pyme",
-    "zona": "madrid",
-    "perfiles": [
-      "acom-venta-tecnica",
-      "acom-logistica",
-      "sea-fotovoltaica",
-      "sea-instalaciones"
-    ],
-    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de San Blas). Fuente: datos abiertos del Ayuntamiento de Madrid.",
-    "contacto": {
-      "tipo": "formulario",
-      "fuenteUrl": "https://www.enchufauto.es/trabaja-con-nosotros.php?lang=es",
-      "formularioUrl": "https://www.enchufauto.es/trabaja-con-nosotros.php?lang=es",
-      "tipoContacto": "talento"
-    },
-    "empleoUrl": "https://www.enchufauto.es/trabaja-con-nosotros.php?lang=es",
-    "verificacion": {
-      "fecha": "2026-11-07",
-      "confianza": "alta",
-      "mx": null,
-      "notas": "Verificación automática: 8 páginas revisadas (incluido el mapa del sitio); formulario de empleo comprobado en el navegador (campos: Tu Nombre, Tu E-mail, Tu Teléfono, Tu Ciudad, Mensaje, He leído y acepto la política de privacidad .)."
     }
   },
   {
@@ -1466,10 +1414,10 @@
     "empleoUrl": "https://www.factum.es/unete-al-equipo/",
     "verificacion": {
       "fecha": "2026-11-07",
-      "confianza": "media",
+      "confianza": "alta",
       "mx": true,
-      "buzon": "sin-confirmar",
-      "notas": "Verificación automática: 5 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón sin confirmar."
+      "buzon": "existe",
+      "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón confirmado por su servidor de correo."
     }
   },
   {
@@ -1494,12 +1442,12 @@
       "formularioUrl": "https://www.ferrovial.com/en/contact/",
       "tipoContacto": "general"
     },
-    "empleoUrl": "https://www.ferrovial.com/es/empleo/ofertas/rrhh/",
+    "empleoUrl": "https://www.ferrovial.com/en/careers/",
     "verificacion": {
       "fecha": "2026-11-07",
       "confianza": "media",
       "mx": null,
-      "notas": "Verificación automática: 15 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: name, email, recipient, txaContent, checkbox, checkbox2)."
+      "notas": "Verificación automática: 11 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: name, email, recipient, txaContent, checkbox, checkbox2)."
     }
   },
   {
@@ -1570,16 +1518,17 @@
     ],
     "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
     "contacto": {
-      "tipo": "formulario",
+      "tipo": "email",
+      "email": "info@ficharpresencia.es",
       "fuenteUrl": "https://ficharpresencia.es/contacto/",
-      "formularioUrl": "https://ficharpresencia.es/contacto/",
       "tipoContacto": "general"
     },
     "verificacion": {
       "fecha": "2026-11-07",
       "confianza": "media",
-      "mx": null,
-      "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: your-name, your-email, tel-152, Soluciones[], your-subject, your-message)."
+      "mx": true,
+      "buzon": "existe",
+      "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto; buzón confirmado por su servidor de correo."
     }
   },
   {
@@ -1630,7 +1579,7 @@
       "fecha": "2026-11-07",
       "confianza": "alta",
       "mx": null,
-      "notas": "Verificación automática: 9 páginas revisadas (incluido el mapa del sitio); formulario de empleo comprobado en el navegador (campos: firstName *, lastName *, jobtitle *, email *, country *, message)."
+      "notas": "Verificación automática: 10 páginas revisadas (incluido el mapa del sitio); formulario de empleo comprobado en el navegador (campos: firstName *, lastName *, jobtitle *, email *, country *, message)."
     }
   },
   {
@@ -2122,6 +2071,34 @@
       "mx": true,
       "buzon": "existe",
       "notas": "Verificación automática: 6 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón confirmado por su servidor de correo."
+    }
+  },
+  {
+    "id": "ilunion-tecnologia-y-accesibilidad",
+    "nombre": "Ilunion Tecnología y Accesibilidad",
+    "web": "https://www.ilunion.com",
+    "sector": "Servicios tecnológicos (grupo social ONCE)",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-soporte",
+      "asir-sistemas",
+      "dam-web"
+    ],
+    "motivoEncaje": "Grupo de economía social con servicios TI, soporte y accesibilidad web.",
+    "contacto": {
+      "tipo": "email",
+      "email": "contacto@ilunion.com",
+      "fuenteUrl": "https://www.ilunion.com/es/unete-al-equipo",
+      "tipoContacto": "general"
+    },
+    "empleoUrl": "https://www.ilunion.com/es/unete-al-equipo",
+    "verificacion": {
+      "fecha": "2026-11-07",
+      "confianza": "alta",
+      "mx": true,
+      "buzon": "existe",
+      "notas": "Verificación automática: 11 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón confirmado por su servidor de correo."
     }
   },
   {
@@ -2881,7 +2858,7 @@
       "fecha": "2026-11-07",
       "confianza": "media",
       "mx": null,
-      "notas": "Verificación automática: 12 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Nombre *, Número de telefóno *, Email *, Empresa, Cargo, País)."
+      "notas": "Verificación automática: 10 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Nombre *, Número de telefóno *, Email *, Empresa, Cargo, País)."
     }
   },
   {
@@ -2966,7 +2943,7 @@
       "confianza": "alta",
       "mx": true,
       "buzon": "existe",
-      "notas": "Verificación automática: 8 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón confirmado por su servidor de correo."
+      "notas": "Verificación automática: 9 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón confirmado por su servidor de correo."
     }
   },
   {
@@ -3369,7 +3346,7 @@
       "fecha": "2026-11-07",
       "confianza": "media",
       "mx": null,
-      "notas": "Verificación automática: 6 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Correo Electrónico*, Nombre*, Apellido*, Motivo de la consulta, Detalles de la consulta. ¿cómo podemos ayudarte?, Estoy de acuerdo con la pol&iacute;tica de privacidad de Nexo Professional Community, SL.)."
+      "notas": "Verificación automática: 5 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Correo Electrónico*, Nombre*, Apellido*, Motivo de la consulta, Detalles de la consulta. ¿cómo podemos ayudarte?, Estoy de acuerdo con la pol&iacute;tica de privacidad de Nexo Professional Community, SL.)."
     }
   },
   {
@@ -3500,10 +3477,10 @@
     "contacto": {
       "tipo": "email",
       "email": "recruitment@one-esecurity.com",
-      "fuenteUrl": "https://www.one-esecurity.com/join_our_team.html",
+      "fuenteUrl": "http://www.one-esecurity.com/join_our_team.html",
       "tipoContacto": "talento"
     },
-    "empleoUrl": "https://www.one-esecurity.com/join_our_team.html",
+    "empleoUrl": "http://www.one-esecurity.com/join_our_team.html",
     "verificacion": {
       "fecha": "2026-11-07",
       "confianza": "media",
@@ -3580,9 +3557,9 @@
     "motivoEncaje": "Fabricante de ascensores con sede en Madrid; muchos técnicos de mantenimiento eléctrico.",
     "contacto": {
       "tipo": "email",
-      "email": "careers@otis.com",
+      "email": "otis.spain@otis.com",
       "fuenteUrl": "https://www.otis.com/es/es/careers",
-      "tipoContacto": "talento"
+      "tipoContacto": "general"
     },
     "empleoUrl": "https://www.otis.com/es/es/careers",
     "verificacion": {
@@ -3786,33 +3763,6 @@
       "mx": true,
       "buzon": "existe",
       "notas": "Verificación automática: 7 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto; buzón confirmado por su servidor de correo."
-    }
-  },
-  {
-    "id": "problemas-cero",
-    "nombre": "Problemas Cero",
-    "web": "https://problemascero.com",
-    "sector": "Servicios informáticos",
-    "tamano": "pyme",
-    "zona": "madrid",
-    "perfiles": [
-      "asir-soporte",
-      "asir-sistemas"
-    ],
-    "motivoEncaje": "Servicios informáticos con página de empleo.",
-    "contacto": {
-      "tipo": "email",
-      "email": "info@problemascero.com",
-      "fuenteUrl": "https://problemascero.com/trabaja-con-nosotros/",
-      "tipoContacto": "general"
-    },
-    "empleoUrl": "https://problemascero.com/trabaja-con-nosotros/",
-    "verificacion": {
-      "fecha": "2026-11-07",
-      "confianza": "media",
-      "mx": true,
-      "buzon": "sin-confirmar",
-      "notas": "Verificación automática: 3 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón sin confirmar."
     }
   },
   {
@@ -4218,7 +4168,7 @@
       "fecha": "2026-11-07",
       "confianza": "media",
       "mx": null,
-      "notas": "Verificación automática: 16 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: TU NOMBRE, DIRECCIÓN DE EMAIL, MENSAJE, form_fields[field_a88666a])."
+      "notas": "Verificación automática: 17 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: TU NOMBRE, DIRECCIÓN DE EMAIL, MENSAJE, form_fields[field_a88666a])."
     }
   },
   {
@@ -4381,6 +4331,36 @@
       "mx": true,
       "buzon": "sin-confirmar",
       "notas": "Verificación automática: 4 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de empleo; buzón sin confirmar."
+    }
+  },
+  {
+    "id": "sopra-steria-espana",
+    "nombre": "Sopra Steria España",
+    "web": "https://www.soprasteria.es",
+    "sector": "Consultoría y servicios TI",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "dam-bbdd",
+      "asir-sistemas",
+      "asir-soporte",
+      "asir-ciberseguridad"
+    ],
+    "motivoEncaje": "Consultora con proyectos de desarrollo, soporte y sistemas para banca y Administración.",
+    "contacto": {
+      "tipo": "formulario",
+      "fuenteUrl": "https://join.smartrecruiters.com/SopraSteria1/d57cb8c9-7a26-49e8-86e1-33eede9fbfea-espont-neos",
+      "formularioUrl": "https://join.smartrecruiters.com/SopraSteria1/d57cb8c9-7a26-49e8-86e1-33eede9fbfea-espont-neos",
+      "tipoContacto": "talento"
+    },
+    "empleoUrl": "https://careers.soprasteria.es/",
+    "verificacion": {
+      "fecha": "2026-11-07",
+      "confianza": "alta",
+      "mx": null,
+      "notas": "Verificación automática: 14 páginas revisadas (incluido el mapa del sitio); formulario de empleo comprobado en el navegador (campos: Añade tu currículum, Nombre, Apellidos, Correo electrónico, Country/region code, Número de teléfono)."
     }
   },
   {
@@ -4696,16 +4676,17 @@
     ],
     "motivoEncaje": "Compraventa de vivienda con procesos digitales (vivero de Carabanchel). Fuente: empresas alojadas en la red de viveros de Madrid Emprende (datos abiertos del Ayuntamiento de Madrid, 01/07/2026).",
     "contacto": {
-      "tipo": "formulario",
+      "tipo": "email",
+      "email": "info@templo-inmobiliario.com",
       "fuenteUrl": "https://templo-inmobiliario.com/contacto/",
-      "formularioUrl": "https://templo-inmobiliario.com/contacto/",
       "tipoContacto": "general"
     },
     "verificacion": {
       "fecha": "2026-11-07",
       "confianza": "media",
-      "mx": null,
-      "notas": "Verificación automática: 3 páginas revisadas (incluido el mapa del sitio); formulario de contacto comprobado en el navegador (campos: Nombre, Email, Asunto)."
+      "mx": true,
+      "buzon": "existe",
+      "notas": "Verificación automática: 3 páginas revisadas (incluido el mapa del sitio); correo extraído literalmente de una página de contacto; buzón confirmado por su servidor de correo."
     }
   },
   {
