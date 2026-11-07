@@ -6921,5 +6921,1453 @@
       "https://www.microsyscom.com"
     ],
     "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "neo-tools",
+    "nombre": "Neo-Tools-Ng",
+    "web": "https://neo-tools.es",
+    "sector": "Sociedad especializada en los servicios de ingeniería informática",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Puente De Vallecas). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://neo-tools.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "clouzy",
+    "nombre": "Clouzy",
+    "web": "https://www.clouzy.es",
+    "sector": "Consultoría informática",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-sistemas",
+      "asir-soporte"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.clouzy.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "universoidea",
+    "nombre": "Universo Idea",
+    "web": "https://www.universoidea.com",
+    "sector": "Empresa de software tecnológico, aplicado al sector de la educación",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.universoidea.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "quenta",
+    "nombre": "Quenta Solutions",
+    "web": "https://www.quenta.es",
+    "sector": "Servicios de consultoría estratégica de negocio y de tecnologías de",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "dam-web"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.quenta.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "apertum",
+    "nombre": "Apertum Digital",
+    "web": "https://www.apertum.es",
+    "sector": "Consultora estratégica y de proyectos de transformación digital",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.apertum.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "greenbyte",
+    "nombre": "Greenbyte Global Solutions",
+    "web": "https://www.greenbyte.es",
+    "sector": "Soluciones tecnológicas para impulsar negocios",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "asir-soporte"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.greenbyte.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "tobeit",
+    "nombre": "Arba3 Servicios De Gestión Y Seguridad",
+    "web": "https://www.tobeit.es",
+    "sector": "Servicios tecnológicos para la gestión de aplicaciones móviles",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-android",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.tobeit.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "encodigoweb",
+    "nombre": "Encode Web",
+    "web": "https://www.encodigoweb.com",
+    "sector": "Diseño, desarrollo, implementación y mantenimiento de páginas web",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.encodigoweb.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "carmedia",
+    "nombre": "Carmedia Solutions",
+    "web": "https://www.carmedia.tech",
+    "sector": "Desarrollo de soluciones tecnológicas de publicidad enfocadas al",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.carmedia.tech"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "exploradigital",
+    "nombre": "Explora Digital 2016",
+    "web": "https://www.exploradigital.es",
+    "sector": "Desarrollo digital para pymes",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.exploradigital.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "multiversoft",
+    "nombre": "Multiversoft",
+    "web": "https://www.multiversoft.com",
+    "sector": "Desarrollo de tecnologías, aplicaciones y servicios para la creación",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-videojuegos",
+      "dam-web"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.multiversoft.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "poscrm",
+    "nombre": "Pos Crm",
+    "web": "https://poscrm.es",
+    "sector": "Plataforma de tecnología retail pos crm",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "acom-gestion-comercio"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://poscrm.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "lastmile",
+    "nombre": "Last Mile Team",
+    "web": "https://www.lastmile.team",
+    "sector": "Servicios de software para transportistas de paqueteria",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "acom-logistica"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.lastmile.team"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "rigeltechnologies",
+    "nombre": "Rigel Technologies",
+    "web": "https://www.rigeltechnologies.es",
+    "sector": "Desarrollo e implantacion de soluciones tecnológicas necesarias para",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "dam-datos-ia"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.rigeltechnologies.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "serverboards",
+    "nombre": "Serverboards",
+    "web": "https://www.serverboards.io",
+    "sector": "Business intelligence y big data para e-commerce y pymes",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-datos-ia",
+      "dam-bbdd"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.serverboards.io"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "artaxgames",
+    "nombre": "Artax Games",
+    "web": "https://www.artaxgames.com",
+    "sector": "Servicios informáticos de branding, realidad virtual y aplicaciones",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-videojuegos"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.artaxgames.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "tamoe",
+    "nombre": "Tamoe Innovation",
+    "web": "https://www.tamoe.es",
+    "sector": "Creación de apps,  organización de eventos, formación, diseño y",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-android"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.tamoe.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "ideorum",
+    "nombre": "Ideorum",
+    "web": "https://www.ideorum.com",
+    "sector": "Desarrollo de soluciones educativas mediante aplicaciones basadas en",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-android"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.ideorum.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "triskelsoft",
+    "nombre": "Triskelsoft",
+    "web": "https://www.triskelsoft.com",
+    "sector": "Software de análisis de datos para el sector agrícola",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-datos-ia",
+      "dam-bbdd"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.triskelsoft.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "ac2sc",
+    "nombre": "Ac2 Systems Consultancy",
+    "web": "https://ac2sc.es",
+    "sector": "Consultoría de sistemas",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-sistemas",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://ac2sc.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "datatrends",
+    "nombre": "Data Trends",
+    "web": "https://www.datatrends.es",
+    "sector": "Servicios tecnológicos para el Marketing y la Seguridad en las",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.datatrends.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "dpunto",
+    "nombre": "Dpunto Instalaciones",
+    "web": "https://www.dpunto.com",
+    "sector": "Servicio de soporte informático para proyectos de ventas",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-soporte"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.dpunto.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "miarpe",
+    "nombre": "Madrid Miarpe",
+    "web": "https://www.miarpe.es",
+    "sector": "Consultoría, venta de servicios y productos informáticos",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-soporte",
+      "acom-venta-tecnica"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.miarpe.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "krsolutions",
+    "nombre": "Kyre Solutions",
+    "web": "https://www.krsolutions.es",
+    "sector": "Empresa de consultoría y servicios informáticos de última generación",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-sistemas",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.krsolutions.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "cico",
+    "nombre": "Consultoría Informática Y Comercio Online",
+    "web": "https://www.cico.es",
+    "sector": "Comercio electrónico y consultoría informática",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.cico.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "zaleos",
+    "nombre": "Zaleos Engineering",
+    "web": "https://www.zaleos.net",
+    "sector": "Servicios de tecnología de información y comunicaciones",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-redes",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.zaleos.net"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "e-tick",
+    "nombre": "Electronic Ticket Intelligent Card",
+    "web": "https://www.e-tick.es",
+    "sector": "Desarrollo aplicaciones y proyectos online para terceros",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-android"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.e-tick.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "lab-cave",
+    "nombre": "Lab Cave Apps",
+    "web": "https://www.lab-cave.com",
+    "sector": "Creación de juegos y aplicaciones móviles propias y para otras",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-android",
+      "dam-videojuegos"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.lab-cave.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "artdinamica",
+    "nombre": "Arte Y Tecnología Dinámica",
+    "web": "https://www.artdinamica.com",
+    "sector": "Agencia de desarrollo  de proyectos online a medida y desarrollo de",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.artdinamica.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "shotnshop",
+    "nombre": "Shot & Shop",
+    "web": "https://www.shotnshop.com",
+    "sector": "Ofrece servicios y productos basados en tecnologías de visión",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-datos-ia"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.shotnshop.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "evil-mind",
+    "nombre": "Evil Mind Entertainment",
+    "web": "https://www.evil-mind.com",
+    "sector": "Desarrollo de videojuegos para su comercialización en las principales",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-videojuegos"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.evil-mind.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "qapoint",
+    "nombre": "Qa Point",
+    "web": "https://www.qapoint.es",
+    "sector": "Desarrollo e implantación de herramientas de tecnologías de la",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-soporte",
+      "dam-web"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.qapoint.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "acevedoapps",
+    "nombre": "Acevedo Apps It Solutions",
+    "web": "https://www.acevedoapps.com",
+    "sector": "Consultoría informática",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-erp",
+      "dam-bbdd"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.acevedoapps.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "nimbeo",
+    "nombre": "Nimbeo Estrategia E Innovacion",
+    "web": "https://www.nimbeo.com",
+    "sector": "Desarrollo de plataforma basada en Mobile Big Data que permite",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-datos-ia",
+      "dam-android"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.nimbeo.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "dialevo",
+    "nombre": "Dialevo",
+    "web": "https://www.dialevo.com",
+    "sector": "Servicios de consultoría y desarrollo de aplicaciones móviles",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-android"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.dialevo.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "inmersive",
+    "nombre": "Immersive Interactive",
+    "web": "https://www.inmersive.es",
+    "sector": "Video juegos para plataformas",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-videojuegos"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.inmersive.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "sidertia",
+    "nombre": "Sidertia Solutions",
+    "web": "https://www.sidertia.com",
+    "sector": "Consultora en servicios informáticos",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.sidertia.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "nextdigital",
+    "nombre": "Next Digital Hub",
+    "web": "https://www.nextdigital.es",
+    "sector": "Soluciones de transformación digital a empresas mediante consultoria",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.nextdigital.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "paesconsulting",
+    "nombre": "Paes Soluciones Empresariales",
+    "web": "https://www.paesconsulting.com",
+    "sector": "Consultoría informática, de calidad y financiera",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-soporte",
+      "dam-erp"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.paesconsulting.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "noxfallstudios",
+    "nombre": "Noxfall Studios",
+    "web": "https://www.noxfallstudios.com",
+    "sector": "Desarrollo de videojuegos y aplicaciones móviles",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-videojuegos",
+      "dam-android"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.noxfallstudios.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "codetofit",
+    "nombre": "Ctf Code To Fit Tech Solutions",
+    "web": "https://www.codetofit.com",
+    "sector": "Consultoría, desarrollo y mantenimiento de aplicaciones especializada",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-escritorio",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Vicálvaro). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.codetofit.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "convierte",
+    "nombre": "Convierte Agency Estrategias De Alto Impacto",
+    "web": "https://convierte.agency/",
+    "sector": "Actividades de programación informática",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Villaverde). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://convierte.agency/"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "aitekia",
+    "nombre": "Aitekia",
+    "web": "https://www.aitekia.io",
+    "sector": "Desarrollo de soluciones tecnológicas a medida utilizando plataformas",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-datos-ia"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Puente De Vallecas). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.aitekia.io"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "nexoprofessional",
+    "nombre": "Nexo Professional Community",
+    "web": "https://nexoprofessional.com/",
+    "sector": "Actividades de programación informática",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Carabanchel). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://nexoprofessional.com/"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "cleverabb",
+    "nombre": "Beexe Technology",
+    "web": "https://cleverabb.com/",
+    "sector": "Actividades de consultoría informática",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-soporte",
+      "dam-web"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Moratalaz). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://cleverabb.com/"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "active-data",
+    "nombre": "Active Data 2019",
+    "web": "https://active-data.es",
+    "sector": "Servicios de ingeniería informática especializada en internet de las",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Puente De Vallecas). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://active-data.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "italent-consulting",
+    "nombre": "Italent Consulting Information And Technology",
+    "web": "https://italent-consulting.com/",
+    "sector": "Implantación de soluciones tecnológicas SAP que permiten la",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-erp"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Vicalvaro). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://italent-consulting.com/"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "uniendonodos",
+    "nombre": "Uniendo Nodos",
+    "web": "https://www.uniendonodos.com/",
+    "sector": "Consultora especialista en formación y consultoría de herramientas de",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-cloud",
+      "asir-soporte"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Vicalvaro). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.uniendonodos.com/"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "modeliza",
+    "nombre": "Modelizame",
+    "web": "https://www.modeliza.me",
+    "sector": "Actividades de consultoría informática",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Moratalaz). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.modeliza.me"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "troovia",
+    "nombre": "2020 Smartness Spain",
+    "web": "https://www.troovia.es",
+    "sector": "Servicios relacionados con las tecnologías de la información y la",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.troovia.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "bitsnbyteglobal",
+    "nombre": "Bits And Byte Global",
+    "web": "https://www.bitsnbyteglobal.com",
+    "sector": "Reventa de soluciones de conectividad global de internet",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-redes",
+      "acom-venta-tecnica"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.bitsnbyteglobal.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "dataequity",
+    "nombre": "Data Equity",
+    "web": "https://www.dataequity.es",
+    "sector": "Servicios de consultoría y análisis de datos para empresas",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-datos-ia",
+      "dam-bbdd"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.dataequity.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "gadeprocess",
+    "nombre": "Gestión Automática De Procesos",
+    "web": "https://www.gadeprocess.com",
+    "sector": "Venta de productos informáticos para mediana y gran empresa",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta-tecnica",
+      "asir-soporte"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.gadeprocess.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "koiki",
+    "nombre": "Koiki Home",
+    "web": "https://www.koiki.eu",
+    "sector": "Otros servicios relacionados con las tecnologías de la información y",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-logistica",
+      "dam-web"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.koiki.eu"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "pinoutelectronics",
+    "nombre": "Pinout Solutions",
+    "web": "https://www.pinoutelectronics.com",
+    "sector": "Actividades de programación informática",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.pinoutelectronics.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "happycustomerbox",
+    "nombre": "Happy Customer Box",
+    "web": "https://www.happycustomerbox.com",
+    "sector": "Aportar conocimientos a las empresas sobre el comportamiento de sus",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-datos-ia",
+      "acom-atencion-cliente"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.happycustomerbox.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "goshawkanalytics",
+    "nombre": "Goshawk Analytics",
+    "web": "https://www.goshawkanalytics.com/",
+    "sector": "Elaboración de cuadros de mando, disponibles como un servicio web",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-datos-ia",
+      "dam-bbdd"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de San Blas). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.goshawkanalytics.com/"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "ficharpresencia",
+    "nombre": "Gescontic Technology",
+    "web": "https://www.ficharpresencia.es",
+    "sector": "Servicios de consultoría informática en seguridad, identificación de",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "asir-ciberseguridad"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.ficharpresencia.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "xtrategy",
+    "nombre": "Xtrategy Digital",
+    "web": "https://www.xtrategy.digital",
+    "sector": "Transformación digital para empresas y formación en competencias",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "dam-web"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.xtrategy.digital"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "the101experience",
+    "nombre": "101 Experience",
+    "web": "https://www.the101experience.com",
+    "sector": "101 EXPERIENCE es una acción de marketing gamificada enfocada al",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "dam-android"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Puente De Vallecas). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.the101experience.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "packandgotransportes",
+    "nombre": "Pack And Go Logistics",
+    "web": "https://www.packandgotransportes.eu/",
+    "sector": "Empresa de logistica y distribución paquetería",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-logistica"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Vicálvaro). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.packandgotransportes.eu/"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "integralmediaprojects",
+    "nombre": "Integral Media Projects",
+    "web": "https://www.integralmediaprojects.es",
+    "sector": "Marketing y comunicación",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.integralmediaprojects.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "clicategia",
+    "nombre": "Clicategia",
+    "web": "https://www.clicategia.es",
+    "sector": "Agencia de marketing",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.clicategia.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "feelthesign",
+    "nombre": "Feel Thesing",
+    "web": "https://www.feelthesign.es",
+    "sector": "Diseño gráfico y publicidad",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.feelthesign.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "undertakeco",
+    "nombre": "Undertake Plus",
+    "web": "https://www.undertakeco.com",
+    "sector": "Comercio electrónico de relojes y complementos",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-ecommerce",
+      "acom-venta"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.undertakeco.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "gesprolog",
+    "nombre": "Gesprolog",
+    "web": "https://www.gesprolog.com",
+    "sector": "Consultoría logistica en entornos de almacen, transporte y e-comerce",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-logistica"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.gesprolog.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "cdmarketing",
+    "nombre": "Connecting Dots Marketing",
+    "web": "https://www.cdmarketing.es",
+    "sector": "Agencia de publicidad",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.cdmarketing.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "socialnius",
+    "nombre": "Grandson Nius",
+    "web": "https://www.socialnius.com",
+    "sector": "Agencia de comunicación online",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.socialnius.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "agenciabigbox",
+    "nombre": "Big Box Marketing",
+    "web": "https://www.agenciabigbox.com",
+    "sector": "Agencia marketing online especializada en contenido para social media",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.agenciabigbox.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "contubarrio",
+    "nombre": "Con Tu Barrio",
+    "web": "https://www.contubarrio.com",
+    "sector": "Portal web para publicidad comercios y profesionales",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "acom-venta"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.contubarrio.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "ibird",
+    "nombre": "Ibir Last Mile",
+    "web": "https://www.ibird.es",
+    "sector": "Gestión integral de la logística directa e inversa",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-logistica",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.ibird.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "biddus",
+    "nombre": "Linkazo",
+    "web": "https://www.biddus.com",
+    "sector": "Plataforma para venta directa o subasta inversa",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.biddus.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "redstring",
+    "nombre": "Redstring",
+    "web": "https://www.redstring.es",
+    "sector": "Venta on line accesorios telefonía e informática",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-ecommerce",
+      "acom-venta"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.redstring.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "scaninblue",
+    "nombre": "Scan In Blue",
+    "web": "https://www.scaninblue.com",
+    "sector": "Venta on line accesorios telefonía e informática",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-ecommerce",
+      "acom-venta"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.scaninblue.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "liionforce",
+    "nombre": "Liionforce Spain Baterías Y Componentes",
+    "web": "https://www.liionforce.com",
+    "sector": "Comercio al por mayor de equipos electrónicos y telecomunicaciones",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta-tecnica",
+      "acom-logistica"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.liionforce.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "artdreamscomunicacion",
+    "nombre": "Art Dreams",
+    "web": "https://www.artdreamscomunicacion.es",
+    "sector": "Soluciones optimizadas necesidades de marketing y comunicación",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.artdreamscomunicacion.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "aztocart",
+    "nombre": "Aztocart",
+    "web": "https://www.aztocart.com",
+    "sector": "Plataforma de e-commerce",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-ecommerce",
+      "dam-web"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.aztocart.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "womaland",
+    "nombre": "Womacare Group",
+    "web": "https://www.womaland.com",
+    "sector": "E-commerce importación y exportación de bienes y servicios destinados",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.womaland.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "grupoclevershopping",
+    "nombre": "Grupo Clever Shopping",
+    "web": "https://www.grupoclevershopping.com/",
+    "sector": "Venta de productos y soluciones informáticas y de telecomunicaciones",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta-tecnica",
+      "acom-venta",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Puente De Vallecas). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.grupoclevershopping.com/"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "galeoncomunicacion",
+    "nombre": "Galeon Comunicacion Y Marketing",
+    "web": "https://www.galeoncomunicacion.com/",
+    "sector": "Diseño, marketing on y off, comunicación y producciones audiovisuales",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Vicalvaro). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.galeoncomunicacion.com/"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "birdshop",
+    "nombre": "Birdshop",
+    "web": "https://birdshop.es/",
+    "sector": "Agencia de publicidad",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Puente De Vallecas). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://birdshop.es/"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "digitalembassy",
+    "nombre": "Digital Embassy",
+    "web": "https://www.digitalembassy.es",
+    "sector": "Agencia de publicidad",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.digitalembassy.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "talentfiftyplus",
+    "nombre": "Talent Fifty Plus",
+    "web": "https://www.talentfiftyplus.es",
+    "sector": "Marketing online y capital humano",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.talentfiftyplus.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "enchufauto",
+    "nombre": "Enchufauto",
+    "web": "https://www.enchufauto.es",
+    "sector": "Comercio al por mayor de equipos electrónicos y de telecomunicaciones",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta-tecnica",
+      "acom-logistica"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de San Blas). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.enchufauto.es"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "influencialia",
+    "nombre": "Influencialia",
+    "web": "https://www.influencialia.com",
+    "sector": "Agencias de publicidad",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.influencialia.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "foodmoon360",
+    "nombre": "Foodmoon360",
+    "web": "https://www.foodmoon360.com",
+    "sector": "Distribución de alimentos naturales",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-logistica",
+      "acom-venta"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.foodmoon360.com"
+    ],
+    "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "mrdrebin",
+    "nombre": "Mr. Drebin",
+    "web": "https://www.mrdrebin.com",
+    "sector": "Comunicación y marketing on-line",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital"
+    ],
+    "motivoEncaje": "Empresa madrileña que ha estado alojada en la red municipal de viveros de empresa (vivero de Madrid Emprende). Fuente: datos abiertos del Ayuntamiento de Madrid.",
+    "paginasContacto": [
+      "https://www.mrdrebin.com"
+    ],
+    "tipoContactoEsperado": "general"
   }
 ]
