@@ -102,7 +102,10 @@ export async function rellenarNombre(page: Page, nombre = 'Ana Pérez') {
 /** En móvil los filtros están plegados: los despliega si hace falta. */
 export async function abrirFiltros(page: Page) {
   const boton = page.getByRole('button', { name: /^Filtros/ });
+  // En móvil el botón aparece cuando la página ha cargado: se espera antes de mirar si está plegado.
+  await boton.waitFor({ state: 'visible', timeout: 5_000 }).catch(() => undefined);
   if ((await boton.isVisible()) && (await boton.getAttribute('aria-expanded')) === 'false') await boton.click();
+  await page.getByLabel('Perfil o rama').first().waitFor({ state: 'visible', timeout: 5_000 }).catch(() => undefined);
 }
 
 export async function irAEmpresas(page: Page) {
