@@ -1,18 +1,18 @@
 # Auditoría de una muestra al azar
 
-Fecha: 2026-11-06T19:14:59.105Z · Muestra: 10 de 216 · Con problemas: 0
+Fecha: 2026-11-07T11:36:23.589Z · Muestra: 10 de 203 · Con problemas: 0
 
 | Empresa | Contacto | Fuente | Resultado |
 |---|---|---|---|
-| Tendam (Cortefiel, Springfield, Women'secret) | formulario | https://www.tendam.es/tendam-reconocida-como-best-company-for-all-talent-2026/ | ✔ OK |
-| Cuatroochenta | formulario | https://cuatroochenta.com/nace-xarxatec-activa-para-generar-talento-digital/ | ✔ OK |
-| Intelygenz | info@intelygenz.com | https://intelygenz.com/talent-as-a-service/ | ✔ OK |
-| Ferrovial | formulario | https://www.ferrovial.com/en/careers/ | ✔ OK |
-| GMV | formulario | https://www.gmv.com/es/talento | ✔ OK |
-| Aggity | formulario | https://aggity.com/people-analytics-gestion-del-talento/ | ✔ OK |
-| Cibersafety | formulario | https://cibersafety.com/trabajar-con-una-wifi-publica-segura/ | ✔ OK |
-| Ahorramas | formulario | https://empleo.ahorramas.com/ | ✔ OK |
-| Casa del Libro | formulario | https://www.casadellibro.com/nosotros/trabajaNosotros | ✔ OK |
-| Kanlli | formulario | http://kanlli.com/opinion/marketing-tech-talento/ | ✔ OK |
+| Aristocrazy | formulario | https://www.aristocrazy.com/pages/contacto | ✔ OK |
+| Kanlli | info@kanlli.com | http://kanlli.com/opinion/marketing-tech-talento/ | ✔ OK |
+| Grandson Nius | info@socialnius.com | https://socialnius.com/contacto/ | ✔ OK |
+| Grupo Microsyscom | formulario | https://microsyscom.com/contacto/ | ✔ OK |
+| Entelgy | formulario | https://entelgy.com/contacto/ | ✔ OK |
+| Estratel Marketing | formulario | https://estratel.net/contacto/ | ✔ OK |
+| Grupo Linka | formulario | https://www.grupolinka.com/contacto/ | ✔ OK |
+| Factum | rrhh@factum.es | https://www.factum.es/unete-al-equipo/ | ✔ OK |
+| Evil Mind Entertainment | jobs@evil-mind.com | https://www.evil-mind.com/contact/ | ✔ OK |
+| Europa Press | empleo@europapress.es | https://www.europapress.es/contacto/ | ✔ OK |
 
 Si alguna falla: vuelve a ejecutar `npm run verificar:empresas -- --solo=<id>` o retírala.
