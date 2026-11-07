@@ -8600,5 +8600,444 @@
       "https://www.socialmood.com"
     ],
     "tipoContactoEsperado": "general"
+  },
+  {
+    "id": "x25-informatica",
+    "nombre": "X25 Informática",
+    "web": "https://www.x25informatica.es",
+    "sector": "Desarrollo de software con tecnologías Microsoft",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "dam-escritorio",
+      "dam-bbdd"
+    ],
+    "motivoEncaje": "Empresa de software con oficina en Madrid que publica un buzón de RR. HH. para candidaturas.",
+    "paginasContacto": [
+      "https://www.x25informatica.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "m2-sistemas",
+    "nombre": "M2 Sistemas Informáticos",
+    "web": "https://www.m2sistemas.com",
+    "sector": "Servicios y sistemas informáticos",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-sistemas",
+      "asir-soporte",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Empresa madrileña de sistemas informáticos con buzón de RR. HH. en su página de empleo.",
+    "paginasContacto": [
+      "https://www.m2sistemas.com",
+      "https://www.m2sistemas.com/trabaja-con-nosotros/"
+    ],
+    "tipoContactoEsperado": "rrhh",
+    "empleoUrl": "https://www.m2sistemas.com/trabaja-con-nosotros/"
+  },
+  {
+    "id": "sixtema",
+    "nombre": "Sixtema",
+    "web": "https://www.sixtema.es",
+    "sector": "Desarrollo de software",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "dam-escritorio"
+    ],
+    "motivoEncaje": "Empresa de desarrollo de software que publica un buzón de RR. HH.",
+    "paginasContacto": [
+      "https://www.sixtema.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "desarrollo-web-total",
+    "nombre": "Desarrollo Web Total",
+    "web": "https://desarrollowebtotal.com",
+    "sector": "Desarrollo web y aplicaciones móviles",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-android"
+    ],
+    "motivoEncaje": "Desarrollo web y de apps que publica un buzón de RR. HH.",
+    "paginasContacto": [
+      "https://desarrollowebtotal.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "comunicare",
+    "nombre": "Comunicare",
+    "web": "https://www.comunicare.es",
+    "sector": "Agencia de marketing digital",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "dam-web"
+    ],
+    "motivoEncaje": "Agencia de marketing digital en el Paseo de la Castellana con página de empleo.",
+    "paginasContacto": [
+      "https://www.comunicare.es",
+      "https://www.comunicare.es/trabaja-con-nosotros/"
+    ],
+    "tipoContactoEsperado": "rrhh",
+    "empleoUrl": "https://www.comunicare.es/trabaja-con-nosotros/"
+  },
+  {
+    "id": "alamo-consulting",
+    "nombre": "ÁlamoConsulting",
+    "web": "https://www.alamoconsulting.com",
+    "sector": "Consultoría tecnológica",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "dam-web",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Consultora con oficina en la Castellana que busca perfiles con menos de tres años de experiencia y publica un buzón de RR. HH.",
+    "paginasContacto": [
+      "https://www.alamoconsulting.com",
+      "https://www.alamoconsulting.com/trabaja-con-nosotros-menu/trabaja-con-nosotros/cv"
+    ],
+    "tipoContactoEsperado": "rrhh",
+    "empleoUrl": "https://www.alamoconsulting.com/trabaja-con-nosotros-menu/trabaja-con-nosotros/cv"
+  },
+  {
+    "id": "fmg-consulting",
+    "nombre": "FMG Consulting",
+    "web": "https://fmgconsulting.es",
+    "sector": "Soporte y mantenimiento informático en centros educativos",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-soporte",
+      "asir-sistemas",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Soporte informático a colegios de la Comunidad de Madrid; publica un buzón de RR. HH.",
+    "paginasContacto": [
+      "https://fmgconsulting.es",
+      "https://fmgconsulting.es/trabaja-con-nosotros/"
+    ],
+    "tipoContactoEsperado": "rrhh",
+    "empleoUrl": "https://fmgconsulting.es/trabaja-con-nosotros/"
+  },
+  {
+    "id": "iteggo",
+    "nombre": "iteggo",
+    "web": "https://www.iteggo.com",
+    "sector": "Consultoría tecnológica y PMO",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Consultora tecnológica que publica un buzón de RR. HH.",
+    "paginasContacto": [
+      "https://www.iteggo.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "ncs-spain",
+    "nombre": "NCS Spain",
+    "web": "https://www.ncs-spain.com",
+    "sector": "Consultoría tecnológica",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "dam-web",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Consultora tecnológica con formulario para enviar el CV.",
+    "paginasContacto": [
+      "https://www.ncs-spain.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "problemas-cero",
+    "nombre": "Problemas Cero",
+    "web": "https://problemascero.com",
+    "sector": "Servicios informáticos",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-soporte",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Servicios informáticos con página de empleo.",
+    "paginasContacto": [
+      "https://problemascero.com",
+      "https://problemascero.com/trabaja-con-nosotros/"
+    ],
+    "tipoContactoEsperado": "rrhh",
+    "empleoUrl": "https://problemascero.com/trabaja-con-nosotros/"
+  },
+  {
+    "id": "marketalia",
+    "nombre": "Marketalia",
+    "web": "https://marketalia.com",
+    "sector": "Agencia de marketing digital (Google Premier Partner)",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-marketing-digital",
+      "acom-ecommerce",
+      "dam-datos-ia"
+    ],
+    "motivoEncaje": "Agencia en el centro de Madrid que ofrece becas de prácticas con convenio.",
+    "paginasContacto": [
+      "https://marketalia.com",
+      "https://marketalia.com/talento/"
+    ],
+    "tipoContactoEsperado": "rrhh",
+    "empleoUrl": "https://marketalia.com/talento/"
+  },
+  {
+    "id": "ymant",
+    "nombre": "Ymant",
+    "web": "https://www.ymant.com",
+    "sector": "Mantenimiento informático para empresas",
+    "tamano": "pyme",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-soporte",
+      "asir-sistemas",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Mantenimiento informático de empresas en Madrid.",
+    "paginasContacto": [
+      "https://www.ymant.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "agioglobal",
+    "nombre": "AgioGlobal Technology",
+    "web": "https://www.agioglobal.com",
+    "sector": "Servicios TI y ciberseguridad",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-ciberseguridad",
+      "asir-redes",
+      "asir-sistemas"
+    ],
+    "motivoEncaje": "Proyectos de ciberseguridad y redes en Madrid.",
+    "paginasContacto": [
+      "https://www.agioglobal.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "tien21",
+    "nombre": "Tien 21",
+    "web": "https://www.tien21.es",
+    "sector": "Comercio de electrodomésticos y electrónica",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-venta-tecnica",
+      "acom-atencion-cliente",
+      "acom-logistica"
+    ],
+    "motivoEncaje": "Cadena de electrodomésticos con oficinas en Madrid, Alcobendas y Colmenar Viejo; ofrece prácticas.",
+    "paginasContacto": [
+      "https://www.tien21.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "avanttic",
+    "nombre": "avanttic",
+    "web": "https://www.avanttic.com",
+    "sector": "Consultoría Oracle, cloud y datos",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-bbdd",
+      "asir-cloud",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Consultora tecnológica con oficina en Madrid.",
+    "paginasContacto": [
+      "https://www.avanttic.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "innova-tsn",
+    "nombre": "Innova-tsn",
+    "web": "https://www.innovatsn.com",
+    "sector": "Consultoría de datos y analítica",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-datos-ia",
+      "dam-bbdd"
+    ],
+    "motivoEncaje": "Consultora de datos con sede en Madrid.",
+    "paginasContacto": [
+      "https://www.innovatsn.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "plexus",
+    "nombre": "Plexus Tech",
+    "web": "https://www.plexus.es",
+    "sector": "Consultoría tecnológica",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "asir-sistemas",
+      "asir-ciberseguridad"
+    ],
+    "motivoEncaje": "Consultora tecnológica con oficina en Madrid.",
+    "paginasContacto": [
+      "https://www.plexus.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "trevenque",
+    "nombre": "Grupo Trevenque",
+    "web": "https://www.trevenque.es",
+    "sector": "Servicios TI, sistemas y desarrollo",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-sistemas",
+      "dam-web",
+      "dam-erp"
+    ],
+    "motivoEncaje": "Grupo de servicios TI con oficina en Madrid.",
+    "paginasContacto": [
+      "https://www.trevenque.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "divisa-it",
+    "nombre": "Divisa iT",
+    "web": "https://www.divisait.com",
+    "sector": "Consultoría tecnológica",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-backend",
+      "asir-sistemas",
+      "dam-erp"
+    ],
+    "motivoEncaje": "Consultora tecnológica con oficina en Madrid.",
+    "paginasContacto": [
+      "https://www.divisait.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "nologin",
+    "nombre": "Nologin",
+    "web": "https://www.nologin.es",
+    "sector": "Consultoría y desarrollo de software",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-web",
+      "dam-backend",
+      "asir-cloud"
+    ],
+    "motivoEncaje": "Consultora tecnológica con oficina en Madrid.",
+    "paginasContacto": [
+      "https://www.nologin.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "prodware",
+    "nombre": "Prodware España",
+    "web": "https://www.prodware.es",
+    "sector": "Consultoría ERP y CRM (Microsoft Dynamics)",
+    "tamano": "consultora",
+    "zona": "madrid",
+    "perfiles": [
+      "dam-erp",
+      "dam-backend"
+    ],
+    "motivoEncaje": "Consultora de ERP con oficina en Madrid.",
+    "paginasContacto": [
+      "https://www.prodware.es"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "teknoservice",
+    "nombre": "Teknoservice",
+    "web": "https://www.teknoservice.com",
+    "sector": "Servicios técnicos informáticos de campo",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "asir-soporte",
+      "asir-sistemas",
+      "asir-redes"
+    ],
+    "motivoEncaje": "Servicios técnicos informáticos con sede en Madrid; contrata técnicos de soporte.",
+    "paginasContacto": [
+      "https://www.teknoservice.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "ale-hop",
+    "nombre": "Ale-Hop",
+    "web": "https://www.alehop.com",
+    "sector": "Tiendas de regalo y complementos",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-visual",
+      "acom-logistica"
+    ],
+    "motivoEncaje": "Cadena de tiendas con muchas tiendas en Madrid.",
+    "paginasContacto": [
+      "https://www.alehop.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
+  },
+  {
+    "id": "pasteleria-mallorca",
+    "nombre": "Pastelería Mallorca",
+    "web": "https://www.pasteleriamallorca.com",
+    "sector": "Comercio de alimentación gourmet",
+    "tamano": "gran-empresa",
+    "zona": "madrid",
+    "perfiles": [
+      "acom-venta",
+      "acom-atencion-cliente",
+      "acom-ecommerce"
+    ],
+    "motivoEncaje": "Cadena madrileña de pastelería y tiendas gourmet.",
+    "paginasContacto": [
+      "https://www.pasteleriamallorca.com"
+    ],
+    "tipoContactoEsperado": "rrhh"
   }
 ]
