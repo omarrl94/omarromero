@@ -3,13 +3,15 @@
 // sea fácil de leer y de cambiar; `npm run test:world` comprueba que todo es alcanzable.
 
 export const W = 30;
-export const H = 96;
+export const H = 120;
 
 const grid = Array.from({ length: H }, () => Array(W).fill('.'));
-const rect = (x, y, w, h, ch) => { for (let j = y; j < y + h; j++) for (let i = x; i < x + w; i++) if (grid[j] && i >= 0 && i < W) grid[j][i] = ch; };
+// Cada zona se dibuja con coordenadas propias y un desplazamiento vertical (OY).
+let OY = 0;
+const rect = (x, y, w, h, ch) => { for (let j = y + OY; j < y + OY + h; j++) for (let i = x; i < x + w; i++) if (grid[j] && i >= 0 && i < W) grid[j][i] = ch; };
 const hline = (x1, x2, y, ch) => rect(x1, y, x2 - x1 + 1, 1, ch);
 const vline = (x, y1, y2, ch) => rect(x, y1, 1, y2 - y1 + 1, ch);
-const put = (x, y, ch) => { grid[y][x] = ch; };
+const put = (x, y, ch) => { grid[y + OY][x] = ch; };
 export const DOORS = {};
 export const BUILDINGS = [];
 /** Tipos de edificio: posición en TilesetHouse, ancho y columna de la puerta. */
@@ -27,8 +29,8 @@ function house(x, y, type, door) {
   const b = BUILDING_TYPES[type];
   rect(x, y, b.w, 3, 'B');
   put(x + b.door, y + 2, 'D');
-  DOORS[`${x + b.door},${y + 2}`] = door;
-  BUILDINGS.push({ x, y, type, door });
+  DOORS[`${x + b.door},${y + OY + 2}`] = door;
+  BUILDINGS.push({ x, y: y + OY, type, door });
   return x + b.door;
 }
 
@@ -36,7 +38,10 @@ function house(x, y, type, door) {
 vline(0, 0, H - 1, 'T');
 vline(W - 1, 0, H - 1, 'T');
 
-// ════════ Zona 9 · Pueblo Origen (y 84-95) ════════
+// La mitad sur del mapa se diseñó antes de añadir Villa Objeto y Ciudad Núcleo: va 24 filas más abajo.
+OY = 24;
+
+// ════════ Pueblo Origen ════════
 hline(1, 28, 84, 'T'); put(15, 84, '=');
 hline(1, 28, 95, 'T');
 vline(14, 85, 90, '='); vline(15, 85, 90, '=');
@@ -48,13 +53,13 @@ rect(2, 92, 4, 2, '*'); put(27, 85, '*'); put(1, 85, '*'); put(10, 87, '*'); put
 hline(8, 13, 93, 'F');
 put(12, 89, 'S');
 
-// ════════ Zona 8 · Ruta 1 (y 74-83) ════════
+// ════════ Ruta 1 ════════
 vline(14, 74, 83, '='); vline(15, 74, 83, '=');
 rect(2, 76, 9, 4, ','); rect(18, 78, 10, 4, ','); rect(4, 81, 7, 2, ',');
 rect(11, 75, 2, 2, 'T'); rect(22, 75, 3, 2, 'T'); rect(1, 82, 3, 2, 'T'); put(25, 83, 'T'); put(18, 76, 'T');
 put(16, 82, 'S');
 
-// ════════ Zona 7 · Ciudad Byte (y 64-73) ════════
+// ════════ Ciudad Byte ════════
 hline(1, 28, 64, 'T'); put(15, 64, 'X');
 vline(14, 65, 73, '='); vline(15, 65, 73, '=');
 house(3, 66, 'center', 'center');
@@ -65,7 +70,7 @@ house(21, 70, 'house2', 'house-byte2');
 vline(5, 73, 73, '='); vline(22, 73, 73, '=');
 put(12, 66, 'S'); put(10, 72, '*'); put(11, 72, '*'); put(17, 72, '*'); put(17, 71, '*');
 
-// ════════ Zona 6 · Bosque Bucle (y 54-63) ════════
+// ════════ Bosque Bucle ════════
 rect(1, 54, 28, 10, 'T');
 hline(6, 23, 56, '='); hline(6, 23, 61, '='); vline(6, 56, 61, '='); vline(23, 56, 61, '=');
 rect(7, 57, 16, 4, ','); put(11, 58, 'T'); put(18, 59, 'T'); put(14, 58, 'T'); put(15, 58, 'T');
@@ -73,7 +78,7 @@ rect(2, 57, 4, 4, ','); rect(24, 57, 4, 4, ',');
 vline(15, 62, 63, '='); vline(15, 54, 55, '=');
 put(14, 62, 'S');
 
-// ════════ Zona 5 · Ciudad Bucle (y 44-53) ════════
+// ════════ Ciudad Bucle ════════
 hline(1, 28, 44, 'T'); put(15, 44, 'X');
 hline(1, 28, 53, 'T'); put(15, 53, '=');
 hline(1, 28, 52, 'T'); put(15, 52, '=');
@@ -83,7 +88,7 @@ hline(3, 26, 48, '='); vline(14, 45, 51, '='); vline(15, 45, 51, '=');
 rect(10, 49, 3, 2, '*'); rect(17, 49, 3, 2, '*'); put(12, 46, 'S');
 rect(22, 49, 5, 2, '~');
 
-// ════════ Zona 4 · Lago Array y Pueblo Índice (y 30-43) ════════
+// ════════ Lago Array y Pueblo Índice ════════
 hline(1, 28, 29, 'T'); put(15, 29, 'X');
 rect(1, 34, 28, 7, '~');
 vline(15, 34, 40, 'b');
@@ -96,9 +101,32 @@ house(21, 30, 'center', 'center');
 hline(2, 27, 33, '='); vline(14, 30, 33, '='); vline(15, 30, 33, '=');
 put(12, 31, 'S'); put(17, 42, 'S');
 
-// ════════ Zona 3 · Ciudad Recursiva (y 17-28) ════════
+// ════════ Villa Objeto (y 41-52) · capítulo 4: POO ════════
+OY = 41;
+hline(1, 28, 0, 'T'); put(15, 0, 'X');
+vline(14, 1, 11, '='); vline(15, 1, 11, '=');
+house(3, 2, 'gym', 'gym4');
+house(20, 2, 'center', 'center');
+hline(2, 27, 5, '=');
+rect(2, 7, 10, 4, ','); rect(18, 7, 10, 4, ',');
+put(12, 8, 'T'); put(17, 10, 'T'); put(26, 3, 'T'); put(1, 3, '*'); put(9, 3, '*'); put(10, 3, '*');
+put(12, 3, 'S');
+
+// ════════ Ciudad Núcleo (y 29-40) · capítulo 5: Sistemas ════════
+OY = 29;
+hline(1, 28, 0, 'T'); put(15, 0, 'X');
+vline(14, 1, 11, '='); vline(15, 1, 11, '=');
+house(3, 2, 'center', 'center');
+house(19, 2, 'gym', 'gym5');
+hline(2, 27, 5, '=');
+rect(2, 7, 10, 4, ','); rect(18, 7, 10, 4, ',');
+put(12, 9, 'r'); put(17, 8, 'r'); put(26, 2, 'r'); put(9, 2, 'r');
+put(12, 3, 'S');
+
+OY = 0;
+// ════════ Ciudad Recursiva (y 17-28) · capítulo 6 ════════
 hline(1, 28, 17, 'T'); put(4, 17, 'X');
-house(14, 20, 'tower', 'gym4');
+house(14, 20, 'tower', 'gym6');
 vline(14, 23, 28, '='); vline(15, 23, 28, '=');
 hline(4, 25, 26, '='); vline(4, 18, 26, '=');
 rect(1, 27, 9, 2, 'k'); rect(20, 27, 9, 2, 'k'); rect(5, 19, 4, 5, 'k');
@@ -106,7 +134,7 @@ house(22, 19, 'center', 'center');
 vline(23, 22, 26, '=');
 put(13, 25, 'S');
 
-// ════════ Zona 2 · Cumbre Algoritmo (y 8-16) ════════
+// ════════ Cumbre Algoritmo ════════
 rect(1, 8, 28, 9, ':');
 rect(1, 8, 3, 9, 'M'); rect(26, 8, 3, 9, 'M');
 vline(4, 13, 16, '='); hline(4, 15, 13, '='); vline(15, 8, 13, '=');
@@ -114,7 +142,7 @@ rect(5, 14, 9, 3, ','); rect(17, 9, 8, 4, ','); rect(5, 9, 6, 3, ',');
 rect(16, 14, 9, 3, 'M'); put(12, 10, 'r'); put(20, 13, 'r'); put(9, 12, 'r'); put(24, 9, 'r');
 hline(11, 14, 8, 'M'); hline(16, 19, 8, 'M');
 
-// ════════ Zona 1 · Cueva Null (y 0-7) ════════
+// ════════ Cueva Null ════════
 rect(1, 0, 28, 8, 'M');
 rect(10, 1, 11, 5, 'c'); rect(12, 0, 7, 1, 'M'); vline(15, 6, 7, 'c');
 put(11, 2, 'r'); put(19, 4, 'r');
@@ -123,7 +151,7 @@ export const MAP = grid.map((r) => r.join(''));
 export const tileAt = (x, y) => (x < 0 || y < 0 || x >= W || y >= H ? 'T' : MAP[y][x]);
 
 // Cortafuegos: se abren con una medalla.
-export const FIREWALLS = { '15,64': 'medal1', '15,44': 'medal2', '15,29': 'medal3', '4,17': 'medal4' };
+export const FIREWALLS = { '15,88': 'medal1', '15,68': 'medal2', '15,53': 'medal3', '15,41': 'medal4', '15,29': 'medal5', '4,17': 'medal6' };
 
 const SOLID = new Set(['T', '~', 'M', 'r', 'F', 'S', 'B', 'D']);
 export function walkable(x, y, flags) {
@@ -137,22 +165,26 @@ export const ZONES = [
   { id: 'cave', name: 'Cueva Null', y0: 0, y1: 7, music: 'cave' },
   { id: 'peak', name: 'Cumbre Algoritmo', y0: 8, y1: 16, music: 'route', wild: true },
   { id: 'rec', name: 'Ciudad Recursiva', y0: 17, y1: 28, music: 'town', wild: true },
-  { id: 'lake', name: 'Lago Array', y0: 29, y1: 43, music: 'route', wild: true },
-  { id: 'loop', name: 'Ciudad Bucle', y0: 44, y1: 53, music: 'town' },
-  { id: 'forest', name: 'Bosque Bucle', y0: 54, y1: 63, music: 'forest', wild: true },
-  { id: 'byte', name: 'Ciudad Byte', y0: 64, y1: 73, music: 'town' },
-  { id: 'r1', name: 'Ruta 1', y0: 74, y1: 83, music: 'route', wild: true },
-  { id: 'origin', name: 'Pueblo Origen', y0: 84, y1: 95, music: 'town' },
+  { id: 'sys', name: 'Ciudad Núcleo', y0: 29, y1: 40, music: 'town', wild: true },
+  { id: 'oop', name: 'Villa Objeto', y0: 41, y1: 52, music: 'town', wild: true },
+  { id: 'lake', name: 'Lago Array', y0: 53, y1: 67, music: 'route', wild: true },
+  { id: 'loop', name: 'Ciudad Bucle', y0: 68, y1: 77, music: 'town' },
+  { id: 'forest', name: 'Bosque Bucle', y0: 78, y1: 87, music: 'forest', wild: true },
+  { id: 'byte', name: 'Ciudad Byte', y0: 88, y1: 97, music: 'town' },
+  { id: 'r1', name: 'Ruta 1', y0: 98, y1: 107, music: 'route', wild: true },
+  { id: 'origin', name: 'Pueblo Origen', y0: 108, y1: 119, music: 'town' },
 ];
 export const zoneAt = (y) => ZONES.find((z) => y >= z.y0 && y <= z.y1) || ZONES[ZONES.length - 1];
 
-export const START = { x: 4, y: 89, dir: 'down' };
+export const START = { x: 4, y: 113, dir: 'down' };
 /** Centros Daemon: dónde reapareces si tu equipo se debilita (la casilla delante de la puerta). */
 export const CENTERS = [
-  { x: 4, y: 89, minY: 74 }, // casa
-  { x: 4, y: 69, minY: 54 },
-  { x: 21, y: 48, minY: 34 },
-  { x: 22, y: 33, minY: 22 },
+  { x: 4, y: 113, minY: 98 }, // casa
+  { x: 4, y: 93, minY: 78 },
+  { x: 21, y: 72, minY: 58 },
+  { x: 22, y: 57, minY: 53 },
+  { x: 21, y: 46, minY: 41 },
+  { x: 4, y: 34, minY: 29 },
   { x: 23, y: 22, minY: 0 },
 ];
 
@@ -160,8 +192,8 @@ export const CENTERS = [
 export const TRAINERS = {
   rival1: {
     name: 'Kai', title: 'Rival', look: 'rival', flag: 'rival1', bits: 60,
-    team: ['d1-fuel'],
-    intro: ['¡Eh! Yo también tengo daemon. He atrapado un bug en la valla del laboratorio... ¡a ver si eres capaz de depurarlo!'],
+    team: ['m1-world-laws'],
+    intro: ['¡Eh! Yo también tengo daemon. He atrapado un bug en el laboratorio: ha cambiado las cajas donde guardamos los datos.', '¡A ver si eres capaz de depurarlo!'],
     win: ['¿Ya está? ¿Así de fácil? Bah, ha sido suerte de principiante.', '¡La próxima vez no te lo pondré tan fácil! ¡Nos vemos en Ciudad Byte!'],
   },
   rival2: {
@@ -172,8 +204,8 @@ export const TRAINERS = {
   },
   rival3: {
     name: 'Kai', title: 'Rival', look: 'rival', flag: 'rival3', bits: 300,
-    team: ['d5-bits', 'd7-second'],
-    intro: ['La cueva de ahí arriba es la guarida de la Legión Null. Su jefe quiere corromper el Gran Compilador.', 'Antes de entrar... quiero comprobar una cosa. ¡Último duelo!'],
+    team: ['d7-kadane', 'd7-insertion'],
+    intro: ['La cueva de ahí arriba es la guarida de la Legión Null. Su jefe quiere corromper el Gran Compilador.', 'Antes de entrar... quiero comprobar que estás preparado. ¡Último duelo, y con los algoritmos más difíciles!'],
     win: ['...Eres buena gente programando. Mejor que yo.', 'Ve tú a la cueva. Yo vigilo la entrada para que no escape ningún bug. ¡Suerte!'],
   },
   grunt1: {
@@ -214,9 +246,21 @@ export const TRAINERS = {
   },
   grunt7: {
     name: 'Recluta Null', title: 'Legión Null', look: 'grunt', flag: 'grunt7', bits: 200,
-    team: ['d5-pow2'],
-    intro: ['¡Mi Potenciota se duplica sin parar! ¿Sabrás si un número es potencia de dos?'],
-    win: ['Un solo bit encendido... ¡claro! ¿Cómo no lo vi?'],
+    team: ['d7-second'],
+    intro: ['¡Mi Subcampeón siempre queda segundo! ¿Sabrás encontrar el segundo mayor de una lista?'],
+    win: ['Dos récords a la vez... ¡claro! ¿Cómo no lo vi?'],
+  },
+  grunt8: {
+    name: 'Recluta Null', title: 'Legión Null', look: 'grunt', flag: 'grunt8', bits: 220,
+    team: ['o4-turrets'],
+    intro: ['¡Mis torretas no saben de qué clase son! ¡Y así se quedarán!'],
+    win: ['¿Una clase que hereda de Entity? ¿Así de fácil?'],
+  },
+  grunt9: {
+    name: 'Recluta Null', title: 'Legión Null', look: 'grunt', flag: 'grunt9', bits: 260,
+    team: ['d5-ring'],
+    intro: ['¡Mi Anillón se sale del buffer en cuanto llega al final!'],
+    win: ['Con % vuelve al principio... qué listo eres.'],
   },
   gym1: {
     name: 'Vera', title: 'Líder · Gimnasio Variable', look: 'leader1', flag: 'medal1', bits: 300, medal: 1,
@@ -234,19 +278,31 @@ export const TRAINERS = {
     name: 'Ingrid', title: 'Líder · Gimnasio Índice', look: 'leader3', flag: 'medal3', bits: 600, medal: 3,
     team: ['d3-frequent', 'd3-distinct'],
     intro: ['Hola. Soy Ingrid y colecciono datos: listas, diccionarios, conjuntos...', 'Saber elegir dónde guardar las cosas es la mitad del trabajo de un buen programador.', 'Veamos si sabes contar sin repetirte.'],
-    win: ['Diccionarios y conjuntos... los usas como una profesional.', 'Aquí tienes la Medalla Índice. Ciudad Recursiva está al otro lado del cortafuegos.'],
+    win: ['Diccionarios y conjuntos... los usas como una profesional.', 'Aquí tienes la Medalla Índice. Villa Objeto está al otro lado del cortafuegos.'],
   },
   gym4: {
-    name: 'Rémi', title: 'Líder · Torre Recursiva', look: 'leader4', flag: 'medal4', bits: 800, medal: 4,
+    name: 'Clara', title: 'Líder · Gimnasio Clase', look: 'leader5', flag: 'medal4', bits: 700, medal: 4,
+    team: ['o4-squadron'],
+    intro: ['Soy Clara, líder del Gimnasio Clase. Aquí todo es un objeto.', 'Ya sabes crear clases que heredan y sobrescriben métodos. Ahora, un escuadrón entero.', '¡Que cada clase haga lo suyo!'],
+    win: ['Herencia, polimorfismo y todo funcionando junto. Excelente.', 'La Medalla Clase es tuya. Ciudad Núcleo está al norte.'],
+  },
+  gym5: {
+    name: 'Kernel', title: 'Líder · Gimnasio Núcleo', look: 'leader6', flag: 'medal5', bits: 750, medal: 5,
+    team: ['d5-bits', 'd5-pow2'],
+    intro: ['Soy Kernel. Bajo cada programa hay una máquina que solo entiende unos y ceros.', 'Ya sabes gestionar la memoria y dar la vuelta con %. Ahora, a mirar los números por dentro.', 'Contar bits y detectar potencias de dos. ¡Adelante!'],
+    win: ['Ves los bits como yo. Impresionante.', 'La Medalla Núcleo es tuya. Ciudad Recursiva te espera al norte.'],
+  },
+  gym6: {
+    name: 'Rémi', title: 'Líder · Torre Recursiva', look: 'leader4', flag: 'medal6', bits: 800, medal: 6,
     team: ['d6-fibonacci', 'd6-gcd'],
     intro: ['Para entender la recursión... primero hay que entender la recursión.', 'Soy Rémi, guardián de la Torre. Mis bugs se llaman a sí mismos.', 'Recuerda: todo problema recursivo necesita un caso base. ¡En guardia!'],
     win: ['Caso base, paso recursivo y... victoria. Perfecto.', 'La Medalla Recursión es tuya. La Cumbre Algoritmo y la Cueva Null están al norte. Ten cuidado.'],
   },
   boss: {
     name: 'Comandante Null', title: 'Jefe de la Legión Null', look: 'boss', flag: 'boss', bits: 2000,
-    team: ['d7-binary', 'd7-kadane', 'd7-insertion'],
-    intro: ['Así que tú eres quien va depurando mis bugs por toda Bitlandia.', 'El Gran Compilador nos obliga a escribir código correcto. Qué aburrimiento. Yo quiero un mundo lleno de errores, donde nada funcione.', 'Mis tres bugs más poderosos son algoritmos clásicos corrompidos. ¡Nadie los ha depurado jamás!'],
-    win: ['¡No... no puede ser! ¡Búsqueda binaria, Kadane, inserción... todos depurados!', 'Está bien. Lo admito. Un mundo sin errores... tampoco está tan mal.', 'La Legión Null se disuelve. Hasta otra, programador.'],
+    team: ['boss-swarm'],
+    intro: ['Así que tú eres quien va depurando mis bugs por toda Bitlandia.', 'El Gran Compilador nos obliga a escribir código correcto. Qué aburrimiento. Yo quiero un mundo lleno de errores, donde nada funcione.', 'Contempla mi obra maestra: el Enjambre O(n²). Cuantos más datos recibe, más lento va. ¡Tu código nunca será lo bastante rápido!'],
+    win: ['¡No... no puede ser! ¡Has bajado el Enjambre de O(n²) a O(n)!', 'Está bien. Lo admito. Un mundo sin errores... tampoco está tan mal.', 'La Legión Null se disuelve. Hasta otra, programador.'],
   },
 };
 
@@ -274,7 +330,7 @@ export const NPCS = [
   { id: 'rival3', x: 15, y: 8, look: 'rival', dir: 'down', trainer: 'rival3', hideIf: 'rival3' },
   { id: 'rival3b', x: 14, y: 9, look: 'rival', dir: 'down', showIf: 'rival3', name: 'Kai', lines: (s) => (s.flags.boss ? ['¡Lo has conseguido! Toda Bitlandia habla de ti.', 'Oye... ¿la próxima vez me enseñas a hacer la búsqueda binaria?'] : ['La guarida de la Legión Null está justo ahí dentro. Yo vigilo la entrada.']) },
   { id: 'boss', x: 15, y: 2, look: 'boss', dir: 'down', trainer: 'boss', hideIf: 'boss' },
-  { id: 'prof-end', x: 15, y: 2, look: 'prof', dir: 'down', showIf: 'boss', name: 'Profesora Lambda', lines: (s) => [`¡${s.name}! Gracias a ti, el Gran Compilador vuelve a funcionar.`, `Ahora intenta completar la Bitdex: llevas ${Object.keys(s.dex.caught).length} de 32 bugs depurados.`] },
+  { id: 'prof-end', x: 15, y: 2, look: 'prof', dir: 'down', showIf: 'boss', name: 'Profesora Lambda', lines: (s) => [`¡${s.name}! Gracias a ti, el Gran Compilador vuelve a funcionar.`, `Ahora intenta completar la Bitdex: llevas ${Object.keys(s.dex.caught).length} de 44 bugs depurados.`] },
 ];
 
 /** Carteles. */
@@ -292,7 +348,23 @@ export const SIGNS = {
 /** Personajes del pack: clave de aspecto → hoja de sprites. */
 export const CHARACTERS = {
   hero: 'Boy', rival: 'Hunter', prof: 'Master', aide: 'Monk', mom: 'Woman', nurse: 'Princess', grunt: 'NinjaDark', boss: 'Vampire',
-  leader1: 'Cavegirl', leader2: 'FighterWhite', leader3: 'EggGirl', leader4: 'Shaman', kid: 'Child', elder: 'OldMan', girl: 'Villager4', coder: 'Villager3',
+  leader1: 'Cavegirl', leader2: 'FighterWhite', leader3: 'EggGirl', leader4: 'Shaman', leader5: 'KnightGold', leader6: 'RobotGrey', kid: 'Child', elder: 'OldMan', girl: 'Villager4', coder: 'Villager3',
 };
 
-export const MEDALS = ['Medalla Variable', 'Medalla Bucle', 'Medalla Índice', 'Medalla Recursión'];
+export const MEDALS = ['Medalla Variable', 'Medalla Bucle', 'Medalla Índice', 'Medalla Clase', 'Medalla Núcleo', 'Medalla Recursión'];
+
+// La mitad sur del mapa se desplazó 24 filas: los personajes y carteles de esa mitad también.
+const shiftY = (y) => (y >= 29 ? y + 24 : y);
+for (const n of NPCS) n.y = shiftY(n.y);
+for (const k of Object.keys(SIGNS)) {
+  const [x, y] = k.split(',').map(Number);
+  if (y >= 29) { SIGNS[`${x},${y + 24}`] = SIGNS[k]; delete SIGNS[k]; }
+}
+NPCS.push(
+  { id: 'grunt8', x: 14, y: 47, look: 'grunt', dir: 'down', trainer: 'grunt8' },
+  { id: 'coder3', x: 9, y: 47, look: 'coder', dir: 'right', name: 'Programadora', lines: ['Una clase es como el plano de una casa; un objeto es cada casa construida con ese plano.', 'Y si una clase hereda de otra, recibe todo lo que tiene la otra sin volver a escribirlo.'] },
+  { id: 'grunt9', x: 14, y: 36, look: 'grunt', dir: 'down', trainer: 'grunt9' },
+  { id: 'elder3', x: 24, y: 35, look: 'elder', dir: 'left', name: 'Ingeniero', lines: ['Aquí dentro todo son bits: unos y ceros.', 'El 13 en binario es 1101. Cuatro cifras, tres unos. ¡Pruébalo!'] },
+);
+SIGNS['12,44'] = ['VILLA OBJETO', 'Gimnasio Clase · Líder: Clara', '«Todo es un objeto.»'];
+SIGNS['12,32'] = ['CIUDAD NÚCLEO', 'Gimnasio Núcleo · Líder: Kernel', 'Memoria, concurrencia y bits.'];

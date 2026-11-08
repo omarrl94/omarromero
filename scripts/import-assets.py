@@ -12,17 +12,18 @@ def cp(src, dst):
 
 MON = ['Slime3','Octopus2','GoldRacoon','Racoon','BambooYellow','DragonYellow','ButterflyBlue','BlueBat','Flam','Spirit2','Owl','Butterfly','Cyclope2','Eye','Cyclope','Eye2','Mole','Panda','KappaRed','RedOctopus',
        'Slime','Slime2','Mushroom','Mushroom2','Slime4','Larva','Skull','SkullBlue','Snake','Snake2','Snake3','Snake4','Larva2','Mollusc','Mollusc2','Fish','FishRed','HeartRed','HeartGreen',
-       'Spirit','SpiderRed','SpiderYellow','Octopus','GreenOctopus','LanternRed','LanternGreen','Owl2','Beast','Beast2','Bear','TRex','Grey Trex']
+       'Spirit','SpiderRed','SpiderYellow','Octopus','GreenOctopus','LanternRed','LanternGreen','Owl2','Beast','Beast2','Bear','TRex','Grey Trex',
+       'Axolot','Flam2','Mouse','Lizard','Mole2','MouseBlack','Reptile','KappaGreen','Bamboo','Dragon','AxolotBlue']
 for m in MON:
     d = f'Actor/Monster/{m}'
     sheet = [f for f in os.listdir(os.path.join(SRC, d)) if f.endswith('.png') and f != 'Faceset.png'][0]
     key = m.replace(' ', '')
     cp(f'{d}/{sheet}', f'mon/{key}.png')
     cp(f'{d}/Faceset.png', f'mon/{key}-face.png')
-for b in ['GiantSlime','GiantRacoonGold','GiantBamboo2','TenguBlue','GiantFlam','TenguRed','DemonCyclop2','DemonCyclop','GiantRacoon','SquidRed']:
+for b in ['GiantSlime','GiantRacoonGold','GiantBamboo2','TenguBlue','GiantFlam','TenguRed','DemonCyclop2','DemonCyclop','GiantRacoon','SquidRed','GiantSpirit']:
     cp(f'Actor/Boss/{b}/Idle.png', f'boss/{b}.png')
     cp(f'Actor/Boss/{b}/Faceset.png', f'boss/{b}-face.png')
-CH = ['Boy','Hunter','Master','Monk','Woman','Princess','NinjaDark','Vampire','Cavegirl','FighterWhite','EggGirl','Shaman','Child','OldMan','Villager4','Villager3','OldWoman','Inspector']
+CH = ['Boy','Hunter','Master','Monk','Woman','Princess','NinjaDark','Vampire','Cavegirl','FighterWhite','EggGirl','Shaman','Child','OldMan','Villager4','Villager3','OldWoman','Inspector','KnightGold','RobotGrey']
 for c in CH:
     cp(f'Actor/Character/{c}/SpriteSheet.png', f'char/{c}.png')
     cp(f'Actor/Character/{c}/Faceset.png', f'char/{c}-face.png')

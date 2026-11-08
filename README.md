@@ -14,24 +14,29 @@ npm test             # currículo en 10 lenguajes + mundo de Bitlandia
 npm run test:world   # solo el mundo: mapa, historia y alcanzabilidad
 ```
 
-## Un temario de verdad
+## Un temario de verdad: el de CodeForge completo
 
-El juego es un curso ordenado de **32 lecciones en 5 capítulos**, de lo sencillo a lo complejo
-([`src/rpg/curriculum.js`](src/rpg/curriculum.js)). Cada capítulo ocurre en una zona y acaba con un
-examen en su gimnasio:
+El juego es el **temario completo de CodeForge: 8 módulos y 44 niveles**, en orden y empezando por las
+variables ([`src/rpg/curriculum.js`](src/rpg/curriculum.js)). Las 12 misiones de historia (con su
+simulación animada) y los 32 niveles de práctica son los mismos del motor original, en los 10
+lenguajes. Cada capítulo ocurre en una zona y termina con un examen:
 
 | Capítulo | Zona | Lecciones (en orden) | Examen |
 |---|---|---|---|
-| 1 · Funciones y operaciones | Ruta 1 | funciones, operaciones, paréntesis, variables | Vera: división entera y resto |
-| 2 · Decisiones y bucles | Bosque Bucle | booleanos, if, acumular en un bucle, y / o | Bruno: while y salir antes con return |
-| 3 · Listas y colecciones | Lago Array | recorrer, máximo, contar, buscar, invertir | Ingrid: diccionarios y conjuntos |
-| 4 · Recursión | Ciudad Recursiva | desmontar números, factorial, potencia | Rémi: Fibonacci y Euclides |
-| 5 · Bits y algoritmos | Cumbre Algoritmo | %, binario, potencias de dos, vecinos, dos récords | Comandante Null: búsqueda binaria, Kadane, inserción |
+| 1 · Fundamentos | Ruta 1 | variables y tipos, overflow, funciones, operaciones, paréntesis, variables intermedias | Vera: división entera y resto |
+| 2 · Control de flujo | Bosque Bucle | bucles y rangos, condicionales y %, booleanos, if, acumular, y / o | Bruno: while y return temprano |
+| 3 · Estructuras de datos | Lago Array | arrays y ordenación, diccionarios, recorrer, máximo, contar, buscar, invertir | Ingrid: diccionarios y conjuntos |
+| 4 · POO | Villa Objeto | herencia y polimorfismo, torretas, asteroides | Clara: escuadrón completo |
+| 5 · Sistemas | Ciudad Núcleo | memoria y concurrencia, buffer circular | Kernel: bits y potencias de dos |
+| 6 · Funciones y recursión | Ciudad Recursiva | desmontar números, factorial, potencia | Rémi: Fibonacci y Euclides |
+| 7 · Algoritmos | Cumbre Algoritmo | ¿está ordenado?, segundo mayor, búsqueda binaria | Kai: Kadane e inserción |
+| 8 · Jefe final | Cueva Null | — | Comandante Null: el Enjambre O(n²) |
 
 - **Los bugs salvajes salen en el orden del temario:** en cada zona aparece siempre la siguiente lección pendiente.
-- **Cada concepto nuevo trae su lección** (explicación, animación y ejemplo en tu lenguaje) antes de luchar.
-- **Ayuda que se retira:** el primer combate es guiado paso a paso; los dos siguientes indican qué cambiar; después se da por sabido (la pista sigue disponible).
-- **Los gimnasios exigen el capítulo completo** y los entrenadores no se adelantan a lo que aún no has aprendido.
+- **Cada concepto nuevo trae su lección paso a paso** (las del CodeForge original, con animaciones y ejemplos en tu lenguaje) antes de luchar.
+- **Ayuda que se retira:** los tres primeros combates son guiados (qué cambiar y qué escribir), los tres siguientes indican qué cambiar y después se da por sabido (la lección y la pista siguen disponibles).
+- **Las misiones de historia** muestran su simulación en vivo (la lanzadera que aterriza, el reactor, los drones...) y cada objetivo cumplido es un golpe.
+- **Los exámenes exigen el capítulo completo** y los entrenadores no se adelantan a lo que aún no has aprendido.
 - **La Profesora Lambda presenta cada capítulo** al llegar a su zona, y el menú **Temario** muestra el curso con lo aprendido, lo siguiente y el repaso de cada lección.
 
 ## Cómo se juega
@@ -45,7 +50,7 @@ examen en su gimnasio:
   bugs tienen **escudos** (usar un bucle, usar recursión, ordenar sin `sort`).
 - **Ayudas:** 📖 Lección con animación y ejemplo en tu lenguaje, 💡 Pista y, tras dos fallos, la
   solución explicada (a cambio de menos experiencia). Errores traducidos «en cristiano».
-- **Bitdex:** 32 bugs, uno por concepto. Depurados en la hierba alta, se unen a tu equipo.
+- **Bitdex:** 44 bugs, uno por nivel del temario. Depurados en la hierba alta, se unen a tu equipo.
 - **Historia:** Pueblo Origen → Ruta 1 → Ciudad Byte (Vera, variables) → Bosque Bucle →
   Ciudad Bucle (Bruno, bucles) → Lago Array → Pueblo Índice (Ingrid, listas y diccionarios) →
   Ciudad Recursiva (Rémi, recursión) → Cumbre Algoritmo → Cueva Null (Comandante Null, algoritmos).

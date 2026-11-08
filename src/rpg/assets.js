@@ -37,7 +37,7 @@ export const DIR_COL = { down: 0, up: 1, left: 2, right: 3 };
 /** Monstruos finales (jefes): una tira horizontal de fotogramas de reposo. */
 export const BOSS_FRAMES = {
   GiantSlime: 5, GiantRacoonGold: 6, GiantBamboo2: 6, TenguBlue: 6, GiantFlam: 5,
-  TenguRed: 6, DemonCyclop2: 5, DemonCyclop: 5, GiantRacoon: 6, SquidRed: 4,
+  TenguRed: 6, DemonCyclop2: 5, DemonCyclop: 5, GiantRacoon: 6, SquidRed: 4, GiantSpirit: 5,
 };
 
 /** Dibuja un fotograma de una hoja 16×16 (personaje o monstruo). */

@@ -7,8 +7,8 @@ import { PauseMenu, TeamView, DexView, BagView, CardView, OptionsView, ShopView,
 import { DialogBox, Creature, CreatureFace, HpBar } from './ui.jsx';
 import { newGame, saveSlot, makeDaemon, healAll, fmtTime } from './save.js';
 import { STARTERS, daemonSprite, daemonName, maxHpOf, creaturePaths } from './species.js';
-import { TRAINERS, MEDALS, CENTERS, CHARACTERS, ZONES, zoneAt, tileAt } from './world.js';
-import { CHAPTERS, chapterOfZone, chapterOfTrainer, pendingLessons, nextLesson, lessonTitle, wildPool, missingBefore } from './curriculum.js';
+import { TRAINERS, MEDALS, CENTERS, CHARACTERS, ZONES, FIREWALLS, zoneAt, tileAt } from './world.js';
+import { CHAPTERS, TOTAL, chapterOfZone, chapterOfTrainer, pendingLessons, nextLesson, lessonLabel, wildPool, missingBefore, examDone } from './curriculum.js';
 import { playMusic, unlockAudio, setAudio, sfx, preload } from './assets.js';
 import { TILE_PATHS } from './art.js';
 import { LANGUAGES, LANG_ORDER } from '../core/languages.js';
@@ -17,8 +17,7 @@ import { appReady } from '../core/native.js';
 const say = (who, look, lines) => lines.map((s) => ({ say: s, who, look }));
 const PROF = ['Profesora Lambda', 'prof'];
 
-const examDone = (g, c) => !!g.flags[c.exam.trainer === 'boss' ? 'boss' : `medal${c.n}`];
-const pendingList = (ids) => ids.map((id) => `«${lessonTitle(id)}»`).join(', ');
+const pendingList = (ids) => ids.map((id) => `«${lessonLabel(id)}»`).join(', ');
 
 /** Objetivo actual, para no perderse nunca. */
 function objective(g) {
@@ -29,10 +28,10 @@ function objective(g) {
   if (ch) {
     const next = nextLesson(g, ch);
     const zone = ZONES.find((z) => z.id === ch.zone).name;
-    if (next) return `Capítulo ${ch.n} · ${ch.title}. Siguiente lección: «${lessonTitle(next)}». Búscala en la hierba alta de ${zone}.`;
+    if (next) return `Capítulo ${ch.n} · ${ch.title}. Siguiente lección: «${lessonLabel(next)}». Búscala en la hierba alta de ${zone}.`;
     return `Capítulo ${ch.n} · ${ch.title}. ¡Lecciones completadas! Ve al examen final: ${ch.exam.place}.`;
   }
-  const left = 32 - Object.keys(g.dex.caught).length;
+  const left = TOTAL - Object.keys(g.dex.caught).length;
   return left ? `¡Has salvado Bitlandia! Completa la Bitdex: faltan ${left} bugs por depurar.` : '¡Bitdex completa! Eres una leyenda de Bitlandia.';
 }
 
@@ -201,15 +200,15 @@ export default function Game() {
           ...say('Kai', 'rival', TRAINERS.rival1.intro),
           { battle: 'rival1' },
           ...say(PROF[0], PROF[1], [
-            '¡Fantástico! Así se depura un bug: lees qué tiene que hacer la función, la arreglas y la pruebas.',
+            '¡Fantástico! Así se depura un bug: lees qué tiene que hacer el código, lo arreglas y lo pruebas.',
             'Toma, unos cafés: devuelven la energía a tus daemons.',
           ]),
           { give: 'cafe', n: 2 },
           ...say(PROF[0], PROF[1], [
-            'Acabas de aprender la idea más importante de la programación: una función recibe datos y devuelve un resultado.',
+            'Acabas de aprender lo primero de todo: las variables guardan datos, y cada una tiene un tipo (número entero, decimal, texto...).',
             'A partir de ahora aprenderás paso a paso. Cada zona es un capítulo del temario y cada bug de la hierba alta, una lección.',
             'Los bugs aparecen en orden: primero lo sencillo y luego lo más complejo. Cada concepto nuevo viene con su lección.',
-            'Al terminar las lecciones de una zona, el líder del gimnasio te pondrá un examen. Si lo superas, se abre la siguiente zona.',
+            'Son 8 capítulos y 44 lecciones, de las variables hasta los algoritmos. Al terminar las lecciones de una zona, el líder del gimnasio te pondrá un examen; si lo superas, se abre la siguiente zona.',
             'Abre el menú y mira el Temario: ahí está todo el curso, en orden. ¡Buen viaje! Y recuerda: un error no es un fracaso, es una pista.',
           ]),
         ];
@@ -222,7 +221,7 @@ export default function Game() {
     if (door === 'lab') {
       if (!g.flags.starter) return labIntro(g);
       if (!g.flags.rival1) return [...say('Kai', 'rival', ['¡Revancha! Esta vez no tendrás tanta suerte.']), { battle: 'rival1' }];
-      return [...say(PROF[0], PROF[1], [objective(g), `Tu Bitdex: ${Object.keys(g.dex.caught).length} bugs depurados de 32. ¡Sigue así!`]), { heal: true }];
+      return [...say(PROF[0], PROF[1], [objective(g), `Tu Bitdex: ${Object.keys(g.dex.caught).length} bugs depurados de ${TOTAL}. ¡Sigue así!`]), { heal: true }];
     }
     if (door === 'center') return nurse();
     if (door.startsWith('gym')) {
@@ -250,7 +249,7 @@ export default function Game() {
     sfx('accept', 0.4);
     if (a.type === 'sign') return run(a.lines.map((s) => ({ say: s })));
     if (a.type === 'firewall') {
-      const need = { '15,64': 1, '15,44': 2, '15,29': 3, '4,17': 4 }[`${a.x},${a.y}`];
+      const need = Number(FIREWALLS[`${a.x},${a.y}`].replace('medal', ''));
       return run([{ say: `Un cortafuegos bloquea el paso. Mensaje: «Acceso solo con la ${MEDALS[need - 1]}».` }]);
     }
     if (a.type === 'door') return run(doorScript(a.door, g));
@@ -259,13 +258,14 @@ export default function Game() {
       if (n.trainer) {
         const tr = TRAINERS[n.trainer];
         if (g.flags[tr.flag]) return run(say(tr.name, tr.look, [tr.win[tr.win.length - 1]]));
-        if (n.trainer === 'rival3') {
-          const pending = pendingLessons(g, CHAPTERS[4]);
-          if (pending.length) return run(say(tr.name, tr.look, [`Ahí dentro está el Comandante Null. No entres todavía: te ${pending.length === 1 ? 'falta' : 'faltan'} ${pendingList(pending)}.`, 'Entrena en la hierba de la Cumbre y vuelve cuando lo domines todo.']));
+        const examCh = chapterOfTrainer(n.trainer);
+        if (examCh) {
+          const pending = pendingLessons(g, examCh);
+          if (pending.length) return run(say(tr.name, tr.look, [`Este es el examen del capítulo ${examCh.n}, y aún no estás preparado.`, `Te ${pending.length === 1 ? 'falta' : 'faltan'} ${pendingList(pending)}. Entrena en la hierba alta y vuelve cuando lo domines todo.`]));
         }
         // Los entrenadores no se adelantan al temario: primero hay que aprender lo anterior.
         const missing = missingBefore(g, tr.team[0]);
-        if (missing.length && n.trainer !== 'rival3') {
+        if (missing.length && !examCh) {
           return run(say(tr.name, tr.look, [
             tr.title === 'Rival' ? `¡${g.name}! Te reto... bueno, cuando sepas un poco más.` : '¡Ja! Aún no sabes ni lo básico. Así no tiene gracia.',
             `Antes te ${missing.length === 1 ? 'falta aprender' : 'faltan'} ${pendingList(missing)}. Búscalo en la hierba alta y vuelve.`,
@@ -397,7 +397,7 @@ export default function Game() {
               </div>
               <div className="flex items-center gap-2 text-xs">
                 <span className="hdr-chip">{game.bits} bits</span>
-                <span className="hdr-chip">{(game.medals || []).length}/4 medallas</span>
+                <span className="hdr-chip">{(game.medals || []).length}/6 medallas</span>
                 <button type="button" onClick={() => !locked && setPanel('pause')} className="pp-btn hidden sm:inline">Menú</button>
               </div>
             </header>
@@ -440,7 +440,7 @@ export default function Game() {
                 </div>
                 <div className="pp-panel text-xs leading-relaxed">
                   <b>Controles:</b> flechas/WASD · Mayús corre · Z/Espacio habla · X/Esc menú
-                  <div className="mt-1">Bitdex {Object.keys(game.dex.caught).length}/32 · {fmtTime(game.playMs)}</div>
+                  <div className="mt-1">Bitdex {Object.keys(game.dex.caught).length}/{TOTAL} · {fmtTime(game.playMs)}</div>
                 </div>
               </aside>
             </main>
@@ -475,7 +475,7 @@ function Credits({ game, onClose }) {
         <p className="text-lg text-[#fff3dc]">{game.name} y {lead ? daemonName(lead) : 'su equipo'} han derrotado a la Legión Null programando en {LANGUAGES[game.lang].name}.</p>
         <div className="mx-auto mt-4 grid max-w-sm grid-cols-2 gap-2 text-sm">
           <div className="pp-panel !p-2">Funciones arregladas<br /><b className="text-[#b5651d]">{Object.keys(game.solved || {}).length}</b></div>
-          <div className="pp-panel !p-2">Bitdex<br /><b className="text-[#b5651d]">{Object.keys(game.dex.caught).length}/32</b></div>
+          <div className="pp-panel !p-2">Bitdex<br /><b className="text-[#b5651d]">{Object.keys(game.dex.caught).length}/{TOTAL}</b></div>
           <div className="pp-panel !p-2">Ataques<br /><b className="text-[#b5651d]">{game.stats.attacks || 0}</b></div>
           <div className="pp-panel !p-2">Tiempo<br /><b className="text-[#b5651d]">{fmtTime(game.playMs)}</b></div>
         </div>

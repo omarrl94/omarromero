@@ -2,20 +2,21 @@
 // cada entrenador, bug y zona apunte a datos que existen.
 import { W, H, MAP, walkable, NPCS, DOORS, SIGNS, TRAINERS, ZONES, START, CENTERS, FIREWALLS, tileAt } from '../src/rpg/world.js';
 import { BUGS, BUG } from '../src/rpg/species.js';
-import { DRILL_CHALLENGES } from '../src/curriculum/drill-challenges.js';
+import { CHALLENGES } from '../src/curriculum/index.js';
 import { CHAPTERS, ORDER, wildPool } from '../src/rpg/curriculum.js';
 
 let fails = 0;
 const ok = (cond, msg) => { if (!cond) { fails++; console.log(`✗ ${msg}`); } };
 
 ok(MAP.length === H && MAP.every((r) => r.length === W), 'el mapa tiene el tamaño correcto');
-ok(BUGS.length === 32 && BUGS.length === DRILL_CHALLENGES.length, '32 bugs, uno por nivel');
+ok(BUGS.length === 44 && BUGS.length === CHALLENGES.length, '44 bugs, uno por nivel del temario original');
 for (const [id, t] of Object.entries(TRAINERS)) for (const b of t.team) ok(BUG[b], `${id}: el bug ${b} existe`);
 // Temario: los 32 niveles, cada uno una sola vez, y cada capítulo en una zona con hierba alta.
-ok(ORDER.length === 32 && new Set(ORDER).size === 32 && ORDER.every((id) => BUG[id]), 'el temario cubre los 32 niveles una vez');
+ok(ORDER.length === 44 && new Set(ORDER).size === 44 && CHALLENGES.every((c) => ORDER.includes(c.id)), 'el temario cubre los 44 niveles una vez');
+ok(ORDER[0] === 'm1-world-laws', 'el temario empieza por las variables');
 for (const ch of CHAPTERS) {
   const z = ZONES.find((k) => k.id === ch.zone);
-  ok(z && z.wild && MAP.slice(z.y0, z.y1 + 1).some((r) => /[,k]/.test(r)), `capítulo ${ch.n}: su zona tiene hierba alta`);
+  if (ch.lessons.length) ok(z && z.wild && MAP.slice(z.y0, z.y1 + 1).some((r) => /[,k]/.test(r)), `capítulo ${ch.n}: su zona tiene hierba alta`);
   ok(TRAINERS[ch.exam.trainer], `capítulo ${ch.n}: el examen tiene entrenador`);
   ok(JSON.stringify(TRAINERS[ch.exam.trainer].team) === JSON.stringify(ch.exam.drills), `capítulo ${ch.n}: el examen usa sus retos`);
   // Los bugs salvajes salen en el orden del temario.
@@ -59,20 +60,26 @@ const adj = (set, key) => { const [x, y] = key.split(',').map(Number); return [[
 const npcPos = (id) => { const n = NPCS.find((k) => k.id === id); return `${n.x},${n.y}`; };
 const doorOf = (name) => Object.entries(DOORS).find(([, d]) => d === name)[0];
 
-const phases = [
+const base = { starter: true, rival1: true };
+const P = [
   [{}, ['door:lab', 'door:home']],
-  [{ starter: true, rival1: true }, ['door:gym1', 'npc:coder1']],
-  [{ starter: true, rival1: true, medal1: true }, ['npc:grunt1', 'npc:grunt2']],
-  [{ starter: true, rival1: true, medal1: true, grunt2: true }, ['npc:rival2']],
-  [{ starter: true, rival1: true, medal1: true, grunt2: true, rival2: true }, ['door:gym2']],
-  [{ starter: true, rival1: true, medal1: true, grunt2: true, rival2: true, medal2: true }, ['npc:grunt3']],
-  [{ starter: true, rival1: true, medal1: true, grunt2: true, rival2: true, medal2: true, grunt3: true }, ['door:gym3', 'npc:grunt4']],
-  [{ starter: true, rival1: true, medal1: true, grunt2: true, rival2: true, medal2: true, grunt3: true, medal3: true }, ['door:gym4', 'npc:grunt5']],
-  [{ starter: true, rival1: true, medal1: true, grunt2: true, rival2: true, medal2: true, grunt3: true, medal3: true, medal4: true, grunt5: true }, ['npc:rival3', 'npc:grunt6', 'npc:grunt7']],
-  [{ starter: true, rival1: true, medal1: true, grunt2: true, rival2: true, medal2: true, grunt3: true, medal3: true, medal4: true, grunt5: true, rival3: true }, ['npc:boss']],
+  [base, ['door:gym1', 'npc:coder1']],
+  [{ medal1: true }, ['npc:grunt1', 'npc:grunt2']],
+  [{ grunt2: true }, ['npc:rival2']],
+  [{ rival2: true }, ['door:gym2']],
+  [{ medal2: true }, ['npc:grunt3']],
+  [{ grunt3: true }, ['door:gym3', 'npc:grunt4']],
+  [{ medal3: true }, ['door:gym4', 'npc:grunt8']],
+  [{ medal4: true }, ['door:gym5', 'npc:grunt9']],
+  [{ medal5: true }, ['door:gym6', 'npc:grunt5']],
+  [{ medal6: true, grunt5: true }, ['npc:rival3', 'npc:grunt6', 'npc:grunt7']],
+  [{ rival3: true }, ['npc:boss']],
 ];
+const phases = [];
+let acc = {};
+for (const [f, t] of P) { acc = { ...acc, ...f }; phases.push([acc, t]); }
 // Los entrenadores que bloquean el camino desaparecen del bloqueo una vez vencidos.
-const blocking = { grunt2: true, rival2: true, grunt3: true, grunt4: true, grunt5: true, rival3: true };
+const blocking = { grunt2: true, rival2: true, grunt3: true, grunt4: true, grunt5: true, rival3: true, grunt8: true, grunt9: true };
 for (const [flags, targets] of phases) {
   const f = { ...flags };
   // simula que los entrenadores vencidos se apartan (en el juego se habla con ellos, pero sus casillas no son paso obligado salvo estos)

@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { BUGS, STARTERS, daemonSprite, daemonName, daemonType, maxHpOf, xpToNext, EVOLVE_AT } from './species.js';
 import { ITEMS, fmtTime } from './save.js';
 import { MEDALS, ZONES } from './world.js';
-import { CHAPTERS, LESSON_NO, lessonTitle, nextInCourse } from './curriculum.js';
-import { DRILL_LESSONS } from '../curriculum/drill-challenges.js';
+import { CHAPTERS, LESSON_NO, TOTAL, lessonLabel, nextInCourse, examDone } from './curriculum.js';
+import LessonBook from './Lesson.jsx';
 import { BUG } from './species.js';
 import { LANGUAGES } from '../core/languages.js';
 import { sfx } from './assets.js';
@@ -13,9 +13,9 @@ import { Creature, CreatureFace, HpBar, Modal, TypeChip, Face } from './ui.jsx';
 /** Menú de pausa. */
 export function PauseMenu({ game, onClose, onOpen, onSave, onQuit }) {
   const items = [
-    ['course', 'Temario', `${Object.keys(game.solved || {}).length}/32 lecciones`],
+    ['course', 'Temario', `${Object.keys(game.solved || {}).length}/${TOTAL} lecciones`],
     ['team', 'Equipo', `${game.team.length} daemon${game.team.length === 1 ? '' : 's'}`],
-    ['dex', 'Bitdex', `${Object.keys(game.dex.caught).length}/32 depurados`],
+    ['dex', 'Bitdex', `${Object.keys(game.dex.caught).length}/${TOTAL} depurados`],
     ['bag', 'Mochila', `${(game.bag.cafe || 0) + (game.bag.expreso || 0)} objetos`],
     ['card', 'Ficha', `${(game.medals || []).length} medallas`],
     ['options', 'Opciones', 'Música y sonido'],
@@ -153,7 +153,7 @@ export function CardView({ game, onClose }) {
           <div>Funciones arregladas: {Object.keys(game.solved || {}).length} · Ataques: {game.stats.attacks || 0}</div>
         </div>
       </div>
-      <div className="mt-4 grid grid-cols-4 gap-2">
+      <div className="mt-4 grid grid-cols-3 gap-2">
         {MEDALS.map((name, i) => {
           const has = medals.includes(i + 1);
           return (
@@ -210,30 +210,27 @@ export function CourseView({ game, onClose }) {
   const [open, setOpen] = useState(null);
   const solved = game.solved || {};
   const next = nextInCourse(game);
-  const reached = (ch) => ch.n === 1 || !!game.flags[`medal${ch.n - 1}`];
-  const examOk = (ch) => !!game.flags[ch.exam.trainer === 'boss' ? 'boss' : `medal${ch.n}`];
-  const lesson = open ? DRILL_LESSONS[open] : null;
+  const reached = (ch) => ch.n === 1 || examDone(game, CHAPTERS[ch.n - 2]);
+  const examOk = (ch) => examDone(game, ch);
   const row = (id, exam) => {
     const done = !!solved[id];
     const isNext = id === next;
     return (
       <button key={id} type="button" disabled={!done} onClick={() => setOpen(id)} className={`course-row ${done ? 'course-done' : isNext ? 'course-next' : 'course-locked'}`}>
         <span className="course-no">{LESSON_NO[id]}</span>
-        <span className="min-w-0 flex-1 truncate text-left">{lessonTitle(id)}{exam && <span className="ml-1 text-[11px] font-bold text-[#b5651d]">EXAMEN</span>}</span>
+        <span className="min-w-0 flex-1 truncate text-left">{lessonLabel(id)}{exam && <span className="ml-1 text-[11px] font-bold text-[#b5651d]">EXAMEN</span>}</span>
         {(done || game.dex.seen[id]) && <CreatureFace sprite={BUG[id].sprite} size={24} />}
         <span className="w-20 shrink-0 text-right text-[12px] font-bold">{done ? 'Aprendido' : isNext ? 'Siguiente' : '—'}</span>
       </button>
     );
   };
   return (
-    <Modal title={`Temario · ${Object.keys(solved).length} de 32 lecciones`} onClose={onClose} wide>
-      {lesson ? (
+    <Modal title={`Temario · ${Object.keys(solved).length} de ${TOTAL} lecciones`} onClose={onClose} wide>
+      {open ? (
         <div>
           <button type="button" className="pp-btn mb-3" onClick={() => setOpen(null)}>◂ Volver al temario</button>
-          <div className="pixel-title text-2xl text-[#7a3b1e]">Lección {LESSON_NO[open]} · {lesson.steps[0].title}</div>
-          <p className="mt-2 text-[15px] leading-relaxed">{lesson.steps[0].text}</p>
-          {lesson.steps[0].code && lesson.steps[0].code[game.lang] && <pre className="code-dark mt-3 text-[13px]">{lesson.steps[0].code[game.lang]}</pre>}
-          <div className="case-card mt-3 p-3 text-sm"><b>Reto de la lección:</b> {lesson.mission[game.lang]}</div>
+          <div className="mb-2 text-xs font-bold uppercase tracking-wider text-[#b5651d]">Lección {LESSON_NO[open]} · {lessonLabel(open)}</div>
+          <LessonBook key={open} id={open} lang={game.lang} onDone={() => setOpen(null)} doneLabel="Volver al temario" />
         </div>
       ) : (
         <div className="space-y-3">

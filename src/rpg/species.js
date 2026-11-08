@@ -3,8 +3,8 @@
 // · Bugs: uno por nivel de práctica. Cada bug ha corrompido una función; si la arreglas, se depura
 //   y puede unirse a tu equipo.
 // Sprites: pack «Ninja Adventure» (Pixel-boy & AAA, CC0).
-import { DRILLS } from '../curriculum/drills.js';
-import { ORDER } from './curriculum.js';
+import { byId } from '../curriculum/index.js';
+import { ORDER, chapterOf } from './curriculum.js';
 
 const mon = (key) => ({ kind: 'mon', key });
 const boss = (key) => ({ kind: 'boss', key });
@@ -38,6 +38,18 @@ export const stageOf = (level) => (level >= EVOLVE_AT[1] ? 2 : level >= EVOLVE_A
 
 /** Un bug por nivel de práctica: nombre, tipo y entrada de la Bitdex. */
 const BUG_INFO = {
+  'm1-world-laws': ['Cajaleón', 'Variable', 'Cambia las etiquetas de las cajas: guarda texto donde debería haber números y enteros donde caben decimales.'],
+  'm1-reactor': ['Desbordón', 'Aritmético', 'Suma y suma hasta que el número no cabe en su caja... y entonces da la vuelta y se vuelve negativo.'],
+  'm2-patrol': ['Patrullón', 'Bucle', 'Recorre siempre su ruta una vez de más o de menos. El rey del error «off-by-one».'],
+  'm2-zigzag': ['Zigzagueo', 'Condición', 'Gira a izquierda o derecha sin ningún criterio. Con un if y un % se vuelve predecible.'],
+  'm3-sort-cargo': ['Bodegón', 'Lista', 'Amontona las cajas de la bodega en cualquier orden. Solo se calma cuando están ordenadas.'],
+  'm3-inventory': ['Inventarín', 'Diccionario', 'Guarda cada objeto bajo una clave... y a veces pisa el que ya había.'],
+  'm4-entities': ['Herenciador', 'Objeto', 'Tiene hijos que no heredan nada de él. Su árbol familiar de clases está roto.'],
+  'o4-turrets': ['Torretón', 'Objeto', 'Una torreta que no sabe que es una entidad. Necesita una clase propia que herede bien.'],
+  'o4-asteroids': ['Asteroidón', 'Objeto', 'Cae del cielo sin saber cómo moverse: le falta sobrescribir su método.'],
+  'o4-squadron': ['Escuadrix', 'Objeto', 'Comanda un escuadrón entero de clases. Si una falla, fallan todas.'],
+  'm5-systems': ['Nucleón', 'Sistema', 'Pide memoria y nunca la devuelve. O hace las tareas de una en una cuando podría hacerlas a la vez.'],
+  'boss-swarm': ['Enjambre O(n²)', 'Algoritmo', 'La creación del Comandante Null: cuantos más datos recibe, más lento va. Solo un algoritmo O(n) puede pararlo.'],
   'd1-fuel': ['Multiplaga', 'Aritmético', 'Se alimenta de multiplicaciones a medio hacer. Si le pides el doble, te da la mitad.'],
   'd1-kelvin': ['Termita', 'Aritmético', 'Roe los termómetros de Bitlandia y se olvida siempre de sumar 273.'],
   'd1-perimeter': ['Vallarácnido', 'Aritmético', 'Teje vallas sin paréntesis: por eso nunca le salen las cuentas del perímetro.'],
@@ -73,6 +85,8 @@ const BUG_INFO = {
 };
 
 const BUG_SPRITE = {
+  'm1-world-laws': 'Axolot', 'm1-reactor': 'Flam2', 'm2-patrol': 'Mouse', 'm2-zigzag': 'Lizard', 'm3-sort-cargo': 'Mole2', 'm3-inventory': 'MouseBlack',
+  'm4-entities': 'Reptile', 'o4-turrets': 'KappaGreen', 'o4-asteroids': 'Bamboo', 'o4-squadron': 'Dragon', 'm5-systems': 'AxolotBlue',
   'd1-fuel': 'Slime', 'd1-kelvin': 'Slime2', 'd1-perimeter': 'Mushroom', 'd1-seconds': 'Mushroom2', 'd1-cells': 'Slime4', 'd1-leftover': 'Larva',
   'd2-even': 'Skull', 'd2-max3': 'SkullBlue', 'd2-sum': 'Snake', 'd2-multiples': 'Snake2', 'd2-collatz': 'Snake3', 'd2-prime': 'Snake4',
   'd3-sum': 'Larva2', 'd3-max': 'Mollusc', 'd3-above': 'Mollusc2', 'd3-index': 'Fish', 'd3-reverse': 'FishRed', 'd3-frequent': 'HeartRed', 'd3-distinct': 'HeartGreen',
@@ -82,18 +96,17 @@ const BUG_SPRITE = {
 };
 
 const TYPE_COLOR = {
-  Aritmético: '#d98b2b', Condición: '#2f8fb0', Bucle: '#4f9a3c', Lista: '#7a5cc4', Diccionario: '#c9466f',
+  Variable: '#2f8fb0', Objeto: '#8a5cc4', Aritmético: '#d98b2b', Condición: '#2f8fb0', Bucle: '#4f9a3c', Lista: '#7a5cc4', Diccionario: '#c9466f',
   Conjunto: '#2f9c88', Sistema: '#6b7685', Recursión: '#b048b4', Algoritmo: '#c63b2f',
   Gelatina: '#3d8fd1', Mapache: '#d9a032', Bambú: '#b8931f', Alado: '#4a7fd6', Llama: '#e2622b', Ave: '#d9542c', Cíclope: '#6f9136', Topo: '#9b6a45', Kappa: '#cf3f34',
 };
 export const typeColor = (t) => TYPE_COLOR[t] || '#8a7a6a';
 
-const DRILL = Object.fromEntries(DRILLS.map((d) => [d.id, d]));
 /** Bugs en el orden del temario (es también su número en la Bitdex). */
 export const BUGS = ORDER.map((id, i) => {
-  const d = DRILL[id];
-  const [name, type, entry] = BUG_INFO[d.id];
-  return { id: d.id, dex: i + 1, name, type, entry, module: d.module, xp: d.xp, sprite: mon(BUG_SPRITE[d.id]) };
+  const [name, type, entry] = BUG_INFO[id];
+  const sprite = id === 'boss-swarm' ? boss('GiantSpirit') : mon(BUG_SPRITE[id]);
+  return { id, dex: i + 1, name, type, entry, module: chapterOf(id).n, xp: byId(id).xp || 100, sprite };
 });
 export const BUG = Object.fromEntries(BUGS.map((b) => [b.id, b]));
 
@@ -114,7 +127,7 @@ export function daemonType(m) {
 /** Retrato (faceset) de una criatura. */
 export const faceOf = (sprite) => `${sprite.kind}/${sprite.key}-face.png`;
 /** Rutas de imagen de todas las criaturas, para precargarlas. */
-export const creaturePaths = () => [...Object.values(STARTERS).flatMap((s) => s.sprites), ...Object.values(BUG_SPRITE).map(mon)]
+export const creaturePaths = () => [...Object.values(STARTERS).flatMap((s) => s.sprites), ...Object.values(BUG_SPRITE).map(mon), boss('GiantSpirit')]
   .flatMap((sp) => [`${sp.kind}/${sp.key}.png`, faceOf(sp)]);
 
 // ───── Niveles y vida ─────

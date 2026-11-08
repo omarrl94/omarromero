@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import CodeEditor from '../components/CodeEditor.jsx';
-import LessonVisual from '../components/LessonVisuals.jsx';
-import { DRILL_CHALLENGES, DRILL_LESSONS } from '../curriculum/drill-challenges.js';
-import { DRILLS } from '../curriculum/drills.js';
+import LiveCanvas from '../components/LiveCanvas.jsx';
+import { byId, objectiveOf, sceneOf } from '../curriculum/index.js';
+import { LESSONS, CHECK_HELP } from '../curriculum/lessons.js';
+import LessonBook from './Lesson.jsx';
 import { evaluate } from '../core/engine.js';
 import { plainError } from '../core/explain.js';
 import { LANGUAGES } from '../core/languages.js';
@@ -12,11 +13,30 @@ import { useMedia, PHONE } from '../core/useMedia.js';
 import { BUG, daemonSprite, daemonName, maxHpOf, xpToNext } from './species.js';
 import { gainXp, makeDaemon, bugLevel, ITEMS } from './save.js';
 import { TRAINERS } from './world.js';
-import { LESSON_NO, chapterOf, guideLevel, linesToWrite } from './curriculum.js';
+import { LESSON_NO, chapterOf, guideLevel, linesToWrite, lessonLabel } from './curriculum.js';
 import { HpBar, Face, TypeChip, Modal } from './ui.jsx';
 
-const CH = Object.fromEntries(DRILL_CHALLENGES.map((c) => [c.id, c]));
-const SPEC = Object.fromEntries(DRILLS.map((d) => [d.id, d]));
+/** Ayuda «¿cómo lo arreglo?» de una comprobación, en el lenguaje del jugador. */
+const helpOf = (c, lang) => {
+  const h = CHECK_HELP[c.id];
+  if (typeof h === 'string') return h;
+  if (h) return h[lang] || h.default || c.help;
+  return c.help;
+};
+
+/**
+ * Puntuación de un ataque. En los niveles de práctica cuenta cada caso de prueba (y cada
+ * «escudo»: usar un bucle, recursión...); en las misiones de historia, cada objetivo.
+ */
+function scoreOf(res) {
+  const cases = (res.scene && res.scene.cases) || null;
+  const others = res.checks.filter((c) => c.id !== 'tests');
+  if (cases && cases.length) {
+    const okCases = cases.filter((c) => c.ok).length;
+    return { n: cases.length + others.length, ok: okCases + others.filter((c) => c.ok).length, unit: 'casos', cases: true };
+  }
+  return { n: Math.max(1, res.checks.length), ok: res.checks.filter((c) => c.ok).length, unit: 'objetivos', cases: false };
+}
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 /** Quita la sangría común para mostrar unas líneas de código sueltas. */
 const dedent = (lines) => {
@@ -35,9 +55,11 @@ export default function Battle({ game, update, battle, onEnd }) {
   const [index, setIndex] = useState(0);
   const bugId = battle.queue[index];
   const bug = BUG[bugId];
-  const ch = CH[bugId];
-  const spec = SPEC[bugId];
-  const lesson = DRILL_LESSONS[bugId];
+  const ch = byId(bugId);
+  const lesson = LESSONS[bugId];
+  const objective = objectiveOf(ch, lang);
+  const hintText = (lesson && lesson.mission && lesson.mission[lang]) || ch.polyglot[lang] || '';
+  const [runId, setRunId] = useState(0);
   const chap = chapterOf(bugId);
   const isExam = !!chap && chap.exam.drills.includes(bugId);
 
@@ -73,7 +95,7 @@ export default function Battle({ game, update, battle, onEnd }) {
     setEvalRes(null);
     setFails(0);
     setUsed({ hint: false, solution: false });
-    setCode(gameRef.current.drafts[bugId] || CH[bugId].starter[lang]);
+    setCode(gameRef.current.drafts[bugId] || byId(bugId).starter[lang]);
     setMsg(trainer
       ? (index === 0 ? `¡${trainer.name} te reta! Lanza a ${BUG[bugId].name}.` : `¡${trainer.name} lanza a ${BUG[bugId].name}!`)
       : `¡Un ${BUG[bugId].name} salvaje apareció! Ha corrompido una función.`);
@@ -126,13 +148,11 @@ export default function Battle({ game, update, battle, onEnd }) {
     sfx('magic', 0.5);
     const res = evaluate(ch, code, lang);
     setEvalRes(res);
+    setRunId((k) => k + 1);
     update((g) => ({ ...g, stats: { ...g.stats, attacks: (g.stats.attacks || 0) + 1 } }));
     const me = daemonName(active);
-    const cases = (res.scene && res.scene.cases) || [];
-    const n = spec.tests.length;
-    const okCount = cases.filter((c) => c.ok).length;
-    const testsCheck = res.checks.find((c) => c.id === 'tests');
-    const shields = res.checks.filter((c) => c.id !== 'tests' && !c.ok);
+    const { n, ok: okCount, unit, cases: isDrill } = scoreOf(res);
+    const firstFail = res.checks.find((c) => !c.ok);
 
     if (res.error) {
       sfx('cancel');
@@ -141,17 +161,16 @@ export default function Battle({ game, update, battle, onEnd }) {
       if (res.error.line) setFocus({ line: res.error.line, t: Date.now() });
       await wait(1100);
     } else {
-      setMsg(`¡${me} ejecuta ${cases[0] ? `${cases[0].input ? `la función con ${n} casos de prueba` : 'su código'}` : 'su código'}!`);
+      setMsg(isDrill ? `¡${me} ejecuta la función con sus casos de prueba!` : `¡${me} ejecuta tu programa!`);
       await wait(700);
       if (okCount) {
         setFx((f) => ({ ...f, enemy: f.enemy + 1 }));
         sfx('impact');
-        const target = Math.round(((n - okCount) / n) * 85 + (shields.length ? 15 : 0));
-        setEnemyHp(res.passed ? 0 : Math.max(target, 4));
-        setMsg(okCount === n ? `¡Golpe crítico! Pasa los ${n} casos de prueba.` : `¡Golpe! Pasa ${okCount} de ${n} casos.`);
+        setEnemyHp(res.passed ? 0 : Math.max(Math.round(((n - okCount) / n) * 100), 6));
+        setMsg(okCount === n ? `¡Golpe crítico! Cumple los ${n} ${unit}.` : `¡Golpe! Cumple ${okCount} de ${n} ${unit}.`);
         await wait(1000);
       } else {
-        setMsg('El ataque no pasa ningún caso de prueba...');
+        setMsg(`El ataque no cumple ningún ${unit === 'casos' ? 'caso de prueba' : 'objetivo'}...`);
         await wait(900);
       }
     }
@@ -207,12 +226,9 @@ export default function Battle({ game, update, battle, onEnd }) {
     setFails((k) => k + 1);
     const failCount = res.error ? 0 : n - okCount;
     const dmg = res.error ? 3 + bug.module : 2 + bug.module + Math.min(failCount, 4) + (trainer ? 1 : 0);
-    if (!res.error && shields.length && okCount === n) {
-      setMsg(`¡${bug.name} resiste con un escudo! Falta: ${shields.map((s) => s.label.toLowerCase()).join(', ')}.`);
-      await wait(1400);
-    } else if (!res.error && testsCheck && testsCheck.detail) {
-      setMsg(`Pista del fallo: ${testsCheck.detail}.`);
-      await wait(1600);
+    if (!res.error && firstFail) {
+      setMsg(`Falla: ${firstFail.label}${firstFail.detail ? ` — ${firstFail.detail}` : ''}.`);
+      await wait(1800);
     }
     setMsg(`¡${bug.name} contraataca y causa ${dmg} de daño!`);
     sfx('hit');
@@ -230,9 +246,9 @@ export default function Battle({ game, update, battle, onEnd }) {
         setPhase('lost');
       }
     }
-    if (!fainted || next) setMsg(res.error ? 'Arregla el error y vuelve a atacar.' : 'Revisa los casos que fallan y vuelve a atacar.');
+    if (!fainted || next) setMsg(res.error ? 'Arregla el error y vuelve a atacar.' : `Revisa los ${unit} que fallan y vuelve a atacar.`);
     setBusy(false);
-  }, [busy, phase, ch, code, lang, update, active, spec, phone, bug, bugId, trainer, used, index, battle.queue.length, hitMe]);
+  }, [busy, phase, ch, code, lang, update, active, phone, bug, bugId, trainer, used, index, battle.queue.length, hitMe]);
 
   // Ctrl+Enter ataca
   useEffect(() => {
@@ -323,9 +339,18 @@ export default function Battle({ game, update, battle, onEnd }) {
     <button type="button" onClick={() => onEnd({ outcome: 'win' })} className="act-btn act-green w-full">Continuar ▸</button>
   );
 
+  const isMission = !ch.drill;
   const casesPanel = (
     <div className="space-y-1.5">
-      {!cases && !err && <p className="pp-note">Pulsa <b>¡Atacar!</b> para ejecutar tu función con los casos de prueba. Cada caso que pase es un golpe.</p>}
+      {isMission && (
+        <div className="visor">
+          <div className="visor-label">Simulación en vivo · lo que hace tu código</div>
+          <div className="h-[190px] sm:h-[220px]">
+            <LiveCanvas sceneName={sceneOf(ch, lang)} data={{ ...(evalRes ? evalRes.scene : {}), passed: !!(evalRes && evalRes.passed) }} error={err} lang={lang} runId={runId} onJumpLine={(line) => setFocus({ line, t: Date.now() })} />
+          </div>
+        </div>
+      )}
+      {!evalRes && <p className="pp-note">Pulsa <b>¡Atacar!</b> para ejecutar tu código. {isMission ? 'Cada objetivo que cumpla es un golpe.' : 'Cada caso de prueba que pase es un golpe.'}</p>}
       {pe && (
         <div className="case-card case-bad p-3 text-sm">
           <div className="font-bold text-[#b3261e]">{pe.title}</div>
@@ -342,8 +367,11 @@ export default function Battle({ game, update, battle, onEnd }) {
           {!c.ok && <span className="shrink-0 text-[#b3261e]">da <b>{c.got}</b></span>}
         </div>
       ))}
-      {evalRes && evalRes.checks.filter((c) => c.id !== 'tests').map((c) => (
-        <div key={c.id} className={`case-card px-2.5 py-1.5 text-[13px] ${c.ok ? 'case-ok' : 'case-warn'}`}>{c.ok ? 'Escudo roto: ' : 'Escudo activo: '}{c.label}{!c.ok && c.help ? ` — ${c.help}` : ''}</div>
+      {evalRes && evalRes.checks.filter((c) => !(cases && c.id === 'tests')).map((c) => (
+        <div key={c.id} className={`case-card px-2.5 py-1.5 text-[13px] ${c.ok ? 'case-ok' : 'case-warn'}`}>
+          <div className="flex items-start gap-2"><span className="font-bold">{c.ok ? '✔' : '✘'}</span><span className="flex-1"><b>{c.label}</b>{c.detail && !c.ok ? <span className="block text-[12px]">{c.detail}</span> : null}</span></div>
+          {!c.ok && helpOf(c, lang) && <div className="mt-1 pl-5 text-[12.5px] text-[#7a4a2e]">¿Cómo? {helpOf(c, lang)}</div>}
+        </div>
       ))}
       {evalRes && evalRes.output && evalRes.output.length > 0 && (
         <pre className="code-dark max-h-28 overflow-auto text-[11px]">{evalRes.output.slice(0, 20).join('\n')}</pre>
@@ -354,10 +382,10 @@ export default function Battle({ game, update, battle, onEnd }) {
   const mission = (
     <div className="pp-panel !py-2.5">
       <div className="flex items-center justify-between gap-2">
-        <span className="pixel-title text-lg text-[#7a3b1e]">{isExam ? `Examen · Lección ${LESSON_NO[bugId]}` : `Lección ${LESSON_NO[bugId]}`} · {lesson.steps[0].title}</span>
+        <span className="pixel-title text-lg text-[#7a3b1e]">{isExam ? 'Examen' : 'Lección'} {LESSON_NO[bugId]} · {lessonLabel(bugId)}</span>
         <span className="lang-chip" style={{ background: LANGUAGES[lang].color }}>{LANGUAGES[lang].name}</span>
       </div>
-      <p className="mt-0.5 text-[14px] leading-snug">{spec.objective}</p>
+      <p className="mt-0.5 text-[14px] leading-snug">{objective}</p>
       {fnSig && <code className="mt-1 block truncate font-mono text-[12.5px] text-[#2a5d8f]">{fnSig}</code>}
     </div>
   );
@@ -369,15 +397,17 @@ export default function Battle({ game, update, battle, onEnd }) {
       <div className="pixel-title text-lg text-[#c0561f]">{guide === 2 ? 'Modo guiado · paso a paso' : 'Ayuda para empezar'}</div>
       {guide === 2 ? (
         <ol className="mt-1 list-decimal space-y-0.5 pl-5">
-          <li>Lee arriba qué tiene que hacer la función.</li>
-          <li>En el editor, busca la línea marcada con ✎ y la que dice <code className="font-mono">return 0</code>: ese 0 es el error del bug.</li>
-          <li>Cambia esa línea por esta (escríbela tú, así se aprende):
-            <pre className="code-dark mt-1 text-[13px]">{dedent(toWrite)}</pre>
-          </li>
-          <li>Pulsa <b>⚔ ¡Atacar!</b> para probarla con los casos de prueba.</li>
+          <li>Lee arriba qué tiene que hacer tu código.</li>
+          <li>Qué cambiar: {hintText}</li>
+          {toWrite.length > 0 && toWrite.length <= 6 && (
+            <li>Estas son las líneas que faltan (escríbelas tú, así se aprende; las marcadas con ✎ son las que hay que cambiar):
+              <pre className="code-dark mt-1 text-[13px]">{dedent(toWrite)}</pre>
+            </li>
+          )}
+          <li>Pulsa <b>⚔ ¡Atacar!</b> para probarlo.</li>
         </ol>
       ) : (
-        <p className="mt-1">Cambia las líneas marcadas con ✎ para que la función haga lo que pide la misión. Pista: {spec.hint}</p>
+        <p className="mt-1">{hintText}</p>
       )}
     </div>
   ) : null;
@@ -408,7 +438,7 @@ export default function Battle({ game, update, battle, onEnd }) {
         {phone ? (
           <>
             <div className="tabbar flex gap-1 p-1 text-sm">
-              {[['code', 'Código'], ['cases', `Casos${cases ? ` (${cases.filter((c) => c.ok).length}/${cases.length})` : ''}`]].map(([id, label]) => (
+              {[['code', 'Código'], ['cases', `${isMission ? 'Resultado' : 'Casos'}${evalRes ? ` (${scoreOf(evalRes).ok}/${scoreOf(evalRes).n})` : ''}`]].map(([id, label]) => (
                 <button key={id} type="button" onClick={() => setTab(id)} className={`flex-1 rounded-md py-1.5 font-bold ${tab === id ? 'tab-on' : 'tab-off'}`}>{label}{id === 'cases' && err ? ' ⚠' : ''}</button>
               ))}
             </div>
@@ -418,26 +448,14 @@ export default function Battle({ game, update, battle, onEnd }) {
       </div>
 
       {modal === 'lesson' && (
-        <Modal title={`Lección · ${lesson.steps[0].title}`} onClose={() => setModal(null)} wide>
-          <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <p className="text-[15px] leading-relaxed">{lesson.steps[0].text}</p>
-              {lesson.steps[0].code && lesson.steps[0].code[lang] && (
-                <>
-                  <div className="mt-3 text-xs font-bold uppercase tracking-wider text-[#7a4a2e]">Ejemplo en {LANGUAGES[lang].name}</div>
-                  <pre className="code-dark mt-1 text-[13px]">{lesson.steps[0].code[lang]}</pre>
-                </>
-              )}
-              <div className="case-card case-warn mt-3 p-3 text-sm"><b>Tu misión:</b> {lesson.mission[lang]}</div>
-            </div>
-            <div className="min-h-[220px] overflow-hidden rounded-lg bg-[#1d1611]"><LessonVisual kind={lesson.steps[0].visual} lang={lang} /></div>
-          </div>
+        <Modal title={`Lección ${LESSON_NO[bugId]} · ${lessonLabel(bugId)}`} onClose={() => setModal(null)} wide>
+          <LessonBook id={bugId} lang={lang} onDone={() => setModal(null)} doneLabel="Volver al combate" />
         </Modal>
       )}
       {modal === 'hint' && (
         <Modal title="Pista" onClose={() => setModal(null)}>
-          <p className="text-[15px]">{spec.hint}</p>
-          <p className="mt-2 text-sm text-[#6b4a35]">{ch.polyglot[lang]}</p>
+          <p className="text-[15px]">{hintText}</p>
+          {ch.polyglot[lang] && ch.polyglot[lang] !== hintText && <p className="mt-2 text-sm text-[#6b4a35]">{ch.polyglot[lang]}</p>}
           <p className="mt-3 text-xs text-[#8a6a55]">Usar la pista reduce un poco la experiencia que ganas.</p>
           {fails >= 2 ? (
             <div className="case-card mt-4 p-3">
@@ -458,32 +476,18 @@ export default function Battle({ game, update, battle, onEnd }) {
         </Modal>
       )}
       {modal === 'newlesson' && (
-        <Modal title={`Nuevo concepto · Lección ${LESSON_NO[bugId]}`} onClose={closeModal} wide>
-          {chap && <div className="mb-1 text-xs font-bold uppercase tracking-wider text-[#b5651d]">Capítulo {chap.n} · {chap.title}{isExam ? ' · examen' : ''}</div>}
-          <div className="pixel-title text-3xl text-[#7a3b1e]">{lesson.steps[0].title}</div>
-          <div className="mt-2 grid gap-4 md:grid-cols-2">
-            <div>
-              <p className="text-[16px] leading-relaxed">{lesson.steps[0].text}</p>
-              {lesson.steps[0].code && lesson.steps[0].code[lang] && (
-                <>
-                  <div className="mt-3 text-xs font-bold uppercase tracking-wider text-[#7a4a2e]">Ejemplo en {LANGUAGES[lang].name}</div>
-                  <pre className="code-dark mt-1 text-[13px]">{lesson.steps[0].code[lang]}</pre>
-                </>
-              )}
-              <div className="case-card case-warn mt-3 p-3 text-sm"><b>Ahora te toca:</b> {lesson.mission[lang]}</div>
-            </div>
-            <div className="min-h-[220px] overflow-hidden rounded-lg bg-[#1d1611]"><LessonVisual kind={lesson.steps[0].visual} lang={lang} /></div>
-          </div>
-          <button type="button" onClick={closeModal} className="act-btn act-attack mt-4 w-full">¡A programar!</button>
+        <Modal title={`Nuevo concepto · ${isExam ? 'Examen' : 'Lección'} ${LESSON_NO[bugId]}`} onClose={closeModal} wide>
+          {chap && <div className="mb-2 text-xs font-bold uppercase tracking-wider text-[#b5651d]">Capítulo {chap.n} · {chap.title} · {lessonLabel(bugId)}</div>}
+          <LessonBook id={bugId} lang={lang} onDone={closeModal} />
         </Modal>
       )}
       {modal === 'tutorial' && (
         <Modal title="¡Tu primer combate!" onClose={closeModal}>
           <ol className="space-y-2.5 text-[15px] leading-relaxed">
-            <li><b className="text-[#c0561f]">1.</b> Este bug ha corrompido una función. En «Función corrupta» tienes lo que debe hacer.</li>
+            <li><b className="text-[#c0561f]">1.</b> Este bug ha corrompido un programa. Arriba a la derecha tienes lo que tiene que hacer.</li>
             <li><b className="text-[#c0561f]">2.</b> Escribe el código en el editor. Las líneas con ✎ son las que tienes que cambiar.</li>
-            <li><b className="text-[#c0561f]">3.</b> Pulsa <b>⚔ ¡Atacar!</b> Tu función se ejecuta con varios casos de prueba: cada uno que pasa es un golpe.</li>
-            <li><b className="text-[#c0561f]">4.</b> Si algo falla, el bug contraataca. Mira qué esperaba y qué ha dado tu función, y vuelve a intentarlo.</li>
+            <li><b className="text-[#c0561f]">3.</b> Pulsa <b>⚔ ¡Atacar!</b> Tu código se ejecuta y se comprueba: cada objetivo que cumple es un golpe.</li>
+            <li><b className="text-[#c0561f]">4.</b> Si algo falla, el bug contraataca. Debajo verás qué objetivo falla y cómo arreglarlo. Vuelve a intentarlo.</li>
             <li><b className="text-[#c0561f]">5.</b> ¿No sabes por dónde empezar? <b>Lección</b> te lo explica con un ejemplo.</li>
           </ol>
           <button type="button" onClick={closeModal} className="act-btn act-attack mt-4 w-full">¡Entendido!</button>
