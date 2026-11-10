@@ -320,7 +320,7 @@ const SPAWN = {
   js: /Promise\.(all|allSettled|race)\(/,
   cpp: /\bthread\s+\w+\s*\(|std::thread|std::async\(/,
   // C#: Task.Run, o llamar a un método async SIN await (la tarea arranca ya: «hot task»).
-  csharp: /Task\.Run\(|Task\.Factory\.StartNew\(|new\s+Thread\(|\.Add\(\s*\w*[Ss]can\w*\(|(?:Task<\w+>|var)\s+\w+\s*=\s*(?!await\b)\w*[Ss]can\w*\(|\.Select\(\s*\w+\s*=>\s*\w*[Ss]can\w*\(/,
+  csharp: /Task\.Run\(|Task\.Factory\.StartNew\(|new\s+Thread\(|\.Add\(\s*\w*(?:[Ss]can|[Cc]urar)\w*\(|(?:Task<\w+>|var)\s+\w+\s*=\s*(?!await\b)\w*(?:[Ss]can|[Cc]urar)\w*\(|\.Select\(\s*\w+\s*=>\s*\w*(?:[Ss]can|[Cc]urar)\w*\(/,
 };
 const JOIN = {
   python: /\bawait\b|\.join\(/,
@@ -375,8 +375,8 @@ export function analyzeConcurrency(code, lang) {
     if (!t) return;
     if (SPAWN[lang].test(t)) {
       let count = 1;
-      if (lang === 'python' && /gather\(/.test(t)) count = /gather\(\s*\*/.test(t) || /\bfor\b/.test(t) ? 3 : (t.match(/\w*scan\w*\(/g) || []).length || 1;
-      if (lang === 'js' && /Promise\./.test(t)) count = /\.map\(/.test(t) ? 3 : (t.match(/\w*scan\w*\(/g) || []).length || 1;
+      if (lang === 'python' && /gather\(/.test(t)) count = /gather\(\s*\*/.test(t) || /\bfor\b/.test(t) ? 3 : (t.match(/\w*(?:scan|curar)\w*\(/gi) || []).length || 1;
+      if (lang === 'js' && /Promise\./.test(t)) count = /\.map\(/.test(t) ? 3 : (t.match(/\w*(?:scan|curar)\w*\(/gi) || []).length || 1;
       if (lang === 'csharp' && /\.Select\(/.test(t)) count = 3;
       if (loopOf(L) || /\.(map|forEach)\s*\{|repeat\s*\(|\.map\(\s*(move\s*)?\|/.test(t)) count = 3;
       spawns.push({ line: L, count, loop: loopOf(L), gather: /gather\(/.test(t) });
@@ -384,7 +384,7 @@ export function analyzeConcurrency(code, lang) {
     } else if (lang === 'java' && /\.start\(\)/.test(t)) {
       spawns.push({ line: L, count: 0, loop: loopOf(L), start: true });
     }
-    const directAwait = /\bawait\s+\w*scan\w*\(/i.test(t) && !/async\s+let|gather|addTask/.test(t);
+    const directAwait = /\bawait\s+\w*(?:scan|curar)\w*\(/i.test(t) && !/async\s+let|gather|addTask/.test(t);
     if (directAwait) joins.push({ line: L, direct: true, loop: loopOf(L) });
     else if (!SPAWN[lang].test(t) && JOIN[lang].test(t)) joins.push({ line: L, loop: loopOf(L) });
     else if (SPAWN[lang].test(t) && JOIN[lang].test(t) && !['python', 'swift', 'js'].includes(lang)) joins.push({ line: L, loop: loopOf(L), sameLine: true });

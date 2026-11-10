@@ -8,13 +8,15 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "node scripts/verify-curriculum.mjs && node scripts/verify-world.mjs",
+    "test": "node scripts/verify-course.mjs && node scripts/verify-world.mjs",
     "test:rules": "firebase emulators:exec --only firestore --project demo-codeforge \"node scripts/test-firestore-rules.mjs\"",
     "emuladores": "firebase emulators:start --only auth,firestore --project demo-codeforge",
     "dev:emuladores": "VITE_FIREBASE_EMULATORS=1 VITE_FIREBASE_API_KEY=demo-key VITE_FIREBASE_PROJECT_ID=demo-codeforge VITE_FIREBASE_AUTH_DOMAIN=demo-codeforge.firebaseapp.com VITE_FIREBASE_APP_ID=demo vite",
     "desplegar:reglas": "firebase deploy --only firestore",
     "desplegar:hosting": "npm run build && firebase deploy --only hosting",
-    "test:world": "node scripts/verify-world.mjs"
+    "test:world": "node scripts/verify-world.mjs",
+    "test:course": "node scripts/verify-course.mjs",
+    "test:motor": "node scripts/verify-curriculum.mjs"
   },
   "dependencies": {
     "@capacitor/android": "8.5.3",

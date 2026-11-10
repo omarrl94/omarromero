@@ -2,18 +2,18 @@
 // cada entrenador, bug y zona apunte a datos que existen.
 import { W, H, MAP, walkable, NPCS, DOORS, SIGNS, TRAINERS, ZONES, START, CENTERS, FIREWALLS, tileAt } from '../src/rpg/world.js';
 import { BUGS, BUG } from '../src/rpg/species.js';
-import { CHALLENGES } from '../src/curriculum/index.js';
+import { COURSE as CHALLENGES } from '../src/rpg/course/index.js';
 import { CHAPTERS, ORDER, wildPool } from '../src/rpg/curriculum.js';
 
 let fails = 0;
 const ok = (cond, msg) => { if (!cond) { fails++; console.log(`✗ ${msg}`); } };
 
 ok(MAP.length === H && MAP.every((r) => r.length === W), 'el mapa tiene el tamaño correcto');
-ok(BUGS.length === 44 && BUGS.length === CHALLENGES.length, '44 bugs, uno por nivel del temario original');
+ok(BUGS.length === CHALLENGES.length, `${CHALLENGES.length} bugs, uno por reto del temario`);
 for (const [id, t] of Object.entries(TRAINERS)) for (const b of t.team) ok(BUG[b], `${id}: el bug ${b} existe`);
 // Temario: los 32 niveles, cada uno una sola vez, y cada capítulo en una zona con hierba alta.
-ok(ORDER.length === 44 && new Set(ORDER).size === 44 && CHALLENGES.every((c) => ORDER.includes(c.id)), 'el temario cubre los 44 niveles una vez');
-ok(ORDER[0] === 'm1-world-laws', 'el temario empieza por las variables');
+ok(ORDER.length === CHALLENGES.length && new Set(ORDER).size === ORDER.length && CHALLENGES.every((c) => ORDER.includes(c.id)), 'el temario cubre todos los retos una vez');
+ok(ORDER[0] === 'p-ficha', 'el temario empieza por las variables');
 for (const ch of CHAPTERS) {
   const z = ZONES.find((k) => k.id === ch.zone);
   if (ch.lessons.length) ok(z && z.wild && MAP.slice(z.y0, z.y1 + 1).some((r) => /[,k]/.test(r)), `capítulo ${ch.n}: su zona tiene hierba alta`);

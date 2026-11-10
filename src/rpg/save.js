@@ -2,7 +2,8 @@
 import { START } from './world.js';
 import { BUG, STARTERS, maxHpOf, xpToNext, stageOf } from './species.js';
 
-const KEY = (slot) => `bitlandia.save.v1.${slot}`;
+// v2: temario propio de Bitlandia (las partidas v1 usaban los retos del motor original).
+const KEY = (slot) => `bitlandia.save.v2.${slot}`;
 export const SLOTS = [0, 1, 2];
 
 export function newGame(name) {

@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import CodeEditor from '../components/CodeEditor.jsx';
-import LiveCanvas from '../components/LiveCanvas.jsx';
-import { byId, objectiveOf, sceneOf } from '../curriculum/index.js';
-import { LESSONS, CHECK_HELP } from '../curriculum/lessons.js';
+import { byId, objectiveOf, LESSONS } from './course/index.js';
 import LessonBook from './Lesson.jsx';
 import { evaluate } from '../core/engine.js';
 import { plainError } from '../core/explain.js';
@@ -16,13 +14,8 @@ import { TRAINERS } from './world.js';
 import { LESSON_NO, chapterOf, guideLevel, linesToWrite, lessonLabel } from './curriculum.js';
 import { HpBar, Face, TypeChip, Modal } from './ui.jsx';
 
-/** Ayuda «¿cómo lo arreglo?» de una comprobación, en el lenguaje del jugador. */
-const helpOf = (c, lang) => {
-  const h = CHECK_HELP[c.id];
-  if (typeof h === 'string') return h;
-  if (h) return h[lang] || h.default || c.help;
-  return c.help;
-};
+/** Ayuda «¿cómo lo arreglo?» de una comprobación. */
+const helpOf = (c) => c.help;
 
 /**
  * Puntuación de un ataque. En los niveles de práctica cuenta cada caso de prueba (y cada
@@ -59,7 +52,6 @@ export default function Battle({ game, update, battle, onEnd }) {
   const lesson = LESSONS[bugId];
   const objective = objectiveOf(ch, lang);
   const hintText = (lesson && lesson.mission && lesson.mission[lang]) || ch.polyglot[lang] || '';
-  const [runId, setRunId] = useState(0);
   const chap = chapterOf(bugId);
   const isExam = !!chap && chap.exam.drills.includes(bugId);
 
@@ -148,7 +140,6 @@ export default function Battle({ game, update, battle, onEnd }) {
     sfx('magic', 0.5);
     const res = evaluate(ch, code, lang);
     setEvalRes(res);
-    setRunId((k) => k + 1);
     update((g) => ({ ...g, stats: { ...g.stats, attacks: (g.stats.attacks || 0) + 1 } }));
     const me = daemonName(active);
     const { n, ok: okCount, unit, cases: isDrill } = scoreOf(res);
@@ -342,14 +333,6 @@ export default function Battle({ game, update, battle, onEnd }) {
   const isMission = !ch.drill;
   const casesPanel = (
     <div className="space-y-1.5">
-      {isMission && (
-        <div className="visor">
-          <div className="visor-label">Simulación en vivo · lo que hace tu código</div>
-          <div className="h-[190px] sm:h-[220px]">
-            <LiveCanvas sceneName={sceneOf(ch, lang)} data={{ ...(evalRes ? evalRes.scene : {}), passed: !!(evalRes && evalRes.passed) }} error={err} lang={lang} runId={runId} onJumpLine={(line) => setFocus({ line, t: Date.now() })} />
-          </div>
-        </div>
-      )}
       {!evalRes && <p className="pp-note">Pulsa <b>¡Atacar!</b> para ejecutar tu código. {isMission ? 'Cada objetivo que cumpla es un golpe.' : 'Cada caso de prueba que pase es un golpe.'}</p>}
       {pe && (
         <div className="case-card case-bad p-3 text-sm">
@@ -370,7 +353,7 @@ export default function Battle({ game, update, battle, onEnd }) {
       {evalRes && evalRes.checks.filter((c) => !(cases && c.id === 'tests')).map((c) => (
         <div key={c.id} className={`case-card px-2.5 py-1.5 text-[13px] ${c.ok ? 'case-ok' : 'case-warn'}`}>
           <div className="flex items-start gap-2"><span className="font-bold">{c.ok ? '✔' : '✘'}</span><span className="flex-1"><b>{c.label}</b>{c.detail && !c.ok ? <span className="block text-[12px]">{c.detail}</span> : null}</span></div>
-          {!c.ok && helpOf(c, lang) && <div className="mt-1 pl-5 text-[12.5px] text-[#7a4a2e]">¿Cómo? {helpOf(c, lang)}</div>}
+          {!c.ok && helpOf(c) && <div className="mt-1 pl-5 text-[12.5px] text-[#7a4a2e]">¿Cómo? {helpOf(c)}</div>}
         </div>
       ))}
       {evalRes && evalRes.output && evalRes.output.length > 0 && (

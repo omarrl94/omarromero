@@ -1,13 +1,12 @@
 import { useState } from 'react';
 import LessonVisual from '../components/LessonVisuals.jsx';
 import { highlight } from '../components/highlight.js';
-import { LESSONS, lessonSteps } from '../curriculum/lessons.js';
-import { byId, objectiveOf } from '../curriculum/index.js';
+import { LESSONS, lessonSteps, byId, objectiveOf } from './course/index.js';
 import { LANGUAGES } from '../core/languages.js';
 import { sfx } from './assets.js';
 
 /**
- * Lección paso a paso (las mismas lecciones del CodeForge original): cada paso explica una
+ * Lección paso a paso: cada paso explica una
  * idea con una animación y un ejemplo en tu lenguaje; la última tarjeta dice qué hay que
  * cambiar en el reto.
  */

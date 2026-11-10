@@ -10,32 +10,32 @@ Bitlandia es un mundo de daemons, criaturas hechas de código. La **Legión Null
 npm install
 npm run dev          # http://localhost:5173
 npm run build        # dist/ estático (Netlify, Firebase, GitHub Pages)
-npm test             # currículo en 10 lenguajes + mundo de Bitlandia
+npm test             # los 43 retos en los 10 lenguajes + el mundo de Bitlandia
 npm run test:world   # solo el mundo: mapa, historia y alcanzabilidad
 ```
 
-## Un temario de verdad: el de CodeForge completo
+## Un temario de verdad, con retos que tienen sentido en Bitlandia
 
-El juego es el **temario completo de CodeForge: 8 módulos y 44 niveles**, en orden y empezando por las
-variables ([`src/rpg/curriculum.js`](src/rpg/curriculum.js)). Las 12 misiones de historia (con su
-simulación animada) y los 32 niveles de práctica son los mismos del motor original, en los 10
-lenguajes. Cada capítulo ocurre en una zona y termina con un examen:
+El juego sigue el temario de CodeForge (8 módulos: de las variables a la notación Big O), pero
+con **43 retos propios de este mundo**: la ficha de tu daemon, la tienda del Centro, los
+combates, tu equipo, la Bitdex... ([`src/rpg/course/`](src/rpg/course/)). Cada concepto se
+practica con un problema que se entiende sin explicaciones y que se apoya en lo anterior.
 
 | Capítulo | Zona | Lecciones (en orden) | Examen |
 |---|---|---|---|
-| 1 · Fundamentos | Ruta 1 | variables y tipos, overflow, funciones, operaciones, paréntesis, variables intermedias | Vera: división entera y resto |
-| 2 · Control de flujo | Bosque Bucle | bucles y rangos, condicionales y %, booleanos, if, acumular, y / o | Bruno: while y return temprano |
-| 3 · Estructuras de datos | Lago Array | arrays y ordenación, diccionarios, recorrer, máximo, contar, buscar, invertir | Ingrid: diccionarios y conjuntos |
-| 4 · POO | Villa Objeto | herencia y polimorfismo, torretas, asteroides | Clara: escuadrón completo |
-| 5 · Sistemas | Ciudad Núcleo | memoria y concurrencia, buffer circular | Kernel: bits y potencias de dos |
-| 6 · Funciones y recursión | Ciudad Recursiva | desmontar números, factorial, potencia | Rémi: Fibonacci y Euclides |
-| 7 · Algoritmos | Cumbre Algoritmo | ¿está ordenado?, segundo mayor, búsqueda binaria | Kai: Kadane e inserción |
-| 8 · Jefe final | Cueva Null | — | Comandante Null: el Enjambre O(n²) |
+| 1 · Fundamentos | Ruta 1 | la ficha de tu daemon (variables y tipos), la hucha que se desborda, daño de un ataque, un café que cura, la fórmula de la experiencia, la cuenta de la tienda | Vera: cuántos cafés te llegan (división entera) y el cambio (%) |
+| 2 · Control de flujo | Bosque Bucle | el entrenamiento de Kai (for), ¡es muy eficaz! (if), ¿a quién le toca? (booleanos), el más fuerte de tres, curar sin pasarse, pasos peligrosos (y / o) | Bruno: turnos de un combate (while) y la clave prima del cortafuegos |
+| 3 · Estructuras de datos | Lago Array | vida del equipo, el veterano, daemons debilitados, ¿dónde está?, del revés, ordenar el equipo (burbuja) | Ingrid: el tipo más común (diccionario) y especies distintas (conjunto) |
+| 4 · POO | Villa Objeto | tu primera clase hija, piezas que no se mueven, polimorfismo | Clara: el escuadrón completo |
+| 5 · Sistemas | Ciudad Núcleo | el Centro Daemon (memoria en C/C++, concurrencia en el resto), turnos en círculo | Kernel: interruptores (bits) y bloques de memoria (potencias de dos) |
+| 6 · Funciones y recursión | Ciudad Recursiva | la suma de control, ¿de cuántas formas? (factorial), el Amplificón (potencia) | Rémi: Fibonacci y lotes iguales (Euclides) |
+| 7 · Algoritmos | Cumbre Algoritmo | el ranking ordenado, el suplente (segundo mejor), buscar en la Bitdex (binaria) | Kai: la mejor racha (Kadane) y ordenar como las cartas (inserción) |
+| 8 · Jefe final | Cueva Null | — | Comandante Null: el detector de clones O(n²) que hay que bajar a O(n) |
 
+- **Comprobado en los 10 lenguajes:** `npm test` ejecuta cada reto con su código inicial (debe fallar) y su solución (debe pasar) en Python, JavaScript, Java, C#, Kotlin, Swift, C, C++, Go y Rust, y comprueba que ningún texto se ha quedado con el mundo del motor original.
 - **Los bugs salvajes salen en el orden del temario:** en cada zona aparece siempre la siguiente lección pendiente.
-- **Cada concepto nuevo trae su lección paso a paso** (las del CodeForge original, con animaciones y ejemplos en tu lenguaje) antes de luchar.
+- **Cada concepto nuevo trae su lección paso a paso** con animaciones y ejemplos en tu lenguaje antes de luchar.
 - **Ayuda que se retira:** los tres primeros combates son guiados (qué cambiar y qué escribir), los tres siguientes indican qué cambiar y después se da por sabido (la lección y la pista siguen disponibles).
-- **Las misiones de historia** muestran su simulación en vivo (la lanzadera que aterriza, el reactor, los drones...) y cada objetivo cumplido es un golpe.
 - **Los exámenes exigen el capítulo completo** y los entrenadores no se adelantan a lo que aún no has aprendido.
 - **La Profesora Lambda presenta cada capítulo** al llegar a su zona, y el menú **Temario** muestra el curso con lo aprendido, lo siguiente y el repaso de cada lección.
 
@@ -50,7 +50,7 @@ lenguajes. Cada capítulo ocurre en una zona y termina con un examen:
   bugs tienen **escudos** (usar un bucle, usar recursión, ordenar sin `sort`).
 - **Ayudas:** 📖 Lección con animación y ejemplo en tu lenguaje, 💡 Pista y, tras dos fallos, la
   solución explicada (a cambio de menos experiencia). Errores traducidos «en cristiano».
-- **Bitdex:** 44 bugs, uno por nivel del temario. Depurados en la hierba alta, se unen a tu equipo.
+- **Bitdex:** 43 bugs, uno por reto del temario. Depurados en la hierba alta, se unen a tu equipo.
 - **Historia:** Pueblo Origen → Ruta 1 → Ciudad Byte (Vera, variables) → Bosque Bucle →
   Ciudad Bucle (Bruno, bucles) → Lago Array → Pueblo Índice (Ingrid, listas y diccionarios) →
   Ciudad Recursiva (Rémi, recursión) → Cumbre Algoritmo → Cueva Null (Comandante Null, algoritmos).
