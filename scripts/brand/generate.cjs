@@ -70,6 +70,25 @@ const DENS = { mdpi: 1, hdpi: 1.5, xhdpi: 2, xxhdpi: 3, xxxhdpi: 4 };
         <div style="font:700 19px 'JetBrains Mono',monospace;color:#ff3df0;letter-spacing:.38em;margin-top:6px">THE LIVING ENGINE</div>
         <div style="font:500 25px/1.45 'JetBrains Mono',monospace;color:#d6dcff;margin-top:28px">Aprende a programar construyendo<br>un motor de juego. <span style="color:#a3ff3d">10 lenguajes.</span></div>
       </div></div>`);
+  // Web (PWA y redes sociales): iconos de la app instalable e imagen para compartir.
+  const PUB = path.join(ROOT, 'public');
+  const rounded = (n) => `<svg xmlns="http://www.w3.org/2000/svg" width="${n}" height="${n}" viewBox="15 15 78 78"><defs><clipPath id="c"><rect x="15" y="15" width="78" height="78" rx="17"/></clipPath></defs><g clip-path="url(#c)">${background()}${mark()}</g></svg>`;
+  await render(path.join(PUB, 'icons/icon-192.png'), 192, 192, rounded(192), true);
+  await render(path.join(PUB, 'icons/icon-512.png'), 512, 512, rounded(512), true);
+  await render(path.join(PUB, 'icons/apple-touch-icon.png'), 180, 180, `<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="15 15 78 78">${background()}${mark()}</svg>`);
+  await render(path.join(PUB, 'icons/icon-maskable-512.png'), 512, 512, svg(512, 512, background() + mark()));
+  await render(path.join(PUB, 'og.png'), 1200, 630, `
+    <div style="position:relative;width:1200px;height:630px;overflow:hidden;background:
+      radial-gradient(800px 460px at 18% 30%, rgba(34,228,255,.18), transparent 60%),
+      radial-gradient(700px 420px at 95% 90%, rgba(255,61,240,.16), transparent 60%),
+      linear-gradient(rgba(34,228,255,.05) 1px, transparent 1px) 0 0/36px 36px,
+      linear-gradient(90deg, rgba(34,228,255,.05) 1px, transparent 1px) 0 0/36px 36px, #05060a;font-family:'JetBrains Mono',monospace">
+      <div style="position:absolute;left:70px;top:130px">${svg(370, 370, mark())}</div>
+      <div style="position:absolute;left:460px;top:165px;right:50px">
+        <div style="font:800 92px 'JetBrains Mono',monospace;color:#fff;letter-spacing:-3px">Code<span style="color:#22e4ff;text-shadow:0 0 28px #22e4ff">Forge</span></div>
+        <div style="font:700 23px 'JetBrains Mono',monospace;color:#ff3df0;letter-spacing:.38em;margin-top:8px">THE LIVING ENGINE</div>
+        <div style="font:500 30px/1.45 'JetBrains Mono',monospace;color:#d6dcff;margin-top:34px">Aprende a programar construyendo<br>un motor de juego. <span style="color:#a3ff3d">10 lenguajes.</span></div>
+      </div></div>`);
   await b.close();
   console.log('Iconos, splash y material de Google Play generados.');
 })();
