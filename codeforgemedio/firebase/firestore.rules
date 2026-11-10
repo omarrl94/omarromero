@@ -1,0 +1,79 @@
+rules_version = '2';
+
+// Reglas de CodeForge Medio.
+// Todas las colecciones llevan el prefijo «codeforgemedio_», así que estas reglas pueden
+// convivir con las de otra app del mismo proyecto (añade estos bloques a tus reglas).
+//
+//   codeforgemedio_nicks/{nickEnMinúsculas}          → { uid }   reserva única del nick
+//   codeforgemedio_players/{uid}                     → perfil público (ranking)
+//   codeforgemedio_players/{uid}/private/progress    → progreso y correo (solo su dueño)
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function validNick(nick) {
+      return nick is string && nick.matches('^[A-Za-z0-9_-]{3,16}$');
+    }
+
+    // El nick debe estar reservado por este mismo usuario (también dentro de la transacción).
+    function ownsNick(uid, lower) {
+      return existsAfter(/databases/$(database)/documents/codeforgemedio_nicks/$(lower))
+        && getAfter(/databases/$(database)/documents/codeforgemedio_nicks/$(lower)).data.uid == uid;
+    }
+
+    function validStats(d) {
+      return d.gold is int && d.gold >= 0 && d.gold <= 40000
+        && d.xp is int && d.xp >= 0 && d.xp <= 100000
+        && d.worlds is int && d.worlds >= 0 && d.worlds <= 3
+        && d.conquered is int && d.conquered >= 0 && d.conquered <= 500;
+    }
+
+    function validPlayer(uid, d) {
+      return d.keys().hasOnly(['nick', 'nickLower', 'avatar', 'gold', 'xp', 'worlds', 'conquered', 'createdAt', 'updatedAt'])
+        && validNick(d.nick)
+        && d.nickLower == d.nick.lower()
+        && d.avatar is string && d.avatar.size() <= 24
+        && validStats(d)
+        && ownsNick(uid, d.nickLower);
+    }
+
+    match /codeforgemedio_nicks/{nick} {
+      // Lectura pública: el formulario de registro comprueba si un nick está libre.
+      allow get: if true;
+      allow list: if false;
+      allow create: if signedIn()
+        && nick.matches('^[a-z0-9_-]{3,16}$')
+        && request.resource.data.keys().hasOnly(['uid'])
+        && request.resource.data.uid == request.auth.uid;
+      allow delete: if signedIn() && resource.data.uid == request.auth.uid;
+      allow update: if false;
+    }
+
+    match /codeforgemedio_players/{uid} {
+      // Cualquier piloto con sesión puede ver el ranking (nick, avatar y estadísticas).
+      allow read: if signedIn();
+      allow create: if isOwner(uid) && validPlayer(uid, request.resource.data);
+      allow update: if isOwner(uid) && validPlayer(uid, request.resource.data);
+      // El jugador puede borrar su cuenta (requisito de Google Play).
+      allow delete: if isOwner(uid);
+
+      // Progreso y correo: privados.
+      match /private/{docId} {
+        allow read: if isOwner(uid);
+        allow delete: if isOwner(uid);
+        allow create, update: if isOwner(uid) && docId == 'progress'
+          && request.resource.data.keys().hasOnly(['email', 'state', 'updatedAt'])
+          && request.resource.data.state is string
+          && request.resource.data.state.size() < 900000;
+      }
+    }
+  }
+}

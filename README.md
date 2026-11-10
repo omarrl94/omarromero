@@ -7,6 +7,9 @@ SPA gamificada (React + Tailwind + Canvas + Framer Motion + Lucide) donde aprend
 reglas de un motor de juego vivo. Cada línea que escribes se compila **de verdad** y el resultado se ve
 al instante en un canvas; cada bug también.
 
+> **¿Buscas algo más sencillo?** En [`codeforgemedio/`](codeforgemedio/README.md) está **CodeForge Medio**: la versión de
+> iniciación para grado medio (16-17 años), con 3 lenguajes, 31 niveles desde «Hola, mundo» y la sección «Tu futuro».
+
 ```bash
 npm install
 npm run dev      # http://localhost:5173

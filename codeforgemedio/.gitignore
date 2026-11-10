@@ -1,0 +1,15 @@
+node_modules
+dist
+.DS_Store
+*.log
+.env.local
+.env
+.firebaserc
+.firebase
+firebase-debug.log
+firestore-debug.log
+
+# Llaves de firma de Android: NUNCA se suben al repositorio
+*.jks
+*.keystore
+keystore.properties
