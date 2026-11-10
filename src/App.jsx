@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { MotionConfig } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 import TopBar, { MobileNav } from './components/TopBar.jsx';
@@ -8,13 +8,18 @@ import WorldHub from './components/WorldHub.jsx';
 import EngineMap from './components/EngineMap.jsx';
 import Profile from './components/Profile.jsx';
 import Leaderboard from './components/Leaderboard.jsx';
-import Arena from './components/Arena.jsx';
 import { RewardOverlay, RankUpOverlay, AchievementToasts } from './components/Overlays.jsx';
 import { ProgressContext, reducer, loadState, saveState, mergeProgress, playerStats, rankOf, moduleUnlocked, isDone, worldXp } from './core/progress.js';
 import { configureSound } from './core/sound.js';
 import { useBackHandler, BACK, appReady } from './core/native.js';
 import { byId, MODULES } from './curriculum/index.js';
 import { watchSession, loadCloudProgress, saveCloudProgress, logout, deleteAccount, backend } from './services/accounts.js';
+
+// La arena (editor, Forge VM, escenas y lecciones) es la parte más pesada: se descarga aparte
+// para que la portada y los mapas aparezcan antes. Se precarga en segundo plano tras entrar.
+const loadArena = () => import('./components/Arena.jsx');
+const Arena = lazy(loadArena);
+const Loading = () => <div className="flex min-h-[40vh] items-center justify-center text-slate-400"><Loader2 className="mr-2 animate-spin" size={18} /> Cargando…</div>;
 
 const INTRO_KEY = 'codeforge.intro.v1';
 const introSeen = () => { try { return localStorage.getItem(INTRO_KEY) === '1'; } catch { return false; } };
@@ -26,6 +31,12 @@ export default function App() {
   const [startWorld, setStartWorld] = useState(null);
 
   useEffect(() => { appReady(); }, []);
+  // Precarga la arena cuando el navegador está libre: abrir una misión es instantáneo
+  // (y queda guardada para jugar sin conexión).
+  useEffect(() => {
+    const id = setTimeout(() => { loadArena().catch(() => {}); }, 1500);
+    return () => clearTimeout(id);
+  }, []);
   useEffect(() => watchSession((acc) => setAccount((prev) => (prev && acc && prev.uid === acc.uid && !acc.incomplete ? { ...prev, ...acc } : acc))), []);
 
   let screen;
@@ -178,11 +189,13 @@ function Game({ account, onAccountChange, startWorld }) {
         <div className="cyber-bg scanlines flex min-h-full flex-col">
           <TopBar view={current} onMap={() => setView('map')} onProfile={() => setView('profile')} onWorlds={() => setView('worlds')} onRanking={() => setView('ranking')} />
           <main className={`flex-1 pt-3 ${current === 'arena' ? 'lg:h-[calc(100vh-58px)] lg:min-h-[640px]' : 'pb-[calc(4rem+env(safe-area-inset-bottom))] sm:pb-0'}`}>
+            <Suspense fallback={<Loading />}>
             {current === 'worlds' && view !== 'ranking' && view !== 'profile' && <WorldHub onEnter={enterWorld} intro={!state.lang} />}
             {view === 'ranking' && <Leaderboard account={account} refreshKey={state.completed} />}
             {view === 'profile' && state.lang && <Profile onOpen={open} />}
             {!inHub && view === 'map' && <EngineMap onOpen={open} />}
             {!inHub && view === 'arena' && ch && <Arena key={`${ch.id}-${state.lang}`} ch={ch} onBack={() => setView('map')} />}
+            </Suspense>
           </main>
           {current !== 'arena' && <MobileNav view={current} onMap={() => setView('map')} onProfile={() => setView('profile')} onWorlds={() => setView('worlds')} onRanking={() => setView('ranking')} />}
           <RewardOverlay
