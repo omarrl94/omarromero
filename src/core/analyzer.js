@@ -18,7 +18,7 @@ export function lintStyle(code, lang) {
   lines.forEach((raw, i) => {
     const L = i + 1;
     if (raw.length > 100) warn(L, `Línea de ${raw.length} caracteres: el máximo recomendado es 100.`, 'line-length');
-    if (/\S[ \t]+$/.test(raw)) warn(L, 'Espacios en blanco al final de la línea.', 'trailing-space');
+    // Los espacios invisibles al final de una línea no cuentan: el editor los limpia al pulsar Enter.
     if (/\t/.test(raw)) warn(L, 'Usa espacios en lugar de tabuladores.', 'tabs');
     const t = (clean[i] || '').trim();
     if (!t) return;

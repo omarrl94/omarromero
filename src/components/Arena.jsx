@@ -35,6 +35,7 @@ export default function Arena({ ch, onBack }) {
   const [tourOpen, setTourOpen] = useState(false);
   const [solutionOpen, setSolutionOpen] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
+  const [typing, setTyping] = useState(false);
   const prevError = useRef(false);
   const stateRef = useRef(state);
   stateRef.current = state;
@@ -48,8 +49,15 @@ export default function Arena({ ch, onBack }) {
     prevError.current = false;
   }, [ch.id, lang]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const run = useCallback((manual = false) => {
+  // settled: el jugador lleva un rato sin teclear. Mientras escribe, un error suele ser solo
+  // código a medio escribir (falta el «}» que aún no ha tecleado): no se muestra ni se cuenta.
+  const run = useCallback((manual = false, settled = false) => {
     const ev = evaluate(ch, code, lang);
+    if (!manual && !settled && ev.error) {
+      setTyping(true);
+      return;
+    }
+    setTyping(false);
     setEvaluation(ev);
     setRunId((r) => r + 1);
     const fixed = prevError.current && !ev.error;
@@ -68,13 +76,16 @@ export default function Arena({ ch, onBack }) {
     } else if (manual) play('run');
   }, [ch, code, lang, dispatch]);
 
-  // Ejecución en vivo (debounce) y guardado del borrador.
+  // Ejecución en vivo (debounce) y guardado del borrador. Primero una pasada rápida (si el
+  // código va bien, los checks se actualizan al momento) y, si sigue con errores cuando el
+  // jugador deja de escribir, se muestran.
   useEffect(() => {
-    const t = setTimeout(() => {
+    const quick = setTimeout(() => {
       dispatch({ type: 'draft', id: ch.id, lang, code });
       if (state.settings.autorun) run(false);
     }, 650);
-    return () => clearTimeout(t);
+    const settle = setTimeout(() => { if (state.settings.autorun) run(false, true); }, 2600);
+    return () => { clearTimeout(quick); clearTimeout(settle); };
   }, [code]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const reset = () => {
@@ -100,7 +111,7 @@ export default function Arena({ ch, onBack }) {
   const stars = starsOf(state, ch.id, lang);
   const solvedHere = stars > 0;
   const L = LANGUAGES[lang];
-  const status = !evaluation ? 'idle' : evaluation.error ? 'error' : evaluation.passed ? 'pass' : 'fail';
+  const status = typing ? 'typing' : !evaluation ? 'idle' : evaluation.error ? 'error' : evaluation.passed ? 'pass' : 'fail';
 
   return (
     <div className="mx-auto flex h-full w-full max-w-[1600px] flex-col gap-3 px-3 pb-[calc(5rem+env(safe-area-inset-bottom))] lg:px-4 lg:pb-3">
@@ -261,6 +272,7 @@ export default function Arena({ ch, onBack }) {
 function StatusPill({ status }) {
   const map = {
     idle: ['bg-slate-500/20 text-slate-400', 'en espera'],
+    typing: ['bg-slate-500/20 text-slate-300', 'escribiendo…'],
     error: ['bg-neon-red/15 text-neon-red', 'glitch'],
     fail: ['bg-neon-amber/15 text-neon-amber', 'en progreso'],
     pass: ['bg-neon-lime/15 text-neon-lime', 'operativo'],
