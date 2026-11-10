@@ -161,10 +161,12 @@ export default function CodeEditor({ code, onChange, lang, errorLine, lintLines 
       const trimmed = cur.trimEnd();
       if (/[{:([]$/.test(trimmed) && !(lang !== 'python' && trimmed.endsWith(':'))) indent += '    ';
       const nextCh = value[s];
+      // Los espacios que quedan al final de la línea que dejas atrás se borran (como en un IDE).
+      const cut = trimmed.trim() ? lineStart + trimmed.length : s;
       if (trimmed.endsWith('{') && nextCh === '}') {
         const base = /^\s*/.exec(cur)[0];
-        replaceRange(el, s, en, `\n${indent}\n${base}`, indent.length + 1);
-      } else replaceRange(el, s, en, `\n${indent}`);
+        replaceRange(el, cut, en, `\n${indent}\n${base}`, indent.length + 1);
+      } else replaceRange(el, cut, en, `\n${indent}`);
       return;
     }
     if (e.key === '}' && /^\s+$/.test(value.slice(value.lastIndexOf('\n', s - 1) + 1, s))) {
