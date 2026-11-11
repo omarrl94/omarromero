@@ -9,6 +9,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "node scripts/verify-curriculum.mjs",
+    "test:duck": "node scripts/test-duck.mjs",
     "test:rules": "firebase emulators:exec --only firestore --project demo-codeforge \"node scripts/test-firestore-rules.mjs\"",
     "emuladores": "firebase emulators:start --only auth,firestore --project demo-codeforge",
     "dev:emuladores": "VITE_FIREBASE_EMULATORS=1 VITE_FIREBASE_API_KEY=demo-key VITE_FIREBASE_PROJECT_ID=demo-codeforge VITE_FIREBASE_AUTH_DOMAIN=demo-codeforge.firebaseapp.com VITE_FIREBASE_APP_ID=demo vite",
@@ -16,6 +17,7 @@
     "desplegar:hosting": "npm run build && firebase deploy --only hosting"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "1.8.0",
     "@capacitor/android": "8.5.3",
     "@capacitor/app": "8.1.2",
     "@capacitor/core": "8.5.3",
@@ -24,6 +26,7 @@
     "@capacitor/splash-screen": "8.0.2",
     "@capacitor/status-bar": "8.0.4",
     "@fontsource/jetbrains-mono": "5.1.1",
+    "@netlify/blobs": "11.1.9",
     "firebase": "11.10.0",
     "framer-motion": "11.11.17",
     "lucide-react": "0.460.0",
