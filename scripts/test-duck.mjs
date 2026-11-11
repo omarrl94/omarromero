@@ -53,7 +53,7 @@ await test('refusal → refused:true (el cliente usa el pato local)', async () =
 await test('la petición a Claude lleva modelo, effort bajo, fallbacks y el system prompt socrático', async () => {
   calls.length = 0; const { handler } = make(); await post(handler, body()); const p = calls[0];
   assert.equal(p.model, 'claude-opus-5-5'); assert.equal(p.output_config.effort, 'low'); assert.equal(p.fallbacks, 'default'); assert.ok(p.betas.includes('server-side-fallback-2026-07-01'));
-  assert.equal(p.system, SYSTEM_PROMPT); assert.match(p.system, /NUNCA escribas la solución/); assert.equal(p.thinking, undefined); assert.equal(p.temperature, undefined);
+  assert.equal(p.system, SYSTEM_PROMPT); assert.match(p.system, /NUNCA escribas la solución/); assert.match(p.system, /patOmar/); assert.equal(p.thinking, undefined); assert.equal(p.temperature, undefined);
 });
 await test('DUCK_MODEL cambia de modelo (p. ej. haiku para gastar menos)', async () => {
   calls.length = 0; const { handler } = make({ env: { DUCK_MODEL: 'claude-haiku-5-5' } }); await post(handler, body()); assert.equal(calls[0].model, 'claude-haiku-5-5');

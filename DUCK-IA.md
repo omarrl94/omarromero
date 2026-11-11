@@ -1,6 +1,6 @@
-# El pato con IA (tutor) · puesta en marcha
+# patOmar, el tutor con IA · puesta en marcha
 
-El pato de CodeForge puede responder con un modelo de Claude. Funciona así:
+patOmar (el pato de CodeForge) puede responder con un modelo de Claude. Funciona así:
 
 ```
 jugador (con cuenta en la nube) → /api/duck (función de Netlify) → API de Anthropic
@@ -26,7 +26,7 @@ jugador (con cuenta en la nube) → /api/duck (función de Netlify) → API de A
    | `DUCK_MODEL` | `claude-opus-5-5` | opcional, ver costes abajo |
 
 3. **Vuelve a desplegar** (*Deploys → Trigger deploy → Deploy site*). Las variables solo se aplican en despliegues nuevos.
-4. Abre el juego con una cuenta en la nube, entra en una misión y pulsa el pato: verás «Tutor con IA» abajo.
+4. Abre el juego con una cuenta en la nube, entra en una misión y pulsa el pato: verás «patOmar con IA» abajo.
 5. **App de Android**: en GitHub → *Settings → Secrets and variables → Actions* crea el secreto `VITE_DUCK_API_URL` con `https://TU-SITIO.netlify.app/api/duck` y vuelve a lanzar la compilación. (En la web no hace falta.)
 
 ## Costes (orientativos)
