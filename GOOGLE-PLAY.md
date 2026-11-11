@@ -135,16 +135,23 @@ Completa cada tarjeta del panel con estas respuestas:
 
 ### Seguridad de los datos (formulario)
 
-- ¿Recoge o comparte datos? **Sí, recoge.** ¿Los comparte con terceros? **No** (Firebase es un proveedor de servicio, no cuenta como «compartir»).
-- ¿Cifrados en tránsito? **Sí.**
-- ¿Los usuarios pueden pedir que se borren? **Sí.**
+CodeForge tiene un tutor con IA (patOmar) que envía a Anthropic la pregunta y el código de la misión. Google exige declararlo.
 
-| Tipo de dato | ¿Obligatorio? | Finalidad |
-|---|---|---|
-| Información personal → **Dirección de correo electrónico** | Obligatorio | Gestión de la cuenta |
-| Información personal → **ID de usuario** (nick) | Obligatorio | Funcionalidad de la app, gestión de la cuenta |
-| Actividad en la app → **Otro contenido generado por el usuario** (código y progreso) | Obligatorio | Funcionalidad de la app |
-| Actividad en la app → **Otras acciones** (niveles, oro, XP) | Obligatorio | Funcionalidad de la app |
+- ¿Recoge o comparte datos? **Sí.** ¿Los comparte con terceros? **Sí, solo el contenido que envías a patOmar** (a Anthropic, como proveedor de servicio). Firebase (cuenta y progreso) es proveedor de servicio y no cuenta como compartir.
+- ¿Cifrados en tránsito? **Sí.**
+- ¿Los usuarios pueden pedir que se borren? **Sí** (Perfil → Borrar mi cuenta).
+
+| Tipo de dato | ¿Obligatorio? | ¿Se comparte? | Finalidad |
+|---|---|---|---|
+| Información personal → **Dirección de correo electrónico** | Obligatorio | No | Gestión de la cuenta |
+| Información personal → **ID de usuario** (nick) | Obligatorio | No | Funcionalidad de la app, gestión de la cuenta |
+| Actividad en la app → **Otro contenido generado por el usuario** (código y progreso) | Obligatorio | **Sí** (solo el código y las preguntas que se envían a patOmar) | Funcionalidad de la app |
+| Actividad en la app → **Otras acciones** (niveles, oro, XP) | Obligatorio | No | Funcionalidad de la app |
+| Mensajes → **Otros mensajes en la app** (preguntas a patOmar) | Opcional | **Sí** (a Anthropic) | Funcionalidad de la app |
+
+> Si no activas patOmar (no pones `ANTHROPIC_API_KEY` en Netlify), puedes dejar «Sí se comparte» en No y quitar la última fila; la política de privacidad sigue valiendo.
+
+**Declaración de IA generativa:** si Play Console pregunta si la app incluye funciones de IA generativa, responde **Sí**: «tutor de programación que responde a preguntas del usuario; no genera contenido sexual, violento ni engañoso». patOmar solo habla de programación y no da soluciones completas.
 
 ---
 

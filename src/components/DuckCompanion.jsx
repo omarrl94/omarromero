@@ -104,7 +104,7 @@ export default function DuckCompanion({ ch, lang, code, evaluation, stuck, onDee
           >
             <div className="flex items-center justify-between border-b border-void-600/50 px-4 py-2.5">
               <div>
-                <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-neon-amber">Rubber Duck AI</div>
+                <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-neon-amber">patOmar · tu tutor</div>
                 <div className="text-xs text-slate-300">{advice.title}</div>
               </div>
               <button type="button" onClick={() => setOpen(false)} className="rounded p-1 text-slate-400 hover:text-white" aria-label="Cerrar pato">
@@ -120,7 +120,7 @@ export default function DuckCompanion({ ch, lang, code, evaluation, stuck, onDee
               ))}
               {talk.map((m, i) => (
                 <div key={i} className={`whitespace-pre-wrap rounded-lg px-3 py-2 ${m.who === 'me' ? 'ml-6 bg-cyan-400/10 text-cyan-100' : m.ai ? 'mr-6 border border-neon-violet/30 bg-violet-400/10 text-violet-50' : 'mr-6 bg-amber-400/10 text-amber-100'}`}>
-                  {m.ai && <span className="mb-1 flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-neon-violet"><Sparkles size={11} /> Tutor IA</span>}
+                  {m.ai && <span className="mb-1 flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-neon-violet"><Sparkles size={11} /> patOmar · IA</span>}
                   {m.text}
                 </div>
               ))}
@@ -143,7 +143,7 @@ export default function DuckCompanion({ ch, lang, code, evaluation, stuck, onDee
               <input
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
-                placeholder={useAI ? 'Pregúntale al tutor IA…' : 'Explícale tu código al pato…'}
+                placeholder={useAI ? 'Pregúntale a patOmar…' : 'Explícale tu código al pato…'}
                 maxLength={500}
                 className="min-w-0 flex-1 rounded-lg border border-void-600 bg-void-950 px-3 py-1.5 text-xs text-slate-200 outline-none focus:border-neon-amber/60"
               />
@@ -154,11 +154,11 @@ export default function DuckCompanion({ ch, lang, code, evaluation, stuck, onDee
             {useAI ? (
               <div className="flex items-center gap-1.5 border-t border-void-600/40 px-4 py-1.5 text-[10px] text-slate-500">
                 <Sparkles size={11} className="text-neon-violet" />
-                <span>Tutor con IA · la primera respuesta de cada misión es gratis; las siguientes cuentan como pista{left !== null ? ` · te quedan ${left} hoy` : ''}</span>
+                <span>patOmar con IA · la primera respuesta de cada misión es gratis; las siguientes cuentan como pista{left !== null ? ` · te quedan ${left} hoy` : ''}</span>
               </div>
             ) : (
               <div className="border-t border-void-600/40 px-4 py-1.5 text-[10px] text-slate-500">
-                {aiOff === 'quota' ? 'Hoy has agotado tus preguntas a la IA. El pato clásico sigue disponible.' : aiPossible ? 'Pato clásico (sin IA en este momento).' : 'Pato clásico. Con una cuenta en la nube tendrás también el tutor con IA.'}
+                {aiOff === 'quota' ? 'Hoy has agotado tus preguntas a patOmar. El pato clásico sigue disponible.' : aiPossible ? 'Pato clásico (patOmar no está disponible ahora).' : 'Pato clásico. Con una cuenta en la nube tendrás también a patOmar, el tutor con IA.'}
               </div>
             )}
           </motion.div>
@@ -172,7 +172,7 @@ export default function DuckCompanion({ ch, lang, code, evaluation, stuck, onDee
         animate={stuck && !open ? { y: [0, -10, 0] } : { y: 0 }}
         transition={stuck && !open ? { repeat: Infinity, duration: 1.1 } : {}}
         className="relative grid h-16 w-16 place-items-center rounded-full border border-neon-amber/40 bg-void-900/90 shadow-[0_0_30px_-6px_rgba(255,181,52,0.6)]"
-        aria-label="Abrir Rubber Duck AI"
+        aria-label="Abrir a patOmar, tu tutor"
       >
         <Duck mood={advice.mood} />
         {stuck && !open && (

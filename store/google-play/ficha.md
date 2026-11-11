@@ -31,8 +31,8 @@ Antes de cada misión, una lección corta con dibujos te explica justo lo que ne
 ⚡ PROGRAMA DE VERDAD, TAMBIÉN EN EL MÓVIL
 Editor con resaltado de código, autocompletado y una fila de símbolos para escribir { } [ ] ( ) ; sin pelearte con el teclado. Una barra te explica en castellano la línea en la que estás.
 
-🦆 UN PATO QUE TE AYUDA A PENSAR
-¿Atascado? El pato de goma te hace preguntas para que encuentres tú el error. Y si lo necesitas, puedes ver la solución explicada paso a paso.
+🦆 patOmar, TU TUTOR CON IA
+¿Atascado? patOmar lee tu código y tus errores y te hace las preguntas justas para que encuentres tú la solución, sin dártela hecha. Funciona con una cuenta en la nube y, sin ella, te ayuda el pato clásico. Y si lo necesitas, puedes ver la solución explicada paso a paso.
 
 🏆 ORO, RANGOS Y RANKING
 Gana estrellas en cada misión, conquista el oro de cada mundo, sube de Script Kiddie a Architect Master y compite en el ranking de pilotos con tu nick y tu avatar.
