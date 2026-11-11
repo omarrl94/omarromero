@@ -137,6 +137,9 @@ function Game({ account, onAccountChange, startWorld }) {
   }, [state]);
 
   const open = useCallback((id) => {
+    // Ninguna entrada (mapa, lista, perfil…) abre una misión de un módulo bloqueado.
+    const mod = MODULES.find((m) => m.challenges.some((c) => c.id === id));
+    if (!mod || !moduleUnlocked(latest.current, mod.id)) return;
     setActive(id);
     setView('arena');
     window.scrollTo({ top: 0 });

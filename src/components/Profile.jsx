@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useBackHandler } from '../core/native.js';
 import { ICONS as Icons } from './icons.js';
-import { Star, Flame, Trash2, LogOut, Pencil, Check, X, Coins, Mail, Cloud, HardDrive, ShieldCheck, UserX } from 'lucide-react';
+import { Star, Flame, Trash2, LogOut, Pencil, Check, X, Coins, Mail, Cloud, HardDrive, ShieldCheck, UserX, Lock } from 'lucide-react';
 import Avatar, { AvatarPicker } from './Avatar.jsx';
 import { updateAccount, backend, NICK_RE } from '../services/accounts.js';
 import { MODULES } from '../curriculum/index.js';
 import { LANGUAGES, LANG_ORDER } from '../core/languages.js';
-import { useProgress, rankOf, RANKS, ACHIEVEMENTS, starsOf, worldXp, worldDone, goldOf, totalGold } from '../core/progress.js';
+import { useProgress, moduleUnlocked, rankOf, RANKS, ACHIEVEMENTS, starsOf, worldXp, worldDone, goldOf, totalGold } from '../core/progress.js';
 import RankBadge from './RankBadge.jsx';
 
 /** Perfil: el rango y las misiones del mundo actual, tus mundos y tus logros. */
@@ -63,13 +63,17 @@ export default function Profile({ onOpen }) {
           <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
             {MODULES.flatMap((m) => m.challenges.map((c) => ({ c, m }))).map(({ c, m }) => {
               const s = starsOf(state, c.id);
+              const locked = !moduleUnlocked(state, m.id);
               return (
-                <button key={c.id} type="button" onClick={() => onOpen(c.id)} className="flex items-center justify-between gap-2 rounded-lg border border-void-600/50 px-3 py-2 text-left text-xs hover:border-neon-cyan/50">
+                <button key={c.id} type="button" disabled={locked} onClick={() => onOpen(c.id)} title={locked ? 'Completa el módulo anterior para desbloquear' : undefined}
+                  className="flex items-center justify-between gap-2 rounded-lg border border-void-600/50 px-3 py-2 text-left text-xs hover:border-neon-cyan/50 disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:border-void-600/50">
                   <span className="min-w-0">
                     <span className="block text-[9px] uppercase tracking-widest" style={{ color: m.color }}>{m.boss ? 'Boss' : `Módulo ${m.id}`}</span>
                     <span className="block truncate text-slate-200">{c.title}</span>
                   </span>
-                  <span className="inline-flex shrink-0">{[1, 2, 3].map((i) => <Star key={i} size={11} className={i <= s ? 'fill-neon-amber text-neon-amber' : 'text-void-600'} />)}</span>
+                  {locked
+                    ? <Lock size={13} className="shrink-0 text-slate-500" aria-label="Bloqueada" />
+                    : <span className="inline-flex shrink-0">{[1, 2, 3].map((i) => <Star key={i} size={11} className={i <= s ? 'fill-neon-amber text-neon-amber' : 'text-void-600'} />)}</span>}
                 </button>
               );
             })}
