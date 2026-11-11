@@ -39,6 +39,8 @@ jobs:
       VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
       VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
       VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+      # Dirección del tutor con IA (la app de Android no está en el mismo dominio que Netlify).
+      VITE_DUCK_API_URL: ${{ secrets.VITE_DUCK_API_URL }}
     steps:
       - name: Descargar el código
         uses: actions/checkout@v5
@@ -61,6 +63,9 @@ jobs:
 
       - name: Comprobar el temario (880 verificaciones)
         run: npm test
+
+      - name: Comprobar el servidor del pato con IA
+        run: node scripts/test-duck.mjs
 
       - name: Compilar la web del juego
         run: npm run build

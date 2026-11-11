@@ -1,9 +1,11 @@
 import { useBackHandler } from '../core/native.js';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Send, X, Lightbulb, Crosshair } from 'lucide-react';
+import { Send, X, Lightbulb, Crosshair, Sparkles, Loader2 } from 'lucide-react';
 import { askDuck, reflect } from '../core/duck.js';
 import { play } from '../core/sound.js';
+import { useProgress } from '../core/progress.js';
+import { askTutor, aiPossible } from '../services/duckAI.js';
 
 function Duck({ mood, size = 56 }) {
   const eye = mood === 'alert' ? '#ff4767' : mood === 'happy' ? '#a3ff3d' : '#22e4ff';
@@ -51,12 +53,42 @@ export default function DuckCompanion({ ch, lang, code, evaluation, stuck, onDee
     play('duck');
   };
 
-  const send = () => {
-    if (!draft.trim()) return;
-    const reply = reflect(draft, evaluation);
-    setTalk((tk) => [...tk.slice(-6), { who: 'me', text: draft }, { who: 'duck', text: reply }]);
+  const { account } = useProgress();
+  const [aiOff, setAiOff] = useState(null); // motivo por el que la IA no está disponible (o null)
+  const [thinking, setThinking] = useState(false);
+  const [left, setLeft] = useState(null);
+  const aiReplies = useRef(0);
+  const useAI = aiPossible && !!account && !aiOff;
+  useEffect(() => { aiReplies.current = 0; }, [ch.id, lang]);
+
+  const send = async () => {
+    const text = draft.trim();
+    if (!text || thinking) return;
     setDraft('');
+    const history = talk;
+    setTalk((tk) => [...tk.slice(-7), { who: 'me', text }]);
     play('duck');
+    if (useAI) {
+      setThinking(true);
+      try {
+        const r = await askTutor({ ch, lang, code, evaluation, question: text, history });
+        if (!r.refused && r.text) {
+          setTalk((tk) => [...tk.slice(-7), { who: 'duck', text: r.text, ai: true }]);
+          if (typeof r.remaining === 'number') setLeft(r.remaining);
+          // La primera respuesta de la IA de cada misión es gratis; las siguientes cuentan como pista.
+          aiReplies.current += 1;
+          if (aiReplies.current > 1) onDeepHint();
+          play('duck');
+          setThinking(false);
+          return;
+        }
+      } catch (e) {
+        if (e.code === 'quota' || e.code === 'not_configured' || e.code === 'auth') setAiOff(e.code);
+        setTalk((tk) => [...tk.slice(-7), { who: 'duck', text: `${e.message || 'La IA no responde.'} Te contesto con mi método de siempre:`, note: true }]);
+      }
+      setThinking(false);
+    }
+    setTalk((tk) => [...tk.slice(-7), { who: 'duck', text: reflect(text, evaluation) }]);
   };
 
   return (
@@ -87,10 +119,12 @@ export default function DuckCompanion({ ch, lang, code, evaluation, stuck, onDee
                 </motion.div>
               ))}
               {talk.map((m, i) => (
-                <div key={i} className={`rounded-lg px-3 py-2 ${m.who === 'me' ? 'ml-6 bg-cyan-400/10 text-cyan-100' : 'mr-6 bg-amber-400/10 text-amber-100'}`}>
+                <div key={i} className={`whitespace-pre-wrap rounded-lg px-3 py-2 ${m.who === 'me' ? 'ml-6 bg-cyan-400/10 text-cyan-100' : m.ai ? 'mr-6 border border-neon-violet/30 bg-violet-400/10 text-violet-50' : 'mr-6 bg-amber-400/10 text-amber-100'}`}>
+                  {m.ai && <span className="mb-1 flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-neon-violet"><Sparkles size={11} /> Tutor IA</span>}
                   {m.text}
                 </div>
               ))}
+              {thinking && <div className="mr-6 flex items-center gap-2 rounded-lg bg-violet-400/10 px-3 py-2 text-xs text-violet-200"><Loader2 size={13} className="animate-spin" /> El pato está pensando…</div>}
             </div>
             <div className="flex flex-wrap items-center gap-2 border-t border-void-600/50 px-4 py-2">
               {step + 1 < advice.questions.length && (
@@ -109,13 +143,24 @@ export default function DuckCompanion({ ch, lang, code, evaluation, stuck, onDee
               <input
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
-                placeholder="Explícale tu código al pato…"
+                placeholder={useAI ? 'Pregúntale al tutor IA…' : 'Explícale tu código al pato…'}
+                maxLength={500}
                 className="min-w-0 flex-1 rounded-lg border border-void-600 bg-void-950 px-3 py-1.5 text-xs text-slate-200 outline-none focus:border-neon-amber/60"
               />
-              <button type="submit" className="rounded-lg bg-neon-amber/20 px-3 text-neon-amber hover:bg-neon-amber/30" aria-label="Enviar">
+              <button type="submit" disabled={thinking} className="rounded-lg bg-neon-amber/20 px-3 text-neon-amber hover:bg-neon-amber/30 disabled:opacity-50" aria-label="Enviar">
                 <Send size={14} />
               </button>
             </form>
+            {useAI ? (
+              <div className="flex items-center gap-1.5 border-t border-void-600/40 px-4 py-1.5 text-[10px] text-slate-500">
+                <Sparkles size={11} className="text-neon-violet" />
+                <span>Tutor con IA · la primera respuesta de cada misión es gratis; las siguientes cuentan como pista{left !== null ? ` · te quedan ${left} hoy` : ''}</span>
+              </div>
+            ) : (
+              <div className="border-t border-void-600/40 px-4 py-1.5 text-[10px] text-slate-500">
+                {aiOff === 'quota' ? 'Hoy has agotado tus preguntas a la IA. El pato clásico sigue disponible.' : aiPossible ? 'Pato clásico (sin IA en este momento).' : 'Pato clásico. Con una cuenta en la nube tendrás también el tutor con IA.'}
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
