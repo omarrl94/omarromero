@@ -16,6 +16,7 @@
  *  confianza: true → el test se puntúa con nivel de confianza (CONFIANZA).
  *  partes: { mc?, open?, num? } → títulos de cada parte.
  */
+import { validarFactura, camposFactura, facturaPublica, FAMILIA_FACTURAS } from "./facturas.mjs";
 import { ventanaValida, duracionValida, codigoValido } from "./plazos.mjs";
 import { validarCircuitos } from "./circuitos.mjs";
 import { almacen } from "./almacen.mjs";
@@ -79,6 +80,11 @@ function validarNum(lista, bloques) {
   if (!Array.isArray(lista) || lista.length > 100) fallo(400, "Ejercicios no válidos");
   return lista.map((q, i) => {
     const n = `pregunta de ejercicio ${i + 1}`;
+    // Factura: las casillas y la solución las calcula la plataforma a partir de los datos.
+    if (q?.factura) {
+      const factura = validarFactura(q.factura);
+      return { t: str(q.t, 3000, n), factura, campos: camposFactura(factura), puntos: puntosDe(q.puntos, n), exp: opc(q.exp, 3000), bloque: bloqueValido(q.bloque, bloques) };
+    }
     if (!Array.isArray(q?.campos) || !q.campos.length || q.campos.length > 6) fallo(400, `La ${n} debe tener entre 1 y 6 resultados`);
     const campos = q.campos.map((c, j) => {
       const et = opc(c?.etiqueta, 200) || `Resultado ${j + 1}`;
@@ -152,6 +158,7 @@ export function validarExamen(e) {
   });
   const ubic = buscarModulo(e.cicloId, e.moduloId) || moduloPorNombre(e.ciclo, e.modulo);
   if (!ubic) fallo(400, "Elige el ciclo y el módulo del examen");
+  if (num.some((q) => q.factura) && ubic.ciclo.familia !== FAMILIA_FACTURAS) fallo(400, "Las facturas son para los ciclos de Administración y Gestión");
   const examen = {
     id,
     titulo: str(e.titulo, 200, "título"),
@@ -252,9 +259,10 @@ export const enunciado = (ex) => ({
   mc: ex.mc.map(({ t, o, puntos, bloque, ...q }) => ({ t, o, puntos: puntos ?? 1, bloque: bloque || "", ...citaPublica(q) })),
   open: ex.open.map(({ act, t, puntos, bloque, ...q }) => ({ act, t, puntos: puntos ?? 1, bloque: bloque || "", ...citaPublica(q) })),
   ...(ex.enunciadoTrabajo ? { enunciadoTrabajo: ex.enunciadoTrabajo } : {}),
-  num: (ex.num || []).map(({ t, campos, puntos, bloque }) => ({
+  num: (ex.num || []).map(({ t, campos, puntos, bloque, factura }) => ({
     t, puntos: puntos ?? 1, bloque: bloque || "",
-    campos: campos.map(({ etiqueta, tipo, unidad, opciones }) => ({ etiqueta, tipo, unidad: unidad || "", opciones: opciones || null })),
+    ...(factura ? { factura: facturaPublica(factura) } : {}),
+    campos: campos.map(({ etiqueta, tipo, unidad, opciones, rol }) => ({ etiqueta, tipo, unidad: unidad || "", opciones: opciones || null, ...(rol ? { rol } : {}) })),
   })),
 });
 

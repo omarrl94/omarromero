@@ -682,3 +682,35 @@ dialog.dlg-ancho{width:min(1200px,96vw);max-width:96vw}
 .proy-cod .ln{display:inline-block;width:3.2em;margin-right:12px;color:var(--faint);text-align:right;user-select:none}
 @media (max-width:760px){.proy{grid-template-columns:1fr;height:auto}.proy-arbol ul{max-height:200px}.proy-cod{max-height:60vh}}
 .proy-dir{font:12.5px/1.4 var(--mono,ui-monospace,monospace);color:var(--muted);padding:3px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Ejercicio de factura (Administración y Gestión) */
+.factura{border:1px solid var(--border-strong);border-radius:var(--r);background:var(--card);padding:16px 18px;display:grid;gap:14px;font-size:14.5px}
+.fac-cab{display:flex;flex-wrap:wrap;align-items:center;gap:8px 22px;border-bottom:2px solid var(--fg);padding-bottom:10px}
+.fac-tit{font-size:20px;letter-spacing:.12em;margin-right:auto}
+.fac-partes{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fac-parte{display:flex;flex-direction:column;gap:3px;border:1px solid var(--border);border-radius:10px;padding:10px 12px;background:var(--sunken)}
+.fac-parte small{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.fac-scroll{overflow-x:auto}
+.fac-tabla{width:100%;border-collapse:collapse;min-width:520px}
+.fac-tabla th{font-size:12.5px;text-align:left;color:var(--muted);border-bottom:1px solid var(--border-strong);padding:6px}
+.fac-tabla td{border-bottom:1px solid var(--border);padding:6px;vertical-align:middle}
+.fac-tabla .n{text-align:right;white-space:nowrap}
+.fac-totales{display:grid;gap:6px;justify-self:end;width:min(100%,420px)}
+.fac-tot{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.fac-tot.final{border-top:2px solid var(--fg);padding-top:8px;font-weight:800}
+.fac-cas{display:inline-flex;align-items:center;gap:4px}
+.fac-in{width:120px;text-align:right;font:inherit;padding:5px 8px;border:1px solid var(--border-strong);border-radius:8px;background:var(--card);color:var(--fg)}
+.fac-cas.corta .fac-in{width:110px;text-align:left}
+.fac-tabla .fac-cas.corta .fac-in{width:84px;text-align:right}
+.fac-in:focus{outline:2px solid var(--amarillo);outline-offset:1px}
+@media (max-width:640px){ .fac-partes{grid-template-columns:1fr} .factura{padding:12px} }
+
+/* Formulario del ejercicio de factura (profesor) */
+dialog.ancho{width:min(980px,96vw);max-width:980px}
+.fc-parte{border:1px solid var(--border);border-radius:10px;padding:8px 12px 12px;display:grid;gap:8px;margin:0 0 12px}
+.fc-parte legend{font-weight:700;font-size:13px;padding:0 4px}
+.fc-lineas{width:100%;border-collapse:collapse;min-width:560px}
+.fc-lineas th{font-size:12.5px;text-align:left;color:var(--muted);padding:4px}
+.fc-lineas td{padding:3px 4px}
+.fc-lineas td:first-child{width:46%}
+.fc-imp{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0 12px}

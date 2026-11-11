@@ -1,5 +1,6 @@
 /** Corrección automática. Se ejecuta solo en el servidor. */
 import { CONFIANZA } from "./examenes.mjs";
+import { textoFacturaCorrecto } from "./facturas.mjs";
 
 export const LETRAS = ["a", "b", "c", "d", "e", "f"];
 
@@ -128,7 +129,9 @@ export function valoresPosibles(texto, unidad) {
 
 function campoCorrecto(c, resp) {
   if (c.tipo === "opcion") return Number.isInteger(resp) && resp === c.correcta;
-  const tol = Math.max(Math.abs(c.valor) * (c.tolerancia ?? 2) / 100, 1e-9);
+  if (c.tipo === "texto") return textoFacturaCorrecto(c.rol, c.valor, resp);
+  // Importes de una factura: margen fijo (±1 céntimo); el resto, un % del valor.
+  const tol = c.tolAbs != null ? c.tolAbs : Math.max(Math.abs(c.valor) * (c.tolerancia ?? 2) / 100, 1e-9);
   return valoresPosibles(resp, c.unidad).some((v) => Math.abs(v - c.valor) <= tol);
 }
 

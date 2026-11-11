@@ -172,7 +172,7 @@ function pintar() {
     ex.num.forEach((q) => {
       const campos = q.campos.map((c) => {
         if (c.tipo === "opcion") return `<div class="campo"><span class="lab">${esc(c.etiqueta)}</span><span class="val op">${c.opciones.map((o, k) => `<span class="${sol && k === c.correcta ? "ok" : ""}"><i class="caja"></i>${esc(o)}</span>`).join("")}</span></div>`;
-        return `<div class="campo"><span class="lab">${esc(c.etiqueta)}</span><span class="val">${sol ? `<span class="res">${esc(fmtV(c.valor))} ${esc(c.unidad || "")}</span>` : `<span class="hueco"></span><span>${esc(c.unidad || "")}</span>`}</span></div>`;
+        return `<div class="campo"><span class="lab">${esc(c.etiqueta)}</span><span class="val">${sol ? `<span class="res">${esc(fmtV(c.valor, c.unidad))} ${esc(c.unidad || "")}</span>` : `<span class="hueco"></span><span>${esc(c.unidad || "")}</span>`}</span></div>`;
       }).join("");
       h += bloques(q) + `<div class="q"><p class="qh"><span class="num">${++n}</span><span>${esc(q.t)}</span><span class="p">${pP(pts(q))}</span></p>
         <div class="campos">${campos}</div>

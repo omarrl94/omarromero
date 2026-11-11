@@ -32,6 +32,8 @@ const CICLOS = [
   { id: "comercio", nombre: "Comercio", grado: "GM", familia: COM, descripcion: "Actividades Comerciales", modulos: [] },
   { id: "gestionadm", nombre: "Gestión Adm.", grado: "GM", familia: ADM, descripcion: "Gestión Administrativa", modulos: [] },
   { id: "ayf", nombre: "AYF", grado: "GS", familia: ADM, descripcion: "Administración y Finanzas", modulos: [] },
+  // Si el administrador ya lo creó desde el panel, se usa el suyo (ver cargarModulos).
+  { id: "serviciosadm", nombre: "Serv. Adm.", grado: "GB", familia: ADM, descripcion: "Servicios Administrativos", modulos: [], siNoHayPropio: true },
   // Automoción: agrupa todos los ciclos de automoción de grado medio y superior.
   { id: "aut", nombre: "AUT", grado: "GM y GS", familia: TMV, descripcion: "Automoción", modulos: [],
     grupos: ["1.º AUT (GM)", "2.º AUT (GM)", "1.º AUT (GS)", "2.º AUT (GS)"] },
@@ -60,6 +62,14 @@ export async function cargarModulos() {
   for (const p of lista) {
     const c = CATALOGO.find((x) => x.id === p.id);
     if (c) Object.assign(c, p, { propio: true }); else CATALOGO.push({ ...p, modulos: [], propio: true });
+  }
+  // Ciclos de serie que ceden su sitio a uno igual creado desde el panel.
+  const clave = (t) => String(t || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z]/g, "");
+  for (const base of CICLOS.filter((c) => c.siNoHayPropio)) {
+    const repetido = lista.some((p) => [p.descripcion, p.nombre].some((t) => clave(t) === clave(base.descripcion)));
+    const i = CATALOGO.findIndex((c) => c.id === base.id);
+    if (repetido && i >= 0) CATALOGO.splice(i, 1);
+    else if (!repetido && i < 0) CATALOGO.push({ ...base, modulos: [...base.modulos] });
   }
   for (const c of CATALOGO) {
     const base = CICLOS.find((x) => x.id === c.id)?.modulos || [];

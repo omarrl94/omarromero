@@ -6,7 +6,9 @@ const esc = (s) =>
   String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 const fmt = (n) => Number(n).toLocaleString("es-ES");
 /** Valor de un ejercicio: notación científica si es muy grande o muy pequeño. */
-const fmtV = (v) => {
+const fmtV = (v, unidad) => {
+  if (typeof v === "string" && !Number.isFinite(Number(v))) return v; // NIF, número o fecha de una factura
+  if (unidad === "€") return Number(v).toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const x = Number(v);
   if (x !== 0 && (Math.abs(x) >= 1e6 || Math.abs(x) < 1e-3)) {
     const [m, e] = x.toExponential(3).split("e");
@@ -115,7 +117,7 @@ export function correoResultado(ex, e) {
       const resp = e.respuestas.num?.[i]?.[j];
       const tu = c.tipo === "opcion" ? (resp >= 0 ? c.opciones[resp] : "—") : (String(resp || "").trim() || "—");
       const ok = r.campos[j].ok;
-      const correcto = c.tipo === "opcion" ? c.opciones[c.correcta] : `${fmtV(c.valor)} ${c.unidad || ""}`;
+      const correcto = c.tipo === "opcion" ? c.opciones[c.correcta] : `${fmtV(c.valor, c.unidad)} ${c.unidad || ""}`;
       return `<div style="font-size:14px;margin-top:3px;color:${sol ? (ok ? VERDE : ROJO) : TINTA}">${esc(c.etiqueta)}: <b>${esc(tu)}</b> ${sol ? (ok ? "✓" : `✗ · correcto: <b style="color:${VERDE}">${esc(correcto)}</b>`) : ""}</div>`;
     }).join("");
     return cab(q) + `<tr><td style="padding:10px 0;border-bottom:1px solid #E3E6E4">
@@ -161,7 +163,7 @@ export function correoResultado(ex, e) {
       const v = res.opRev[i].v;
       return `Abierta ${i + 1}) ${sol ? (v === "full" ? "Bien" : v === "partial" ? "Casi" : "Revisar") + (q.exp ? " — Esperado: " + q.exp : "") : "Respuesta registrada"}`;
     }),
-    ...(ex.num || []).map((q, i) => `${q.t} → ${fmt(res.numRev[i].pts)}/${fmt(q.puntos ?? 1)} p${sol ? " · " + q.campos.map((c) => `${c.etiqueta}: ${c.tipo === "opcion" ? c.opciones[c.correcta] : fmtV(c.valor) + " " + (c.unidad || "")}`).join(" · ") : ""}`),
+    ...(ex.num || []).map((q, i) => `${q.t} → ${fmt(res.numRev[i].pts)}/${fmt(q.puntos ?? 1)} p${sol ? " · " + q.campos.map((c) => `${c.etiqueta}: ${c.tipo === "opcion" ? c.opciones[c.correcta] : fmtV(c.valor, c.unidad) + " " + (c.unidad || "")}`).join(" · ") : ""}`),
   ];
 
   return {

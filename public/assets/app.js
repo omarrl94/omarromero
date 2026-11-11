@@ -132,7 +132,10 @@ function pedirPasswordNueva(usuario) {
 }
 
 /** Valores muy grandes o pequeños en notación científica (1,872·10²¹). */
-function fmtV(v) {
+function fmtV(v, unidad) {
+  // Textos (NIF, número o fecha de una factura) tal cual; euros, con dos decimales.
+  if (typeof v === "string" && !Number.isFinite(Number(v))) return v;
+  if (unidad === "€") return Number(v).toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const x = Number(v);
   if (x !== 0 && (Math.abs(x) >= 1e6 || Math.abs(x) < 1e-3)) {
     const [m, e] = x.toExponential(3).split("e");
@@ -249,7 +252,7 @@ function htmlRevision(d) {
         const r = d.respuestas.num?.[i]?.[j];
         const tu = c.tipo === "opcion" ? (r >= 0 ? c.opciones[r] : "—") : (String(r ?? "").trim() || "—");
         const sc = s?.campos[j];
-        const correcto = sc ? (c.tipo === "opcion" ? sc.valor : `${fmtV(sc.valor)} ${sc.unidad}`) : "";
+        const correcto = sc ? (c.tipo === "opcion" ? sc.valor : `${fmtV(sc.valor, sc.unidad)} ${sc.unidad}`) : "";
         const unidad = c.tipo !== "opcion" && c.unidad && tu !== "—" && !/[a-zA-Zµ€Ω%]/.test(tu) ? " " + esc(c.unidad) : "";
         const marca = sc ? (sc.ok ? ` <span class="verdict v-ok">✓</span>` : ` <span class="verdict v-bad">✗</span> correcto: <b>${esc(correcto)}</b>`) : "";
         return `<p class="rd">${esc(c.etiqueta)}: <b>${esc(tu)}</b>${unidad}${marca}</p>`;
@@ -356,7 +359,7 @@ async function descargarPDF(d, boton) {
       q.campos.forEach((c, j) => {
         const r = d.respuestas.num?.[i]?.[j], sc = s?.campos[j];
         const tu = c.tipo === "opcion" ? (r >= 0 ? c.opciones[r] : "—") : (String(r ?? "").trim() || "—");
-        const corr = sc ? (sc.ok ? "  [OK]" : `  [X] correcto: ${c.tipo === "opcion" ? sc.valor : fmtV(sc.valor) + " " + sc.unidad}`) : "";
+        const corr = sc ? (sc.ok ? "  [OK]" : `  [X] correcto: ${c.tipo === "opcion" ? sc.valor : fmtV(sc.valor, sc.unidad) + " " + sc.unidad}`) : "";
         line(`${c.etiqueta}: ${tu}${corr}`, { size: 9.5, color: sc ? (sc.ok ? VERDE : ROJO) : GRIS, indent: 10, gap: 1 });
       });
       if (s && s.exp) line(`Resolución: ${s.exp}`, { size: 9, color: GRIS, indent: 10, gap: 4 }); else y += 3;

@@ -2,6 +2,7 @@
  * /api/profesor/* — gestión de exámenes, entregas y alumnos.
  * Admin: todo. Profesor aprobado: solo lo de sus ciclos (lo comprueba cada ruta).
  */
+import { validarFactura, camposFactura, calcularFactura } from "./facturas.mjs";
 import { almacen, leerTodas } from "./almacen.mjs";
 import { json, fallo, leerCuerpo, texto } from "./http.mjs";
 import { requiereProfesor, esAdmin, rolDe, ciclosDe, gestionaCiclo, gestionaExamen } from "./auth.mjs";
@@ -176,6 +177,29 @@ async function guardar(req) {
     autor: previo?.autor || { email: u.email, nombre: `${u.nombre} ${u.apellidos}`.trim() },
   });
   return json({ ok: true, id: ex.id });
+}
+
+/* ── Facturas (Administración y Gestión) ── */
+/** Calcula la solución de una factura mientras el profesor la prepara (no guarda nada). */
+async function calcularFacturaRuta(req) {
+  await requiereProfesor(req);
+  const b = await leerCuerpo(req);
+  const factura = validarFactura(b.factura);
+  return json({ factura, campos: camposFactura(factura), solucion: calcularFactura(factura) });
+}
+
+/** Añade una factura a un examen que ya existe, conservando todos sus ajustes. */
+async function anadirFactura(req) {
+  const u = await requiereProfesor(req);
+  const b = await leerCuerpo(req, 200_000);
+  const previo = await existente(b.id, u);
+  if (previo.privado) fallo(409, "Este examen es la defensa de un trabajo.");
+  const pregunta = { t: b.t, factura: b.factura, puntos: b.puntos };
+  const ex = validarExamen({ ...previo, num: [...(previo.num || []), pregunta], partes: { ...(previo.partes || {}), num: previo.partes?.num || "Facturas" } });
+  const ahora = new Date().toISOString();
+  await examenes().set(ex.id, { ...previo, ...ex, creado: previo.creado || ahora, actualizado: ahora, autor: previo.autor });
+  await registrar({ por: u, accion: "factura añadida", sobre: sobreEx(ex), detalle: `Apartado ${ex.num.length}` });
+  return json({ ok: true, id: ex.id, apartado: ex.num.length });
 }
 
 async function ajustes(req) {
@@ -937,6 +961,8 @@ export default {
   "GET /api/profesor/examen/version": version,
   "POST /api/profesor/ia/aleatorio": iaAleatorio,
   "POST /api/profesor/examen/aleatorio": aplicarAleatorio,
+  "POST /api/profesor/factura/calcular": calcularFacturaRuta,
+  "POST /api/profesor/examen/factura": anadirFactura,
   "POST /api/profesor/examen": guardar,
   "POST /api/profesor/examen/ajustes": ajustes,
   "POST /api/profesor/examen/borrar": borrar,

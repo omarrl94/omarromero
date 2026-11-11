@@ -298,8 +298,11 @@ function buildQuiz() {
   }
   if (EX.num.length) {
     h += sec("ABC"[parte++], T.num, "verde");
-    h += `<p class="hintline">Escribe solo el resultado final de cada apartado (por ejemplo <b>2,5</b> o <b>1,87·10^21</b>). Puedes usar coma o punto decimal; la unidad ya está indicada.</p>`;
+    h += EX.num.every((q) => q.factura)
+      ? `<p class="hintline">Rellena las casillas en blanco de cada factura. Escribe los importes en euros con dos decimales (por ejemplo <b>1.234,50</b>); puedes usar coma o punto decimal.</p>`
+      : `<p class="hintline">Escribe solo el resultado final de cada apartado (por ejemplo <b>2,5</b> o <b>1,87·10^21</b>). Puedes usar coma o punto decimal; la unidad ya está indicada.</p>`;
     EX.num.forEach((q, i) => {
+      if (q.factura) { h += cab(q) + `<div class="q" data-bloque="${esc(q.bloque || "")}"><p class="qh"><span>${esc(q.t)} ${fmtP(q.puntos)}</span></p>${plantillaFactura(q, i)}</div>`; return; }
       const campos = q.campos.map((c, j) => c.tipo === "opcion"
         ? `<div class="campo"><label for="nm${i}_${j}">${esc(c.etiqueta)}</label><select id="nm${i}_${j}" style="flex:0 1 260px;width:auto"><option value="-1">Elige…</option>${c.opciones.map((o, k) => `<option value="${k}">${esc(o)}</option>`).join("")}</select></div>`
         : `<div class="campo"><label for="nm${i}_${j}">${esc(c.etiqueta)}</label><input type="text" id="nm${i}_${j}" inputmode="decimal" autocomplete="off" maxlength="40"><span class="ud">${esc(c.unidad || "")}</span></div>`).join("");
@@ -322,6 +325,48 @@ function buildQuiz() {
   progreso();
 }
 const MARCADAS = {};
+
+/**
+ * Plantilla de factura: los datos que da el enunciado ya escritos y una casilla
+ * (id nm{i}_{j}, como cualquier ejercicio) en cada dato que tiene que poner el alumno.
+ */
+function plantillaFactura(q, i) {
+  const f = q.factura;
+  const eur = (x) => Number(x).toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const pct = (x) => String(x).replace(".", ",");
+  const casilla = (rol, { ancho = "", euro = true } = {}) => {
+    const j = q.campos.findIndex((c) => c.rol === rol);
+    if (j < 0) return "";
+    const c = q.campos[j];
+    return `<span class="fac-cas${ancho}"><input type="text" id="nm${i}_${j}" class="fac-in" autocomplete="off" maxlength="40" inputmode="${c.tipo === "texto" ? "text" : "decimal"}" aria-label="${esc(c.etiqueta)}">${c.unidad === "€" && euro ? "<span>€</span>" : c.unidad === "%" ? "<span>%</span>" : ""}</span>`;
+  };
+  const dato = (valor, rol, op) => (valor !== "" && valor != null ? esc(String(valor)) : casilla(rol, op) || "—");
+  const parte = (t, p, rol) => `<div class="fac-parte"><small>${t}</small><b>${esc(p.nombre)}</b>${p.direccion ? `<span>${esc(p.direccion)}</span>` : ""}<span>NIF: ${dato(p.nif, rol, { ancho: " corta", euro: false })}</span></div>`;
+  const linea = (l, k) => {
+    const completa = f.modo === "completa";
+    return `<tr><td>${esc(l.concepto)}</td>
+      <td class="n">${completa ? casilla(`l${k}.cantidad`, { ancho: " corta", euro: false }) : esc(String(l.cantidad).replace(".", ","))}</td>
+      <td class="n">${completa ? casilla(`l${k}.precio`, { ancho: " corta" }) : eur(l.precio) + " €"}</td>
+      <td class="n">${completa ? (l.conDto ? casilla(`l${k}.dto`, { ancho: " corta" }) : "—") : l.dto ? pct(l.dto) + " %" : "—"}</td>
+      <td class="n">${casilla(`l${k}.importe`)}</td></tr>`;
+  };
+  const total = (t, rol, extra = "") => `<div class="fac-tot${extra}"><span>${t}</span>${casilla(rol)}</div>`;
+  return `<div class="factura" role="group" aria-label="Factura para rellenar">
+    <div class="fac-cab"><b class="fac-tit">FACTURA</b><span>Nº ${dato(f.numero, "numero", { ancho: " corta", euro: false })}</span><span>Fecha: ${dato(f.fecha, "fecha", { ancho: " corta", euro: false })}</span></div>
+    <div class="fac-partes">${parte("Emisor", f.emisor, "emisor.nif")}${parte("Cliente", f.receptor, "receptor.nif")}</div>
+    <div class="fac-scroll"><table class="fac-tabla"><thead><tr><th>Concepto</th><th class="n">Cantidad</th><th class="n">Precio unitario</th><th class="n">Dto.</th><th class="n">Importe</th></tr></thead>
+      <tbody>${f.lineas.map(linea).join("")}</tbody></table></div>
+    <div class="fac-totales">
+      ${total("Importe bruto", "bruto")}
+      ${f.dtoPP ? total(`Descuento por pronto pago (${pct(f.dtoPP)} %)`, "dtoPP") : ""}
+      ${f.portes ? `<div class="fac-tot"><span>Portes</span><b>${eur(f.portes)} €</b></div>` : ""}
+      ${total("Base imponible", "base")}
+      ${total(`IVA (${pct(f.iva)} %)`, "iva")}
+      ${f.re ? total(`Recargo de equivalencia (${pct(f.re)} %)`, "re") : ""}
+      ${f.irpf ? total(`Retención de IRPF (${pct(f.irpf)} %)`, "irpf") : ""}
+      ${total("TOTAL FACTURA", "total", " final")}
+    </div></div>`;
+}
 
 /** Defensas: fragmento del enunciado o de su propio trabajo al que se refiere la pregunta (no tiene por qué recordarlo). */
 function citaH(q) {

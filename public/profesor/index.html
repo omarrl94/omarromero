@@ -33,7 +33,7 @@
 
   <!-- Exámenes -->
   <section id="vExamenes">
-    <div class="toolbar"><h2>Exámenes</h2><div class="acts"><button class="btn ghost" id="verModulos">Módulos</button><button class="btn accent" id="nuevoIA">✨ Generar con IA</button><button class="btn" id="nuevo">＋ Subir examen</button></div></div>
+    <div class="toolbar"><h2>Exámenes</h2><div class="acts"><button class="btn ghost" id="verModulos">Módulos</button><button class="btn accent" id="nuevoIA">✨ Generar con IA</button><button class="btn ghost" id="nuevaFactura" hidden title="Ejercicio de factura para los ciclos de Administración y Gestión">🧾 Factura</button><button class="btn" id="nuevo">＋ Subir examen</button></div></div>
     <div class="filtros" role="search">
       <select id="filtroCiclo" aria-label="Ciclo"></select>
       <select id="filtroModulo" aria-label="Módulo"></select>
@@ -220,6 +220,55 @@
       <div class="actions"><button class="btn" type="submit" id="iaGo">Generar preguntas</button></div>
     </form>
   </div>
+</dialog>
+
+<!-- Ejercicio de factura (Administración y Gestión) -->
+<dialog id="dFactura" class="ancho">
+  <div class="dhead"><h2>🧾 Ejercicio de factura</h2><button class="btn ghost sm" data-close>Cerrar</button></div>
+  <form class="dbody" id="fFactura" novalidate>
+    <p class="muted" style="margin-top:0">El alumno rellena una plantilla de factura y la plataforma la corrige casilla a casilla. <b>La solución la calcula la plataforma</b> con los datos que pongas aquí (importes, descuentos, base, IVA, recargo, retención y total, redondeando a céntimos); se admite ±1 céntimo.</p>
+    <div class="row2">
+      <div class="field"><label class="flab" for="fcCiclo">Ciclo</label><select id="fcCiclo"></select></div>
+      <div class="field"><label class="flab" for="fcModulo">Módulo</label><select id="fcModulo"></select></div>
+    </div>
+    <div class="field"><label class="flab" for="fcDestino">Añadir a</label><select id="fcDestino"></select></div>
+    <div class="field"><span class="flab">Qué rellena el alumno</span>
+      <div class="tipotest" role="radiogroup" aria-label="Qué rellena el alumno">
+        <label><input type="radio" name="fcModo" value="calculos" checked><span><b>Solo los cálculos</b><small>Los datos de la factura ya están escritos; calcula importes, base, IVA y total.</small></span></label>
+        <label><input type="radio" name="fcModo" value="completa"><span><b>La factura completa</b><small>A partir del enunciado escribe también NIF, número, fecha, cantidades, precios y descuentos.</small></span></label>
+      </div></div>
+    <div class="actions" style="justify-content:flex-start;margin:0 0 10px"><button type="button" class="btn ghost sm" id="fcEjemplo">🎲 Datos de ejemplo</button></div>
+    <div class="row2">
+      <fieldset class="fc-parte"><legend>Emisor</legend>
+        <input type="text" id="fcEmNom" placeholder="Nombre o razón social" aria-label="Nombre del emisor" maxlength="120">
+        <input type="text" id="fcEmNif" placeholder="NIF" aria-label="NIF del emisor" maxlength="20">
+        <input type="text" id="fcEmDir" placeholder="Dirección" aria-label="Dirección del emisor" maxlength="200"></fieldset>
+      <fieldset class="fc-parte"><legend>Cliente</legend>
+        <input type="text" id="fcReNom" placeholder="Nombre o razón social" aria-label="Nombre del cliente" maxlength="120">
+        <input type="text" id="fcReNif" placeholder="NIF" aria-label="NIF del cliente" maxlength="20">
+        <input type="text" id="fcReDir" placeholder="Dirección" aria-label="Dirección del cliente" maxlength="200"></fieldset>
+    </div>
+    <div class="row2">
+      <div class="field"><label class="flab" for="fcNum">Número de factura</label><input type="text" id="fcNum" maxlength="30"></div>
+      <div class="field"><label class="flab" for="fcFecha">Fecha</label><input type="text" id="fcFecha" placeholder="dd/mm/aaaa" maxlength="20"></div>
+    </div>
+    <div class="field"><span class="flab">Líneas</span>
+      <div style="overflow-x:auto"><table class="fc-lineas"><thead><tr><th>Concepto</th><th>Cantidad</th><th>Precio (€)</th><th>Dto. (%)</th><th></th></tr></thead><tbody id="fcLineas"></tbody></table></div>
+      <button type="button" class="btn ghost sm" id="fcMas" style="margin-top:6px">＋ Línea</button></div>
+    <div class="fc-imp">
+      <div class="field"><label class="flab" for="fcDtoPP">Dto. pronto pago (%)</label><input type="number" id="fcDtoPP" min="0" max="100" step="0.01" value="0"></div>
+      <div class="field"><label class="flab" for="fcPortes">Portes (€)</label><input type="number" id="fcPortes" min="0" step="0.01" value="0"></div>
+      <div class="field"><label class="flab" for="fcIva">IVA (%)</label><select id="fcIva"><option>21</option><option>10</option><option>4</option><option>0</option></select></div>
+      <div class="field"><label class="flab" for="fcRe">Recargo de equiv. (%)</label><select id="fcRe"><option value="0">No</option><option value="5.2">5,2</option><option value="1.4">1,4</option><option value="0.5">0,5</option></select></div>
+      <div class="field"><label class="flab" for="fcIrpf">Retención IRPF (%)</label><select id="fcIrpf"><option value="0">No</option><option>7</option><option>15</option><option>19</option></select></div>
+    </div>
+    <div class="field"><label class="flab" for="fcEnun">Enunciado</label><textarea id="fcEnun" style="min-height:90px" maxlength="3000"></textarea>
+      <button type="button" class="link" id="fcRedactar">Redactar el enunciado con estos datos</button></div>
+    <div class="field" style="max-width:200px"><label class="flab" for="fcPuntos">Puntos</label><input type="number" id="fcPuntos" min="0.25" step="0.25" value="2"></div>
+    <div class="msg info" id="fcSol" aria-live="polite"></div>
+    <div class="msg bad" data-err hidden></div>
+    <div class="actions"><button class="btn" type="submit" id="fcGo">Añadir la factura</button></div>
+  </form>
 </dialog>
 
 <!-- Valores aleatorios con IA -->
@@ -542,6 +591,7 @@ async function cargarProfes() {
 async function cargarExamenes() {
   const d = await api("/api/profesor/examenes");
   EXAMENES = d.examenes; CATALOGO = d.catalogo; $("#avisoCorreo").hidden = d.correo;
+  $("#nuevaFactura").hidden = !CATALOGO.some((c) => c.familia === "Administración y Gestión");
   rellenarFiltros();
   pintarExamenes();
 }
@@ -1219,7 +1269,7 @@ function pintarPrevia() {
       ${q.act ? `<p class="rd">Bloque: ${esc(q.act)}</p>` : ""}<p class="rd">Respuesta esperada: <b>${esc(q.exp)}</b></p>
       <p class="rd">${q.pesos ? "Rúbrica" : `Conceptos clave (${q.full} para «Bien», ${q.partial} para «Casi»)`}: ${q.groups.map((g, k) => esc(g.join(" / ")) + (q.pesos ? ` <b>(${fmt(q.pesos[k])} p)</b>` : "")).join(" · ")}</p></div>`).join("") +
     num.map((q, i) => cab(q) + `<div class="rev"><p class="rq" style="display:flex;justify-content:space-between;gap:10px"><span>${esc(q.t)} ${P(q)}</span>${quitar("num", i)}</p>
-      ${q.campos.map((c) => `<p class="rd">${esc(c.etiqueta)}: <b>${c.tipo === "opcion" ? esc(c.opciones[c.correcta]) + ` <span class="muted">(entre: ${c.opciones.map(esc).join(" / ")})</span>` : `${fmtV(c.valor)} ${esc(c.unidad || "")}`}</b>${c.tipo !== "opcion" ? ` <span class="muted">± ${fmt(c.tolerancia ?? 2)} %</span>` : ""}</p>`).join("")}
+      ${q.campos.map((c) => `<p class="rd">${esc(c.etiqueta)}: <b>${c.tipo === "opcion" ? esc(c.opciones[c.correcta]) + ` <span class="muted">(entre: ${c.opciones.map(esc).join(" / ")})</span>` : `${esc(fmtV(c.valor, c.unidad))} ${esc(c.unidad || "")}`}</b>${c.tipo === "texto" ? "" : c.tolAbs != null ? ` <span class="muted">± ${c.tolAbs > 0.015 ? "2 céntimos" : c.tolAbs > 0.005 ? "1 céntimo" : "exacto"}</span>` : c.tipo !== "opcion" ? ` <span class="muted">± ${fmt(c.tolerancia ?? 2)} %</span>` : ""}</p>`).join("")}
       ${q.exp ? `<p class="rd" style="white-space:pre-wrap">Resolución: ${esc(q.exp)}</p>` : ""}</div>`).join("");
   $$("[data-quitar]").forEach((b) => (b.onclick = () => {
     const [tipo, i] = b.dataset.quitar.split(":");
@@ -1677,6 +1727,139 @@ function rellenarModulosIA() {
   $("#iaModulo").innerHTML = (c?.modulos || []).map((m) => `<option value="${esc(m.id)}">${esc(m.nombre)}</option>`).join("");
 }
 $("#iaCiclo").onchange = rellenarModulosIA;
+/* ── Ejercicio de factura (Administración y Gestión) ── */
+const FAM_FACTURAS = "Administración y Gestión";
+const ciclosFactura = () => CATALOGO.filter((c) => c.familia === FAM_FACTURAS);
+const eurTxt = (x) => Number(x).toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const pctTxt = (x) => String(x).replace(".", ",");
+function lineaFactura(l = {}) {
+  const tr = document.createElement("tr");
+  tr.innerHTML = `<td><input type="text" data-k="concepto" maxlength="120" aria-label="Concepto" value="${esc(l.concepto || "")}"></td>
+    <td><input type="number" data-k="cantidad" min="0" step="any" aria-label="Cantidad" value="${l.cantidad ?? ""}"></td>
+    <td><input type="number" data-k="precio" min="0" step="0.01" aria-label="Precio unitario" value="${l.precio ?? ""}"></td>
+    <td><input type="number" data-k="dto" min="0" max="100" step="0.01" aria-label="Descuento" value="${l.dto ?? 0}"></td>
+    <td><button type="button" class="btn ghost sm" aria-label="Quitar la línea" data-quitar-linea>✕</button></td>`;
+  $("#fcLineas").appendChild(tr);
+}
+function datosFactura() {
+  return {
+    modo: $('input[name="fcModo"]:checked').value,
+    emisor: { nombre: $("#fcEmNom").value, nif: $("#fcEmNif").value, direccion: $("#fcEmDir").value },
+    receptor: { nombre: $("#fcReNom").value, nif: $("#fcReNif").value, direccion: $("#fcReDir").value },
+    numero: $("#fcNum").value, fecha: $("#fcFecha").value,
+    lineas: $$("#fcLineas tr").map((tr) => Object.fromEntries($$("input", tr).map((x) => [x.dataset.k, x.value]))).filter((l) => l.concepto.trim() || l.cantidad || l.precio),
+    dtoPP: $("#fcDtoPP").value || 0, portes: $("#fcPortes").value || 0, iva: $("#fcIva").value, re: $("#fcRe").value, irpf: $("#fcIrpf").value,
+  };
+}
+/** Datos de ejemplo verosímiles, con NIF válidos. */
+function ejemploFactura() {
+  const az = (l) => l[Math.floor(Math.random() * l.length)], ent = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+  const dni = () => { const n = ent(10000000, 99999999); return `${n}${"TRWAGMYFPDXBNJZSQVHLCKE"[n % 23]}`; };
+  const cif = () => {
+    const d = String(ent(1000000, 9999999)); let s = 0;
+    [...d].forEach((c, i) => { let x = Number(c); if (i % 2 === 0) { x *= 2; x = Math.floor(x / 10) + (x % 10); } s += x; });
+    return `${az(["B", "A"])}${d}${(10 - (s % 10)) % 10}`;
+  };
+  const empresas = ["Papelería Sol, S.L.", "Distribuciones Norte, S.A.", "Suministros Ofiluz, S.L.", "Informática Vega, S.L.", "Mobiliario Arce, S.L.", "Alimentación Ríos, S.A."];
+  const clientes = [["Academia Luna, S.L.", cif], ["Gestoría Prado, S.L.", cif], ["Ana Martín Gil", dni], ["Bazar Centro, S.L.", cif], ["Luis Ortega Sanz", dni]];
+  const calles = ["C/ Mayor, 12, 28013 Madrid", "Av. de la Constitución, 45, 41004 Sevilla", "C/ Alcalá, 210, 28028 Madrid", "C/ Colón, 8, 46004 Valencia", "Paseo de Gracia, 33, 08007 Barcelona"];
+  const productos = [["Cajas de folios A4", 3.5], ["Bolígrafos azules (caja de 50)", 9.8], ["Archivadores de palanca", 2.35], ["Tóner de impresora", 64.9], ["Sillas de oficina", 89], ["Ratones inalámbricos", 14.5], ["Monitores de 24 pulgadas", 139], ["Grapadoras", 6.2]];
+  const cli = az(clientes), lineas = [...productos].sort(() => Math.random() - 0.5).slice(0, ent(2, 4))
+    .map(([concepto, precio]) => ({ concepto, precio, cantidad: ent(2, 30), dto: az([0, 0, 5, 10]) }));
+  const hoy = new Date(Date.now() - ent(0, 40) * 864e5);
+  return {
+    emisor: { nombre: az(empresas), nif: cif(), direccion: az(calles) }, receptor: { nombre: cli[0], nif: cli[1](), direccion: az(calles) },
+    numero: `F-${hoy.getFullYear()}/${String(ent(1, 300)).padStart(3, "0")}`, fecha: hoy.toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" }),
+    lineas, dtoPP: az([0, 0, 2, 3]), portes: az([0, 0, 6, 12.5]), iva: az(["21", "21", "10"]), re: cli[1] === dni ? az(["0", "5.2"]) : "0", irpf: "0",
+  };
+}
+function ponerFactura(f) {
+  $("#fcEmNom").value = f.emisor.nombre; $("#fcEmNif").value = f.emisor.nif; $("#fcEmDir").value = f.emisor.direccion;
+  $("#fcReNom").value = f.receptor.nombre; $("#fcReNif").value = f.receptor.nif; $("#fcReDir").value = f.receptor.direccion;
+  $("#fcNum").value = f.numero; $("#fcFecha").value = f.fecha;
+  $("#fcLineas").innerHTML = ""; f.lineas.forEach(lineaFactura);
+  $("#fcDtoPP").value = f.dtoPP; $("#fcPortes").value = f.portes; $("#fcIva").value = f.iva; $("#fcRe").value = f.re; $("#fcIrpf").value = f.irpf;
+  $("#fcEnun").value = redactarFactura(datosFactura());
+  calcularFacturaUI();
+}
+/** Enunciado a partir de los datos (en «factura completa», con todos los datos que tiene que pasar a la factura). */
+function redactarFactura(f) {
+  const n = (x) => String(x).replace(".", ","), lin = f.lineas.map((l) => `${n(l.cantidad)} × ${l.concepto} a ${eurTxt(l.precio)} €${Number(l.dto) ? `, con un ${n(l.dto)} % de descuento comercial` : ""}`);
+  const extras = [Number(f.dtoPP) ? `concede un descuento por pronto pago del ${n(f.dtoPP)} %` : "", Number(f.portes) ? `cobra ${eurTxt(f.portes)} € de portes` : ""].filter(Boolean);
+  const tasas = `El tipo de IVA es el ${n(f.iva)} %${Number(f.re) ? `, y el cliente está en recargo de equivalencia (${n(f.re)} %)` : ""}${Number(f.irpf) ? `; se aplica una retención de IRPF del ${n(f.irpf)} %` : ""}.`;
+  if (f.modo === "completa")
+    return `El ${f.fecha}, ${f.emisor.nombre} (NIF ${f.emisor.nif}), ${f.emisor.direccion}, emite la factura nº ${f.numero} a ${f.receptor.nombre} (NIF ${f.receptor.nif}), ${f.receptor.direccion}, por: ${lin.join("; ")}.${extras.length ? ` Además, ${extras.join(" y ")}.` : ""} ${tasas} Rellena la factura.`;
+  return `${f.emisor.nombre} vende a ${f.receptor.nombre} los productos de la factura.${extras.length ? ` Además, ${extras.join(" y ")}.` : ""} ${tasas} Calcula los importes de la factura.`;
+}
+let FC_CALC = null, fcTemp = 0;
+async function calcularFacturaUI() {
+  const yo = ++fcTemp, sol = $("#fcSol");
+  try {
+    const r = await api("/api/profesor/factura/calcular", { factura: datosFactura() });
+    if (yo !== fcTemp) return;
+    FC_CALC = r;
+    const s = r.solucion, f = r.factura;
+    sol.innerHTML = `<b>Solución que calculará la plataforma:</b> ${s.importes.map((x, k) => `línea ${k + 1}: ${eurTxt(x)} €`).join(" · ")} · bruto ${eurTxt(s.bruto)} €${f.dtoPP ? ` · dto. p.p. ${eurTxt(s.dtoPP)} €` : ""}${f.portes ? ` · portes ${eurTxt(f.portes)} €` : ""} · <b>base ${eurTxt(s.base)} €</b> · IVA ${eurTxt(s.iva)} €${f.re ? ` · recargo ${eurTxt(s.re)} €` : ""}${f.irpf ? ` · retención ${eurTxt(s.irpf)} €` : ""} · <b>total ${eurTxt(s.total)} €</b> <span class="muted">(${r.campos.length} casillas para corregir)</span>`;
+  } catch (e) { if (yo === fcTemp) { FC_CALC = null; sol.textContent = `Faltan datos: ${e.message}`; } }
+}
+function destinosFactura() {
+  const c = $("#fcCiclo").value, m = $("#fcModulo").value;
+  $("#fcDestino").innerHTML = `<option value="">Un examen nuevo</option>` + EXAMENES.filter((e) => e.cicloId === c && e.moduloId === m).map((e) => `<option value="${esc(e.id)}">El examen «${esc(e.titulo)}»</option>`).join("");
+}
+function modulosFactura() {
+  const c = ciclosFactura().find((x) => x.id === $("#fcCiclo").value);
+  $("#fcModulo").innerHTML = (c?.modulos || []).map((m) => `<option value="${esc(m.id)}">${esc(m.nombre)}</option>`).join("");
+  destinosFactura();
+}
+$("#nuevaFactura").onclick = () => {
+  const cs = ciclosFactura();
+  $("#fcCiclo").innerHTML = cs.map((c) => `<option value="${esc(c.id)}">${esc(c.nombre)} · ${esc(c.descripcion || "")}</option>`).join("");
+  const { c: fc } = filtroSel(); if (cs.some((c) => c.id === fc)) $("#fcCiclo").value = fc;
+  modulosFactura();
+  $("[data-err]", $("#fFactura")).hidden = true;
+  if (!$("#fcLineas").children.length) ponerFactura(ejemploFactura());
+  $("#dFactura").showModal();
+};
+$("#fcCiclo").onchange = modulosFactura;
+$("#fcModulo").onchange = destinosFactura;
+$("#fcMas").onclick = () => lineaFactura();
+$("#fcEjemplo").onclick = () => ponerFactura(ejemploFactura());
+$("#fcRedactar").onclick = () => { $("#fcEnun").value = redactarFactura(datosFactura()); };
+$("#fcLineas").addEventListener("click", (e) => { if (e.target.closest("[data-quitar-linea]")) { e.target.closest("tr").remove(); calcularFacturaUI(); } });
+let fcEspera = 0;
+$("#fFactura").addEventListener("input", (e) => { if (e.target.id === "fcEnun" || e.target.id === "fcPuntos") return; clearTimeout(fcEspera); fcEspera = setTimeout(calcularFacturaUI, 350); });
+$("#fFactura").addEventListener("change", (e) => { if (e.target.name === "fcModo") calcularFacturaUI(); });
+$("#fFactura").onsubmit = async (ev) => {
+  ev.preventDefault();
+  const err = $("[data-err]", ev.target); err.hidden = true;
+  const error = (m) => { err.textContent = m; err.hidden = false; };
+  await calcularFacturaUI();
+  if (!FC_CALC) return error("Revisa los datos de la factura: " + $("#fcSol").textContent.replace(/^Faltan datos: /, ""));
+  if (!$("#fcModulo").value) return error("Este ciclo todavía no tiene módulos. Créalo antes con el botón «Módulos».");
+  const t = $("#fcEnun").value.trim() || redactarFactura(datosFactura()), puntos = Number($("#fcPuntos").value) || 1;
+  const destino = $("#fcDestino").value, btn = $("#fcGo");
+  btn.disabled = true;
+  try {
+    if (destino) {
+      const r = await api("/api/profesor/examen/factura", { id: destino, t, factura: FC_CALC.factura, puntos });
+      $("#dFactura").close(); await cargarExamenes();
+      alert(`Factura añadida como apartado ${r.apartado} del examen.`);
+    } else {
+      const ex = { titulo: "Facturas", subtitulo: "", cicloId: $("#fcCiclo").value, moduloId: $("#fcModulo").value, mc: [], open: [],
+        num: [{ t, factura: FC_CALC.factura, campos: FC_CALC.campos, puntos }], partes: { num: "Facturas" },
+        publicado: false, mostrarSoluciones: true, seguridad: true, herramientas: { notas: true, calculadora: true } };
+      ex.id = slug(`${ex.moduloId} facturas ${Date.now().toString(36).slice(-4)}`);
+      $("#dFactura").close();
+      $("#archivo").value = ""; $("#dropTxt").textContent = "Ejercicio de factura";
+      $("#dSubir").showModal();
+      mostrarFormulario(ex, `Ejercicio de factura con <b>${FC_CALC.campos.length} casillas</b> que se corrigen solas. Ponle título y guárdalo; después puedes añadirle más facturas con el botón 🧾.`);
+      $("#previa").open = true;
+    }
+    $("#fcLineas").innerHTML = "";
+  } catch (e) { error(e.message); }
+  finally { btn.disabled = false; }
+};
+
 $("#nuevoIA").onclick = async () => {
   IA_ARCHIVO = null; $("#iaArchivo").value = ""; $("#iaProgreso").hidden = true; $("[data-err]", $("#fIA")).hidden = true;
   $("#iaDropTxt").textContent = "Arrastra aquí el PowerPoint (.pptx), PDF o Word (.docx), o haz clic para elegirlo";
