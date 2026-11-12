@@ -1,8 +1,8 @@
 /* «El boletín»: reutiliza la mesa de delineante del juego y el estilo del parte. */
 .game.bt { min-height: 0; }
 .bt-cartoon { font-size: 64px; text-align: center; padding: 24px 0; background: #123a6b; border-radius: 14px; letter-spacing: 8px; }
-.bt-bench { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(300px, 1fr); grid-template-areas: 'scene inst' 'prep inst' 'plan log'; gap: 12px; padding: 12px; flex: 1; min-height: 0; overflow: auto; align-items: start; }
-.bt-a-scene { grid-area: scene; } .bt-a-prep { grid-area: prep; } .bt-a-inst { grid-area: inst; } .bt-a-plan { grid-area: plan; } .bt-a-log { grid-area: log; }
+.bt-bench { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(300px, 1fr); grid-template-areas: 'scene inst' 'panel inst' 'prep inst' 'plan log'; gap: 12px; padding: 12px; flex: 1; min-height: 0; overflow: auto; align-items: start; }
+.bt-a-scene { grid-area: scene; } .bt-a-panel { grid-area: panel; } .bt-a-prep { grid-area: prep; } .bt-a-inst { grid-area: inst; } .bt-a-plan { grid-area: plan; } .bt-a-log { grid-area: log; }
 .bt-a-prep .bt-toggles { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
 .bt-finscene { margin: 10px 0; background: #123a6b; border-radius: 10px; padding: 6px; }
 .bt-col { display: grid; gap: 10px; align-content: start; min-width: 0; }
@@ -14,7 +14,7 @@
 .bt-sw span { display: grid; } .bt-sw small { color: #5d6b7e; font-weight: 400; }
 .bt-plan li span { font-size: 12.5px; }
 .bt-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; } .bt-tabs button { background: #ffffff12; color: #d6e8ff; border: 1px solid #ffffff22; border-radius: 12px; padding: 8px 4px; cursor: pointer; min-height: 44px; font-weight: 700; } .bt-tabs button.on { background: var(--pencil); color: #1b2b44; border-color: var(--pencil); }
-.bt-device { display: grid; gap: 10px; justify-items: center; }
+.bt-device { display: grid; gap: 10px; justify-items: center; background: linear-gradient(#f3f5f8, #e3e8ee) !important; }
 .bt-gauge { width: min(100%, 340px); height: auto; filter: drop-shadow(0 6px 8px #0004); }
 .bt-lcd { font-family: ui-monospace, 'Courier New', monospace; font-size: 38px; font-weight: 700; background: #0f1d12; color: #9be58a; padding: 6px 18px; border-radius: 10px; min-width: 200px; text-align: center; } .bt-lcd small { font-size: 16px; margin-left: 6px; }
 .bt-chips { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; } .bt .paper .bt-chips button { padding: 6px 12px; min-height: 38px; } .bt .paper .bt-chips button.on { background: #1d3a63; color: #fff; border-color: #1d3a63; }
@@ -35,7 +35,7 @@
 .bt-verd { font-weight: 700; font-size: 15px; } .bt-verd.ok { color: #14683f; } .bt-verd.ko { color: #a3281a; }
 .bt-defs { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; } .bt-defs li { display: grid; gap: 3px; padding: 10px 12px; border-radius: 8px; border-left: 5px solid; } .bt-defs li.found { background: #e8f7ef; border-color: #23a26d; } .bt-defs li.missed { background: #fde8e5; border-color: #d64a35; } .bt-defs small { color: #5d6b7e; }
 .p-t .ok { color: #14683f; } .p-t .bad { color: #a3281a; font-weight: 700; }
-@media (max-width: 1000px) { .bt-bench { grid-template-columns: 1fr; grid-template-areas: 'scene' 'inst' 'prep' 'plan' 'log'; } }
+@media (max-width: 1000px) { .bt-bench { grid-template-columns: 1fr; grid-template-areas: 'scene' 'panel' 'inst' 'prep' 'plan' 'log'; } }
 @media (max-width: 700px) {
   .bt-bench { padding: 8px; }
   .bt-tabs button span { display: none; } .bt-lcd { font-size: 30px; min-width: 160px; }
@@ -48,3 +48,14 @@
 .bt-pulse { animation: btpulse 1s ease-in-out infinite; transform-box: fill-box; transform-origin: center; } @keyframes btpulse { 50% { opacity: .55; transform: scale(1.12); } }
 .bt-ring { animation: btring .9s ease-out infinite; transform-box: fill-box; transform-origin: center; } @keyframes btring { from { transform: scale(.6); opacity: 1; } to { transform: scale(1.8); opacity: 0; } }
 .bt-scenecard { padding: 8px !important; background: #0a2142 !important; } .bt-scenecard .note { color: #9dbbe0; margin: 6px 4px 2px; }
+
+.bt-inst-svg { width: min(100%, 380px); height: auto; filter: drop-shadow(0 8px 10px #0005); }
+.bt-panel-svg { width: 100%; height: auto; display: block; } .bt-panelcard { padding: 10px !important; background: #0a2142 !important; } .bt-panelcard .note { color: #9dbbe0; margin: 6px 4px 0; }
+.bt-hero { background: #0a2142; border-radius: 14px; padding: 12px; box-shadow: 0 16px 40px #0008; } .bt-hero .bt-panel-svg { pointer-events: none; }
+.bt-patience { display: grid; grid-template-columns: auto 160px auto; gap: 10px; align-items: center; font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; } .bt-patience > span { display: inline-flex; gap: 6px; align-items: center; background: #ffffff14; padding: 5px 12px; border-radius: 999px; }
+.bt-pbar { height: 8px; border-radius: 6px; background: #00000055; overflow: hidden; } .bt-pbar i { display: block; height: 100%; border-radius: 6px; transition: width .4s, background .4s; }
+.bt .ico { margin-right: 2px; } .bt-tabs button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.bt .paper .bt-judge button { display: inline-flex; align-items: center; gap: 6px; } .bt-signbtns button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.bt-mbody nav button { display: flex; align-items: center; gap: 8px; }
+.bt-verd { display: flex; align-items: center; gap: 8px; }
+@media (max-width: 700px) { .bt-patience { grid-template-columns: 1fr; width: 100%; gap: 4px; } .bt-tabs button .ico { display: none; } }

@@ -11,6 +11,7 @@ import type { PanelConfig } from '../model/panel';
 import { computePanel } from '../model/panel';
 import { panelEnclosure } from './diagrams';
 import { boomSound } from './sound';
+import { Avatar } from './icons';
 import './game.css';
 
 const eur = (v: number) => `${Math.round(v).toLocaleString('es-ES')} €`;
@@ -23,7 +24,7 @@ export function GameView({ onExit }: { onExit: () => void }) {
   return (
     <div className="game" data-stage={g.stage}>
       <header className="g-head">
-        <div className="who"><span className="face">{g.client.emoji}</span><div><b>{g.client.name}</b><small>{houseOf(g.client.houseId).name}</small></div></div>
+        <div className="who"><Avatar name={g.client.name} /><div><b>{g.client.name}</b><small>{houseOf(g.client.houseId).name}</small></div></div>
         {g.stage !== 'briefing' && (
           <nav className="steps" aria-label="Fases de la obra">
             {STEPS.map((s) => <button key={s.id} className={g.stage === s.id || (g.stage === 'resultado' && s.id === 'inspeccion') ? 'on' : ''} onClick={() => g.setStage(s.id)}>{s.label}</button>)}

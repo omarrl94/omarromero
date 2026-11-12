@@ -16,6 +16,7 @@ import { TOGGLEABLE, buildProject, clampOptions, clampReading, extraEvents, sett
 import { useAveria, averiaStash, type AStage } from '../averias/store';
 import { PIA_RATINGS, SECTIONS_GAME } from '../game/data';
 import { admissible } from '../model/cables';
+import { Avatar } from './icons';
 import './averias.css';
 
 const eur = (v: number) => `${Math.round(v).toLocaleString('es-ES')} €`;
@@ -99,7 +100,7 @@ export function AveriaView({ sim }: { sim: SimResult }) {
   return (
     <div className="game av" data-stage={stage}>
       <header className="g-head">
-        <div className="who"><span className="face">{sc.clientEmoji}</span><div><b>{sc.clientName}</b><small>Parte de avería · nivel {sc.level}</small></div></div>
+        <div className="who"><Avatar name={sc.clientName} /><div><b>{sc.clientName}</b><small>Parte de avería · nivel {sc.level}</small></div></div>
         <nav className="steps" aria-label="Fases del parte">
           {STEPS.map((s) => <button key={s.id} className={stage === s.id ? 'on' : ''} disabled={(s.id === 'reparacion' && !solved) || (s.id === 'parte' && !av.score)} onClick={() => go(s.id)}>{s.label}</button>)}
         </nav>

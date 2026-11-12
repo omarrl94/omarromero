@@ -24,6 +24,7 @@ import { useGame } from '../game/store';
 import { FilesDialog, openOmi } from './FilesDialog';
 import { AveriaView } from './AveriaView';
 import { BoletinView } from './BoletinView';
+import { Icon, type IconName } from './icons';
 import { useBoletin } from '../boletin/store';
 import { useAveria } from '../averias/store';
 import { parseOmi } from '../omi';
@@ -190,8 +191,8 @@ export function App() {
         )}
         <div className="brand"><span className="logo">⚡</span><b>{t.app}</b><small>{t.tagline}</small></div>
         <div className="viewswitch" role="tablist" aria-label="Vista del circuito">
-          {([['schematic', 'Esquema', '⎍'], ['multifilar', 'Multifilar', '☰'], ['unifilar', 'Unifilar', '╱'], ['real', 'Real', '🛠'], ['cuadro', 'Cuadro', '▦'], ['plano', 'Plano', '🖨'], ['juego', 'Juego', '🏠'], ['averias', 'Avería', '🔧'], ['boletin', 'Boletín', '📋']] as const).map(([v, l, ic]) => (
-            <button key={v} role="tab" aria-selected={st.view === v} onClick={() => st.setView(v)} data-view={v} className={`${st.view === v ? 'on' : ''} ${visitor && v !== 'schematic' ? 'locked' : ''}`}><span>{visitor && v !== 'schematic' ? '🔒' : ic}</span> {l}</button>
+          {([['schematic', 'Esquema'], ['multifilar', 'Multifilar'], ['unifilar', 'Unifilar'], ['real', 'Real'], ['cuadro', 'Cuadro'], ['plano', 'Plano'], ['juego', 'Juego'], ['averias', 'Avería'], ['boletin', 'Boletín']] as const).map(([v, l]) => (
+            <button key={v} role="tab" aria-selected={st.view === v} onClick={() => st.setView(v)} data-view={v} className={`${st.view === v ? 'on' : ''} ${visitor && v !== 'schematic' ? 'locked' : ''}`}><span>{visitor && v !== 'schematic' ? '🔒' : <Icon name={v as IconName} size={15} />}</span> {l}</button>
           ))}
         </div>
         <div className={`tools ${menu ? 'open' : ''}`}>
