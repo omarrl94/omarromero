@@ -79,19 +79,16 @@ function AuthCard({ initial }: { initial: 'entrar' | 'crear' }) {
   const [email, setEmail] = useState('');
   const [pass, setPass] = useState('');
   const submit = (e: React.FormEvent) => { e.preventDefault(); if (mode === 'crear') void a.signup(name, email, pass); else void a.login(email, pass); };
-  if (!firebaseConfigured) {
-    return (
-      <div className="auth-card" id="acceso">
-        <h3>Copia de demostración</h3>
-        <p>Esta copia no está conectada a Firebase, así que no hay cuentas. Elige cómo quieres verla:</p>
-        <button className="cta" onClick={() => a.continueGuest(false)}>Probar como visitante (limitado)</button>
-        <button className="google" onClick={() => a.continueGuest(true)}>Verlo todo (modo administrador de demostración)</button>
-        <p className="tiny">Para activar las cuentas, sigue la guía de despliegue con Firebase del repositorio.</p>
-      </div>
-    );
-  }
   return (
     <form className="auth-card" id="acceso" onSubmit={submit} noValidate>
+      {!firebaseConfigured && (
+        <div className="msg err" role="alert">
+          <b>Esta copia no tiene las claves de Firebase</b>, así que el inicio de sesión no funcionará. En Netlify: Site configuration → Environment variables → añade las seis <code>VITE_FIREBASE_*</code> y vuelve a desplegar (Deploys → Trigger deploy → Clear cache and deploy).
+          <div style={{ display: 'grid', gap: 6, marginTop: 8 }}>
+            <button type="button" className="link" onClick={() => a.continueGuest(true)}>Ver todo en modo demostración (sin cuentas)</button>
+          </div>
+        </div>
+      )}
       <div className="tabs" role="tablist">
         <button type="button" role="tab" aria-selected={mode === 'crear'} className={mode === 'crear' ? 'on' : ''} onClick={() => { setMode('crear'); a.clear(); }}>Crear cuenta</button>
         <button type="button" role="tab" aria-selected={mode === 'entrar'} className={mode === 'entrar' ? 'on' : ''} onClick={() => { setMode('entrar'); a.clear(); }}>Ya tengo cuenta</button>
@@ -101,9 +98,9 @@ function AuthCard({ initial }: { initial: 'entrar' | 'crear' }) {
       <label>Contraseña<input type="password" value={pass} onChange={(e) => setPass(e.target.value)} autoComplete={mode === 'crear' ? 'new-password' : 'current-password'} required placeholder="Al menos 6 caracteres" /></label>
       {a.error && <p className="msg err" role="alert">{a.error}</p>}
       {a.info && <p className="msg ok" role="status">{a.info}</p>}
-      <button className="cta" type="submit" disabled={a.busy}>{a.busy ? 'Un momento…' : mode === 'crear' ? 'Crear mi cuenta' : 'Entrar'}</button>
+      <button className="cta" type="submit" disabled={a.busy || !firebaseConfigured}>{a.busy ? 'Un momento…' : mode === 'crear' ? 'Crear mi cuenta' : 'Entrar'}</button>
       <div className="or"><span>o</span></div>
-      <button type="button" className="google" onClick={() => void a.google()} disabled={a.busy}>
+      <button type="button" className="google" onClick={() => void a.google()} disabled={a.busy || !firebaseConfigured}>
         <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.5l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z" /><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9c4.4-4.1 7-10.1 7-17.6z" /><path fill="#FBBC05" d="M10.5 28.7A14.5 14.5 0 0 1 9.5 24c0-1.6.3-3.2.8-4.7l-7.9-6.1A24 24 0 0 0 0 24c0 3.9.9 7.5 2.6 10.8l7.9-6.1z" /><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.9 2.3-8.3 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z" /></svg>
         Continuar con Google
       </button>
