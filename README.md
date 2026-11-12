@@ -8,6 +8,9 @@ Aplicación estática (sin backend): TypeScript + Vite + React + SVG. Licencia M
 ## Portada, cuentas y nube
 La aplicación abre con una **portada** que explica de qué va (con polímetro, osciloscopio, vatímetro, panel real y plano del juego funcionando en vivo) y pide **iniciar sesión** (Firebase Authentication: correo/contraseña y Google). Con sesión se desbloquea todo y el proyecto y el progreso del juego se guardan en Firestore (`users/{uid}`). Sin variables `VITE_FIREBASE_*` arranca en *modo demostración* (sin cuentas). Guía paso a paso: [`docs/DESPLIEGUE-NETLIFY-FIREBASE.md`](docs/DESPLIEGUE-NETLIFY-FIREBASE.md) · reglas: `firestore.rules` · variables: `.env.example`.
 
+## Resolver valores (informe en PDF)
+El botón **🧮 Resolver valores** (en Esquema, Multifilar, Unifilar y Real) resuelve el circuito dibujado, paso a paso, por los métodos que elijas: **Ohm y serie/paralelo, Kirchhoff, mallas, nudos, Millman, Thévenin, Norton y superposición**, más el balance de potencias. Cada método muestra la red, las ecuaciones con letras y con números, la resolución y se **comprueba contra el simulador** (los tests verifican que todos coinciden). Los que no aplican a tu circuito aparecen desactivados con la razón. **Guardar como PDF** abre el diálogo de impresión del navegador (destino «Guardar como PDF»). Alcance: circuitos de corriente continua con fuentes ideales o con resistencia interna (la CA y los diodos no entran todavía); Thévenin y Norton resuelven la carga elegida.
+
 ## Arrancar
 
 ```bash
