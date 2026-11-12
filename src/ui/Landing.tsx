@@ -82,10 +82,11 @@ function AuthCard({ initial }: { initial: 'entrar' | 'crear' }) {
   if (!firebaseConfigured) {
     return (
       <div className="auth-card" id="acceso">
-        <h3>Modo demostración</h3>
-        <p>Esta copia no está conectada a Firebase, así que no hay cuentas. Puedes usar todo el simulador igualmente; tu trabajo se guarda solo en este navegador.</p>
-        <button className="cta" onClick={() => a.continueGuest()}>Entrar al simulador</button>
-        <p className="tiny">Para activar las cuentas, sigue la guía «Despliegue en Netlify con Firebase» del repositorio.</p>
+        <h3>Copia de demostración</h3>
+        <p>Esta copia no está conectada a Firebase, así que no hay cuentas. Elige cómo quieres verla:</p>
+        <button className="cta" onClick={() => a.continueGuest(false)}>Probar como visitante (limitado)</button>
+        <button className="google" onClick={() => a.continueGuest(true)}>Verlo todo (modo administrador de demostración)</button>
+        <p className="tiny">Para activar las cuentas, sigue la guía de despliegue con Firebase del repositorio.</p>
       </div>
     );
   }
@@ -108,6 +109,7 @@ function AuthCard({ initial }: { initial: 'entrar' | 'crear' }) {
       </button>
       {mode === 'entrar' && <button type="button" className="link" onClick={() => void a.reset(email)}>He olvidado mi contraseña</button>}
       <p className="tiny">Tu progreso (proyectos y obras del juego) se guarda en tu cuenta y te sigue entre dispositivos.</p>
+      <button type="button" className="link" onClick={() => a.continueGuest(false)}>Probar sin cuenta (solo una pila, una resistencia y el polímetro)</button>
     </form>
   );
 }
@@ -137,6 +139,9 @@ export function Landing() {
     return () => { saveGuard.suspended = false; useStore.getState().load(prev); };
   }, []);
 
+  useEffect(() => {
+    try { const g = sessionStorage.getItem('circuitossea:goto'); if (g) { sessionStorage.removeItem('circuitossea:goto'); setModo(g === 'entrar' ? 'entrar' : 'crear'); setTimeout(() => document.getElementById('acceso')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 250); } } catch { /* ignorar */ }
+  }, []);
   const goto = (m: 'entrar' | 'crear') => { setModo(m); document.getElementById('acceso')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); };
 
   return (
@@ -154,8 +159,9 @@ export function Landing() {
           <div className="hero-cta">
             <button className="cta" onClick={() => goto('crear')}>Crear cuenta gratis</button>
             <button className="cta-ghost" onClick={() => goto('entrar')}>Ya tengo cuenta</button>
+            <button className="cta-ghost" onClick={() => useAuth.getState().continueGuest(false)}>Probar sin cuenta</button>
           </div>
-          <p className="fine">Funciona en el navegador, también en tablet. Hecho para el ciclo de Sistemas Electrotécnicos y Automatizados.</p>
+          <p className="fine">Sin cuenta puedes probar con una pila, una resistencia y el polímetro; con una cuenta gratis se desbloquea todo. Funciona en el navegador, también en tablet. Hecho para el ciclo de Sistemas Electrotécnicos y Automatizados.</p>
         </div>
         <HeroCircuit />
       </section>

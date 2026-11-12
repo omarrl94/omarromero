@@ -20,9 +20,39 @@ import { SolveDialog } from './SolveDialog';
 import { useAuth } from '../auth';
 import { loadProfile, saveProfile } from '../cloud';
 import { useGame } from '../game/store';
+import { useLevel, visitorAllows, UPSELL, isAdminEmail } from '../access';
+import { AdminPanel } from './AdminPanel';
+import { saveGuard } from '../store';
 import { multifilarDiagram, unifilarDiagram } from './diagrams';
 import { cableReport, wireData, admissible, wireResistance } from '../model/cables';
 import { SECTIONS, IZ_SOURCE } from '../data/rebt';
+
+function UpsellModal() {
+  const reason = useStore((s) => s.upsell);
+  const close = () => useStore.getState().setUpsell(null);
+  const auth = useAuth();
+  if (!reason) return null;
+  return (
+    <div className="upsell" role="dialog" aria-label="Función para cuentas registradas" onClick={close}>
+      <div className="upsell-box" onClick={(e) => e.stopPropagation()}>
+        <span className="lockbig" aria-hidden>🔒</span>
+        <h2>Esto es para cuentas registradas</h2>
+        <p>{reason}</p>
+        <ul>
+          <li>Todos los componentes: LED, motor, fusibles, magnetotérmicos, condensadores, bobinas…</li>
+          <li>Corriente alterna, osciloscopio, vatímetro y las cuatro vistas del circuito.</li>
+          <li>Resolver circuitos paso a paso y descargar el informe en PDF.</li>
+          <li>El juego de instalar una casa y tu progreso guardado en la nube.</li>
+        </ul>
+        <div className="upsell-actions">
+          <button className="primary" onClick={() => auth.openSignup('crear')}>Crear cuenta gratis</button>
+          <button onClick={() => auth.openSignup('entrar')}>Ya tengo cuenta</button>
+          <button className="ghost" onClick={close}>Seguir de visitante</button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function Welcome({ onClose }: { onClose: () => void }) {
   const st = useStore();
@@ -70,6 +100,18 @@ export function App() {
   }, [uid]);
   useEffect(() => { if (!uid || !synced) return; const h = setTimeout(() => void saveProfile(uid, { project: proj, name: auth.user?.displayName ?? undefined }), 2500); return () => clearTimeout(h); }, [proj, uid, synced]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { if (!uid || !synced) return; const h = setTimeout(() => void saveProfile(uid, { career }), 1000); return () => clearTimeout(h); }, [career, uid, synced]);
+  const level = useLevel();
+  const visitor = level === 'visitor';
+  const lock = (reason: string) => () => useStore.getState().setUpsell(reason);
+  const [showAdmin, setShowAdmin] = useState(false);
+  // El visitante parte de un lienzo vacío y no guarda nada (no pisa el trabajo guardado de ninguna cuenta)
+  useEffect(() => {
+    if (!visitor) return;
+    saveGuard.suspended = true;
+    useStore.getState().load({ version: 1, name: 'Visitante', components: [], wires: [] });
+    return () => { saveGuard.suspended = false; };
+  }, [visitor]);
+  const unverifiedAdmin = !!auth.user && isAdminEmail(auth.user.email) && !auth.user.emailVerified;
   const [showSolve, setShowSolve] = useState(false);
   const [welcome, setWelcome] = useState(() => { try { return !localStorage.getItem('circuitossea:welcome'); } catch { return true; } });
   const closeWelcome = () => { try { localStorage.setItem('circuitossea:welcome', '1'); } catch { /* ignorar */ } setWelcome(false); };
@@ -121,21 +163,37 @@ export function App() {
     <div className={`app ${wide ? 'wide' : ''} ${st.leftOpen ? '' : 'noleft'} ${st.rightOpen ? '' : 'noright'}`}>
       <ProbeDragLayer />
       {showSolve && <SolveDialog sim={sim} onClose={() => setShowSolve(false)} />}
-      {welcome && <Welcome onClose={closeWelcome} />}
+      {welcome && !visitor && <Welcome onClose={closeWelcome} />}
+      {showAdmin && <AdminPanel onClose={() => setShowAdmin(false)} />}
+      <UpsellModal />
       <header className="top">
+        {visitor && (
+          <div className="visitor-bar" role="status">
+            <span><b>Modo visitante.</b> Una pila, una resistencia y el polímetro. Con una cuenta gratis desbloqueas todo: más de 25 componentes, corriente alterna, osciloscopio, vistas reales, el cuadro, el juego y los informes en PDF.</span>
+            <button onClick={() => auth.openSignup('crear')}>Crear cuenta gratis</button>
+            <button className="ghost" onClick={() => auth.openSignup('entrar')}>Ya tengo cuenta</button>
+          </div>
+        )}
+        {unverifiedAdmin && (
+          <div className="visitor-bar admin" role="status">
+            <span><b>Falta un paso para activar el superadmin:</b> verifica tu correo (te lo enviamos al registrarte). Mientras tanto tienes acceso de usuario normal.</span>
+            <button onClick={() => void auth.resendVerification()}>Reenviar correo</button>
+            <button className="ghost" onClick={() => window.location.reload()}>Ya lo he verificado</button>
+          </div>
+        )}
         <div className="brand"><span className="logo">⚡</span><b>{t.app}</b><small>{t.tagline}</small></div>
         <div className="viewswitch" role="tablist" aria-label="Vista del circuito">
           {([['schematic', 'Esquema', '⎍'], ['multifilar', 'Multifilar', '☰'], ['unifilar', 'Unifilar', '╱'], ['real', 'Real', '🛠'], ['cuadro', 'Cuadro', '▦'], ['plano', 'Plano', '🖨'], ['juego', 'Juego', '🏠']] as const).map(([v, l, ic]) => (
-            <button key={v} role="tab" aria-selected={st.view === v} className={st.view === v ? 'on' : ''} onClick={() => st.setView(v)} data-view={v}><span>{ic}</span> {l}</button>
+            <button key={v} role="tab" aria-selected={st.view === v} onClick={() => st.setView(v)} data-view={v} className={`${st.view === v ? 'on' : ''} ${visitor && v !== 'schematic' ? 'locked' : ''}`}><span>{visitor && v !== 'schematic' ? '🔒' : ic}</span> {l}</button>
           ))}
         </div>
         <div className="tools">
           <button onClick={() => setWelcome(true)} title="Inicio rápido">❓</button>
           <button onClick={() => { if (confirm('¿Empezar un proyecto nuevo? Se perderán los cambios no guardados.')) st.load({ version: 1, name: 'Sin título', components: [], wires: [] }); }}>{t.newProject}</button>
-          <button onClick={() => fileRef.current?.click()}>{t.open}</button>
-          <button onClick={download}>{t.save}</button>
+          <button className={visitor ? 'locked' : ''} onClick={visitor ? lock(UPSELL.files) : () => fileRef.current?.click()}>{visitor && '🔒 '}{t.open}</button>
+          <button className={visitor ? 'locked' : ''} onClick={visitor ? lock(UPSELL.files) : download}>{visitor && '🔒 '}{t.save}</button>
           <input ref={fileRef} type="file" accept=".json,application/json" hidden onChange={(e) => { onFile(e.target.files?.[0]); e.target.value = ''; }} />
-          <select value="" onChange={(e) => { if (e.target.value) st.load(structuredClone(EXAMPLES[Number(e.target.value)])); }} aria-label={t.examples}>
+          <select value="" onChange={(e) => { if (visitor) { st.setUpsell(UPSELL.files); return; } if (e.target.value) st.load(structuredClone(EXAMPLES[Number(e.target.value)])); }} aria-label={t.examples} className={visitor ? 'locked' : ''}>
             <option value="">{t.examples}…</option>
             {EXAMPLES.map((e, i) => <option key={e.name} value={i}>{e.name}</option>)}
           </select>
@@ -152,21 +210,23 @@ export function App() {
           {!wide && (
             <span className="insts" role="group" aria-label="Instrumentos">
               {([['meter', '⚡ Polímetro'], ['scope', '〰 Osciloscopio'], ['watt', '◔ Vatímetro']] as const).map(([id, l]) => (
-                <button key={id} className={st.inst[id].open ? 'on' : ''} onClick={() => st.toggleInst(id)} data-inst={id}>{l}</button>
+                <button key={id} className={`${st.inst[id].open ? 'on' : ''} ${visitor && id !== 'meter' ? 'locked' : ''}`} onClick={() => st.toggleInst(id)} data-inst={id}>{visitor && id !== 'meter' ? '🔒 ' : ''}{l}</button>
               ))}
             </span>
           )}
-          {['schematic', 'multifilar', 'unifilar', 'real'].includes(st.view) && <button className="solvebtn" onClick={() => setShowSolve(true)} title="Resolver el circuito por Kirchhoff, mallas, nudos, Millman, Thévenin, Norton…">🧮 Resolver valores</button>}
+          {['schematic', 'multifilar', 'unifilar', 'real'].includes(st.view) && <button className={`solvebtn ${visitor ? 'locked' : ''}`} onClick={() => (visitor ? st.setUpsell(UPSELL.solve) : setShowSolve(true))} title="Resolver el circuito por Kirchhoff, mallas, nudos, Millman, Thévenin, Norton…">{visitor ? '🔒 ' : '🧮 '}Resolver valores</button>}
           {st.view === 'schematic' && <button onClick={st.fit} title="F">⤢ Ajustar</button>}
           <button onClick={() => st.toggle('leftOpen')} className={st.leftOpen ? '' : 'on'} title="Mostrar u ocultar la paleta">◧</button>
           <button onClick={() => st.toggle('rightOpen')} className={st.rightOpen ? '' : 'on'} title="Mostrar u ocultar propiedades">◨</button>
           <label><input type="checkbox" checked={st.sound} onChange={() => st.toggle('sound')} /> Sonido</label>
           <label><input type="checkbox" checked={st.heat} onChange={() => st.toggle('heat')} /> {t.heat}</label>
           {Object.keys(st.runtime).length > 0 && <button className="warnbtn" onClick={st.resetRuntime}>🔧 Reponer averías</button>}
-          <span className="usr" title={auth.user?.email ?? 'Modo demostración'}>
-            <i>{(auth.user?.displayName ?? auth.user?.email ?? '·').slice(0, 1).toUpperCase()}</i>
-            <span>{auth.user ? (auth.user.displayName ?? auth.user.email) : 'Demostración'}</span>
-            <button onClick={() => void auth.logout()}>Salir</button>
+          {level === 'admin' && auth.user && <button className="adminbtn" onClick={() => setShowAdmin(true)}>👥 Usuarios</button>}
+          <span className="usr" title={auth.user?.email ?? 'Modo visitante'}>
+            <i>{visitor ? '?' : (auth.user?.displayName ?? auth.user?.email ?? 'D').slice(0, 1).toUpperCase()}</i>
+            <span>{visitor ? 'Visitante' : auth.user ? (auth.user.displayName ?? auth.user.email) : 'Demostración'}</span>
+            {level === 'admin' && <em className="badge-admin">Superadmin</em>}
+            {visitor ? <button className="signup" onClick={() => auth.openSignup('crear')}>Registrarse</button> : <button onClick={() => void auth.logout()}>Salir</button>}
           </span>
           <button onClick={() => st.toggle('dark')} aria-label={t.theme}>{st.dark ? '☀' : '☾'}</button>
         </div>
@@ -183,14 +243,15 @@ export function App() {
               <h4>{cat}</h4>
               <div className="pal">
                 {items.map((d) => (
-                  <div key={d.type} className="pal-item" draggable
+                  <div key={d.type} className={`pal-item ${visitor && !visitorAllows(d.type) ? 'locked' : ''}`} draggable={!(visitor && !visitorAllows(d.type))}
                     onDragStart={(e) => e.dataTransfer.setData('text/plain', d.type)}
+                    onClick={() => { if (visitor && !visitorAllows(d.type)) st.setUpsell(UPSELL.components); }}
                     onDoubleClick={() => st.addComponent(d.type, 300, 300)}
-                    title="Arrastra al lienzo (o doble clic)" data-type={d.type}>
+                    title={visitor && !visitorAllows(d.type) ? 'Regístrate para usar este componente' : 'Arrastra al lienzo (o doble clic)'} data-type={d.type}>
                     <svg width={64} height={32} viewBox="-44 -22 88 44">
                       <PaletteIcon type={d.type} />
                     </svg>
-                    <span>{d.name}</span>
+                    <span>{d.name}</span>{visitor && !visitorAllows(d.type) && <i className="lock" aria-hidden>🔒</i>}
                   </div>
                 ))}
               </div>

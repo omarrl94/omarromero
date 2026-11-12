@@ -47,6 +47,15 @@ Sin este paso el login con Google (y el de correo) falla con «dominio no autori
 - En Firebase → Authentication → Usuarios debe aparecer tu usuario; y en Firestore → `users` tu documento con el proyecto y la carrera del juego.
 - Cierra sesión y entra desde otro navegador: tu último proyecto y tu progreso del juego aparecen solos.
 
+## Niveles de acceso y superadmin
+- **Visitante (sin cuenta):** solo una pila, una resistencia y el polímetro. Todo lo demás aparece con candado y una invitación a registrarse.
+- **Usuario (con cuenta):** todo el simulador, el juego, los informes en PDF y guardado en la nube.
+- **Superadmin:** `omar.romero@jrotero.es`, con acceso completo y un botón **👥 Usuarios** con el progreso de cada alumno.
+  - Para activarlo hay que **verificar el correo**: Firebase envía un mensaje al registrarte (con «Continuar con Google» ya viene verificado). Sin verificar, la cuenta es de usuario normal, porque si no cualquiera podría registrarse con ese correo y hacerse pasar por superadmin.
+  - El panel de usuarios necesita las **reglas de Firestore actualizadas** (`firestore.rules`, función `isAdmin()`): vuelve a pegarlas y publicarlas.
+  - Para cambiar o añadir administradores edita `ADMIN_EMAILS` en `src/access.ts` **y** el correo en `firestore.rules`.
+- Los límites del visitante se aplican en el navegador (es una aplicación sin servidor): frenan al uso normal, no a alguien que manipule el código. La protección de los datos de cada usuario son las reglas de Firestore.
+
 ## Problemas típicos
 | Síntoma | Causa y arreglo |
 |---|---|
@@ -54,6 +63,7 @@ Sin este paso el login con Google (y el de correo) falla con «dominio no autori
 | «Dominio no autorizado» | Paso 5. |
 | «Ese método de acceso no está activado» | Paso 1.2: activa Correo/contraseña y/o Google. |
 | El build de Netlify falla por «secrets scanning» | Ya está resuelto con `SECRETS_SCAN_OMIT_KEYS` en `netlify.toml`; comprueba que Netlify lee ese archivo (está en la raíz de la rama `circuitossea`). |
+| El botón «Usuarios» dice que no se puede leer la lista | Faltan las reglas con `isAdmin()` publicadas o tu correo no está verificado. |
 | No se guarda en la nube | Revisa que publicaste las reglas (paso 1.4) y que Firestore está creado. |
 
 ## Seguridad y datos personales

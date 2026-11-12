@@ -5,6 +5,7 @@ import { defaultParams } from './model/library';
 import { dosPilas } from './model/examples';
 import type { Runtime, RuntimeState, SimEvent } from './model/netlist';
 import { defaultPanel, type PanelConfig } from './model/panel';
+import { currentLevel, UPSELL, VISITOR_LIMITS, visitorAllows } from './access';
 import { initialMeter, type MeterState } from './model/meter';
 
 /** Una fila de la hoja de medidas. */
@@ -49,6 +50,8 @@ interface State {
   scopeArm: 'c1' | 'c2' | null;
   dock: boolean;
   view: View;
+  upsell: string | null;
+  setUpsell(reason: string | null): void;
   inst: Record<InstId, InstWin>;
   toggleInst(id: InstId): void;
   moveInst(id: InstId, x: number, y: number): void;
@@ -102,7 +105,7 @@ const uid = (prefix: string) => `${prefix}${Date.now().toString(36)}${(counter++
 export const useStore = create<State>((set, get) => ({
   project: loadInitial(),
   past: [], future: [], selection: [], wiring: null,
-  runtime: {}, booms: [], notices: [], meter: { ...initialMeter }, log: [], sound: false, scopeTips: { c1: null, c2: null }, scopeArm: null, dock: false, view: 'schematic', leftOpen: true, rightOpen: true, fitTick: 0,
+  runtime: {}, booms: [], notices: [], meter: { ...initialMeter }, log: [], sound: false, scopeTips: { c1: null, c2: null }, scopeArm: null, dock: false, view: 'schematic', upsell: null, leftOpen: true, rightOpen: true, fitTick: 0,
   inst: { meter: { open: false, x: null, y: null, min: false }, scope: { open: false, x: null, y: null, min: false }, watt: { open: false, x: null, y: null, min: false } },
   probeDrag: null, showCables: true,
   animate: true, showLabels: true, heat: false,
@@ -111,7 +114,12 @@ export const useStore = create<State>((set, get) => ({
   snapshot() {
     set((s) => ({ past: [...s.past, clone(s.project)], future: [] }));
   },
+  setUpsell(reason) { set({ upsell: reason }); },
   addComponent(type, x, y) {
+    if (currentLevel() === 'visitor') {
+      if (!visitorAllows(type)) { set({ upsell: UPSELL.components }); return ''; }
+      if (get().project.components.filter((c) => c.type === type).length >= VISITOR_LIMITS[type]) { set({ upsell: UPSELL.limit }); return ''; }
+    }
     get().snapshot();
     const id = uid(type[0].toUpperCase());
     const c: Component = { id, type, x: Math.round(x / 20) * 20, y: Math.round(y / 20) * 20, rot: 0, params: defaultParams(type) };
@@ -153,6 +161,7 @@ export const useStore = create<State>((set, get) => ({
     }));
   },
   duplicateSelection() {
+    if (currentLevel() === 'visitor') { set({ upsell: UPSELL.limit }); return; }
     const { selection, project } = get();
     const src = project.components.filter((c) => selection.includes(c.id));
     if (!src.length) return;
@@ -202,7 +211,9 @@ export const useStore = create<State>((set, get) => ({
     set((s) => ({ project: { ...s.project, panel: { ...(s.project.panel ?? defaultPanel()), ...p } } }));
   },
   setSheetData(sh) { set((s) => ({ project: { ...s.project, sheet: sh } })); },
-  toggleInst(id) { set((s) => ({ inst: { ...s.inst, [id]: { ...s.inst[id], open: !s.inst[id].open, min: false } } })); },
+  toggleInst(id) {
+    if (currentLevel() === 'visitor' && id !== 'meter') { set({ upsell: UPSELL.instruments }); return; }
+    set((s) => ({ inst: { ...s.inst, [id]: { ...s.inst[id], open: !s.inst[id].open, min: false } } })); },
   moveInst(id, x, y) { set((s) => ({ inst: { ...s.inst, [id]: { ...s.inst[id], x, y } } })); },
   minInst(id) { set((s) => ({ inst: { ...s.inst, [id]: { ...s.inst[id], min: !s.inst[id].min } } })); },
   setProbeDrag(d) { set({ probeDrag: d }); },
@@ -211,7 +222,10 @@ export const useStore = create<State>((set, get) => ({
     else set((s) => ({ scopeTips: { ...s.scopeTips, [key]: t }, scopeArm: null }));
   },
   fit() { set((s) => ({ fitTick: s.fitTick + 1 })); },
-  setView(v) { set({ view: v, wiring: null }); },
+  setView(v) {
+    if (currentLevel() === 'visitor' && v !== 'schematic') { set({ upsell: v === 'juego' ? UPSELL.game : UPSELL.views }); return; }
+    set({ view: v, wiring: null });
+  },
   startWire(t) { set({ wiring: t }); },
   undo() {
     const { past, project, future } = get();

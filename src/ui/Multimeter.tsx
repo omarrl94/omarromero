@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useStore } from '../store';
 import { Knob, KnobDefs, type KnobPos } from './Knob';
 import { beginProbeDrag } from './Floating';
+import { useLevel, UPSELL } from '../access';
 import { pointName, readMeter, type Dial } from '../model/meter';
 import type { SimResult } from '../model/netlist';
 
@@ -84,6 +85,7 @@ export function Multimeter({ sim }: { sim: SimResult }) {
 
 export function MeterInfo({ sim }: { sim: SimResult }) {
   const st = useStore();
+  const visitor = useLevel() === 'visitor';
   const { meter, project } = st;
   const reading = useMemo(() => readMeter(sim, meter, project), [sim, meter, project]);
   const mode = DIALS.find((d) => d.v === meter.dial)!.label;
@@ -93,8 +95,8 @@ export function MeterInfo({ sim }: { sim: SimResult }) {
       <div className="probeline"><span className="dot black" /> {meter.armed === 'black' ? 'Pulsa un terminal del circuito…' : meter.black ? pointName(project, meter.black) : 'Arrastra la punta negra a un borne'}</div>
       {meter.fuseBlown && <button onClick={() => st.setMeter({ fuseBlown: false })}>🔧 Cambiar fusible de 10 A</button>}
       <ul className="msgs tips">{reading.tips.map((t, i) => <li key={i} className={t.level === 'info' ? '' : t.level}>{t.text}</li>)}</ul>
-      <button disabled={meter.dial === 'off' || !meter.red || !meter.black || reading.text === ''}
-        onClick={() => st.addLog({ mode, points: `${pointName(project, meter.red)} → ${pointName(project, meter.black)}`, value: reading.value, text: reading.text, unit: reading.unit })}>📝 Anotar medida</button>
+      <button disabled={!visitor && (meter.dial === 'off' || !meter.red || !meter.black || reading.text === '')}
+        onClick={() => visitor ? st.setUpsell(UPSELL.log) : st.addLog({ mode, points: `${pointName(project, meter.red)} → ${pointName(project, meter.black)}`, value: reading.value, text: reading.text, unit: reading.unit })}>{visitor ? '🔒 ' : '📝 '}Anotar medida</button>
     </div>
   );
 }

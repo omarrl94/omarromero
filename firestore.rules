@@ -1,10 +1,17 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Cada usuario solo puede leer y escribir su propio documento.
+    // El superadmin solo cuenta con el correo VERIFICADO (con Google ya lo está).
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email == 'omar.romero@jrotero.es';
+    }
     match /users/{uid} {
-      allow read, write: if request.auth != null && request.auth.uid == uid
-        && request.resource.size() < 900000; // límite de seguridad (~900 KB) para el proyecto guardado
+      // Cada usuario lee y escribe solo su documento
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+      // El superadmin puede leer todos (panel de usuarios)
+      allow read: if isAdmin();
     }
     match /{document=**} { allow read, write: if false; }
   }

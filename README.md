@@ -5,6 +5,9 @@ Aplicación estática (sin backend): TypeScript + Vite + React + SVG. Licencia M
 
 > **Estado: Fases 1-3 completas + avance de las 4, 5, 6 y 7** (ver `docs/PLAN.md`). Lienzo, 24 componentes de CC con símbolos animados, motor MNA con diodos y protecciones, polímetro y hoja de medidas.
 
+## Modo visitante y superadmin
+Sin cuenta, el simulador está **muy limitado**: una pila, una resistencia y el polímetro; todo lo demás (resto de componentes, vistas, instrumentos, resolver, guardar/abrir, juego…) lleva candado y propone registrarse. Con cuenta se desbloquea todo. El superadmin (`ADMIN_EMAILS` en `src/access.ts`, y en `firestore.rules`) exige correo verificado y ve un panel con los usuarios. Detalles en `docs/DESPLIEGUE-NETLIFY-FIREBASE.md`.
+
 ## Portada, cuentas y nube
 La aplicación abre con una **portada** que explica de qué va (con polímetro, osciloscopio, vatímetro, panel real y plano del juego funcionando en vivo) y pide **iniciar sesión** (Firebase Authentication: correo/contraseña y Google). Con sesión se desbloquea todo y el proyecto y el progreso del juego se guardan en Firestore (`users/{uid}`). Sin variables `VITE_FIREBASE_*` arranca en *modo demostración* (sin cuentas). Guía paso a paso: [`docs/DESPLIEGUE-NETLIFY-FIREBASE.md`](docs/DESPLIEGUE-NETLIFY-FIREBASE.md) · reglas: `firestore.rules` · variables: `.env.example`.
 

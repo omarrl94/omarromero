@@ -1,11 +1,13 @@
 import { create } from 'zustand';
 import {
   GoogleAuthProvider, createUserWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail,
-  signInWithEmailAndPassword, signInWithPopup, signOut, updateProfile, type User,
+  sendEmailVerification, signInWithEmailAndPassword, signInWithPopup, signOut, updateProfile, type User,
 } from 'firebase/auth';
 import { auth, firebaseConfigured } from './firebase';
 
 const GUEST_KEY = 'circuitossea:guest';
+const DEMO_KEY = 'circuitossea:demofull';
+const readDemo = () => { try { return sessionStorage.getItem(DEMO_KEY) === '1'; } catch { return false; } };
 const readGuest = () => { try { return sessionStorage.getItem(GUEST_KEY) === '1'; } catch { return false; } };
 
 /** Mensajes de error de Firebase traducidos a algo que el alumno entienda y pueda arreglar. */
@@ -31,14 +33,16 @@ export function friendly(code: string): string {
 }
 
 interface AuthState {
-  user: User | null; ready: boolean; guest: boolean; busy: boolean; error: string | null; info: string | null;
+  user: User | null; ready: boolean; guest: boolean; demoFull: boolean; busy: boolean; error: string | null; info: string | null;
   init(): () => void;
   signup(name: string, email: string, password: string): Promise<void>;
   login(email: string, password: string): Promise<void>;
   google(): Promise<void>;
   reset(email: string): Promise<void>;
   logout(): Promise<void>;
-  continueGuest(): void;
+  continueGuest(full?: boolean): void;
+  openSignup(mode?: 'crear' | 'entrar'): void;
+  resendVerification(): Promise<void>;
   clear(): void;
 }
 
@@ -48,7 +52,7 @@ const run = async (set: (p: Partial<AuthState>) => void, fn: () => Promise<void>
 };
 
 export const useAuth = create<AuthState>((set) => ({
-  user: null, ready: !firebaseConfigured, guest: readGuest(), busy: false, error: null, info: null,
+  user: null, ready: !firebaseConfigured, guest: readGuest(), demoFull: readDemo(), busy: false, error: null, info: null,
   init() {
     if (!auth) { set({ ready: true }); return () => undefined; }
     return onAuthStateChanged(auth, (u) => set({ user: u, ready: true }));
@@ -56,6 +60,7 @@ export const useAuth = create<AuthState>((set) => ({
   signup: (name, email, password) => run(set, async () => {
     const c = await createUserWithEmailAndPassword(auth!, email.trim(), password);
     if (name.trim()) await updateProfile(c.user, { displayName: name.trim() });
+    try { await sendEmailVerification(c.user); } catch { /* no es crítico */ }
     set({ user: auth!.currentUser });
   }),
   login: (email, password) => run(set, async () => { await signInWithEmailAndPassword(auth!, email.trim(), password); }),
@@ -66,10 +71,13 @@ export const useAuth = create<AuthState>((set) => ({
     set({ info: 'Te hemos enviado un correo para elegir una contraseña nueva.' });
   }),
   logout: async () => {
-    try { sessionStorage.removeItem(GUEST_KEY); } catch { /* ignorar */ }
+    try { sessionStorage.removeItem(GUEST_KEY); sessionStorage.removeItem(DEMO_KEY); } catch { /* ignorar */ }
     if (auth) await signOut(auth);
-    set({ user: null, guest: false });
+    set({ user: null, guest: false, demoFull: false });
   },
-  continueGuest() { try { sessionStorage.setItem(GUEST_KEY, '1'); } catch { /* ignorar */ } set({ guest: true }); },
+  continueGuest(full = false) { try { sessionStorage.setItem(GUEST_KEY, '1'); if (full) sessionStorage.setItem(DEMO_KEY, '1'); else sessionStorage.removeItem(DEMO_KEY); } catch { /* ignorar */ } set({ guest: true, demoFull: full && !firebaseConfigured }); },
+  /** Sale del modo visitante y lleva al formulario de acceso de la portada. */
+  openSignup(mode = 'crear') { try { sessionStorage.removeItem(GUEST_KEY); sessionStorage.removeItem(DEMO_KEY); sessionStorage.setItem('circuitossea:goto', mode); } catch { /* ignorar */ } set({ guest: false, demoFull: false }); },
+  resendVerification: () => run(set, async () => { if (auth?.currentUser) { await sendEmailVerification(auth.currentUser); set({ info: 'Te hemos reenviado el correo de verificación.' }); } }),
   clear() { set({ error: null, info: null }); },
 }));
