@@ -1,5 +1,20 @@
-# Despliegue gratuito en Netlify: base = circuitossea, build = npm run build, publicar dist
+# Despliegue en Netlify.
+# En Netlify → Site configuration → Build & deploy → Base directory: "circuitossea"
+# (este archivo se lee desde esa carpeta). Las variables VITE_FIREBASE_* se definen en el panel de Netlify.
 [build]
-  base = "circuitossea"
   command = "npm run build"
   publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+  # Las claves web de Firebase son públicas por diseño y acaban en el JavaScript del navegador:
+  # se le dice al escáner de secretos de Netlify que no las trate como filtración.
+  SECRETS_SCAN_OMIT_KEYS = "VITE_FIREBASE_API_KEY,VITE_FIREBASE_AUTH_DOMAIN,VITE_FIREBASE_PROJECT_ID,VITE_FIREBASE_STORAGE_BUCKET,VITE_FIREBASE_MESSAGING_SENDER_ID,VITE_FIREBASE_APP_ID"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    # Necesario para que funcione el inicio de sesión con la ventana emergente de Google
+    Cross-Origin-Opener-Policy = "same-origin-allow-popups"

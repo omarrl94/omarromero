@@ -17,12 +17,12 @@ interface Ch { on: boolean; mode: 'V' | 'I'; comp: string | null; vdiv: number; 
 const W = 400, H = 320;
 
 /** Osciloscopio de 2 canales con base de tiempos, sensibilidad, acoplamiento, disparo y medidas automáticas. */
-export function Scope({ sim }: { sim: SimResult }) {
+export function Scope({ sim, demoComp }: { sim: SimResult; demoComp?: string }) {
   const st = useStore();
   const [tdiv, setTdiv] = useState(5);
   const [ch, setCh] = useState<[Ch, Ch]>([
     { on: true, mode: 'V', comp: null, vdiv: 100, pos: 0, coupling: 'DC' },
-    { on: true, mode: 'I', comp: null, vdiv: 1, pos: 0, coupling: 'DC' },
+    { on: true, mode: 'I', comp: demoComp ?? null, vdiv: 1, pos: 0, coupling: 'DC' },
   ]);
   const [level, setLevel] = useState(0);
   const upd = (i: 0 | 1, p: Partial<Ch>) => setCh((c) => (i === 0 ? [{ ...c[0], ...p }, c[1]] : [c[0], { ...c[1], ...p }]));

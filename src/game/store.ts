@@ -35,6 +35,7 @@ interface G {
   solve(): void;
   finish(score: number, stars: number): void;
   toggle(k: 'showRoutes' | 'showLinks'): void;
+  setCareer(c: Career): void;
 }
 
 const saved = load<{ seed: number; level: number; state: GState; stage: Stage }>(KEY);
@@ -116,6 +117,7 @@ export const useGame = create<G>((set, get) => ({
     set({ career: c, stage: 'resultado' });
   },
   toggle(k) { set((s) => ({ [k]: !s[k] }) as Partial<G>); },
+  setCareer(c) { save(CAREER, c); set({ career: c }); },
 }));
 
 let t: ReturnType<typeof setTimeout> | undefined;

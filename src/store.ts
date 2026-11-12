@@ -249,9 +249,10 @@ export const useStore = create<State>((set, get) => ({
 const same = (a: TermRef, b: TermRef) => a.comp === b.comp && a.term === b.term;
 
 // Guardado automático local (con debounce)
+export const saveGuard = { suspended: false };
 let timer: ReturnType<typeof setTimeout> | undefined;
 useStore.subscribe((s, prev) => {
-  if (s.project === prev.project) return;
+  if (s.project === prev.project || saveGuard.suspended) return;
   clearTimeout(timer);
   timer = setTimeout(() => {
     try { localStorage.setItem(KEY, JSON.stringify(s.project)); } catch { /* ignorar */ }
