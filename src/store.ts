@@ -33,7 +33,7 @@ export type InstId = 'meter' | 'scope' | 'watt';
 export type ProbeKey = 'red' | 'black' | 'c1' | 'c2';
 export interface InstWin { open: boolean; x: number | null; y: number | null; min: boolean }
 
-export type View = 'schematic' | 'multifilar' | 'unifilar' | 'real' | 'cuadro' | 'plano' | 'juego';
+export type View = 'schematic' | 'multifilar' | 'unifilar' | 'real' | 'cuadro' | 'plano' | 'juego' | 'averias';
 
 interface State {
   project: Project;
@@ -228,7 +228,7 @@ export const useStore = create<State>((set, get) => ({
   },
   fit() { set((s) => ({ fitTick: s.fitTick + 1 })); },
   setView(v) {
-    if (currentLevel() === 'visitor' && v !== 'schematic') { set({ upsell: v === 'juego' ? UPSELL.game : UPSELL.views }); return; }
+    if (currentLevel() === 'visitor' && v !== 'schematic') { set({ upsell: v === 'juego' || v === 'averias' ? UPSELL.game : UPSELL.views }); return; }
     set({ view: v, wiring: null });
   },
   startWire(t) { set({ wiring: t }); },

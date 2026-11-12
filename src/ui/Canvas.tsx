@@ -15,7 +15,7 @@ const GRID = 20;
 const snap = (v: number) => Math.round(v / GRID) * GRID;
 
 export type CanvasMode = 'schematic' | 'multifilar' | 'unifilar';
-interface Props { sim: SimResult; cables?: Record<string, import('../model/cables').CableInfo>; mode?: CanvasMode }
+interface Props { sim: SimResult; cables?: Record<string, import('../model/cables').CableInfo>; mode?: CanvasMode; /** Solo lectura: no se mueve, borra ni cablea; solo se accionan los componentes que `canToggle` permita (modo «Parte de avería»). */ locked?: boolean; canToggle?: (id: string) => boolean }
 
 /** Ruta ortogonal entre dos puntos (horizontal y luego vertical) con esquina redondeada. */
 function route(a: { x: number; y: number }, b: { x: number; y: number }) {
@@ -31,7 +31,7 @@ function routeUnder(a: { x: number; y: number }, b: { x: number; y: number }) {
   return `M${a.x} ${a.y}V${y}H${b.x}V${b.y}`;
 }
 
-export function Canvas({ sim, cables, mode = 'schematic' }: Props) {
+export function Canvas({ sim, cables, mode = 'schematic', locked = false, canToggle }: Props) {
   const uni = mode === 'unifilar', mf = mode === 'multifilar';
   const st = useStore();
   const { project, selection, wiring } = st;
@@ -59,11 +59,14 @@ export function Canvas({ sim, cables, mode = 'schematic' }: Props) {
     setView({ k, x: (r.width - (maxX - minX) * k) / 2 - minX * k, y: (r.height - (maxY - minY) * k) / 2 - minY * k });
   }, [fitTick]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Componentes ocultos (averías que el alumno debe descubrir midiendo): se simulan pero no se dibujan
+  const hiddenIds = useMemo(() => new Set(project.components.filter((c) => c.hidden).map((c) => c.id)), [project.components]);
   const compMap = useMemo(() => new Map(project.components.map((c) => [c.id, c])), [project.components]);
 
   // Teclado
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (locked) return;
       const tag = (e.target as HTMLElement).tagName;
       if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
       const s = useStore.getState();
@@ -94,6 +97,15 @@ export function Canvas({ sim, cables, mode = 'schematic' }: Props) {
   const onCompDown = (e: React.PointerEvent, c: Component) => {
     e.stopPropagation();
     if (e.button !== 0) return;
+    if (locked) {
+      const li = defOf(c.type).interactive;
+      if (li?.mode === 'toggle' && canToggle?.(c.id)) {
+        const cur = c.params[li.key];
+        st.setParam(c.id, li.key, typeof cur === 'boolean' ? !cur : Number(cur) < 0.5 ? 1 : 0);
+        if (useStore.getState().sound) beep(500, 40);
+      }
+      return;
+    }
     (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
     const additive = e.shiftKey;
     if (!selection.includes(c.id)) st.select([c.id], additive);
@@ -137,6 +149,7 @@ export function Canvas({ sim, cables, mode = 'schematic' }: Props) {
 
   const onDrop = (e: React.DragEvent) => {
     e.preventDefault();
+    if (locked) return;
     const type = e.dataTransfer.getData('text/plain');
     if (!type) return;
     const p = toWorld(e.clientX, e.clientY);
@@ -147,6 +160,7 @@ export function Canvas({ sim, cables, mode = 'schematic' }: Props) {
     e.stopPropagation();
     if (st.scopeArm) { st.setScopeTip(st.scopeArm, ref); return; }
     if (st.meter.armed) { st.setMeter({ [st.meter.armed]: ref, armed: null } as never); return; }
+    if (locked) return;
     if (!wiring) { st.startWire(ref); startPt.current = { x: e.clientX, y: e.clientY }; }
     else if (wiring.comp === ref.comp && wiring.term === ref.term) st.startWire(null);
     else st.addWire(wiring, ref);
@@ -215,7 +229,7 @@ export function Canvas({ sim, cables, mode = 'schematic' }: Props) {
       <rect width="100%" height="100%" fill="url(#grid)" />
       <g transform={`translate(${view.x} ${view.y}) scale(${view.k})`}>
         {/* Cables */}
-        {project.wires.map((w) => {
+        {project.wires.filter((w) => !hiddenIds.has(w.a.comp) && !hiddenIds.has(w.b.comp)).map((w) => {
           const ca = compMap.get(w.a.comp), cb = compMap.get(w.b.comp);
           if (!ca || !cb) return null;
           if (uni && isReturnWire(project, w)) return null; // en unifilar el retorno va implícito
@@ -282,7 +296,7 @@ export function Canvas({ sim, cables, mode = 'schematic' }: Props) {
           );
         })()}
         {/* Componentes */}
-        {project.components.map((c) => {
+        {project.components.filter((c) => !c.hidden).map((c) => {
           const def = defOf(c.type);
           const sel = selection.includes(c.id);
           const v = sim.componentVoltage[c.id];

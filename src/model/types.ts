@@ -11,6 +11,8 @@ export interface Component {
   rot: 0 | 90 | 180 | 270;
   params: Record<string, number | boolean | string>;
   label?: string;
+  /** No se dibuja (pero sí se simula): lo usa «Parte de avería» para esconder la avería. */
+  hidden?: boolean;
   /** Posición propia en otras vistas (se autogenera si falta). Reservado fases 4-5. */
   pos?: Partial<Record<ViewId, { x: number; y: number; rot: number }>>;
 }
