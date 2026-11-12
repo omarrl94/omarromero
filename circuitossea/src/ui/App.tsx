@@ -15,6 +15,7 @@ import { RealPanel } from './RealPanel';
 import { Viewport } from './Viewport';
 import { CuadroView } from './CuadroView';
 import { Plano } from './Plano';
+import { GameView } from './GameView';
 import { multifilarDiagram, unifilarDiagram } from './diagrams';
 import { cableReport, wireData, admissible, wireResistance } from '../model/cables';
 import { SECTIONS, IZ_SOURCE } from '../data/rebt';
@@ -31,6 +32,7 @@ function Welcome({ onClose }: { onClose: () => void }) {
           <button className="cardbtn" onClick={() => go(4, 'schematic')}><span className="ic">💥</span><b>Provoca un cortocircuito</b><small>Pulsa el pulsador y mira cómo se funde el fusible. Mide con el polímetro.</small></button>
           <button className="cardbtn" onClick={() => go(5, 'real')}><span className="ic">🛠</span><b>Monta una conmutada</b><small>Una luz desde dos sitios, en el panel real con carril DIN y cables de colores.</small></button>
           <button className="cardbtn" onClick={() => go(8, 'schematic')}><span className="ic">〰</span><b>Mide corriente alterna</b><small>Circuito RLC a 230 V: osciloscopio, desfase y vatímetro.</small></button>
+          <button className="cardbtn" onClick={() => { st.setView('juego'); onClose(); }}><span className="ic">🏠</span><b>Juega: instala una casa</b><small>Un cliente te encarga la electricidad de su vivienda. Mide, calcula y cumple el reglamento.</small></button>
           <button className="cardbtn" onClick={() => { st.setView('cuadro'); onClose(); }}><span className="ic">▦</span><b>Diseña un cuadro eléctrico</b><small>Circuitos C1–C5, protecciones y secciones con el cálculo paso a paso.</small></button>
         </div>
         <ul>
@@ -98,7 +100,7 @@ export function App() {
       <header className="top">
         <div className="brand"><span className="logo">⚡</span><b>{t.app}</b><small>{t.tagline}</small></div>
         <div className="viewswitch" role="tablist" aria-label="Vista del circuito">
-          {([['schematic', 'Esquema', '⎍'], ['multifilar', 'Multifilar', '☰'], ['unifilar', 'Unifilar', '╱'], ['real', 'Real', '🛠'], ['cuadro', 'Cuadro', '▦'], ['plano', 'Plano', '🖨']] as const).map(([v, l, ic]) => (
+          {([['schematic', 'Esquema', '⎍'], ['multifilar', 'Multifilar', '☰'], ['unifilar', 'Unifilar', '╱'], ['real', 'Real', '🛠'], ['cuadro', 'Cuadro', '▦'], ['plano', 'Plano', '🖨'], ['juego', 'Juego', '🏠']] as const).map(([v, l, ic]) => (
             <button key={v} role="tab" aria-selected={st.view === v} className={st.view === v ? 'on' : ''} onClick={() => st.setView(v)} data-view={v}><span>{ic}</span> {l}</button>
           ))}
         </div>
@@ -170,7 +172,7 @@ export function App() {
         <div className={`stage ${st.view} ${shake ? 'shake' : ''}`} key={st.view}>
           {st.view === 'real' ? <RealPanel sim={sim} cables={cableRep.info} /> : st.view === 'schematic' ? <Canvas sim={sim} cables={cableRep.info} />
             : st.view === 'multifilar' ? <Viewport d={mf} /> : st.view === 'unifilar' ? <Viewport d={uf} />
-            : st.view === 'cuadro' ? <CuadroView /> : <Plano sim={sim} cables={cableRep.info} />}
+            : st.view === 'cuadro' ? <CuadroView /> : st.view === 'juego' ? <GameView onExit={() => st.setView('schematic')} /> : <Plano sim={sim} cables={cableRep.info} />}
         </div>
         <div className="toasts">{st.notices.map((n) => (
           <div key={n.id} className="toast" role="alert"><span>💥</span><span>{n.text}</span><button onClick={() => st.dismiss(n.id)}>✕</button></div>
