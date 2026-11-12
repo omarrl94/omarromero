@@ -171,3 +171,20 @@ describe('MNA en continua', () => {
     expect(s.issues[0].code).toBe('floating');
   });
 });
+
+import { resistanceBetween } from './dc';
+describe('óhmetro (resistencia equivalente)', () => {
+  it('serie, paralelo y sin camino', () => {
+    const els: Element[] = [
+      { id: 'R1', kind: 'R', a: 1, b: 2, value: 100 },
+      { id: 'R2', kind: 'R', a: 2, b: 0, value: 300 },
+      { id: 'R3', kind: 'R', a: 1, b: 0, value: 400 },
+      { id: 'V', kind: 'V', a: 1, b: 0, value: 12 }, // se anula: no cambia nada si rint=0 → cortocircuito
+    ];
+    expect(resistanceBetween({ nodeCount: 3, elements: els.slice(0, 3) }, 1, 0)).toBeCloseTo(200, 6);
+    expect(resistanceBetween({ nodeCount: 3, elements: els.slice(0, 2) }, 1, 0)).toBeCloseTo(400, 6);
+    expect(resistanceBetween({ nodeCount: 4, elements: els.slice(0, 2) }, 3, 0)).toBe(Infinity);
+    // pila ideal anulada = cortocircuito entre 1 y 0 → R1 ∥ R2 = 75 Ω
+    expect(resistanceBetween({ nodeCount: 3, elements: els }, 1, 2)).toBeCloseTo(75, 3);
+  });
+});

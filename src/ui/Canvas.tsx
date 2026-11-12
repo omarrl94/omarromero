@@ -4,6 +4,7 @@ import { defOf, fmtSI } from '../model/library';
 import { termPos, tkey, type SimResult } from '../model/netlist';
 import type { Component } from '../model/types';
 import { Symbol } from './symbols';
+import { beep } from './sound';
 
 const GRID = 20;
 const snap = (v: number) => Math.round(v / GRID) * GRID;
@@ -22,6 +23,7 @@ export function Canvas({ sim }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [view, setView] = useState({ x: 40, y: 20, k: 1 });
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
+  const holdRef = useRef<{ id: string; key: string } | null>(null);
   const drag = useRef<null | { kind: 'comp' | 'pan'; lastX: number; lastY: number; moved: boolean; snapped: boolean; accX: number; accY: number }>(null);
 
   const toWorld = (cx: number, cy: number) => {
@@ -66,6 +68,8 @@ export function Canvas({ sim }: Props) {
     (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
     const additive = e.shiftKey;
     if (!selection.includes(c.id)) st.select([c.id], additive);
+    const inter = defOf(c.type).interactive;
+    if (inter?.mode === 'hold') { st.setParam(c.id, inter.key, true); holdRef.current = { id: c.id, key: inter.key }; if (st.sound) beep(900, 30); }
     drag.current = { kind: 'comp', lastX: e.clientX, lastY: e.clientY, moved: false, snapped: false, accX: 0, accY: 0 };
   };
   const onMove = (e: React.PointerEvent) => {
@@ -86,6 +90,19 @@ export function Canvas({ sim }: Props) {
   const onUp = () => {
     const d = drag.current;
     drag.current = null;
+    if (holdRef.current) { useStore.getState().setParam(holdRef.current.id, holdRef.current.key, false); holdRef.current = null; }
+    else if (d && d.kind === 'comp' && !d.moved) {
+      // Clic simple sobre un interruptor/conmutador: lo acciona
+      const sel = useStore.getState().selection;
+      const c = compMap.get(sel[0]);
+      const inter = c && defOf(c.type).interactive;
+      if (c && inter?.mode === 'toggle' && sel.length === 1) {
+        const cur = c.params[inter.key];
+        st.snapshot();
+        st.setParam(c.id, inter.key, typeof cur === 'boolean' ? !cur : Number(cur) < 0.5 ? 1 : 0);
+        if (useStore.getState().sound) beep(500, 40);
+      }
+    }
     if (d && d.kind === 'pan' && !d.moved) { st.select([]); st.startWire(null); }
   };
 
@@ -99,6 +116,7 @@ export function Canvas({ sim }: Props) {
 
   const onTermClick = (e: React.PointerEvent, ref: { comp: string; term: number }) => {
     e.stopPropagation();
+    if (st.meter.armed) { st.setMeter({ [st.meter.armed]: ref, armed: null } as never); return; }
     if (!wiring) st.startWire(ref);
     else if (wiring.comp === ref.comp && wiring.term === ref.term) st.startWire(null);
     else st.addWire(wiring, ref);
@@ -145,7 +163,7 @@ export function Canvas({ sim }: Props) {
           const i = sim.wireCurrent[w.id] ?? 0;
           const sel = selection.includes(w.id);
           const v = sim.solution.voltages[sim.nodeOf[tkey(w.a)]] ?? 0;
-          const active = Math.abs(i) > maxI * 1e-6 && Math.abs(i) > 1e-9;
+          const active = Math.abs(i) > maxI * 1e-6 && Math.abs(i) > 1e-6;
           const dur = 1.6 / (0.25 + 1.75 * Math.sqrt(Math.abs(i) / maxI));
           return (
             <g key={w.id}>
@@ -177,17 +195,12 @@ export function Canvas({ sim }: Props) {
           const i = sim.componentCurrent[`${c.id}:0`];
           const bad = sim.messages.some((m) => m.level === 'error' && m.ids.includes(c.id));
           const warn = sim.messages.some((m) => m.level === 'warn' && m.ids.includes(c.id));
-          const isLamp = c.type === 'lamp';
-          const lampP = isLamp && v !== undefined ? Math.min(1.5, (v * v) / (Number(c.params.vn) ** 2 / Number(c.params.pn)) / Number(c.params.pn)) : 0;
           return (
             <g key={c.id}>
               <g transform={`translate(${c.x} ${c.y}) rotate(${c.rot})`} onPointerDown={(e) => onCompDown(e, c)} style={{ cursor: 'move' }}>
                 <rect x={-def.w / 2} y={-def.h / 2} width={def.w} height={def.h} rx={6}
                   className={`hitbox ${sel ? 'sel' : ''} ${bad ? 'bad' : warn ? 'warn' : ''}`} />
-                {isLamp && lampP > 0.02 && (
-                  <circle r={16 + 10 * Math.min(1, lampP)} fill="var(--lamp)" opacity={Math.min(0.85, lampP * 0.8)} style={{ filter: 'blur(6px)' }} />
-                )}
-                <Symbol c={c} />
+                <Symbol c={c} live={sim.live[c.id]} />
               </g>
               {/* Texto sin girar */}
               {c.type !== 'junction' && (
@@ -215,6 +228,20 @@ export function Canvas({ sim }: Props) {
                   </g>
                 );
               })}
+            </g>
+          );
+        })}
+        {(['red', 'black'] as const).map((k) => {
+          const t = st.meter[k];
+          const cc = t && compMap.get(t.comp);
+          if (!t || !cc) return null;
+          const p = termPos(cc, t.term);
+          const dx = k === 'red' ? -16 : 16;
+          return (
+            <g key={k} pointerEvents="none">
+              <path d={`M${p.x} ${p.y}L${p.x + dx} ${p.y - 30}`} stroke={k === 'red' ? '#e53935' : '#111'} strokeWidth={4} strokeLinecap="round" />
+              <circle cx={p.x + dx} cy={p.y - 32} r={7} fill={k === 'red' ? '#e53935' : '#111'} stroke="#fff" strokeWidth={1.5} />
+              <circle cx={p.x} cy={p.y} r={7} fill="none" stroke={k === 'red' ? '#e53935' : '#555'} strokeWidth={2} />
             </g>
           );
         })}
