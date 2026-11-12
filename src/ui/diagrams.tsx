@@ -16,7 +16,7 @@ import { Symbol } from './symbols';
 
 export interface Diagram { w: number; h: number; node: ReactNode }
 
-const TERM_LABELS: Record<string, string[]> = {
+export const TERM_LABELS: Record<string, string[]> = {
   breaker: ['1', '2'], fuse: ['1', '2'], switch: ['1', '2'], pushNO: ['3', '4'], pushNC: ['1', '2'], spdt: ['1', '2', '4'],
   lamp: ['X1', 'X2'], buzzer: ['X1', 'X2'], heater: ['1', '2'], motor: ['U1', 'V1'], battery: ['+', '−'], acsource: ['L', 'N'],
 };

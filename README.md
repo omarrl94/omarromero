@@ -5,6 +5,12 @@ Aplicación estática (sin backend): TypeScript + Vite + React + SVG. Licencia M
 
 > **Estado: Fases 1-3 completas + avance de las 4, 5, 6 y 7** (ver `docs/PLAN.md`). Lienzo, 24 componentes de CC con símbolos animados, motor MNA con diodos y protecciones, polímetro y hoja de medidas.
 
+## Montar en esquema, multifilar y unifilar
+Las pestañas **Esquema**, **Multifilar** y **Unifilar** son editables: arrastras componentes, los cableas y se simula al instante.
+- **Multifilar:** todos los conductores, con la designación de cada borne (L, N, 1, 2, 3-4, X1-X2…), el color normalizado y la sección de cada cable.
+- **Unifilar:** dibujas **solo la línea** (fuente → interruptor/fusible/magnetotérmico → receptor) con las marcas de conductores; el simulador añade solo el conductor de retorno de cada receptor. Esos retornos son cables reales (se ven en las demás vistas) y se ocultan en el unifilar. Disponible para fuentes, aparamenta en serie (interruptor, pulsadores, fusible, magnetotérmico) y receptores; el resto (conmutador, potenciómetro, diodos…) se monta en esquema o multifilar.
+- El botón **Documento** de cada pestaña muestra el esquema generado automáticamente a partir del circuito (con el cajetín por línea en el unifilar), el que se imprime en el plano.
+
 ## Modo visitante y superadmin
 Sin cuenta, el simulador está **muy limitado**: una pila, una resistencia y el polímetro; todo lo demás (resto de componentes, vistas, instrumentos, resolver, guardar/abrir, juego…) lleva candado y propone registrarse. Con cuenta se desbloquea todo. El superadmin (`ADMIN_EMAILS` en `src/access.ts`, y en `firestore.rules`) exige correo verificado y ve un panel con los usuarios. Detalles en `docs/DESPLIEGUE-NETLIFY-FIREBASE.md`.
 

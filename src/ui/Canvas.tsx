@@ -8,11 +8,14 @@ import { Symbol } from './symbols';
 import { beep } from './sound';
 import { beginProbeDrag } from './Floating';
 import { Boom } from './Boom';
+import { TERM_LABELS } from './diagrams';
+import { isReturnWire } from '../model/unifilar';
 
 const GRID = 20;
 const snap = (v: number) => Math.round(v / GRID) * GRID;
 
-interface Props { sim: SimResult; cables?: Record<string, import('../model/cables').CableInfo> }
+export type CanvasMode = 'schematic' | 'multifilar' | 'unifilar';
+interface Props { sim: SimResult; cables?: Record<string, import('../model/cables').CableInfo>; mode?: CanvasMode }
 
 /** Ruta ortogonal entre dos puntos (horizontal y luego vertical) con esquina redondeada. */
 function route(a: { x: number; y: number }, b: { x: number; y: number }) {
@@ -22,7 +25,14 @@ function route(a: { x: number; y: number }, b: { x: number; y: number }) {
   return `M${a.x} ${a.y}L${b.x - sx * r} ${a.y}Q${b.x} ${a.y} ${b.x} ${a.y + sy * r}L${b.x} ${b.y}`;
 }
 
-export function Canvas({ sim, cables }: Props) {
+/** Ruta del retorno automático: por debajo del montaje, para que no se superponga a la línea de fase. */
+function routeUnder(a: { x: number; y: number }, b: { x: number; y: number }) {
+  const y = Math.max(a.y, b.y) + 70;
+  return `M${a.x} ${a.y}V${y}H${b.x}V${b.y}`;
+}
+
+export function Canvas({ sim, cables, mode = 'schematic' }: Props) {
+  const uni = mode === 'unifilar', mf = mode === 'multifilar';
   const st = useStore();
   const { project, selection, wiring } = st;
   const svgRef = useRef<SVGSVGElement>(null);
@@ -208,8 +218,9 @@ export function Canvas({ sim, cables }: Props) {
         {project.wires.map((w) => {
           const ca = compMap.get(w.a.comp), cb = compMap.get(w.b.comp);
           if (!ca || !cb) return null;
+          if (uni && isReturnWire(project, w)) return null; // en unifilar el retorno va implícito
           const a = termPos(ca, w.a.term), b = termPos(cb, w.b.term);
-          const d = route(a, b);
+          const d = w.auto ? routeUnder(a, b) : route(a, b);
           const i = sim.wireCurrent[w.id] ?? 0;
           const sel = selection.includes(w.id);
           const v = sim.solution.voltages[sim.nodeOf[tkey(w.a)]] ?? 0;
@@ -218,15 +229,30 @@ export function Canvas({ sim, cables }: Props) {
           return (
             <g key={w.id}>
               <path d={d} className="wire-hit" onPointerDown={(e) => { e.stopPropagation(); st.select([w.id], e.shiftKey); }} />
-              <path d={d} className={`wire ${cables?.[w.id]?.overload ? 'hot' : ''}`} style={{ stroke: st.heat ? heatColor(v) : sel ? 'var(--accent)' : roleColor(sim.nodeOf[tkey(w.a)] ?? 0), strokeWidth: sel ? 4.5 : st.heat ? 4.5 : 3.4 }} />
+              {mf && <path d={d} className="wire" style={{ stroke: roleColor(sim.nodeOf[tkey(w.a)] ?? 0), strokeWidth: 8, opacity: 0.3 }} />}
+              <path d={d} className={`wire ${cables?.[w.id]?.overload ? 'hot' : ''}`} style={{ stroke: st.heat ? heatColor(v) : sel ? 'var(--accent)' : mf ? 'var(--ink)' : uni ? 'var(--ink)' : roleColor(sim.nodeOf[tkey(w.a)] ?? 0), strokeWidth: sel ? 4.5 : st.heat ? 4.5 : uni ? 5.2 : mf ? 2.4 : 3.4 }} />
+              {uni && (() => {
+                const horiz = Math.abs(a.y - b.y) < 1 || Math.abs(a.x - b.x) >= 1;
+                const mm = Math.abs(a.x - b.x) < 1 || Math.abs(a.y - b.y) < 1 ? { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 } : { x: (a.x + b.x) / 2, y: a.y };
+                const n = sim.ac ? 3 : 2;
+                return (
+                  <g pointerEvents="none" stroke="var(--ink)" strokeWidth={2.2} strokeLinecap="round">
+                    {Array.from({ length: n }, (_, k) => { const o = (k - (n - 1) / 2) * 8; return horiz ? <path key={k} d={`M${mm.x + o - 4} ${mm.y + 8}L${mm.x + o + 4} ${mm.y - 8}`} /> : <path key={k} d={`M${mm.x - 8} ${mm.y + o - 4}L${mm.x + 8} ${mm.y + o + 4}`} />; })}
+                  </g>
+                );
+              })()}
               {st.showCables && cables?.[w.id] && (() => {
-                const m = Math.abs(a.x - b.x) < 1 || Math.abs(a.y - b.y) < 1 ? { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 } : { x: (a.x + b.x) / 2, y: a.y };
+                const m = w.auto ? { x: (a.x + b.x) / 2, y: Math.max(a.y, b.y) + 70 } : Math.abs(a.x - b.x) < 1 || Math.abs(a.y - b.y) < 1 ? { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 } : { x: (a.x + b.x) / 2, y: a.y };
                 const ci = cables[w.id];
                 const bad = ci.overload || (ci.pct != null && ci.pct > ci.limit);
+                const sec = `${String(ci.section).replace('.', ',')} mm²`;
+                const tag = mf ? roleStyle(sim.nodeOf[tkey(w.a)] ?? 0).tag : '';
+                const label = mf ? `${tag} · ${sec}` : sec;
+                const wpx = label.length * 5.4 + 14;
                 return (
-                  <g pointerEvents="none" transform={`translate(${m.x} ${m.y})`}>
-                    <rect x={-17} y={-7} width={34} height={13} rx={6} fill="var(--panel)" stroke={bad ? 'var(--err)' : 'var(--line)'} />
-                    <text y={3} fontSize={8.5} textAnchor="middle" fill={bad ? 'var(--err)' : 'var(--muted)'} fontWeight={700}>{String(ci.section).replace('.', ',')} mm²</text>
+                  <g pointerEvents="none" transform={`translate(${m.x} ${m.y + (uni ? 20 : mf ? -16 : 0)})`}>
+                    <rect x={-wpx / 2} y={-7} width={wpx} height={13} rx={6} fill="var(--panel)" stroke={bad ? 'var(--err)' : mf ? roleColor(sim.nodeOf[tkey(w.a)] ?? 0) : 'var(--line)'} strokeWidth={mf ? 1.4 : 1} />
+                    <text y={3} fontSize={8.5} textAnchor="middle" fill={bad ? 'var(--err)' : 'var(--muted)'} fontWeight={700}>{label}</text>
                   </g>
                 );
               })()}
@@ -299,6 +325,10 @@ export function Canvas({ sim, cables }: Props) {
                     <circle cx={p.x} cy={p.y} r={11} fill="transparent" className="term-hit"
                       onPointerDown={(e) => onTermClick(e, { comp: c.id, term: ti }, ti)} data-term={`${c.id}:${ti}`} />
                     <circle cx={p.x} cy={p.y} r={active ? 6 : 4} className={`term ${active ? 'active' : ''}`} pointerEvents="none" />
+                    {mf && c.type !== 'junction' && c.type !== 'ground' && (() => {
+                      const vx = p.x - c.x, vy = p.y - c.y, nn = Math.hypot(vx, vy) || 1;
+                      return <text x={p.x + (vx / nn) * 13 - (vy / nn) * 8} y={p.y + (vy / nn) * 13 + (vx / nn) * 8 + 3} fontSize={9} fontWeight={700} textAnchor="middle" fill="var(--muted)" pointerEvents="none">{(TERM_LABELS[c.type] ?? def.terminals.map((t) => t.name))[ti] ?? ''}</text>;
+                    })()}
                   </g>
                 );
               })}

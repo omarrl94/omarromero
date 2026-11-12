@@ -233,7 +233,8 @@ export function simulate(project: Project, runtime: Runtime = {}): SimResult {
   const events: SimEvent[] = [];
   // Fuente en cortocircuito (sin resistencia que limite): se quema
   if (!solution.ok) {
-    const bad = solution.issues.some((i) => i.code === 'short-source' || i.code === 'voltage-loop') || (!!acInfo && solution.issues.some((i) => i.code === 'singular'));
+    const acShort = !!acInfo && components.some((c) => defOf(c.type).model.kind === 'ACV' && nodesOf(c)[0] === nodesOf(c)[1]);
+    const bad = solution.issues.some((i) => i.code === 'short-source' || i.code === 'voltage-loop') || acShort;
     if (bad) for (const c of components) if (['V', 'ACV'].includes(defOf(c.type).model.kind) && !runtime[c.id])
       events.push({ id: c.id, state: 'burnt', text: `¡CORTOCIRCUITO! ${c.label || c.id} se ha quemado: sus bornes quedaron unidos sin ninguna resistencia que limite la corriente.` });
   }

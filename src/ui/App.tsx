@@ -15,6 +15,7 @@ import { RealPanel } from './RealPanel';
 import { Viewport } from './Viewport';
 import { CuadroView } from './CuadroView';
 import { Plano } from './Plano';
+import { UNIFILAR_TYPES } from '../model/unifilar';
 import { GameView } from './GameView';
 import { SolveDialog } from './SolveDialog';
 import { useAuth } from '../auth';
@@ -126,7 +127,9 @@ export function App() {
   const messages = useMemo(() => [...sim.messages, ...cableRep.messages], [sim, cableRep]);
   const mf = useMemo(() => multifilarDiagram(project, sim, cableRep.info, st.showCables), [project, sim, cableRep, st.showCables]);
   const uf = useMemo(() => unifilarDiagram(project, sim, cableRep.info), [project, sim, cableRep]);
-  const wide = !['schematic', 'real'].includes(st.view);
+  const wide = ['cuadro', 'plano', 'juego'].includes(st.view);
+  const [doc, setDoc] = useState(false);
+  const uniLocked = (type: string) => st.view === 'unifilar' && !UNIFILAR_TYPES.has(type);
   const [shake, setShake] = useState(false);
   const nBooms = st.booms.length;
   useEffect(() => { if (nBooms > 0) { setShake(true); const h = setTimeout(() => setShake(false), 520); return () => clearTimeout(h); } }, [nBooms]);
@@ -243,15 +246,15 @@ export function App() {
               <h4>{cat}</h4>
               <div className="pal">
                 {items.map((d) => (
-                  <div key={d.type} className={`pal-item ${visitor && !visitorAllows(d.type) ? 'locked' : ''}`} draggable={!(visitor && !visitorAllows(d.type))}
+                  <div key={d.type} className={`pal-item ${(visitor && !visitorAllows(d.type)) || uniLocked(d.type) ? 'locked' : ''}`} draggable={!((visitor && !visitorAllows(d.type)) || uniLocked(d.type))}
                     onDragStart={(e) => e.dataTransfer.setData('text/plain', d.type)}
                     onClick={() => { if (visitor && !visitorAllows(d.type)) st.setUpsell(UPSELL.components); }}
                     onDoubleClick={() => st.addComponent(d.type, 300, 300)}
-                    title={visitor && !visitorAllows(d.type) ? 'Regístrate para usar este componente' : 'Arrastra al lienzo (o doble clic)'} data-type={d.type}>
+                    title={uniLocked(d.type) ? 'No se representa en unifilar' : visitor && !visitorAllows(d.type) ? 'Regístrate para usar este componente' : 'Arrastra al lienzo (o doble clic)'} data-type={d.type}>
                     <svg width={64} height={32} viewBox="-44 -22 88 44">
                       <PaletteIcon type={d.type} />
                     </svg>
-                    <span>{d.name}</span>{visitor && !visitorAllows(d.type) && <i className="lock" aria-hidden>🔒</i>}
+                    <span>{d.name}</span>{visitor && !visitorAllows(d.type) && <i className="lock" aria-hidden>🔒</i>}{uniLocked(d.type) && <i className="lock" aria-hidden title="No se representa en unifilar">∅</i>}
                   </div>
                 ))}
               </div>
@@ -263,7 +266,15 @@ export function App() {
       <main className="center">
         <div className={`stage ${st.view} ${shake ? 'shake' : ''}`} key={st.view}>
           {st.view === 'real' ? <RealPanel sim={sim} cables={cableRep.info} /> : st.view === 'schematic' ? <Canvas sim={sim} cables={cableRep.info} />
-            : st.view === 'multifilar' ? <Viewport d={mf} /> : st.view === 'unifilar' ? <Viewport d={uf} />
+            : st.view === 'multifilar' || st.view === 'unifilar' ? (
+              <>
+                <div className="docswitch" role="tablist" aria-label="Montar o ver el documento">
+                  <button role="tab" aria-selected={!doc} className={!doc ? 'on' : ''} onClick={() => setDoc(false)}>Montar</button>
+                  <button role="tab" aria-selected={doc} className={doc ? 'on' : ''} onClick={() => setDoc(true)}>Documento</button>
+                </div>
+                {doc ? <Viewport d={st.view === 'multifilar' ? mf : uf} /> : <Canvas sim={sim} cables={cableRep.info} mode={st.view} />}
+              </>
+            )
             : st.view === 'cuadro' ? <CuadroView /> : st.view === 'juego' ? <GameView onExit={() => st.setView('schematic')} /> : <Plano sim={sim} cables={cableRep.info} />}
         </div>
         <div className="toasts">{st.notices.map((n) => (
@@ -276,7 +287,7 @@ export function App() {
             <FloatingWin id="watt" title="Vatímetro" width={228} order={2}><Wattmeter sim={sim} /></FloatingWin>
           </>
         )}
-        {!wide && <div className="hint-bar">{st.view === 'real' ? 'Modo real: arrastra de borne a borne para cablear · clic en un cable y Supr lo quita · clic en interruptores y pulsadores para accionarlos · rueda = zoom' : st.wiring ? t.wireHint : t.placeHint}</div>}
+        {!wide && <div className="hint-bar">{st.view === 'unifilar' ? 'Unifilar: dibuja solo la línea (fuente → aparamenta → receptor). El retorno se añade solo y se ve en las demás vistas.' : st.view === 'multifilar' ? 'Multifilar: monta con todos los conductores. Cada borne lleva su designación y cada cable su color y sección.' : st.view === 'real' ? 'Modo real: arrastra de borne a borne para cablear · clic en un cable y Supr lo quita · clic en interruptores y pulsadores para accionarlos · rueda = zoom' : st.wiring ? t.wireHint : t.placeHint}</div>}
       </main>
 
       <aside className="right">

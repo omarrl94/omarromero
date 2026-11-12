@@ -6,6 +6,7 @@ import { dosPilas } from './model/examples';
 import type { Runtime, RuntimeState, SimEvent } from './model/netlist';
 import { defaultPanel, type PanelConfig } from './model/panel';
 import { currentLevel, UPSELL, VISITOR_LIMITS, visitorAllows } from './access';
+import { syncReturns, UNIFILAR_TYPES } from './model/unifilar';
 import { initialMeter, type MeterState } from './model/meter';
 
 /** Una fila de la hoja de medidas. */
@@ -120,6 +121,10 @@ export const useStore = create<State>((set, get) => ({
       if (!visitorAllows(type)) { set({ upsell: UPSELL.components }); return ''; }
       if (get().project.components.filter((c) => c.type === type).length >= VISITOR_LIMITS[type]) { set({ upsell: UPSELL.limit }); return ''; }
     }
+    if (get().view === 'unifilar' && !UNIFILAR_TYPES.has(type)) {
+      set((st) => ({ notices: [...st.notices, { id: Date.now() + Math.random(), text: 'Este componente no se representa en unifilar: monta el unifilar con fuentes, aparamenta en serie (interruptor, fusible, magnetotérmico) y receptores. Para el resto usa el esquema o el multifilar.' }] }));
+      return '';
+    }
     get().snapshot();
     const id = uid(type[0].toUpperCase());
     const c: Component = { id, type, x: Math.round(x / 20) * 20, y: Math.round(y / 20) * 20, rot: 0, params: defaultParams(type) };
@@ -151,12 +156,12 @@ export const useStore = create<State>((set, get) => ({
     if (!selection.length) return;
     get().snapshot();
     set((s) => ({
-      project: {
+      project: syncReturns({
         ...s.project,
         components: s.project.components.filter((c) => !selection.includes(c.id)),
         wires: s.project.wires.filter(
           (w) => !selection.includes(w.id) && !selection.includes(w.a.comp) && !selection.includes(w.b.comp)),
-      },
+      }, s.view === 'unifilar'),
       selection: [],
     }));
   },
@@ -199,7 +204,7 @@ export const useStore = create<State>((set, get) => ({
       (w) => (same(w.a, a) && same(w.b, b)) || (same(w.a, b) && same(w.b, a)));
     if (exists) return;
     get().snapshot();
-    set((s) => ({ project: { ...s.project, wires: [...s.project.wires, { id: uid('w'), a, b }] }, wiring: null }));
+    set((s) => ({ project: syncReturns({ ...s.project, wires: [...s.project.wires, { id: uid('w'), a, b }] }, s.view === 'unifilar'), wiring: null }));
   },
   select(ids, additive) {
     set((s) => ({ selection: additive ? [...new Set([...s.selection, ...ids])] : ids }));

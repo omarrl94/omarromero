@@ -24,6 +24,8 @@ export interface Wire {
   color?: string;
   length?: number; // m
   material?: 'Cu' | 'Al';
+  /** Conductor de retorno generado automáticamente al montar en unifilar (no lo dibuja el alumno). */
+  auto?: boolean;
 }
 
 export interface Project {
