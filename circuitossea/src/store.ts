@@ -3,7 +3,7 @@ import type { Component, Project, TermRef, Wire } from './model/types';
 import { PROJECT_VERSION } from './model/types';
 import { defaultParams } from './model/library';
 import { dosPilas } from './model/examples';
-import type { Runtime, SimEvent } from './model/netlist';
+import type { Runtime, RuntimeState, SimEvent } from './model/netlist';
 import { defaultPanel, type PanelConfig } from './model/panel';
 import { initialMeter, type MeterState } from './model/meter';
 
@@ -40,6 +40,7 @@ interface State {
   selection: string[];
   wiring: TermRef | null;
   runtime: Runtime;
+  booms: { id: number; comp: string; kind: RuntimeState }[];
   notices: { id: number; text: string }[];
   meter: MeterState;
   log: Measure[];
@@ -101,7 +102,7 @@ const uid = (prefix: string) => `${prefix}${Date.now().toString(36)}${(counter++
 export const useStore = create<State>((set, get) => ({
   project: loadInitial(),
   past: [], future: [], selection: [], wiring: null,
-  runtime: {}, notices: [], meter: { ...initialMeter }, log: [], sound: false, scopeTips: { c1: null, c2: null }, scopeArm: null, dock: false, view: 'schematic', leftOpen: true, rightOpen: true, fitTick: 0,
+  runtime: {}, booms: [], notices: [], meter: { ...initialMeter }, log: [], sound: false, scopeTips: { c1: null, c2: null }, scopeArm: null, dock: false, view: 'schematic', leftOpen: true, rightOpen: true, fitTick: 0,
   inst: { meter: { open: false, x: null, y: null, min: false }, scope: { open: false, x: null, y: null, min: false }, watt: { open: false, x: null, y: null, min: false } },
   probeDrag: null, showCables: true,
   animate: true, showLabels: true, heat: false,
@@ -228,7 +229,9 @@ export const useStore = create<State>((set, get) => ({
     set((s) => ({
       runtime: { ...s.runtime, ...Object.fromEntries(ev.map((e) => [e.id, e.state])) },
       notices: [...s.notices, ...ev.map((e) => ({ id: ++counter + Date.now(), text: e.text }))],
+      booms: [...s.booms, ...ev.filter((e) => e.state !== 'tripped').map((e) => ({ id: ++counter + Date.now(), comp: e.id, kind: e.state }))],
     }));
+    setTimeout(() => set((s) => ({ booms: s.booms.slice(ev.filter((e) => e.state !== 'tripped').length) })), 2600);
   },
   resetRuntime() { set({ runtime: {}, notices: [] }); },
   dismiss(id) { set((s) => ({ notices: s.notices.filter((n) => n.id !== id) })); },

@@ -168,3 +168,18 @@ button.warnbtn { background: #7a3b12; border-color: var(--terracota); }
 .welcome .cardbtn { text-align: left; display: grid; gap: 6px; padding: 16px; border-radius: 16px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); min-height: 120px; cursor: pointer; transition: transform .15s, box-shadow .15s, border-color .15s; }
 .welcome .cardbtn:hover { transform: translateY(-3px); box-shadow: 0 10px 26px #0003; border-color: var(--accent); } .welcome .cardbtn b { font-size: 15px; } .welcome .cardbtn small { color: var(--muted); line-height: 1.4; } .welcome .cardbtn .ic { font-size: 26px; }
 .welcome ul { color: var(--muted); font-size: 13px; line-height: 1.7; padding-left: 18px; } .welcome .go { margin-top: 12px; background: linear-gradient(#F5D943, #D9B51B); color: #2A2622; border: 0; font-weight: 800; padding: 10px 26px; border-radius: 12px; font-size: 15px; min-height: 44px; }
+
+.stage.shake { animation: shake .5s cubic-bezier(.36,.07,.19,.97); }
+@keyframes shake { 10%, 90% { transform: translate(-2px, 1px); } 20%, 80% { transform: translate(4px, -2px); } 30%, 50%, 70% { transform: translate(-7px, 3px); } 40%, 60% { transform: translate(7px, -3px); } }
+.boom-flash { fill: #fff; opacity: 0; animation: bflash .55s ease-out forwards; transform-box: fill-box; transform-origin: center; filter: blur(2px); }
+@keyframes bflash { 0% { opacity: 1; transform: scale(.2); } 25% { opacity: 1; } 100% { opacity: 0; transform: scale(3.4); } }
+.boom-ring { fill: none; stroke: #ff8a1f; stroke-width: 5; opacity: 0; animation: bring .7s ease-out forwards; transform-box: fill-box; transform-origin: center; } .boom-ring.r2 { stroke: #ffe27a; stroke-width: 3; animation-delay: .06s; }
+@keyframes bring { 0% { opacity: 1; transform: scale(.3); } 100% { opacity: 0; transform: scale(4.2); } }
+.boom-p { opacity: 0; animation: bp 1s cubic-bezier(.1,.7,.3,1) forwards; }
+@keyframes bp { 0% { opacity: 1; transform: translate(0, 0) scale(1.2); } 80% { opacity: .9; } 100% { opacity: 0; transform: translate(var(--dx), calc(var(--dy) + 26px)) scale(.2); } }
+.boom-smoke { fill: #3c3a37; opacity: 0; animation: bsmoke 2.2s ease-out forwards; transform-box: fill-box; transform-origin: center; }
+@keyframes bsmoke { 0% { opacity: .75; transform: translateY(0) scale(.5); } 100% { opacity: 0; transform: translateY(-62px) scale(2.8); } }
+.flicker { animation: flick .11s steps(2) infinite alternate; } @keyframes flick { from { opacity: .55; } to { opacity: 1; } }
+.canvas .wire.hot, .realpanel path.hotwire { stroke: #ff3b30 !important; animation: hotp .45s ease-in-out infinite alternate; filter: drop-shadow(0 0 7px #ff3b30); }
+@keyframes hotp { from { opacity: .6; } to { opacity: 1; } }
+.burnt-glow { fill: #ff4d2e; opacity: .35; animation: pulse .8s infinite alternate; filter: blur(8px); }

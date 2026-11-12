@@ -56,11 +56,11 @@ function partsOf(c: Component, nd: number[], rt: Runtime, ds: Map<string, DState
   const bad = rt[id] !== undefined;
   switch (m.kind) {
     case 'R': return [R(bad ? R_OPEN : Math.max(m.value(c.params), 1e-9))];
-    case 'V': return [{ el: { id, kind: 'V', a: nd[0], b: nd[1], value: m.value(c.params), rint: m.rint(c.params) }, ta: 0, tb: 1 }];
+    case 'V': return bad ? [R(R_OPEN)] : [{ el: { id, kind: 'V', a: nd[0], b: nd[1], value: m.value(c.params), rint: m.rint(c.params) }, ta: 0, tb: 1 }];
     case 'I': return [{ el: { id, kind: 'I', a: nd[0], b: nd[1], value: m.value(c.params) }, ta: 0, tb: 1 }];
     case 'SW': return [R(m.closed(c.params) ? R_CLOSED : R_OPEN)];
     case 'OPEN': return [R(R_OPEN)];
-    case 'ACV': return [{ el: { id, kind: 'V', a: nd[0], b: nd[1], value: 0, rint: m.rint(c.params) }, ta: 0, tb: 1 }];
+    case 'ACV': return bad ? [R(R_OPEN)] : [{ el: { id, kind: 'V', a: nd[0], b: nd[1], value: 0, rint: m.rint(c.params) }, ta: 0, tb: 1 }];
     case 'FUSE': return [R(bad ? R_OPEN : 0.02)];
     case 'BREAKER': return [R(bad ? R_OPEN : 0.01)];
     case 'SPDT': {
@@ -97,7 +97,8 @@ function solveAcMode(components: Component[], nodesOf: (c: Component) => number[
     const nd = nodesOf(c);
     const m = defOf(c.type).model;
     const push = (e: AcElement, ta = 0, tb = 1) => { els.push(e); owner.push({ id: e.id, ta, tb }); };
-    if (c.type === 'acsource') push({ id: c.id, kind: 'V', a: nd[0], b: nd[1], v: cx(Number(c.params.v), 0), rint: Number(c.params.rint) });
+    if (runtime[c.id]) push({ id: c.id, kind: 'Z', a: nd[0], b: nd[1], z: cx(1e8, 0) });
+    else if (c.type === 'acsource') push({ id: c.id, kind: 'V', a: nd[0], b: nd[1], v: cx(Number(c.params.v), 0), rint: Number(c.params.rint) });
     else if (c.type === 'capacitor') push({ id: c.id, kind: 'Z', a: nd[0], b: nd[1], z: cx(0, -1 / (omega * Math.max(1e-12, Number(c.params.c) * 1e-6))) });
     else if (c.type === 'inductor') push({ id: c.id, kind: 'Z', a: nd[0], b: nd[1], z: cx(Number(c.params.r), omega * Number(c.params.l) * 1e-3) });
     else if (m.kind === 'V') { dcIgnored = true; push({ id: c.id, kind: 'V', a: nd[0], b: nd[1], v: cx(0, 0), rint: m.rint(c.params) }); }
@@ -230,6 +231,12 @@ export function simulate(project: Project, runtime: Runtime = {}): SimResult {
     componentCurrent[`${owner}:${p.tb}`] = (componentCurrent[`${owner}:${p.tb}`] ?? 0) - i;
   }
   const events: SimEvent[] = [];
+  // Fuente en cortocircuito (sin resistencia que limite): se quema
+  if (!solution.ok) {
+    const bad = solution.issues.some((i) => i.code === 'short-source' || i.code === 'voltage-loop') || (!!acInfo && solution.issues.some((i) => i.code === 'singular'));
+    if (bad) for (const c of components) if (['V', 'ACV'].includes(defOf(c.type).model.kind) && !runtime[c.id])
+      events.push({ id: c.id, state: 'burnt', text: `¡CORTOCIRCUITO! ${c.label || c.id} se ha quemado: sus bornes quedaron unidos sin ninguna resistencia que limite la corriente.` });
+  }
   const nm = (c: Component) => c.label || (c.id.length <= 4 ? c.id : defOf(c.type).name);
   for (const c of components) {
     const def = defOf(c.type);
@@ -266,11 +273,16 @@ export function simulate(project: Project, runtime: Runtime = {}): SimResult {
       messages.push({ level: 'warn', ids: [c.id], text: `${nm(c)} disipa ${fmt(p)} W y su potencia máxima es ${fmt(+c.params.pmax)} W: se sobrecalienta. Usa una de más vatios.` });
     if (m.kind === 'V' && mainI > 0) {
       const rint = m.rint(c.params);
-      if (rint > 0 && mainI * rint > 0.6 * m.value(c.params))
+      if (rint > 0 && mainI * rint > 0.6 * m.value(c.params) && mainI <= Number(c.params.imax ?? 30))
         messages.push({ level: 'warn', ids: [c.id], text: `La pila pierde más del 60 % de su tensión en su resistencia interna (${fmt(mainI * rint)} V).` });
-      if (rint === 0 && mainI > 100)
-        messages.push({ level: 'error', ids: [c.id], text: 'Cortocircuito: la pila ideal alimenta una resistencia casi nula. Añade una carga en serie.' });
     }
+    if ((m.kind === 'V' || m.kind === 'ACV') && mainI > Number(c.params.imax ?? (m.kind === 'ACV' ? 100 : 30)))
+      events.push({ id: c.id, state: 'burnt', text: `¡CORTOCIRCUITO! ${c.label || c.id} entrega ${fmt(mainI)} A y su máximo es ${fmt(Number(c.params.imax ?? (m.kind === 'ACV' ? 100 : 30)))} A: se ha quemado. Revisa el cableado y añade una protección (fusible o magnetotérmico).` });
+  }
+  // Si una protección va a actuar, la fuente no llega a quemarse (la protección corta antes)
+  if (events.some((e) => e.state === 'blown' || e.state === 'tripped')) {
+    const isSrc = (id: string) => ['V', 'ACV'].includes(defOf(components.find((c) => c.id === id)!.type).model.kind);
+    for (let i = events.length - 1; i >= 0; i--) if (events[i].state === 'burnt' && isSrc(events[i].id)) events.splice(i, 1);
   }
   if (acInfo) {
     for (const c of components) {

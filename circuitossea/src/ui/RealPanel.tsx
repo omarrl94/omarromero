@@ -11,6 +11,7 @@ import { tkey, type SimResult } from '../model/netlist';
 import type { Component, TermRef } from '../model/types';
 import { beep } from './sound';
 import { beginProbeDrag } from './Floating';
+import { Boom } from './Boom';
 
 type Dir = 'up' | 'down';
 interface Term { x: number; y: number; dir: Dir }
@@ -257,6 +258,7 @@ export function RealPanel({ sim, cables }: { sim: SimResult; cables?: Record<str
             <path d={d} fill="none" stroke="#000" strokeOpacity={0.22} strokeWidth={9} strokeLinecap="round" transform="translate(2 4)" />
             <path d={d} fill="none" stroke={col.c} strokeWidth={(sel ? 2 : 0) + 3.2 + 1.6 * Math.sqrt(cables?.[w.id]?.section ?? 1.5)} strokeLinecap="round" />
             <path d={d} fill="none" stroke={col.hi} strokeOpacity={0.55} strokeWidth={1.6} strokeLinecap="round" transform="translate(-1.2 -1.6)" />
+            {cables?.[w.id]?.overload && <path d={d} fill="none" className="hotwire" strokeWidth={9} strokeLinecap="round" />}
             {st.animate && active && <path d={d} fill="none" className="flow" style={{ animationDuration: `${1.6 / (0.25 + 1.75 * Math.sqrt(Math.abs(i) / maxI))}s`, animationDirection: i >= 0 ? 'normal' : 'reverse', strokeWidth: 3.2 }} />}
             {st.showCables && cables?.[w.id] && (
               <g pointerEvents="none" transform={`translate(${(a.x + b.x) / 2 + lane * 0.75} ${(a.y + b.y) / 2})`}>
@@ -314,6 +316,8 @@ export function RealPanel({ sim, cables }: { sim: SimResult; cables?: Record<str
         const col = k === 'c1' ? '#f5d300' : '#29b6f6';
         return (<g key={k} style={{ cursor: 'grab' }} onPointerDown={(e) => beginProbeDrag(k, e)}><path d={`M${p.x} ${p.y}L${p.x + 22} ${p.y - 56}`} stroke={col} strokeWidth={4} strokeLinecap="round" /><rect x={p.x + 12} y={p.y - 76} width={20} height={20} rx={4} fill={col} stroke="#222" /><text x={p.x + 22} y={p.y - 62} fontSize={12} fontWeight={800} textAnchor="middle">{k === 'c1' ? '1' : '2'}</text></g>);
       })}
+
+      {st.booms.map((b) => { const dv = byId.get(b.comp); return dv ? <g key={b.id} transform={`translate(${dv.x + dv.w / 2} ${dv.y + dv.h / 2})`}><Boom big={['battery', 'acsource'].includes(dv.c.type)} /></g> : null; })}
 
       {/* Leyenda */}
       <g transform={`translate(${W - 330} ${H - 54})`} fontSize={9.5} fill="#4a525b" fontWeight={600}>
@@ -396,10 +400,11 @@ function Device({ c, sim, dead }: { c: Component; sim: SimResult; dead?: string 
           <rect x={4} y={8} width={s.w} height={s.h} rx={9} fill="#000" opacity={0.25} />
           <rect x={0} y={0} width={s.w} height={s.h} rx={9} fill="url(#psu)" stroke="#111" />
           <rect x={8} y={8} width={s.w - 16} height={30} rx={4} fill="#0c0f12" />
-          <text x={s.w / 2} y={30} textAnchor="middle" fontSize={19} fontWeight={700} fontFamily="ui-monospace,monospace" fill="#8fe3a8">{val}</text>
+          <text x={s.w / 2} y={30} textAnchor="middle" fontSize={19} fontWeight={700} fontFamily="ui-monospace,monospace" fill={dead ? '#ff6b5e' : '#8fe3a8'}>{dead ? 'ERROR' : val}</text>
           <text x={s.w / 2} y={58} textAnchor="middle" fontSize={9.5} letterSpacing={2} fontWeight={800} fill="#c9d1da">{isAc ? 'RED MONOFÁSICA' : isI ? 'FUENTE DE CORRIENTE' : 'FUENTE CC'}</text>
           <text x={s.w / 2} y={72} textAnchor="middle" fontSize={8} fill="#8a939e">{isAc ? `${fmt(+p.f)} Hz` : isI ? 'LIMITADA' : 'SALIDA REGULADA'}</text>
-          <circle cx={20} cy={92} r={4.5} fill={on ? '#33e06b' : '#274'} style={{ filter: on ? 'drop-shadow(0 0 5px #33e06b)' : 'none' }} />
+          <circle cx={20} cy={92} r={4.5} fill={dead ? '#ff3b30' : on ? '#33e06b' : '#274'} style={{ filter: on || dead ? `drop-shadow(0 0 5px ${dead ? '#ff3b30' : '#33e06b'})` : 'none' }} />
+          {dead && <g><rect x={0} y={0} width={s.w} height={s.h} rx={9} fill="#000" opacity={0.45} /><circle cx={s.w / 2} cy={50} r={46} className="burnt-glow" /></g>}
           <text x={30} y={95.5} fontSize={8} fill="#aab3bd">POWER</text>
           {Array.from({ length: 9 }, (_, i) => <rect key={i} x={26 + i * 8} y={106} width={4} height={10} rx={2} fill="#0b0d10" />)}
           <rect x={14} y={120} width={s.w - 28} height={26} rx={4} fill="#1a1d21" />
@@ -515,7 +520,8 @@ function Device({ c, sim, dead }: { c: Component; sim: SimResult; dead?: string 
             </g>
           ) : (
             <g>
-              <circle cx={40} cy={38} r={22} fill={lens} style={{ transition: 'fill .15s' }} />
+              <circle cx={40} cy={38} r={22} fill={dead ? '#3a3632' : lens} className={glow > 1.15 ? 'flicker' : ''} style={{ transition: 'fill .15s' }} />
+              {dead && <circle cx={40} cy={38} r={30} className="burnt-glow" />}
               <circle cx={40} cy={38} r={22} fill="url(#lensShine)" />
               {c.type === 'lamp' && <path d="M30 46Q40 22 50 46M32 41H48" stroke={glow > 0.03 ? '#ff9d00' : '#8a8472'} strokeWidth={1.6} fill="none" opacity={0.9} />}
               {dead && <path d="M28 26L52 50M52 26L28 50" stroke="#222" strokeWidth={3} />}

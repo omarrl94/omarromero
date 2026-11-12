@@ -57,6 +57,7 @@ export const LIBRARY: Def[] = [
     params: [
       { key: 'v', label: 'Tensión', unit: 'V', default: 10, step: 0.5 },
       { key: 'rint', label: 'Resist. interna', unit: 'Ω', default: 0, min: 0, step: 0.1 },
+      { key: 'imax', label: 'Corriente máxima', unit: 'A', default: 30, min: 0.1, step: 1 },
     ],
     model: { kind: 'V', value: n('v'), rint: n('rint') }, tag: (p) => `${fmt(+p.v)} V`,
     help: 'Fuente de tensión continua con resistencia interna opcional.' },
@@ -66,6 +67,7 @@ export const LIBRARY: Def[] = [
       { key: 'v', label: 'Tensión eficaz', unit: 'V', default: 230, min: 0, step: 1 },
       { key: 'f', label: 'Frecuencia', unit: 'Hz', default: 50, min: 1, step: 1 },
       { key: 'rint', label: 'Impedancia de red', unit: 'Ω', default: 0, min: 0, step: 0.01 },
+      { key: 'imax', label: 'Corriente máxima', unit: 'A', default: 100, min: 1, step: 5 },
     ],
     model: { kind: 'ACV', v: n('v'), f: n('f'), rint: n('rint') }, tag: (p) => `${fmt(+p.v)} V · ${fmt(+p.f)} Hz`,
     help: 'Fuente senoidal. El circuito se resuelve en régimen permanente con fasores (valores eficaces).' },

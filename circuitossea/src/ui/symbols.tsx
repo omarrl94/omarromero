@@ -16,6 +16,7 @@ export function Symbol({ c, live }: P) {
     case 'battery':
       return (
         <g {...sw}>
+          {dead && <circle r={26} className="burnt-glow" />}
           <path d="M-40 0H-8M8 0H40" />
           <path d="M-8 -16V16" strokeWidth={3.5} /><path d="M8 -9V9" strokeWidth={3.5} />
           <path d="M-8 -16V16M8 -9V9" stroke="var(--terracota)" strokeWidth={1} opacity={0.6} />
@@ -103,7 +104,8 @@ export function Symbol({ c, live }: P) {
       const k = dead ? 0 : Math.min(1.2, p / pn);
       return (<g {...sw}><path d="M-40 0H-16M16 0H40" />
         {k > 0.02 && <circle r={18 + 14 * Math.min(1, k)} fill="var(--lamp)" opacity={Math.min(0.9, 0.2 + k * 0.7)} style={{ filter: 'blur(7px)' }} stroke="none" />}
-        <circle r={16} fill={dead ? '#4a4540' : k > 0.02 ? 'var(--lamp)' : 'var(--fill-a)'} fillOpacity={k > 0.02 ? 0.35 + 0.6 * Math.min(1, k) : 1} />
+        <circle r={16} className={k > 1.15 ? 'flicker' : ''} fill={dead ? '#4a4540' : k > 1.15 ? '#fffbe0' : k > 0.02 ? 'var(--lamp)' : 'var(--fill-a)'} fillOpacity={k > 0.02 ? 0.35 + 0.6 * Math.min(1, k) : 1} />
+        {dead && <circle r={20} className="burnt-glow" />}
         <path d="M-11 -11L11 11M-11 11L11 -11" stroke={dead ? 'var(--err)' : 'var(--ink)'} /></g>);
     }
     case 'heater': {
