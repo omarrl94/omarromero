@@ -16,6 +16,7 @@ import { Viewport } from './Viewport';
 import { CuadroView } from './CuadroView';
 import { Plano } from './Plano';
 import { GameView } from './GameView';
+import { SolveDialog } from './SolveDialog';
 import { useAuth } from '../auth';
 import { loadProfile, saveProfile } from '../cloud';
 import { useGame } from '../game/store';
@@ -69,6 +70,7 @@ export function App() {
   }, [uid]);
   useEffect(() => { if (!uid || !synced) return; const h = setTimeout(() => void saveProfile(uid, { project: proj, name: auth.user?.displayName ?? undefined }), 2500); return () => clearTimeout(h); }, [proj, uid, synced]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { if (!uid || !synced) return; const h = setTimeout(() => void saveProfile(uid, { career }), 1000); return () => clearTimeout(h); }, [career, uid, synced]);
+  const [showSolve, setShowSolve] = useState(false);
   const [welcome, setWelcome] = useState(() => { try { return !localStorage.getItem('circuitossea:welcome'); } catch { return true; } });
   const closeWelcome = () => { try { localStorage.setItem('circuitossea:welcome', '1'); } catch { /* ignorar */ } setWelcome(false); };
   const st = useStore();
@@ -118,6 +120,7 @@ export function App() {
   return (
     <div className={`app ${wide ? 'wide' : ''} ${st.leftOpen ? '' : 'noleft'} ${st.rightOpen ? '' : 'noright'}`}>
       <ProbeDragLayer />
+      {showSolve && <SolveDialog sim={sim} onClose={() => setShowSolve(false)} />}
       {welcome && <Welcome onClose={closeWelcome} />}
       <header className="top">
         <div className="brand"><span className="logo">⚡</span><b>{t.app}</b><small>{t.tagline}</small></div>
@@ -153,6 +156,7 @@ export function App() {
               ))}
             </span>
           )}
+          {['schematic', 'multifilar', 'unifilar', 'real'].includes(st.view) && <button className="solvebtn" onClick={() => setShowSolve(true)} title="Resolver el circuito por Kirchhoff, mallas, nudos, Millman, Thévenin, Norton…">🧮 Resolver valores</button>}
           {st.view === 'schematic' && <button onClick={st.fit} title="F">⤢ Ajustar</button>}
           <button onClick={() => st.toggle('leftOpen')} className={st.leftOpen ? '' : 'on'} title="Mostrar u ocultar la paleta">◧</button>
           <button onClick={() => st.toggle('rightOpen')} className={st.rightOpen ? '' : 'on'} title="Mostrar u ocultar propiedades">◨</button>
