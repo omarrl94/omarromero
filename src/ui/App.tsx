@@ -10,6 +10,7 @@ import { simulate } from '../model/netlist';
 import { EXAMPLES } from '../model/examples';
 import { t } from '../i18n';
 import { Canvas } from './Canvas';
+import { RealPanel } from './RealPanel';
 
 export function App() {
   const st = useStore();
@@ -51,6 +52,11 @@ export function App() {
     <div className="app">
       <header className="top">
         <div className="brand"><span className="logo">⚡</span><b>{t.app}</b><small>{t.tagline}</small></div>
+        <div className="viewswitch" role="tablist" aria-label="Vista del circuito">
+          {([['schematic', 'Esquema', '⎍'], ['real', 'Real', '🛠']] as const).map(([v, l, ic]) => (
+            <button key={v} role="tab" aria-selected={st.view === v} className={st.view === v ? 'on' : ''} onClick={() => st.setView(v)}><span>{ic}</span> {l}</button>
+          ))}
+        </div>
         <div className="tools">
           <button onClick={() => { if (confirm('¿Empezar un proyecto nuevo? Se perderán los cambios no guardados.')) st.load({ version: 1, name: 'Sin título', components: [], wires: [] }); }}>{t.newProject}</button>
           <button onClick={() => fileRef.current?.click()}>{t.open}</button>
@@ -105,7 +111,7 @@ export function App() {
       </aside>
 
       <main className="center">
-        <Canvas sim={sim} />
+        <div className={`stage ${st.view}`} key={st.view}>{st.view === 'real' ? <RealPanel sim={sim} /> : <Canvas sim={sim} />}</div>
         <div className="toasts">{st.notices.map((n) => (
           <div key={n.id} className="toast" role="alert"><span>💥</span><span>{n.text}</span><button onClick={() => st.dismiss(n.id)}>✕</button></div>
         ))}</div>
@@ -116,7 +122,7 @@ export function App() {
             <div className="inst"><Wattmeter sim={sim} /></div>
           </div>
         )}
-        <div className="hint-bar">{st.wiring ? t.wireHint : t.placeHint}</div>
+        <div className="hint-bar">{st.view === 'real' ? 'Modo real: clic en interruptores y pulsadores para accionarlos · rueda = zoom · arrastra para mover el panel · elige una punta y pulsa un borne para medir' : st.wiring ? t.wireHint : t.placeHint}</div>
       </main>
 
       <aside className="right">

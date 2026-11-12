@@ -40,6 +40,8 @@ interface State {
   scopeTips: { c1: TermRef | null; c2: TermRef | null };
   scopeArm: 'c1' | 'c2' | null;
   dock: boolean;
+  view: 'schematic' | 'real';
+  setView(v: 'schematic' | 'real'): void;
   animate: boolean;
   showLabels: boolean;
   heat: boolean;
@@ -77,7 +79,7 @@ const uid = (prefix: string) => `${prefix}${Date.now().toString(36)}${(counter++
 export const useStore = create<State>((set, get) => ({
   project: loadInitial(),
   past: [], future: [], selection: [], wiring: null,
-  runtime: {}, notices: [], meter: { ...initialMeter }, log: [], sound: false, scopeTips: { c1: null, c2: null }, scopeArm: null, dock: true,
+  runtime: {}, notices: [], meter: { ...initialMeter }, log: [], sound: false, scopeTips: { c1: null, c2: null }, scopeArm: null, dock: true, view: 'schematic',
   animate: true, showLabels: true, heat: false,
   dark: typeof matchMedia !== 'undefined' && matchMedia('(prefers-color-scheme: dark)').matches,
 
@@ -168,6 +170,7 @@ export const useStore = create<State>((set, get) => ({
   select(ids, additive) {
     set((s) => ({ selection: additive ? [...new Set([...s.selection, ...ids])] : ids }));
   },
+  setView(v) { set({ view: v, wiring: null }); },
   startWire(t) { set({ wiring: t }); },
   undo() {
     const { past, project, future } = get();

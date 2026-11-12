@@ -29,6 +29,8 @@ npm run build      # genera dist/ (alojable en Netlify / GitHub Pages)
 - **Corriente alterna (fase 3)**: fuente senoidal (230 V / 50 Hz ajustable), condensador y bobina con reactancia, análisis con fasores (valores eficaces), potencias P/Q/S y cos φ. Ejemplos: RLC serie, corrección del factor de potencia, lámpara de 230 V.
 - **Instrumentos «de taller»** (botón 🔬 Instrumentos): polímetro de mano con rueda giratoria (V⎓, V~, Ω, continuidad, A⎓, A~), bornes 10 A / COM / VΩ con clavijas, puntas que se colocan sobre el circuito; **osciloscopio de 2 canales** (base de tiempos, sensibilidad, acoplamiento AC/DC/GND, disparo, Vpp/Vrms/f/T y desfase Δφ; sonda de tensión o pinza de intensidad); **vatímetro** con aguja de cos φ, V, I, P, Q, S, kWh y coste (tarifa configurable, 1 s = 1 h para verlo moverse).
 
+- **Modo Real** (selector Esquema | Real): el mismo circuito montado sobre un panel de prácticas con carril DIN, fuente/red, aparamenta modular (magnetotérmico, fusible, interruptor, conmutador), señalización y pulsadores de 22 mm, receptores, bornes de tornillo y cables de colores normalizados con terminal de punta (positivo rojo, negativo negro; en CA fase marrón, neutro azul). Se accionan interruptores y pulsadores y se colocan las puntas de los instrumentos sobre los bornes.
+
 ## Estructura
 ```
 src/engine/   motor puro (solver.ts, dc.ts) — sin DOM
@@ -46,6 +48,7 @@ docs/PLAN.md  arquitectura, decisiones, fases y riesgos
 - CA solo monofásica, monofrecuencia y lineal (sin diodos ni rectificadores: llegan con el análisis transitorio); sin mezcla CC + CA; el voltímetro de CA no carga el circuito con sus 10 MΩ. El osciloscopio dibuja el régimen permanente (aún no hay transitorios RC/RL).
 - CC en régimen estático; la lámpara es una resistencia lineal R = Vn²/Pn; condensador = abierto y bobina = resistencia del hilo.
 - Protecciones simplificadas: el fusible salta a 1,6·In y el magnetotérmico solo por umbral magnético; sus curvas tiempo-corriente reales llegan en la fase 6.
+- El modo Real es de momento de lectura y maniobra: el cableado se edita en el esquema (arrastrar cables en modo real llega en la fase 5).
 - Las puntas del polímetro se colocan en terminales (no sobre cables).
 - Aún sin polímetro, CA, vistas unifilar/multifilar/real, plano, protecciones, automatismos, retos ni PWA (fases 2-10).
 - No hay aviso de «circuito abierto» ni validación REBT todavía.
