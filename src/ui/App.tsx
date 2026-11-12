@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useStore } from '../store';
 import { LIBRARY, defOf, defaultParams, fmt, fmtSI } from '../model/library';
 import { readMeter } from '../model/meter';
@@ -21,6 +21,8 @@ import { SolveDialog } from './SolveDialog';
 import { useAuth } from '../auth';
 import { loadProfile, saveProfile } from '../cloud';
 import { useGame } from '../game/store';
+import { FilesDialog, openOmi } from './FilesDialog';
+import { parseOmi } from '../omi';
 import { useLevel, visitorAllows, UPSELL, isAdminEmail } from '../access';
 import { AdminPanel } from './AdminPanel';
 import { saveGuard } from '../store';
@@ -139,7 +141,6 @@ export function App() {
     if (reading.blowFuse) st.setMeter({ fuseBlown: true });
     if (reading.beep && st.sound) beep(1000, 150);
   }, [reading.blowFuse, reading.beep]); // eslint-disable-line react-hooks/exhaustive-deps
-  const fileRef = useRef<HTMLInputElement>(null);
   const [q, setQ] = useState('');
 
   useEffect(() => { document.documentElement.dataset.theme = st.dark ? 'dark' : 'light'; }, [st.dark]);
@@ -147,28 +148,19 @@ export function App() {
   const selected = project.components.find((c) => selection[0] === c.id);
   const errors = messages.filter((m) => m.level === 'error');
 
-  const download = () => {
-    const blob = new Blob([JSON.stringify(project, null, 2)], { type: 'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `${project.name.replace(/[^\w-]+/g, '_') || 'circuito'}.json`;
-    a.click();
-    URL.revokeObjectURL(a.href);
-  };
-  const onFile = async (f?: File) => {
-    if (!f) return;
-    try { st.load(JSON.parse(await f.text())); } catch { alert('No se pudo abrir el archivo: no es un proyecto válido.'); }
-  };
+  const [files, setFiles] = useState<null | 'abrir' | 'guardar'>(null);
+  const dropOmi = async (f?: File) => { if (!f) return; try { openOmi(parseOmi(await f.text())); } catch (e) { alert((e as Error).message); } };
 
   const cats = [...new Set(LIBRARY.map((d) => d.category))];
 
   return (
-    <div className={`app ${wide ? 'wide' : ''} ${st.leftOpen ? '' : 'noleft'} ${st.rightOpen ? '' : 'noright'}`}>
+    <div className={`app ${wide ? 'wide' : ''} ${st.leftOpen ? '' : 'noleft'} ${st.rightOpen ? '' : 'noright'}`} onDragOver={(e) => { if (!visitor && e.dataTransfer.types.includes('Files')) e.preventDefault(); }} onDrop={(e) => { if (visitor || !e.dataTransfer.files.length) return; e.preventDefault(); void dropOmi(e.dataTransfer.files[0]); }}>
       <ProbeDragLayer />
       {showSolve && <SolveDialog sim={sim} onClose={() => setShowSolve(false)} />}
       {welcome && !visitor && <Welcome onClose={closeWelcome} />}
       {showAdmin && <AdminPanel onClose={() => setShowAdmin(false)} />}
       <UpsellModal />
+      {files && <FilesDialog mode={files} onClose={() => setFiles(null)} />}
       <header className="top">
         {visitor && (
           <div className="visitor-bar" role="status">
@@ -193,9 +185,8 @@ export function App() {
         <div className="tools">
           <button onClick={() => setWelcome(true)} title="Inicio rápido">❓</button>
           <button onClick={() => { if (confirm('¿Empezar un proyecto nuevo? Se perderán los cambios no guardados.')) st.load({ version: 1, name: 'Sin título', components: [], wires: [] }); }}>{t.newProject}</button>
-          <button className={visitor ? 'locked' : ''} onClick={visitor ? lock(UPSELL.files) : () => fileRef.current?.click()}>{visitor && '🔒 '}{t.open}</button>
-          <button className={visitor ? 'locked' : ''} onClick={visitor ? lock(UPSELL.files) : download}>{visitor && '🔒 '}{t.save}</button>
-          <input ref={fileRef} type="file" accept=".json,application/json" hidden onChange={(e) => { onFile(e.target.files?.[0]); e.target.value = ''; }} />
+          <button className={visitor ? 'locked' : ''} onClick={visitor ? lock(UPSELL.files) : () => setFiles('abrir')}>{visitor && '🔒 '}{t.open}</button>
+          <button className={visitor ? 'locked' : ''} onClick={visitor ? lock(UPSELL.files) : () => setFiles('guardar')}>{visitor && '🔒 '}{t.save}</button>
           <select value="" onChange={(e) => { if (visitor) { st.setUpsell(UPSELL.files); return; } if (e.target.value) st.load(structuredClone(EXAMPLES[Number(e.target.value)])); }} aria-label={t.examples} className={visitor ? 'locked' : ''}>
             <option value="">{t.examples}…</option>
             {EXAMPLES.map((e, i) => <option key={e.name} value={i}>{e.name}</option>)}

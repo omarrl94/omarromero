@@ -71,6 +71,9 @@ npm run build      # genera dist/ (alojable en Netlify / GitHub Pages)
 - **Materiales reales**: `src/data/materiales.ts` recoge marca, referencia, precio (IVA incl.) y enlace a la ficha de tiendas españolas (Leroy Merlin, Obramat, ManoMano), consultadas en nov. 2026. Las líneas con `est: true` no tenían ficha clara y se han estimado. Son precios **orientativos**. Al entregar la obra aparece la **lista de materiales** (imprimible) con marca, cantidad, precio unitario y enlace. El presupuesto del cliente se calcula a partir del coste real de una instalación profesional.
 - **Subir mi plano**: en la orden de trabajo, «Subir mi plano» → imagen, escala (dos puntos + distancia real), estancias (rectángulos: salón, cocina, pasillo, baño y dormitorio como mínimo), entrada y guardar. Se guarda en el navegador; se puede **exportar/importar** como `.plano.json` para compartirlo con la clase.
 
+### Archivos .omi
+Formato propio (JSON con cabecera `format: "omi"`): circuito, cuadro, cajetín del plano y, opcionalmente, la obra del juego con sus planos propios. «Guardar» → descargar al ordenador o guardar en el navegador; «Abrir» → archivo, biblioteca del navegador o arrastrar el `.omi` sobre la página. Acepta también los `.json` antiguos. Código: `src/omi.ts`, `src/ui/FilesDialog.tsx`.
+
 ## Estructura
 ```
 src/engine/   motor puro (solver.ts, dc.ts) — sin DOM
