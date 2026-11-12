@@ -163,3 +163,27 @@ export function solveDC(p: Problem): Solution {
   }
   return { ok: true, voltages: voltages.slice(0, p.nodeCount), currents, powers, issues };
 }
+
+/**
+ * Resistencia equivalente entre dos nudos con el circuito SIN alimentación
+ * (fuentes de tensión sustituidas por su resistencia interna, fuentes de corriente abiertas),
+ * como mide un óhmetro. Devuelve Infinity si no hay camino conductor.
+ */
+export function resistanceBetween(p: Problem, a: number, b: number): number {
+  if (a === b) return 0;
+  const els: Element[] = [];
+  for (const e of p.elements) {
+    if (e.kind === 'I') continue;
+    if (e.kind === 'V') els.push({ id: e.id, kind: 'R', a: e.a, b: e.b, value: Math.max(e.rint ?? 0, R_MIN) });
+    else els.push(e);
+  }
+  const uf = Array.from({ length: p.nodeCount }, (_, i) => i);
+  const f = (x: number): number => (uf[x] === x ? x : (uf[x] = f(uf[x])));
+  for (const e of els) uf[f(e.a)] = f(e.b);
+  if (f(a) !== f(b)) return Infinity;
+  const sw = (n: number) => (n === b ? 0 : n === 0 ? b : n); // b pasa a ser la referencia
+  const mapped = els.map((e) => ({ ...e, a: sw(e.a), b: sw(e.b) }));
+  mapped.push({ id: '#test', kind: 'I', a: 0, b: sw(a), value: 1 });
+  const s = solveDC({ nodeCount: p.nodeCount, elements: mapped });
+  return s.ok ? s.voltages[sw(a)] : Infinity;
+}

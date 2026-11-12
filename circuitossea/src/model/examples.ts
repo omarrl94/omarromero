@@ -55,4 +55,71 @@ export const divisor: Project = {
   ],
 };
 
-export const EXAMPLES = [dosPilas, luzSimple, divisor];
+export const ledResistencia: Project = {
+  version: PROJECT_VERSION, name: 'LED con resistencia limitadora',
+  components: [
+    c('B1', 'battery', 160, 200, 90, { v: 9, rint: 0 }),
+    c('R1', 'resistor', 300, 160, 0, { r: 330 }),
+    c('D1', 'led', 500, 200, 90, { color: 0, imax: 30 }),
+    c('GND', 'ground', 160, 320, 0),
+  ],
+  wires: [w('a', 'B1', 0, 'R1', 0), w('b', 'R1', 1, 'D1', 0), w('c', 'D1', 1, 'B1', 1), w('d', 'B1', 1, 'GND', 0)],
+};
+
+/** Pulsa el pulsador (cortocircuito sobre la lámpara) y mira qué pasa con el fusible. */
+export const fusible: Project = {
+  version: PROJECT_VERSION, name: 'Fusible: pulsa y provoca el cortocircuito',
+  components: [
+    c('B1', 'battery', 160, 200, 90, { v: 12, rint: 0.1 }),
+    c('F1', 'fuse', 300, 160, 0, { in: 2 }),
+    c('P1', 'pushNO', 400, 200, 90, {}),
+    c('L1', 'lamp', 500, 200, 90, { vn: 12, pn: 12 }),
+    c('GND', 'ground', 160, 320, 0),
+  ],
+  wires: [
+    w('a', 'B1', 0, 'F1', 0), w('b', 'F1', 1, 'P1', 0), w('c', 'P1', 0, 'L1', 0),
+    w('d', 'L1', 1, 'P1', 1), w('e', 'P1', 1, 'B1', 1), w('f', 'B1', 1, 'GND', 0),
+  ],
+};
+
+export const escalera: Project = {
+  version: PROJECT_VERSION, name: 'Conmutada: una luz desde dos sitios',
+  components: [
+    c('B1', 'battery', 120, 200, 90, { v: 12, rint: 0.1 }),
+    c('S1', 'spdt', 200, 160, 0, { pos: 0 }),
+    c('S2', 'spdt', 400, 160, 180, { pos: 1 }),
+    c('L1', 'lamp', 540, 200, 90, { vn: 12, pn: 12 }),
+    c('GND', 'ground', 120, 320, 0),
+  ],
+  wires: [
+    w('a', 'B1', 0, 'S1', 0), w('b', 'S1', 1, 'S2', 2), w('c', 'S1', 2, 'S2', 1),
+    w('d', 'S2', 0, 'L1', 0), w('e', 'L1', 1, 'B1', 1), w('f', 'B1', 1, 'GND', 0),
+  ],
+};
+
+export const motorPulsador: Project = {
+  version: PROJECT_VERSION, name: 'Motor de CC con pulsador de marcha',
+  components: [
+    c('B1', 'battery', 160, 200, 90, { v: 12, rint: 0.3 }),
+    c('P1', 'pushNO', 300, 160, 0, {}),
+    c('M1', 'motor', 500, 200, 90, { vn: 12, r: 6 }),
+    c('GND', 'ground', 160, 320, 0),
+  ],
+  wires: [w('a', 'B1', 0, 'P1', 0), w('b', 'P1', 1, 'M1', 0), w('c', 'M1', 1, 'B1', 1), w('d', 'B1', 1, 'GND', 0)],
+};
+
+export const potenciometro: Project = {
+  version: PROJECT_VERSION, name: 'Potenciómetro: regulador de brillo',
+  components: [
+    c('B1', 'battery', 160, 200, 90, { v: 12, rint: 0 }),
+    c('P1', 'pot', 300, 200, 270, { r: 100, pos: 0.7 }),
+    c('L1', 'lamp', 440, 240, 90, { vn: 12, pn: 5 }),
+    c('GND', 'ground', 160, 340, 0),
+  ],
+  wires: [
+    w('a', 'B1', 0, 'P1', 1), w('b', 'P1', 0, 'B1', 1), w('c', 'P1', 2, 'L1', 0),
+    w('d', 'L1', 1, 'B1', 1), w('e', 'B1', 1, 'GND', 0),
+  ],
+};
+
+export const EXAMPLES = [dosPilas, luzSimple, divisor, ledResistencia, fusible, escalera, motorPulsador, potenciometro];

@@ -3,6 +3,11 @@ import type { Component, Project, TermRef, Wire } from './model/types';
 import { PROJECT_VERSION } from './model/types';
 import { defaultParams } from './model/library';
 import { dosPilas } from './model/examples';
+import type { Runtime, SimEvent } from './model/netlist';
+import { initialMeter, type MeterState } from './model/meter';
+
+/** Una fila de la hoja de medidas. */
+export interface Measure { id: number; time: string; mode: string; points: string; value: number | null; text: string; unit: string; theory?: number }
 
 const clone = <T,>(x: T): T => structuredClone(x);
 const KEY = 'circuitossea:autosave';
@@ -27,6 +32,11 @@ interface State {
   future: Project[];
   selection: string[];
   wiring: TermRef | null;
+  runtime: Runtime;
+  notices: { id: number; text: string }[];
+  meter: MeterState;
+  log: Measure[];
+  sound: boolean;
   animate: boolean;
   showLabels: boolean;
   heat: boolean;
@@ -46,7 +56,14 @@ interface State {
   undo(): void;
   redo(): void;
   load(p: Project): void;
-  toggle(k: 'animate' | 'showLabels' | 'heat' | 'dark'): void;
+  applyEvents(ev: SimEvent[]): void;
+  resetRuntime(): void;
+  dismiss(id: number): void;
+  setMeter(m: Partial<MeterState>): void;
+  addLog(m: Omit<Measure, 'id' | 'time'>): void;
+  setTheory(id: number, v: number | undefined): void;
+  clearLog(): void;
+  toggle(k: 'animate' | 'showLabels' | 'heat' | 'dark' | 'sound'): void;
 }
 
 let counter = 0;
@@ -55,6 +72,7 @@ const uid = (prefix: string) => `${prefix}${Date.now().toString(36)}${(counter++
 export const useStore = create<State>((set, get) => ({
   project: loadInitial(),
   past: [], future: [], selection: [], wiring: null,
+  runtime: {}, notices: [], meter: { ...initialMeter }, log: [], sound: false,
   animate: true, showLabels: true, heat: false,
   dark: typeof matchMedia !== 'undefined' && matchMedia('(prefers-color-scheme: dark)').matches,
 
@@ -156,7 +174,22 @@ export const useStore = create<State>((set, get) => ({
     if (!future.length) return;
     set({ project: future[0], future: future.slice(1), past: [...past, project], selection: [], wiring: null });
   },
-  load(p) { set({ project: migrate(p), past: [], future: [], selection: [], wiring: null }); },
+  load(p) { set({ project: migrate(p), past: [], future: [], selection: [], wiring: null, runtime: {}, notices: [], meter: { ...initialMeter } }); },
+  applyEvents(ev) {
+    if (!ev.length) return;
+    set((s) => ({
+      runtime: { ...s.runtime, ...Object.fromEntries(ev.map((e) => [e.id, e.state])) },
+      notices: [...s.notices, ...ev.map((e) => ({ id: ++counter + Date.now(), text: e.text }))],
+    }));
+  },
+  resetRuntime() { set({ runtime: {}, notices: [] }); },
+  dismiss(id) { set((s) => ({ notices: s.notices.filter((n) => n.id !== id) })); },
+  setMeter(m) { set((s) => ({ meter: { ...s.meter, ...m } })); },
+  addLog(m) {
+    set((s) => ({ log: [...s.log, { ...m, id: s.log.length + 1, time: new Date().toLocaleTimeString('es-ES') }] }));
+  },
+  setTheory(id, v) { set((s) => ({ log: s.log.map((l) => (l.id === id ? { ...l, theory: v } : l)) })); },
+  clearLog() { set({ log: [] }); },
   toggle(k) { set((s) => ({ [k]: !s[k] }) as Partial<State>); },
 }));
 

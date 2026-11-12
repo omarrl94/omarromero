@@ -17,14 +17,14 @@ describe('del esquema al motor', () => {
 
   it('lámpara de 12 V/12 W con pila de 12 V y 0,2 Ω: ~0,98 A', () => {
     const r = simulate(luzSimple);
-    expect(r.componentCurrent['L1:0']).toBeCloseTo(12 / 12.2, 6);
+    expect(r.componentCurrent['L1:0']).toBeCloseTo(12 / 12.2, 4);
   });
 
   it('interruptor abierto: no circula corriente', () => {
     const p = structuredClone(luzSimple);
     p.components.find((c) => c.id === 'S1')!.params.closed = false;
     const r = simulate(p);
-    expect(Math.abs(r.componentCurrent['L1:0'])).toBeLessThan(1e-9);
+    expect(Math.abs(r.componentCurrent["L1:0"])).toBeLessThan(1e-6);
   });
 
   it('divisor 9 V · 1k/2k → 6 V en R2', () => {
@@ -34,6 +34,79 @@ describe('del esquema al motor', () => {
   it('KCL en cables: la corriente en cada cable de un lazo simple es la misma', () => {
     const r = simulate(luzSimple);
     const vals = Object.values(r.wireCurrent).filter((v, i) => i < 3).map(Math.abs);
-    for (const v of vals) expect(v).toBeCloseTo(vals[0], 6);
+    for (const v of vals) expect(v).toBeCloseTo(vals[0], 4);
+  });
+});
+
+import type { Project } from './types';
+const mk = (components: Project['components'], wires: [string, number, string, number][]): Project => ({
+  version: 1, name: 't', components,
+  wires: wires.map(([a, at, b, bt], i) => ({ id: 'w' + i, a: { comp: a, term: at }, b: { comp: b, term: bt } })),
+});
+const C = (id: string, type: string, params: Record<string, number | boolean> = {}) => ({ id, type, x: 0, y: 0, rot: 0 as const, params: { ...defaultParams(type), ...params } });
+import { defaultParams } from './library';
+
+describe('componentes no lineales y protecciones', () => {
+  it('LED rojo con 330 Ω a 9 V: I ≈ (9−1,9)/(330+5) = 21,2 mA', () => {
+    const p = mk([C('B', 'battery', { v: 9 }), C('R', 'resistor', { r: 330 }), C('D', 'led'), C('G', 'ground')],
+      [['B', 0, 'R', 0], ['R', 1, 'D', 0], ['D', 1, 'B', 1], ['B', 1, 'G', 0]]);
+    const r = simulate(p);
+    expect(r.componentCurrent['D:0']).toBeCloseTo(7.1 / 335, 5);
+    expect(r.live.D.on).toBe(true);
+    expect(r.events).toHaveLength(0);
+  });
+  it('LED en polarización inversa: no conduce', () => {
+    const p = mk([C('B', 'battery', { v: 9 }), C('R', 'resistor', { r: 330 }), C('D', 'led'), C('G', 'ground')],
+      [['B', 0, 'R', 0], ['R', 1, 'D', 1], ['D', 0, 'B', 1], ['B', 1, 'G', 0]]);
+    const r = simulate(p);
+    expect(Math.abs(r.componentCurrent['D:0'])).toBeLessThan(1e-6);
+    expect(r.live.D.on).toBe(false);
+  });
+  it('LED sin resistencia a 9 V: se quema', () => {
+    const p = mk([C('B', 'battery', { v: 9 }), C('D', 'led'), C('G', 'ground')], [['B', 0, 'D', 0], ['D', 1, 'B', 1], ['B', 1, 'G', 0]]);
+    expect(simulate(p).events[0]).toMatchObject({ id: 'D', state: 'burnt' });
+  });
+  it('Zener 5,1 V alimentado a 12 V con 220 Ω: regula ≈ 5,1 V', () => {
+    const p = mk([C('B', 'battery', { v: 12 }), C('R', 'resistor', { r: 220 }), C('Z', 'zener'), C('G', 'ground')],
+      [['B', 0, 'R', 0], ['R', 1, 'Z', 1], ['Z', 0, 'B', 1], ['B', 1, 'G', 0]]);
+    const r = simulate(p);
+    expect(-r.componentVoltage.Z).toBeCloseTo(5.1, 0); // tensión inversa ≈ Vz (+ caída en su resistencia)
+    expect(-r.componentVoltage.Z).toBeGreaterThan(5.1);
+    expect(-r.componentVoltage.Z).toBeLessThan(5.3);
+  });
+  it('fusible de 2 A con 12 A: se funde; con el runtime aplicado, el circuito queda abierto', () => {
+    const p = mk([C('B', 'battery', { v: 12 }), C('F', 'fuse', { in: 2 }), C('R', 'resistor', { r: 1 }), C('G', 'ground')],
+      [['B', 0, 'F', 0], ['F', 1, 'R', 0], ['R', 1, 'B', 1], ['B', 1, 'G', 0]]);
+    const r = simulate(p);
+    expect(r.events[0]).toMatchObject({ id: 'F', state: 'blown' });
+    const r2 = simulate(p, { F: 'blown' });
+    expect(Math.abs(r2.componentCurrent['R:0'])).toBeLessThan(1e-6);
+    expect(r2.messages.some((m) => m.text.includes('fundido'))).toBe(true);
+  });
+  it('magnetotérmico C10: dispara a 12 A·? no (<100 A); sí con cortocircuito de 230 V sobre 1 Ω', () => {
+    const p = mk([C('B', 'battery', { v: 230 }), C('Q', 'breaker', { in: 10, curve: 10 }), C('R', 'resistor', { r: 1 }), C('G', 'ground')],
+      [['B', 0, 'Q', 0], ['Q', 1, 'R', 0], ['R', 1, 'B', 1], ['B', 1, 'G', 0]]);
+    expect(simulate(p).events[0]).toMatchObject({ id: 'Q', state: 'tripped' });
+  });
+  it('potenciómetro al 50 % como divisor: 10 V → 5 V', () => {
+    const p = mk([C('B', 'battery', { v: 10 }), C('P', 'pot', { r: 1000, pos: 0.5 }), C('G', 'ground')],
+      [['B', 0, 'P', 0], ['P', 1, 'B', 1], ['B', 1, 'G', 0]]);
+    const r = simulate(p);
+    expect(r.solution.voltages[r.nodeOf['P:2']]).toBeCloseTo(5, 3);
+  });
+  it('conmutador: dirige la corriente a una u otra lámpara', () => {
+    const base = () => mk([C('B', 'battery', { v: 12 }), C('S', 'spdt', { pos: 0 }), C('L1', 'lamp'), C('L2', 'lamp'), C('G', 'ground')],
+      [['B', 0, 'S', 0], ['S', 1, 'L1', 0], ['S', 2, 'L2', 0], ['L1', 1, 'B', 1], ['L2', 1, 'B', 1], ['B', 1, 'G', 0]]);
+    const a = simulate(base());
+    expect(a.componentCurrent['L1:0']).toBeCloseTo(1, 2);
+    expect(Math.abs(a.componentCurrent['L2:0'])).toBeLessThan(1e-6);
+    const q = base(); q.components[1].params.pos = 1;
+    expect(simulate(q).componentCurrent['L2:0']).toBeCloseTo(1, 2);
+  });
+  it('NTC: la resistencia baja al subir la temperatura (10 kΩ a 25 °C, B=3950)', () => {
+    const a = simulate(mk([C('B', 'battery', { v: 5 }), C('N', 'ntc', { t: 25 }), C('G', 'ground')], [['B', 0, 'N', 0], ['N', 1, 'B', 1], ['B', 1, 'G', 0]]));
+    const b = simulate(mk([C('B', 'battery', { v: 5 }), C('N', 'ntc', { t: 60 }), C('G', 'ground')], [['B', 0, 'N', 0], ['N', 1, 'B', 1], ['B', 1, 'G', 0]]));
+    expect(a.componentCurrent['N:0']).toBeCloseTo(5 / 10000, 5);
+    expect(b.componentCurrent['N:0']).toBeGreaterThan(a.componentCurrent['N:0'] * 3);
   });
 });

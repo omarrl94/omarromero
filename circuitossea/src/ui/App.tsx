@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useStore } from '../store';
-import { LIBRARY, defOf, fmt, fmtSI } from '../model/library';
+import { LIBRARY, defOf, defaultParams, fmt, fmtSI } from '../model/library';
+import { readMeter, pointName, type Dial } from '../model/meter';
+import { beep } from './sound';
 import { simulate } from '../model/netlist';
 import { EXAMPLES } from '../model/examples';
 import { t } from '../i18n';
@@ -9,11 +11,16 @@ import { Canvas } from './Canvas';
 export function App() {
   const st = useStore();
   const { project, selection, past, future } = st;
-  const sim = useMemo(() => {
-    try { return simulate(project); } catch (e) {
-      return null as never;
-    }
-  }, [project]);
+  const sim = useMemo(() => simulate(project, st.runtime), [project, st.runtime]);
+  // Las averías nuevas (fusible fundido, LED quemado…) se anotan una vez y quedan hasta «Reponer»
+  useEffect(() => {
+    if (sim.events.length) { st.applyEvents(sim.events); if (st.sound) beep(150, 350, 'sawtooth', 0.08); }
+  }, [sim.events]); // eslint-disable-line react-hooks/exhaustive-deps
+  const reading = useMemo(() => readMeter(sim, st.meter, project), [sim, st.meter, project]);
+  useEffect(() => {
+    if (reading.blowFuse) st.setMeter({ fuseBlown: true });
+    if (reading.beep && st.sound) beep(1000, 150);
+  }, [reading.blowFuse, reading.beep]); // eslint-disable-line react-hooks/exhaustive-deps
   const fileRef = useRef<HTMLInputElement>(null);
   const [q, setQ] = useState('');
 
@@ -59,7 +66,9 @@ export function App() {
           <span className="sep" />
           <label><input type="checkbox" checked={st.animate} onChange={() => st.toggle('animate')} /> {t.animate}</label>
           <label><input type="checkbox" checked={st.showLabels} onChange={() => st.toggle('showLabels')} /> {t.labels}</label>
+          <label><input type="checkbox" checked={st.sound} onChange={() => st.toggle('sound')} /> Sonido</label>
           <label><input type="checkbox" checked={st.heat} onChange={() => st.toggle('heat')} /> {t.heat}</label>
+          {Object.keys(st.runtime).length > 0 && <button className="warnbtn" onClick={st.resetRuntime}>🔧 Reponer averías</button>}
           <button onClick={() => st.toggle('dark')} aria-label={t.theme}>{st.dark ? '☀' : '☾'}</button>
         </div>
       </header>
@@ -93,6 +102,9 @@ export function App() {
 
       <main className="center">
         <Canvas sim={sim} />
+        <div className="toasts">{st.notices.map((n) => (
+          <div key={n.id} className="toast" role="alert"><span>💥</span><span>{n.text}</span><button onClick={() => st.dismiss(n.id)}>✕</button></div>
+        ))}</div>
         <div className="hint-bar">{st.wiring ? t.wireHint : t.placeHint}</div>
       </main>
 
@@ -106,7 +118,11 @@ export function App() {
             </label>
             {defOf(selected.type).params.map((p) => (
               <label className="row" key={p.key}>{p.label}{p.unit && ` (${p.unit})`}
-                {p.bool ? (
+                {p.options ? (
+                  <select value={Number(selected.params[p.key])} onChange={(e) => { st.snapshot(); st.setParam(selected.id, p.key, Number(e.target.value)); }}>
+                    {p.options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  </select>
+                ) : p.bool ? (
                   <input type="checkbox" checked={Boolean(selected.params[p.key])} onChange={(e) => { st.snapshot(); st.setParam(selected.id, p.key, e.target.checked); }} />
                 ) : (
                   <NumField value={Number(selected.params[p.key])} min={p.min} step={p.step}
@@ -124,6 +140,8 @@ export function App() {
           </div>
         ) : <p className="muted">{t.nothingSelected}</p>}
 
+        <Meter reading={reading} sim={sim} />
+
         <h3>{t.checks}</h3>
         {sim.messages.length === 0 ? <p className="ok">✔ {t.allOk}</p> : (
           <ul className="msgs">
@@ -140,6 +158,64 @@ export function App() {
   );
 }
 
+const DIALS: { v: Dial; label: string }[] = [
+  { v: 'off', label: 'OFF' }, { v: 'V', label: 'V⎓' }, { v: 'A', label: 'A⎓' }, { v: 'ohm', label: 'Ω' }, { v: 'cont', label: '•))' },
+];
+
+function Meter({ reading, sim }: { reading: ReturnType<typeof readMeter>; sim: ReturnType<typeof simulate> }) {
+  const st = useStore();
+  const { meter, project, log } = st;
+  void sim;
+  const mode = meter.dial === 'V' ? 'V⎓' : meter.dial === 'A' ? 'A⎓' : meter.dial === 'ohm' ? 'Ω' : meter.dial === 'cont' ? 'Continuidad' : 'OFF';
+  const csv = () => {
+    const rows = [['n', 'hora', 'función', 'puntos', 'valor', 'unidad', 'teórico', 'error absoluto', 'error relativo %'],
+      ...log.map((l) => [l.id, l.time, l.mode, l.points, l.text, l.unit, l.theory ?? '', ...(l.theory !== undefined && l.value !== null ? [l.value - l.theory, l.theory ? ((l.value - l.theory) / l.theory) * 100 : ''] : ['', ''])])];
+    const blob = new Blob(['\ufeff' + rows.map((r) => r.map((x) => `"${String(x).replace('.', ',')}"`).join(';')).join('\n')], { type: 'text/csv' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'hoja_de_medidas.csv'; a.click();
+  };
+  return (
+    <section className="meter">
+      <h3>Polímetro</h3>
+      <div className={`lcd ${meter.dial === 'off' ? 'off' : ''}`} data-testid="lcd">
+        <span className="digits">{meter.dial === 'off' ? '' : reading.text}</span>
+        <span className="unit">{meter.dial === 'off' ? '' : reading.unit}</span>
+        <span className="mode">{meter.dial === 'off' ? '' : mode}{reading.beep ? ' 🔔' : ''}</span>
+      </div>
+      <div className="dial">{DIALS.map((d) => (
+        <button key={d.v} className={meter.dial === d.v ? 'on' : ''} onClick={() => st.setMeter({ dial: d.v })}>{d.label}</button>
+      ))}</div>
+      <label className="row">Borne rojo
+        <select value={meter.jack} onChange={(e) => st.setMeter({ jack: e.target.value as 'VOhm' | '10A' })}>
+          <option value="VOhm">VΩ</option><option value="10A">10 A</option>
+        </select></label>
+      <div className="probes">
+        <button className={`probe red ${meter.armed === 'red' ? 'armed' : ''}`} onClick={() => st.setMeter({ armed: meter.armed === 'red' ? null : 'red' })}>
+          Punta roja: {pointName(project, meter.red)}</button>
+        <button className={`probe black ${meter.armed === 'black' ? 'armed' : ''}`} onClick={() => st.setMeter({ armed: meter.armed === 'black' ? null : 'black' })}>
+          Punta negra: {pointName(project, meter.black)}</button>
+      </div>
+      {meter.armed && <p className="muted small">Pulsa un terminal del circuito para colocar la punta {meter.armed === 'red' ? 'roja' : 'negra'}.</p>}
+      {meter.fuseBlown && <p className="msgs"><button onClick={() => st.setMeter({ fuseBlown: false })}>🔧 Cambiar fusible de 10 A (fundido)</button></p>}
+      <ul className="msgs tips">{reading.tips.map((t2, i) => <li key={i} className={t2.level === 'info' ? '' : t2.level}>{t2.text}</li>)}</ul>
+      <div className="row">
+        <button disabled={meter.dial === 'off' || !meter.red || !meter.black || reading.text === ''}
+          onClick={() => st.addLog({ mode, points: `${pointName(project, meter.red)} → ${pointName(project, meter.black)}`, value: reading.value, text: reading.text, unit: reading.unit })}>📝 Anotar medida</button>
+        {log.length > 0 && <button onClick={csv}>CSV</button>}
+        {log.length > 0 && <button onClick={st.clearLog}>Borrar</button>}
+      </div>
+      {log.length > 0 && (
+        <table className="log"><thead><tr><th>#</th><th>Punto</th><th>Medida</th><th>Teórico</th><th>Error</th></tr></thead>
+          <tbody>{log.map((l) => {
+            const err = l.theory !== undefined && l.value !== null ? l.value - l.theory : null;
+            return (<tr key={l.id}><td>{l.id}</td><td>{l.mode}<br /><small>{l.points}</small></td><td>{l.text} {l.unit}</td>
+              <td><NumField value={l.theory ?? 0} onCommit={(v) => st.setTheory(l.id, v)} /></td>
+              <td>{err === null ? '—' : <>{fmt(err, 3)}<br /><small>{l.theory ? fmt((err / l.theory) * 100, 3) + ' %' : ''}</small></>}</td></tr>);
+          })}</tbody></table>
+      )}
+    </section>
+  );
+}
+
 function NumField({ value, min, step, onCommit }: { value: number; min?: number; step?: number; onCommit: (v: number) => void }) {
   const [txt, setTxt] = useState(String(value).replace('.', ','));
   useEffect(() => setTxt(String(value).replace('.', ',')), [value]);
@@ -153,5 +229,5 @@ function NumField({ value, min, step, onCommit }: { value: number; min?: number;
 
 import { Symbol } from './symbols';
 function PaletteIcon({ type }: { type: string }) {
-  return <Symbol c={{ id: 'p', type, x: 0, y: 0, rot: 0, params: { closed: true } }} />;
+  return <Symbol c={{ id: 'p', type, x: 0, y: 0, rot: 0, params: { ...defaultParams(type) } }} live={type === 'led' || type === 'lamp' ? { v: 0, i: 0.02, p: 6, on: true } : undefined} />;
 }
