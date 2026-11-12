@@ -1,0 +1,42 @@
+/* «El boletín»: reutiliza la mesa de delineante del juego y el estilo del parte. */
+.game.bt { min-height: 0; }
+.bt-cartoon { font-size: 64px; text-align: center; padding: 24px 0; background: #123a6b; border-radius: 14px; letter-spacing: 8px; }
+.bt-bench { display: grid; grid-template-columns: 290px minmax(0, 1fr) 330px; gap: 12px; padding: 12px; flex: 1; min-height: 0; overflow: auto; align-items: start; }
+.bt-col { display: grid; gap: 10px; align-content: start; min-width: 0; }
+.bt .paper { color: #1d2733; } .bt .paper button:not(.primary):not(.bt-test) { background: #fff; color: #1d2733; border: 1.5px solid #b7c4d6; padding: 8px 12px; border-radius: 10px; cursor: pointer; min-height: 40px; font-weight: 600; }
+.bt-toggles { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.bt .paper .bt-sw { display: grid; grid-template-columns: 44px 1fr; gap: 10px; align-items: center; width: 100%; text-align: left; padding: 8px 10px; }
+.bt-sw i { width: 44px; height: 24px; border-radius: 12px; background: #c8d3e2; position: relative; transition: background .2s; } .bt-sw i::after { content: ''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform .2s; box-shadow: 0 1px 3px #0004; }
+.bt .paper .bt-sw.on { border-color: #23a26d; background: #effaf4; } .bt-sw.on i { background: #23a26d; } .bt-sw.on i::after { transform: translateX(20px); }
+.bt-sw span { display: grid; } .bt-sw small { color: #5d6b7e; font-weight: 400; }
+.bt-plan li span { font-size: 12.5px; }
+.bt-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; } .bt-tabs button { background: #ffffff12; color: #d6e8ff; border: 1px solid #ffffff22; border-radius: 12px; padding: 8px 4px; cursor: pointer; min-height: 44px; font-weight: 700; } .bt-tabs button.on { background: var(--pencil); color: #1b2b44; border-color: var(--pencil); }
+.bt-device { display: grid; gap: 10px; justify-items: center; }
+.bt-gauge { width: min(100%, 340px); height: auto; filter: drop-shadow(0 6px 8px #0004); }
+.bt-lcd { font-family: ui-monospace, 'Courier New', monospace; font-size: 38px; font-weight: 700; background: #0f1d12; color: #9be58a; padding: 6px 18px; border-radius: 10px; min-width: 200px; text-align: center; } .bt-lcd small { font-size: 16px; margin-left: 6px; }
+.bt-chips { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; } .bt .paper .bt-chips button { padding: 6px 12px; min-height: 38px; } .bt .paper .bt-chips button.on { background: #1d3a63; color: #fff; border-color: #1d3a63; }
+.bt-dist { display: grid; gap: 4px; width: 100%; font-size: 13px; } .bt-dist input { width: 100%; } .bt-dist svg { width: 100%; height: 40px; }
+.game.bt .paper .bt-test, .bt-test { background: radial-gradient(circle at 35% 30%, #ff6a58, #c4271a 70%); color: #fff; border: 0; font-weight: 800; letter-spacing: .08em; padding: 14px 40px; border-radius: 999px; cursor: pointer; font-size: 18px; min-height: 52px; box-shadow: 0 5px 0 #7d140b, 0 10px 18px #0006; transition: transform .1s, box-shadow .1s; } .bt-test:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 2px 0 #7d140b; } .bt-test:disabled { opacity: .7; }
+.bt-res.danger { border-left: 6px solid #d64a35; background: #fde8e5; }
+.bt-desc { margin: 0 0 4px; color: #44546a; font-size: 13px; } .bt-big { font-family: ui-monospace, monospace; font-size: 34px; font-weight: 800; } .bt-big small { font-size: 16px; }
+.bt-extra { margin: 4px 0 6px; padding-left: 18px; }
+.bt-judge { display: flex; flex-wrap: wrap; gap: 8px; } .bt .paper .bt-judge .bt-ok { background: #23a26d; color: #fff; border-color: #23a26d; } .bt .paper .bt-judge .bt-ko { background: #d64a35; color: #fff; border-color: #d64a35; }
+.bt-entries { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; } .bt-entries li { display: grid; font-size: 12.5px; background: #f1f5fa; padding: 6px 8px; border-radius: 8px; border-left: 4px solid; } .bt-entries li.ok { border-color: #23a26d; } .bt-entries li.ko { border-color: #d64a35; } .bt-entries em { font-style: normal; font-weight: 700; font-variant-numeric: tabular-nums; }
+.bt-signbtns { display: grid; gap: 8px; } .bt .paper .bt-refuse { background: #fff3f1; border-color: #d64a35; color: #8a1c14; }
+.bt-manual { background: #fff; color: #1d2733; border-radius: 16px; width: min(900px, 100%); max-height: 92vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 30px 80px #000c; }
+.bt-manual header { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; border-bottom: 1px solid #dde4ee; } .bt-manual h2 { margin: 0; font-size: 19px; } .bt-manual .ghost { background: transparent; border: 1px solid #b7c4d6; color: #44546a; border-radius: 10px; padding: 6px 12px; cursor: pointer; }
+.bt-mbody { display: grid; grid-template-columns: 240px minmax(0, 1fr); min-height: 0; overflow: hidden; flex: 1; } .bt-mbody nav { display: grid; align-content: start; gap: 4px; padding: 10px; background: #eef2f7; overflow: auto; } .bt-mbody nav button { background: transparent; color: #1d2733; border: 0; text-align: left; padding: 9px 10px; border-radius: 10px; cursor: pointer; font-weight: 600; min-height: 42px; } .bt-mbody nav button.on { background: #1d3a63; color: #fff; }
+.bt-mbody article { padding: 16px 20px 24px; overflow: auto; line-height: 1.55; } .bt-mbody h3 { margin: 0 0 8px; } .bt-mlist { padding-left: 20px; } .bt-mvals { display: grid; gap: 6px; margin: 10px 0; } .bt-mvals div { display: flex; justify-content: space-between; gap: 10px; background: #f1f5fa; padding: 8px 12px; border-radius: 8px; } .bt-mvals dt { color: #44546a; } .bt-mvals dd { margin: 0; font-weight: 800; font-variant-numeric: tabular-nums; }
+.bt-bol { position: relative; } .bt-stamp { float: right; margin: 6px 4px 8px 12px; border: 5px solid; border-radius: 10px; padding: 6px 18px; font-size: 30px; font-weight: 900; letter-spacing: .1em; transform: rotate(-12deg); opacity: .85; animation: stamp .5s cubic-bezier(.2,1.6,.4,1) both; pointer-events: none; } .bt-stamp.sig { color: #14683f; border-color: #14683f; } .bt-stamp.ref { color: #c4271a; border-color: #c4271a; }
+@keyframes stamp { from { transform: rotate(-12deg) scale(2.4); opacity: 0; } to { transform: rotate(-12deg) scale(1); opacity: .85; } }
+.bt-verd { font-weight: 700; font-size: 15px; } .bt-verd.ok { color: #14683f; } .bt-verd.ko { color: #a3281a; }
+.bt-defs { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; } .bt-defs li { display: grid; gap: 3px; padding: 10px 12px; border-radius: 8px; border-left: 5px solid; } .bt-defs li.found { background: #e8f7ef; border-color: #23a26d; } .bt-defs li.missed { background: #fde8e5; border-color: #d64a35; } .bt-defs small { color: #5d6b7e; }
+.p-t .ok { color: #14683f; } .p-t .bad { color: #a3281a; font-weight: 700; }
+@media (max-width: 1100px) { .bt-bench { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .bt-log { grid-column: 1 / -1; } }
+@media (max-width: 700px) {
+  .bt-bench { grid-template-columns: 1fr; padding: 8px; } .bt-inst { order: 1; } .bt-prep { order: 0; } .bt-log { order: 2; }
+  .bt-tabs button span { display: none; } .bt-lcd { font-size: 30px; min-width: 160px; }
+  .bt-mbody { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); } .bt-mbody nav { grid-auto-flow: column; grid-auto-columns: max-content; overflow-x: auto; } .bt-mbody nav button { white-space: nowrap; }
+  .bt-stamp { font-size: 22px; }
+}
+@media print { body.print-parte .bt-stamp { visibility: visible; } }

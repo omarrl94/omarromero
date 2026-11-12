@@ -33,7 +33,7 @@ export const UPSELL = {
   instruments: 'El osciloscopio y el vatímetro son para cuentas registradas.',
   solve: 'Resolver el circuito por Kirchhoff, mallas, Thévenin… y generar el PDF es para cuentas registradas.',
   files: 'Guardar, abrir y los ejemplos son para cuentas registradas.',
-  game: 'Los modos de juego («Instalador» y «Parte de avería») son para cuentas registradas.',
+  game: 'Los modos de juego («Instalador», «Parte de avería» y «El boletín») son para cuentas registradas.',
   log: 'La hoja de medidas con exportación es para cuentas registradas.',
   extras: 'Esta función es para cuentas registradas.',
 } as const;

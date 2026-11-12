@@ -23,6 +23,8 @@ import { loadProfile, saveProfile } from '../cloud';
 import { useGame } from '../game/store';
 import { FilesDialog, openOmi } from './FilesDialog';
 import { AveriaView } from './AveriaView';
+import { BoletinView } from './BoletinView';
+import { useBoletin } from '../boletin/store';
 import { useAveria } from '../averias/store';
 import { parseOmi } from '../omi';
 import { useLevel, visitorAllows, UPSELL, isAdminEmail } from '../access';
@@ -92,6 +94,7 @@ export function App() {
   const career = useGame((s) => s.career);
   const avCareer = useAveria((s) => s.career);
   const avStage = useAveria((s) => s.stage);
+  const btCareer = useBoletin((s) => s.career);
   // Nube: al entrar se carga el último proyecto y el progreso del juego; después se guardan solos
   const [synced, setSynced] = useState(false);
   useEffect(() => {
@@ -102,6 +105,7 @@ export function App() {
       if (p?.project) { try { useStore.getState().load(JSON.parse(p.project)); } catch { /* proyecto en la nube no válido: se ignora */ } }
       if (p?.career) { const c = useGame.getState().career; useGame.getState().setCareer({ jobs: Math.max(c.jobs, p.career.jobs), money: Math.max(c.money, p.career.money), best: Math.max(c.best, p.career.best), stars: Math.max(c.stars, p.career.stars) }); }
       if (p?.avCareer) { const c = useAveria.getState().career; useAveria.getState().setCareer({ partes: Math.max(c.partes, p.avCareer.partes), best: Math.max(c.best, p.avCareer.best), stars: Math.max(c.stars, p.avCareer.stars), sum: Math.max(c.sum, p.avCareer.sum) }); }
+      if (p?.btCareer) { const c = useBoletin.getState().career; useBoletin.getState().setCareer({ visitas: Math.max(c.visitas, p.btCareer.visitas), best: Math.max(c.best, p.btCareer.best), stars: Math.max(c.stars, p.btCareer.stars), sum: Math.max(c.sum, p.btCareer.sum) }); }
       setSynced(true);
     });
     return () => { alive = false; };
@@ -109,6 +113,7 @@ export function App() {
   useEffect(() => { if (!uid || !synced) return; const h = setTimeout(() => void saveProfile(uid, { project: proj, name: auth.user?.displayName ?? undefined }), 2500); return () => clearTimeout(h); }, [proj, uid, synced]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { if (!uid || !synced) return; const h = setTimeout(() => void saveProfile(uid, { career }), 1000); return () => clearTimeout(h); }, [career, uid, synced]);
   useEffect(() => { if (!uid || !synced) return; const h = setTimeout(() => void saveProfile(uid, { avCareer }), 1000); return () => clearTimeout(h); }, [avCareer, uid, synced]);
+  useEffect(() => { if (!uid || !synced) return; const h = setTimeout(() => void saveProfile(uid, { btCareer }), 1000); return () => clearTimeout(h); }, [btCareer, uid, synced]);
   const level = useLevel();
   const visitor = level === 'visitor';
   const lock = (reason: string) => () => useStore.getState().setUpsell(reason);
@@ -135,7 +140,7 @@ export function App() {
   const messages = useMemo(() => [...sim.messages, ...cableRep.messages], [sim, cableRep]);
   const mf = useMemo(() => multifilarDiagram(project, sim, cableRep.info, st.showCables), [project, sim, cableRep, st.showCables]);
   const uf = useMemo(() => unifilarDiagram(project, sim, cableRep.info), [project, sim, cableRep]);
-  const wide = ['cuadro', 'plano', 'juego', 'averias'].includes(st.view);
+  const wide = ['cuadro', 'plano', 'juego', 'averias', 'boletin'].includes(st.view);
   const [doc, setDoc] = useState(false);
   const uniLocked = (type: string) => st.view === 'unifilar' && !UNIFILAR_TYPES.has(type);
   const [shake, setShake] = useState(false);
@@ -185,7 +190,7 @@ export function App() {
         )}
         <div className="brand"><span className="logo">⚡</span><b>{t.app}</b><small>{t.tagline}</small></div>
         <div className="viewswitch" role="tablist" aria-label="Vista del circuito">
-          {([['schematic', 'Esquema', '⎍'], ['multifilar', 'Multifilar', '☰'], ['unifilar', 'Unifilar', '╱'], ['real', 'Real', '🛠'], ['cuadro', 'Cuadro', '▦'], ['plano', 'Plano', '🖨'], ['juego', 'Juego', '🏠'], ['averias', 'Avería', '🔧']] as const).map(([v, l, ic]) => (
+          {([['schematic', 'Esquema', '⎍'], ['multifilar', 'Multifilar', '☰'], ['unifilar', 'Unifilar', '╱'], ['real', 'Real', '🛠'], ['cuadro', 'Cuadro', '▦'], ['plano', 'Plano', '🖨'], ['juego', 'Juego', '🏠'], ['averias', 'Avería', '🔧'], ['boletin', 'Boletín', '📋']] as const).map(([v, l, ic]) => (
             <button key={v} role="tab" aria-selected={st.view === v} onClick={() => st.setView(v)} data-view={v} className={`${st.view === v ? 'on' : ''} ${visitor && v !== 'schematic' ? 'locked' : ''}`}><span>{visitor && v !== 'schematic' ? '🔒' : ic}</span> {l}</button>
           ))}
         </div>
@@ -274,7 +279,7 @@ export function App() {
                 {doc ? <Viewport d={st.view === 'multifilar' ? mf : uf} /> : <Canvas sim={sim} cables={cableRep.info} mode={st.view} />}
               </>
             )
-            : st.view === 'cuadro' ? <CuadroView /> : st.view === 'juego' ? <GameView onExit={() => st.setView('schematic')} /> : st.view === 'averias' ? <AveriaView sim={sim} /> : <Plano sim={sim} cables={cableRep.info} />}
+            : st.view === 'cuadro' ? <CuadroView /> : st.view === 'juego' ? <GameView onExit={() => st.setView('schematic')} /> : st.view === 'averias' ? <AveriaView sim={sim} /> : st.view === 'boletin' ? <BoletinView /> : <Plano sim={sim} cables={cableRep.info} />}
         </div>
         <div className="toasts">{st.notices.map((n) => (
           <div key={n.id} className="toast" role="alert"><span>💥</span><span>{n.text}</span><button onClick={() => st.dismiss(n.id)}>✕</button></div>

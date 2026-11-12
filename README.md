@@ -82,6 +82,15 @@ Segundo juego, continuación de la reforma: el cliente llama con un síntoma y e
 - **Guardado:** los `.omi` pueden incluir el parte en curso; dentro del juego se guarda el circuito del alumno, no el de la avería.
 - **Móvil y tablet:** cabecera compacta de una fila, pestañas y herramientas con desplazamiento, zoom con dos dedos en el lienzo, y en «Parte de avería» el polímetro se maneja desde un panel (función y puntas por toque) en vez de la ventana flotante.
 
+### Juego «El boletín» (pestaña 📋 Boletín)
+Antes de entregar la obra, el alumno hace las verificaciones reglamentarias con instrumentos propios, decide si cada valor es apto y firma el boletín… o se niega a firmarlo si hay algún defecto. Solo con cuenta; el progreso (visitas, mejor nota, media y estrellas) se guarda en el navegador y en la nube.
+- **Instrumentos:** megóhmetro (aislamiento, con pareja de conductores y tensión de ensayo), medidor de continuidad (con puntas a cero), telurómetro (distancia de picas auxiliares) y comprobador de diferenciales (corriente y tiempo de disparo).
+- **Mecánica:** hay que preparar la instalación (IGA, receptores, limitador de sobretensiones, pica) y cada preparación y ensayo gastan tiempo del cliente. Las condiciones mal puestas dan lecturas engañosas (y una medida inválida), como en la realidad; medir con tensión penaliza la seguridad. Cada medida se anota como apto o no apto; al final se revela qué defectos había y cuáles se escaparon.
+- **Niveles:** 1 un defecto claro y avisos de los aparatos · 2 preparación exigente, 0–2 defectos · 3 defectos escondidos (por ejemplo solo entre fase y neutro), valores justos, o ninguno.
+- **Nota:** decisión 3, hallazgos 2, juicio 2, cobertura 1,5, seguridad 1, tiempo 0,5. Firmar con un defecto limita la nota a 3; negarse sin motivo a 5.
+- **Código** (`src/boletin/`): `catalog.ts` (defectos como datos), `rules.ts` (los valores reglamentarios, en un solo sitio y marcados `verified: false`), `instruments.ts` (qué marcaría cada aparato en cada condición), `manual.ts` (el manual del instalador que sale dentro del juego).
+- **Valores:** el aislamiento (500 V / 0,5 MΩ) coincide con guías técnicas, pero ningún valor se ha podido contrastar con el texto del BOE; el umbral de continuidad (2 Ω) es una simplificación del juego.
+
 ### Archivos .omi
 Formato propio (JSON con cabecera `format: "omi"`): circuito, cuadro, cajetín del plano y, opcionalmente, la obra del juego con sus planos propios. «Guardar» → descargar al ordenador o guardar en el navegador; «Abrir» → archivo, biblioteca del navegador o arrastrar el `.omi` sobre la página. Acepta también los `.json` antiguos. Código: `src/omi.ts`, `src/ui/FilesDialog.tsx`.
 
