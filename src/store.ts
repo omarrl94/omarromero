@@ -31,7 +31,7 @@ export type InstId = 'meter' | 'scope' | 'watt';
 export type ProbeKey = 'red' | 'black' | 'c1' | 'c2';
 export interface InstWin { open: boolean; x: number | null; y: number | null; min: boolean }
 
-export type View = 'schematic' | 'multifilar' | 'unifilar' | 'real' | 'cuadro' | 'plano';
+export type View = 'schematic' | 'multifilar' | 'unifilar' | 'real' | 'cuadro' | 'plano' | 'juego';
 
 interface State {
   project: Project;
