@@ -1,0 +1,252 @@
+{
+  "distrito": 1,
+  "titulo": "Taller del instalador",
+  "resumen": "Cómo trabaja un instalador: normativa, herramientas, materiales, esquemas, presupuesto y el flujo completo de un aviso.",
+  "objetivos": [
+    "Localizar en el REBT la ITC y el apartado que responde a una duda técnica.",
+    "Elegir herramienta, EPI y material adecuados a cada operación.",
+    "Interpretar un esquema y elaborar una lista de materiales con presupuesto.",
+    "Describir el flujo AVISO → PLAN → INTERVENCIÓN → VERIFICACIÓN → FIRMA."
+  ],
+  "secciones": [
+    {
+      "id": "flujo",
+      "titulo": "El flujo profesional de un aviso",
+      "bloques": [
+        {
+          "t": "p",
+          "x": "Una instalación eléctrica no se improvisa. Todo trabajo profesional sigue la misma secuencia, y el último paso tiene responsabilidad legal."
+        },
+        {
+          "t": "ol",
+          "items": [
+            "Aviso: el cliente expone una necesidad o un fallo. Se recogen datos: qué, dónde, cuándo, quién y con qué urgencia.",
+            "Plan: se decide qué hacer, con qué materiales, herramientas y EPI y en qué orden; se identifican riesgos y se prevé la verificación.",
+            "Intervención: se ejecuta el trabajo aplicando las reglas de seguridad (ausencia de tensión, señalización, orden y limpieza).",
+            "Verificación: se comprueba lo hecho con instrumentos y con las pruebas que exige el REBT.",
+            "Firma: el instalador firma el parte, la memoria técnica o el certificado y responde de lo firmado."
+          ]
+        },
+        {
+          "t": "aviso",
+          "nivel": "clave",
+          "x": "Nunca se firma algo que no se ha verificado. Firmar sin verificar convierte un error técnico en una responsabilidad civil, administrativa y, si hay daños, penal."
+        }
+      ]
+    },
+    {
+      "id": "rebt",
+      "titulo": "El REBT como herramienta de trabajo",
+      "bloques": [
+        {
+          "t": "p",
+          "x": "El Reglamento Electrotécnico para Baja Tensión (RD 842/2002) se compone de un articulado y de las Instrucciones Técnicas Complementarias (ITC-BT-01 a ITC-BT-52). El articulado fija las obligaciones generales; las ITC desarrollan cada materia con requisitos técnicos concretos."
+        },
+        {
+          "t": "p",
+          "x": "Un buen instalador no memoriza el reglamento: sabe encontrar el apartado correcto rápidamente y aplicarlo con criterio. Para ello conviene razonar así: ¿de qué tipo de instalación se trata (vivienda, local, industria)? ¿Qué aspecto concreto se consulta (conductores, protecciones, tierra, verificación)? ¿Qué ITC trata ese aspecto?"
+        },
+        {
+          "t": "tabla",
+          "cab": [
+            "Necesito saber…",
+            "Consulto…"
+          ],
+          "filas": [
+            [
+              "Qué significan los términos",
+              "ITC-BT-01 (terminología)"
+            ],
+            [
+              "Documentación y puesta en servicio",
+              "ITC-BT-04"
+            ],
+            [
+              "Verificaciones e inspecciones",
+              "ITC-BT-05"
+            ],
+            [
+              "Conductores, colores, secciones, caídas de tensión",
+              "ITC-BT-19"
+            ],
+            [
+              "Sistemas de instalación y tubos",
+              "ITC-BT-20 y 21"
+            ],
+            [
+              "Viviendas: circuitos y puntos",
+              "ITC-BT-25"
+            ],
+            [
+              "Cuarto de baño",
+              "ITC-BT-27"
+            ],
+            [
+              "Protección contra contactos y sobreintensidades",
+              "ITC-BT-24 y 22"
+            ],
+            [
+              "Puesta a tierra",
+              "ITC-BT-18"
+            ]
+          ]
+        },
+        {
+          "t": "aviso",
+          "nivel": "norma",
+          "x": "Contrasta siempre los valores y apartados con el texto oficial del REBT cargado en la biblioteca: esta lección explica el criterio, la norma fija el valor. La tabla anterior es una guía de orientación para localizar, no un texto normativo."
+        }
+      ]
+    },
+    {
+      "id": "herramientas",
+      "titulo": "Herramientas y equipos",
+      "bloques": [
+        {
+          "t": "p",
+          "x": "Las herramientas se agrupan por función. Usar la herramienta adecuada evita dañar el material, ahorra tiempo y previene accidentes."
+        },
+        {
+          "t": "ul",
+          "items": [
+            "Corte y pelado: alicates de corte, pelacables, cuchilla. Un pelado correcto no deja marcas en el cobre.",
+            "Sujeción y apriete: alicates, destornilladores (planos, Phillips, Pozidriv) y llaves. Una borna mal apretada es una de las causas más frecuentes de avería y de incendio.",
+            "Conformado: curvadora de tubo, sierra, lima, taladro y broca.",
+            "Conexión: crimpadora para terminales, regletas y bornas.",
+            "Medida y replanteo: flexómetro, nivel, escuadra, plomada y láser.",
+            "Comprobación: detector de tensión, polímetro, pinza amperimétrica, medidor de aislamiento, telurómetro."
+          ]
+        },
+        {
+          "t": "aviso",
+          "nivel": "seguridad",
+          "x": "Para trabajos eléctricos se emplean herramientas aisladas y homologadas (p. ej. UNE-EN 60900). Se revisan antes de cada uso: un aislamiento dañado anula la protección."
+        },
+        {
+          "t": "p",
+          "x": "EPI básicos del instalador: calzado de seguridad, gafas de protección, guantes adecuados al riesgo, casco en obra y ropa de trabajo. Se eligen en la evaluación de riesgos de cada operación."
+        }
+      ]
+    },
+    {
+      "id": "conductores",
+      "titulo": "Conductores y materiales",
+      "bloques": [
+        {
+          "t": "p",
+          "x": "Un conductor aislado se compone de alma (cobre o aluminio), aislamiento y, en su caso, cubierta. Sus características se eligen según la tensión de trabajo, el entorno y el sistema de instalación."
+        },
+        {
+          "t": "ul",
+          "items": [
+            "Sección: determina la corriente máxima admisible y la caída de tensión.",
+            "Aislamiento: define la temperatura máxima de servicio y el comportamiento ante el fuego.",
+            "Tensión asignada: debe ser adecuada a la instalación.",
+            "Flexibilidad: rígido (instalación fija) o flexible (conexión de equipos móviles)."
+          ]
+        },
+        {
+          "t": "p",
+          "x": "El color identifica la función del conductor y es un criterio de seguridad: quien interviene después debe saber, sin dudar, qué conductor es neutro, cuál es de protección y cuáles son fases."
+        },
+        {
+          "t": "norma",
+          "ref": "ITC-BT-19",
+          "x": "Identificación de conductores: azul claro para el neutro, bicolor verde-amarillo para el conductor de protección y marrón, negro o gris para las fases (verificar en el texto oficial)."
+        },
+        {
+          "t": "aviso",
+          "nivel": "clave",
+          "x": "El bicolor verde-amarillo se reserva exclusivamente al conductor de protección. No se utiliza para ningún otro fin."
+        }
+      ]
+    },
+    {
+      "id": "esquemas",
+      "titulo": "Esquemas y símbolos",
+      "bloques": [
+        {
+          "t": "p",
+          "x": "El esquema es el lenguaje común entre proyectista, instalador y verificador. Existen varios tipos, cada uno para un propósito."
+        },
+        {
+          "t": "tabla",
+          "cab": [
+            "Esquema",
+            "Qué muestra",
+            "Para qué sirve"
+          ],
+          "filas": [
+            [
+              "Unifilar",
+              "Un solo trazo por circuito, con sus protecciones",
+              "Visión de conjunto del cuadro y de la distribución"
+            ],
+            [
+              "Multifilar",
+              "Todos los conductores (fase, neutro, protección)",
+              "Cablear y verificar"
+            ],
+            [
+              "Funcional / de mando",
+              "Lógica de funcionamiento",
+              "Entender y diagnosticar automatismos"
+            ],
+            [
+              "Planta",
+              "Ubicación física de elementos",
+              "Replantear en obra"
+            ]
+          ]
+        },
+        {
+          "t": "p",
+          "x": "Los símbolos se normalizan (serie UNE-EN 60617). Antes de montar, se verifica que los datos del plano coinciden con la realidad de la obra: medidas, ubicaciones y elementos existentes."
+        },
+        {
+          "t": "aviso",
+          "nivel": "clave",
+          "x": "Un plano no verificado puede estar desactualizado. Replantear es comprobar el plano contra la obra antes de actuar."
+        }
+      ]
+    },
+    {
+      "id": "presupuesto",
+      "titulo": "Lista de materiales y presupuesto",
+      "bloques": [
+        {
+          "t": "p",
+          "x": "Antes de intervenir se cuantifica qué se necesita y cuánto cuesta. El método es siempre el mismo:"
+        },
+        {
+          "t": "ol",
+          "items": [
+            "Medir sobre el plano o en obra (longitudes, número de puntos).",
+            "Cuantificar materiales por partida, añadiendo un porcentaje de merma para cables y tubos.",
+            "Aplicar precio unitario a cada partida.",
+            "Añadir mano de obra (horas × tarifa), medios auxiliares y margen.",
+            "Revisar la lista contra el esquema antes de pedir."
+          ]
+        },
+        {
+          "t": "ejemplo",
+          "titulo": "Presupuesto sencillo",
+          "pasos": [
+            "Datos de ejemplo: 40 m de cable a 0,80 €/m con 10 % de merma; 3 cajas a 1,50 € cada una; 4 h de mano de obra a 28 €/h.",
+            "Cable: 40 × 1,10 = 44 m → 44 × 0,80 = 35,20 €.",
+            "Cajas: 3 × 1,50 = 4,50 €.",
+            "Mano de obra: 4 × 28 = 112,00 €.",
+            "Total antes de impuestos: 35,20 + 4,50 + 112,00 = 151,70 €."
+          ]
+        },
+        {
+          "t": "aviso",
+          "nivel": "clave",
+          "x": "Un pedido sin comprobar contra el esquema genera paradas de obra. La lista de materiales se cotejan siempre con el plano."
+        }
+      ]
+    }
+  ],
+  "estado": "borrador",
+  "verificado": false
+}

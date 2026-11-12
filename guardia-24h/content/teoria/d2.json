@@ -1,0 +1,154 @@
+{
+  "distrito": 2,
+  "titulo": "Canalizaciones y tendido",
+  "resumen": "Sistemas de instalación, elección de la canalización, dimensionado de tubos y calidad de montaje.",
+  "objetivos": [
+    "Distinguir los tipos de canalización y sus usos.",
+    "Elegir el sistema de instalación según el local y las condiciones ambientales.",
+    "Dimensionar el diámetro de un tubo a partir de sus conductores.",
+    "Aplicar la lista de comprobación de montaje."
+  ],
+  "secciones": [
+    {
+      "id": "tipos",
+      "titulo": "Tipos de canalización",
+      "bloques": [
+        {
+          "t": "tabla",
+          "cab": [
+            "Canalización",
+            "Características",
+            "Uso típico"
+          ],
+          "filas": [
+            [
+              "Tubo rígido",
+              "Resistente a golpes, conformado con curvadora",
+              "Instalación vista en talleres y zonas expuestas"
+            ],
+            [
+              "Tubo flexible corrugado",
+              "Fácil de instalar",
+              "Empotrado en tabiques de vivienda"
+            ],
+            [
+              "Canal / molduras",
+              "Cerrado y accesible",
+              "Oficinas, instalación vista ordenada"
+            ],
+            [
+              "Bandeja",
+              "Abierta, gran capacidad",
+              "Naves, salas técnicas, grandes mazos"
+            ],
+            [
+              "Enterrada",
+              "Protegida mecánicamente",
+              "Exteriores y acometidas"
+            ]
+          ]
+        },
+        {
+          "t": "p",
+          "x": "La elección depende del local (seco, húmedo, mojado), del riesgo mecánico, de la temperatura y de la necesidad de ampliar la instalación en el futuro."
+        },
+        {
+          "t": "norma",
+          "ref": "ITC-BT-20",
+          "x": "Sistemas de instalación: define cómo pueden instalarse los conductores en cada caso."
+        }
+      ]
+    },
+    {
+      "id": "tubos",
+      "titulo": "Dimensionado del tubo",
+      "bloques": [
+        {
+          "t": "p",
+          "x": "El diámetro del tubo debe permitir tender y sustituir los conductores sin dañarlos. Se determina a partir del número de conductores y de su sección, con las tablas de la ITC-BT-21."
+        },
+        {
+          "t": "ol",
+          "items": [
+            "Contar los conductores que irán dentro del tubo (fase, neutro y protección).",
+            "Identificar la sección de cada conductor.",
+            "Entrar en la tabla de la ITC correspondiente al tipo de instalación (empotrada, vista, enterrada).",
+            "Leer el diámetro exterior mínimo y elegir el comercial inmediatamente superior."
+          ]
+        },
+        {
+          "t": "aviso",
+          "nivel": "norma",
+          "x": "Contrasta siempre los valores y apartados con el texto oficial del REBT cargado en la biblioteca: esta lección explica el criterio, la norma fija el valor."
+        },
+        {
+          "t": "aviso",
+          "nivel": "clave",
+          "x": "Un tubo demasiado justo dificulta el tendido, calienta los conductores y hace imposible sustituirlos."
+        }
+      ]
+    },
+    {
+      "id": "trazado",
+      "titulo": "Trazado y tendido",
+      "bloques": [
+        {
+          "t": "ul",
+          "items": [
+            "El trazado se realiza en horizontal y vertical, evitando diagonales en instalaciones empotradas.",
+            "Se colocan registros para facilitar el tendido y las ampliaciones; el tramo sin registro no debe ser excesivo.",
+            "Las curvas se hacen con radio suficiente para no dañar el aislamiento.",
+            "Se evitan los cruzamientos con otras instalaciones (agua, gas, calefacción) y se respetan las distancias de separación.",
+            "Los conductores se tienden con guía pasahilos, sin forzar ni retorcer, y se identifican en ambos extremos."
+          ]
+        },
+        {
+          "t": "aviso",
+          "nivel": "seguridad",
+          "x": "Se tiende con la instalación sin tensión. Jamás se tira de un conductor que ofrece resistencia: se revisa si hay curvas excesivas o un tubo aplastado."
+        }
+      ]
+    },
+    {
+      "id": "mojados",
+      "titulo": "Locales húmedos y mojados",
+      "bloques": [
+        {
+          "t": "p",
+          "x": "La humedad degrada el aislamiento y aumenta el riesgo de contacto. En estos locales se exige material con el grado de protección adecuado (estanquidad) y canalizaciones selladas en las entradas."
+        },
+        {
+          "t": "norma",
+          "ref": "ITC-BT-30",
+          "x": "Locales húmedos, mojados y con riesgo de corrosión: requisitos de instalación."
+        }
+      ]
+    },
+    {
+      "id": "calidad",
+      "titulo": "Lista de comprobación de montaje",
+      "bloques": [
+        {
+          "t": "ol",
+          "items": [
+            "Canalización bien fijada y sin deformaciones.",
+            "Registros accesibles y bien situados.",
+            "Curvas con radio suficiente.",
+            "Sin cruzamientos no protegidos.",
+            "Conductores identificados y con color correcto.",
+            "Conexiones solo dentro de cajas y apretadas con el par adecuado.",
+            "Conductor de protección continuo.",
+            "Orden y limpieza: residuos clasificados y zona recogida."
+          ]
+        },
+        {
+          "t": "aviso",
+          "nivel": "clave",
+          "x": "La calidad se comprueba antes de cerrar rozas y tapas, no después."
+        }
+      ]
+    }
+  ],
+  "estado": "borrador",
+  "verificado": false
+}

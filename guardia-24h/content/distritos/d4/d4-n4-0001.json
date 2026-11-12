@@ -61,7 +61,7 @@
       },
       {
         "id": "e3",
-        "etiqueta": "Diferencial correcto",
+        "etiqueta": "Diferencial 30 mA",
         "x": 305,
         "y": 20,
         "w": 130,
@@ -109,7 +109,7 @@
       },
       {
         "id": "e7",
-        "etiqueta": "Carril ordenado",
+        "etiqueta": "Carril DIN",
         "x": 305,
         "y": 115,
         "w": 130,
@@ -119,7 +119,7 @@
       },
       {
         "id": "e8",
-        "etiqueta": "Tierra bien conectada",
+        "etiqueta": "Conexión de tierra",
         "x": 450,
         "y": 115,
         "w": 130,

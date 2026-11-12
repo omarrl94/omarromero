@@ -11,7 +11,7 @@ export function CitaSelector({ onChange }: { onChange: (c: Cita | null) => void 
   const sugerencias = biblioteca.find((b) => (b.tipo === 'rebt' ? 'REBT' : b.titulo) === doc)?.secciones ?? [];
   return (
     <fieldset className="card grid gap-2 sm:grid-cols-2">
-      <legend className="px-1 font-bold">Cita (documento y apartado)</legend>
+      <legend className="eyebrow px-1">Cita (documento y apartado)</legend>
       <label>Documento
         <select className="input" value={doc} onChange={(e) => { setDoc(e.target.value); emite(e.target.value, ref); }}>
           <option value="REBT">REBT</option>

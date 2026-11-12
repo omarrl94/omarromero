@@ -45,7 +45,7 @@
       },
       {
         "id": "e2",
-        "etiqueta": "PIA identificado",
+        "etiqueta": "PIA de línea",
         "x": 160,
         "y": 20,
         "w": 130,
@@ -93,7 +93,7 @@
       },
       {
         "id": "e6",
-        "etiqueta": "Tierra conectada",
+        "etiqueta": "Borne de tierra",
         "x": 160,
         "y": 115,
         "w": 130,
@@ -103,7 +103,7 @@
       },
       {
         "id": "e7",
-        "etiqueta": "Cables con terminales",
+        "etiqueta": "Terminales de cable",
         "x": 305,
         "y": 115,
         "w": 130,
@@ -113,7 +113,7 @@
       },
       {
         "id": "e8",
-        "etiqueta": "Carril bien fijado",
+        "etiqueta": "Fijación del carril",
         "x": 450,
         "y": 115,
         "w": 130,

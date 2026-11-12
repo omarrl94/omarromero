@@ -31,7 +31,7 @@
     "elementos": [
       {
         "id": "e1",
-        "etiqueta": "IGA 25 A",
+        "etiqueta": "IGA",
         "x": 15,
         "y": 20,
         "w": 130,
@@ -79,7 +79,7 @@
       },
       {
         "id": "e5",
-        "etiqueta": "Etiquetas de circuito",
+        "etiqueta": "Etiquetado de circuitos",
         "x": 15,
         "y": 115,
         "w": 130,
@@ -103,7 +103,7 @@
       },
       {
         "id": "e7",
-        "etiqueta": "Tapa del cuadro cerrada",
+        "etiqueta": "Tapa del cuadro",
         "x": 305,
         "y": 115,
         "w": 130,
@@ -113,7 +113,7 @@
       },
       {
         "id": "e8",
-        "etiqueta": "Carril ordenado",
+        "etiqueta": "Carril DIN",
         "x": 450,
         "y": 115,
         "w": 130,

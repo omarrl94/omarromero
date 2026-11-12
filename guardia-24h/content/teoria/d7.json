@@ -1,0 +1,175 @@
+{
+  "distrito": 7,
+  "titulo": "Verificación y puesta en servicio",
+  "resumen": "Probar antes de entregar: pruebas reglamentarias, instrumentos, secuencia segura de medida e interpretación en el acta.",
+  "objetivos": [
+    "Enumerar las verificaciones de una instalación y su instrumento.",
+    "Aplicar la secuencia segura de medida.",
+    "Interpretar un valor medido: ¿cumple o no? Citar la norma.",
+    "Rellenar un acta con dictamen razonado."
+  ],
+  "secciones": [
+    {
+      "id": "objeto",
+      "titulo": "Qué es verificar y quién lo hace",
+      "bloques": [
+        {
+          "t": "p",
+          "x": "Verificar es comprobar objetivamente que una instalación cumple el reglamento antes de ponerla en servicio y mientras dura su vida útil. Hay verificación inicial (la hace el instalador antes de entregar) e inspecciones periódicas (las hacen organismos de control en los casos que fija la norma)."
+        },
+        {
+          "t": "norma",
+          "ref": "ITC-BT-05",
+          "x": "Verificaciones previas a la puesta en servicio e inspecciones."
+        },
+        {
+          "t": "aviso",
+          "nivel": "clave",
+          "x": "El instalador verifica y firma. La verificación documentada es su defensa y la garantía del cliente."
+        }
+      ]
+    },
+    {
+      "id": "seguridad",
+      "titulo": "Secuencia segura de medida",
+      "bloques": [
+        {
+          "t": "p",
+          "x": "Medir también puede ser peligroso. Una medida con instrumento inadecuado o con tensión donde no toca puede dañar el equipo y a la persona."
+        },
+        {
+          "t": "ol",
+          "items": [
+            "Planificar qué se va a medir y con qué.",
+            "Cortar la alimentación y consignar (bloquear y señalizar).",
+            "Comprobar la ausencia de tensión con un detector adecuado (en los tres conductores y el de protección).",
+            "Poner a tierra y en cortocircuito si procede.",
+            "Medir (continuidad, aislamiento) con la instalación sin tensión.",
+            "Reponer la tensión solo tras retirar útiles y personas, y medir las magnitudes que requieren tensión."
+          ]
+        },
+        {
+          "t": "aviso",
+          "nivel": "seguridad",
+          "x": "Continuidad y aislamiento se miden siempre sin tensión. Medirlos con la instalación en carga daña el instrumento y es un error grave de seguridad."
+        }
+      ]
+    },
+    {
+      "id": "pruebas",
+      "titulo": "Pruebas y magnitudes",
+      "bloques": [
+        {
+          "t": "tabla",
+          "cab": [
+            "Prueba",
+            "Qué comprueba",
+            "Instrumento"
+          ],
+          "filas": [
+            [
+              "Continuidad de conductores de protección",
+              "Que el conductor es continuo y de baja resistencia",
+              "Ohmímetro / polímetro"
+            ],
+            [
+              "Resistencia de aislamiento",
+              "Que el aislamiento entre conductores y a tierra es suficiente",
+              "Medidor de aislamiento (megóhmetro)"
+            ],
+            [
+              "Rigidez dieléctrica",
+              "Que el aislamiento soporta una tensión elevada",
+              "Ensayo específico"
+            ],
+            [
+              "Resistencia de la toma de tierra",
+              "Que la tierra es suficientemente baja",
+              "Telurómetro"
+            ],
+            [
+              "Corriente de fuga",
+              "Fugas a tierra de la instalación",
+              "Pinza de fugas"
+            ],
+            [
+              "Diferenciales: sensibilidad y tiempo de disparo",
+              "Que disparan como deben",
+              "Comprobador de diferenciales"
+            ]
+          ]
+        },
+        {
+          "t": "norma",
+          "ref": "ITC-BT-19",
+          "x": "Prescripciones generales: apartado de verificación (valores de aislamiento)."
+        }
+      ]
+    },
+    {
+      "id": "interpretar",
+      "titulo": "Interpretar una medida",
+      "bloques": [
+        {
+          "t": "p",
+          "x": "Medir no basta: hay que decidir si el valor cumple. El método es comparar el valor medido con el valor límite que fija la norma para ese caso, y razonar."
+        },
+        {
+          "t": "ejemplo",
+          "titulo": "Resistencia de tierra y tensión de contacto",
+          "pasos": [
+            "Planteamiento: para que una masa no alcance una tensión de contacto peligrosa, R · IΔn ≤ Uc.",
+            "Ejemplo: diferencial de 30 mA y Uc límite de 24 V: R ≤ 24 / 0,03 = 800 Ω.",
+            "Si se mide 100 Ω, cumple con margen. Si se mide 900 Ω, no cumple y hay que mejorar la tierra."
+          ]
+        },
+        {
+          "t": "p",
+          "x": "Un valor 'dudoso' (cerca del límite, o inestable) no se da por bueno: se repite la medida, se comprueba el estado del instrumento y de las conexiones, y se documenta."
+        },
+        {
+          "t": "aviso",
+          "nivel": "norma",
+          "x": "Contrasta siempre los valores y apartados con el texto oficial del REBT cargado en la biblioteca: esta lección explica el criterio, la norma fija el valor."
+        }
+      ]
+    },
+    {
+      "id": "acta",
+      "titulo": "El acta de verificación",
+      "bloques": [
+        {
+          "t": "p",
+          "x": "Recoge, de forma trazable, qué se midió, con qué instrumento, qué valor se obtuvo, si cumple y qué se concluye. Un acta tiene valor si permite repetir y comprobar lo hecho."
+        },
+        {
+          "t": "ul",
+          "items": [
+            "Datos de la instalación y del instalador.",
+            "Pruebas realizadas, instrumento y fecha.",
+            "Valor medido, criterio aplicado y resultado (cumple / no cumple).",
+            "No conformidades detectadas y acciones correctoras.",
+            "Dictamen: apta o no apta, siempre motivado y con cita normativa."
+          ]
+        },
+        {
+          "t": "aviso",
+          "nivel": "clave",
+          "x": "Una sola prueba que no cumple hace la instalación no apta hasta que se corrija y se vuelva a verificar."
+        }
+      ]
+    },
+    {
+      "id": "locales",
+      "titulo": "Verificaciones en locales especiales",
+      "bloques": [
+        {
+          "t": "p",
+          "x": "En locales húmedos, de pública concurrencia o con riesgo de explosión se añaden comprobaciones propias: estanquidad, funcionamiento del alumbrado de emergencia, continuidad equipotencial, etc. Se consultan en la ITC de cada local."
+        }
+      ]
+    }
+  ],
+  "estado": "borrador",
+  "verificado": false
+}

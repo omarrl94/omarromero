@@ -3,24 +3,22 @@
 @tailwind utilities;
 
 html { color-scheme: dark; }
-body {
-  @apply bg-noche text-crema antialiased;
-  font-family: 'Trebuchet MS', system-ui, sans-serif;
-  background-image: linear-gradient(rgba(169, 202, 187, 0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(169, 202, 187, 0.07) 1px, transparent 1px);
-  background-size: 32px 32px;
-}
-h1 { @apply font-titulo text-amarillo; }
-.card h1, .card h2, .card h3 { color: inherit; }
+body { @apply bg-ink font-sans text-tx antialiased; }
+h1, h2, h3 { @apply font-semibold tracking-tight text-tx; }
+a { @apply text-info; }
+::selection { background: #EFCD2F55; }
 
 @layer components {
-  .btn { @apply inline-flex items-center justify-center gap-2 rounded-xl border-[3px] border-tinta bg-amarillo px-5 py-2.5 font-titulo font-black text-tinta shadow-[0_5px_0_#1A1A1A] transition active:translate-y-1 active:shadow-[0_1px_0_#1A1A1A] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-menta; }
-  .btn-ghost { @apply bg-crema; }
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-md bg-acc px-4 py-2 text-sm font-semibold text-tinta transition hover:brightness-110 active:brightness-95 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-info; }
+  .btn-ghost { @apply border border-line bg-panel2 text-tx hover:bg-line hover:brightness-100; }
   .btn-ok { @apply bg-ok text-white; }
-  .btn-big { @apply px-8 py-4 text-xl; }
-  .card { @apply rounded-2xl border-[3px] border-tinta bg-crema p-4 text-tinta shadow-[0_6px_0_#000]; }
-  .input { @apply w-full rounded-xl border-[3px] border-tinta bg-white px-3 py-2 text-tinta focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-menta; }
-  .chip { @apply inline-flex items-center rounded-full border-2 border-tinta bg-menta px-2.5 py-0.5 text-xs font-bold text-tinta; }
-  .tile { @apply relative flex min-h-[4.5rem] cursor-pointer items-center gap-3 rounded-2xl border-[3px] border-tinta p-4 text-lg font-bold text-tinta shadow-[0_6px_0_#000] transition hover:-translate-y-0.5 has-[:focus-visible]:outline has-[:focus-visible]:outline-4 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-white; }
-  .tile-sel { @apply -translate-y-1 ring-4 ring-white ring-offset-2 ring-offset-noche; }
+  .btn-big { @apply px-6 py-3 text-base; }
+  .card { @apply rounded-lg border border-line bg-panel p-4 text-tx; }
+  .input { @apply w-full rounded-md border border-line bg-ink px-3 py-2 text-tx placeholder:text-mute focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-info; }
+  .chip { @apply inline-flex items-center rounded border border-line bg-panel2 px-2 py-0.5 text-[11px] font-medium text-mute; }
+  .chip-acc { @apply border-acc/50 bg-acc/10 text-acc; }
+  .eyebrow { @apply text-[11px] font-semibold uppercase tracking-[0.14em] text-mute; }
+  .tile { @apply relative flex cursor-pointer items-start gap-3 rounded-lg border border-line bg-panel p-4 text-[15px] transition hover:border-mute has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-info; }
+  .tile-sel { @apply border-acc bg-acc/10; }
 }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }

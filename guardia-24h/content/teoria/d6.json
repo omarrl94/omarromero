@@ -1,0 +1,203 @@
+{
+  "distrito": 6,
+  "titulo": "Automatismos cableados",
+  "resumen": "Del contactor al armario: componentes, esquemas de potencia y mando, maniobras progresivas y diagnóstico.",
+  "objetivos": [
+    "Identificar componentes y sus terminales normalizados.",
+    "Interpretar esquemas de potencia y de mando.",
+    "Cablear marcha-paro con enlace, inversión de giro con enclavamiento y estrella-triángulo.",
+    "Diagnosticar averías de forma sistemática."
+  ],
+  "secciones": [
+    {
+      "id": "componentes",
+      "titulo": "Componentes de un automatismo",
+      "bloques": [
+        {
+          "t": "tabla",
+          "cab": [
+            "Componente",
+            "Función",
+            "Terminales habituales"
+          ],
+          "filas": [
+            [
+              "Contactor (KM)",
+              "Interruptor accionado por electroimán",
+              "Bobina A1-A2; contactos principales 1-2, 3-4, 5-6; auxiliares 13-14 (NA), 21-22 (NC)"
+            ],
+            [
+              "Relé térmico (F)",
+              "Protege el motor contra sobrecarga",
+              "Contacto de mando 95-96 (NC) y 97-98 (NA)"
+            ],
+            [
+              "Pulsador de marcha (S)",
+              "Da la orden de arranque",
+              "Contacto NA 13-14"
+            ],
+            [
+              "Pulsador de paro (S)",
+              "Da la orden de parada",
+              "Contacto NC 11-12"
+            ],
+            [
+              "Temporizador (KT)",
+              "Retarda la acción un tiempo ajustado",
+              "Bobina A1-A2; contactos temporizados 15-16 (NC) y 17-18 (NA)"
+            ],
+            [
+              "Piloto (H)",
+              "Señaliza un estado",
+              "X1-X2"
+            ]
+          ]
+        },
+        {
+          "t": "p",
+          "x": "NA = normalmente abierto (cierra al activarse). NC = normalmente cerrado (abre al activarse). Un contacto se nombra siempre en su posición de reposo, con el componente desactivado."
+        },
+        {
+          "t": "aviso",
+          "nivel": "clave",
+          "x": "La bobina del contactor es el receptor del circuito de mando: cuando le llega tensión por A1 y tiene retorno por A2, todos sus contactos cambian de estado."
+        }
+      ]
+    },
+    {
+      "id": "esquemas",
+      "titulo": "Esquema de potencia y esquema de mando",
+      "bloques": [
+        {
+          "t": "p",
+          "x": "Todo automatismo se representa con dos esquemas complementarios."
+        },
+        {
+          "t": "ul",
+          "items": [
+            "Potencia: por donde circula la corriente del motor (red, protección, contactor, relé térmico, motor). Conductores gruesos.",
+            "Mando: la lógica que decide cuándo se cierra el contactor (pulsadores, contactos auxiliares, bobinas). Conductores finos y baja corriente.",
+            "Los dos se unen en la bobina (mando) y en los contactos principales (potencia) del mismo contactor."
+          ]
+        },
+        {
+          "t": "p",
+          "x": "Se lee el esquema de mando de arriba abajo y de izquierda a derecha: alimentación, órdenes y receptores, con el paro y las protecciones en serie con la bobina."
+        },
+        {
+          "t": "aviso",
+          "nivel": "seguridad",
+          "x": "El pulsador de paro y el contacto del relé térmico se cablean siempre en serie con la bobina y como contactos NC, de modo que un cable cortado provoque la parada y no el arranque (seguridad positiva)."
+        }
+      ]
+    },
+    {
+      "id": "marchaparo",
+      "titulo": "Marcha-paro con enlace (autorretención)",
+      "bloques": [
+        {
+          "t": "p",
+          "x": "Un pulsador de marcha solo cierra mientras se pulsa. Para que el motor siga funcionando al soltar, se utiliza un contacto auxiliar NA del propio contactor en paralelo con el pulsador: el contactor se mantiene a sí mismo."
+        },
+        {
+          "t": "ol",
+          "items": [
+            "Se pulsa S2: llega tensión a la bobina KM1.",
+            "KM1 se activa y cierra su contacto 13-14, que puentea S2.",
+            "Al soltar S2, la bobina sigue alimentada por el contacto de enlace.",
+            "Al pulsar S1 (paro) o disparar el térmico, se corta la alimentación y KM1 cae."
+          ]
+        },
+        {
+          "t": "formula",
+          "x": "L → F(95-96) → S1(NC) → [S2(NA) ∥ KM1 13-14] → bobina KM1 (A1-A2) → N"
+        },
+        {
+          "t": "aviso",
+          "nivel": "clave",
+          "x": "Sin el contacto de enlace el contactor solo funcionaría mientras se mantiene pulsado (marcha por impulso)."
+        }
+      ]
+    },
+    {
+      "id": "inversion",
+      "titulo": "Inversión de giro y enclavamiento",
+      "bloques": [
+        {
+          "t": "p",
+          "x": "En un motor trifásico se invierte el sentido de giro intercambiando dos de las tres fases. Para ello se usan dos contactores: KM1 conecta las fases en orden, KM2 las conecta con dos de ellas cruzadas."
+        },
+        {
+          "t": "aviso",
+          "nivel": "seguridad",
+          "x": "Si KM1 y KM2 cerraran a la vez se produciría un cortocircuito entre fases. Por eso se enclavan: el contacto NC 21-22 de KM1 se pone en serie con la bobina de KM2 y viceversa (enclavamiento eléctrico). Además suele añadirse un enclavamiento mecánico."
+        },
+        {
+          "t": "p",
+          "x": "Para invertir el giro con enclavamiento eléctrico simple, hay que parar antes de invertir: pulsar el paro, esperar a que caiga el contactor activo y entonces ordenar el otro sentido."
+        }
+      ]
+    },
+    {
+      "id": "estrellatriangulo",
+      "titulo": "Arranque estrella-triángulo",
+      "bloques": [
+        {
+          "t": "p",
+          "x": "Un motor trifásico arrancado directamente absorbe una corriente varias veces superior a la nominal. El arranque estrella-triángulo la reduce conectando los devanados en estrella al principio y en triángulo después."
+        },
+        {
+          "t": "formula",
+          "x": "En estrella: tensión por devanado = U / √3, corriente de arranque ≈ 1/3 de la de arranque directo"
+        },
+        {
+          "t": "ol",
+          "items": [
+            "KM1 (línea) y KM2 (estrella) se activan al pulsar marcha; el temporizador KT1 empieza a contar.",
+            "Transcurrido el tiempo, KT1 desactiva KM2.",
+            "KM3 (triángulo) se activa; KM2 y KM3 están enclavados entre sí.",
+            "El motor funciona en triángulo, a plena tensión por devanado."
+          ]
+        },
+        {
+          "t": "aviso",
+          "nivel": "seguridad",
+          "x": "KM2 y KM3 jamás deben cerrar simultáneamente: cortocircuitarían las tres fases. Se enclavan con contactos NC cruzados."
+        },
+        {
+          "t": "aviso",
+          "nivel": "clave",
+          "x": "El motor debe estar conectado en triángulo en funcionamiento normal: su placa indica la tensión del devanado, y en estrella el par de arranque baja (aprox. 1/3)."
+        }
+      ]
+    },
+    {
+      "id": "diagnostico",
+      "titulo": "Diagnóstico sistemático de averías",
+      "bloques": [
+        {
+          "t": "ol",
+          "items": [
+            "Observar y preguntar: ¿qué hace? ¿qué debería hacer? ¿desde cuándo?",
+            "Comprobar la seguridad: cortar la tensión y consignar cuando haya que intervenir.",
+            "Medir de la fuente hacia el receptor: ¿llega tensión a la bobina? Si no, ¿dónde se pierde?",
+            "Descartar protecciones: térmico disparado, fusible, magnetotérmico.",
+            "Aislar el tramo sospechoso y probar contactos con continuidad (sin tensión).",
+            "Reparar, verificar el funcionamiento completo y registrar la actuación."
+          ]
+        },
+        {
+          "t": "ul",
+          "items": [
+            "El contactor no cierra: sin tensión en bobina (paro, térmico, cable cortado) o bobina quemada.",
+            "Cierra pero no se mantiene: falta o falla el contacto de enlace.",
+            "Se activa solo: contacto NA soldado o cable en cortocircuito.",
+            "Zumba o vibra: tensión baja o armadura sucia."
+          ]
+        }
+      ]
+    }
+  ],
+  "estado": "borrador",
+  "verificado": false
+}

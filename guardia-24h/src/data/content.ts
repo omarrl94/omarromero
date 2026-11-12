@@ -1,4 +1,4 @@
-import { NormaFileSchema, DistritoSchema, ItemSchema, LibraryDocSchema, RaFileSchema, type Distrito, type Item, type LibraryDoc } from './schemas';
+import { TeoriaSchema, NormaFileSchema, DistritoSchema, ItemSchema, LibraryDocSchema, RaFileSchema, type Distrito, type Item, type LibraryDoc } from './schemas';
 
 const parse = <T,>(mods: Record<string, unknown>, schema: { parse: (x: unknown) => T }): T[] =>
   Object.values(mods).map((m) => schema.parse((m as { default: unknown }).default));
@@ -22,3 +22,6 @@ export const normaNum = (id: string): number => {
   return v;
 };
 export const normaLista = (id: string): number[] => String(norma.get(id)?.valor ?? '').split(',').filter(Boolean).map(Number);
+
+const teoriaMods = import.meta.glob('/content/teoria/*.json', { eager: true });
+export const teoria = parse(teoriaMods, TeoriaSchema).sort((a, b) => a.distrito - b.distrito);

@@ -86,7 +86,7 @@
       },
       {
         "id": "e5",
-        "etiqueta": "Registro accesible",
+        "etiqueta": "Registro de paso",
         "x": 15,
         "y": 115,
         "w": 130,
@@ -96,7 +96,7 @@
       },
       {
         "id": "e6",
-        "etiqueta": "Conductores rotulados",
+        "etiqueta": "Rotulado de conductores",
         "x": 160,
         "y": 115,
         "w": 130,
@@ -106,7 +106,7 @@
       },
       {
         "id": "e7",
-        "etiqueta": "Fijaciones correctas",
+        "etiqueta": "Fijaciones",
         "x": 305,
         "y": 115,
         "w": 130,
@@ -116,7 +116,7 @@
       },
       {
         "id": "e8",
-        "etiqueta": "Tubo enterrado señalizado",
+        "etiqueta": "Tubo enterrado",
         "x": 450,
         "y": 115,
         "w": 130,
@@ -140,7 +140,7 @@
       },
       {
         "id": "e10",
-        "etiqueta": "Caja estanca",
+        "etiqueta": "Caja de derivación",
         "x": 160,
         "y": 210,
         "w": 130,
@@ -164,7 +164,7 @@
       },
       {
         "id": "e12",
-        "etiqueta": "Etiquetas legibles",
+        "etiqueta": "Etiquetado de circuitos",
         "x": 450,
         "y": 210,
         "w": 130,

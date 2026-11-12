@@ -1,51 +1,51 @@
 import { Link } from 'react-router-dom';
-import { ICONO_DISTRITO } from '../components/Iconos';
-import { distritos } from '../data/content';
+import { Icon, ICONO_DISTRITO } from '../components/Icon';
+import { distritos, teoria } from '../data/content';
 import { useProgreso } from '../game/datos';
 import { estadoNivel } from '../game/progreso';
-
-const ALTO = 150;
-const xs = [30, 70, 34, 66, 30, 70, 34, 66];
+import { useTeoriaLeida } from '../game/teoria';
 
 export function Mapa() {
   const { intentos } = useProgreso();
-  const nodos = distritos.map((d, i) => {
-    const sup = [1, 2, 3, 4, 5].filter((n) => estadoNivel(intentos, d.id, n).superado).length;
-    return { d, sup, x: xs[i] ?? 50, y: 90 + i * ALTO };
-  });
-  const total = 90 + distritos.length * ALTO + 40;
-  const camino = nodos.map((n, i) => (i === 0 ? `M ${n.x} ${n.y}` : `C ${n.x} ${nodos[i - 1]!.y + ALTO / 2}, ${nodos[i - 1]!.x} ${n.y - ALTO / 2}, ${n.x} ${n.y}`)).join(' ');
-  const epi = { x: 50, y: total - 10 };
+  const { cuenta } = useTeoriaLeida();
+  const datos = distritos.map((d) => ({ d, sup: [1, 2, 3, 4, 5].filter((n) => estadoNivel(intentos, d.id, n).superado).length, t: teoria.find((x) => x.distrito === d.id) }));
+  const total = datos.reduce((s, x) => s + x.sup, 0);
   return (
-    <main className="mx-auto max-w-xl px-4 pt-4">
-      <h1 className="text-center text-3xl font-black drop-shadow-[0_3px_0_#000]">Campaña · 8 distritos</h1>
-      <p className="mb-2 text-center text-sm text-menta">Recorre la ciudad de avería en avería. Cada distrito es un bloque del curso.</p>
-      <div className="relative" style={{ height: total + 80 }}>
-        <svg className="absolute inset-0 h-full w-full" viewBox={`0 0 100 ${total + 80}`} preserveAspectRatio="none" aria-hidden>
-          <path d={camino} fill="none" stroke="#000" strokeWidth="16" strokeLinecap="round" vectorEffect="non-scaling-stroke" opacity=".5" />
-          <path d={camino} fill="none" stroke="#EFCD2F" strokeWidth="5" strokeDasharray="2 12" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-        </svg>
-        {nodos.map(({ d, sup, x, y }) => {
-          const hecho = sup === 5, empezado = sup > 0;
-          return (
-            <Link key={d.id} to={`/distrito/${d.id}`} aria-label={`Distrito ${d.id}: ${d.nombre}`} className="group absolute -translate-x-1/2 -translate-y-1/2 text-center" style={{ left: `${x}%`, top: y }}>
-              <span className={`relative grid h-24 w-24 place-items-center rounded-full border-4 border-tinta text-4xl shadow-[0_7px_0_#000] transition group-hover:-translate-y-1 group-focus-visible:outline group-focus-visible:outline-4 group-focus-visible:outline-menta ${hecho ? 'bg-ok' : empezado ? 'bg-amarillo animate-glow' : 'bg-crema'}`}
-                style={{ backgroundImage: `conic-gradient(#2FB872 ${(sup / 5) * 360}deg, transparent 0)`, backgroundBlendMode: 'normal' }}>
-                <span className="absolute inset-2 grid place-items-center rounded-full border-2 border-tinta bg-crema">{hecho ? '🏆' : ICONO_DISTRITO[d.id]}</span>
-                <span className="absolute -right-1 -top-1 grid h-8 w-8 place-items-center rounded-full border-[3px] border-tinta bg-tinta text-sm font-black text-amarillo">{d.id}</span>
-              </span>
-              <span className="mx-auto mt-3 block w-44 rounded-lg border-2 border-tinta bg-tinta/90 px-2 py-1 text-sm font-bold leading-tight text-crema">
-                {d.nombre}
-                <span className="block text-[11px] font-normal text-menta">{d.ra.join(' · ')} · {sup}/5 niveles</span>
-              </span>
-            </Link>
-          );
-        })}
-        <div className="absolute -translate-x-1/2 -translate-y-1/2 text-center opacity-70" style={{ left: `${epi.x}%`, top: epi.y + 70 }} aria-label="Epílogo: La Gran Inspección (bloqueado)">
-          <span className="grid h-20 w-20 place-items-center rounded-full border-4 border-dashed border-menta text-3xl grayscale">👑</span>
-          <span className="mt-2 block text-sm font-bold">La Gran Inspección</span><span className="text-xs">🔒 Jefe final</span>
-        </div>
+    <main className="mx-auto max-w-6xl px-4 py-8">
+      <div className="eyebrow">Plan formativo · Módulo 0518 TPIE</div>
+      <h1 className="mt-1 text-3xl">Campaña · 8 bloques</h1>
+      <p className="mt-1 max-w-2xl text-mute">Cada bloque se corresponde con un bloque didáctico del módulo: estudia la teoría, resuelve las prácticas por niveles y supera la intervención final.</p>
+      <div className="mt-4 flex items-center gap-3 text-sm text-mute" aria-label="Progreso global">
+        <div className="h-1.5 w-56 overflow-hidden rounded bg-line"><div className="h-full bg-acc transition-all" style={{ width: `${(total / 40) * 100}%` }} /></div>
+        <span>{total} de 40 niveles superados</span>
       </div>
+      <ul className="mt-6 grid gap-4 md:grid-cols-2">
+        {datos.map(({ d, sup, t }) => (
+          <li key={d.id} className="card flex flex-col gap-4 transition hover:border-mute">
+            <div className="flex items-start gap-3">
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-md border border-line bg-panel2 text-acc"><Icon n={ICONO_DISTRITO[d.id]!} className="h-5 w-5" /></span>
+              <div className="min-w-0 flex-1">
+                <div className="eyebrow">Bloque {d.id}</div>
+                <h2 className="text-lg leading-snug">{d.nombre}</h2>
+                <div className="mt-1.5 flex flex-wrap gap-1">{d.ra.map((r) => <span key={r} className="chip">{r}</span>)}</div>
+              </div>
+              {sup === 5 && <span className="chip border-ok/50 bg-ok/10 text-ok">Completado</span>}
+            </div>
+            <div>
+              <div className="mb-1 flex justify-between text-xs text-mute"><span>Prácticas</span><span>{sup}/5 niveles</span></div>
+              <div className="flex gap-1" aria-label={`${sup} de 5 niveles superados`}>{[1, 2, 3, 4, 5].map((n) => <span key={n} className={`h-1.5 flex-1 rounded ${estadoNivel(intentos, d.id, n).superado ? 'bg-ok' : 'bg-line'}`} />)}</div>
+            </div>
+            <div className="mt-auto flex flex-wrap gap-2">
+              <Link to={`/distrito/${d.id}/teoria`} className="btn btn-ghost no-underline" aria-label={`Teoría del bloque ${d.id}`}><Icon n="doc" className="h-4 w-4" />Teoría{t ? ` · ${cuenta(d.id)}/${t.secciones.length}` : ''}</Link>
+              <Link to={`/distrito/${d.id}`} aria-label={`Bloque ${d.id}: ${d.nombre}`} className="btn no-underline"><Icon n="play" className="h-4 w-4" />Prácticas</Link>
+            </div>
+          </li>
+        ))}
+        <li className="card flex items-center gap-4 border-dashed opacity-70 md:col-span-2">
+          <span className="grid h-11 w-11 place-items-center rounded-md border border-line text-mute"><Icon n="lock" className="h-5 w-5" /></span>
+          <div><div className="eyebrow">Epílogo</div><h2 className="text-lg">La Gran Inspección</h2><p className="text-sm text-mute">Auditoría integral de una instalación completa. Se desbloquea al superar los 8 bloques.</p></div>
+        </li>
+      </ul>
     </main>
   );
 }

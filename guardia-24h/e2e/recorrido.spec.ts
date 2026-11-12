@@ -5,9 +5,9 @@ test('alumno: registro → mapa → distrito → biblioteca → Mi manual', asyn
   await page.getByLabel('Código de clase').fill('SEA-2025');
   await page.getByLabel('Alias').fill('Chispas');
   await page.getByRole('button', { name: 'Entrar' }).click();
-  await expect(page.getByRole('heading', { name: /8 distritos/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /8 bloques/ })).toBeVisible();
 
-  await page.getByRole('link', { name: /Distrito 1/ }).click();
+  await page.getByRole('link', { name: /Bloque 1/ }).click();
   await expect(page.getByRole('heading', { name: /Taller del instalador/ })).toBeVisible();
 
   await page.getByRole('link', { name: /Biblioteca/ }).click();
@@ -22,20 +22,31 @@ test('alumno: registro → mapa → distrito → biblioteca → Mi manual', asyn
   await expect(page.getByText('Chispas · SEA-2025 · local')).toBeVisible(); // la sesión persiste
 });
 
+test('alumno estudia la teoría del bloque 1', async ({ page }) => {
+  await page.goto('/');
+  await page.getByLabel('Código de clase').fill('SEA-2025');
+  await page.getByLabel('Alias').fill('Teoria1');
+  await page.getByRole('button', { name: 'Entrar' }).click();
+  await page.getByRole('link', { name: /Teoría del bloque 1/ }).click();
+  await expect(page.getByRole('heading', { name: 'Taller del instalador', level: 1 })).toBeVisible();
+  await page.getByRole('button', { name: 'Marcar como leída' }).first().click();
+  await expect(page.getByRole('button', { name: /Leída/ })).toBeVisible();
+});
+
 test('alumno juega N1 del distrito 1 y ve su nota', async ({ page }) => {
   await page.goto('/');
   await page.getByLabel('Código de clase').fill('SEA-2025');
   await page.getByLabel('Alias').fill('Juego1');
   await page.getByRole('button', { name: 'Entrar' }).click();
-  await page.getByRole('link', { name: /Distrito 1/ }).click();
-  await page.getByRole('link', { name: 'Jugar' }).first().click();
+  await page.getByRole('link', { name: /Bloque 1/ }).click();
+  await page.getByRole('link', { name: /Practicar/ }).first().click();
   await page.getByRole('button', { name: /Empezar/ }).click();
   for (let i = 0; i < 8; i++) {
     await page.getByRole('radio').first().check();
     await page.getByRole('button', { name: 'Comprobar' }).click();
-    await page.getByRole('button', { name: /Siguiente|Terminar/ }).click();
+    await page.getByRole('button', { name: /Siguiente|Finalizar/ }).click();
   }
-  await expect(page.getByText(/Resultado:/)).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Nivel (no )?superado/ })).toBeVisible();
   await page.getByRole('link', { name: /Notas/ }).click();
   await expect(page.getByRole('heading', { name: /Mis notas/ })).toBeVisible();
   await page.getByRole('link', { name: /Docente/ }).click();

@@ -1,0 +1,157 @@
+{
+  "distrito": 8,
+  "titulo": "Documentación y herramientas digitales",
+  "resumen": "El expediente de una instalación: proyecto, memoria, certificados, mantenimiento preventivo y uso crítico de la inteligencia artificial.",
+  "objetivos": [
+    "Identificar los documentos de un proyecto técnico.",
+    "Completar la documentación de puesta en servicio.",
+    "Diseñar un plan de mantenimiento preventivo.",
+    "Revisar críticamente un texto generado por IA."
+  ],
+  "secciones": [
+    {
+      "id": "proyecto",
+      "titulo": "Documentos del proyecto técnico",
+      "bloques": [
+        {
+          "t": "tabla",
+          "cab": [
+            "Documento",
+            "Contenido"
+          ],
+          "filas": [
+            [
+              "Memoria",
+              "Justificación técnica, cálculos, descripción de la instalación"
+            ],
+            [
+              "Planos",
+              "Esquemas y planos de planta, detalle"
+            ],
+            [
+              "Pliego de condiciones",
+              "Requisitos de materiales y ejecución"
+            ],
+            [
+              "Presupuesto",
+              "Mediciones y precios"
+            ],
+            [
+              "Estudio de seguridad y salud",
+              "Riesgos y medidas preventivas"
+            ]
+          ]
+        },
+        {
+          "t": "p",
+          "x": "Según la potencia y el tipo de instalación, la ITC-BT-04 exige proyecto firmado por técnico titulado competente o una memoria técnica de diseño elaborada por el instalador."
+        },
+        {
+          "t": "norma",
+          "ref": "ITC-BT-04",
+          "x": "Documentación y puesta en servicio de las instalaciones."
+        },
+        {
+          "t": "aviso",
+          "nivel": "norma",
+          "x": "Contrasta siempre los valores y apartados con el texto oficial del REBT cargado en la biblioteca: esta lección explica el criterio, la norma fija el valor."
+        }
+      ]
+    },
+    {
+      "id": "puesta",
+      "titulo": "Documentación de puesta en servicio",
+      "bloques": [
+        {
+          "t": "ul",
+          "items": [
+            "Certificado de instalación firmado por el instalador autorizado, con la memoria técnica o proyecto.",
+            "Acta de verificación con las medidas realizadas.",
+            "Esquema unifilar actualizado y 'as built' (lo realmente ejecutado).",
+            "Instrucciones de uso y mantenimiento entregadas al titular."
+          ]
+        },
+        {
+          "t": "aviso",
+          "nivel": "clave",
+          "x": "Documentar es parte del trabajo, no un trámite: es lo que permite mantener, ampliar y defender lo instalado."
+        }
+      ]
+    },
+    {
+      "id": "mantenimiento",
+      "titulo": "Mantenimiento preventivo",
+      "bloques": [
+        {
+          "t": "p",
+          "x": "Mantener evita averías y accidentes. El plan define qué se revisa, con qué frecuencia, quién lo hace y dónde se registra."
+        },
+        {
+          "t": "tabla",
+          "cab": [
+            "Operación",
+            "Finalidad",
+            "Registro"
+          ],
+          "filas": [
+            [
+              "Inspección visual de cuadros y conexiones",
+              "Detectar calentamientos, suciedad, deterioro",
+              "Hoja de revisión"
+            ],
+            [
+              "Prueba de diferenciales",
+              "Comprobar el disparo",
+              "Acta / histórico"
+            ],
+            [
+              "Medida de aislamiento y tierra",
+              "Detectar degradación",
+              "Acta / histórico"
+            ],
+            [
+              "Revisión del alumbrado de emergencia",
+              "Comprobar autonomía y funcionamiento",
+              "Libro de registro"
+            ]
+          ]
+        },
+        {
+          "t": "p",
+          "x": "Cada operación genera un registro. Con el histórico se detectan tendencias (un aislamiento que baja año a año) antes de que la avería ocurra. Las contingencias (una avería, un disparo inexplicado) se documentan en un informe."
+        },
+        {
+          "t": "norma",
+          "ref": "ITC-BT-05",
+          "x": "Inspecciones periódicas y periodicidad. La frecuencia concreta de cada operación debe consultarse en la norma."
+        }
+      ]
+    },
+    {
+      "id": "ia",
+      "titulo": "Uso crítico de la inteligencia artificial",
+      "bloques": [
+        {
+          "t": "p",
+          "x": "Los asistentes de IA son útiles para redactar, resumir y estructurar. Pero generan texto verosímil, no verificado: pueden equivocar una cifra, inventar un artículo o aplicar una norma de otro país."
+        },
+        {
+          "t": "ol",
+          "items": [
+            "Pide fuentes y compruébalas en el texto oficial.",
+            "Revisa cada cifra, unidad y referencia normativa.",
+            "Contrasta cálculos con tu propio método.",
+            "Conserva la responsabilidad: la firma es tuya, no de la herramienta."
+          ]
+        },
+        {
+          "t": "aviso",
+          "nivel": "clave",
+          "x": "La IA propone, el técnico verifica y firma. Nunca se entrega un documento técnico generado por IA sin revisarlo línea por línea."
+        }
+      ]
+    }
+  ],
+  "estado": "borrador",
+  "verificado": false
+}

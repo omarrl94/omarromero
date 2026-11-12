@@ -1,0 +1,153 @@
+{
+  "distrito": 5,
+  "titulo": "Instalaciones industriales y locales especiales",
+  "resumen": "Locales de pública concurrencia, atmósferas explosivas, locales húmedos y de riesgo, motores, alumbrado exterior y redes de distribución.",
+  "objetivos": [
+    "Identificar el tipo de local y la ITC que le aplica.",
+    "Explicar la finalidad y los tipos de alumbrado de emergencia.",
+    "Describir los criterios de protección de motores.",
+    "Reconocer técnicas de trazado y montaje en redes y alumbrado exterior."
+  ],
+  "secciones": [
+    {
+      "id": "locales",
+      "titulo": "Clasificación de locales y ITC aplicable",
+      "bloques": [
+        {
+          "t": "p",
+          "x": "El riesgo eléctrico depende del entorno. Por eso el REBT trata aparte los locales con características especiales, añadiendo requisitos a los generales."
+        },
+        {
+          "t": "tabla",
+          "cab": [
+            "Tipo de local",
+            "Riesgo principal",
+            "ITC de referencia"
+          ],
+          "filas": [
+            [
+              "Pública concurrencia",
+              "Evacuación segura de muchas personas",
+              "ITC-BT-28"
+            ],
+            [
+              "Atmósferas explosivas",
+              "Ignición por chispas o calor",
+              "ITC-BT-29"
+            ],
+            [
+              "Húmedos, mojados, con riesgo de corrosión",
+              "Pérdida de aislamiento, contacto",
+              "ITC-BT-30"
+            ],
+            [
+              "Motores",
+              "Sobrecarga, arranque, giro",
+              "ITC-BT-47"
+            ],
+            [
+              "Alumbrado exterior",
+              "Intemperie, contactos accesibles",
+              "ITC-BT-09"
+            ]
+          ]
+        },
+        {
+          "t": "aviso",
+          "nivel": "norma",
+          "x": "Confirmar con el profesor el listado exacto de ITC que cubre este bloque. Contrasta siempre los valores y apartados con el texto oficial del REBT cargado en la biblioteca: esta lección explica el criterio, la norma fija el valor."
+        }
+      ]
+    },
+    {
+      "id": "emergencia",
+      "titulo": "Alumbrado de emergencia",
+      "bloques": [
+        {
+          "t": "p",
+          "x": "Su objetivo es permitir la evacuación segura cuando falla el alumbrado normal. Se alimenta desde una fuente independiente (baterías) y debe entrar en servicio automáticamente."
+        },
+        {
+          "t": "ul",
+          "items": [
+            "Alumbrado de seguridad: evacuación (rutas, salidas) y zonas de riesgo.",
+            "Alumbrado de reemplazamiento: permite continuar la actividad.",
+            "La autonomía, la iluminancia mínima y la ubicación (salidas, cambios de dirección, escaleras, cuadros, extintores) se fijan en la norma."
+          ]
+        },
+        {
+          "t": "norma",
+          "ref": "ITC-BT-28",
+          "x": "Instalaciones en locales de pública concurrencia y alumbrado de emergencia."
+        },
+        {
+          "t": "aviso",
+          "nivel": "clave",
+          "x": "Un luminaria de emergencia mal ubicada o con batería agotada no cumple su función. Se comprueba y se registra en el mantenimiento."
+        }
+      ]
+    },
+    {
+      "id": "motores",
+      "titulo": "Motores: protección y conexión",
+      "bloques": [
+        {
+          "t": "ul",
+          "items": [
+            "Protección contra sobrecargas: relé térmico ajustado a la corriente nominal del motor.",
+            "Protección contra cortocircuitos: magnetotérmico o fusibles.",
+            "Mando y seccionamiento: contactor y dispositivo de corte visible.",
+            "Conductores dimensionados para la corriente nominal y el arranque.",
+            "Conexión de la puesta a tierra de la carcasa."
+          ]
+        },
+        {
+          "t": "norma",
+          "ref": "ITC-BT-47",
+          "x": "Instalación de receptores: motores."
+        }
+      ]
+    },
+    {
+      "id": "exterior",
+      "titulo": "Alumbrado exterior y redes",
+      "bloques": [
+        {
+          "t": "p",
+          "x": "En alumbrado exterior el material está expuesto a la intemperie y a contactos de terceros: se exigen grados de protección elevados, puesta a tierra de soportes y protecciones diferenciales."
+        },
+        {
+          "t": "p",
+          "x": "Las redes de distribución en baja tensión (aéreas y subterráneas) se montan siguiendo un trazado previo con marcado: se replantea, se abre zanja, se tiende, se señaliza y se cierra."
+        },
+        {
+          "t": "norma",
+          "ref": "ITC-BT-09",
+          "x": "Alumbrado exterior."
+        },
+        {
+          "t": "norma",
+          "ref": "ITC-BT-06",
+          "x": "Redes aéreas para distribución en baja tensión."
+        },
+        {
+          "t": "norma",
+          "ref": "ITC-BT-07",
+          "x": "Redes subterráneas para distribución en baja tensión."
+        }
+      ]
+    },
+    {
+      "id": "maquinaria",
+      "titulo": "Maquinaria y medios de montaje",
+      "bloques": [
+        {
+          "t": "p",
+          "x": "Cada fase del montaje requiere maquinaria específica: replanteo (láser, nivel), apertura de zanjas (miniexcavadora), tendido (cabrestante, poleas), elevación (plataforma elevadora), conexionado (crimpadora hidráulica). Se selecciona según la tarea y se opera con formación y EPI."
+        }
+      ]
+    }
+  ],
+  "estado": "borrador",
+  "verificado": false
+}

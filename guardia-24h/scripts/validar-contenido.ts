@@ -3,7 +3,7 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { z } from 'zod';
 import {
-  DistritoSchema, IaTramposaSchema, ItemSchema, LibraryDocSchema, NormaFileSchema, RaFileSchema,
+  DistritoSchema, IaTramposaSchema, TeoriaSchema, ItemSchema, LibraryDocSchema, NormaFileSchema, RaFileSchema,
 } from '../src/data/schemas';
 
 const raiz = join(import.meta.dirname, '..', 'content');
@@ -19,6 +19,7 @@ function ficheros(dir: string): string[] {
 function esquemaPara(ruta: string): z.ZodTypeAny | null {
   const r = ruta.replace(raiz, '').replaceAll('\\', '/');
   if (r.startsWith('/ra/')) return RaFileSchema;
+  if (r.startsWith('/teoria/')) return TeoriaSchema;
   if (r.startsWith('/norma/')) return NormaFileSchema;
   if (r.startsWith('/library/')) return LibraryDocSchema;
   if (r.startsWith('/ia-tramposa/')) return IaTramposaSchema;

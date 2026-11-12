@@ -1,14 +1,15 @@
-import { NavLink, Link } from 'react-router-dom';
 import { useState } from 'react';
+import { Link, NavLink } from 'react-router-dom';
 import { repo } from '../data';
 import { RANGOS, rangoDe, useStore } from '../game/store';
 import { estaSilenciado, silenciar } from '../game/sound';
+import { Icon, type IconName } from './Icon';
 
-const NAV = [
-  { to: '/', icono: '🗺️', texto: 'Mapa', fin: true },
-  { to: '/biblioteca', icono: '📚', texto: 'Biblioteca' },
-  { to: '/notas', icono: '📊', texto: 'Notas' },
-  { to: '/docente', icono: '🧑‍🏫', texto: 'Docente' },
+const NAV: { to: string; icono: IconName; texto: string; fin?: boolean }[] = [
+  { to: '/', icono: 'map', texto: 'Plan formativo', fin: true },
+  { to: '/biblioteca', icono: 'book', texto: 'Biblioteca' },
+  { to: '/notas', icono: 'chart', texto: 'Notas' },
+  { to: '/docente', icono: 'user', texto: 'Docente' },
 ];
 
 export function Hud() {
@@ -18,36 +19,38 @@ export function Hud() {
   const idx = RANGOS.findIndex((r) => r.nombre === rangoDe(estado.xp));
   const sig = RANGOS[idx + 1];
   const pct = sig ? ((estado.xp - RANGOS[idx]!.xp) / (sig.xp - RANGOS[idx]!.xp)) * 100 : 100;
-  const enlace = ({ isActive }: { isActive: boolean }) => `flex flex-col items-center gap-0.5 rounded-xl px-3 py-1 text-xs font-bold ${isActive ? 'bg-amarillo text-tinta' : 'text-crema hover:bg-white/10'}`;
+  const enlace = ({ isActive }: { isActive: boolean }) => `flex items-center gap-2 border-b-2 px-3 py-3 text-sm font-medium ${isActive ? 'border-acc text-tx' : 'border-transparent text-mute hover:text-tx'}`;
   return (
     <>
-      <header className="sticky top-0 z-20 border-b-4 border-amarillo bg-tinta text-crema">
-        <div className="mx-auto flex max-w-5xl items-center gap-3 px-3 py-2">
-          <Link to="/" aria-label="Guardia 24 h, inicio" className="font-titulo text-xl font-black text-amarillo">⚡<span className="hidden sm:inline"> Guardia 24 h</span></Link>
-          <div className="flex min-w-0 items-center gap-2">
-            <span aria-hidden className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-[3px] border-crema bg-amarillo font-black text-tinta">{sesion.alias.charAt(0).toUpperCase()}</span>
-            <div className="min-w-0 leading-tight">
-              <div className="truncate text-sm font-bold">{rangoDe(estado.xp)}</div>
-              <div className="h-2.5 w-24 overflow-hidden rounded-full bg-white/20 sm:w-36" role="progressbar" aria-label="Experiencia" aria-valuenow={Math.round(pct)} aria-valuemin={0} aria-valuemax={100}>
-                <div className="h-full rounded-full bg-menta transition-all duration-700" style={{ width: `${pct}%` }} />
+      <header className="sticky top-0 z-20 border-b border-line bg-ink/95 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center gap-4 px-4">
+          <Link to="/" aria-label="Guardia 24 h, inicio" className="flex items-center gap-2 py-3 text-tx no-underline">
+            <span className="grid h-7 w-7 place-items-center rounded bg-acc text-tinta"><Icon n="bolt" className="h-4 w-4" /></span>
+            <span className="text-sm font-bold tracking-wide">GUARDIA <span className="text-acc">24H</span></span>
+          </Link>
+          <nav aria-label="Principal" className="ml-4 hidden md:flex">
+            {NAV.map((n) => <NavLink key={n.to} to={n.to} end={n.fin} aria-label={n.texto} className={enlace}><Icon n={n.icono} className="h-4 w-4" />{n.texto}</NavLink>)}
+          </nav>
+          <div className="ml-auto flex items-center gap-4 text-sm">
+            <div className="hidden text-right leading-tight sm:block" title={`${estado.xp} puntos de experiencia`}>
+              <div className="text-xs font-semibold text-tx">{rangoDe(estado.xp)}</div>
+              <div className="mt-1 h-1 w-32 overflow-hidden rounded bg-line" role="progressbar" aria-label="Experiencia" aria-valuenow={Math.round(pct)} aria-valuemin={0} aria-valuemax={100}>
+                <div className="h-full bg-acc transition-all duration-700" style={{ width: `${pct}%` }} />
               </div>
-              <div className="text-[11px] opacity-80">{estado.xp} XP{sig ? ` · ${sig.xp - estado.xp} para ${sig.nombre}` : ''}</div>
+              <div className="mt-0.5 text-[10px] text-mute">{estado.xp} XP{sig ? ` · ${sig.xp - estado.xp} → ${sig.nombre}` : ''}</div>
             </div>
-          </div>
-          <div className="ml-auto flex items-center gap-3 text-sm font-bold">
-            <span aria-label={`${estado.vidas} vidas`} title="Vidas">{'❤️'.repeat(estado.vidas)}</span>
-            <span title="Dinero">💶 {estado.dinero}</span>
-            <span className="hidden rounded-full bg-white/10 px-2 py-0.5 text-xs md:inline" title={repo.modo === 'nube' ? 'Datos en la nube' : 'Datos solo en este dispositivo'}>{sesion.alias} · {sesion.claseCodigo} · {repo.modo}</span>
-            <button aria-label={mute ? 'Activar sonido' : 'Silenciar'} className="text-lg" onClick={() => { silenciar(!mute); setMute(!mute); }}>{mute ? '🔇' : '🔊'}</button>
-            <button className="text-xs underline" onClick={() => void salir()}>Salir</button>
+            <span className="hidden rounded border border-line px-2 py-1 text-xs text-mute lg:inline" title={repo.modo === 'nube' ? 'Datos en la nube' : 'Datos solo en este dispositivo'}>{sesion.alias} · {sesion.claseCodigo} · {repo.modo}</span>
+            <button aria-label={mute ? 'Activar sonido' : 'Silenciar'} className="text-mute hover:text-tx" onClick={() => { silenciar(!mute); setMute(!mute); }}><Icon n={mute ? 'mute' : 'sound'} className="h-4 w-4" /></button>
+            <button className="text-xs text-mute hover:text-tx" onClick={() => void salir()}>Salir</button>
           </div>
         </div>
-        <nav aria-label="Principal" className="mx-auto hidden max-w-5xl gap-1 px-3 pb-2 md:flex">
-          {NAV.map((n) => <NavLink key={n.to} to={n.to} end={n.fin} aria-label={n.texto} className={enlace}><span aria-hidden>{n.icono}</span>{n.texto}</NavLink>)}
-        </nav>
       </header>
-      <nav aria-label="Principal móvil" className="fixed inset-x-0 bottom-0 z-20 flex justify-around border-t-4 border-amarillo bg-tinta py-1 md:hidden">
-        {NAV.map((n) => <NavLink key={n.to} to={n.to} end={n.fin} aria-label={n.texto} className={enlace}><span aria-hidden className="text-xl">{n.icono}</span>{n.texto}</NavLink>)}
+      <nav aria-label="Principal móvil" className="fixed inset-x-0 bottom-0 z-20 flex justify-around border-t border-line bg-ink/95 py-1 backdrop-blur md:hidden">
+        {NAV.map((n) => (
+          <NavLink key={n.to} to={n.to} end={n.fin} aria-label={n.texto} className={({ isActive }) => `flex flex-col items-center gap-0.5 px-3 py-1.5 text-[10px] font-medium ${isActive ? 'text-acc' : 'text-mute'}`}>
+            <Icon n={n.icono} />{n.texto.split(' ')[0]}
+          </NavLink>
+        ))}
       </nav>
     </>
   );

@@ -47,7 +47,7 @@
       },
       {
         "id": "e2",
-        "etiqueta": "IGA correcto",
+        "etiqueta": "IGA",
         "x": 160,
         "y": 20,
         "w": 130,
@@ -85,7 +85,7 @@
       },
       {
         "id": "e5",
-        "etiqueta": "Etiquetado",
+        "etiqueta": "Etiquetado de circuitos",
         "x": 15,
         "y": 115,
         "w": 130,
@@ -109,7 +109,7 @@
       },
       {
         "id": "e7",
-        "etiqueta": "PIA identificados",
+        "etiqueta": "PIAs de línea",
         "x": 305,
         "y": 115,
         "w": 130,
@@ -119,7 +119,7 @@
       },
       {
         "id": "e8",
-        "etiqueta": "Cierre con llave",
+        "etiqueta": "Cierre del cuadro",
         "x": 450,
         "y": 115,
         "w": 130,

@@ -46,7 +46,7 @@
       },
       {
         "id": "e2",
-        "etiqueta": "Registro accesible",
+        "etiqueta": "Registro de paso",
         "x": 160,
         "y": 20,
         "w": 130,
@@ -70,7 +70,7 @@
       },
       {
         "id": "e4",
-        "etiqueta": "Tubo bien fijado",
+        "etiqueta": "Fijación del tubo",
         "x": 450,
         "y": 20,
         "w": 130,
@@ -94,7 +94,7 @@
       },
       {
         "id": "e6",
-        "etiqueta": "Conductores rotulados",
+        "etiqueta": "Rotulado de conductores",
         "x": 160,
         "y": 115,
         "w": 130,
@@ -104,7 +104,7 @@
       },
       {
         "id": "e7",
-        "etiqueta": "Caja de empalme estanca",
+        "etiqueta": "Caja de empalme",
         "x": 305,
         "y": 115,
         "w": 130,

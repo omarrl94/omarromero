@@ -7,7 +7,7 @@ type Resp = Record<string, 'cumple' | 'no'>;
 export function Acta({ pruebas, acta, dictamen, revelar, onChange }: { pruebas: Prueba[]; acta: Resp; dictamen?: 'apta' | 'no_apta'; revelar: boolean; onChange: (a: Resp, d?: 'apta' | 'no_apta') => void }) {
   return (
     <section className="card overflow-x-auto" aria-label="Acta de verificación">
-      <h2 className="font-titulo text-lg font-black">📝 Acta de verificación</h2>
+      <h2 className="eyebrow mb-2">Acta de verificación</h2>
       <table className="w-full text-left text-sm">
         <thead><tr><th>Prueba</th><th>Valor medido</th><th>Dictamen</th>{revelar && <th>Correcto</th>}</tr></thead>
         <tbody>

@@ -103,3 +103,25 @@ export type RaFile = z.infer<typeof RaFileSchema>;
 export type LibraryDoc = z.infer<typeof LibraryDocSchema>;
 export type Item = z.infer<typeof ItemSchema>;
 export type Distrito = z.infer<typeof DistritoSchema>;
+
+const Bloque = z.discriminatedUnion('t', [
+  z.object({ t: z.literal('p'), x: z.string() }),
+  z.object({ t: z.literal('ul'), items: z.array(z.string()) }),
+  z.object({ t: z.literal('ol'), items: z.array(z.string()) }),
+  z.object({ t: z.literal('formula'), x: z.string(), nota: z.string().optional() }),
+  z.object({ t: z.literal('ejemplo'), titulo: z.string(), pasos: z.array(z.string()) }),
+  z.object({ t: z.literal('aviso'), nivel: z.enum(['seguridad', 'norma', 'clave']), x: z.string() }),
+  z.object({ t: z.literal('norma'), ref: z.string(), x: z.string() }),
+  z.object({ t: z.literal('tabla'), cab: z.array(z.string()), filas: z.array(z.array(z.string())) }),
+]);
+export const TeoriaSchema = z.object({
+  distrito: z.number().int().min(1).max(8),
+  titulo: z.string(),
+  resumen: z.string(),
+  objetivos: z.array(z.string()),
+  secciones: z.array(z.object({ id: z.string(), titulo: z.string(), bloques: z.array(Bloque) })).min(1),
+  estado: Estado,
+  verificado: z.boolean(),
+});
+export type Teoria = z.infer<typeof TeoriaSchema>;
+export type BloqueTeoria = z.infer<typeof Bloque>;

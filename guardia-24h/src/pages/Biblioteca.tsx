@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { biblioteca } from '../data/content';
 import type { LibraryDoc } from '../data/schemas';
 import { borrarMiManual, guardarMiManual, importarMiManual, listarMiManual } from '../library/manual';
@@ -6,7 +7,8 @@ import { construirIndice } from '../library/search';
 
 export function Biblioteca() {
   const [mio, setMio] = useState<LibraryDoc[]>([]);
-  const [q, setQ] = useState('');
+  const [params] = useSearchParams();
+  const [q, setQ] = useState(params.get('q') ?? '');
   const [aviso, setAviso] = useState('');
   const [nota, setNota] = useState('');
   const fichero = useRef<HTMLInputElement>(null);
@@ -32,7 +34,7 @@ export function Biblioteca() {
   return (
     <main className="mx-auto grid max-w-5xl gap-4 p-4 md:grid-cols-[1fr_20rem]">
       <section>
-        <h1 className="font-titulo text-2xl font-black">📚 Biblioteca</h1>
+        <h1 className="text-2xl">Biblioteca</h1>
         {pendientes.length > 0 && (
           <p role="status" className="my-2 rounded bg-salmon/40 p-2 text-sm">
             Faltan contenidos oficiales: {pendientes.map((p) => p.titulo).join('; ')}. No se inventa texto normativo.
@@ -45,7 +47,7 @@ export function Biblioteca() {
           {(q ? res : indice.frags).map((f) => (
             <li key={f.id} className="card">
               <div className="text-xs">{f.docTitulo}</div>
-              <h2 className="font-bold">{f.titulo}</h2>
+              <h2 className="eyebrow mb-1">{f.titulo}</h2>
               <p className="whitespace-pre-wrap text-sm">{f.texto.slice(0, 400)}</p>
             </li>
           ))}
@@ -53,7 +55,7 @@ export function Biblioteca() {
       </section>
       <aside className="grid content-start gap-3">
         <div className="card">
-          <h2 className="font-bold">Mi manual</h2>
+          <h2 className="eyebrow mb-1">Mi manual</h2>
           <p className="text-sm">Privado: no sale de tu dispositivo.</p>
           <input ref={fichero} type="file" accept=".pdf,.docx,.md,.txt" className="my-2 block w-full text-sm" onChange={(e) => void subir(e.target.files?.[0])} />
           <textarea className="input" rows={3} placeholder="Escribe una nota…" value={nota} onChange={(e) => setNota(e.target.value)} />

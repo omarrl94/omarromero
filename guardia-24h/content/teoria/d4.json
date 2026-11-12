@@ -1,0 +1,176 @@
+{
+  "distrito": 4,
+  "titulo": "Cuadros y protecciones",
+  "resumen": "Cómo protege un cuadro: contactos directos e indirectos, sobreintensidades, sobretensiones, selectividad y defectos habituales.",
+  "objetivos": [
+    "Explicar qué protege cada dispositivo del cuadro.",
+    "Distinguir contacto directo de indirecto y la protección de cada uno.",
+    "Reconocer defectos típicos y proponer su corrección.",
+    "Aplicar una lista de inspección de cuadro."
+  ],
+  "secciones": [
+    {
+      "id": "elementos",
+      "titulo": "Elementos del cuadro y qué protege cada uno",
+      "bloques": [
+        {
+          "t": "tabla",
+          "cab": [
+            "Dispositivo",
+            "Protege contra",
+            "Cómo actúa"
+          ],
+          "filas": [
+            [
+              "IGA / interruptor general",
+              "Mando y protección general",
+              "Permite cortar toda la instalación; protege contra sobreintensidades"
+            ],
+            [
+              "PIA (magnetotérmico)",
+              "Sobrecarga y cortocircuito",
+              "Térmico (sobrecarga, tiempo inverso) y magnético (cortocircuito, instantáneo)"
+            ],
+            [
+              "Interruptor diferencial",
+              "Contactos indirectos y fugas",
+              "Dispara si la corriente que sale por la fase no vuelve por el neutro"
+            ],
+            [
+              "Protector de sobretensiones",
+              "Picos de tensión",
+              "Deriva el pico a tierra"
+            ]
+          ]
+        },
+        {
+          "t": "aviso",
+          "nivel": "clave",
+          "x": "El diferencial no protege contra sobrecargas ni cortocircuitos, y el PIA no protege a las personas contra fugas: se necesitan ambos."
+        },
+        {
+          "t": "norma",
+          "ref": "ITC-BT-17",
+          "x": "Dispositivos generales e individuales de mando y protección."
+        }
+      ]
+    },
+    {
+      "id": "contactos",
+      "titulo": "Contactos directos e indirectos",
+      "bloques": [
+        {
+          "t": "p",
+          "x": "Contacto directo: la persona toca una parte activa que normalmente está en tensión (un conductor sin aislar). Contacto indirecto: toca una masa metálica que ha quedado en tensión por un fallo de aislamiento."
+        },
+        {
+          "t": "tabla",
+          "cab": [
+            "Tipo",
+            "Medidas de protección"
+          ],
+          "filas": [
+            [
+              "Directo",
+              "Aislamiento de partes activas, envolventes y barreras, obstáculos, distancia, diferencial de alta sensibilidad como protección complementaria"
+            ],
+            [
+              "Indirecto",
+              "Puesta a tierra de las masas + corte automático de la alimentación (diferencial), clase II, separación de circuitos"
+            ]
+          ]
+        },
+        {
+          "t": "p",
+          "x": "La clave del contacto indirecto es que la masa metálica esté conectada a tierra: si hay una fuga, la corriente se desvía por el conductor de protección y el diferencial corta el circuito antes de que la tensión de contacto sea peligrosa."
+        },
+        {
+          "t": "norma",
+          "ref": "ITC-BT-24",
+          "x": "Protección contra los contactos directos e indirectos."
+        },
+        {
+          "t": "norma",
+          "ref": "ITC-BT-18",
+          "x": "Instalaciones de puesta a tierra."
+        }
+      ]
+    },
+    {
+      "id": "sobreint",
+      "titulo": "Sobrecargas y cortocircuitos",
+      "bloques": [
+        {
+          "t": "p",
+          "x": "Sobrecarga: circula más corriente de la prevista durante un tiempo; calienta el conductor poco a poco. Cortocircuito: contacto entre conductores de distinta tensión; corriente muy elevada, daño casi inmediato."
+        },
+        {
+          "t": "ul",
+          "items": [
+            "La protección térmica del PIA actúa en la sobrecarga con tiempo inverso: cuanta más corriente, antes dispara.",
+            "La protección magnética actúa en el cortocircuito de forma casi instantánea.",
+            "El poder de corte del dispositivo debe superar la corriente de cortocircuito prevista en su punto de instalación."
+          ]
+        },
+        {
+          "t": "norma",
+          "ref": "ITC-BT-22",
+          "x": "Protección contra sobreintensidades."
+        }
+      ]
+    },
+    {
+      "id": "sobret",
+      "titulo": "Sobretensiones y selectividad",
+      "bloques": [
+        {
+          "t": "p",
+          "x": "Las sobretensiones transitorias (rayos, maniobras en la red) pueden destruir equipos aunque duren microsegundos; los limitadores las derivan a tierra."
+        },
+        {
+          "t": "p",
+          "x": "Selectividad: ante un fallo debe disparar solo la protección más cercana a él, no la general. Así se pierde el mínimo suministro posible y se localiza más fácil la avería. Se logra coordinando calibres y tiempos de disparo."
+        },
+        {
+          "t": "norma",
+          "ref": "ITC-BT-23",
+          "x": "Protección contra sobretensiones."
+        }
+      ]
+    },
+    {
+      "id": "defectos",
+      "titulo": "Defectos habituales e inspección",
+      "bloques": [
+        {
+          "t": "ul",
+          "items": [
+            "Bornas flojas o con cobre al aire: calentamiento y arcos.",
+            "Conductores sin identificar o con color incorrecto.",
+            "Protecciones puenteadas o con calibre superior al cable.",
+            "Falta de tapa o de protección de partes activas.",
+            "Falta de conductor de protección o conexión suelta.",
+            "Inversión de fase y neutro."
+          ]
+        },
+        {
+          "t": "ol",
+          "items": [
+            "Cortar y comprobar ausencia de tensión.",
+            "Inspección visual de conexiones, identificación y envolvente.",
+            "Comprobar calibres frente a secciones.",
+            "Verificar el conductor de protección.",
+            "Reparar, registrar y volver a verificar antes de reponer la tensión."
+          ]
+        },
+        {
+          "t": "aviso",
+          "nivel": "seguridad",
+          "x": "Tras reparar siempre se re-verifica. No se repone la tensión sin comprobar que el defecto está corregido y que no se ha generado otro."
+        }
+      ]
+    }
+  ],
+  "estado": "borrador",
+  "verificado": false
+}

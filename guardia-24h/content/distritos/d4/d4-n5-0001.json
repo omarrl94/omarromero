@@ -131,7 +131,7 @@
       },
       {
         "id": "e8",
-        "etiqueta": "Etiquetas legibles",
+        "etiqueta": "Etiquetado de circuitos",
         "x": 450,
         "y": 115,
         "w": 130,
@@ -141,7 +141,7 @@
       },
       {
         "id": "e9",
-        "etiqueta": "Carril ordenado",
+        "etiqueta": "Carril DIN",
         "x": 15,
         "y": 210,
         "w": 130,
@@ -171,7 +171,7 @@
       },
       {
         "id": "e12",
-        "etiqueta": "Cables con terminal",
+        "etiqueta": "Terminales de cable",
         "x": 450,
         "y": 210,
         "w": 130,

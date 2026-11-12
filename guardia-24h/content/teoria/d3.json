@@ -1,0 +1,211 @@
+{
+  "distrito": 3,
+  "titulo": "La vivienda del taller",
+  "resumen": "Proyecto central: previsión de cargas, instalaciones de enlace, circuitos interiores, dimensionado y replanteo de una vivienda.",
+  "objetivos": [
+    "Determinar el grado de electrificación y los circuitos de una vivienda.",
+    "Calcular intensidad y comprobar IB ≤ In ≤ IZ.",
+    "Calcular la caída de tensión de una línea monofásica.",
+    "Aplicar los volúmenes de seguridad del cuarto de baño.",
+    "Replantear y elaborar croquis acotados."
+  ],
+  "secciones": [
+    {
+      "id": "enlace",
+      "titulo": "Instalaciones de enlace",
+      "bloques": [
+        {
+          "t": "p",
+          "x": "Son las que unen la red de distribución con la instalación interior del usuario. De la red al usuario: acometida, caja general de protección (CGP), línea general de alimentación, contador, derivación individual y dispositivos generales de mando y protección."
+        },
+        {
+          "t": "tabla",
+          "cab": [
+            "Tramo",
+            "Función"
+          ],
+          "filas": [
+            [
+              "Acometida",
+              "Enlaza la red con la CGP"
+            ],
+            [
+              "CGP",
+              "Protección general con fusibles"
+            ],
+            [
+              "Línea general de alimentación",
+              "Alimenta las centralizaciones de contadores"
+            ],
+            [
+              "Contador",
+              "Mide el consumo"
+            ],
+            [
+              "Derivación individual",
+              "Lleva la energía a cada vivienda"
+            ],
+            [
+              "Cuadro general (IGA, diferenciales, PIA)",
+              "Mando y protección de la instalación interior"
+            ]
+          ]
+        },
+        {
+          "t": "norma",
+          "ref": "ITC-BT-10",
+          "x": "Previsión de cargas para suministros en baja tensión y grado de electrificación."
+        },
+        {
+          "t": "norma",
+          "ref": "ITC-BT-15",
+          "x": "Derivaciones individuales."
+        }
+      ]
+    },
+    {
+      "id": "circuitos",
+      "titulo": "Circuitos interiores de vivienda",
+      "bloques": [
+        {
+          "t": "p",
+          "x": "La instalación interior se divide en circuitos independientes. Cada uno agrupa receptores de naturaleza parecida y se protege con su propio automático (PIA). Así, un fallo afecta solo a una parte de la vivienda."
+        },
+        {
+          "t": "ul",
+          "items": [
+            "C1: iluminación.",
+            "C2: tomas de uso general y nevera.",
+            "C3: cocina y horno.",
+            "C4: lavadora, lavavajillas y termo eléctrico.",
+            "C5: baño y bases auxiliares de cocina."
+          ]
+        },
+        {
+          "t": "p",
+          "x": "Para cada circuito, la norma fija el calibre del PIA, la sección mínima del conductor, el diámetro de tubo y el número máximo de puntos de utilización. Además, el número de puntos mínimo por estancia depende de su superficie."
+        },
+        {
+          "t": "norma",
+          "ref": "ITC-BT-25",
+          "x": "Instalaciones interiores en viviendas: número de circuitos y características (Tabla 1) y puntos de utilización por estancia (Tabla 2)."
+        },
+        {
+          "t": "aviso",
+          "nivel": "norma",
+          "x": "Contrasta siempre los valores y apartados con el texto oficial del REBT cargado en la biblioteca: esta lección explica el criterio, la norma fija el valor."
+        }
+      ]
+    },
+    {
+      "id": "calculo",
+      "titulo": "Intensidad, calibre y sección",
+      "bloques": [
+        {
+          "t": "p",
+          "x": "El dimensionado responde a una pregunta: ¿qué corriente va a circular y qué cable y qué protección la soportan con seguridad?"
+        },
+        {
+          "t": "formula",
+          "x": "I = P / U",
+          "nota": "Monofásica en corriente alterna con cos φ = 1. Con cos φ distinto: I = P / (U · cos φ)."
+        },
+        {
+          "t": "formula",
+          "x": "IB ≤ In ≤ IZ",
+          "nota": "IB: corriente de empleo (la que consume el circuito). In: calibre de la protección. IZ: corriente máxima admisible del conductor. IB ≤ In evita disparos en servicio normal; In ≤ IZ garantiza que el cable queda protegido contra sobrecargas."
+        },
+        {
+          "t": "ejemplo",
+          "titulo": "Intensidad de una placa de cocción",
+          "pasos": [
+            "Dato: P = 5750 W, U = 230 V.",
+            "I = 5750 / 230 = 25 A.",
+            "El circuito debe tener protección y sección compatibles con 25 A: se consulta la tabla de la ITC-BT-25."
+          ]
+        },
+        {
+          "t": "aviso",
+          "nivel": "clave",
+          "x": "La protección se elige para proteger el cable, no el receptor. Subir el calibre del PIA para que 'no salte' deja el conductor desprotegido."
+        }
+      ]
+    },
+    {
+      "id": "caida",
+      "titulo": "Caída de tensión",
+      "bloques": [
+        {
+          "t": "p",
+          "x": "Todo conductor tiene resistencia: al circular corriente se pierde tensión por el camino y el receptor recibe menos de la nominal. El REBT limita esa pérdida para garantizar el funcionamiento."
+        },
+        {
+          "t": "formula",
+          "x": "e = 2 · L · I · cos φ / (γ · S)",
+          "nota": "Monofásica. L: longitud (m). I: intensidad (A). S: sección (mm²). γ: conductividad del cobre (m / Ω·mm²). El factor 2 se debe a que la corriente recorre la fase y regresa por el neutro."
+        },
+        {
+          "t": "formula",
+          "x": "e (%) = e / U · 100"
+        },
+        {
+          "t": "ejemplo",
+          "titulo": "Caída en una línea de enchufes",
+          "pasos": [
+            "Datos: L = 15 m, P = 3680 W, S = 2,5 mm², U = 230 V, γ = 56.",
+            "I = 3680 / 230 = 16 A.",
+            "e = 2 · 15 · 16 / (56 · 2,5) = 3,43 V.",
+            "e (%) = 3,43 / 230 · 100 = 1,49 %.",
+            "Se compara con el límite que fija la ITC-BT-19 para ese tipo de circuito."
+          ]
+        },
+        {
+          "t": "norma",
+          "ref": "ITC-BT-19",
+          "x": "Caídas de tensión máximas admisibles según el tipo de circuito."
+        }
+      ]
+    },
+    {
+      "id": "bano",
+      "titulo": "El cuarto de baño: volúmenes de protección",
+      "bloques": [
+        {
+          "t": "p",
+          "x": "El agua reduce drásticamente la resistencia del cuerpo humano y hace el contacto eléctrico mucho más peligroso. Por eso la norma divide el baño en volúmenes (0, 1, 2 y fuera de volúmenes) y limita qué aparatos y qué instalación se admiten en cada uno."
+        },
+        {
+          "t": "p",
+          "x": "Cuanto más cerca de la bañera o ducha, más restrictivo: en el volumen 0 solo caben aparatos específicos de muy baja tensión de seguridad y en los volúmenes siguientes se limitan las bases y las canalizaciones."
+        },
+        {
+          "t": "norma",
+          "ref": "ITC-BT-27",
+          "x": "Locales que contienen bañera o ducha: definición de volúmenes y prescripciones."
+        }
+      ]
+    },
+    {
+      "id": "replanteo",
+      "titulo": "Replanteo y croquis",
+      "bloques": [
+        {
+          "t": "p",
+          "x": "Replantear es trasladar el proyecto al terreno: marcar la posición de cajas, mecanismos, cuadro y recorridos. Un croquis acotado debe permitir que otra persona repita el trabajo."
+        },
+        {
+          "t": "ol",
+          "items": [
+            "Comprobar el plano contra la obra y anotar discrepancias.",
+            "Marcar ejes y alturas de referencia con nivel.",
+            "Situar cuadro, cajas y mecanismos respetando las zonas normativas.",
+            "Trazar recorridos de las canalizaciones.",
+            "Acotar el croquis y anotar circuito y sección de cada tramo."
+          ]
+        }
+      ]
+    }
+  ],
+  "estado": "borrador",
+  "verificado": false
+}

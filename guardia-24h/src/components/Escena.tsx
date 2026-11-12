@@ -2,43 +2,36 @@ import type { Item } from '../data/schemas';
 
 type Escena = NonNullable<Item['escena']>;
 
-/** Cuadro eléctrico ilustrado (Muro de la vergüenza). Cada módulo es un botón accesible por teclado. */
+/** Cuadro eléctrico en vista técnica (Muro de la vergüenza). Cada módulo es un botón accesible por teclado. */
 export function Escena({ escena, seleccion, revelar, onChange }: { escena: Escena; seleccion: string[]; revelar: boolean; onChange: (s: string[]) => void }) {
   const alterna = (id: string) => { if (!revelar) onChange(seleccion.includes(id) ? seleccion.filter((x) => x !== id) : [...seleccion, id]); };
   const filas = [...new Set(escena.elementos.map((e) => e.y))];
   return (
     <figure>
-      <svg viewBox="0 0 600 320" role="group" aria-label={escena.titulo} className="w-full rounded-2xl border-[3px] border-tinta shadow-[0_6px_0_#000]">
-        <defs>
-          <linearGradient id="chapa" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor="#dfe5e7" /><stop offset="1" stopColor="#b5bfc2" /></linearGradient>
-          <filter id="brillo"><feDropShadow dx="0" dy="0" stdDeviation="5" floodColor="#EFCD2F" /></filter>
-        </defs>
-        <rect width="600" height="320" fill="url(#chapa)" />
-        <rect x="6" y="6" width="588" height="308" rx="10" fill="none" stroke="#7d8a8d" strokeWidth="4" strokeDasharray="1 9" strokeLinecap="round" />
-        {filas.map((y) => <rect key={y} x="8" y={y + 84} width="584" height="8" fill="#8d999c" stroke="#1A1A1A" strokeWidth="2" />)}
+      <svg viewBox="0 0 600 320" role="group" aria-label={escena.titulo} className="w-full rounded-lg border border-line bg-[#0b0f11]">
+        <defs><pattern id="rej" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="#1b2428" strokeWidth="1" /></pattern></defs>
+        <rect width="600" height="320" fill="url(#rej)" />
+        {filas.map((y) => <rect key={y} x="8" y={y + 84} width="584" height="6" fill="#2b363c" />)}
         {escena.elementos.map((el) => {
           const marcado = seleccion.includes(el.id);
           const malo = revelar && el.defecto, falso = revelar && marcado && !el.defecto, bien = revelar && !el.defecto && !marcado;
-          const borde = malo ? '#E5484D' : marcado && !revelar ? '#EFCD2F' : '#1A1A1A';
+          const borde = malo ? '#e5534b' : falso ? '#E39F7D' : marcado ? '#EFCD2F' : bien ? '#3fb27f' : '#3a4850';
           return (
             <g key={el.id} role="button" tabIndex={0} aria-pressed={marcado} aria-label={`${el.etiqueta}${marcado ? ' (marcado)' : ''}`}
               onClick={() => alterna(el.id)} onKeyDown={(ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); alterna(el.id); } }}
-              className="cursor-pointer outline-none [&:focus-visible>rect:first-of-type]:stroke-[6]" filter={marcado && !revelar ? 'url(#brillo)' : undefined} opacity={bien || falso ? 0.7 : 1}>
-              <rect x={el.x} y={el.y} width={el.w} height={el.h} rx="8" fill={malo ? '#4a1f21' : '#2b3235'} stroke={borde} strokeWidth={marcado || malo ? 5 : 3} />
+              className="cursor-pointer outline-none [&:focus-visible>rect:first-of-type]:stroke-[3]">
+              <rect x={el.x} y={el.y} width={el.w} height={el.h} rx="4" fill={marcado && !revelar ? '#2a2610' : malo ? '#2a1514' : '#161c20'} stroke={borde} strokeWidth={marcado || malo ? 2.5 : 1.5} />
               <foreignObject x={el.x + 6} y={el.y + 6} width={el.w - 12} height={el.h * 0.5}>
-                <div className="flex h-full items-center justify-center rounded bg-crema px-1 text-center text-[11px] font-bold leading-tight text-tinta">{el.etiqueta}</div>
+                <div className="flex h-full items-center justify-center text-center text-[11px] font-medium leading-tight text-tx">{el.etiqueta}</div>
               </foreignObject>
-              <rect x={el.x + el.w / 2 - 9} y={el.y + el.h * 0.62} width="18" height={el.h * 0.28} rx="3" fill="#e9eef0" stroke="#1A1A1A" strokeWidth="2" />
-              <circle cx={el.x + el.w - 14} cy={el.y + el.h - 12} r="4" fill={malo ? '#E5484D' : '#2FB872'} className={malo ? 'animate-flicker' : ''} />
-              {malo && <text x={el.x + el.w - 6} y={el.y + 8} textAnchor="end" fontSize="18" className="animate-pop">⚠️</text>}
-              {falso && <text x={el.x + el.w - 6} y={el.y + 8} textAnchor="end" fontSize="18">✗</text>}
-              {bien && <text x={el.x + el.w - 6} y={el.y + 8} textAnchor="end" fontSize="16">✓</text>}
-              {marcado && !revelar && <text x={el.x + 6} y={el.y + 6} fontSize="18">🚩</text>}
+              <rect x={el.x + el.w / 2 - 8} y={el.y + el.h * 0.62} width="16" height={el.h * 0.26} rx="2" fill="#2b363c" stroke="#566872" />
+              <circle cx={el.x + el.w - 12} cy={el.y + el.h - 12} r="3" fill={malo ? '#e5534b' : '#3fb27f'} className={malo ? 'animate-pulse2' : ''} />
+              {(malo || falso || bien || marcado) && <text x={el.x + 8} y={el.y + el.h - 8} fontSize="10" fontFamily="monospace" fill={borde}>{malo ? (marcado ? 'DEFECTO ✓' : 'DEFECTO') : falso ? 'SIN DEFECTO' : bien ? 'CORRECTO' : 'MARCADO'}</text>}
             </g>
           );
         })}
       </svg>
-      <figcaption className="mt-1 text-sm text-menta">{escena.titulo}. Toca los módulos defectuosos para marcarlos (los marcados de más restan).</figcaption>
+      <figcaption className="mt-1.5 text-sm text-mute">{escena.titulo}. Selecciona los módulos defectuosos; marcar elementos correctos resta puntuación.</figcaption>
     </figure>
   );
 }

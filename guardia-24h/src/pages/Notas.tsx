@@ -17,8 +17,8 @@ export function Notas() {
   const f = (x: number | null) => (x === null ? '—' : x.toFixed(2));
   return (
     <main className="mx-auto max-w-4xl p-4">
-      <h1 className="font-titulo text-2xl font-black">📊 Mis notas</h1>
-      <p className="my-2">Nota final: <strong>{global.final.toFixed(2)}</strong> · {global.aprobado ? '✅ Aprobado' : `⏳ Pendiente (${global.pendientes.join(', ') || 'sin datos'})`}</p>
+      <h1 className="text-2xl">Mis notas</h1>
+      <p className="my-2">Nota final: <strong>{global.final.toFixed(2)}</strong> · {global.aprobado ? 'Aprobado' : `Pendiente (${global.pendientes.join(', ') || 'sin datos'})`}</p>
       <div className="overflow-x-auto">
         <table className="card w-full text-left text-sm">
           <thead><tr><th>RA</th><th>Peso</th><th>Juego</th><th>Taller</th><th>Final</th><th>Cobertura</th><th>Estado</th></tr></thead>
@@ -26,7 +26,7 @@ export function Notas() {
             {detalle.map((d) => (
               <tr key={d.ra} className="border-t">
                 <td>{d.ra}</td><td>{Math.round((pesosRa[d.ra] ?? 0) * 100)} %</td><td>{f(d.juego)}</td><td>{f(d.taller)}</td><td>{f(d.final)}</td>
-                <td>{Math.round(d.cobertura * 100)} %</td><td>{d.adquirido ? '✅ adquirido' : 'pendiente'}</td>
+                <td>{Math.round(d.cobertura * 100)} %</td><td>{d.adquirido ? 'adquirido' : 'pendiente'}</td>
               </tr>
             ))}
           </tbody>

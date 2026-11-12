@@ -39,7 +39,7 @@ export function Docente() {
 
   return (
     <main className="mx-auto max-w-5xl p-4">
-      <h1 className="font-titulo text-2xl font-black">🧑‍🏫 Panel del profesor (mínimo)</h1>
+      <h1 className="text-2xl">Panel del profesor (mínimo)</h1>
       <p className="my-2 rounded bg-salmon/40 p-2 text-sm">Fase 1: muestra los alumnos que han jugado en <strong>este dispositivo</strong> (modo local). El panel en la nube con login de profesor llega en la siguiente fase. Sin protección por contraseña todavía.</p>
       <button className="btn mb-3" onClick={csv} disabled={!filas.length}>Exportar CSV</button>
       <div className="overflow-x-auto">
@@ -58,7 +58,7 @@ export function Docente() {
       </div>
       {sel && o && (
         <section className="card mt-4 grid gap-2">
-          <h2 className="font-bold">Ajustes de {filas.find((f) => f.uid === sel)?.alias}</h2>
+          <h2 className="eyebrow mb-1">Ajustes de {filas.find((f) => f.uid === sel)?.alias}</h2>
           <label>Peso del juego «a» (0–1)
             <input className="input" type="number" step="0.05" min="0" max="1" defaultValue={o.a ?? raFile.aDefecto} onBlur={(e) => guarda(sel, (x) => { x.a = Math.min(1, Math.max(0, Number(e.target.value))); })} />
           </label>
