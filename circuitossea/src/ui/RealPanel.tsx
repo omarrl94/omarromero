@@ -10,6 +10,7 @@ import { defOf, fmt, fmtOhm, fmtSI } from '../model/library';
 import { tkey, type SimResult } from '../model/netlist';
 import type { Component, TermRef } from '../model/types';
 import { beep } from './sound';
+import { beginProbeDrag } from './Floating';
 
 type Dir = 'up' | 'down';
 interface Term { x: number; y: number; dir: Dir }
@@ -249,13 +250,13 @@ export function RealPanel({ sim, cables }: { sim: SimResult; cables?: Record<str
       {(['red', 'black'] as const).map((k) => {
         const t = st.meter[k]; const p = t && termXY(t); if (!p) return null;
         const dx = k === 'red' ? -26 : 26;
-        return (<g key={k} pointerEvents="none"><path d={`M${p.x} ${p.y}Q${p.x + dx} ${p.y - 20} ${p.x + dx * 1.5} ${p.y - 70}`} stroke={k === 'red' ? '#e53935' : '#111'} strokeWidth={5} fill="none" strokeLinecap="round" />
+        return (<g key={k} style={{ cursor: 'grab' }} onPointerDown={(e) => beginProbeDrag(k, e)}><circle cx={p.x + dx * 1.5} cy={p.y - 70} r={20} fill="transparent" /><path d={`M${p.x} ${p.y}Q${p.x + dx} ${p.y - 20} ${p.x + dx * 1.5} ${p.y - 70}`} stroke={k === 'red' ? '#e53935' : '#111'} strokeWidth={5} fill="none" strokeLinecap="round" />
           <path d={`M${p.x - 3} ${p.y + 2}L${p.x} ${p.y - 8}L${p.x + 3} ${p.y + 2}Z`} fill="#d8d8d8" stroke="#555" /><circle cx={p.x} cy={p.y} r={11} fill="none" stroke={k === 'red' ? '#e53935' : '#333'} strokeWidth={2.4} /></g>);
       })}
       {(['c1', 'c2'] as const).map((k) => {
         const t = st.scopeTips[k]; const p = t && termXY(t); if (!p) return null;
         const col = k === 'c1' ? '#f5d300' : '#29b6f6';
-        return (<g key={k} pointerEvents="none"><path d={`M${p.x} ${p.y}L${p.x + 22} ${p.y - 56}`} stroke={col} strokeWidth={4} strokeLinecap="round" /><rect x={p.x + 12} y={p.y - 76} width={20} height={20} rx={4} fill={col} stroke="#222" /><text x={p.x + 22} y={p.y - 62} fontSize={12} fontWeight={800} textAnchor="middle">{k === 'c1' ? '1' : '2'}</text></g>);
+        return (<g key={k} style={{ cursor: 'grab' }} onPointerDown={(e) => beginProbeDrag(k, e)}><path d={`M${p.x} ${p.y}L${p.x + 22} ${p.y - 56}`} stroke={col} strokeWidth={4} strokeLinecap="round" /><rect x={p.x + 12} y={p.y - 76} width={20} height={20} rx={4} fill={col} stroke="#222" /><text x={p.x + 22} y={p.y - 62} fontSize={12} fontWeight={800} textAnchor="middle">{k === 'c1' ? '1' : '2'}</text></g>);
       })}
 
       {/* Leyenda */}

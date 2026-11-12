@@ -5,6 +5,7 @@ import { readMeter } from '../model/meter';
 import { Multimeter, MeterInfo } from './Multimeter';
 import { Scope } from './Scope';
 import { Wattmeter } from './Wattmeter';
+import { FloatingWin, ProbeDragLayer } from './Floating';
 import { beep } from './sound';
 import { simulate } from '../model/netlist';
 import { EXAMPLES } from '../model/examples';
@@ -61,7 +62,8 @@ export function App() {
   const cats = [...new Set(LIBRARY.map((d) => d.category))];
 
   return (
-    <div className={`app ${wide ? 'wide' : ''}`}>
+    <div className={`app ${wide ? 'wide' : ''} ${st.leftOpen ? '' : 'noleft'} ${st.rightOpen ? '' : 'noright'}`}>
+      <ProbeDragLayer />
       <header className="top">
         <div className="brand"><span className="logo">⚡</span><b>{t.app}</b><small>{t.tagline}</small></div>
         <div className="viewswitch" role="tablist" aria-label="Vista del circuito">
@@ -88,7 +90,16 @@ export function App() {
           <label><input type="checkbox" checked={st.animate} onChange={() => st.toggle('animate')} /> {t.animate}</label>
           <label><input type="checkbox" checked={st.showCables} onChange={() => st.toggle('showCables')} /> Secciones</label>
           <label><input type="checkbox" checked={st.showLabels} onChange={() => st.toggle('showLabels')} /> {t.labels}</label>
-          <button onClick={() => st.toggle('dock')} className={st.dock ? 'on' : ''}>🔬 Instrumentos</button>
+          {!wide && (
+            <span className="insts" role="group" aria-label="Instrumentos">
+              {([['meter', '⚡ Polímetro'], ['scope', '〰 Osciloscopio'], ['watt', '◔ Vatímetro']] as const).map(([id, l]) => (
+                <button key={id} className={st.inst[id].open ? 'on' : ''} onClick={() => st.toggleInst(id)} data-inst={id}>{l}</button>
+              ))}
+            </span>
+          )}
+          {st.view === 'schematic' && <button onClick={st.fit} title="F">⤢ Ajustar</button>}
+          <button onClick={() => st.toggle('leftOpen')} className={st.leftOpen ? '' : 'on'} title="Mostrar u ocultar la paleta">◧</button>
+          <button onClick={() => st.toggle('rightOpen')} className={st.rightOpen ? '' : 'on'} title="Mostrar u ocultar propiedades">◨</button>
           <label><input type="checkbox" checked={st.sound} onChange={() => st.toggle('sound')} /> Sonido</label>
           <label><input type="checkbox" checked={st.heat} onChange={() => st.toggle('heat')} /> {t.heat}</label>
           {Object.keys(st.runtime).length > 0 && <button className="warnbtn" onClick={st.resetRuntime}>🔧 Reponer averías</button>}
@@ -132,12 +143,12 @@ export function App() {
         <div className="toasts">{st.notices.map((n) => (
           <div key={n.id} className="toast" role="alert"><span>💥</span><span>{n.text}</span><button onClick={() => st.dismiss(n.id)}>✕</button></div>
         ))}</div>
-        {st.dock && !wide && (
-          <div className="dock" data-testid="dock">
-            <div className="inst"><Multimeter sim={sim} /><MeterInfo sim={sim} /></div>
-            <div className="inst wide"><Scope sim={sim} /></div>
-            <div className="inst"><Wattmeter sim={sim} /></div>
-          </div>
+        {!wide && (
+          <>
+            <FloatingWin id="meter" title="Polímetro" width={236} order={0}><Multimeter sim={sim} /><MeterInfo sim={sim} /></FloatingWin>
+            <FloatingWin id="scope" title="Osciloscopio" width={600} order={1}><Scope sim={sim} /></FloatingWin>
+            <FloatingWin id="watt" title="Vatímetro" width={228} order={2}><Wattmeter sim={sim} /></FloatingWin>
+          </>
         )}
         {!wide && <div className="hint-bar">{st.view === 'real' ? 'Modo real: clic en interruptores y pulsadores para accionarlos · rueda = zoom · arrastra para mover el panel · elige una punta y pulsa un borne para medir' : st.wiring ? t.wireHint : t.placeHint}</div>}
       </main>

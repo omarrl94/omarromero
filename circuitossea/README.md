@@ -36,6 +36,9 @@ npm run build      # genera dist/ (alojable en Netlify / GitHub Pages)
 - **Cuadro eléctrico** (vista Cuadro): electrificación básica ITC-BT-25 (C1–C5 editables, circuitos adicionales), dimensionado automático de PIA y sección (Ib, In ≤ Iz, caída), IGA, diferencial y limitador de sobretensiones, aspecto real en carril DIN, unifilar, cuadro de cargas y **cálculo paso a paso con fórmulas**.
 - **Plano imprimible**: hoja A3/A4 con marco, zonas de referencia y cajetín (proyecto, plano, alumno, curso, fecha, escala, normativa). Contenido a elegir (unifilar del cuadro + cuadro de cargas, cuadro real, unifilar o multifilar del circuito). Imprimir/PDF (diálogo del navegador), SVG y PNG.
 
+- **El circuito es lo principal**: los instrumentos son ventanas flotantes (botones ⚡ Polímetro · 〰 Osciloscopio · ◔ Vatímetro) que se arrastran por encima del lienzo, se minimizan y se cierran; paleta y propiedades se pueden ocultar (◧ ◨) y «Ajustar» (tecla F) encaja el circuito en pantalla.
+- **Puntas arrastrables**: coge la punta roja/negra del polímetro o la sonda del osciloscopio y suéltala sobre un borne (se imanta al más cercano y se resalta). También puedes mover una punta ya colocada arrastrando su cabeza, o soltarla en vacío para quitarla.
+
 ## Estructura
 ```
 src/engine/   motor puro (solver.ts, dc.ts) — sin DOM

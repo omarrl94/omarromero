@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useStore } from '../store';
 import { Knob, KnobDefs, type KnobPos } from './Knob';
+import { beginProbeDrag } from './Floating';
 import { defOf, fmt, fmtSI } from '../model/library';
 import type { SimResult } from '../model/netlist';
 import { currentThrough, phaseDiff, probeVoltage, rmsOf, sample, type Signal } from '../model/signals';
@@ -139,8 +140,8 @@ export function Scope({ sim }: { sim: SimResult }) {
                   <option value="V">Sonda V</option><option value="I">Pinza A</option>
                 </select>
                 {c.mode === 'V' ? (
-                  <button className={st.scopeArm === (i === 0 ? 'c1' : 'c2') ? 'armed' : ''} onClick={() => st.armScope(st.scopeArm === (i === 0 ? 'c1' : 'c2') ? null : i === 0 ? 'c1' : 'c2')}>
-                    {st.scopeArm === (i === 0 ? 'c1' : 'c2') ? 'Pulsa terminal…' : st.scopeTips[i === 0 ? 'c1' : 'c2'] ? `● ${st.scopeTips[i === 0 ? 'c1' : 'c2']!.comp.slice(0, 4)}:${st.scopeTips[i === 0 ? 'c1' : 'c2']!.term + 1}` : 'Colocar sonda'}
+                  <button className={`probebtn ${st.scopeArm === (i === 0 ? 'c1' : 'c2') ? 'armed' : ''}`} style={{ touchAction: 'none', cursor: 'grab' }} onPointerDown={(e) => beginProbeDrag(i === 0 ? 'c1' : 'c2', e)}>
+                    {st.scopeArm === (i === 0 ? 'c1' : 'c2') ? 'Pulsa terminal…' : st.scopeTips[i === 0 ? 'c1' : 'c2'] ? `● ${st.scopeTips[i === 0 ? 'c1' : 'c2']!.comp.slice(0, 4)}:${st.scopeTips[i === 0 ? 'c1' : 'c2']!.term + 1}` : '⬤ Arrastra la sonda'}
                   </button>
                 ) : (
                   <select value={c.comp ?? ''} onChange={(e) => upd(i as 0 | 1, { comp: e.target.value || null })}>

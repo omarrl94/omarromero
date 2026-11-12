@@ -143,3 +143,17 @@ button.warnbtn { background: #7a3b12; border-color: var(--terracota); }
 .plano-bar button.primary { background: linear-gradient(#F5D943, #D9B51B); color: #2A2622; border-color: #b99a12; font-weight: 700; }
 .sheet-wrap { flex: 1; overflow: auto; padding: 24px; display: flex; justify-content: center; align-items: flex-start; } .sheet { width: min(100%, 1500px); background: #fff; box-shadow: 0 10px 40px #000a; }
 @media print { body * { visibility: hidden !important; } .sheet-wrap, .sheet-wrap * { visibility: visible !important; } .sheet-wrap { position: fixed; inset: 0; padding: 0; background: #fff; display: block; } .sheet { width: 100vw; height: 100vh; box-shadow: none; } .no-print { display: none !important; } }
+
+.app.noleft { grid-template-columns: 0 1fr 310px; } .app.noright { grid-template-columns: 210px 1fr 0; } .app.noleft.noright { grid-template-columns: 0 1fr 0; }
+.app.noleft .left, .app.noright .right { display: none; }
+.insts { display: inline-flex; gap: 4px; padding: 3px; background: #1a1714; border: 1px solid #4a423b; border-radius: 12px; } .insts button { border: 0; background: transparent; min-height: 28px; padding: 3px 10px; font-size: 12.5px; }
+.insts button.on { background: var(--mostaza); color: #2A2622; font-weight: 700; }
+.tools > button.on { background: var(--mostaza); color: #2A2622; }
+.fwin { position: absolute; z-index: 20; background: linear-gradient(#26221e, #1d1a17); border: 1px solid #4a423b; border-radius: 16px; box-shadow: 0 18px 50px #000b, 0 0 0 1px #0008; overflow: hidden; }
+.fbar { display: flex; align-items: center; gap: 8px; padding: 6px 8px 6px 12px; background: linear-gradient(#3a342e, #2b2621); color: #F1EADF; cursor: grab; user-select: none; font-size: 12px; touch-action: none; }
+.fbar:active { cursor: grabbing; } .fbar .grip { opacity: .5; } .fbar button { min-height: 22px; padding: 0 8px; background: #2f2a25; border-color: #5b5349; color: #F1EADF; font-size: 12px; }
+.fbody { padding: 10px; max-height: calc(100vh - 220px); overflow: auto; }
+.probe-layer { position: fixed; inset: 0; pointer-events: none; z-index: 1000; }
+.probe-layer .ghost { position: fixed; transform: translate(-12px, -56px); filter: drop-shadow(0 4px 6px #0008); }
+.probe-layer .snap { position: fixed; width: 36px; height: 36px; margin: -18px 0 0 -18px; border-radius: 50%; border: 3px solid #4caf50; background: #4caf5033; box-shadow: 0 0 0 4px #4caf5033; animation: pulse .5s infinite alternate; }
+.probebtn { cursor: grab; }

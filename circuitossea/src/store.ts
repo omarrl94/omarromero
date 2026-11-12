@@ -27,6 +27,10 @@ export function migrate(p: Project): Project {
   return { ...p, version: PROJECT_VERSION, name: p.name ?? 'Sin título' };
 }
 
+export type InstId = 'meter' | 'scope' | 'watt';
+export type ProbeKey = 'red' | 'black' | 'c1' | 'c2';
+export interface InstWin { open: boolean; x: number | null; y: number | null; min: boolean }
+
 export type View = 'schematic' | 'multifilar' | 'unifilar' | 'real' | 'cuadro' | 'plano';
 
 interface State {
@@ -44,6 +48,17 @@ interface State {
   scopeArm: 'c1' | 'c2' | null;
   dock: boolean;
   view: View;
+  inst: Record<InstId, InstWin>;
+  toggleInst(id: InstId): void;
+  moveInst(id: InstId, x: number, y: number): void;
+  minInst(id: InstId): void;
+  probeDrag: { key: ProbeKey; x: number; y: number } | null;
+  setProbeDrag(d: { key: ProbeKey; x: number; y: number } | null): void;
+  placeProbe(key: ProbeKey, t: TermRef | null): void;
+  leftOpen: boolean;
+  rightOpen: boolean;
+  fitTick: number;
+  fit(): void;
   setView(v: View): void;
   showCables: boolean;
   setWire(id: string, patch: Partial<Wire>): void;
@@ -77,7 +92,7 @@ interface State {
   clearLog(): void;
   setScopeTip(ch: 'c1' | 'c2', t: TermRef | null): void;
   armScope(ch: 'c1' | 'c2' | null): void;
-  toggle(k: 'animate' | 'showLabels' | 'heat' | 'dark' | 'sound' | 'dock' | 'showCables'): void;
+  toggle(k: 'animate' | 'showLabels' | 'heat' | 'dark' | 'sound' | 'dock' | 'showCables' | 'leftOpen' | 'rightOpen'): void;
 }
 
 let counter = 0;
@@ -86,7 +101,9 @@ const uid = (prefix: string) => `${prefix}${Date.now().toString(36)}${(counter++
 export const useStore = create<State>((set, get) => ({
   project: loadInitial(),
   past: [], future: [], selection: [], wiring: null,
-  runtime: {}, notices: [], meter: { ...initialMeter }, log: [], sound: false, scopeTips: { c1: null, c2: null }, scopeArm: null, dock: true, view: 'schematic', showCables: true,
+  runtime: {}, notices: [], meter: { ...initialMeter }, log: [], sound: false, scopeTips: { c1: null, c2: null }, scopeArm: null, dock: false, view: 'schematic', leftOpen: true, rightOpen: true, fitTick: 0,
+  inst: { meter: { open: false, x: null, y: null, min: false }, scope: { open: false, x: null, y: null, min: false }, watt: { open: false, x: null, y: null, min: false } },
+  probeDrag: null, showCables: true,
   animate: true, showLabels: true, heat: false,
   dark: typeof matchMedia !== 'undefined' && matchMedia('(prefers-color-scheme: dark)').matches,
 
@@ -184,6 +201,15 @@ export const useStore = create<State>((set, get) => ({
     set((s) => ({ project: { ...s.project, panel: { ...(s.project.panel ?? defaultPanel()), ...p } } }));
   },
   setSheetData(sh) { set((s) => ({ project: { ...s.project, sheet: sh } })); },
+  toggleInst(id) { set((s) => ({ inst: { ...s.inst, [id]: { ...s.inst[id], open: !s.inst[id].open, min: false } } })); },
+  moveInst(id, x, y) { set((s) => ({ inst: { ...s.inst, [id]: { ...s.inst[id], x, y } } })); },
+  minInst(id) { set((s) => ({ inst: { ...s.inst, [id]: { ...s.inst[id], min: !s.inst[id].min } } })); },
+  setProbeDrag(d) { set({ probeDrag: d }); },
+  placeProbe(key, t) {
+    if (key === 'red' || key === 'black') set((s) => ({ meter: { ...s.meter, [key]: t, armed: null } }));
+    else set((s) => ({ scopeTips: { ...s.scopeTips, [key]: t }, scopeArm: null }));
+  },
+  fit() { set((s) => ({ fitTick: s.fitTick + 1 })); },
   setView(v) { set({ view: v, wiring: null }); },
   startWire(t) { set({ wiring: t }); },
   undo() {
@@ -196,7 +222,7 @@ export const useStore = create<State>((set, get) => ({
     if (!future.length) return;
     set({ project: future[0], future: future.slice(1), past: [...past, project], selection: [], wiring: null });
   },
-  load(p) { set({ project: migrate(p), past: [], future: [], selection: [], wiring: null, runtime: {}, notices: [], meter: { ...initialMeter } }); },
+  load(p) { set({ fitTick: get().fitTick + 1, project: migrate(p), past: [], future: [], selection: [], wiring: null, runtime: {}, notices: [], meter: { ...initialMeter } }); },
   applyEvents(ev) {
     if (!ev.length) return;
     set((s) => ({

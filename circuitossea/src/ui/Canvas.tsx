@@ -5,6 +5,7 @@ import { termPos, tkey, type SimResult } from '../model/netlist';
 import type { Component } from '../model/types';
 import { Symbol } from './symbols';
 import { beep } from './sound';
+import { beginProbeDrag } from './Floating';
 
 const GRID = 20;
 const snap = (v: number) => Math.round(v / GRID) * GRID;
@@ -31,6 +32,19 @@ export function Canvas({ sim, cables }: Props) {
     return { x: (cx - r.left - view.x) / view.k, y: (cy - r.top - view.y) / view.k };
   };
 
+  // Ajustar el circuito a la ventana al cargar un ejemplo o al pulsar «Ajustar»
+  const fitTick = st.fitTick;
+  useEffect(() => {
+    const el = svgRef.current;
+    const comps = useStore.getState().project.components;
+    if (!el || !comps.length) return;
+    const r = el.getBoundingClientRect();
+    const xs = comps.map((c) => c.x), ys = comps.map((c) => c.y);
+    const minX = Math.min(...xs) - 90, maxX = Math.max(...xs) + 130, minY = Math.min(...ys) - 80, maxY = Math.max(...ys) + 100;
+    const k = Math.min(1.7, Math.max(0.4, Math.min(r.width / (maxX - minX), r.height / (maxY - minY))));
+    setView({ k, x: (r.width - (maxX - minX) * k) / 2 - minX * k, y: (r.height - (maxY - minY) * k) / 2 - minY * k });
+  }, [fitTick]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const compMap = useMemo(() => new Map(project.components.map((c) => [c.id, c])), [project.components]);
 
   // Teclado
@@ -43,6 +57,7 @@ export function Canvas({ sim, cables }: Props) {
       else if (e.key === 'Delete' || e.key === 'Backspace') s.deleteSelection();
       else if (e.key.toLowerCase() === 'r' && !e.ctrlKey) s.rotateSelection();
       else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); e.shiftKey ? s.redo() : s.undo(); }
+      else if (e.key.toLowerCase() === 'f' && !e.ctrlKey) s.fit();
       else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') { e.preventDefault(); s.redo(); }
       else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'd') { e.preventDefault(); s.duplicateSelection(); }
     };
@@ -250,7 +265,7 @@ export function Canvas({ sim, cables }: Props) {
           const p = termPos(cc, t.term);
           const col = k === 'c1' ? '#f5d300' : '#29b6f6';
           return (
-            <g key={k} pointerEvents="none">
+            <g key={k} style={{ cursor: 'grab' }} onPointerDown={(e) => beginProbeDrag(k, e)}>
               <path d={`M${p.x} ${p.y}L${p.x + 18} ${p.y - 34}`} stroke={col} strokeWidth={3} strokeLinecap="round" />
               <rect x={p.x + 10} y={p.y - 50} width={16} height={16} rx={3} fill={col} stroke="#222" />
               <text x={p.x + 18} y={p.y - 38} fontSize={10} fontWeight={800} textAnchor="middle" fill="#111">{k === 'c1' ? '1' : '2'}</text>
@@ -264,7 +279,8 @@ export function Canvas({ sim, cables }: Props) {
           const p = termPos(cc, t.term);
           const dx = k === 'red' ? -16 : 16;
           return (
-            <g key={k} pointerEvents="none">
+            <g key={k} style={{ cursor: 'grab' }} onPointerDown={(e) => beginProbeDrag(k, e)}>
+              <circle cx={p.x + dx} cy={p.y - 32} r={14} fill="transparent" />
               <path d={`M${p.x} ${p.y}L${p.x + dx} ${p.y - 30}`} stroke={k === 'red' ? '#e53935' : '#111'} strokeWidth={4} strokeLinecap="round" />
               <circle cx={p.x + dx} cy={p.y - 32} r={7} fill={k === 'red' ? '#e53935' : '#111'} stroke="#fff" strokeWidth={1.5} />
               <circle cx={p.x} cy={p.y} r={7} fill="none" stroke={k === 'red' ? '#e53935' : '#555'} strokeWidth={2} />
