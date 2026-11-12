@@ -139,3 +139,22 @@ describe('circuitos de corriente alterna', () => {
     expect(Math.abs(b.live.A.i)).toBeLessThan(Math.abs(a.live.A.i));
   });
 });
+
+describe('cortocircuitos y averías que revientan componentes', () => {
+  it('pila ideal con un cable entre sus bornes: se quema y el circuito queda abierto', () => {
+    const p = mk([C('B', 'battery', { v: 12, rint: 0 }), C('G', 'ground')], [['B', 0, 'B', 1], ['B', 1, 'G', 0]]);
+    const r = simulate(p);
+    expect(r.events[0]).toMatchObject({ id: 'B', state: 'burnt' });
+    const r2 = simulate(p, { B: 'burnt' });
+    expect(r2.solution.ok).toBe(true);
+    expect(r2.events).toHaveLength(0);
+  });
+  it('lámpara de 12 V conectada a 24 V: se funde (P ≈ 4× nominal)', () => {
+    const p = mk([C('B', 'battery', { v: 24 }), C('L', 'lamp', { vn: 12, pn: 12 }), C('G', 'ground')], [['B', 0, 'L', 0], ['L', 1, 'B', 1], ['B', 1, 'G', 0]]);
+    expect(simulate(p).events[0]).toMatchObject({ id: 'L', state: 'burnt' });
+  });
+  it('fuente de CA en cortocircuito se quema', () => {
+    const p = mk([C('A', 'acsource', { v: 230, rint: 0 }), C('G', 'ground')], [['A', 0, 'A', 1], ['A', 1, 'G', 0]]);
+    expect(simulate(p).events[0]).toMatchObject({ id: 'A', state: 'burnt' });
+  });
+});

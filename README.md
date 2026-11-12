@@ -42,6 +42,9 @@ npm run build      # genera dist/ (alojable en Netlify / GitHub Pages)
 - **Cablear en modo Real**: arrastra de borne a borne (con imán y vista previa del cable); clic en un cable + Supr lo quita; Ctrl+Z deshace. El cable toma su color normalizado automáticamente.
 - **Esquema pulido**: cables con esquinas redondeadas y color por función, etiquetas V·I tipo tarjeta, sombras y cuadrícula con líneas mayores. Pantalla de bienvenida con inicio rápido (botón ❓).
 
+- **Cuando algo va mal, estalla**: lámparas y LED sobrecargados, fusibles y fuentes en cortocircuito se destruyen con explosión animada (destello, onda, chispas, humo), sacudida de pantalla y sonido (opcional). Quedan quemados hasta pulsar «Reponer averías». Las lámparas se ponen al rojo blanco y parpadean antes de fundirse, y un cable que supera su intensidad admisible parpadea en rojo. Las fuentes tienen «Corriente máxima» (30 A pilas, 100 A red).
+- **Cablear arrastrando también en el esquema**: arrastra de terminal a terminal con imán y vista previa (o clic-clic como antes).
+
 ## Estructura
 ```
 src/engine/   motor puro (solver.ts, dc.ts) — sin DOM

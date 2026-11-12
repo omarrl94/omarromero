@@ -7,6 +7,7 @@ import type { Component } from '../model/types';
 import { Symbol } from './symbols';
 import { beep } from './sound';
 import { beginProbeDrag } from './Floating';
+import { Boom } from './Boom';
 
 const GRID = 20;
 const snap = (v: number) => Math.round(v / GRID) * GRID;
@@ -132,18 +133,42 @@ export function Canvas({ sim, cables }: Props) {
     st.addComponent(type, p.x, p.y);
   };
 
-  const onTermClick = (e: React.PointerEvent, ref: { comp: string; term: number }) => {
+  const onTermClick = (e: React.PointerEvent, ref: { comp: string; term: number }, _ti?: number) => {
     e.stopPropagation();
     if (st.scopeArm) { st.setScopeTip(st.scopeArm, ref); return; }
     if (st.meter.armed) { st.setMeter({ [st.meter.armed]: ref, armed: null } as never); return; }
-    if (!wiring) st.startWire(ref);
+    if (!wiring) { st.startWire(ref); startPt.current = { x: e.clientX, y: e.clientY }; }
     else if (wiring.comp === ref.comp && wiring.term === ref.term) st.startWire(null);
     else st.addWire(wiring, ref);
   };
-  const onTermUp = (e: React.PointerEvent, ref: { comp: string; term: number }) => {
-    // Soporta arrastrar de un terminal a otro
-    if (wiring && !(wiring.comp === ref.comp && wiring.term === ref.term)) { e.stopPropagation(); st.addWire(wiring, ref); }
+  // Cableado arrastrando: se suelta sobre otro terminal (con imán). Un clic simple deja el cable «pendiente».
+  const startPt = useRef<{ x: number; y: number } | null>(null);
+  const nearestTermW = (x: number, y: number, max: number) => {
+    let best: { t: { comp: string; term: number }; d: number } | null = null;
+    for (const cc of project.components) defOf(cc.type).terminals.forEach((_, i) => {
+      const p = termPos(cc, i); const d = Math.hypot(p.x - x, p.y - y);
+      if (d < max && (!best || d < best.d)) best = { t: { comp: cc.id, term: i }, d };
+    });
+    return (best as { t: { comp: string; term: number } } | null)?.t ?? null;
   };
+  const wiringKey = wiring ? `${wiring.comp}:${wiring.term}` : '';
+  useEffect(() => {
+    if (!wiringKey) return;
+    const up = (e: PointerEvent) => {
+      if (!startPt.current) return;
+      const moved = Math.hypot(e.clientX - startPt.current.x, e.clientY - startPt.current.y) > 8;
+      startPt.current = null;
+      if (!moved) return;
+      const w = toWorld(e.clientX, e.clientY);
+      const s = useStore.getState();
+      const hit = nearestTermW(w.x, w.y, 28 / view.k);
+      if (hit && s.wiring && !(hit.comp === s.wiring.comp && hit.term === s.wiring.term)) s.addWire(s.wiring, hit);
+      else s.startWire(null);
+    };
+    window.addEventListener('pointerup', up);
+    return () => window.removeEventListener('pointerup', up);
+  }); // se reengancha en cada render para ver la vista actual
+  const snapT = wiring ? nearestTermW(mouse.x, mouse.y, 28 / view.k) : null;
 
   // Mapa de calor: tensión relativa de cada cable
   const vmax = Math.max(1e-9, ...sim.solution.voltages.map(Math.abs));
@@ -193,7 +218,7 @@ export function Canvas({ sim, cables }: Props) {
           return (
             <g key={w.id}>
               <path d={d} className="wire-hit" onPointerDown={(e) => { e.stopPropagation(); st.select([w.id], e.shiftKey); }} />
-              <path d={d} className="wire" style={{ stroke: st.heat ? heatColor(v) : sel ? 'var(--accent)' : roleColor(sim.nodeOf[tkey(w.a)] ?? 0), strokeWidth: sel ? 4.5 : st.heat ? 4.5 : 3.4 }} />
+              <path d={d} className={`wire ${cables?.[w.id]?.overload ? 'hot' : ''}`} style={{ stroke: st.heat ? heatColor(v) : sel ? 'var(--accent)' : roleColor(sim.nodeOf[tkey(w.a)] ?? 0), strokeWidth: sel ? 4.5 : st.heat ? 4.5 : 3.4 }} />
               {st.showCables && cables?.[w.id] && (() => {
                 const m = Math.abs(a.x - b.x) < 1 || Math.abs(a.y - b.y) < 1 ? { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 } : { x: (a.x + b.x) / 2, y: a.y };
                 const ci = cables[w.id];
@@ -220,9 +245,16 @@ export function Canvas({ sim, cables }: Props) {
           );
         })}
         {/* Cable en curso */}
-        {wiring && compMap.get(wiring.comp) && (
-          <path d={route(termPos(compMap.get(wiring.comp)!, wiring.term), { x: snap(mouse.x), y: snap(mouse.y) })} className="wire ghost" />
-        )}
+        {wiring && compMap.get(wiring.comp) && (() => {
+          const a = termPos(compMap.get(wiring.comp)!, wiring.term);
+          const tgt = snapT && compMap.get(snapT.comp) ? termPos(compMap.get(snapT.comp)!, snapT.term) : null;
+          return (
+            <g pointerEvents="none">
+              <path d={route(a, tgt ?? { x: snap(mouse.x), y: snap(mouse.y) })} className="wire ghost" style={tgt ? { stroke: '#4caf50', strokeDasharray: 'none', strokeWidth: 3.5 } : undefined} />
+              {tgt && <circle cx={tgt.x} cy={tgt.y} r={13} fill="#4caf5033" stroke="#4caf50" strokeWidth={3} className="pulse" />}
+            </g>
+          );
+        })()}
         {/* Componentes */}
         {project.components.map((c) => {
           const def = defOf(c.type);
@@ -265,8 +297,7 @@ export function Canvas({ sim, cables }: Props) {
                 return (
                   <g key={ti}>
                     <circle cx={p.x} cy={p.y} r={11} fill="transparent" className="term-hit"
-                      onPointerDown={(e) => onTermClick(e, { comp: c.id, term: ti })}
-                      onPointerUp={(e) => onTermUp(e, { comp: c.id, term: ti })} data-term={`${c.id}:${ti}`} />
+                      onPointerDown={(e) => onTermClick(e, { comp: c.id, term: ti }, ti)} data-term={`${c.id}:${ti}`} />
                     <circle cx={p.x} cy={p.y} r={active ? 6 : 4} className={`term ${active ? 'active' : ''}`} pointerEvents="none" />
                   </g>
                 );
@@ -274,6 +305,7 @@ export function Canvas({ sim, cables }: Props) {
             </g>
           );
         })}
+        {st.booms.map((b) => { const cc = compMap.get(b.comp); return cc ? <g key={b.id} transform={`translate(${cc.x} ${cc.y})`}><Boom big={['battery', 'acsource'].includes(cc.type)} /></g> : null; })}
         {(['c1', 'c2'] as const).map((k) => {
           const t = st.scopeTips[k];
           const cc = t && compMap.get(t.comp);

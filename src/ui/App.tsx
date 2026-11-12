@@ -6,7 +6,7 @@ import { Multimeter, MeterInfo } from './Multimeter';
 import { Scope } from './Scope';
 import { Wattmeter } from './Wattmeter';
 import { FloatingWin, ProbeDragLayer } from './Floating';
-import { beep } from './sound';
+import { beep, boomSound } from './sound';
 import { simulate } from '../model/netlist';
 import { EXAMPLES } from '../model/examples';
 import { t } from '../i18n';
@@ -52,13 +52,16 @@ export function App() {
   const sim = useMemo(() => simulate(project, st.runtime), [project, st.runtime]);
   // Las averías nuevas (fusible fundido, LED quemado…) se anotan una vez y quedan hasta «Reponer»
   useEffect(() => {
-    if (sim.events.length) { st.applyEvents(sim.events); if (st.sound) beep(150, 350, 'sawtooth', 0.08); }
+    if (sim.events.length) { st.applyEvents(sim.events); if (st.sound) boomSound(); }
   }, [sim.events]); // eslint-disable-line react-hooks/exhaustive-deps
   const cableRep = useMemo(() => cableReport(project, sim), [project, sim]);
   const messages = useMemo(() => [...sim.messages, ...cableRep.messages], [sim, cableRep]);
   const mf = useMemo(() => multifilarDiagram(project, sim, cableRep.info, st.showCables), [project, sim, cableRep, st.showCables]);
   const uf = useMemo(() => unifilarDiagram(project, sim, cableRep.info), [project, sim, cableRep]);
   const wide = !['schematic', 'real'].includes(st.view);
+  const [shake, setShake] = useState(false);
+  const nBooms = st.booms.length;
+  useEffect(() => { if (nBooms > 0) { setShake(true); const h = setTimeout(() => setShake(false), 520); return () => clearTimeout(h); } }, [nBooms]);
   const selWire = project.wires.find((w) => selection[0] === w.id);
   const reading = useMemo(() => readMeter(sim, st.meter, project), [sim, st.meter, project]);
   useEffect(() => {
@@ -164,7 +167,7 @@ export function App() {
       </aside>
 
       <main className="center">
-        <div className={`stage ${st.view}`} key={st.view}>
+        <div className={`stage ${st.view} ${shake ? 'shake' : ''}`} key={st.view}>
           {st.view === 'real' ? <RealPanel sim={sim} cables={cableRep.info} /> : st.view === 'schematic' ? <Canvas sim={sim} cables={cableRep.info} />
             : st.view === 'multifilar' ? <Viewport d={mf} /> : st.view === 'unifilar' ? <Viewport d={uf} />
             : st.view === 'cuadro' ? <CuadroView /> : <Plano sim={sim} cables={cableRep.info} />}
