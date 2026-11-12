@@ -16,6 +16,9 @@ import { Viewport } from './Viewport';
 import { CuadroView } from './CuadroView';
 import { Plano } from './Plano';
 import { GameView } from './GameView';
+import { useAuth } from '../auth';
+import { loadProfile, saveProfile } from '../cloud';
+import { useGame } from '../game/store';
 import { multifilarDiagram, unifilarDiagram } from './diagrams';
 import { cableReport, wireData, admissible, wireResistance } from '../model/cables';
 import { SECTIONS, IZ_SOURCE } from '../data/rebt';
@@ -47,6 +50,25 @@ function Welcome({ onClose }: { onClose: () => void }) {
 }
 
 export function App() {
+  const auth = useAuth();
+  const uid = auth.user?.uid;
+  const proj = useStore((s) => s.project);
+  const career = useGame((s) => s.career);
+  // Nube: al entrar se carga el último proyecto y el progreso del juego; después se guardan solos
+  const [synced, setSynced] = useState(false);
+  useEffect(() => {
+    if (!uid) return;
+    let alive = true;
+    loadProfile(uid).then((p) => {
+      if (!alive) return;
+      if (p?.project) { try { useStore.getState().load(JSON.parse(p.project)); } catch { /* proyecto en la nube no válido: se ignora */ } }
+      if (p?.career) { const c = useGame.getState().career; useGame.getState().setCareer({ jobs: Math.max(c.jobs, p.career.jobs), money: Math.max(c.money, p.career.money), best: Math.max(c.best, p.career.best), stars: Math.max(c.stars, p.career.stars) }); }
+      setSynced(true);
+    });
+    return () => { alive = false; };
+  }, [uid]);
+  useEffect(() => { if (!uid || !synced) return; const h = setTimeout(() => void saveProfile(uid, { project: proj, name: auth.user?.displayName ?? undefined }), 2500); return () => clearTimeout(h); }, [proj, uid, synced]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (!uid || !synced) return; const h = setTimeout(() => void saveProfile(uid, { career }), 1000); return () => clearTimeout(h); }, [career, uid, synced]);
   const [welcome, setWelcome] = useState(() => { try { return !localStorage.getItem('circuitossea:welcome'); } catch { return true; } });
   const closeWelcome = () => { try { localStorage.setItem('circuitossea:welcome', '1'); } catch { /* ignorar */ } setWelcome(false); };
   const st = useStore();
@@ -137,6 +159,11 @@ export function App() {
           <label><input type="checkbox" checked={st.sound} onChange={() => st.toggle('sound')} /> Sonido</label>
           <label><input type="checkbox" checked={st.heat} onChange={() => st.toggle('heat')} /> {t.heat}</label>
           {Object.keys(st.runtime).length > 0 && <button className="warnbtn" onClick={st.resetRuntime}>🔧 Reponer averías</button>}
+          <span className="usr" title={auth.user?.email ?? 'Modo demostración'}>
+            <i>{(auth.user?.displayName ?? auth.user?.email ?? '·').slice(0, 1).toUpperCase()}</i>
+            <span>{auth.user ? (auth.user.displayName ?? auth.user.email) : 'Demostración'}</span>
+            <button onClick={() => void auth.logout()}>Salir</button>
+          </span>
           <button onClick={() => st.toggle('dark')} aria-label={t.theme}>{st.dark ? '☀' : '☾'}</button>
         </div>
       </header>

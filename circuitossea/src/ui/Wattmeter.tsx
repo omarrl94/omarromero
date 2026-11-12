@@ -4,10 +4,10 @@ import { defOf, fmt } from '../model/library';
 import type { SimResult } from '../model/netlist';
 
 /** Vatímetro / analizador monofásico: V, I, P, Q, S, cos φ, energía y coste. */
-export function Wattmeter({ sim }: { sim: SimResult }) {
+export function Wattmeter({ sim, demoId }: { sim: SimResult; demoId?: string }) {
   const st = useStore();
   const comps = st.project.components.filter((c) => !['ground', 'junction'].includes(c.type));
-  const [id, setId] = useState<string>('');
+  const [id, setId] = useState<string>(demoId ?? '');
   const [kwh, setKwh] = useState(0);
   const [price, setPrice] = useState(0.15); // €/kWh orientativo, configurable
   const [fast, setFast] = useState(true);

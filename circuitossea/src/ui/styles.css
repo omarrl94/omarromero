@@ -186,3 +186,8 @@ button.warnbtn { background: #7a3b12; border-color: var(--terracota); }
 
 .stage.juego { display: flex; } .stage.juego > .game { flex: 1; }
 .viewswitch button[data-view=juego] { color: #ffd23f; }
+
+.boot { position: fixed; inset: 0; display: grid; place-items: center; background: #1b1815; color: #efcd2f; font-family: system-ui; letter-spacing: .05em; }
+.usr { display: inline-flex; align-items: center; gap: 8px; padding: 3px 4px 3px 4px; background: #1a1714; border: 1px solid #4a423b; border-radius: 999px; font-size: 12.5px; color: #cfc6b6; }
+.usr i { width: 26px; height: 26px; border-radius: 50%; background: var(--mostaza); color: #2a2622; display: grid; place-items: center; font-style: normal; font-weight: 800; }
+.usr button { min-height: 26px; padding: 0 10px; border-radius: 999px; background: #2f2a25; border: 1px solid #5b5349; color: #F1EADF; font-size: 12px; } .usr span { max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
