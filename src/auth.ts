@@ -43,6 +43,7 @@ interface AuthState {
   continueGuest(full?: boolean): void;
   openSignup(mode?: 'crear' | 'entrar'): void;
   resendVerification(): Promise<void>;
+  refreshUser(): Promise<boolean>;
   clear(): void;
 }
 
@@ -55,7 +56,11 @@ export const useAuth = create<AuthState>((set) => ({
   user: null, ready: !firebaseConfigured, guest: readGuest(), demoFull: readDemo(), busy: false, error: null, info: null,
   init() {
     if (!auth) { set({ ready: true }); return () => undefined; }
-    return onAuthStateChanged(auth, (u) => set({ user: u, ready: true }));
+    return onAuthStateChanged(auth, (u) => {
+      set({ user: u, ready: true });
+      // El estado «correo verificado» queda guardado en el navegador: se vuelve a pedir a Firebase para que no caduque
+      if (u && !u.emailVerified) void u.reload().then(() => { set({ user: auth!.currentUser, info: null }); useAuth.setState({}); }).catch(() => undefined);
+    });
   },
   signup: (name, email, password) => run(set, async () => {
     const c = await createUserWithEmailAndPassword(auth!, email.trim(), password);
@@ -78,6 +83,14 @@ export const useAuth = create<AuthState>((set) => ({
   continueGuest(full = false) { try { sessionStorage.setItem(GUEST_KEY, '1'); if (full) sessionStorage.setItem(DEMO_KEY, '1'); else sessionStorage.removeItem(DEMO_KEY); } catch { /* ignorar */ } set({ guest: true, demoFull: full && !firebaseConfigured }); },
   /** Sale del modo visitante y lleva al formulario de acceso de la portada. */
   openSignup(mode = 'crear') { try { sessionStorage.removeItem(GUEST_KEY); sessionStorage.removeItem(DEMO_KEY); sessionStorage.setItem('circuitossea:goto', mode); } catch { /* ignorar */ } set({ guest: false, demoFull: false }); },
+  async refreshUser() {
+    const u = auth?.currentUser;
+    if (!u) return false;
+    try { await u.reload(); await u.getIdToken(true); } catch { return false; }
+    set({ user: auth!.currentUser });
+    useAuth.setState({});
+    return !!auth!.currentUser?.emailVerified;
+  },
   resendVerification: () => run(set, async () => { if (auth?.currentUser) { await sendEmailVerification(auth.currentUser); set({ info: 'Te hemos reenviado el correo de verificación.' }); } }),
   clear() { set({ error: null, info: null }); },
 }));

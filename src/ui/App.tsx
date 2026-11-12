@@ -173,7 +173,7 @@ export function App() {
           <div className="visitor-bar admin" role="status">
             <span><b>Falta un paso para activar el superadmin:</b> verifica tu correo (te lo enviamos al registrarte). Mientras tanto tienes acceso de usuario normal.</span>
             <button onClick={() => void auth.resendVerification()}>Reenviar correo</button>
-            <button className="ghost" onClick={() => window.location.reload()}>Ya lo he verificado</button>
+            <button className="ghost" onClick={async () => { const ok = await auth.refreshUser(); if (!ok) alert('Firebase todavía no ve el correo como verificado. Abre el enlace del correo (mira también en spam) y vuelve a pulsar.'); }}>Ya lo he verificado</button>
           </div>
         )}
         <div className="brand"><span className="logo">⚡</span><b>{t.app}</b><small>{t.tagline}</small></div>
