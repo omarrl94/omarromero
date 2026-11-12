@@ -1,0 +1,62 @@
+{
+  "id": "d7-n3-0001",
+  "estado": "borrador",
+  "distrito": 7,
+  "ra": [
+    "RA5"
+  ],
+  "ce": [
+    "RA5-CE1",
+    "RA5-CE3"
+  ],
+  "nivel": 3,
+  "tipo": "acta",
+  "dificultad": 1.5,
+  "pe_base": 3,
+  "enunciado": "Rellena el acta con los valores medidos y emite el dictamen.",
+  "solucion": {},
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "pruebas": [
+    {
+      "id": "ais",
+      "nombre": "Aislamiento",
+      "valor": 2,
+      "unidad": "MΩ",
+      "regla": {
+        "tipo": "min",
+        "norma": "verificacion.aislamiento.min_mohm"
+      }
+    },
+    {
+      "id": "tie",
+      "nombre": "Resistencia de tierra (local húmedo, 30 mA)",
+      "valor": 100,
+      "unidad": "Ω",
+      "regla": {
+        "tipo": "tierra_max",
+        "norma": "verificacion.tierra.uc_humedo",
+        "sens_a": 0.03
+      }
+    },
+    {
+      "id": "dif",
+      "nombre": "Disparo del diferencial 30 mA",
+      "valor": 20,
+      "unidad": "mA",
+      "regla": {
+        "tipo": "rango_frac",
+        "norma": "verificacion.diferencial.sens_min_frac",
+        "sens_a": 0.03
+      }
+    }
+  ],
+  "dominio_rebt": "A"
+}

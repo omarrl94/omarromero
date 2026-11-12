@@ -18,6 +18,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Hud />
+      <div className="pb-24 md:pb-8">
       <Routes>
         <Route path="/" element={<Mapa />} />
         <Route path="/distrito/:id" element={<Distrito />} />
@@ -26,6 +27,7 @@ export default function App() {
         <Route path="/docente" element={<Docente />} />
         <Route path="/biblioteca" element={<Biblioteca />} />
       </Routes>
+      </div>
     </BrowserRouter>
   );
 }

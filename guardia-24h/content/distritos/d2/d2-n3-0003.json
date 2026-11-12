@@ -1,0 +1,41 @@
+{
+  "id": "d2-n3-0003",
+  "estado": "borrador",
+  "distrito": 2,
+  "ra": [
+    "RA2",
+    "RA3"
+  ],
+  "ce": [
+    "RA3-CE3"
+  ],
+  "nivel": 3,
+  "tipo": "numerico",
+  "dificultad": 1.5,
+  "pe_base": 2,
+  "enunciado": "¿Qué diámetro de tubo (mm) se emplea para el circuito C3 de una vivienda?",
+  "solucion": {
+    "calculo": {
+      "tipo": "tubo_circuito",
+      "c": "C3"
+    },
+    "tolerancia": 0
+  },
+  "requiere_cita": true,
+  "citas_validas": [
+    {
+      "doc": "REBT",
+      "ref": "ITC-BT-21"
+    }
+  ],
+  "pistas": [
+    "Consulta la biblioteca (ITC correspondiente)."
+  ],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "dominio_rebt": "A"
+}

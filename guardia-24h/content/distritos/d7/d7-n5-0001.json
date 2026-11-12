@@ -1,0 +1,86 @@
+{
+  "id": "d7-n5-0001",
+  "estado": "borrador",
+  "distrito": 7,
+  "ra": [
+    "RA5",
+    "RA6",
+    "RA8"
+  ],
+  "ce": [
+    "RA5-CE1",
+    "RA5-CE4",
+    "RA8-CE3"
+  ],
+  "nivel": 5,
+  "tipo": "acta",
+  "dificultad": 2,
+  "pe_base": 4,
+  "enunciado": "JEFE · Verificación completa de la instalación: acta con valores medidos y dictamen final (apta / no apta).",
+  "solucion": {},
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "pruebas": [
+    {
+      "id": "ais",
+      "nombre": "Aislamiento",
+      "valor": 0.8,
+      "unidad": "MΩ",
+      "regla": {
+        "tipo": "min",
+        "norma": "verificacion.aislamiento.min_mohm"
+      }
+    },
+    {
+      "id": "ais_b",
+      "nombre": "Aislamiento circuito 2",
+      "valor": 0.1,
+      "unidad": "MΩ",
+      "regla": {
+        "tipo": "min",
+        "norma": "verificacion.aislamiento.min_mohm"
+      }
+    },
+    {
+      "id": "tie",
+      "nombre": "Resistencia de tierra (local húmedo, 30 mA)",
+      "valor": 500,
+      "unidad": "Ω",
+      "regla": {
+        "tipo": "tierra_max",
+        "norma": "verificacion.tierra.uc_humedo",
+        "sens_a": 0.03
+      }
+    },
+    {
+      "id": "dif",
+      "nombre": "Disparo del diferencial 30 mA",
+      "valor": 22,
+      "unidad": "mA",
+      "regla": {
+        "tipo": "rango_frac",
+        "norma": "verificacion.diferencial.sens_min_frac",
+        "sens_a": 0.03
+      }
+    },
+    {
+      "id": "dif_b",
+      "nombre": "Disparo diferencial 2",
+      "valor": 40,
+      "unidad": "mA",
+      "regla": {
+        "tipo": "rango_frac",
+        "norma": "verificacion.diferencial.sens_min_frac",
+        "sens_a": 0.03
+      }
+    }
+  ],
+  "dominio_rebt": "A"
+}

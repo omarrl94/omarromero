@@ -1,0 +1,43 @@
+{
+  "id": "d2-n2-0003",
+  "estado": "borrador",
+  "distrito": 2,
+  "ra": [
+    "RA2",
+    "RA3"
+  ],
+  "ce": [
+    "RA3-CE3"
+  ],
+  "nivel": 2,
+  "tipo": "opcion_multiple",
+  "dificultad": 1.5,
+  "pe_base": 2,
+  "enunciado": "Antes de elegir el sistema de instalación, hay que considerar…",
+  "solucion": {
+    "correcta": 0
+  },
+  "requiere_cita": true,
+  "citas_validas": [
+    {
+      "doc": "REBT",
+      "ref": "ITC-BT-20"
+    }
+  ],
+  "pistas": [
+    "Consulta la biblioteca (ITC correspondiente)."
+  ],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "opciones": [
+    "El tipo de local y las condiciones ambientales",
+    "El color de la pared solo",
+    "El precio del cuadro",
+    "La marca del móvil"
+  ],
+  "dominio_rebt": "A"
+}

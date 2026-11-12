@@ -1,0 +1,75 @@
+{
+  "id": "d7-n4-0002",
+  "estado": "borrador",
+  "distrito": 7,
+  "ra": [
+    "RA5",
+    "RA8"
+  ],
+  "ce": [
+    "RA5-CE6",
+    "RA8-CE3"
+  ],
+  "nivel": 4,
+  "tipo": "acta",
+  "dificultad": 2,
+  "pe_base": 3,
+  "enunciado": "Nave con varias pruebas: dictamina cada una y la instalación.",
+  "solucion": {},
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Consulta la biblioteca (ITC correspondiente)."
+  ],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "pruebas": [
+    {
+      "id": "ais",
+      "nombre": "Aislamiento",
+      "valor": 0.6,
+      "unidad": "MΩ",
+      "regla": {
+        "tipo": "min",
+        "norma": "verificacion.aislamiento.min_mohm"
+      }
+    },
+    {
+      "id": "tie",
+      "nombre": "Resistencia de tierra (local húmedo, 30 mA)",
+      "valor": 600,
+      "unidad": "Ω",
+      "regla": {
+        "tipo": "tierra_max",
+        "norma": "verificacion.tierra.uc_humedo",
+        "sens_a": 0.03
+      }
+    },
+    {
+      "id": "dif",
+      "nombre": "Disparo del diferencial 30 mA",
+      "valor": 18,
+      "unidad": "mA",
+      "regla": {
+        "tipo": "rango_frac",
+        "norma": "verificacion.diferencial.sens_min_frac",
+        "sens_a": 0.03
+      }
+    },
+    {
+      "id": "ais2",
+      "nombre": "Aislamiento (otro circuito)",
+      "valor": 0.3,
+      "unidad": "MΩ",
+      "regla": {
+        "tipo": "min",
+        "norma": "verificacion.aislamiento.min_mohm"
+      }
+    }
+  ],
+  "dominio_rebt": "A"
+}

@@ -1,0 +1,132 @@
+{
+  "id": "d2-n4-0001",
+  "estado": "borrador",
+  "distrito": 2,
+  "ra": [
+    "RA2",
+    "RA3"
+  ],
+  "ce": [
+    "RA3-CE3",
+    "RA3-CE7"
+  ],
+  "nivel": 4,
+  "tipo": "hotspots",
+  "dificultad": 1.5,
+  "pe_base": 3,
+  "enunciado": "Inspección de canalizaciones · Trazado de una vivienda: marca TODOS los defectos de montaje.",
+  "solucion": {},
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Consulta la biblioteca (ITC correspondiente)."
+  ],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "escena": {
+    "titulo": "Trazado de una vivienda",
+    "elementos": [
+      {
+        "id": "e1",
+        "etiqueta": "Cruce de conductores sin protección",
+        "x": 15,
+        "y": 20,
+        "w": 130,
+        "h": 80,
+        "defecto": true,
+        "explicacion": "Los cruzamientos deben evitarse o protegerse.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-20"
+        }
+      },
+      {
+        "id": "e2",
+        "etiqueta": "Registro accesible",
+        "x": 160,
+        "y": 20,
+        "w": 130,
+        "h": 80,
+        "defecto": false,
+        "explicacion": ""
+      },
+      {
+        "id": "e3",
+        "etiqueta": "Curva demasiado cerrada",
+        "x": 305,
+        "y": 20,
+        "w": 130,
+        "h": 80,
+        "defecto": true,
+        "explicacion": "Una curva brusca daña el aislamiento y dificulta el tendido.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-21"
+        }
+      },
+      {
+        "id": "e4",
+        "etiqueta": "Tubo bien fijado",
+        "x": 450,
+        "y": 20,
+        "w": 130,
+        "h": 80,
+        "defecto": false,
+        "explicacion": ""
+      },
+      {
+        "id": "e5",
+        "etiqueta": "Sin registro en el tramo largo",
+        "x": 15,
+        "y": 115,
+        "w": 130,
+        "h": 80,
+        "defecto": true,
+        "explicacion": "Faltan registros que permitan el tendido y la sustitución.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-21"
+        }
+      },
+      {
+        "id": "e6",
+        "etiqueta": "Conductores rotulados",
+        "x": 160,
+        "y": 115,
+        "w": 130,
+        "h": 80,
+        "defecto": false,
+        "explicacion": ""
+      },
+      {
+        "id": "e7",
+        "etiqueta": "Caja de empalme estanca",
+        "x": 305,
+        "y": 115,
+        "w": 130,
+        "h": 80,
+        "defecto": false,
+        "explicacion": ""
+      },
+      {
+        "id": "e8",
+        "etiqueta": "Tubo aplastado",
+        "x": 450,
+        "y": 115,
+        "w": 130,
+        "h": 80,
+        "defecto": true,
+        "explicacion": "Tubo deformado: reduce la sección útil y daña los conductores.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-21"
+        }
+      }
+    ]
+  },
+  "dominio_rebt": "A"
+}

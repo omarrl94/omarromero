@@ -2,7 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
-body { @apply bg-menta/30 text-tinta antialiased; font-family: system-ui, sans-serif; }
-.btn { @apply rounded-lg border-2 border-tinta bg-amarillo px-4 py-2 font-bold shadow-[3px_3px_0_#1A1A1A] transition active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2; }
-.card { @apply rounded-xl border-2 border-tinta bg-white p-4 shadow-[4px_4px_0_#1A1A1A]; }
-.input { @apply w-full rounded-lg border-2 border-tinta bg-white px-3 py-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2; }
+html { color-scheme: dark; }
+body {
+  @apply bg-noche text-crema antialiased;
+  font-family: 'Trebuchet MS', system-ui, sans-serif;
+  background-image: linear-gradient(rgba(169, 202, 187, 0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(169, 202, 187, 0.07) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+h1 { @apply font-titulo text-amarillo; }
+.card h1, .card h2, .card h3 { color: inherit; }
+
+@layer components {
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-xl border-[3px] border-tinta bg-amarillo px-5 py-2.5 font-titulo font-black text-tinta shadow-[0_5px_0_#1A1A1A] transition active:translate-y-1 active:shadow-[0_1px_0_#1A1A1A] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-menta; }
+  .btn-ghost { @apply bg-crema; }
+  .btn-ok { @apply bg-ok text-white; }
+  .btn-big { @apply px-8 py-4 text-xl; }
+  .card { @apply rounded-2xl border-[3px] border-tinta bg-crema p-4 text-tinta shadow-[0_6px_0_#000]; }
+  .input { @apply w-full rounded-xl border-[3px] border-tinta bg-white px-3 py-2 text-tinta focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-menta; }
+  .chip { @apply inline-flex items-center rounded-full border-2 border-tinta bg-menta px-2.5 py-0.5 text-xs font-bold text-tinta; }
+  .tile { @apply relative flex min-h-[4.5rem] cursor-pointer items-center gap-3 rounded-2xl border-[3px] border-tinta p-4 text-lg font-bold text-tinta shadow-[0_6px_0_#000] transition hover:-translate-y-0.5 has-[:focus-visible]:outline has-[:focus-visible]:outline-4 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-white; }
+  .tile-sel { @apply -translate-y-1 ring-4 ring-white ring-offset-2 ring-offset-noche; }
+}
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }

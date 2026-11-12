@@ -1,0 +1,43 @@
+{
+  "id": "d2-n2-0002",
+  "estado": "borrador",
+  "distrito": 2,
+  "ra": [
+    "RA2",
+    "RA3"
+  ],
+  "ce": [
+    "RA3-CE3"
+  ],
+  "nivel": 2,
+  "tipo": "opcion_multiple",
+  "dificultad": 1.5,
+  "pe_base": 2,
+  "enunciado": "Para una instalación vista en un taller con riesgo de golpes, conviene…",
+  "solucion": {
+    "correcta": 0
+  },
+  "requiere_cita": true,
+  "citas_validas": [
+    {
+      "doc": "REBT",
+      "ref": "ITC-BT-20"
+    }
+  ],
+  "pistas": [
+    "Consulta la biblioteca (ITC correspondiente)."
+  ],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "opciones": [
+    "Tubo o canal rígido con resistencia mecánica adecuada",
+    "Cable suelto por el suelo",
+    "Cinta aislante",
+    "Nada especial"
+  ],
+  "dominio_rebt": "A"
+}

@@ -3,14 +3,17 @@ import type { Respuesta } from '../data/repo';
 import { citaValida, type Cita } from '../library/search';
 import { validaCuadro, type Propuesta } from '../engine/cuadro';
 import { calcula, tablaVivienda } from './calculos';
+import { evaluaActa } from '../engine/acta';
+import { normaNum } from '../data/content';
 import { peMaximo, peObtenido, redondea } from './grading';
 
-export interface Entrada { opcion?: number; vf?: boolean; numero?: number; cita?: Cita | null; seleccion?: string[]; dim?: Propuesta[]; pistas: number; seguridad?: boolean }
+export interface Entrada { opcion?: number; vf?: boolean; numero?: number; cita?: Cita | null; seleccion?: string[]; acta?: Record<string, 'cumple' | 'no'>; dictamen?: 'apta' | 'no_apta'; dim?: Propuesta[]; pistas: number; seguridad?: boolean }
 
 /** ¿Es correcta la parte de contenido de la respuesta (sin cita)? */
 export function esCorrecta(item: Item, e: Entrada): boolean {
   const s = item.solucion as Record<string, unknown>;
   switch (item.tipo) {
+    case 'instrumento':
     case 'opcion_multiple': return e.opcion === s.correcta;
     case 'verdadero_falso': return e.vf === s.correcta;
     case 'numerico': {
@@ -18,6 +21,7 @@ export function esCorrecta(item: Item, e: Entrada): boolean {
       const valor = s.calculo ? calcula(s.calculo as { tipo: string }) : Number(s.valor);
       return e.numero !== undefined && Math.abs(e.numero - valor) <= tol;
     }
+    case 'acta':
     case 'dimensionado':
     case 'hotspots': return fraccion(item, e) === 1;
     case 'selector_cita': return Boolean(e.cita && citaValida(e.cita, item.citas_validas));
@@ -33,6 +37,7 @@ export function fraccion(item: Item, e: Entrada): number | null {
     const hits = defectos.filter((x) => sel.has(x.id)).length, falsos = [...sel].filter((id) => !defectos.some((x) => x.id === id)).length;
     return defectos.length ? Math.max(0, (hits - falsos) / defectos.length) : 0;
   }
+  if (item.tipo === 'acta') return evaluaActa(item.pruebas ?? [], e.acta ?? {}, e.dictamen, normaNum).fraccion;
   if (item.tipo === 'dimensionado') {
     const circ = ((item.solucion as { circuitos?: string[] }).circuitos ?? []);
     const r = validaCuadro(e.dim ?? [], tablaVivienda(circ), () => ({ doc: 'REBT', ref: '' }));

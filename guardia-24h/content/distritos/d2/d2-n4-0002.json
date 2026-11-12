@@ -1,0 +1,128 @@
+{
+  "id": "d2-n4-0002",
+  "estado": "borrador",
+  "distrito": 2,
+  "ra": [
+    "RA2",
+    "RA3"
+  ],
+  "ce": [
+    "RA3-CE3",
+    "RA3-CE7"
+  ],
+  "nivel": 4,
+  "tipo": "hotspots",
+  "dificultad": 1.5,
+  "pe_base": 3,
+  "enunciado": "Inspección de canalizaciones · Local mojado: marca TODOS los defectos de montaje.",
+  "solucion": {},
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Consulta la biblioteca (ITC correspondiente)."
+  ],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "escena": {
+    "titulo": "Local mojado",
+    "elementos": [
+      {
+        "id": "e1",
+        "etiqueta": "Caja no estanca en zona de salpicaduras",
+        "x": 15,
+        "y": 20,
+        "w": 130,
+        "h": 80,
+        "defecto": true,
+        "explicacion": "En locales mojados el material debe ser estanco.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-30"
+        }
+      },
+      {
+        "id": "e2",
+        "etiqueta": "Prensaestopas correcto",
+        "x": 160,
+        "y": 20,
+        "w": 130,
+        "h": 80,
+        "defecto": false,
+        "explicacion": ""
+      },
+      {
+        "id": "e3",
+        "etiqueta": "Tubo sin sellar en la entrada",
+        "x": 305,
+        "y": 20,
+        "w": 130,
+        "h": 80,
+        "defecto": true,
+        "explicacion": "Entrada de agua por la canalización.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-30"
+        }
+      },
+      {
+        "id": "e4",
+        "etiqueta": "Canalización fijada con abrazaderas",
+        "x": 450,
+        "y": 20,
+        "w": 130,
+        "h": 80,
+        "defecto": false,
+        "explicacion": ""
+      },
+      {
+        "id": "e5",
+        "etiqueta": "Empalme con cinta fuera de caja",
+        "x": 15,
+        "y": 115,
+        "w": 130,
+        "h": 80,
+        "defecto": true,
+        "explicacion": "Los empalmes deben hacerse en cajas.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-19"
+        }
+      },
+      {
+        "id": "e6",
+        "etiqueta": "Etiquetado visible",
+        "x": 160,
+        "y": 115,
+        "w": 130,
+        "h": 80,
+        "defecto": false,
+        "explicacion": ""
+      },
+      {
+        "id": "e7",
+        "etiqueta": "Registros accesibles",
+        "x": 305,
+        "y": 115,
+        "w": 130,
+        "h": 80,
+        "defecto": false,
+        "explicacion": ""
+      },
+      {
+        "id": "e8",
+        "etiqueta": "Conductor de protección conectado",
+        "x": 450,
+        "y": 115,
+        "w": 130,
+        "h": 80,
+        "defecto": false,
+        "explicacion": ""
+      }
+    ]
+  },
+  "dominio_rebt": "A"
+}

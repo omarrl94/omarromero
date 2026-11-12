@@ -7,7 +7,7 @@ test('alumno: registro → mapa → distrito → biblioteca → Mi manual', asyn
   await page.getByRole('button', { name: 'Entrar' }).click();
   await expect(page.getByRole('heading', { name: /8 distritos/ })).toBeVisible();
 
-  await page.getByRole('link', { name: 'Ver niveles' }).first().click();
+  await page.getByRole('link', { name: /Distrito 1/ }).click();
   await expect(page.getByRole('heading', { name: /Taller del instalador/ })).toBeVisible();
 
   await page.getByRole('link', { name: /Biblioteca/ }).click();
@@ -27,7 +27,7 @@ test('alumno juega N1 del distrito 1 y ve su nota', async ({ page }) => {
   await page.getByLabel('Código de clase').fill('SEA-2025');
   await page.getByLabel('Alias').fill('Juego1');
   await page.getByRole('button', { name: 'Entrar' }).click();
-  await page.getByRole('link', { name: 'Ver niveles' }).first().click();
+  await page.getByRole('link', { name: /Distrito 1/ }).click();
   await page.getByRole('link', { name: 'Jugar' }).first().click();
   await page.getByRole('button', { name: /Empezar/ }).click();
   for (let i = 0; i < 8; i++) {

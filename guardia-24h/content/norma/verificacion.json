@@ -1,0 +1,59 @@
+{
+  "entradas": [
+    {
+      "id": "verificacion.aislamiento.min_mohm",
+      "descripcion": "Resistencia de aislamiento mínima (circuitos hasta 500 V, ensayo a 500 V) [TODO(profesor): verificar con el texto oficial]",
+      "valor": 0.5,
+      "unidad": "MΩ",
+      "fuente": {
+        "documento": "REBT",
+        "ref": "ITC-BT-19 · apartado 2.9"
+      },
+      "verificado": false
+    },
+    {
+      "id": "verificacion.tierra.uc_seco",
+      "descripcion": "Tensión de contacto límite, local seco [TODO(profesor): verificar con el texto oficial]",
+      "valor": 50,
+      "unidad": "V",
+      "fuente": {
+        "documento": "REBT",
+        "ref": "ITC-BT-18 / ITC-BT-24"
+      },
+      "verificado": false
+    },
+    {
+      "id": "verificacion.tierra.uc_humedo",
+      "descripcion": "Tensión de contacto límite, local húmedo/mojado [TODO(profesor): verificar con el texto oficial]",
+      "valor": 24,
+      "unidad": "V",
+      "fuente": {
+        "documento": "REBT",
+        "ref": "ITC-BT-18 / ITC-BT-24"
+      },
+      "verificado": false
+    },
+    {
+      "id": "verificacion.diferencial.sens_min_frac",
+      "descripcion": "Fracción mínima de IΔn a la que debe poder disparar el diferencial [TODO(profesor): verificar con el texto oficial]",
+      "valor": 0.5,
+      "unidad": "",
+      "fuente": {
+        "documento": "REBT",
+        "ref": "ITC-BT-24 / UNE"
+      },
+      "verificado": false
+    },
+    {
+      "id": "verificacion.resistencia_contacto.max_ohm",
+      "descripcion": "Resistencia de unión aceptable en una borna (criterio de la práctica) [TODO(profesor): verificar con el texto oficial]",
+      "valor": 0.5,
+      "unidad": "Ω",
+      "fuente": {
+        "documento": "REBT",
+        "ref": "TODO(profesor)"
+      },
+      "verificado": false
+    }
+  ]
+}

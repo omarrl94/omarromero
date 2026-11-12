@@ -60,6 +60,13 @@ export const ItemSchema = z.object({
       })),
     })
     .optional(),
+  circuito: z.object({ averia: z.string(), alimentado: z.boolean().default(true) }).optional(),
+  pruebas: z
+    .array(z.object({
+      id: z.string(), nombre: z.string(), valor: z.number(), unidad: z.string(),
+      regla: z.object({ tipo: z.enum(['min', 'max', 'tierra_max', 'rango_frac']), norma: z.string().optional(), sens_a: z.number().optional() }),
+    }))
+    .optional(),
   variables: z.record(z.object({ valores: z.array(z.union([z.number(), z.string()])) })).optional(),
   solucion: z.record(z.unknown()),
   dominio_rebt: z.enum(['A', 'B', 'C']).optional(),

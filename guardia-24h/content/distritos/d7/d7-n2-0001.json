@@ -1,0 +1,44 @@
+{
+  "id": "d7-n2-0001",
+  "estado": "borrador",
+  "distrito": 7,
+  "ra": [
+    "RA5",
+    "RA6",
+    "RA9"
+  ],
+  "ce": [
+    "RA6-CE3",
+    "RA5-CE2"
+  ],
+  "nivel": 2,
+  "tipo": "instrumento",
+  "dificultad": 1.5,
+  "pe_base": 2,
+  "enunciado": "El piloto de un circuito no enciende. Mide, localiza la causa y diagnostica. Recuerda: seguridad primero.",
+  "solucion": {
+    "correcta": 0
+  },
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "La continuidad y el aislamiento solo se miden SIN tensión. Primero corta y comprueba ausencia de tensión."
+  ],
+  "explicacion": "Orden: medir tensión, cortar y comprobar ausencia de tensión, y después medir continuidad/aislamiento. [BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "opciones": [
+    "Conductor de fase abierto",
+    "Neutro cortado",
+    "Fuga a tierra",
+    "Borna floja con calentamiento"
+  ],
+  "circuito": {
+    "averia": "fase_abierta",
+    "alimentado": true
+  },
+  "dominio_rebt": "A"
+}

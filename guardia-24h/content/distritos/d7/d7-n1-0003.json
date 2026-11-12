@@ -1,0 +1,37 @@
+{
+  "id": "d7-n1-0003",
+  "estado": "borrador",
+  "distrito": 7,
+  "ra": [
+    "RA5",
+    "RA9"
+  ],
+  "ce": [
+    "RA5-CE2"
+  ],
+  "nivel": 1,
+  "tipo": "opcion_multiple",
+  "dificultad": 1,
+  "pe_base": 1,
+  "enunciado": "La continuidad de un conductor se mide…",
+  "solucion": {
+    "correcta": 0
+  },
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Consulta la biblioteca (ITC correspondiente)."
+  ],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "opciones": [
+    "Siempre sin tensión",
+    "Con la instalación en carga",
+    "Solo en exteriores",
+    "Con el diferencial desconectado y tensión"
+  ]
+}

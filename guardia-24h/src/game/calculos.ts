@@ -22,6 +22,7 @@ export function calcula(c: { tipo: string; [k: string]: unknown }): number {
       const I = intensidad(n('P'), normaNum('tension.monofasica'));
       return caidaTension({ longitudM: n('L'), intensidadA: I, seccionMm2: n('S'), conductividad: normaNum('fisica.cobre.conductividad'), tensionV: normaNum('tension.monofasica') }).porcentaje;
     }
+    case 'tubo_circuito': return normaNum(`vivienda.${String(c.c)}.tubo`);
     default: throw new Error(`Cálculo desconocido: ${c.tipo}`);
   }
 }

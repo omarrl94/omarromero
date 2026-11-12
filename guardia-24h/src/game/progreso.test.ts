@@ -102,3 +102,23 @@ describe('tipos nuevos con contenido real', () => {
     expect(evalua(it, { seleccion: [], pistas: 0 }).pe_obtained).toBe(0);
   });
 });
+
+describe('Fase 3: instrumento y acta con contenido real', () => {
+  const por = (id: string) => contenido.find((i) => i.id === id)!;
+  it('acta: dictamen correcto da el 100 %; dictamen erróneo, parcial', () => {
+    const it = por('d7-n3-0002'); // aislamiento 0,2 MΩ → no cumple → NO APTA
+    const bien = evalua(it, { acta: { ais: 'no', tie: 'cumple', dif: 'cumple' }, dictamen: 'no_apta', pistas: 0 });
+    expect(bien.pe_obtained).toBe(bien.pe_max);
+    const mal = evalua(it, { acta: { ais: 'cumple', tie: 'cumple', dif: 'cumple' }, dictamen: 'apta', pistas: 0 });
+    expect(mal.pe_obtained).toBeCloseTo((bien.pe_max * 2) / 4, 3);
+  });
+  it('instrumento: diagnóstico correcto puntúa; error de seguridad deja el ítem a 0', () => {
+    const it = por('d7-n2-0001');
+    expect(evalua(it, { opcion: 0, pistas: 0 }).pe_obtained).toBeGreaterThan(0);
+    expect(evalua(it, { opcion: 0, pistas: 0, seguridad: true }).pe_obtained).toBe(0);
+  });
+  it('numérico de tubo sale de la norma de la vivienda', () => {
+    const it = contenido.find((i) => (i.solucion as { calculo?: { tipo: string; c: string } }).calculo?.c === 'C3')!;
+    expect(evalua(it, { numero: 25, pistas: 0, cita: { doc: 'REBT', ref: 'ITC-BT-21' } }).pe_obtained).toBeGreaterThan(0);
+  });
+});

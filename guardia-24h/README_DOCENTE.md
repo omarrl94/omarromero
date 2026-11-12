@@ -33,3 +33,10 @@ Implementación y ejemplos numéricos: `src/game/grading.ts` y `grading.test.ts`
 - Tipos de ítem nuevos: `dimensionado` (PIA/sección/tubo por circuito, puntuación parcial), `hotspots` (Muro de la vergüenza: aciertos suman, falsos positivos restan), `numerico` con `solucion.calculo` (la respuesta sale del motor + norma).
 - Contenido en borrador: D3 25 ítems, D4 12 ítems (hotspots con defectos inventados con fines didácticos; citas a ITC por verificar).
 - Pendiente de la Fase 2 original: editor visual de replanteo y cuadro (arrastrar), unifilar/multifilar y reparación interactiva (el «cuadro del horror» solo se inspecciona).
+
+## Fase 3: verificación y canalizaciones (D7 y D2)
+- `src/engine/averias.ts`: inyector de averías (fase abierta, neutro cortado, borna floja, fuga, inversión F/N, cortocircuito, tierra abierta) e instrumentos virtuales (tensión, continuidad, aislamiento, pinza). **Medir continuidad o aislamiento con tensión = error de seguridad grave** (ítem a 0).
+- `src/engine/acta.ts`: acta de verificación; los umbrales salen de `content/norma/verificacion.json` (**todos `verificado:false`**, cargados de memoria: revísalos con ITC-BT-19/18/24).
+- Tipos de ítem: `instrumento` (diagnóstico con banco de pruebas) y `acta` (dictamen por prueba + dictamen final, puntuación parcial).
+- Contenido en borrador: D7 14 ítems, D2 15 ítems. El banco de cada nivel sigue lejos del mínimo de 25.
+- Interfaz rediseñada como juego (mapa de campaña, estrellas, fichas de colores, sonido con silencio, cuadro y multímetro dibujados).
