@@ -6,7 +6,7 @@ import {
 } from 'firebase/firestore';
 import {
   ESTADO_INICIAL, normalizaAlias, normalizaCodigo, validaEntrada,
-  type EstadoJuego, type Intento, type Repo, type Sesion,
+  type EstadoJuego, type Intento, type Repo, type Respuesta, type Sesion,
 } from './repo';
 
 const env = import.meta.env;
@@ -66,6 +66,12 @@ export function crearRepoFirebase(): Repo {
     async registrarIntento(uid, i) { await addDoc(collection(fs, C.alumnos, uid, 'attempts'), i); },
     async intentos(uid) {
       return (await getDocs(collection(fs, C.alumnos, uid, 'attempts'))).docs.map((d) => d.data() as Intento);
+    },
+    async guardarRespuestas(uid, r) {
+      for (const x of r) await addDoc(collection(fs, C.alumnos, uid, 'answers'), x);
+    },
+    async respuestas(uid) {
+      return (await getDocs(collection(fs, C.alumnos, uid, 'answers'))).docs.map((d) => d.data() as Respuesta);
     },
     async registrarEvento(uid, tipo, datos) {
       await addDoc(collection(fs, C.alumnos, uid, 'events'), { tipo, datos: datos ?? null, ts: Date.now() });

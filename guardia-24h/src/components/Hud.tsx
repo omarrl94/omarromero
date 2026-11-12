@@ -16,6 +16,8 @@ export function Hud() {
         <span>Reputación {estado.reputacion}</span>
         <nav className="ml-auto flex items-center gap-3">
           <Link to="/biblioteca" className="underline">📚 Biblioteca</Link>
+          <Link to="/notas" className="underline">📊 Notas</Link>
+          <Link to="/docente" className="underline">🧑‍🏫 Docente</Link>
           <span className="rounded bg-white px-2 py-0.5" title={repo.modo === 'nube' ? 'Datos en la nube' : 'Datos solo en este dispositivo'}>
             {sesion.alias} · {sesion.claseCodigo} · {repo.modo}
           </span>

@@ -1,0 +1,36 @@
+{
+  "id": "d1-n1-0007",
+  "estado": "borrador",
+  "distrito": 1,
+  "ra": [
+    "RA1"
+  ],
+  "ce": [
+    "RA1-CE3"
+  ],
+  "nivel": 1,
+  "tipo": "opcion_multiple",
+  "dificultad": 1,
+  "pe_base": 1,
+  "enunciado": "En un plano, ¿qué indica la escala 1:50?",
+  "solucion": {
+    "correcta": 0
+  },
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Repasa el Manual 01 de herramientas."
+  ],
+  "explicacion": "[BORRADOR: ítem generado, pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "Manual 01 Herramientas",
+    "ref": "TODO(profesor): indicar apartado"
+  },
+  "verificado": false,
+  "opciones": [
+    "1 cm del plano son 50 cm reales",
+    "50 cm del plano son 1 cm reales",
+    "El plano está sin escala",
+    "1 cm del plano son 5 cm reales"
+  ]
+}

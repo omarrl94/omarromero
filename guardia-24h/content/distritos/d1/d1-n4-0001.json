@@ -1,0 +1,31 @@
+{
+  "id": "d1-n4-0001",
+  "estado": "borrador",
+  "distrito": 1,
+  "ra": [
+    "RA2"
+  ],
+  "ce": [
+    "RA2-CE2"
+  ],
+  "nivel": 4,
+  "tipo": "numerico",
+  "dificultad": 1.5,
+  "pe_base": 2,
+  "enunciado": "Material de ejemplo: 3 cajas de registro a 1,50 € y 40 m de cable a 0,80 €/m. ¿Cuánto suma el presupuesto de materiales (€)?",
+  "solucion": {
+    "valor": 36.5,
+    "tolerancia": 0.01
+  },
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Suma cada partida: unidades × precio."
+  ],
+  "explicacion": "[BORRADOR: ítem generado, pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "Manual 01 Herramientas",
+    "ref": "TODO(profesor): indicar apartado"
+  },
+  "verificado": false
+}

@@ -1,0 +1,38 @@
+{
+  "id": "d1-n5-0001",
+  "estado": "borrador",
+  "distrito": 1,
+  "ra": [
+    "RA2",
+    "RA9"
+  ],
+  "ce": [
+    "RA2-CE3",
+    "RA9-CE1"
+  ],
+  "nivel": 5,
+  "tipo": "opcion_multiple",
+  "dificultad": 2,
+  "pe_base": 3,
+  "enunciado": "JEFE · Aviso: cliente pide ampliar una toma en un local. ¿Qué haces ANTES de montar?",
+  "solucion": {
+    "correcta": 2
+  },
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Repasa el Manual 01 de herramientas."
+  ],
+  "explicacion": "Plan antes de intervenir: fases, recursos, EPI y seguridad. [BORRADOR: ítem generado, pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "Manual 01 Herramientas",
+    "ref": "TODO(profesor): indicar apartado"
+  },
+  "verificado": false,
+  "opciones": [
+    "Pedir material y empezar",
+    "Cortar el suministro sin avisar",
+    "Planificar fases, recursos y EPI, y comprobar ausencia de tensión",
+    "Trabajar con tensión para ir rápido"
+  ]
+}

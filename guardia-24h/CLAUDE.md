@@ -12,4 +12,4 @@ Proyecto en `guardia-24h/` (rama `guardia-24h`). No tocar CodeForge (raíz del r
 `npm run dev|test|lint|typecheck|content:validar|build|e2e|test:rules`
 
 ## Fases
-0 esqueleto (hecho) · 1 evaluación + D1 · 2 circuitos + D3/D4 · 3 D7/D2 · 4 D6 · 5 D5/D8 + epílogo · 6 capa de juego. Un PR por fase.
+0 esqueleto (hecho) · 1 evaluación + D1 (hecho; panel docente en nube pendiente) · 2 circuitos + D3/D4 · 3 D7/D2 · 4 D6 · 5 D5/D8 + epílogo · 6 capa de juego. Un PR por fase.

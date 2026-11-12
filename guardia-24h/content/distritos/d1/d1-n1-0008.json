@@ -1,0 +1,36 @@
+{
+  "id": "d1-n1-0008",
+  "estado": "borrador",
+  "distrito": 1,
+  "ra": [
+    "RA9"
+  ],
+  "ce": [
+    "RA9-CE6"
+  ],
+  "nivel": 1,
+  "tipo": "opcion_multiple",
+  "dificultad": 1,
+  "pe_base": 1,
+  "enunciado": "¿Qué hay que hacer con los restos de cable de cobre tras el trabajo?",
+  "solucion": {
+    "correcta": 1
+  },
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Repasa el Manual 01 de herramientas."
+  ],
+  "explicacion": "[BORRADOR: ítem generado, pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "Manual 01 Herramientas",
+    "ref": "TODO(profesor): indicar apartado"
+  },
+  "verificado": false,
+  "opciones": [
+    "Tirarlos al contenedor general",
+    "Depositarlos en el contenedor de residuos metálicos/cable",
+    "Dejarlos en la obra",
+    "Quemarlos"
+  ]
+}

@@ -20,3 +20,9 @@ Implementación y ejemplos numéricos: `src/game/grading.ts` y `grading.test.ts`
 - ITC exactas del RA4 (distrito 5), valores normativos a verificar, valor de `a`.
 - Logotipo y fotos de cuadros; proyecto de Firebase y creación de clases.
 - Los CE de `content/ra/ra.json` están transcritos del Anexo I del RD 1127/2010; verificar contra el currículo de Madrid.
+
+## Fase 1: qué hay jugable
+- Distrito 1 con 26 ítems **en borrador** (N1 8, N2 6, N3 5, N4 4, N5 3). Son ejemplos pedagógicos **sin valores normativos**; N3 «Gymkhana» pide localizar la ITC y su respuesta esperada (p. ej. ITC-BT-21) debe validarla el profesor contra el REBT oficial. Mínimo previsto por nivel: 25 ítems y 3 jefes (hay que ampliar el banco).
+- Reglas: un intento = hasta 10 ítems (prioriza los no vistos), 3 intentos por nivel, nivel superado con ≥ 50 % de PE, nivel N+1 se abre al superar el N.
+- Panel docente (`/docente`): alumnos de este dispositivo, nota de taller por RA, valor de `a` por alumno, intento extra (`distrito-nivel`, Enter) y export CSV. **Limitaciones:** sin login de profesor ni contraseña, y en modo local los ajustes viven en el navegador. El panel en la nube va en la siguiente fase.
+- Aún no: RA9 rúbrica, mapa de calor, tiempos imposibles, XLSX, desglose por CE, publicar borradores.

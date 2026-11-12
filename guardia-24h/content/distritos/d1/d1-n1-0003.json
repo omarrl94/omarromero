@@ -1,0 +1,36 @@
+{
+  "id": "d1-n1-0003",
+  "estado": "borrador",
+  "distrito": 1,
+  "ra": [
+    "RA3"
+  ],
+  "ce": [
+    "RA3-CE4"
+  ],
+  "nivel": 1,
+  "tipo": "opcion_multiple",
+  "dificultad": 1,
+  "pe_base": 1,
+  "enunciado": "¿Para qué sirve una cinta pasahilos (guía)?",
+  "solucion": {
+    "correcta": 1
+  },
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Repasa el Manual 01 de herramientas."
+  ],
+  "explicacion": "[BORRADOR: ítem generado, pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "Manual 01 Herramientas",
+    "ref": "TODO(profesor): indicar apartado"
+  },
+  "verificado": false,
+  "opciones": [
+    "Medir distancias",
+    "Pasar conductores por el interior de un tubo",
+    "Apretar bornas",
+    "Cortar tubo"
+  ]
+}

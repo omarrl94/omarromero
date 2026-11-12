@@ -1,0 +1,32 @@
+{
+  "id": "d1-n5-0002",
+  "estado": "borrador",
+  "distrito": 1,
+  "ra": [
+    "RA2",
+    "RA9"
+  ],
+  "ce": [
+    "RA2-CE5",
+    "RA9-CE1"
+  ],
+  "nivel": 5,
+  "tipo": "verdadero_falso",
+  "dificultad": 2,
+  "pe_base": 3,
+  "enunciado": "JEFE · Verdadero o falso: puedes firmar el parte de trabajo sin haber verificado la instalación si el cliente tiene prisa.",
+  "solucion": {
+    "correcta": false
+  },
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Repasa el Manual 01 de herramientas."
+  ],
+  "explicacion": "Verificar antes de firmar. [BORRADOR: ítem generado, pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "Manual 01 Herramientas",
+    "ref": "TODO(profesor): indicar apartado"
+  },
+  "verificado": false
+}

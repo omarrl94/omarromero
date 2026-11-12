@@ -50,6 +50,7 @@ export const ItemSchema = z.object({
   dificultad: z.union([z.literal(1), z.literal(1.5), z.literal(2)]),
   pe_base: z.number().positive(),
   enunciado: z.string(),
+  opciones: z.array(z.string()).optional(),
   variables: z.record(z.object({ valores: z.array(z.union([z.number(), z.string()])) })).optional(),
   solucion: z.record(z.unknown()),
   dominio_rebt: z.enum(['A', 'B', 'C']).optional(),

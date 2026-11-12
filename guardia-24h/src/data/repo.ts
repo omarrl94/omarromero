@@ -11,6 +11,12 @@ export interface Intento {
   lives_lost: number; consult_count: number; time_s: number; ts: number;
 }
 
+export interface Respuesta {
+  item_id: string; distrito: number; nivel: number; ra: string[]; ce: string[];
+  correct: boolean; cite_ok: boolean; hint_used: number; pe_obtained: number; pe_max: number;
+  seguridad: boolean; ts: number;
+}
+
 export interface Repo {
   readonly modo: 'local' | 'nube';
   sesionActual(): Promise<Sesion | null>;
@@ -20,6 +26,8 @@ export interface Repo {
   guardarEstado(uid: string, e: EstadoJuego): Promise<void>;
   registrarIntento(uid: string, i: Intento): Promise<void>;
   intentos(uid: string): Promise<Intento[]>;
+  guardarRespuestas(uid: string, r: Respuesta[]): Promise<void>;
+  respuestas(uid: string): Promise<Respuesta[]>;
   registrarEvento(uid: string, tipo: string, datos?: Record<string, unknown>): Promise<void>;
 }
 

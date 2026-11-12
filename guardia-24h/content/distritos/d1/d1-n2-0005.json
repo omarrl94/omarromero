@@ -1,0 +1,30 @@
+{
+  "id": "d1-n2-0005",
+  "estado": "borrador",
+  "distrito": 1,
+  "ra": [
+    "RA1"
+  ],
+  "ce": [
+    "RA1-CE3"
+  ],
+  "nivel": 2,
+  "tipo": "verdadero_falso",
+  "dificultad": 1,
+  "pe_base": 2,
+  "enunciado": "Verdadero o falso: basta con un plano antiguo sin comprobarlo con la ubicación real.",
+  "solucion": {
+    "correcta": false
+  },
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Repasa el Manual 01 de herramientas."
+  ],
+  "explicacion": "[BORRADOR: ítem generado, pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "Manual 01 Herramientas",
+    "ref": "TODO(profesor): indicar apartado"
+  },
+  "verificado": false
+}

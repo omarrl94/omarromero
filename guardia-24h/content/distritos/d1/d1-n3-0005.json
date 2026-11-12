@@ -1,0 +1,34 @@
+{
+  "id": "d1-n3-0005",
+  "estado": "borrador",
+  "distrito": 1,
+  "ra": [
+    "RA2"
+  ],
+  "ce": [
+    "RA2-CE5"
+  ],
+  "nivel": 3,
+  "tipo": "selector_cita",
+  "dificultad": 1.5,
+  "pe_base": 2,
+  "enunciado": "Gymkhana del REBT: localiza la ITC que regula verificaciones e inspecciones de las instalaciones.",
+  "solucion": {},
+  "requiere_cita": true,
+  "citas_validas": [
+    {
+      "doc": "REBT",
+      "ref": "ITC-BT-05"
+    }
+  ],
+  "pistas": [
+    "Busca palabras clave en la Biblioteca (el REBT debe estar cargado)."
+  ],
+  "explicacion": "Corresponde a ITC-BT-05. [BORRADOR: ítem generado, pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): indicar apartado"
+  },
+  "verificado": false,
+  "dominio_rebt": "A"
+}

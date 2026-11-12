@@ -4,6 +4,9 @@ import { Hud } from './components/Hud';
 import { useStore } from './game/store';
 import { Biblioteca } from './pages/Biblioteca';
 import { Distrito } from './pages/Distrito';
+import { Docente } from './pages/Docente';
+import { Nivel } from './pages/Nivel';
+import { Notas } from './pages/Notas';
 import { Login } from './pages/Login';
 import { Mapa } from './pages/Mapa';
 
@@ -18,6 +21,9 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Mapa />} />
         <Route path="/distrito/:id" element={<Distrito />} />
+        <Route path="/distrito/:id/nivel/:n" element={<Nivel />} />
+        <Route path="/notas" element={<Notas />} />
+        <Route path="/docente" element={<Docente />} />
         <Route path="/biblioteca" element={<Biblioteca />} />
       </Routes>
     </BrowserRouter>

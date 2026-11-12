@@ -1,0 +1,30 @@
+{
+  "id": "d1-n2-0006",
+  "estado": "borrador",
+  "distrito": 1,
+  "ra": [
+    "RA2"
+  ],
+  "ce": [
+    "RA2-CE2"
+  ],
+  "nivel": 2,
+  "tipo": "verdadero_falso",
+  "dificultad": 1,
+  "pe_base": 2,
+  "enunciado": "Verdadero o falso: cada fase del montaje debe tener asignados sus materiales, herramientas y EPI.",
+  "solucion": {
+    "correcta": true
+  },
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Repasa el Manual 01 de herramientas."
+  ],
+  "explicacion": "[BORRADOR: ítem generado, pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "Manual 01 Herramientas",
+    "ref": "TODO(profesor): indicar apartado"
+  },
+  "verificado": false
+}

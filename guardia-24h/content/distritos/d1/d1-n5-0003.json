@@ -1,0 +1,38 @@
+{
+  "id": "d1-n5-0003",
+  "estado": "borrador",
+  "distrito": 1,
+  "ra": [
+    "RA1",
+    "RA2"
+  ],
+  "ce": [
+    "RA1-CE3",
+    "RA2-CE1"
+  ],
+  "nivel": 5,
+  "tipo": "opcion_multiple",
+  "dificultad": 2,
+  "pe_base": 3,
+  "enunciado": "JEFE · Preparas el pedido de un aviso. ¿Qué documento debe respaldarlo?",
+  "solucion": {
+    "correcta": 1
+  },
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Repasa el Manual 01 de herramientas."
+  ],
+  "explicacion": "[BORRADOR: ítem generado, pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "Manual 01 Herramientas",
+    "ref": "TODO(profesor): indicar apartado"
+  },
+  "verificado": false,
+  "opciones": [
+    "Un mensaje de voz",
+    "La lista de materiales cotejada con el esquema/plano",
+    "La memoria del año pasado",
+    "Nada, se pide a ojo"
+  ]
+}

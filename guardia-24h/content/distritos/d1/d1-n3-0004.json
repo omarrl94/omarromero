@@ -1,0 +1,34 @@
+{
+  "id": "d1-n3-0004",
+  "estado": "borrador",
+  "distrito": 1,
+  "ra": [
+    "RA9"
+  ],
+  "ce": [
+    "RA9-CE1"
+  ],
+  "nivel": 3,
+  "tipo": "selector_cita",
+  "dificultad": 1.5,
+  "pe_base": 2,
+  "enunciado": "Gymkhana del REBT: localiza la ITC que regula protección contra contactos directos e indirectos.",
+  "solucion": {},
+  "requiere_cita": true,
+  "citas_validas": [
+    {
+      "doc": "REBT",
+      "ref": "ITC-BT-24"
+    }
+  ],
+  "pistas": [
+    "Busca palabras clave en la Biblioteca (el REBT debe estar cargado)."
+  ],
+  "explicacion": "Corresponde a ITC-BT-24. [BORRADOR: ítem generado, pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): indicar apartado"
+  },
+  "verificado": false,
+  "dominio_rebt": "A"
+}

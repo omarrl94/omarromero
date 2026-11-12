@@ -1,0 +1,31 @@
+{
+  "id": "d1-n4-0003",
+  "estado": "borrador",
+  "distrito": 1,
+  "ra": [
+    "RA2"
+  ],
+  "ce": [
+    "RA2-CE2"
+  ],
+  "nivel": 4,
+  "tipo": "numerico",
+  "dificultad": 1.5,
+  "pe_base": 2,
+  "enunciado": "Precios de ejemplo: 60 m de tubo a 0,55 €/m y un 10 % de merma. ¿Cuánto cuesta el tubo a comprar (€)?",
+  "solucion": {
+    "valor": 36.3,
+    "tolerancia": 0.01
+  },
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Suma cada partida: unidades × precio."
+  ],
+  "explicacion": "[BORRADOR: ítem generado, pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "Manual 01 Herramientas",
+    "ref": "TODO(profesor): indicar apartado"
+  },
+  "verificado": false
+}

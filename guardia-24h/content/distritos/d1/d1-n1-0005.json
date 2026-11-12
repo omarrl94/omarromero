@@ -1,0 +1,36 @@
+{
+  "id": "d1-n1-0005",
+  "estado": "borrador",
+  "distrito": 1,
+  "ra": [
+    "RA9"
+  ],
+  "ce": [
+    "RA9-CE3"
+  ],
+  "nivel": 1,
+  "tipo": "opcion_multiple",
+  "dificultad": 1,
+  "pe_base": 1,
+  "enunciado": "¿Qué EPI es imprescindible para proteger los ojos al taladrar un techo?",
+  "solucion": {
+    "correcta": 1
+  },
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Repasa el Manual 01 de herramientas."
+  ],
+  "explicacion": "[BORRADOR: ítem generado, pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "Manual 01 Herramientas",
+    "ref": "TODO(profesor): indicar apartado"
+  },
+  "verificado": false,
+  "opciones": [
+    "Guantes aislantes",
+    "Gafas de protección",
+    "Casco",
+    "Botas"
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "id": "d1-n4-0004",
+  "estado": "borrador",
+  "distrito": 1,
+  "ra": [
+    "RA2"
+  ],
+  "ce": [
+    "RA2-CE4"
+  ],
+  "nivel": 4,
+  "tipo": "numerico",
+  "dificultad": 1.5,
+  "pe_base": 2,
+  "enunciado": "Mano de obra de ejemplo: 6 h a 28 €/h más materiales por 75 €. ¿Total (€)?",
+  "solucion": {
+    "valor": 243,
+    "tolerancia": 0.01
+  },
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Suma cada partida: unidades × precio."
+  ],
+  "explicacion": "[BORRADOR: ítem generado, pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "Manual 01 Herramientas",
+    "ref": "TODO(profesor): indicar apartado"
+  },
+  "verificado": false
+}

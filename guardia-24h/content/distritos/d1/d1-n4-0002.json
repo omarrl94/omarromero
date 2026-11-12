@@ -1,0 +1,31 @@
+{
+  "id": "d1-n4-0002",
+  "estado": "borrador",
+  "distrito": 1,
+  "ra": [
+    "RA2"
+  ],
+  "ce": [
+    "RA2-CE2"
+  ],
+  "nivel": 4,
+  "tipo": "numerico",
+  "dificultad": 1.5,
+  "pe_base": 2,
+  "enunciado": "Precios de ejemplo: 2 interruptores a 4,25 € y 5 bases a 3,10 €. ¿Total (€)?",
+  "solucion": {
+    "valor": 24.0,
+    "tolerancia": 0.01
+  },
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Suma cada partida: unidades × precio."
+  ],
+  "explicacion": "[BORRADOR: ítem generado, pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "Manual 01 Herramientas",
+    "ref": "TODO(profesor): indicar apartado"
+  },
+  "verificado": false
+}

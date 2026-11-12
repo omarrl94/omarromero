@@ -2,7 +2,7 @@
 
 Videojuego web educativo para el **CFGS Sistemas Electrotécnicos y Automatizados**, módulo **0518 · Técnicas y Procesos en Instalaciones Eléctricas** (C.F.P. José Ramón Otero). Vive en la carpeta `guardia-24h/` del repositorio, independiente de CodeForge.
 
-**Estado: Fase 0 (esqueleto).** Hay login por código de clase + alias, HUD, mapa de 8 distritos (niveles aún bloqueados), biblioteca con buscador, «Mi manual» privado, selector de cita, fórmulas de nota con tests, contenidos validados con Zod y reglas de Firebase probadas.
+**Estado: Fase 1.** Núcleo de evaluación jugable (opción múltiple, V/F, numérico, selector de cita), Distrito 1 con 26 ítems en borrador (N1–N5), pistas, 3 intentos, notas por RA y final, y panel docente mínimo con CSV (modo local). Ver `README_DOCENTE.md`.
 
 ## Comandos
 ```bash

@@ -1,35 +1,26 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { biblioteca } from '../data/content';
 import type { Cita } from '../library/search';
 
-/** Selector de cita: documento → ITC/capítulo/sección → apartado o tabla. */
+/** Selector de cita: documento → ITC/sección/apartado (texto libre con sugerencias de la biblioteca). */
 export function CitaSelector({ onChange }: { onChange: (c: Cita | null) => void }) {
-  const [doc, setDoc] = useState('');
-  const [sec, setSec] = useState('');
-  const [apartado, setApartado] = useState('');
-  const d = biblioteca.find((x) => x.id === doc);
-  const emite = (dd: string, ss: string, aa: string) => {
-    const titulo = biblioteca.find((x) => x.id === dd);
-    const s = titulo?.secciones.find((x) => x.id === ss);
-    onChange(titulo && s ? { doc: titulo.tipo === 'rebt' ? 'REBT' : titulo.titulo, ref: [s.id, aa].filter(Boolean).join(' · ') } : null);
-  };
+  const [doc, setDoc] = useState('REBT');
+  const [ref, setRef] = useState('');
+  const lista = useId();
+  const emite = (d: string, r: string) => onChange(d && r.trim() ? { doc: d, ref: r.trim() } : null);
+  const sugerencias = biblioteca.find((b) => (b.tipo === 'rebt' ? 'REBT' : b.titulo) === doc)?.secciones ?? [];
   return (
-    <fieldset className="card grid gap-2 sm:grid-cols-3">
-      <legend className="px-1 font-bold">Cita</legend>
+    <fieldset className="card grid gap-2 sm:grid-cols-2">
+      <legend className="px-1 font-bold">Cita (documento y apartado)</legend>
       <label>Documento
-        <select className="input" value={doc} onChange={(e) => { setDoc(e.target.value); setSec(''); emite(e.target.value, '', apartado); }}>
-          <option value="">—</option>
-          {biblioteca.map((b) => <option key={b.id} value={b.id}>{b.titulo}</option>)}
+        <select className="input" value={doc} onChange={(e) => { setDoc(e.target.value); emite(e.target.value, ref); }}>
+          <option value="REBT">REBT</option>
+          {biblioteca.filter((b) => b.tipo === 'manual').map((b) => <option key={b.id} value={b.titulo}>{b.titulo}</option>)}
         </select>
       </label>
-      <label>ITC / sección
-        <select className="input" value={sec} disabled={!d} onChange={(e) => { setSec(e.target.value); emite(doc, e.target.value, apartado); }}>
-          <option value="">—</option>
-          {d?.secciones.map((s) => <option key={s.id} value={s.id}>{s.titulo}</option>)}
-        </select>
-      </label>
-      <label>Apartado / tabla
-        <input className="input" value={apartado} placeholder="p. ej. Tabla 1" onChange={(e) => { setApartado(e.target.value); emite(doc, sec, e.target.value); }} />
+      <label>ITC / apartado / tabla
+        <input className="input" list={lista} value={ref} placeholder="p. ej. ITC-BT-21" onChange={(e) => { setRef(e.target.value); emite(doc, e.target.value); }} />
+        <datalist id={lista}>{sugerencias.map((s) => <option key={s.id} value={s.titulo} />)}</datalist>
       </label>
     </fieldset>
   );
