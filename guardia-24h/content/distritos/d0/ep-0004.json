@@ -1,0 +1,37 @@
+{
+  "id": "ep-0004",
+  "estado": "borrador",
+  "distrito": 0,
+  "ra": [
+    "RA1",
+    "RA2",
+    "RA3"
+  ],
+  "ce": [
+    "RA3-CE3"
+  ],
+  "nivel": 5,
+  "tipo": "dimensionado",
+  "dificultad": 2,
+  "pe_base": 4,
+  "enunciado": "LA GRAN INSPECCIÓN · Vivienda completa del aviso: dimensiona los cinco circuitos sin pistas.",
+  "solucion": {
+    "circuitos": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5"
+    ]
+  },
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "dominio_rebt": "A"
+}

@@ -25,6 +25,7 @@ export default function App() {
         <Route path="/distrito/:id" element={<Distrito />} />
         <Route path="/distrito/:id/nivel/:n" element={<Nivel />} />
         <Route path="/distrito/:id/teoria" element={<Teoria />} />
+        <Route path="/epilogo" element={<Nivel epilogo />} />
         <Route path="/notas" element={<Notas />} />
         <Route path="/docente" element={<Docente />} />
         <Route path="/biblioteca" element={<Biblioteca />} />

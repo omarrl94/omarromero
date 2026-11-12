@@ -1,0 +1,70 @@
+{
+  "id": "d8-n4-0003",
+  "estado": "borrador",
+  "distrito": 8,
+  "ra": [
+    "RA1",
+    "RA2",
+    "RA8",
+    "RA9"
+  ],
+  "ce": [
+    "RA8-CE2"
+  ],
+  "nivel": 4,
+  "tipo": "texto_errores",
+  "dificultad": 1.5,
+  "pe_base": 3,
+  "enunciado": "Revisa este fragmento de un plan de mantenimiento redactado por IA.",
+  "solucion": {},
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Repasa la teoría del bloque."
+  ],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "texto": {
+    "titulo": "Plan de mantenimiento · Criterios",
+    "origen": "Borrador generado por ASIST-IA · sin verificar",
+    "fragmentos": [
+      {
+        "id": "f1",
+        "x": "Cada operación de mantenimiento se registrará con fecha, responsable y resultado.",
+        "defecto": false,
+        "explicacion": ""
+      },
+      {
+        "id": "f2",
+        "x": "Las luminarias de emergencia no necesitan revisión mientras no se fundan.",
+        "defecto": true,
+        "explicacion": "Deben comprobarse periódicamente: funcionamiento y autonomía de baterías.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-28"
+        }
+      },
+      {
+        "id": "f3",
+        "x": "Los históricos permiten detectar la degradación progresiva de la instalación.",
+        "defecto": false,
+        "explicacion": ""
+      },
+      {
+        "id": "f4",
+        "x": "Las medidas de tierra se omitirán si la instalación ha pasado la verificación inicial.",
+        "defecto": true,
+        "explicacion": "La tierra puede degradarse: se mide periódicamente.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-18"
+        }
+      }
+    ]
+  },
+  "dominio_rebt": "B"
+}

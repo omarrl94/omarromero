@@ -1,0 +1,43 @@
+{
+  "id": "d5-n4-0003",
+  "estado": "borrador",
+  "distrito": 5,
+  "ra": [
+    "RA4",
+    "RA9"
+  ],
+  "ce": [
+    "RA4-CE4"
+  ],
+  "nivel": 4,
+  "tipo": "opcion_multiple",
+  "dificultad": 1.5,
+  "pe_base": 2,
+  "enunciado": "Debes diseñar la instalación de una nave con una zona de pintura (disolventes inflamables). ¿Qué haces ANTES de elegir el material eléctrico de esa zona?",
+  "solucion": {
+    "correcta": 1
+  },
+  "requiere_cita": true,
+  "citas_validas": [
+    {
+      "doc": "REBT",
+      "ref": "ITC-BT-29"
+    }
+  ],
+  "pistas": [
+    "Repasa la teoría del bloque."
+  ],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "opciones": [
+    "Elegir luminarias estándar para ahorrar",
+    "Clasificar la zona según el riesgo de atmósfera explosiva y consultar la ITC aplicable",
+    "Instalar interruptores normales fuera de la zona",
+    "Ventilar y no clasificar"
+  ],
+  "dominio_rebt": "B"
+}

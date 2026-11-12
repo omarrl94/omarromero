@@ -1,0 +1,36 @@
+{
+  "id": "d5-n5-0002",
+  "estado": "borrador",
+  "distrito": 5,
+  "ra": [
+    "RA4",
+    "RA9"
+  ],
+  "ce": [
+    "RA4-CE3"
+  ],
+  "nivel": 5,
+  "tipo": "opcion_multiple",
+  "dificultad": 2,
+  "pe_base": 4,
+  "enunciado": "JEFE · Verificación del alumbrado de emergencia: tras instalar, ¿qué compruebas y dejas documentado?",
+  "solucion": {
+    "correcta": 2
+  },
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "opciones": [
+    "Solo que las luminarias están colgadas",
+    "Que enciende con el alumbrado normal",
+    "Que entra en servicio automáticamente al fallar la red, su autonomía y que queda registrado",
+    "Nada: es responsabilidad del cliente"
+  ],
+  "dominio_rebt": "B"
+}

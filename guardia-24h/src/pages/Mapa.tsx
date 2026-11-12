@@ -8,7 +8,8 @@ import { useTeoriaLeida } from '../game/teoria';
 export function Mapa() {
   const { intentos } = useProgreso();
   const { cuenta } = useTeoriaLeida();
-  const datos = distritos.map((d) => ({ d, sup: [1, 2, 3, 4, 5].filter((n) => estadoNivel(intentos, d.id, n).superado).length, t: teoria.find((x) => x.distrito === d.id) }));
+  const datos = distritos.filter((d) => d.id > 0).map((d) => ({ d, sup: [1, 2, 3, 4, 5].filter((n) => estadoNivel(intentos, d.id, n).superado).length, t: teoria.find((x) => x.distrito === d.id) }));
+  const abiertoEpi = [1, 2, 3, 4, 5, 6, 7, 8].every((b) => estadoNivel(intentos, b, 5).superado);
   const total = datos.reduce((s, x) => s + x.sup, 0);
   return (
     <main className="mx-auto max-w-6xl px-4 py-8">
@@ -41,9 +42,10 @@ export function Mapa() {
             </div>
           </li>
         ))}
-        <li className="card flex items-center gap-4 border-dashed opacity-70 md:col-span-2">
-          <span className="grid h-11 w-11 place-items-center rounded-md border border-line text-mute"><Icon n="lock" className="h-5 w-5" /></span>
-          <div><div className="eyebrow">Epílogo</div><h2 className="text-lg">La Gran Inspección</h2><p className="text-sm text-mute">Auditoría integral de una instalación completa. Se desbloquea al superar los 8 bloques.</p></div>
+        <li className={`card flex flex-wrap items-center gap-4 md:col-span-2 ${abiertoEpi ? 'border-acc/50' : 'border-dashed opacity-70'}`}>
+          <span className="grid h-11 w-11 place-items-center rounded-md border border-line text-acc"><Icon n={abiertoEpi ? 'crown' : 'lock'} className="h-5 w-5" /></span>
+          <div className="min-w-0 flex-1"><div className="eyebrow">Epílogo · prueba final</div><h2 className="text-lg">La Gran Inspección</h2><p className="text-sm text-mute">Auditoría integral de una instalación completa (canalizaciones, circuitos, cuadro, local especial, automatismo, medidas y documentación). Se desbloquea al superar la evaluación final (N5) de los 8 bloques.</p></div>
+          {abiertoEpi && <Link to="/epilogo" className="btn no-underline" aria-label="Iniciar La Gran Inspección"><Icon n="play" className="h-4 w-4" />Iniciar</Link>}
         </li>
       </ul>
     </main>

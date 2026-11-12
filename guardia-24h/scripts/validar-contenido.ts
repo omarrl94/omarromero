@@ -24,7 +24,7 @@ function esquemaPara(ruta: string): z.ZodTypeAny | null {
   if (r.startsWith('/library/')) return LibraryDocSchema;
   if (r.startsWith('/ia-tramposa/')) return IaTramposaSchema;
   if (r.endsWith('/distrito.json')) return DistritoSchema;
-  if (/\/d[1-8]\/.*\.json$/.test(r)) return ItemSchema;
+  if (/\/d[0-8]\/.*\.json$/.test(r)) return ItemSchema;
   return null; // epilogo, etc.
 }
 

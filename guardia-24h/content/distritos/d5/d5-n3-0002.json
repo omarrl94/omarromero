@@ -1,0 +1,35 @@
+{
+  "id": "d5-n3-0002",
+  "estado": "borrador",
+  "distrito": 5,
+  "ra": [
+    "RA4",
+    "RA9"
+  ],
+  "ce": [
+    "RA4-CE4"
+  ],
+  "nivel": 3,
+  "tipo": "selector_cita",
+  "dificultad": 1.5,
+  "pe_base": 2,
+  "enunciado": "Localiza la ITC que regula las instalaciones en locales de pública concurrencia y el alumbrado de emergencia.",
+  "solucion": {},
+  "requiere_cita": true,
+  "citas_validas": [
+    {
+      "doc": "REBT",
+      "ref": "ITC-BT-28"
+    }
+  ],
+  "pistas": [
+    "Repasa la teoría del bloque."
+  ],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "dominio_rebt": "B"
+}

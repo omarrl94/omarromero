@@ -1,0 +1,63 @@
+{
+  "id": "d8-n2-0003",
+  "estado": "borrador",
+  "distrito": 8,
+  "ra": [
+    "RA1",
+    "RA2",
+    "RA8",
+    "RA9"
+  ],
+  "ce": [
+    "RA2-CE2"
+  ],
+  "nivel": 2,
+  "tipo": "formulario",
+  "dificultad": 1.5,
+  "pe_base": 3,
+  "enunciado": "Calcula el presupuesto de la reforma y complétalo (datos de ejemplo).",
+  "solucion": {},
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Repasa la teoría del bloque."
+  ],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "formulario": {
+    "titulo": "Presupuesto de reforma",
+    "subtitulo": "Precios de ejemplo; sin impuestos",
+    "campos": [
+      {
+        "id": "cable",
+        "etiqueta": "50 m de cable a 0,90 €/m con 10 % de merma (€)",
+        "tipo": "numero",
+        "correcta": 49.5,
+        "explicacion": "50 × 1,10 × 0,90"
+      },
+      {
+        "id": "cajas",
+        "etiqueta": "6 cajas de registro a 2,20 € (€)",
+        "tipo": "numero",
+        "correcta": 13.2
+      },
+      {
+        "id": "mo",
+        "etiqueta": "5 h de mano de obra a 30 €/h (€)",
+        "tipo": "numero",
+        "correcta": 150
+      },
+      {
+        "id": "total",
+        "etiqueta": "Total (€)",
+        "tipo": "numero",
+        "correcta": 212.7
+      }
+    ]
+  },
+  "dominio_rebt": "B"
+}

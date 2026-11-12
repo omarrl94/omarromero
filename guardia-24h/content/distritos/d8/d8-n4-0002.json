@@ -1,0 +1,77 @@
+{
+  "id": "d8-n4-0002",
+  "estado": "borrador",
+  "distrito": 8,
+  "ra": [
+    "RA1",
+    "RA2",
+    "RA8",
+    "RA9"
+  ],
+  "ce": [
+    "RA8-CE1",
+    "RA2-CE5"
+  ],
+  "nivel": 4,
+  "tipo": "texto_errores",
+  "dificultad": 1.5,
+  "pe_base": 3,
+  "enunciado": "Revisa el borrador de la memoria generado por IA sobre cálculos y verificación.",
+  "solucion": {},
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Repasa la teoría del bloque."
+  ],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "texto": {
+    "titulo": "Memoria técnica · Cálculos y verificación",
+    "origen": "Borrador generado por ASIST-IA · sin verificar",
+    "fragmentos": [
+      {
+        "id": "f1",
+        "x": "La intensidad de un receptor monofásico se calcula como I = P / U.",
+        "defecto": false,
+        "explicacion": ""
+      },
+      {
+        "id": "f2",
+        "x": "La resistencia de aislamiento se medirá con la instalación en tensión para detectar fugas en servicio.",
+        "defecto": true,
+        "explicacion": "El aislamiento se mide siempre sin tensión.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-19"
+        }
+      },
+      {
+        "id": "f3",
+        "x": "La caída de tensión aumenta con la longitud y disminuye al aumentar la sección del conductor.",
+        "defecto": false,
+        "explicacion": ""
+      },
+      {
+        "id": "f4",
+        "x": "Antes de firmar el certificado se documentarán las medidas en el acta de verificación.",
+        "defecto": false,
+        "explicacion": ""
+      },
+      {
+        "id": "f5",
+        "x": "Si el cliente tiene prisa, el certificado puede firmarse antes de verificar y completarse después.",
+        "defecto": true,
+        "explicacion": "Verificar antes de firmar es obligación del instalador.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-05"
+        }
+      }
+    ]
+  },
+  "dominio_rebt": "B"
+}

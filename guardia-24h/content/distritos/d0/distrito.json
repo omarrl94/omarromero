@@ -1,0 +1,24 @@
+{
+  "id": 0,
+  "nombre": "La Gran Inspección",
+  "bloque": 0,
+  "ra": [
+    "RA1",
+    "RA2",
+    "RA3",
+    "RA4",
+    "RA5",
+    "RA6",
+    "RA7",
+    "RA8",
+    "RA9"
+  ],
+  "itc": [],
+  "niveles": [
+    {
+      "n": 5,
+      "nombre": "Auditoría integral",
+      "descripcion": "Inspección de una instalación completa que mezcla canalizaciones, circuitos, cuadro, locales especiales, automatismo, mediciones y documentación. Sin pistas."
+    }
+  ]
+}

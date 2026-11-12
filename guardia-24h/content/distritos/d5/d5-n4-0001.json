@@ -1,0 +1,294 @@
+{
+  "id": "d5-n4-0001",
+  "estado": "borrador",
+  "distrito": 5,
+  "ra": [
+    "RA4",
+    "RA9"
+  ],
+  "ce": [
+    "RA4-CE4"
+  ],
+  "nivel": 4,
+  "tipo": "plano",
+  "dificultad": 1.5,
+  "pe_base": 4,
+  "enunciado": "Nave de producción: ubica las luminarias de emergencia en salidas, cuadro de máquinas y extintores.",
+  "solucion": {},
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Repasa la teoría del bloque."
+  ],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "plano": {
+    "titulo": "Nave de producción con cuatro salidas y cuadro de máquinas",
+    "ancho": 600,
+    "alto": 360,
+    "maxPuntos": 8,
+    "formas": [
+      {
+        "t": "rect",
+        "x": 20,
+        "y": 20,
+        "w": 560,
+        "h": 260,
+        "k": "suelo"
+      },
+      {
+        "t": "rect",
+        "x": 14,
+        "y": 14,
+        "w": 572,
+        "h": 8,
+        "k": "muro"
+      },
+      {
+        "t": "rect",
+        "x": 14,
+        "y": 14,
+        "w": 8,
+        "h": 332,
+        "k": "muro"
+      },
+      {
+        "t": "rect",
+        "x": 578,
+        "y": 14,
+        "w": 8,
+        "h": 332,
+        "k": "muro"
+      },
+      {
+        "t": "rect",
+        "x": 14,
+        "y": 338,
+        "w": 572,
+        "h": 8,
+        "k": "muro"
+      },
+      {
+        "t": "rect",
+        "x": 22,
+        "y": 280,
+        "w": 556,
+        "h": 8,
+        "k": "muro"
+      },
+      {
+        "t": "rect",
+        "x": 22,
+        "y": 288,
+        "w": 556,
+        "h": 50,
+        "k": "pasillo"
+      },
+      {
+        "t": "puerta",
+        "x": 60,
+        "y": 284,
+        "w": 44,
+        "dir": "h"
+      },
+      {
+        "t": "puerta",
+        "x": 480,
+        "y": 284,
+        "w": 44,
+        "dir": "h"
+      },
+      {
+        "t": "puerta",
+        "x": 578,
+        "y": 60,
+        "w": 44,
+        "dir": "v"
+      },
+      {
+        "t": "puerta",
+        "x": 18,
+        "y": 150,
+        "w": 44,
+        "dir": "v"
+      },
+      {
+        "t": "rect",
+        "x": 80,
+        "y": 60,
+        "w": 90,
+        "h": 60,
+        "k": "mueble"
+      },
+      {
+        "t": "rect",
+        "x": 220,
+        "y": 60,
+        "w": 90,
+        "h": 60,
+        "k": "mueble"
+      },
+      {
+        "t": "rect",
+        "x": 360,
+        "y": 60,
+        "w": 90,
+        "h": 60,
+        "k": "mueble"
+      },
+      {
+        "t": "rect",
+        "x": 80,
+        "y": 160,
+        "w": 370,
+        "h": 50,
+        "k": "mueble"
+      },
+      {
+        "t": "escalera",
+        "x": 520,
+        "y": 300,
+        "w": 50,
+        "h": 34
+      },
+      {
+        "t": "cuadro",
+        "x": 40,
+        "y": 200
+      },
+      {
+        "t": "extintor",
+        "x": 300,
+        "y": 262
+      },
+      {
+        "t": "extintor",
+        "x": 540,
+        "y": 200
+      },
+      {
+        "t": "salida",
+        "x": 40,
+        "y": 128
+      },
+      {
+        "t": "salida",
+        "x": 560,
+        "y": 90
+      },
+      {
+        "t": "salida",
+        "x": 82,
+        "y": 300
+      },
+      {
+        "t": "salida",
+        "x": 502,
+        "y": 300
+      },
+      {
+        "t": "texto",
+        "x": 300,
+        "y": 45,
+        "s": "NAVE DE PRODUCCIÓN"
+      },
+      {
+        "t": "texto",
+        "x": 300,
+        "y": 314,
+        "s": "ZONA DE EXPEDICIÓN"
+      }
+    ],
+    "zonas": [
+      {
+        "id": "z1",
+        "etiqueta": "Salida lateral izquierda",
+        "x": 40,
+        "y": 172,
+        "r": 30,
+        "explicacion": "Puertas de salida iluminadas.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-28 (verificar apartado)"
+        }
+      },
+      {
+        "id": "z2",
+        "etiqueta": "Salida lateral derecha",
+        "x": 560,
+        "y": 82,
+        "r": 30,
+        "explicacion": "Puertas de salida iluminadas.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-28 (verificar apartado)"
+        }
+      },
+      {
+        "id": "z3",
+        "etiqueta": "Salida inferior izquierda",
+        "x": 82,
+        "y": 300,
+        "r": 30,
+        "explicacion": "Puertas de salida iluminadas.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-28 (verificar apartado)"
+        }
+      },
+      {
+        "id": "z4",
+        "etiqueta": "Salida inferior derecha",
+        "x": 502,
+        "y": 300,
+        "r": 30,
+        "explicacion": "Puertas de salida iluminadas.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-28 (verificar apartado)"
+        }
+      },
+      {
+        "id": "z5",
+        "etiqueta": "Cuadro de máquinas",
+        "x": 40,
+        "y": 200,
+        "r": 26,
+        "explicacion": "Cuadros de distribución con luz de emergencia para su maniobra.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-28 (verificar apartado)"
+        }
+      },
+      {
+        "id": "z6",
+        "etiqueta": "Extintor central",
+        "x": 300,
+        "y": 262,
+        "r": 26,
+        "explicacion": "Equipos de extinción iluminados.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-28 (verificar apartado)"
+        }
+      },
+      {
+        "id": "z7",
+        "etiqueta": "Extintor lateral",
+        "x": 540,
+        "y": 200,
+        "r": 26,
+        "explicacion": "Equipos de extinción iluminados.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-28 (verificar apartado)"
+        }
+      }
+    ]
+  },
+  "dominio_rebt": "B"
+}

@@ -31,146 +31,164 @@
       {
         "id": "e1",
         "etiqueta": "Cruce sin separar",
-        "x": 15,
-        "y": 20,
-        "w": 130,
-        "h": 80,
+        "x": 8,
+        "y": 14,
+        "w": 90,
+        "h": 150,
         "defecto": true,
         "explicacion": "Cruzamiento no protegido.",
         "cita": {
           "doc": "REBT",
           "ref": "ITC-BT-20"
-        }
+        },
+        "aparato": "tubo",
+        "visual": "cruzado"
       },
       {
         "id": "e2",
         "etiqueta": "Bandeja sin tapa en zona de paso",
-        "x": 160,
-        "y": 20,
-        "w": 130,
-        "h": 80,
+        "x": 104,
+        "y": 14,
+        "w": 90,
+        "h": 150,
         "defecto": true,
         "explicacion": "Conductores expuestos a golpes.",
         "cita": {
           "doc": "REBT",
           "ref": "ITC-BT-20"
-        }
+        },
+        "aparato": "tapa",
+        "visual": "sinTapa"
       },
       {
         "id": "e3",
         "etiqueta": "Curva forzada",
-        "x": 305,
-        "y": 20,
-        "w": 130,
-        "h": 80,
+        "x": 200,
+        "y": 14,
+        "w": 90,
+        "h": 150,
         "defecto": true,
         "explicacion": "Radio de curvatura insuficiente.",
         "cita": {
           "doc": "REBT",
           "ref": "ITC-BT-21"
-        }
+        },
+        "aparato": "tubo",
+        "visual": "curva"
       },
       {
         "id": "e4",
         "etiqueta": "Sin conductor de protección en la bandeja",
-        "x": 450,
-        "y": 20,
-        "w": 130,
-        "h": 80,
+        "x": 296,
+        "y": 14,
+        "w": 90,
+        "h": 150,
         "defecto": true,
         "explicacion": "La bandeja metálica no está conectada a tierra.",
         "cita": {
           "doc": "REBT",
           "ref": "ITC-BT-18"
-        }
+        },
+        "aparato": "bandeja",
+        "visual": "sinTierra"
       },
       {
         "id": "e5",
         "etiqueta": "Registro de paso",
-        "x": 15,
-        "y": 115,
-        "w": 130,
-        "h": 80,
+        "x": 392,
+        "y": 14,
+        "w": 90,
+        "h": 150,
         "defecto": false,
-        "explicacion": ""
+        "explicacion": "",
+        "aparato": "caja"
       },
       {
         "id": "e6",
         "etiqueta": "Rotulado de conductores",
-        "x": 160,
-        "y": 115,
-        "w": 130,
-        "h": 80,
+        "x": 488,
+        "y": 14,
+        "w": 90,
+        "h": 150,
         "defecto": false,
-        "explicacion": ""
+        "explicacion": "",
+        "aparato": "cable"
       },
       {
         "id": "e7",
         "etiqueta": "Fijaciones",
-        "x": 305,
-        "y": 115,
-        "w": 130,
-        "h": 80,
+        "x": 8,
+        "y": 186,
+        "w": 90,
+        "h": 150,
         "defecto": false,
-        "explicacion": ""
+        "explicacion": "",
+        "aparato": "tubo"
       },
       {
         "id": "e8",
         "etiqueta": "Tubo enterrado",
-        "x": 450,
-        "y": 115,
-        "w": 130,
-        "h": 80,
+        "x": 104,
+        "y": 186,
+        "w": 90,
+        "h": 150,
         "defecto": false,
-        "explicacion": ""
+        "explicacion": "",
+        "aparato": "tubo"
       },
       {
         "id": "e9",
         "etiqueta": "Cable sin marcar",
-        "x": 15,
-        "y": 210,
-        "w": 130,
-        "h": 80,
+        "x": 200,
+        "y": 186,
+        "w": 90,
+        "h": 150,
         "defecto": true,
         "explicacion": "Falta identificación de conductores.",
         "cita": {
           "doc": "REBT",
           "ref": "ITC-BT-19"
-        }
+        },
+        "aparato": "cable",
+        "visual": "sinMarcar"
       },
       {
         "id": "e10",
         "etiqueta": "Caja de derivación",
-        "x": 160,
-        "y": 210,
-        "w": 130,
-        "h": 80,
+        "x": 296,
+        "y": 186,
+        "w": 90,
+        "h": 150,
         "defecto": false,
-        "explicacion": ""
+        "explicacion": "",
+        "aparato": "caja"
       },
       {
         "id": "e11",
         "etiqueta": "Tubo aplastado",
-        "x": 305,
-        "y": 210,
-        "w": 130,
-        "h": 80,
+        "x": 392,
+        "y": 186,
+        "w": 90,
+        "h": 150,
         "defecto": true,
         "explicacion": "Deformación del tubo.",
         "cita": {
           "doc": "REBT",
           "ref": "ITC-BT-21"
-        }
+        },
+        "aparato": "tubo",
+        "visual": "aplastado"
       },
       {
         "id": "e12",
         "etiqueta": "Etiquetado de circuitos",
-        "x": 450,
-        "y": 210,
-        "w": 130,
-        "h": 80,
+        "x": 488,
+        "y": 186,
+        "w": 90,
+        "h": 150,
         "defecto": false,
-        "explicacion": ""
+        "explicacion": "",
+        "aparato": "etiqueta"
       }
     ]
   },

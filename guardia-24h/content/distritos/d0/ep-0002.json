@@ -1,0 +1,42 @@
+{
+  "id": "ep-0002",
+  "estado": "borrador",
+  "distrito": 0,
+  "ra": [
+    "RA5",
+    "RA6",
+    "RA9"
+  ],
+  "ce": [
+    "RA6-CE3",
+    "RA5-CE2"
+  ],
+  "nivel": 5,
+  "tipo": "instrumento",
+  "dificultad": 1.5,
+  "pe_base": 2,
+  "enunciado": "LA GRAN INSPECCIÓN · Una conexión se calienta y la lámpara parpadea. Mide y diagnostica. Recuerda: seguridad primero.",
+  "solucion": {
+    "correcta": 0
+  },
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [],
+  "explicacion": "Orden: medir tensión, cortar y comprobar ausencia de tensión, y después medir continuidad/aislamiento. [BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "opciones": [
+    "Borna floja (resistencia de contacto alta)",
+    "Neutro cortado",
+    "Fase abierta",
+    "Fuga a tierra"
+  ],
+  "circuito": {
+    "averia": "borna_floja",
+    "alimentado": true
+  },
+  "dominio_rebt": "A"
+}

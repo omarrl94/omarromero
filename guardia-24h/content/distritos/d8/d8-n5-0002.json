@@ -1,0 +1,85 @@
+{
+  "id": "d8-n5-0002",
+  "estado": "borrador",
+  "distrito": 8,
+  "ra": [
+    "RA1",
+    "RA2",
+    "RA8",
+    "RA9"
+  ],
+  "ce": [
+    "RA2-CE5",
+    "RA8-CE2",
+    "RA8-CE4"
+  ],
+  "nivel": 5,
+  "tipo": "formulario",
+  "dificultad": 2,
+  "pe_base": 5,
+  "enunciado": "JEFE · Cierre documental: completa el certificado y el plan, y firma solo lo que has verificado.",
+  "solucion": {},
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "formulario": {
+    "titulo": "Certificado y plan de mantenimiento",
+    "campos": [
+      {
+        "id": "firma",
+        "etiqueta": "Firma el certificado…",
+        "tipo": "select",
+        "correcta": "Instalador autorizado, tras verificar",
+        "opciones": [
+          "Instalador autorizado, tras verificar",
+          "Cliente",
+          "Cualquiera antes de verificar",
+          "El proveedor"
+        ]
+      },
+      {
+        "id": "dict",
+        "etiqueta": "Si una prueba no cumple, el dictamen es",
+        "tipo": "select",
+        "correcta": "No apta hasta corregir y volver a verificar",
+        "opciones": [
+          "No apta hasta corregir y volver a verificar",
+          "Apta con observaciones",
+          "Apta si el cliente acepta",
+          "Pendiente de firmar sin acta"
+        ]
+      },
+      {
+        "id": "m1",
+        "etiqueta": "Prueba del diferencial (criterio orientativo)",
+        "tipo": "select",
+        "correcta": "Mensual",
+        "opciones": [
+          "Mensual",
+          "Cada 10 años",
+          "Nunca",
+          "Solo al instalar"
+        ]
+      },
+      {
+        "id": "m2",
+        "etiqueta": "Registro de las operaciones",
+        "tipo": "select",
+        "correcta": "Histórico con fecha, responsable y resultado",
+        "opciones": [
+          "Histórico con fecha, responsable y resultado",
+          "Memoria del instalador",
+          "Nada",
+          "Solo albaranes"
+        ]
+      }
+    ]
+  },
+  "dominio_rebt": "B"
+}

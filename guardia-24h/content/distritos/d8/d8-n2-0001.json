@@ -1,0 +1,87 @@
+{
+  "id": "d8-n2-0001",
+  "estado": "borrador",
+  "distrito": 8,
+  "ra": [
+    "RA1",
+    "RA2",
+    "RA8",
+    "RA9"
+  ],
+  "ce": [
+    "RA2-CE5",
+    "RA8-CE1"
+  ],
+  "nivel": 2,
+  "tipo": "formulario",
+  "dificultad": 1.5,
+  "pe_base": 3,
+  "enunciado": "Completa el certificado de instalación del aviso: una reforma de vivienda ya verificada.",
+  "solucion": {},
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Repasa la teoría del bloque."
+  ],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "formulario": {
+    "titulo": "Certificado de instalación eléctrica",
+    "subtitulo": "Instalación interior · Baja tensión",
+    "campos": [
+      {
+        "id": "firma",
+        "etiqueta": "¿Quién firma el certificado?",
+        "tipo": "select",
+        "correcta": "Instalador autorizado",
+        "opciones": [
+          "Instalador autorizado",
+          "Cliente",
+          "Proveedor de material",
+          "Cualquier operario"
+        ]
+      },
+      {
+        "id": "adjunta",
+        "etiqueta": "Documento técnico que lo acompaña",
+        "tipo": "select",
+        "correcta": "Memoria técnica de diseño o proyecto",
+        "opciones": [
+          "Memoria técnica de diseño o proyecto",
+          "Solo el presupuesto",
+          "Nada",
+          "El albarán"
+        ]
+      },
+      {
+        "id": "acta",
+        "etiqueta": "El acta de verificación se realiza…",
+        "tipo": "select",
+        "correcta": "Antes de firmar",
+        "opciones": [
+          "Antes de firmar",
+          "Después de firmar",
+          "No es necesaria",
+          "Solo si falla algo"
+        ]
+      },
+      {
+        "id": "entrega",
+        "etiqueta": "Documentación que se entrega al titular",
+        "tipo": "select",
+        "correcta": "Certificado, esquema actualizado e instrucciones de uso y mantenimiento",
+        "opciones": [
+          "Certificado, esquema actualizado e instrucciones de uso y mantenimiento",
+          "Solo la factura",
+          "Nada",
+          "Solo el plano original"
+        ]
+      }
+    ]
+  },
+  "dominio_rebt": "B"
+}

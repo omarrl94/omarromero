@@ -1,0 +1,37 @@
+{
+  "id": "d5-n1-0004",
+  "estado": "borrador",
+  "distrito": 5,
+  "ra": [
+    "RA4",
+    "RA9"
+  ],
+  "ce": [
+    "RA4-CE4"
+  ],
+  "nivel": 1,
+  "tipo": "opcion_multiple",
+  "dificultad": 1,
+  "pe_base": 1,
+  "enunciado": "Un lavadero industrial con salpicaduras de agua se considera local…",
+  "solucion": {
+    "correcta": 0
+  },
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Repasa la teoría del bloque."
+  ],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "opciones": [
+    "Mojado",
+    "Seco",
+    "De pública concurrencia únicamente",
+    "Con atmósfera explosiva"
+  ]
+}

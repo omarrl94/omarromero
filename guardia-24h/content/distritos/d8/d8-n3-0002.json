@@ -1,0 +1,74 @@
+{
+  "id": "d8-n3-0002",
+  "estado": "borrador",
+  "distrito": 8,
+  "ra": [
+    "RA1",
+    "RA2",
+    "RA8",
+    "RA9"
+  ],
+  "ce": [
+    "RA8-CE2",
+    "RA8-CE4"
+  ],
+  "nivel": 3,
+  "tipo": "formulario",
+  "dificultad": 1.5,
+  "pe_base": 3,
+  "enunciado": "Completa el plan: asigna a cada operación su frecuencia.",
+  "solucion": {},
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Repasa la teoría del bloque."
+  ],
+  "explicacion": "Las frecuencias son un criterio orientativo de práctica; contrasta la periodicidad reglamentaria en la norma. [BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "formulario": {
+    "titulo": "Plan de mantenimiento del alumbrado de emergencia (orientativo)",
+    "campos": [
+      {
+        "id": "c0",
+        "etiqueta": "Comprobar que las luminarias encienden al simular fallo de red",
+        "tipo": "select",
+        "correcta": "Mensual",
+        "opciones": [
+          "Mensual",
+          "Cada 10 años",
+          "Nunca",
+          "Solo al instalar"
+        ]
+      },
+      {
+        "id": "c1",
+        "etiqueta": "Comprobar la autonomía de las baterías",
+        "tipo": "select",
+        "correcta": "Anual",
+        "opciones": [
+          "Anual",
+          "Diaria",
+          "Nunca",
+          "Solo al instalar"
+        ]
+      },
+      {
+        "id": "c2",
+        "etiqueta": "Registrar cada revisión en el libro de mantenimiento",
+        "tipo": "select",
+        "correcta": "Siempre",
+        "opciones": [
+          "Siempre",
+          "Nunca",
+          "Solo si falla",
+          "A criterio del cliente"
+        ]
+      }
+    ]
+  },
+  "dominio_rebt": "B"
+}

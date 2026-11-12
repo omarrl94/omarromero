@@ -55,7 +55,7 @@ export const ItemSchema = z.object({
     .object({
       titulo: z.string(),
       elementos: z.array(z.object({
-        id: z.string(), etiqueta: z.string(), x: z.number(), y: z.number(), w: z.number(), h: z.number(),
+        id: z.string(), etiqueta: z.string(), aparato: z.string().optional(), visual: z.string().optional(), calibre: z.string().optional(), x: z.number(), y: z.number(), w: z.number(), h: z.number(),
         defecto: z.boolean(), explicacion: z.string(), cita: z.object({ doc: z.string(), ref: z.string() }).optional(),
       })),
     })
@@ -78,6 +78,25 @@ export const ItemSchema = z.object({
       })).min(1),
     })
     .optional(),
+  plano: z
+    .object({
+      titulo: z.string(), ancho: z.number(), alto: z.number(), maxPuntos: z.number(),
+      formas: z.array(z.object({ t: z.enum(['rect', 'puerta', 'salida', 'extintor', 'cuadro', 'texto', 'escalera', 'pulsador']), x: z.number(), y: z.number(), w: z.number().optional(), h: z.number().optional(), k: z.string().optional(), s: z.string().optional(), dir: z.string().optional() })),
+      zonas: z.array(z.object({ id: z.string(), etiqueta: z.string(), x: z.number(), y: z.number(), r: z.number(), explicacion: z.string(), cita: z.object({ doc: z.string(), ref: z.string() }).optional() })),
+    })
+    .optional(),
+  formulario: z
+    .object({
+      titulo: z.string(), subtitulo: z.string().optional(),
+      campos: z.array(z.object({ id: z.string(), etiqueta: z.string(), tipo: z.enum(['select', 'numero']), opciones: z.array(z.string()).optional(), correcta: z.union([z.string(), z.number()]), tolerancia: z.number().optional(), explicacion: z.string().optional() })),
+    })
+    .optional(),
+  texto: z
+    .object({
+      titulo: z.string(), origen: z.string().optional(),
+      fragmentos: z.array(z.object({ id: z.string(), x: z.string(), defecto: z.boolean(), explicacion: z.string(), cita: z.object({ doc: z.string(), ref: z.string() }).optional() })),
+    })
+    .optional(),
   variables: z.record(z.object({ valores: z.array(z.union([z.number(), z.string()])) })).optional(),
   solucion: z.record(z.unknown()),
   dominio_rebt: z.enum(['A', 'B', 'C']).optional(),
@@ -90,12 +109,12 @@ export const ItemSchema = z.object({
 });
 
 export const DistritoSchema = z.object({
-  id: z.number().int().min(1).max(8),
+  id: z.number().int().min(0).max(8),
   nombre: z.string(),
   bloque: z.number().int(),
   ra: z.array(z.string()),
   itc: z.array(z.string()),
-  niveles: z.array(z.object({ n: z.number().int().min(1).max(5), nombre: z.string(), descripcion: z.string() })).length(5),
+  niveles: z.array(z.object({ n: z.number().int().min(1).max(5), nombre: z.string(), descripcion: z.string() })).min(1).max(5),
   pendiente: z.array(z.string()).optional(),
 });
 

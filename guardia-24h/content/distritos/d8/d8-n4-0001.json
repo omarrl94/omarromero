@@ -1,0 +1,73 @@
+{
+  "id": "d8-n4-0001",
+  "estado": "borrador",
+  "distrito": 8,
+  "ra": [
+    "RA1",
+    "RA2",
+    "RA8",
+    "RA9"
+  ],
+  "ce": [
+    "RA8-CE1",
+    "RA2-CE1"
+  ],
+  "nivel": 4,
+  "tipo": "texto_errores",
+  "dificultad": 1.5,
+  "pe_base": 3,
+  "enunciado": "La IA ha redactado un fragmento de la memoria técnica. Detecta y marca todas las frases incorrectas.",
+  "solucion": {},
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Repasa la teoría del bloque."
+  ],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "texto": {
+    "titulo": "Memoria técnica · Protecciones",
+    "origen": "Borrador generado por ASIST-IA · sin verificar",
+    "fragmentos": [
+      {
+        "id": "f1",
+        "x": "La instalación se protegerá con un interruptor general automático y con interruptores diferenciales.",
+        "defecto": false,
+        "explicacion": ""
+      },
+      {
+        "id": "f2",
+        "x": "El interruptor diferencial protege los circuitos contra sobrecargas y cortocircuitos.",
+        "defecto": true,
+        "explicacion": "El diferencial protege contra fugas a tierra (contactos indirectos); sobrecargas y cortocircuitos los protege el magnetotérmico.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-24 / ITC-BT-22"
+        }
+      },
+      {
+        "id": "f3",
+        "x": "Cada circuito dispondrá de su propio magnetotérmico, dimensionado para proteger el conductor (IB ≤ In ≤ IZ).",
+        "defecto": false,
+        "explicacion": ""
+      },
+      {
+        "id": "f4",
+        "x": "Se elegirá el calibre de la protección superior al admisible por el cable para evitar disparos.",
+        "defecto": true,
+        "explicacion": "In debe ser menor o igual que IZ: un calibre mayor deja el cable sin protección."
+      },
+      {
+        "id": "f5",
+        "x": "Las masas metálicas se conectarán al conductor de protección.",
+        "defecto": false,
+        "explicacion": ""
+      }
+    ]
+  },
+  "dominio_rebt": "B"
+}

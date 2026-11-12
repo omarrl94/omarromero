@@ -1,0 +1,39 @@
+{
+  "id": "d8-n3-0003",
+  "estado": "borrador",
+  "distrito": 8,
+  "ra": [
+    "RA1",
+    "RA2",
+    "RA8",
+    "RA9"
+  ],
+  "ce": [
+    "RA8-CE4"
+  ],
+  "nivel": 3,
+  "tipo": "opcion_multiple",
+  "dificultad": 1.5,
+  "pe_base": 2,
+  "enunciado": "¿Para qué sirve el histórico de mantenimiento de una instalación?",
+  "solucion": {
+    "correcta": 0
+  },
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Repasa la teoría del bloque."
+  ],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "opciones": [
+    "Detectar tendencias (p. ej. un aislamiento que baja año a año) antes de que haya avería",
+    "Sustituir al certificado",
+    "Justificar la factura",
+    "No sirve para nada"
+  ]
+}

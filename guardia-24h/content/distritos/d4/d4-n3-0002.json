@@ -32,94 +32,105 @@
       {
         "id": "e1",
         "etiqueta": "Diferencial 300 mA en vivienda",
-        "x": 15,
-        "y": 20,
-        "w": 130,
-        "h": 80,
+        "x": 8,
+        "y": 14,
+        "w": 90,
+        "h": 150,
         "defecto": true,
         "explicacion": "Sensibilidad inadecuada para proteger a las personas (revisar valor en ITC).",
         "cita": {
           "doc": "REBT",
           "ref": "ITC-BT-24"
-        }
+        },
+        "aparato": "diferencial",
+        "visual": "mal300"
       },
       {
         "id": "e2",
         "etiqueta": "PIA de línea",
-        "x": 160,
-        "y": 20,
-        "w": 130,
-        "h": 80,
+        "x": 104,
+        "y": 14,
+        "w": 90,
+        "h": 150,
         "defecto": false,
-        "explicacion": ""
+        "explicacion": "",
+        "aparato": "pia"
       },
       {
         "id": "e3",
         "etiqueta": "Cable sin aislante en la entrada",
-        "x": 305,
-        "y": 20,
-        "w": 130,
-        "h": 80,
+        "x": 200,
+        "y": 14,
+        "w": 90,
+        "h": 150,
         "defecto": true,
         "explicacion": "Conductor con aislamiento dañado: riesgo de contacto directo.",
         "cita": {
           "doc": "REBT",
           "ref": "ITC-BT-24"
-        }
+        },
+        "aparato": "cable",
+        "visual": "sinAislante"
       },
       {
         "id": "e4",
         "etiqueta": "Regleta de neutros",
-        "x": 450,
-        "y": 20,
-        "w": 130,
-        "h": 80,
+        "x": 296,
+        "y": 14,
+        "w": 90,
+        "h": 150,
         "defecto": false,
-        "explicacion": ""
+        "explicacion": "",
+        "aparato": "regleta"
       },
       {
         "id": "e5",
         "etiqueta": "Sin tapa de protección (partes activas)",
-        "x": 15,
-        "y": 115,
-        "w": 130,
-        "h": 80,
+        "x": 392,
+        "y": 14,
+        "w": 90,
+        "h": 150,
         "defecto": true,
         "explicacion": "Partes activas accesibles: contacto directo.",
         "cita": {
           "doc": "REBT",
           "ref": "ITC-BT-24"
-        }
+        },
+        "aparato": "tapa",
+        "visual": "sinTapa"
       },
       {
         "id": "e6",
         "etiqueta": "Borne de tierra",
-        "x": 160,
-        "y": 115,
-        "w": 130,
-        "h": 80,
+        "x": 488,
+        "y": 14,
+        "w": 90,
+        "h": 150,
         "defecto": false,
-        "explicacion": ""
+        "explicacion": "",
+        "aparato": "regleta"
       },
       {
         "id": "e7",
         "etiqueta": "Terminales de cable",
-        "x": 305,
-        "y": 115,
-        "w": 130,
-        "h": 80,
+        "x": 8,
+        "y": 186,
+        "w": 90,
+        "h": 150,
         "defecto": false,
-        "explicacion": ""
+        "explicacion": "",
+        "aparato": "cable"
       },
       {
         "id": "e8",
         "etiqueta": "Fijación del carril",
-        "x": 450,
-        "y": 115,
-        "w": 130,
-        "h": 80,
+        "x": 104,
+        "y": 186,
+        "w": 90,
+        "h": 150,
         "defecto": false,
-        "explicacion": ""
+        "explicacion": "",
+        "aparato": "etiqueta"
       }
     ]
   },

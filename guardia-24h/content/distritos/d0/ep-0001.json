@@ -1,0 +1,201 @@
+{
+  "id": "ep-0001",
+  "estado": "borrador",
+  "distrito": 0,
+  "ra": [
+    "RA3",
+    "RA6",
+    "RA7"
+  ],
+  "ce": [
+    "RA6-CE5",
+    "RA7-CE4"
+  ],
+  "nivel": 5,
+  "tipo": "hotspots",
+  "dificultad": 2,
+  "pe_base": 4,
+  "enunciado": "LA GRAN INSPECCIÓN · «El cuadro del horror»: inspecciona y marca todos los defectos. Después deberás repararlos (próximas fases).",
+  "solucion": {},
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "escena": {
+    "titulo": "El cuadro del horror",
+    "elementos": [
+      {
+        "id": "e1",
+        "etiqueta": "Cuadro sin tapa",
+        "x": 8,
+        "y": 14,
+        "w": 90,
+        "h": 150,
+        "defecto": true,
+        "explicacion": "Partes activas accesibles.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-24"
+        },
+        "aparato": "tapa",
+        "visual": "sinTapa"
+      },
+      {
+        "id": "e2",
+        "etiqueta": "PIA puenteado",
+        "x": 104,
+        "y": 14,
+        "w": 90,
+        "h": 150,
+        "defecto": true,
+        "explicacion": "Protección anulada.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-22"
+        },
+        "aparato": "pia",
+        "visual": "puenteado"
+      },
+      {
+        "id": "e3",
+        "etiqueta": "Sin diferencial",
+        "x": 200,
+        "y": 14,
+        "w": 90,
+        "h": 150,
+        "defecto": true,
+        "explicacion": "Falta la protección contra contactos indirectos.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-24"
+        },
+        "aparato": "etiqueta"
+      },
+      {
+        "id": "e4",
+        "etiqueta": "Cable sin aislante",
+        "x": 296,
+        "y": 14,
+        "w": 90,
+        "h": 150,
+        "defecto": true,
+        "explicacion": "Aislamiento dañado.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-24"
+        },
+        "aparato": "cable",
+        "visual": "sinAislante"
+      },
+      {
+        "id": "e5",
+        "etiqueta": "Borna floja con quemadura",
+        "x": 392,
+        "y": 14,
+        "w": 90,
+        "h": 150,
+        "defecto": true,
+        "explicacion": "Mal contacto y calentamiento.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-19"
+        },
+        "aparato": "borna",
+        "visual": "quemado"
+      },
+      {
+        "id": "e6",
+        "etiqueta": "Sin conductor de protección",
+        "x": 488,
+        "y": 14,
+        "w": 90,
+        "h": 150,
+        "defecto": true,
+        "explicacion": "Falta puesta a tierra.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-18"
+        },
+        "aparato": "regleta",
+        "visual": "sinTierra"
+      },
+      {
+        "id": "e7",
+        "etiqueta": "Neutro y fase cruzados",
+        "x": 8,
+        "y": 186,
+        "w": 90,
+        "h": 150,
+        "defecto": true,
+        "explicacion": "Inversión fase/neutro.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-19"
+        },
+        "aparato": "cable",
+        "visual": "invertido"
+      },
+      {
+        "id": "e8",
+        "etiqueta": "Etiquetado de circuitos",
+        "x": 104,
+        "y": 186,
+        "w": 90,
+        "h": 150,
+        "defecto": false,
+        "explicacion": "",
+        "aparato": "etiqueta"
+      },
+      {
+        "id": "e9",
+        "etiqueta": "Carril DIN",
+        "x": 200,
+        "y": 186,
+        "w": 90,
+        "h": 150,
+        "defecto": false,
+        "explicacion": "",
+        "aparato": "etiqueta"
+      },
+      {
+        "id": "e10",
+        "etiqueta": "IGA",
+        "x": 296,
+        "y": 186,
+        "w": 90,
+        "h": 150,
+        "defecto": false,
+        "explicacion": "",
+        "aparato": "iga"
+      },
+      {
+        "id": "e11",
+        "etiqueta": "Limitador sobretensiones",
+        "x": 392,
+        "y": 186,
+        "w": 90,
+        "h": 150,
+        "defecto": false,
+        "explicacion": "",
+        "aparato": "sobretension"
+      },
+      {
+        "id": "e12",
+        "etiqueta": "Terminales de cable",
+        "x": 488,
+        "y": 186,
+        "w": 90,
+        "h": 150,
+        "defecto": false,
+        "explicacion": "",
+        "aparato": "cable"
+      }
+    ]
+  },
+  "dominio_rebt": "A"
+}

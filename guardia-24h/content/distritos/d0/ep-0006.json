@@ -1,0 +1,196 @@
+{
+  "id": "ep-0006",
+  "estado": "borrador",
+  "distrito": 0,
+  "ra": [
+    "RA2",
+    "RA3"
+  ],
+  "ce": [
+    "RA3-CE3",
+    "RA3-CE7"
+  ],
+  "nivel": 5,
+  "tipo": "hotspots",
+  "dificultad": 2,
+  "pe_base": 4,
+  "enunciado": "LA GRAN INSPECCIÓN · Panel de canalizaciones: pasa la lista de comprobación de montaje y marca todos los defectos.",
+  "solucion": {},
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "escena": {
+    "titulo": "Panel de canalizaciones",
+    "elementos": [
+      {
+        "id": "e1",
+        "etiqueta": "Cruce sin separar",
+        "x": 8,
+        "y": 14,
+        "w": 90,
+        "h": 150,
+        "defecto": true,
+        "explicacion": "Cruzamiento no protegido.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-20"
+        },
+        "aparato": "tubo",
+        "visual": "cruzado"
+      },
+      {
+        "id": "e2",
+        "etiqueta": "Bandeja sin tapa en zona de paso",
+        "x": 104,
+        "y": 14,
+        "w": 90,
+        "h": 150,
+        "defecto": true,
+        "explicacion": "Conductores expuestos a golpes.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-20"
+        },
+        "aparato": "tapa",
+        "visual": "sinTapa"
+      },
+      {
+        "id": "e3",
+        "etiqueta": "Curva forzada",
+        "x": 200,
+        "y": 14,
+        "w": 90,
+        "h": 150,
+        "defecto": true,
+        "explicacion": "Radio de curvatura insuficiente.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-21"
+        },
+        "aparato": "tubo",
+        "visual": "curva"
+      },
+      {
+        "id": "e4",
+        "etiqueta": "Sin conductor de protección en la bandeja",
+        "x": 296,
+        "y": 14,
+        "w": 90,
+        "h": 150,
+        "defecto": true,
+        "explicacion": "La bandeja metálica no está conectada a tierra.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-18"
+        },
+        "aparato": "bandeja",
+        "visual": "sinTierra"
+      },
+      {
+        "id": "e5",
+        "etiqueta": "Registro de paso",
+        "x": 392,
+        "y": 14,
+        "w": 90,
+        "h": 150,
+        "defecto": false,
+        "explicacion": "",
+        "aparato": "caja"
+      },
+      {
+        "id": "e6",
+        "etiqueta": "Rotulado de conductores",
+        "x": 488,
+        "y": 14,
+        "w": 90,
+        "h": 150,
+        "defecto": false,
+        "explicacion": "",
+        "aparato": "cable"
+      },
+      {
+        "id": "e7",
+        "etiqueta": "Fijaciones",
+        "x": 8,
+        "y": 186,
+        "w": 90,
+        "h": 150,
+        "defecto": false,
+        "explicacion": "",
+        "aparato": "tubo"
+      },
+      {
+        "id": "e8",
+        "etiqueta": "Tubo enterrado",
+        "x": 104,
+        "y": 186,
+        "w": 90,
+        "h": 150,
+        "defecto": false,
+        "explicacion": "",
+        "aparato": "tubo"
+      },
+      {
+        "id": "e9",
+        "etiqueta": "Cable sin marcar",
+        "x": 200,
+        "y": 186,
+        "w": 90,
+        "h": 150,
+        "defecto": true,
+        "explicacion": "Falta identificación de conductores.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-19"
+        },
+        "aparato": "cable",
+        "visual": "sinMarcar"
+      },
+      {
+        "id": "e10",
+        "etiqueta": "Caja de derivación",
+        "x": 296,
+        "y": 186,
+        "w": 90,
+        "h": 150,
+        "defecto": false,
+        "explicacion": "",
+        "aparato": "caja"
+      },
+      {
+        "id": "e11",
+        "etiqueta": "Tubo aplastado",
+        "x": 392,
+        "y": 186,
+        "w": 90,
+        "h": 150,
+        "defecto": true,
+        "explicacion": "Deformación del tubo.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-21"
+        },
+        "aparato": "tubo",
+        "visual": "aplastado"
+      },
+      {
+        "id": "e12",
+        "etiqueta": "Etiquetado de circuitos",
+        "x": 488,
+        "y": 186,
+        "w": 90,
+        "h": 150,
+        "defecto": false,
+        "explicacion": "",
+        "aparato": "etiqueta"
+      }
+    ]
+  },
+  "dominio_rebt": "A"
+}

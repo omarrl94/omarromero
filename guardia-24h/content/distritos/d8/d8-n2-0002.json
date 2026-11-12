@@ -1,0 +1,73 @@
+{
+  "id": "d8-n2-0002",
+  "estado": "borrador",
+  "distrito": 8,
+  "ra": [
+    "RA1",
+    "RA2",
+    "RA8",
+    "RA9"
+  ],
+  "ce": [
+    "RA2-CE5"
+  ],
+  "nivel": 2,
+  "tipo": "formulario",
+  "dificultad": 1.5,
+  "pe_base": 3,
+  "enunciado": "Completa la ficha de recepción de una instalación ya terminada.",
+  "solucion": {},
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Repasa la teoría del bloque."
+  ],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "formulario": {
+    "titulo": "Ficha de puesta en servicio",
+    "campos": [
+      {
+        "id": "esq",
+        "etiqueta": "Esquema unifilar entregado",
+        "tipo": "select",
+        "correcta": "Actualizado: lo realmente ejecutado ('as built')",
+        "opciones": [
+          "Actualizado: lo realmente ejecutado ('as built')",
+          "El del proyecto sin cambios aunque se modificó",
+          "No se entrega",
+          "Un croquis a mano sin firmar"
+        ]
+      },
+      {
+        "id": "ver",
+        "etiqueta": "Medidas de verificación",
+        "tipo": "select",
+        "correcta": "Registradas en el acta con valores e instrumento",
+        "opciones": [
+          "Registradas en el acta con valores e instrumento",
+          "Solo comentadas de palabra",
+          "No realizadas",
+          "Copiadas de otra obra"
+        ]
+      },
+      {
+        "id": "nc",
+        "etiqueta": "Una no conformidad detectada se…",
+        "tipo": "select",
+        "correcta": "Corrige y se vuelve a verificar",
+        "opciones": [
+          "Corrige y se vuelve a verificar",
+          "Ignora si es leve",
+          "Oculta al cliente",
+          "Deja para el mantenimiento"
+        ]
+      }
+    ]
+  },
+  "dominio_rebt": "B"
+}

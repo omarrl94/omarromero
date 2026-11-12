@@ -1,0 +1,82 @@
+{
+  "id": "d8-n5-0001",
+  "estado": "borrador",
+  "distrito": 8,
+  "ra": [
+    "RA1",
+    "RA2",
+    "RA8",
+    "RA9"
+  ],
+  "ce": [
+    "RA8-CE1",
+    "RA2-CE5",
+    "RA9-CE1"
+  ],
+  "nivel": 5,
+  "tipo": "texto_errores",
+  "dificultad": 2,
+  "pe_base": 5,
+  "enunciado": "JEFE · Proyecto técnico integrador: revisa críticamente el borrador de IA antes de firmar. Marca todos los errores.",
+  "solucion": {},
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "texto": {
+    "titulo": "Proyecto técnico · Resumen del borrador de IA",
+    "origen": "Borrador generado por ASIST-IA · sin verificar",
+    "fragmentos": [
+      {
+        "id": "f1",
+        "x": "La instalación se dimensiona con circuitos independientes protegidos por magnetotérmicos y diferenciales.",
+        "defecto": false,
+        "explicacion": ""
+      },
+      {
+        "id": "f2",
+        "x": "El conductor de protección será de color azul claro.",
+        "defecto": true,
+        "explicacion": "El azul claro identifica el neutro; el conductor de protección es bicolor verde-amarillo.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-19"
+        }
+      },
+      {
+        "id": "f3",
+        "x": "Las conexiones se realizarán en cajas, con las bornas apretadas.",
+        "defecto": false,
+        "explicacion": ""
+      },
+      {
+        "id": "f4",
+        "x": "Se medirá el aislamiento y la resistencia de tierra y se anotarán en el acta antes de firmar.",
+        "defecto": false,
+        "explicacion": ""
+      },
+      {
+        "id": "f5",
+        "x": "El diferencial protege la línea contra sobrecargas, por lo que se omitirá el magnetotérmico.",
+        "defecto": true,
+        "explicacion": "Son protecciones complementarias; el diferencial no protege contra sobrecargas.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-22 / 24"
+        }
+      },
+      {
+        "id": "f6",
+        "x": "Se entregará al titular el esquema actualizado y las instrucciones de mantenimiento.",
+        "defecto": false,
+        "explicacion": ""
+      }
+    ]
+  },
+  "dominio_rebt": "B"
+}

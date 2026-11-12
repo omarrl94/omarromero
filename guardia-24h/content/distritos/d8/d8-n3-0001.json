@@ -1,0 +1,74 @@
+{
+  "id": "d8-n3-0001",
+  "estado": "borrador",
+  "distrito": 8,
+  "ra": [
+    "RA1",
+    "RA2",
+    "RA8",
+    "RA9"
+  ],
+  "ce": [
+    "RA8-CE2",
+    "RA8-CE4"
+  ],
+  "nivel": 3,
+  "tipo": "formulario",
+  "dificultad": 1.5,
+  "pe_base": 3,
+  "enunciado": "Completa el plan: asigna a cada operación su frecuencia.",
+  "solucion": {},
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Repasa la teoría del bloque."
+  ],
+  "explicacion": "Las frecuencias son un criterio orientativo de práctica; contrasta la periodicidad reglamentaria en la norma. [BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "formulario": {
+    "titulo": "Plan de mantenimiento preventivo (criterio orientativo; la periodicidad reglamentaria la fija la ITC-BT-05)",
+    "campos": [
+      {
+        "id": "c0",
+        "etiqueta": "Probar el pulsador de test del diferencial",
+        "tipo": "select",
+        "correcta": "Mensual",
+        "opciones": [
+          "Mensual",
+          "Anual",
+          "Cada 5 años",
+          "Nunca"
+        ]
+      },
+      {
+        "id": "c1",
+        "etiqueta": "Inspección visual de cuadros y conexiones",
+        "tipo": "select",
+        "correcta": "Anual",
+        "opciones": [
+          "Anual",
+          "Diaria",
+          "Cada 10 años",
+          "Nunca"
+        ]
+      },
+      {
+        "id": "c2",
+        "etiqueta": "Medida de aislamiento y resistencia de tierra",
+        "tipo": "select",
+        "correcta": "Anual",
+        "opciones": [
+          "Anual",
+          "Semanal",
+          "Nunca",
+          "Cada 20 años"
+        ]
+      }
+    ]
+  },
+  "dominio_rebt": "B"
+}

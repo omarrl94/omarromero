@@ -4,6 +4,8 @@ import { Acta } from '../components/Acta';
 import { CitaSelector } from '../components/CitaSelector';
 import { Cableado } from '../components/Cableado';
 import { Escena } from '../components/Escena';
+import { Formulario, TextoErrores } from '../components/Documento';
+import { PlanoLuminarias } from '../components/Plano';
 import { Icon, ICONO_DISTRITO } from '../components/Icon';
 import { Instrumento } from '../components/Instrumento';
 import { repo, type Respuesta } from '../data';
@@ -20,14 +22,14 @@ import { useStore } from '../game/store';
 import type { Cita } from '../library/search';
 import { calificacion } from './Distrito';
 
-const TIPO: Record<string, string> = { opcion_multiple: 'Test', verdadero_falso: 'Verdadero / Falso', numerico: 'Cálculo', selector_cita: 'Gymkhana del REBT', dimensionado: 'Dimensionado', hotspots: 'Muro de la vergüenza', instrumento: 'Diagnóstico', automatismo: 'Cableado de maniobra', acta: 'Acta de verificación' };
+const TIPO: Record<string, string> = { opcion_multiple: 'Test', verdadero_falso: 'Verdadero / Falso', numerico: 'Cálculo', selector_cita: 'Gymkhana del REBT', dimensionado: 'Dimensionado', hotspots: 'Muro de la vergüenza', instrumento: 'Diagnóstico', automatismo: 'Cableado de maniobra', plano: 'Plano de emergencia', formulario: 'Documentación', texto_errores: 'Revisión de texto de IA', acta: 'Acta de verificación' };
 
 type Fin = { pe: number; max: number; xp: number; filas: { item: Item; r: Respuesta }[] };
 
-export function Nivel() {
+export function Nivel({ epilogo = false }: { epilogo?: boolean }) {
   const { id, n } = useParams();
-  const d = distritos.find((x) => x.id === Number(id));
-  const nivel = Number(n);
+  const d = distritos.find((x) => x.id === (epilogo ? 0 : Number(id)));
+  const nivel = epilogo ? 5 : Number(n);
   const sesion = useStore((s) => s.sesion)!;
   const sumaXp = useStore((s) => s.sumaXp);
   const { intentos, respuestas, cargado, recarga } = useProgreso();
@@ -37,9 +39,10 @@ export function Nivel() {
   if (!cargado) return <main className="p-4">Cargando…</main>;
   const ov = leeOverrides(sesion.uid);
   const estado = estadoNivel(intentos, d.id, nivel, ov.desbloqueos?.[`${d.id}-${nivel}`] ?? 0);
-  const abierto = nivelAbierto(intentos, d.id, nivel);
+  const abierto = d.id === 0 ? [1, 2, 3, 4, 5, 6, 7, 8].every((b) => estadoNivel(intentos, b, 5).superado) : nivelAbierto(intentos, d.id, nivel);
   const banco = items.filter((i) => i.distrito === d.id && i.nivel === nivel);
-  const info = d.niveles[nivel - 1]!;
+  const info = d.niveles.find((x) => x.n === nivel) ?? d.niveles[0]!;
+  const volver = d.id === 0 ? '/' : `/distrito/${d.id}`;
 
   function empezar() {
     sonidoClick();
@@ -65,7 +68,7 @@ export function Nivel() {
     const frac = fin.pe / fin.max, ok = frac >= 0.5;
     return (
       <main className="mx-auto max-w-3xl px-4 py-8">
-        <div className="eyebrow">Bloque {d.id} · N{nivel} · {info.nombre}</div>
+        <div className="eyebrow">{d.id === 0 ? 'Epílogo' : `Bloque ${d.id} · N${nivel}`} · {info.nombre}</div>
         <h1 className="mt-1 text-3xl">{ok ? 'Nivel superado' : 'Nivel no superado'}</h1>
         <section className="card mt-4" role="status">
           <div className="flex flex-wrap items-end gap-x-8 gap-y-2">
@@ -90,9 +93,9 @@ export function Nivel() {
           </table>
         </div>
         <div className="mt-6 flex flex-wrap gap-3">
-          <Link className="btn btn-ghost no-underline" to={`/distrito/${d.id}`}><Icon n="left" className="h-4 w-4" />Volver al bloque</Link>
-          <Link className="btn btn-ghost no-underline" to={`/distrito/${d.id}/teoria`}><Icon n="doc" className="h-4 w-4" />Repasar teoría</Link>
-          {ok && nivel < 5 && <Link className="btn no-underline" onClick={() => setFin(null)} to={`/distrito/${d.id}/nivel/${nivel + 1}`}>Siguiente nivel<Icon n="right" className="h-4 w-4" /></Link>}
+          <Link className="btn btn-ghost no-underline" to={volver}><Icon n="left" className="h-4 w-4" />Volver</Link>
+          {d.id > 0 && <Link className="btn btn-ghost no-underline" to={`/distrito/${d.id}/teoria`}><Icon n="doc" className="h-4 w-4" />Repasar teoría</Link>}
+          {ok && nivel < 5 && d.id > 0 && <Link className="btn no-underline" onClick={() => setFin(null)} to={`/distrito/${d.id}/nivel/${nivel + 1}`}>Siguiente nivel<Icon n="right" className="h-4 w-4" /></Link>}
           {!estado.bloqueadoPorIntentos && <button className="btn btn-ghost" onClick={empezar}><Icon n="redo" className="h-4 w-4" />Nuevo intento</button>}
         </div>
       </main>
@@ -102,8 +105,8 @@ export function Nivel() {
   const jefe = nivel === 5;
   return (
     <main className="mx-auto max-w-2xl px-4 py-8">
-      <Link to={`/distrito/${d.id}`} className="flex items-center gap-1 text-sm text-mute hover:text-tx"><Icon n="left" className="h-4 w-4" />Bloque {d.id} · {d.nombre}</Link>
-      <div className="mt-4 flex items-center gap-3"><span className="grid h-12 w-12 place-items-center rounded-md border border-line bg-panel2 text-acc"><Icon n={jefe ? 'crown' : ICONO_DISTRITO[d.id]!} className="h-6 w-6" /></span><div><div className="eyebrow">{jefe ? 'Evaluación final del bloque' : `Nivel ${nivel}`}</div><h1 className="text-2xl">{info.nombre}</h1></div></div>
+      <Link to={volver} className="flex items-center gap-1 text-sm text-mute hover:text-tx"><Icon n="left" className="h-4 w-4" />{d.id === 0 ? 'Plan formativo' : `Bloque ${d.id} · ${d.nombre}`}</Link>
+      <div className="mt-4 flex items-center gap-3"><span className="grid h-12 w-12 place-items-center rounded-md border border-line bg-panel2 text-acc"><Icon n={jefe ? 'crown' : (ICONO_DISTRITO[d.id] ?? 'crown')} className="h-6 w-6" /></span><div><div className="eyebrow">{d.id === 0 ? 'Epílogo · prueba final' : jefe ? 'Evaluación final del bloque' : `Nivel ${nivel}`}</div><h1 className="text-2xl">{info.nombre}</h1></div></div>
       <p className="mt-3 text-tx/90">{info.descripcion}</p>
       <dl className="mt-5 grid grid-cols-3 gap-3 text-center">
         {[[banco.length, 'ítems en el banco'], [`${estado.intentos}/3`, 'intentos'], [`${Math.round(estado.mejor * 100)} %`, 'mejor resultado']].map(([v, l]) => <div key={String(l)} className="card !p-3"><dd className="font-mono text-xl font-semibold">{v}</dd><dt className="text-[11px] text-mute">{l}</dt></div>)}
@@ -114,9 +117,9 @@ export function Nivel() {
         <li>· Responder sin citar la norma, cuando se exige, puntúa el 70 %.</li>
         <li>· Un error de seguridad grave anula el ítem.</li>
       </ul>
-      <Link to={`/distrito/${d.id}/teoria`} className="mt-4 inline-flex items-center gap-1 text-sm"><Icon n="doc" className="h-4 w-4" />Repasar la teoría de este bloque</Link>
+      {d.id > 0 && <Link to={`/distrito/${d.id}/teoria`} className="mt-4 inline-flex items-center gap-1 text-sm"><Icon n="doc" className="h-4 w-4" />Repasar la teoría de este bloque</Link>}
       <div className="mt-6">
-        {!abierto ? <p className="card">Supera antes el nivel anterior.</p>
+        {!abierto ? <p className="card">{d.id === 0 ? 'Se desbloquea al superar la evaluación final (N5) de los 8 bloques.' : 'Supera antes el nivel anterior.'}</p>
           : banco.length === 0 ? <p className="card">Este nivel aún no tiene ítems.</p>
           : estado.bloqueadoPorIntentos ? <p className="card">Has agotado los 3 intentos. Pide a tu profesor que desbloquee el nivel.</p>
           : <button className="btn btn-big" onClick={empezar}>{estado.intentos ? 'Nuevo intento' : 'Empezar'} ({Math.min(ITEMS_POR_INTENTO, banco.length)} ítems)</button>}
@@ -149,7 +152,7 @@ function Jugando({ lista, distrito, onFin }: { lista: Item[]; distrito: number; 
   };
   const pista = () => { sonidoClick(); setE((x) => (x.pistas < item.pistas.length ? { ...x, pistas: x.pistas + 1 } : x)); };
   const sol = item.solucion as Record<string, unknown>;
-  const completo = item.tipo === 'automatismo' ? (e.cables?.length ?? 0) > 0 : item.tipo === 'acta' ? Boolean(e.dictamen) && (item.pruebas ?? []).every((p) => e.acta?.[p.id])
+  const completo = item.tipo === 'plano' ? (e.puntos?.length ?? 0) > 0 : item.tipo === 'formulario' ? (item.formulario?.campos ?? []).every((c) => e.campos?.[c.id]) : item.tipo === 'texto_errores' ? true : item.tipo === 'automatismo' ? (e.cables?.length ?? 0) > 0 : item.tipo === 'acta' ? Boolean(e.dictamen) && (item.pruebas ?? []).every((p) => e.acta?.[p.id])
     : item.tipo === 'opcion_multiple' || item.tipo === 'instrumento' ? e.opcion !== undefined
     : item.tipo === 'verdadero_falso' ? e.vf !== undefined
     : item.tipo === 'numerico' ? e.numero !== undefined && !Number.isNaN(e.numero)
@@ -174,6 +177,9 @@ function Jugando({ lista, distrito, onFin }: { lista: Item[]; distrito: number; 
       </section>
 
       <fieldset disabled={Boolean(res)} className="mt-4 grid gap-3">
+        {item.tipo === 'instrumento' && item.circuito && (
+          <Instrumento averia={item.circuito.averia} alimentadoInicial={item.circuito.alimentado} bloqueado={Boolean(res)} onSeguridad={() => setE((x) => ({ ...x, seguridad: true }))} />
+        )}
         {(item.tipo === 'opcion_multiple' || item.tipo === 'instrumento') && orden.map((i) => {
           const sel = e.opcion === i, correcta = res && sol.correcta === i;
           return (
@@ -202,9 +208,9 @@ function Jugando({ lista, distrito, onFin }: { lista: Item[]; distrito: number; 
             <input className="input mt-1 font-mono text-2xl" inputMode="decimal" placeholder="0" onChange={(ev) => setE({ ...e, numero: parseFloat(ev.target.value.replace(',', '.')) })} />
           </label>
         )}
-        {item.tipo === 'instrumento' && item.circuito && (
-          <Instrumento averia={item.circuito.averia} alimentadoInicial={item.circuito.alimentado} bloqueado={Boolean(res)} onSeguridad={() => setE((x) => ({ ...x, seguridad: true }))} />
-        )}
+        {item.tipo === 'plano' && item.plano && <PlanoLuminarias plano={item.plano} puntos={e.puntos ?? []} revelar={Boolean(res)} onChange={(puntos) => setE((x) => ({ ...x, puntos }))} />}
+        {item.tipo === 'formulario' && item.formulario && <Formulario f={item.formulario} valores={e.campos ?? {}} revelar={Boolean(res)} onChange={(campos) => setE((x) => ({ ...x, campos }))} />}
+        {item.tipo === 'texto_errores' && item.texto && <TextoErrores t={item.texto} seleccion={e.seleccion ?? []} revelar={Boolean(res)} onChange={(seleccion) => setE((x) => ({ ...x, seleccion }))} />}
         {item.tipo === 'automatismo' && item.automatismo && <Cableado comps={item.automatismo.componentes} fijos={item.automatismo.cablesFijos} cables={e.cables ?? []} onChange={(cables) => setE((x) => ({ ...x, cables }))} bloqueado={Boolean(res)} escenarios={item.automatismo.escenarios} revelar={Boolean(res)} />}
         {item.tipo === 'acta' && <Acta pruebas={item.pruebas ?? []} acta={e.acta ?? {}} dictamen={e.dictamen} revelar={Boolean(res)} onChange={(acta, dictamen) => setE((x) => ({ ...x, acta, dictamen }))} />}
         {item.tipo === 'hotspots' && item.escena && <Escena escena={item.escena} seleccion={e.seleccion ?? []} revelar={Boolean(res)} onChange={(seleccion) => setE((x) => ({ ...x, seleccion }))} />}
@@ -235,6 +241,16 @@ function Jugando({ lista, distrito, onFin }: { lista: Item[]; distrito: number; 
                 {item.escena.elementos.filter((x) => x.defecto).map((x) => (
                   <li key={x.id} className={(e.seleccion ?? []).includes(x.id) ? 'text-ok' : 'text-bad'}><span className="text-tx">{x.etiqueta}: {x.explicacion}{x.cita ? ` — ${x.cita.doc} ${x.cita.ref}` : ''}</span></li>
                 ))}
+              </ul>
+            )}
+            {item.tipo === 'plano' && item.plano && (
+              <ul className="my-2 list-disc space-y-0.5 pl-5 text-sm">
+                {item.plano.zonas.map((z) => { const ok = (e.puntos ?? []).some((p) => Math.hypot(p.x - z.x, p.y - z.y) <= z.r); return <li key={z.id} className={ok ? 'text-ok' : 'text-bad'}><span className="text-tx">{z.etiqueta}: {z.explicacion}{z.cita ? ` — ${z.cita.doc} ${z.cita.ref}` : ''}</span></li>; })}
+              </ul>
+            )}
+            {item.tipo === 'texto_errores' && item.texto && (
+              <ul className="my-2 list-disc space-y-0.5 pl-5 text-sm">
+                {item.texto.fragmentos.filter((x) => x.defecto).map((x) => <li key={x.id} className={(e.seleccion ?? []).includes(x.id) ? 'text-ok' : 'text-bad'}><span className="text-tx">«{x.x}» — {x.explicacion}{x.cita ? ` (${x.cita.doc} ${x.cita.ref})` : ''}</span></li>)}
               </ul>
             )}
             {item.tipo === 'dimensionado' && (

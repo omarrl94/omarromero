@@ -1,0 +1,316 @@
+{
+  "id": "d5-n5-0001",
+  "estado": "borrador",
+  "distrito": 5,
+  "ra": [
+    "RA4",
+    "RA9"
+  ],
+  "ce": [
+    "RA4-CE4",
+    "RA4-CE3"
+  ],
+  "nivel": 5,
+  "tipo": "plano",
+  "dificultad": 2,
+  "pe_base": 5,
+  "enunciado": "JEFE · Instalación de emergencia de una sala con escalera: ubica las luminarias sin sobrepasar el máximo y justifica cada zona al revisar el resultado.",
+  "solucion": {},
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "plano": {
+    "titulo": "Sala polivalente con salidas, escalera y cuadro eléctrico",
+    "ancho": 600,
+    "alto": 360,
+    "maxPuntos": 8,
+    "formas": [
+      {
+        "t": "rect",
+        "x": 20,
+        "y": 20,
+        "w": 380,
+        "h": 206,
+        "k": "suelo"
+      },
+      {
+        "t": "rect",
+        "x": 22,
+        "y": 230,
+        "w": 556,
+        "h": 108,
+        "k": "pasillo"
+      },
+      {
+        "t": "rect",
+        "x": 406,
+        "y": 22,
+        "w": 172,
+        "h": 204,
+        "k": "suelo"
+      },
+      {
+        "t": "rect",
+        "x": 14,
+        "y": 14,
+        "w": 572,
+        "h": 8,
+        "k": "muro"
+      },
+      {
+        "t": "rect",
+        "x": 14,
+        "y": 14,
+        "w": 8,
+        "h": 332,
+        "k": "muro"
+      },
+      {
+        "t": "rect",
+        "x": 578,
+        "y": 14,
+        "w": 8,
+        "h": 332,
+        "k": "muro"
+      },
+      {
+        "t": "rect",
+        "x": 14,
+        "y": 338,
+        "w": 572,
+        "h": 8,
+        "k": "muro"
+      },
+      {
+        "t": "rect",
+        "x": 22,
+        "y": 226,
+        "w": 556,
+        "h": 8,
+        "k": "muro"
+      },
+      {
+        "t": "rect",
+        "x": 398,
+        "y": 22,
+        "w": 8,
+        "h": 204,
+        "k": "muro"
+      },
+      {
+        "t": "puerta",
+        "x": 130,
+        "y": 230,
+        "w": 50,
+        "dir": "h"
+      },
+      {
+        "t": "puerta",
+        "x": 300,
+        "y": 230,
+        "w": 50,
+        "dir": "h"
+      },
+      {
+        "t": "puerta",
+        "x": 402,
+        "y": 110,
+        "w": 44,
+        "dir": "v"
+      },
+      {
+        "t": "puerta",
+        "x": 18,
+        "y": 262,
+        "w": 50,
+        "dir": "v"
+      },
+      {
+        "t": "puerta",
+        "x": 250,
+        "y": 342,
+        "w": 60,
+        "dir": "h"
+      },
+      {
+        "t": "rect",
+        "x": 60,
+        "y": 60,
+        "w": 120,
+        "h": 50,
+        "k": "mueble"
+      },
+      {
+        "t": "rect",
+        "x": 220,
+        "y": 60,
+        "w": 120,
+        "h": 50,
+        "k": "mueble"
+      },
+      {
+        "t": "rect",
+        "x": 60,
+        "y": 140,
+        "w": 280,
+        "h": 36,
+        "k": "mueble"
+      },
+      {
+        "t": "escalera",
+        "x": 440,
+        "y": 40,
+        "w": 70,
+        "h": 150
+      },
+      {
+        "t": "salida",
+        "x": 40,
+        "y": 258
+      },
+      {
+        "t": "salida",
+        "x": 280,
+        "y": 322
+      },
+      {
+        "t": "cuadro",
+        "x": 90,
+        "y": 316
+      },
+      {
+        "t": "extintor",
+        "x": 500,
+        "y": 300
+      },
+      {
+        "t": "pulsador",
+        "x": 546,
+        "y": 262
+      },
+      {
+        "t": "texto",
+        "x": 210,
+        "y": 45,
+        "s": "SALA POLIVALENTE"
+      },
+      {
+        "t": "texto",
+        "x": 300,
+        "y": 296,
+        "s": "PASILLO"
+      },
+      {
+        "t": "texto",
+        "x": 480,
+        "y": 208,
+        "s": "ESCALERA"
+      }
+    ],
+    "zonas": [
+      {
+        "id": "z1",
+        "etiqueta": "Puerta de salida (extremo izquierdo)",
+        "x": 38,
+        "y": 287,
+        "r": 30,
+        "explicacion": "Las puertas de salida del local deben iluminarse para facilitar la evacuación.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-28 (verificar apartado)"
+        }
+      },
+      {
+        "id": "z2",
+        "etiqueta": "Puerta de salida (inferior)",
+        "x": 290,
+        "y": 325,
+        "r": 30,
+        "explicacion": "Toda salida requiere iluminación de emergencia sobre la puerta o junto a ella.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-28 (verificar apartado)"
+        }
+      },
+      {
+        "id": "z3",
+        "etiqueta": "Inicio de la escalera",
+        "x": 470,
+        "y": 200,
+        "r": 36,
+        "explicacion": "Las escaleras se iluminan para que cada tramo tenga luz directa.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-28 (verificar apartado)"
+        }
+      },
+      {
+        "id": "z4",
+        "etiqueta": "Cuadro eléctrico",
+        "x": 90,
+        "y": 316,
+        "r": 26,
+        "explicacion": "El cuadro de distribución debe poder manejarse con luz de emergencia.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-28 (verificar apartado)"
+        }
+      },
+      {
+        "id": "z5",
+        "etiqueta": "Extintor",
+        "x": 500,
+        "y": 300,
+        "r": 26,
+        "explicacion": "Los equipos de extinción deben quedar iluminados.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-28 (verificar apartado)"
+        }
+      },
+      {
+        "id": "z6",
+        "etiqueta": "Cambio de dirección del pasillo (intersección)",
+        "x": 402,
+        "y": 272,
+        "r": 30,
+        "explicacion": "Los cambios de dirección e intersecciones de pasillos necesitan señalización iluminada.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-28 (verificar apartado)"
+        }
+      },
+      {
+        "id": "z7",
+        "etiqueta": "Pulsador de alarma",
+        "x": 546,
+        "y": 262,
+        "r": 26,
+        "explicacion": "Los pulsadores de alarma deben ser localizables con luz de emergencia.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-28 (verificar apartado)"
+        }
+      },
+      {
+        "id": "z8",
+        "etiqueta": "Puerta de paso a escalera",
+        "x": 402,
+        "y": 132,
+        "r": 30,
+        "explicacion": "Los cambios de nivel y accesos a escaleras se iluminan.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-28 (verificar apartado)"
+        }
+      }
+    ]
+  },
+  "dominio_rebt": "B"
+}

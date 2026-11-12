@@ -33,94 +33,105 @@
       {
         "id": "e1",
         "etiqueta": "Caja no estanca en zona de salpicaduras",
-        "x": 15,
-        "y": 20,
-        "w": 130,
-        "h": 80,
+        "x": 8,
+        "y": 14,
+        "w": 90,
+        "h": 150,
         "defecto": true,
         "explicacion": "En locales mojados el material debe ser estanco.",
         "cita": {
           "doc": "REBT",
           "ref": "ITC-BT-30"
-        }
+        },
+        "aparato": "caja",
+        "visual": "sinSellar"
       },
       {
         "id": "e2",
         "etiqueta": "Prensaestopas",
-        "x": 160,
-        "y": 20,
-        "w": 130,
-        "h": 80,
+        "x": 104,
+        "y": 14,
+        "w": 90,
+        "h": 150,
         "defecto": false,
-        "explicacion": ""
+        "explicacion": "",
+        "aparato": "caja"
       },
       {
         "id": "e3",
         "etiqueta": "Tubo sin sellar en la entrada",
-        "x": 305,
-        "y": 20,
-        "w": 130,
-        "h": 80,
+        "x": 200,
+        "y": 14,
+        "w": 90,
+        "h": 150,
         "defecto": true,
         "explicacion": "Entrada de agua por la canalización.",
         "cita": {
           "doc": "REBT",
           "ref": "ITC-BT-30"
-        }
+        },
+        "aparato": "tubo",
+        "visual": "sinSellar"
       },
       {
         "id": "e4",
         "etiqueta": "Abrazaderas",
-        "x": 450,
-        "y": 20,
-        "w": 130,
-        "h": 80,
+        "x": 296,
+        "y": 14,
+        "w": 90,
+        "h": 150,
         "defecto": false,
-        "explicacion": ""
+        "explicacion": "",
+        "aparato": "tubo"
       },
       {
         "id": "e5",
         "etiqueta": "Empalme con cinta fuera de caja",
-        "x": 15,
-        "y": 115,
-        "w": 130,
-        "h": 80,
+        "x": 392,
+        "y": 14,
+        "w": 90,
+        "h": 150,
         "defecto": true,
         "explicacion": "Los empalmes deben hacerse en cajas.",
         "cita": {
           "doc": "REBT",
           "ref": "ITC-BT-19"
-        }
+        },
+        "aparato": "cable",
+        "visual": "suelto"
       },
       {
         "id": "e6",
         "etiqueta": "Etiquetado",
-        "x": 160,
-        "y": 115,
-        "w": 130,
-        "h": 80,
+        "x": 488,
+        "y": 14,
+        "w": 90,
+        "h": 150,
         "defecto": false,
-        "explicacion": ""
+        "explicacion": "",
+        "aparato": "etiqueta"
       },
       {
         "id": "e7",
         "etiqueta": "Registro de paso",
-        "x": 305,
-        "y": 115,
-        "w": 130,
-        "h": 80,
+        "x": 8,
+        "y": 186,
+        "w": 90,
+        "h": 150,
         "defecto": false,
-        "explicacion": ""
+        "explicacion": "",
+        "aparato": "caja"
       },
       {
         "id": "e8",
         "etiqueta": "Conductor de protección",
-        "x": 450,
-        "y": 115,
-        "w": 130,
-        "h": 80,
+        "x": 104,
+        "y": 186,
+        "w": 90,
+        "h": 150,
         "defecto": false,
-        "explicacion": ""
+        "explicacion": "",
+        "aparato": "cable"
       }
     ]
   },

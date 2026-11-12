@@ -50,3 +50,11 @@ Implementación y ejemplos numéricos: `src/game/grading.ts` y `grading.test.ts`
 - Banco de pruebas en vivo: pulsadores (mantener pulsado = impulso), disparo del térmico y tiempo ×5 para ver el temporizador.
 - 19 ítems en borrador (N1 4, N2 5, N3 4, N4 4, N5 2: estrella-triángulo e inversión de giro completos). Cada ítem tiene su cableado de referencia en `solucion.cables` y un test que comprueba que puntúa el 100 %.
 - **Limitación de integridad:** las soluciones viajan dentro del paquete del navegador. Para evaluación con garantías habría que validarlas en servidor (Fase 6 / Firebase Functions).
+
+## Fase 5: bloques 5 y 8, epílogo y simulación realista
+- **Aparatos y escenas realistas:** los muros de inspección (bloques 2 y 4) muestran PIA, diferenciales, IGA, regletas, cables, tubos, cajas y bandejas dibujados con volumen, y cada defecto se ve (borna quemada, puente en un PIA, cable sin aislante, tapa ausente, tubo aplastado, caja sin sellar…). En el contenido, cada elemento lleva `aparato` y `visual` (ver `content/distritos/d4/*.json`).
+- **Banco de pruebas (bloque 7):** el alumno abre el IGA, selecciona la función del multímetro con la rueda, coloca las puntas en los bornes y lee la pantalla. Medir continuidad o aislamiento con tensión da error de seguridad grave. También megóhmetro (TEST 500 V) y pinza de fugas.
+- **Plano de local (bloque 5):** el alumno ubica luminarias de emergencia en salidas, escalera, cuadro, extintor y cambios de dirección. Puntuación por zonas cubiertas; el exceso sobre el máximo resta. Los planos se definen como datos (`plano.formas` y `plano.zonas`). Accesible con teclado.
+- **Documentos (bloque 8):** `formulario` (certificado, ficha, presupuesto, plan de mantenimiento) y `texto_errores` (borrador de IA con errores plantados).
+- **La Gran Inspección (`/epilogo`):** 8 ítems integradores que mezclan inspección de cuadro, medidas, acta, dimensionado, automatismo, canalizaciones, documentación y plano. Se desbloquea al superar la evaluación final (N5) de los 8 bloques. Hoy son copias de jefes de bloque: conviene diseñar escenarios propios.
+- **Valores a verificar:** las zonas del plano y sus radios, las frecuencias de mantenimiento y las citas de ITC son borradores; no hay valores normativos de alumbrado de emergencia (iluminancia, autonomía) porque no están verificados.

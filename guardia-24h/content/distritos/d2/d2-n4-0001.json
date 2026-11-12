@@ -33,98 +33,110 @@
       {
         "id": "e1",
         "etiqueta": "Cruce de conductores sin protección",
-        "x": 15,
-        "y": 20,
-        "w": 130,
-        "h": 80,
+        "x": 8,
+        "y": 14,
+        "w": 90,
+        "h": 150,
         "defecto": true,
         "explicacion": "Los cruzamientos deben evitarse o protegerse.",
         "cita": {
           "doc": "REBT",
           "ref": "ITC-BT-20"
-        }
+        },
+        "aparato": "tubo",
+        "visual": "cruzado"
       },
       {
         "id": "e2",
         "etiqueta": "Registro de paso",
-        "x": 160,
-        "y": 20,
-        "w": 130,
-        "h": 80,
+        "x": 104,
+        "y": 14,
+        "w": 90,
+        "h": 150,
         "defecto": false,
-        "explicacion": ""
+        "explicacion": "",
+        "aparato": "caja"
       },
       {
         "id": "e3",
         "etiqueta": "Curva demasiado cerrada",
-        "x": 305,
-        "y": 20,
-        "w": 130,
-        "h": 80,
+        "x": 200,
+        "y": 14,
+        "w": 90,
+        "h": 150,
         "defecto": true,
         "explicacion": "Una curva brusca daña el aislamiento y dificulta el tendido.",
         "cita": {
           "doc": "REBT",
           "ref": "ITC-BT-21"
-        }
+        },
+        "aparato": "tubo",
+        "visual": "curva"
       },
       {
         "id": "e4",
         "etiqueta": "Fijación del tubo",
-        "x": 450,
-        "y": 20,
-        "w": 130,
-        "h": 80,
+        "x": 296,
+        "y": 14,
+        "w": 90,
+        "h": 150,
         "defecto": false,
-        "explicacion": ""
+        "explicacion": "",
+        "aparato": "tubo"
       },
       {
         "id": "e5",
         "etiqueta": "Sin registro en el tramo largo",
-        "x": 15,
-        "y": 115,
-        "w": 130,
-        "h": 80,
+        "x": 392,
+        "y": 14,
+        "w": 90,
+        "h": 150,
         "defecto": true,
         "explicacion": "Faltan registros que permitan el tendido y la sustitución.",
         "cita": {
           "doc": "REBT",
           "ref": "ITC-BT-21"
-        }
+        },
+        "aparato": "tubo",
+        "visual": "sinRegistro"
       },
       {
         "id": "e6",
         "etiqueta": "Rotulado de conductores",
-        "x": 160,
-        "y": 115,
-        "w": 130,
-        "h": 80,
+        "x": 488,
+        "y": 14,
+        "w": 90,
+        "h": 150,
         "defecto": false,
-        "explicacion": ""
+        "explicacion": "",
+        "aparato": "cable"
       },
       {
         "id": "e7",
         "etiqueta": "Caja de empalme",
-        "x": 305,
-        "y": 115,
-        "w": 130,
-        "h": 80,
+        "x": 8,
+        "y": 186,
+        "w": 90,
+        "h": 150,
         "defecto": false,
-        "explicacion": ""
+        "explicacion": "",
+        "aparato": "caja"
       },
       {
         "id": "e8",
         "etiqueta": "Tubo aplastado",
-        "x": 450,
-        "y": 115,
-        "w": 130,
-        "h": 80,
+        "x": 104,
+        "y": 186,
+        "w": 90,
+        "h": 150,
         "defecto": true,
         "explicacion": "Tubo deformado: reduce la sección útil y daña los conductores.",
         "cita": {
           "doc": "REBT",
           "ref": "ITC-BT-21"
-        }
+        },
+        "aparato": "tubo",
+        "visual": "aplastado"
       }
     ]
   },
