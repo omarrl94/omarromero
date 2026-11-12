@@ -1,0 +1,37 @@
+{
+  "id": "d3-n1-0003",
+  "estado": "borrador",
+  "distrito": 3,
+  "ra": [
+    "RA1",
+    "RA3"
+  ],
+  "ce": [
+    "RA1-CE1"
+  ],
+  "nivel": 1,
+  "tipo": "opcion_multiple",
+  "dificultad": 1,
+  "pe_base": 1,
+  "enunciado": "En el cuadro, ¿el interruptor diferencial protege principalmente contra…?",
+  "solucion": {
+    "correcta": 1
+  },
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Consulta la biblioteca (ITC correspondiente)."
+  ],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "opciones": [
+    "Sobrecargas",
+    "Contactos indirectos por fugas a tierra",
+    "Caída de tensión",
+    "Armónicos"
+  ]
+}

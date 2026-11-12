@@ -1,0 +1,34 @@
+{
+  "id": "d3-n3-0003",
+  "estado": "borrador",
+  "distrito": 3,
+  "ra": [
+    "RA3",
+    "RA2"
+  ],
+  "ce": [
+    "RA3-CE3"
+  ],
+  "nivel": 3,
+  "tipo": "dimensionado",
+  "dificultad": 1.5,
+  "pe_base": 3,
+  "enunciado": "Dimensiona el circuito C3 de una vivienda: elige calibre del PIA, sección y diámetro de tubo.",
+  "solucion": {
+    "circuitos": [
+      "C3"
+    ]
+  },
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "ITC-BT-25, tabla de características de los circuitos de la vivienda."
+  ],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "dominio_rebt": "A"
+}

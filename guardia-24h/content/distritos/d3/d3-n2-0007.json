@@ -1,0 +1,41 @@
+{
+  "id": "d3-n2-0007",
+  "estado": "borrador",
+  "distrito": 3,
+  "ra": [
+    "RA1",
+    "RA3"
+  ],
+  "ce": [
+    "RA1-CE2"
+  ],
+  "nivel": 2,
+  "tipo": "numerico",
+  "dificultad": 1,
+  "pe_base": 2,
+  "enunciado": "Una estancia de 9 m². ¿Cuántos puntos de luz como mínimo?",
+  "solucion": {
+    "calculo": {
+      "tipo": "luz_estancia",
+      "S": 9
+    },
+    "tolerancia": 0
+  },
+  "requiere_cita": true,
+  "citas_validas": [
+    {
+      "doc": "REBT",
+      "ref": "ITC-BT-25"
+    }
+  ],
+  "pistas": [
+    "Consulta la biblioteca (ITC correspondiente)."
+  ],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "dominio_rebt": "A"
+}

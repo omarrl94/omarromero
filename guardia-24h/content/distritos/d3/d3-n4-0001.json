@@ -1,0 +1,39 @@
+{
+  "id": "d3-n4-0001",
+  "estado": "borrador",
+  "distrito": 3,
+  "ra": [
+    "RA3",
+    "RA2"
+  ],
+  "ce": [
+    "RA3-CE3",
+    "RA2-CE5"
+  ],
+  "nivel": 4,
+  "tipo": "dimensionado",
+  "dificultad": 2,
+  "pe_base": 3,
+  "enunciado": "Cuadro completo de una vivienda: dimensiona C1 a C5.",
+  "solucion": {
+    "circuitos": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5"
+    ]
+  },
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Consulta la biblioteca (ITC correspondiente)."
+  ],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "dominio_rebt": "A"
+}

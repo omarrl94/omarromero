@@ -1,0 +1,31 @@
+{
+  "id": "d4-n2-0001",
+  "estado": "borrador",
+  "distrito": 4,
+  "ra": [
+    "RA3",
+    "RA6"
+  ],
+  "ce": [
+    "RA6-CE2"
+  ],
+  "nivel": 2,
+  "tipo": "verdadero_falso",
+  "dificultad": 1,
+  "pe_base": 2,
+  "enunciado": "Verdadero o falso: un diferencial sustituye al PIA.",
+  "solucion": {
+    "correcta": false
+  },
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Consulta la biblioteca (ITC correspondiente)."
+  ],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false
+}

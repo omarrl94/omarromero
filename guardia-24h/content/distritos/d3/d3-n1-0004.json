@@ -1,0 +1,37 @@
+{
+  "id": "d3-n1-0004",
+  "estado": "borrador",
+  "distrito": 3,
+  "ra": [
+    "RA1",
+    "RA3"
+  ],
+  "ce": [
+    "RA1-CE1"
+  ],
+  "nivel": 1,
+  "tipo": "opcion_multiple",
+  "dificultad": 1,
+  "pe_base": 1,
+  "enunciado": "¿Qué datos necesitas para calcular la intensidad de un receptor monofásico?",
+  "solucion": {
+    "correcta": 0
+  },
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Consulta la biblioteca (ITC correspondiente)."
+  ],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "opciones": [
+    "Potencia y tensión",
+    "Solo la longitud",
+    "Solo la sección",
+    "El color del cable"
+  ]
+}

@@ -1,0 +1,133 @@
+{
+  "id": "d4-n4-0001",
+  "estado": "borrador",
+  "distrito": 4,
+  "ra": [
+    "RA3",
+    "RA6",
+    "RA7"
+  ],
+  "ce": [
+    "RA6-CE5",
+    "RA7-CE4"
+  ],
+  "nivel": 4,
+  "tipo": "hotspots",
+  "dificultad": 1.5,
+  "pe_base": 3,
+  "enunciado": "Diagnóstico · Cuadro de local: localiza todos los defectos antes de reparar y firmar.",
+  "solucion": {},
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Consulta la biblioteca (ITC correspondiente)."
+  ],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "escena": {
+    "titulo": "Cuadro de local",
+    "elementos": [
+      {
+        "id": "e1",
+        "etiqueta": "Conductor sin marcar",
+        "x": 15,
+        "y": 20,
+        "w": 130,
+        "h": 80,
+        "defecto": true,
+        "explicacion": "Los conductores deben poder identificarse; faltan rótulos.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-19"
+        }
+      },
+      {
+        "id": "e2",
+        "etiqueta": "PIA 63 A en cable fino",
+        "x": 160,
+        "y": 20,
+        "w": 130,
+        "h": 80,
+        "defecto": true,
+        "explicacion": "Calibre superior a lo que soporta el cable: no hay protección.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-22"
+        }
+      },
+      {
+        "id": "e3",
+        "etiqueta": "Diferencial correcto",
+        "x": 305,
+        "y": 20,
+        "w": 130,
+        "h": 80,
+        "defecto": false,
+        "explicacion": ""
+      },
+      {
+        "id": "e4",
+        "etiqueta": "Fase en borna de neutro",
+        "x": 450,
+        "y": 20,
+        "w": 130,
+        "h": 80,
+        "defecto": true,
+        "explicacion": "Inversión fase/neutro: peligro y mal funcionamiento.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-19"
+        }
+      },
+      {
+        "id": "e5",
+        "etiqueta": "Limitador sobretensiones",
+        "x": 15,
+        "y": 115,
+        "w": 130,
+        "h": 80,
+        "defecto": false,
+        "explicacion": ""
+      },
+      {
+        "id": "e6",
+        "etiqueta": "Tapa sin fijar",
+        "x": 160,
+        "y": 115,
+        "w": 130,
+        "h": 80,
+        "defecto": true,
+        "explicacion": "Partes activas accesibles.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-24"
+        }
+      },
+      {
+        "id": "e7",
+        "etiqueta": "Carril ordenado",
+        "x": 305,
+        "y": 115,
+        "w": 130,
+        "h": 80,
+        "defecto": false,
+        "explicacion": ""
+      },
+      {
+        "id": "e8",
+        "etiqueta": "Tierra bien conectada",
+        "x": 450,
+        "y": 115,
+        "w": 130,
+        "h": 80,
+        "defecto": false,
+        "explicacion": ""
+      }
+    ]
+  },
+  "dominio_rebt": "A"
+}

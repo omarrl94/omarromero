@@ -1,0 +1,34 @@
+{
+  "id": "d3-n3-0006",
+  "estado": "borrador",
+  "distrito": 3,
+  "ra": [
+    "RA3"
+  ],
+  "ce": [
+    "RA3-CE6"
+  ],
+  "nivel": 3,
+  "tipo": "numerico",
+  "dificultad": 1,
+  "pe_base": 2,
+  "enunciado": "Un receptor de 2300 W en una vivienda monofásica. ¿Qué intensidad consume (A)?",
+  "solucion": {
+    "calculo": {
+      "tipo": "intensidad",
+      "P": 2300
+    },
+    "tolerancia": 0.1
+  },
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Consulta la biblioteca (ITC correspondiente)."
+  ],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false
+}

@@ -4,3 +4,4 @@ dist
 .firebaserc
 test-results
 playwright-report
+previews

@@ -1,0 +1,362 @@
+{
+  "entradas": [
+    {
+      "id": "vivienda.C1.nombre",
+      "descripcion": "C1 nombre [TODO(profesor): verificar con el texto oficial]",
+      "valor": "Iluminación",
+      "fuente": {
+        "documento": "REBT",
+        "ref": "ITC-BT-25 · Tabla 1"
+      },
+      "verificado": false
+    },
+    {
+      "id": "vivienda.C1.pia",
+      "descripcion": "C1 calibre PIA [TODO(profesor): verificar con el texto oficial]",
+      "valor": 10,
+      "unidad": "A",
+      "fuente": {
+        "documento": "REBT",
+        "ref": "ITC-BT-25 · Tabla 1"
+      },
+      "verificado": false
+    },
+    {
+      "id": "vivienda.C1.seccion",
+      "descripcion": "C1 sección mínima [TODO(profesor): verificar con el texto oficial]",
+      "valor": 1.5,
+      "unidad": "mm²",
+      "fuente": {
+        "documento": "REBT",
+        "ref": "ITC-BT-25 · Tabla 1"
+      },
+      "verificado": false
+    },
+    {
+      "id": "vivienda.C1.tubo",
+      "descripcion": "C1 diámetro de tubo [TODO(profesor): verificar con el texto oficial]",
+      "valor": 16,
+      "unidad": "mm",
+      "fuente": {
+        "documento": "REBT",
+        "ref": "ITC-BT-25 · Tabla 1"
+      },
+      "verificado": false
+    },
+    {
+      "id": "vivienda.C1.puntos_max",
+      "descripcion": "C1 puntos de utilización máximos [TODO(profesor): verificar con el texto oficial]",
+      "valor": 30,
+      "unidad": "ud",
+      "fuente": {
+        "documento": "REBT",
+        "ref": "ITC-BT-25 · Tabla 1"
+      },
+      "verificado": false
+    },
+    {
+      "id": "vivienda.C2.nombre",
+      "descripcion": "C2 nombre [TODO(profesor): verificar con el texto oficial]",
+      "valor": "Tomas de uso general y frigorífico",
+      "fuente": {
+        "documento": "REBT",
+        "ref": "ITC-BT-25 · Tabla 1"
+      },
+      "verificado": false
+    },
+    {
+      "id": "vivienda.C2.pia",
+      "descripcion": "C2 calibre PIA [TODO(profesor): verificar con el texto oficial]",
+      "valor": 16,
+      "unidad": "A",
+      "fuente": {
+        "documento": "REBT",
+        "ref": "ITC-BT-25 · Tabla 1"
+      },
+      "verificado": false
+    },
+    {
+      "id": "vivienda.C2.seccion",
+      "descripcion": "C2 sección mínima [TODO(profesor): verificar con el texto oficial]",
+      "valor": 2.5,
+      "unidad": "mm²",
+      "fuente": {
+        "documento": "REBT",
+        "ref": "ITC-BT-25 · Tabla 1"
+      },
+      "verificado": false
+    },
+    {
+      "id": "vivienda.C2.tubo",
+      "descripcion": "C2 diámetro de tubo [TODO(profesor): verificar con el texto oficial]",
+      "valor": 20,
+      "unidad": "mm",
+      "fuente": {
+        "documento": "REBT",
+        "ref": "ITC-BT-25 · Tabla 1"
+      },
+      "verificado": false
+    },
+    {
+      "id": "vivienda.C2.puntos_max",
+      "descripcion": "C2 puntos de utilización máximos [TODO(profesor): verificar con el texto oficial]",
+      "valor": 20,
+      "unidad": "ud",
+      "fuente": {
+        "documento": "REBT",
+        "ref": "ITC-BT-25 · Tabla 1"
+      },
+      "verificado": false
+    },
+    {
+      "id": "vivienda.C3.nombre",
+      "descripcion": "C3 nombre [TODO(profesor): verificar con el texto oficial]",
+      "valor": "Cocina y horno",
+      "fuente": {
+        "documento": "REBT",
+        "ref": "ITC-BT-25 · Tabla 1"
+      },
+      "verificado": false
+    },
+    {
+      "id": "vivienda.C3.pia",
+      "descripcion": "C3 calibre PIA [TODO(profesor): verificar con el texto oficial]",
+      "valor": 25,
+      "unidad": "A",
+      "fuente": {
+        "documento": "REBT",
+        "ref": "ITC-BT-25 · Tabla 1"
+      },
+      "verificado": false
+    },
+    {
+      "id": "vivienda.C3.seccion",
+      "descripcion": "C3 sección mínima [TODO(profesor): verificar con el texto oficial]",
+      "valor": 6,
+      "unidad": "mm²",
+      "fuente": {
+        "documento": "REBT",
+        "ref": "ITC-BT-25 · Tabla 1"
+      },
+      "verificado": false
+    },
+    {
+      "id": "vivienda.C3.tubo",
+      "descripcion": "C3 diámetro de tubo [TODO(profesor): verificar con el texto oficial]",
+      "valor": 25,
+      "unidad": "mm",
+      "fuente": {
+        "documento": "REBT",
+        "ref": "ITC-BT-25 · Tabla 1"
+      },
+      "verificado": false
+    },
+    {
+      "id": "vivienda.C3.puntos_max",
+      "descripcion": "C3 puntos de utilización máximos [TODO(profesor): verificar con el texto oficial]",
+      "valor": 2,
+      "unidad": "ud",
+      "fuente": {
+        "documento": "REBT",
+        "ref": "ITC-BT-25 · Tabla 1"
+      },
+      "verificado": false
+    },
+    {
+      "id": "vivienda.C4.nombre",
+      "descripcion": "C4 nombre [TODO(profesor): verificar con el texto oficial]",
+      "valor": "Lavadora, lavavajillas y termo",
+      "fuente": {
+        "documento": "REBT",
+        "ref": "ITC-BT-25 · Tabla 1"
+      },
+      "verificado": false
+    },
+    {
+      "id": "vivienda.C4.pia",
+      "descripcion": "C4 calibre PIA [TODO(profesor): verificar con el texto oficial]",
+      "valor": 20,
+      "unidad": "A",
+      "fuente": {
+        "documento": "REBT",
+        "ref": "ITC-BT-25 · Tabla 1"
+      },
+      "verificado": false
+    },
+    {
+      "id": "vivienda.C4.seccion",
+      "descripcion": "C4 sección mínima [TODO(profesor): verificar con el texto oficial]",
+      "valor": 4,
+      "unidad": "mm²",
+      "fuente": {
+        "documento": "REBT",
+        "ref": "ITC-BT-25 · Tabla 1"
+      },
+      "verificado": false
+    },
+    {
+      "id": "vivienda.C4.tubo",
+      "descripcion": "C4 diámetro de tubo [TODO(profesor): verificar con el texto oficial]",
+      "valor": 20,
+      "unidad": "mm",
+      "fuente": {
+        "documento": "REBT",
+        "ref": "ITC-BT-25 · Tabla 1"
+      },
+      "verificado": false
+    },
+    {
+      "id": "vivienda.C4.puntos_max",
+      "descripcion": "C4 puntos de utilización máximos [TODO(profesor): verificar con el texto oficial]",
+      "valor": 3,
+      "unidad": "ud",
+      "fuente": {
+        "documento": "REBT",
+        "ref": "ITC-BT-25 · Tabla 1"
+      },
+      "verificado": false
+    },
+    {
+      "id": "vivienda.C5.nombre",
+      "descripcion": "C5 nombre [TODO(profesor): verificar con el texto oficial]",
+      "valor": "Baño y auxiliares de cocina",
+      "fuente": {
+        "documento": "REBT",
+        "ref": "ITC-BT-25 · Tabla 1"
+      },
+      "verificado": false
+    },
+    {
+      "id": "vivienda.C5.pia",
+      "descripcion": "C5 calibre PIA [TODO(profesor): verificar con el texto oficial]",
+      "valor": 16,
+      "unidad": "A",
+      "fuente": {
+        "documento": "REBT",
+        "ref": "ITC-BT-25 · Tabla 1"
+      },
+      "verificado": false
+    },
+    {
+      "id": "vivienda.C5.seccion",
+      "descripcion": "C5 sección mínima [TODO(profesor): verificar con el texto oficial]",
+      "valor": 2.5,
+      "unidad": "mm²",
+      "fuente": {
+        "documento": "REBT",
+        "ref": "ITC-BT-25 · Tabla 1"
+      },
+      "verificado": false
+    },
+    {
+      "id": "vivienda.C5.tubo",
+      "descripcion": "C5 diámetro de tubo [TODO(profesor): verificar con el texto oficial]",
+      "valor": 20,
+      "unidad": "mm",
+      "fuente": {
+        "documento": "REBT",
+        "ref": "ITC-BT-25 · Tabla 1"
+      },
+      "verificado": false
+    },
+    {
+      "id": "vivienda.C5.puntos_max",
+      "descripcion": "C5 puntos de utilización máximos [TODO(profesor): verificar con el texto oficial]",
+      "valor": 6,
+      "unidad": "ud",
+      "fuente": {
+        "documento": "REBT",
+        "ref": "ITC-BT-25 · Tabla 1"
+      },
+      "verificado": false
+    },
+    {
+      "id": "tension.monofasica",
+      "descripcion": "Tensión monofásica [TODO(profesor): verificar con el texto oficial]",
+      "valor": 230,
+      "unidad": "V",
+      "fuente": {
+        "documento": "REBT",
+        "ref": "ITC-BT-01"
+      },
+      "verificado": false
+    },
+    {
+      "id": "fisica.cobre.conductividad",
+      "descripcion": "Conductividad del cobre (de cálculo) [TODO(profesor): verificar con el texto oficial]",
+      "valor": 56,
+      "unidad": "m/(Ω·mm²)",
+      "fuente": {
+        "documento": "REBT",
+        "ref": "ITC-BT-19"
+      },
+      "verificado": false
+    },
+    {
+      "id": "caida.alumbrado.max_pct",
+      "descripcion": "Caída de tensión máxima, alumbrado [TODO(profesor): verificar con el texto oficial]",
+      "valor": 3,
+      "unidad": "%",
+      "fuente": {
+        "documento": "REBT",
+        "ref": "ITC-BT-19"
+      },
+      "verificado": false
+    },
+    {
+      "id": "caida.otros.max_pct",
+      "descripcion": "Caída de tensión máxima, resto de usos [TODO(profesor): verificar con el texto oficial]",
+      "valor": 5,
+      "unidad": "%",
+      "fuente": {
+        "documento": "REBT",
+        "ref": "ITC-BT-19"
+      },
+      "verificado": false
+    },
+    {
+      "id": "vivienda.regla.base_cada_m2",
+      "descripcion": "Una base por cada X m² de la estancia [TODO(profesor): verificar con el texto oficial]",
+      "valor": 6,
+      "unidad": "m²",
+      "fuente": {
+        "documento": "REBT",
+        "ref": "ITC-BT-25 · Tabla 2"
+      },
+      "verificado": false
+    },
+    {
+      "id": "vivienda.regla.bases_min",
+      "descripcion": "Mínimo de bases por estancia (salón/dormitorios) [TODO(profesor): verificar con el texto oficial]",
+      "valor": 3,
+      "unidad": "ud",
+      "fuente": {
+        "documento": "REBT",
+        "ref": "ITC-BT-25 · Tabla 2"
+      },
+      "verificado": false
+    },
+    {
+      "id": "vivienda.regla.luz_doble_sobre_m2",
+      "descripcion": "Superficie a partir de la cual se exigen 2 puntos de luz [TODO(profesor): verificar con el texto oficial]",
+      "valor": 10,
+      "unidad": "m²",
+      "fuente": {
+        "documento": "REBT",
+        "ref": "ITC-BT-25 · Tabla 2"
+      },
+      "verificado": false
+    },
+    {
+      "id": "vivienda.regla.diferencial_cada_n_circuitos",
+      "descripcion": "Un diferencial por cada N circuitos [TODO(profesor): verificar con el texto oficial]",
+      "valor": 5,
+      "unidad": "ud",
+      "fuente": {
+        "documento": "REBT",
+        "ref": "ITC-BT-16 / 17 (revisar)"
+      },
+      "verificado": false
+    }
+  ]
+}

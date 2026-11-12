@@ -1,0 +1,37 @@
+{
+  "id": "d4-n1-0003",
+  "estado": "borrador",
+  "distrito": 4,
+  "ra": [
+    "RA3",
+    "RA6"
+  ],
+  "ce": [
+    "RA3-CE1"
+  ],
+  "nivel": 1,
+  "tipo": "opcion_multiple",
+  "dificultad": 1,
+  "pe_base": 1,
+  "enunciado": "¿Para qué sirve el limitador de sobretensiones?",
+  "solucion": {
+    "correcta": 0
+  },
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Consulta la biblioteca (ITC correspondiente)."
+  ],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "opciones": [
+    "Proteger contra picos de tensión",
+    "Medir consumo",
+    "Encender luces",
+    "Cortar a mano"
+  ]
+}

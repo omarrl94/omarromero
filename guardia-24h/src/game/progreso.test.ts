@@ -74,3 +74,31 @@ describe('progreso y notas', () => {
     expect(sel.every((i) => !vistos.has(i.id))).toBe(true);
   });
 });
+
+import { items as contenido } from '../data/content';
+
+describe('tipos nuevos con contenido real', () => {
+  const por = (id: string) => contenido.find((i) => i.id === id)!;
+  it('numérico con cálculo desde el motor y la norma', () => {
+    const it = contenido.find((i) => (i.solucion as { calculo?: { tipo: string; S: number } }).calculo?.tipo === 'bases_estancia' && (i.solucion as { calculo: { S: number } }).calculo.S === 20)!;
+    expect(evalua(it, { numero: 4, pistas: 0, cita: { doc: 'REBT', ref: 'ITC-BT-25' } }).pe_obtained).toBeGreaterThan(0);
+    expect(evalua(it, { numero: 3, pistas: 0 }).pe_obtained).toBe(0);
+  });
+  it('dimensionado: puntuación parcial por campo acertado', () => {
+    const it = por('d3-n3-0001');
+    const ok = evalua(it, { dim: [{ circuito: 'C1', pia: 10, seccion: 1.5, tubo: 16 }], pistas: 0 });
+    expect(ok.pe_obtained).toBe(ok.pe_max);
+    const parcial = evalua(it, { dim: [{ circuito: 'C1', pia: 10, seccion: 1.5, tubo: 99 }], pistas: 0 });
+    expect(parcial.pe_obtained).toBeCloseTo((ok.pe_max * 2) / 3, 3);
+  });
+  it('hotspots: aciertos suman, falsos positivos restan', () => {
+    const it = por('d4-n3-0001');
+    const def = it.escena!.elementos.filter((x) => x.defecto).map((x) => x.id);
+    const bueno = it.escena!.elementos.find((x) => !x.defecto)!.id;
+    const todo = evalua(it, { seleccion: def, pistas: 0 });
+    expect(todo.pe_obtained).toBe(todo.pe_max);
+    const con1falso = evalua(it, { seleccion: [...def, bueno], pistas: 0 });
+    expect(con1falso.pe_obtained).toBeCloseTo(todo.pe_max * (1 - 1 / def.length), 3);
+    expect(evalua(it, { seleccion: [], pistas: 0 }).pe_obtained).toBe(0);
+  });
+});

@@ -1,0 +1,127 @@
+{
+  "id": "d4-n3-0001",
+  "estado": "borrador",
+  "distrito": 4,
+  "ra": [
+    "RA3",
+    "RA6"
+  ],
+  "ce": [
+    "RA6-CE3"
+  ],
+  "nivel": 3,
+  "tipo": "hotspots",
+  "dificultad": 1.5,
+  "pe_base": 3,
+  "enunciado": "Muro de la vergüenza eléctrica · Escena A: marca TODOS los defectos del cuadro.",
+  "solucion": {},
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Consulta la biblioteca (ITC correspondiente)."
+  ],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "escena": {
+    "titulo": "Cuadro Escena A",
+    "elementos": [
+      {
+        "id": "e1",
+        "etiqueta": "IGA 25 A",
+        "x": 15,
+        "y": 20,
+        "w": 130,
+        "h": 80,
+        "defecto": false,
+        "explicacion": ""
+      },
+      {
+        "id": "e2",
+        "etiqueta": "Diferencial 30 mA",
+        "x": 160,
+        "y": 20,
+        "w": 130,
+        "h": 80,
+        "defecto": false,
+        "explicacion": ""
+      },
+      {
+        "id": "e3",
+        "etiqueta": "PIA con puente de cable",
+        "x": 305,
+        "y": 20,
+        "w": 130,
+        "h": 80,
+        "defecto": true,
+        "explicacion": "Puentear una protección anula la protección contra sobreintensidades.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-22"
+        }
+      },
+      {
+        "id": "e4",
+        "etiqueta": "Cable de fase en borna floja",
+        "x": 450,
+        "y": 20,
+        "w": 130,
+        "h": 80,
+        "defecto": true,
+        "explicacion": "Conexión floja: calentamiento por resistencia de contacto.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-19"
+        }
+      },
+      {
+        "id": "e5",
+        "etiqueta": "Etiquetas de circuito",
+        "x": 15,
+        "y": 115,
+        "w": 130,
+        "h": 80,
+        "defecto": false,
+        "explicacion": ""
+      },
+      {
+        "id": "e6",
+        "etiqueta": "Sin conductor de protección en la base",
+        "x": 160,
+        "y": 115,
+        "w": 130,
+        "h": 80,
+        "defecto": true,
+        "explicacion": "Falta la conexión a tierra de las masas.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-18"
+        }
+      },
+      {
+        "id": "e7",
+        "etiqueta": "Tapa del cuadro cerrada",
+        "x": 305,
+        "y": 115,
+        "w": 130,
+        "h": 80,
+        "defecto": false,
+        "explicacion": ""
+      },
+      {
+        "id": "e8",
+        "etiqueta": "Carril ordenado",
+        "x": 450,
+        "y": 115,
+        "w": 130,
+        "h": 80,
+        "defecto": false,
+        "explicacion": ""
+      }
+    ]
+  },
+  "dominio_rebt": "A"
+}

@@ -51,6 +51,15 @@ export const ItemSchema = z.object({
   pe_base: z.number().positive(),
   enunciado: z.string(),
   opciones: z.array(z.string()).optional(),
+  escena: z
+    .object({
+      titulo: z.string(),
+      elementos: z.array(z.object({
+        id: z.string(), etiqueta: z.string(), x: z.number(), y: z.number(), w: z.number(), h: z.number(),
+        defecto: z.boolean(), explicacion: z.string(), cita: z.object({ doc: z.string(), ref: z.string() }).optional(),
+      })),
+    })
+    .optional(),
   variables: z.record(z.object({ valores: z.array(z.union([z.number(), z.string()])) })).optional(),
   solucion: z.record(z.unknown()),
   dominio_rebt: z.enum(['A', 'B', 'C']).optional(),

@@ -1,9 +1,11 @@
 import type { Item } from '../data/schemas';
 import type { Respuesta } from '../data/repo';
 import { citaValida, type Cita } from '../library/search';
-import { peMaximo, peObtenido } from './grading';
+import { validaCuadro, type Propuesta } from '../engine/cuadro';
+import { calcula, tablaVivienda } from './calculos';
+import { peMaximo, peObtenido, redondea } from './grading';
 
-export interface Entrada { opcion?: number; vf?: boolean; numero?: number; cita?: Cita | null; pistas: number; seguridad?: boolean }
+export interface Entrada { opcion?: number; vf?: boolean; numero?: number; cita?: Cita | null; seleccion?: string[]; dim?: Propuesta[]; pistas: number; seguridad?: boolean }
 
 /** ¿Es correcta la parte de contenido de la respuesta (sin cita)? */
 export function esCorrecta(item: Item, e: Entrada): boolean {
@@ -13,21 +15,43 @@ export function esCorrecta(item: Item, e: Entrada): boolean {
     case 'verdadero_falso': return e.vf === s.correcta;
     case 'numerico': {
       const tol = typeof s.tolerancia === 'number' ? s.tolerancia : 0;
-      return e.numero !== undefined && Math.abs(e.numero - Number(s.valor)) <= tol;
+      const valor = s.calculo ? calcula(s.calculo as { tipo: string }) : Number(s.valor);
+      return e.numero !== undefined && Math.abs(e.numero - valor) <= tol;
     }
+    case 'dimensionado':
+    case 'hotspots': return fraccion(item, e) === 1;
     case 'selector_cita': return Boolean(e.cita && citaValida(e.cita, item.citas_validas));
     default: return false;
   }
+}
+
+/** Fracción de acierto para tipos con puntuación parcial; null si el tipo no es parcial. */
+export function fraccion(item: Item, e: Entrada): number | null {
+  if (item.tipo === 'hotspots') {
+    const els = item.escena?.elementos ?? [];
+    const defectos = els.filter((x) => x.defecto), sel = new Set(e.seleccion ?? []);
+    const hits = defectos.filter((x) => sel.has(x.id)).length, falsos = [...sel].filter((id) => !defectos.some((x) => x.id === id)).length;
+    return defectos.length ? Math.max(0, (hits - falsos) / defectos.length) : 0;
+  }
+  if (item.tipo === 'dimensionado') {
+    const circ = ((item.solucion as { circuitos?: string[] }).circuitos ?? []);
+    const r = validaCuadro(e.dim ?? [], tablaVivienda(circ), () => ({ doc: 'REBT', ref: '' }));
+    const total = circ.length * 3;
+    return total ? r.aciertos / total : 0;
+  }
+  return null;
 }
 
 export function evalua(item: Item, e: Entrada, ts = Date.now()): Respuesta {
   const citaOk = Boolean(e.cita && citaValida(e.cita, item.citas_validas));
   const correct = esCorrecta(item, e);
   const peMax = peMaximo(item);
-  const pe = peObtenido({
-    peMax, correcta: correct, requiereCita: item.requiere_cita && item.tipo !== 'selector_cita',
-    citaOk, pistas: e.pistas, errorSeguridad: Boolean(e.seguridad),
-  });
+  const fr = fraccion(item, e);
+  const pe = redondea(
+    peObtenido({
+      peMax, correcta: fr === null ? correct : fr > 0, requiereCita: item.requiere_cita && item.tipo !== 'selector_cita',
+      citaOk, pistas: e.pistas, errorSeguridad: Boolean(e.seguridad),
+    }) * (fr ?? 1), 4);
   return {
     item_id: item.id, distrito: item.distrito, nivel: item.nivel, ra: item.ra, ce: item.ce,
     correct, cite_ok: citaOk, hint_used: e.pistas, pe_obtained: pe, pe_max: peMax, seguridad: Boolean(e.seguridad), ts,

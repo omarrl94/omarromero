@@ -10,6 +10,10 @@ import { peMaximo } from '../game/grading';
 import { ITEMS_POR_INTENTO, estadoNivel, nivelAbierto, seleccionaItems } from '../game/progreso';
 import { useStore } from '../game/store';
 import type { Cita } from '../library/search';
+import { normaLista } from '../data/content';
+import { Escena } from '../components/Escena';
+import { validaCuadro, type Propuesta } from '../engine/cuadro';
+import { tablaVivienda } from '../game/calculos';
 
 export function Nivel() {
   const { id, n } = useParams();
@@ -83,7 +87,7 @@ function Jugando({ semilla, lista, onFin }: { semilla: string; lista: Item[]; on
   };
   const pista = () => setE((x) => (x.pistas < item.pistas.length ? { ...x, pistas: x.pistas + 1 } : x));
   const completo = item.tipo === 'opcion_multiple' ? e.opcion !== undefined : item.tipo === 'verdadero_falso' ? e.vf !== undefined
-    : item.tipo === 'numerico' ? e.numero !== undefined && !Number.isNaN(e.numero) : Boolean(e.cita);
+    : item.tipo === 'numerico' ? e.numero !== undefined && !Number.isNaN(e.numero) : item.tipo === 'hotspots' ? true : item.tipo === 'dimensionado' ? true : Boolean(e.cita);
 
   return (
     <main className="mx-auto max-w-3xl p-4">
@@ -99,6 +103,12 @@ function Jugando({ semilla, lista, onFin }: { semilla: string; lista: Item[]; on
         {item.tipo === 'numerico' && (
           <label>Respuesta numérica<input className="input" inputMode="decimal" onChange={(ev) => setE({ ...e, numero: parseFloat(ev.target.value.replace(',', '.')) })} /></label>
         )}
+        {item.tipo === 'hotspots' && item.escena && (
+          <Escena escena={item.escena} seleccion={e.seleccion ?? []} revelar={Boolean(res)} onChange={(seleccion) => setE((x) => ({ ...x, seleccion }))} />
+        )}
+        {item.tipo === 'dimensionado' && (
+          <Dimensionado circuitos={(item.solucion as { circuitos: string[] }).circuitos} onChange={(dim) => setE((x) => ({ ...x, dim }))} />
+        )}
         {(item.requiere_cita || item.tipo === 'selector_cita') && <CitaSelector onChange={(c: Cita | null) => setE((x) => ({ ...x, cita: c }))} />}
       </fieldset>
       <p className="my-2 text-sm">
@@ -109,6 +119,18 @@ function Jugando({ semilla, lista, onFin }: { semilla: string; lista: Item[]; on
         <section className="card" role="status">
           <p className="font-bold">{res.correct ? '✅ Correcto' : '❌ Incorrecto'} · {res.pe_obtained.toFixed(2)} PE</p>
           {item.requiere_cita && <p>{res.cite_ok ? 'Cita correcta.' : `Cita no válida. Esperada: ${item.citas_validas.map((c) => `${c.doc} ${c.ref}`).join(' / ')}`}</p>}
+          {item.tipo === 'hotspots' && item.escena && (
+            <ul className="my-1 list-disc pl-5 text-sm">
+              {item.escena.elementos.filter((x) => x.defecto).map((x) => (
+                <li key={x.id}>{(e.seleccion ?? []).includes(x.id) ? '✅' : '❌ (se te escapó)'} {x.etiqueta}: {x.explicacion}{x.cita ? ` — ${x.cita.doc} ${x.cita.ref}` : ''}</li>
+              ))}
+            </ul>
+          )}
+          {item.tipo === 'dimensionado' && (
+            <ul className="my-1 list-disc pl-5 text-sm">
+              {validaCuadro(e.dim ?? [], tablaVivienda((item.solucion as { circuitos: string[] }).circuitos), (c) => ({ doc: 'REBT', ref: `ITC-BT-25 · Tabla 1 (${c})` })).incumplimientos.map((i) => <li key={i.circuito + i.campo}>{i.mensaje} <em>({i.cita.doc} {i.cita.ref})</em></li>)}
+            </ul>
+          )}
           <p className="text-sm">{item.explicacion}</p>
           <button className="btn mt-2" onClick={() => void siguiente()}>{k + 1 >= lista.length ? 'Terminar' : 'Siguiente'}</button>
         </section>
@@ -119,5 +141,31 @@ function Jugando({ semilla, lista, onFin }: { semilla: string; lista: Item[]; on
         </div>
       )}
     </main>
+  );
+}
+
+function Dimensionado({ circuitos, onChange }: { circuitos: string[]; onChange: (p: Propuesta[]) => void }) {
+  const [vals, setVals] = useState<Record<string, Propuesta>>({});
+  const opts = { pia: normaLista('catalogo.pia'), seccion: normaLista('catalogo.seccion'), tubo: normaLista('catalogo.tubo') };
+  const cambia = (c: string, campo: 'pia' | 'seccion' | 'tubo', v: string) => {
+    const nuevo = { ...vals, [c]: { ...(vals[c] ?? { circuito: c }), [campo]: v ? Number(v) : undefined } };
+    setVals(nuevo); onChange(circuitos.map((x) => nuevo[x] ?? { circuito: x }));
+  };
+  const nombre = { pia: 'PIA (A)', seccion: 'Sección (mm²)', tubo: 'Tubo (mm)' } as const;
+  return (
+    <div className="grid gap-2">
+      {circuitos.map((c) => (
+        <fieldset key={c} className="card grid gap-2 sm:grid-cols-4">
+          <legend className="px-1 font-bold">{c}</legend>
+          {(['pia', 'seccion', 'tubo'] as const).map((campo) => (
+            <label key={campo}>{nombre[campo]}
+              <select className="input" onChange={(ev) => cambia(c, campo, ev.target.value)} defaultValue="">
+                <option value="">—</option>{opts[campo].map((o) => <option key={o} value={o}>{o}</option>)}
+              </select>
+            </label>
+          ))}
+        </fieldset>
+      ))}
+    </div>
   );
 }

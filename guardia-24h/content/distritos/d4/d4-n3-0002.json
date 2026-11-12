@@ -1,0 +1,127 @@
+{
+  "id": "d4-n3-0002",
+  "estado": "borrador",
+  "distrito": 4,
+  "ra": [
+    "RA3",
+    "RA6"
+  ],
+  "ce": [
+    "RA6-CE3"
+  ],
+  "nivel": 3,
+  "tipo": "hotspots",
+  "dificultad": 1.5,
+  "pe_base": 3,
+  "enunciado": "Muro de la vergüenza eléctrica · Escena B: marca TODOS los defectos del cuadro.",
+  "solucion": {},
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Consulta la biblioteca (ITC correspondiente)."
+  ],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "REBT",
+    "ref": "TODO(profesor): apartado exacto"
+  },
+  "verificado": false,
+  "escena": {
+    "titulo": "Cuadro Escena B",
+    "elementos": [
+      {
+        "id": "e1",
+        "etiqueta": "Diferencial 300 mA en vivienda",
+        "x": 15,
+        "y": 20,
+        "w": 130,
+        "h": 80,
+        "defecto": true,
+        "explicacion": "Sensibilidad inadecuada para proteger a las personas (revisar valor en ITC).",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-24"
+        }
+      },
+      {
+        "id": "e2",
+        "etiqueta": "PIA identificado",
+        "x": 160,
+        "y": 20,
+        "w": 130,
+        "h": 80,
+        "defecto": false,
+        "explicacion": ""
+      },
+      {
+        "id": "e3",
+        "etiqueta": "Cable sin aislante en la entrada",
+        "x": 305,
+        "y": 20,
+        "w": 130,
+        "h": 80,
+        "defecto": true,
+        "explicacion": "Conductor con aislamiento dañado: riesgo de contacto directo.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-24"
+        }
+      },
+      {
+        "id": "e4",
+        "etiqueta": "Regleta de neutros",
+        "x": 450,
+        "y": 20,
+        "w": 130,
+        "h": 80,
+        "defecto": false,
+        "explicacion": ""
+      },
+      {
+        "id": "e5",
+        "etiqueta": "Sin tapa de protección (partes activas)",
+        "x": 15,
+        "y": 115,
+        "w": 130,
+        "h": 80,
+        "defecto": true,
+        "explicacion": "Partes activas accesibles: contacto directo.",
+        "cita": {
+          "doc": "REBT",
+          "ref": "ITC-BT-24"
+        }
+      },
+      {
+        "id": "e6",
+        "etiqueta": "Tierra conectada",
+        "x": 160,
+        "y": 115,
+        "w": 130,
+        "h": 80,
+        "defecto": false,
+        "explicacion": ""
+      },
+      {
+        "id": "e7",
+        "etiqueta": "Cables con terminales",
+        "x": 305,
+        "y": 115,
+        "w": 130,
+        "h": 80,
+        "defecto": false,
+        "explicacion": ""
+      },
+      {
+        "id": "e8",
+        "etiqueta": "Carril bien fijado",
+        "x": 450,
+        "y": 115,
+        "w": 130,
+        "h": 80,
+        "defecto": false,
+        "explicacion": ""
+      }
+    ]
+  },
+  "dominio_rebt": "A"
+}

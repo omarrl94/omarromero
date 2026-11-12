@@ -26,3 +26,10 @@ Implementación y ejemplos numéricos: `src/game/grading.ts` y `grading.test.ts`
 - Reglas: un intento = hasta 10 ítems (prioriza los no vistos), 3 intentos por nivel, nivel superado con ≥ 50 % de PE, nivel N+1 se abre al superar el N.
 - Panel docente (`/docente`): alumnos de este dispositivo, nota de taller por RA, valor de `a` por alumno, intento extra (`distrito-nivel`, Enter) y export CSV. **Limitaciones:** sin login de profesor ni contraseña, y en modo local los ajustes viven en el navegador. El panel en la nube va en la siguiente fase.
 - Aún no: RA9 rúbrica, mapa de calor, tiempos imposibles, XLSX, desglose por CE, publicar borradores.
+
+## Fase 2: motor de circuitos, D3 y D4
+- `src/engine/`: `circuito.ts` (I=P/U, caída de tensión, IB≤In≤IZ, curva de disparo, diferencial), `vivienda.ts` (bases/luz por estancia, nº de diferenciales), `cuadro.ts` (validador con explicación y cita). Sin valores normativos en el código.
+- **Valores normativos de la vivienda** (`content/norma/vivienda.json`, `catalogo.json`): C1–C5, reglas de puntos, tensión y conductividad. Los he cargado de memoria para poder probar el motor y **todos están `verificado:false`**: revísalos contra ITC-BT-25 y el resto de fuentes antes de publicar nada.
+- Tipos de ítem nuevos: `dimensionado` (PIA/sección/tubo por circuito, puntuación parcial), `hotspots` (Muro de la vergüenza: aciertos suman, falsos positivos restan), `numerico` con `solucion.calculo` (la respuesta sale del motor + norma).
+- Contenido en borrador: D3 25 ítems, D4 12 ítems (hotspots con defectos inventados con fines didácticos; citas a ITC por verificar).
+- Pendiente de la Fase 2 original: editor visual de replanteo y cuadro (arrastrar), unifilar/multifilar y reparación interactiva (el «cuadro del horror» solo se inspecciona).
