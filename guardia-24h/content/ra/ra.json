@@ -1,0 +1,313 @@
+{
+  "ras": [
+    {
+      "id": "RA1",
+      "titulo": "Replantea instalaciones y redes eléctricas, interpretando planos de obra civil, esquemas eléctricos y relacionando trazados, equipos y elementos con su lugar de ubicación.",
+      "peso": 0.1,
+      "bloques": [
+        "B1",
+        "B3",
+        "B8"
+      ],
+      "ce": [
+        {
+          "id": "RA1-CE1",
+          "texto": "identificadas las características de diferentes tipos de locales"
+        },
+        {
+          "id": "RA1-CE2",
+          "texto": "identificadas las características de las redes eléctricas de distribución y los tipos de suministro"
+        },
+        {
+          "id": "RA1-CE3",
+          "texto": "verificada la coincidencia entre los datos de los planos y la ubicación de las instalaciones"
+        },
+        {
+          "id": "RA1-CE4",
+          "texto": "identificado el trazado de la instalación en obra sin interferencias con otras existentes"
+        },
+        {
+          "id": "RA1-CE5",
+          "texto": "elaborados croquis con propuestas de soluciones a las contingencias"
+        },
+        {
+          "id": "RA1-CE6",
+          "texto": "aplicadas técnicas específicas de marcado y de replanteo de instalaciones"
+        }
+      ],
+      "verificado": false
+    },
+    {
+      "id": "RA2",
+      "titulo": "Elabora programas de montaje de las instalaciones eléctricas, estableciendo la secuencia de actividades e identificando los recursos que se han de emplear.",
+      "peso": 0.1,
+      "bloques": [
+        "B1",
+        "B2",
+        "B3",
+        "B8"
+      ],
+      "ce": [
+        {
+          "id": "RA2-CE1",
+          "texto": "reconocida la documentación de montaje y las fases del plan de montaje"
+        },
+        {
+          "id": "RA2-CE2",
+          "texto": "asignados recursos (materiales, herramientas, EPI) a cada fase"
+        },
+        {
+          "id": "RA2-CE3",
+          "texto": "tenidas en cuenta las medidas de seguridad requeridas en cada fase"
+        },
+        {
+          "id": "RA2-CE4",
+          "texto": "programadas las actividades para cada fase evitando interferencias"
+        },
+        {
+          "id": "RA2-CE5",
+          "texto": "determinadas las pruebas de puesta en servicio y seguridad eléctrica necesarias"
+        }
+      ],
+      "verificado": false
+    },
+    {
+      "id": "RA3",
+      "titulo": "Monta instalaciones eléctricas en edificios y en el entorno de edificios, aplicando técnicas y procedimientos específicos y respetando las normas de seguridad.",
+      "peso": 0.2,
+      "bloques": [
+        "B2",
+        "B3",
+        "B4",
+        "B6"
+      ],
+      "ce": [
+        {
+          "id": "RA3-CE1",
+          "texto": "identificadas en los esquemas o planos las partes de la instalación"
+        },
+        {
+          "id": "RA3-CE2",
+          "texto": "conformados o mecanizados cajas, canalizaciones y conductores"
+        },
+        {
+          "id": "RA3-CE3",
+          "texto": "montadas las canalizaciones adecuadas en cada caso"
+        },
+        {
+          "id": "RA3-CE4",
+          "texto": "tendidos los conductores, marcándolos y evitando cruzamientos"
+        },
+        {
+          "id": "RA3-CE5",
+          "texto": "fijados los mecanismos y conexionados correctamente"
+        },
+        {
+          "id": "RA3-CE6",
+          "texto": "realizadas pruebas y medidas reglamentarias"
+        },
+        {
+          "id": "RA3-CE7",
+          "texto": "aplicados criterios de calidad en las intervenciones"
+        }
+      ],
+      "verificado": false
+    },
+    {
+      "id": "RA4",
+      "titulo": "Aplica técnicas de montaje y conexionado de elementos de redes de distribución en baja tensión e instalaciones de alumbrado exterior, analizando programas de montaje y describiendo las operaciones.",
+      "peso": 0.1,
+      "bloques": [
+        "B5"
+      ],
+      "ce": [
+        {
+          "id": "RA4-CE1",
+          "texto": "identificadas las técnicas de trazado y marcado de redes de distribución"
+        },
+        {
+          "id": "RA4-CE2",
+          "texto": "montados y conexionados elementos de instalaciones de alumbrado exterior"
+        },
+        {
+          "id": "RA4-CE3",
+          "texto": "seleccionada la maquinaria específica de cada fase del montaje"
+        },
+        {
+          "id": "RA4-CE4",
+          "texto": "relacionados los elementos y equipos con sus características específicas de montaje"
+        }
+      ],
+      "verificado": false
+    },
+    {
+      "id": "RA5",
+      "titulo": "Verifica el funcionamiento de las instalaciones, efectuando pruebas y medidas y comprobando que los parámetros de la instalación responden a la normativa.",
+      "peso": 0.15,
+      "bloques": [
+        "B7"
+      ],
+      "ce": [
+        {
+          "id": "RA5-CE1",
+          "texto": "verificada la adecuación de las instalaciones a las instrucciones del REBT"
+        },
+        {
+          "id": "RA5-CE2",
+          "texto": "realizadas medidas reglamentarias en los circuitos (continuidad, aislamiento)"
+        },
+        {
+          "id": "RA5-CE3",
+          "texto": "comprobados los valores de aislamiento y de rigidez dieléctrica"
+        },
+        {
+          "id": "RA5-CE4",
+          "texto": "verificada la resistencia de la toma de tierra y la corriente de fuga"
+        },
+        {
+          "id": "RA5-CE5",
+          "texto": "verificada la sensibilidad de disparo de los diferenciales y protecciones"
+        },
+        {
+          "id": "RA5-CE6",
+          "texto": "realizadas verificaciones típicas en locales especiales según REBT"
+        }
+      ],
+      "verificado": false
+    },
+    {
+      "id": "RA6",
+      "titulo": "Diagnostica averías o disfunciones en las instalaciones eléctricas, determinando las causas que las producen y proponiendo soluciones.",
+      "peso": 0.1,
+      "bloques": [
+        "B4",
+        "B6",
+        "B7"
+      ],
+      "ce": [
+        {
+          "id": "RA6-CE1",
+          "texto": "definidos y aplicados procedimientos de intervención en la diagnosis de averías"
+        },
+        {
+          "id": "RA6-CE2",
+          "texto": "seleccionados equipos de medida y verificación adecuados"
+        },
+        {
+          "id": "RA6-CE3",
+          "texto": "verificados los síntomas de las averías mediante medidas y observación"
+        },
+        {
+          "id": "RA6-CE4",
+          "texto": "propuestas hipótesis de las causas y repercusión de las averías"
+        },
+        {
+          "id": "RA6-CE5",
+          "texto": "localizado el origen de la avería"
+        }
+      ],
+      "verificado": false
+    },
+    {
+      "id": "RA7",
+      "titulo": "Repara averías en instalaciones eléctricas, aplicando técnicas y procedimientos específicos y comprobando la restitución del funcionamiento.",
+      "peso": 0.08,
+      "bloques": [
+        "B4",
+        "B6"
+      ],
+      "ce": [
+        {
+          "id": "RA7-CE1",
+          "texto": "planificadas las intervenciones de reparación"
+        },
+        {
+          "id": "RA7-CE2",
+          "texto": "seleccionadas las herramientas o útiles necesarios"
+        },
+        {
+          "id": "RA7-CE3",
+          "texto": "sustituidos los mecanismos, equipos o conductores responsables de la avería"
+        },
+        {
+          "id": "RA7-CE4",
+          "texto": "verificada la funcionalidad de la instalación tras la intervención"
+        }
+      ],
+      "verificado": false
+    },
+    {
+      "id": "RA8",
+      "titulo": "Realiza el mantenimiento preventivo de las instalaciones eléctricas, analizando planes de mantenimiento y la normativa relacionada.",
+      "peso": 0.07,
+      "bloques": [
+        "B7",
+        "B8"
+      ],
+      "ce": [
+        {
+          "id": "RA8-CE1",
+          "texto": "reconocida la normativa de aplicación al mantenimiento"
+        },
+        {
+          "id": "RA8-CE2",
+          "texto": "definidas las operaciones de mantenimiento preventivo"
+        },
+        {
+          "id": "RA8-CE3",
+          "texto": "medidos parámetros en puntos críticos de la instalación"
+        },
+        {
+          "id": "RA8-CE4",
+          "texto": "elaborados los informes de contingencia e históricos"
+        }
+      ],
+      "verificado": false
+    },
+    {
+      "id": "RA9",
+      "titulo": "Cumple las normas de prevención de riesgos laborales y de protección ambiental, identificando los riesgos asociados, las medidas y equipos para prevenirlos.",
+      "peso": 0.1,
+      "bloques": [
+        "transversal"
+      ],
+      "ce": [
+        {
+          "id": "RA9-CE1",
+          "texto": "identificados los riesgos y el nivel de peligrosidad de la manipulación de materiales y máquinas"
+        },
+        {
+          "id": "RA9-CE2",
+          "texto": "operado con máquinas y herramientas respetando las normas de seguridad"
+        },
+        {
+          "id": "RA9-CE3",
+          "texto": "reconocidos los elementos de seguridad y los EPI para cada operación"
+        },
+        {
+          "id": "RA9-CE4",
+          "texto": "identificado el uso correcto de los elementos de seguridad y EPI"
+        },
+        {
+          "id": "RA9-CE5",
+          "texto": "identificadas las posibles fuentes de contaminación del entorno"
+        },
+        {
+          "id": "RA9-CE6",
+          "texto": "clasificados los residuos para su retirada selectiva"
+        },
+        {
+          "id": "RA9-CE7",
+          "texto": "valorado el orden y la limpieza como primer factor de prevención"
+        }
+      ],
+      "verificado": false
+    }
+  ],
+  "aprobado": {
+    "notaFinalMin": 5,
+    "notaRaMin": 5
+  },
+  "coberturaMin": 0.8,
+  "aDefecto": 0.4
+}

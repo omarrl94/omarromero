@@ -1,0 +1,11 @@
+{
+  "id": "ia-0001",
+  "estado": "borrador",
+  "pregunta": "Ejemplo: ¿en qué ITC se regulan los tubos?",
+  "respuesta": "Los tubos se regulan en la ITC-BT-19 (respuesta de EJEMPLO con error plantado).",
+  "errores": [
+    { "fragmento": "ITC-BT-19", "tipo": "articulo", "correccion": "ITC-BT-21" }
+  ],
+  "fuente": { "documento": "REBT", "ref": "ITC-BT-21" },
+  "verificado": false
+}

@@ -1,0 +1,20 @@
+{
+  "entradas": [
+    {
+      "id": "vivienda.c1.calibre_pia",
+      "descripcion": "Calibre del PIA del circuito C1 (iluminación) en vivienda",
+      "valor": null,
+      "unidad": "A",
+      "fuente": { "documento": "REBT", "ref": "ITC-BT-25 · Tabla 1" },
+      "verificado": false
+    },
+    {
+      "id": "verificacion.aislamiento.minimo",
+      "descripcion": "Resistencia de aislamiento mínima (TODO(profesor): rellenar desde el texto oficial)",
+      "valor": null,
+      "unidad": "MΩ",
+      "fuente": { "documento": "REBT", "ref": "ITC-BT-19 · apartado de verificación" },
+      "verificado": false
+    }
+  ]
+}

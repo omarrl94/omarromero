@@ -1,0 +1,30 @@
+name: Guardia 24 h · CI
+on:
+  push: { paths: ['guardia-24h/**'] }
+  pull_request: { paths: ['guardia-24h/**'] }
+defaults: { run: { working-directory: guardia-24h } }
+jobs:
+  calidad:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm, cache-dependency-path: guardia-24h/package-lock.json }
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run content:validar
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run e2e
+  reglas:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm, cache-dependency-path: guardia-24h/package-lock.json }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 17 }
+      - run: npm ci
+      - run: npm run test:rules

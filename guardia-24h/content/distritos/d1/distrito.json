@@ -1,0 +1,50 @@
+{
+  "id": 1,
+  "nombre": "Taller del instalador",
+  "bloque": 1,
+  "ra": [
+    "RA1",
+    "RA2",
+    "RA9"
+  ],
+  "itc": [
+    "ITC-BT-01",
+    "04",
+    "05",
+    "10",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19",
+    "25",
+    "28"
+  ],
+  "niveles": [
+    {
+      "n": 1,
+      "nombre": "Reconocer",
+      "descripcion": "Identificar elementos, símbolos, magnitudes y normas"
+    },
+    {
+      "n": 2,
+      "nombre": "Aplicar guiado",
+      "descripcion": "Resolver pasos concretos con datos y consulta"
+    },
+    {
+      "n": 3,
+      "nombre": "Resolver",
+      "descripcion": "Problemas completos con cálculo, decisión y cita"
+    },
+    {
+      "n": 4,
+      "nombre": "Caso real",
+      "descripcion": "Varias decisiones, imprevistos y distractores"
+    },
+    {
+      "n": 5,
+      "nombre": "JEFE",
+      "descripcion": "Aviso integral único por alumno, con tiempo"
+    }
+  ]
+}

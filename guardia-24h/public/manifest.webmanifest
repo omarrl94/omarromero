@@ -1,0 +1,3 @@
+{ "name": "Guardia 24 h", "short_name": "Guardia 24h", "lang": "es", "start_url": "/", "display": "standalone",
+  "background_color": "#EFCD2F", "theme_color": "#EFCD2F",
+  "icons": [{ "src": "/icono.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }] }

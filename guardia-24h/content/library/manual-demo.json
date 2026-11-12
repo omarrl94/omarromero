@@ -1,0 +1,14 @@
+{
+  "id": "manual-demo",
+  "titulo": "Manual de demostración (sin contenido normativo)",
+  "tipo": "manual",
+  "estado": "borrador",
+  "pendiente": true,
+  "secciones": [
+    {
+      "id": "uso",
+      "titulo": "Cómo usar la biblioteca",
+      "texto": "Busca por palabras en el cuadro de búsqueda. Consultar es libre y no resta puntos: lo que puntúa es localizar y citar. Usa «Mi manual» para añadir tus propias notas, que se guardan solo en tu dispositivo."
+    }
+  ]
+}

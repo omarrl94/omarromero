@@ -1,0 +1,46 @@
+{
+  "id": 4,
+  "nombre": "Cuadros y protecciones",
+  "bloque": 4,
+  "ra": [
+    "RA3",
+    "RA6",
+    "RA7",
+    "RA9"
+  ],
+  "itc": [
+    "ITC-BT-17",
+    "19",
+    "22",
+    "23",
+    "24",
+    "25"
+  ],
+  "niveles": [
+    {
+      "n": 1,
+      "nombre": "Reconocer",
+      "descripcion": "Identificar elementos, símbolos, magnitudes y normas"
+    },
+    {
+      "n": 2,
+      "nombre": "Aplicar guiado",
+      "descripcion": "Resolver pasos concretos con datos y consulta"
+    },
+    {
+      "n": 3,
+      "nombre": "Resolver",
+      "descripcion": "Problemas completos con cálculo, decisión y cita"
+    },
+    {
+      "n": 4,
+      "nombre": "Caso real",
+      "descripcion": "Varias decisiones, imprevistos y distractores"
+    },
+    {
+      "n": 5,
+      "nombre": "JEFE",
+      "descripcion": "Aviso integral único por alumno, con tiempo"
+    }
+  ]
+}

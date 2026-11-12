@@ -1,0 +1,20 @@
+{
+  "id": "d1-n3-0001",
+  "estado": "borrador",
+  "distrito": 1,
+  "ra": ["RA1", "RA2"],
+  "ce": ["RA2-CE1"],
+  "nivel": 3,
+  "tipo": "selector_cita",
+  "dificultad": 1,
+  "pe_base": 2,
+  "enunciado": "Gymkhana del REBT: ¿en qué ITC se regulan los tubos y canales protectores? Localízala y cítala.",
+  "solucion": { "respuesta": "ITC-BT-21" },
+  "dominio_rebt": "A",
+  "requiere_cita": true,
+  "citas_validas": [{ "doc": "REBT", "ref": "ITC-BT-21" }],
+  "pistas": ["Busca «tubos» en la biblioteca."],
+  "explicacion": "Ítem de EJEMPLO para probar el contrato de contenido. TODO(profesor): validar o sustituir.",
+  "fuente": { "documento": "REBT", "ref": "ITC-BT-21" },
+  "verificado": false
+}

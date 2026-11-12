@@ -1,0 +1,38 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isTeacher() { return signedIn() && request.auth.token.firebase.sign_in_provider == 'password'; }
+
+    // Clases: las crea y gestiona el profesor; cualquier usuario con sesión puede comprobar un código.
+    match /guardia_classes/{code} {
+      allow get: if signedIn();
+      allow list: if isTeacher() && resource.data.profesorUid == request.auth.uid;
+      allow create: if isTeacher() && request.resource.data.profesorUid == request.auth.uid;
+      allow update, delete: if isTeacher() && resource.data.profesorUid == request.auth.uid;
+    }
+
+    // Reserva de alias único por clase.
+    match /guardia_aliases/{id} {
+      allow get: if signedIn();
+      allow create: if signedIn() && request.resource.data.uid == request.auth.uid;
+      allow update: if signedIn() && resource.data.uid == request.auth.uid && request.resource.data.uid == request.auth.uid;
+    }
+
+    match /guardia_students/{uid} {
+      function claseDelProfesor(code) {
+        return isTeacher() && get(/databases/$(database)/documents/guardia_classes/$(code)).data.profesorUid == request.auth.uid;
+      }
+      allow read: if signedIn() && (request.auth.uid == uid || claseDelProfesor(resource.data.claseCodigo));
+      allow create, update: if signedIn() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['alias', 'aliasLower', 'claseCodigo', 'creado'])
+        && request.resource.data.alias is string && request.resource.data.alias.size() <= 24
+        && exists(/databases/$(database)/documents/guardia_classes/$(request.resource.data.claseCodigo));
+
+      match /{sub}/{doc=**} {
+        allow read, write: if signedIn() && request.auth.uid == uid;
+        allow read: if signedIn() && claseDelProfesor(get(/databases/$(database)/documents/guardia_students/$(uid)).data.claseCodigo);
+      }
+    }
+  }
+}

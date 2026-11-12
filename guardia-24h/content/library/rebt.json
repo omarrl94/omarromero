@@ -1,0 +1,14 @@
+{
+  "id": "rebt",
+  "titulo": "REBT (BOE)",
+  "tipo": "rebt",
+  "estado": "borrador",
+  "pendiente": true,
+  "secciones": [
+    {
+      "id": "pendiente",
+      "titulo": "TODO(profesor): cargar el texto oficial del REBT",
+      "texto": "Aún no hay texto del REBT cargado. Sustituye este fichero por las ITC del BOE (una sección por ITC y apartado) o usa el script de importación descrito en README_DOCENTE.md. El juego no inventa texto normativo."
+    }
+  ]
+}
