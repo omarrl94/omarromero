@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useStore } from '../store';
 import { Knob, KnobDefs, type KnobPos } from './Knob';
+import { beginProbeDrag } from './Floating';
 import { pointName, readMeter, type Dial } from '../model/meter';
 import type { SimResult } from '../model/netlist';
 
@@ -70,8 +71,8 @@ export function Multimeter({ sim }: { sim: SimResult }) {
         const armed = meter.armed === k;
         const placed = meter[k];
         return (
-          <g key={k} style={{ cursor: 'pointer' }} onClick={() => st.setMeter({ armed: armed ? null : k })} data-probe={k}>
-            <path d={`M${x - 5} 372 L${x} 392 L${x + 5} 372 Z`} fill="#cfcfcf" stroke="#555" />
+          <g key={k} style={{ cursor: 'grab', touchAction: 'none' }} onPointerDown={(e) => beginProbeDrag(k, e)} data-probe={k}>
+            <rect x={x - 22} y={358} width={44} height={40} fill="transparent" /><path d={`M${x - 5} 372 L${x} 392 L${x + 5} 372 Z`} fill="#cfcfcf" stroke="#555" />
             <rect x={x - 7} y={362} width={14} height={14} rx={3} fill={k === 'red' ? '#e53935' : '#222'} className={armed ? 'pulse' : ''} stroke={armed ? '#fff' : 'none'} strokeWidth={2} />
             {placed && <circle cx={x} cy={392} r={3} fill="#4caf50" />}
           </g>
@@ -88,8 +89,8 @@ export function MeterInfo({ sim }: { sim: SimResult }) {
   const mode = DIALS.find((d) => d.v === meter.dial)!.label;
   return (
     <div className="meterinfo">
-      <div className="probeline"><span className="dot red" /> {meter.armed === 'red' ? 'Pulsa un terminal del circuito…' : pointName(project, meter.red)}</div>
-      <div className="probeline"><span className="dot black" /> {meter.armed === 'black' ? 'Pulsa un terminal del circuito…' : pointName(project, meter.black)}</div>
+      <div className="probeline"><span className="dot red" /> {meter.armed === 'red' ? 'Pulsa un terminal del circuito…' : meter.red ? pointName(project, meter.red) : 'Arrastra la punta roja a un borne'}</div>
+      <div className="probeline"><span className="dot black" /> {meter.armed === 'black' ? 'Pulsa un terminal del circuito…' : meter.black ? pointName(project, meter.black) : 'Arrastra la punta negra a un borne'}</div>
       {meter.fuseBlown && <button onClick={() => st.setMeter({ fuseBlown: false })}>🔧 Cambiar fusible de 10 A</button>}
       <ul className="msgs tips">{reading.tips.map((t, i) => <li key={i} className={t.level === 'info' ? '' : t.level}>{t.text}</li>)}</ul>
       <button disabled={meter.dial === 'off' || !meter.red || !meter.black || reading.text === ''}
