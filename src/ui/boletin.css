@@ -1,7 +1,10 @@
 /* «El boletín»: reutiliza la mesa de delineante del juego y el estilo del parte. */
 .game.bt { min-height: 0; }
 .bt-cartoon { font-size: 64px; text-align: center; padding: 24px 0; background: #123a6b; border-radius: 14px; letter-spacing: 8px; }
-.bt-bench { display: grid; grid-template-columns: 290px minmax(0, 1fr) 330px; gap: 12px; padding: 12px; flex: 1; min-height: 0; overflow: auto; align-items: start; }
+.bt-bench { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(300px, 1fr); grid-template-areas: 'scene inst' 'prep inst' 'plan log'; gap: 12px; padding: 12px; flex: 1; min-height: 0; overflow: auto; align-items: start; }
+.bt-a-scene { grid-area: scene; } .bt-a-prep { grid-area: prep; } .bt-a-inst { grid-area: inst; } .bt-a-plan { grid-area: plan; } .bt-a-log { grid-area: log; }
+.bt-a-prep .bt-toggles { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+.bt-finscene { margin: 10px 0; background: #123a6b; border-radius: 10px; padding: 6px; }
 .bt-col { display: grid; gap: 10px; align-content: start; min-width: 0; }
 .bt .paper { color: #1d2733; } .bt .paper button:not(.primary):not(.bt-test) { background: #fff; color: #1d2733; border: 1.5px solid #b7c4d6; padding: 8px 12px; border-radius: 10px; cursor: pointer; min-height: 40px; font-weight: 600; }
 .bt-toggles { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
@@ -32,11 +35,16 @@
 .bt-verd { font-weight: 700; font-size: 15px; } .bt-verd.ok { color: #14683f; } .bt-verd.ko { color: #a3281a; }
 .bt-defs { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; } .bt-defs li { display: grid; gap: 3px; padding: 10px 12px; border-radius: 8px; border-left: 5px solid; } .bt-defs li.found { background: #e8f7ef; border-color: #23a26d; } .bt-defs li.missed { background: #fde8e5; border-color: #d64a35; } .bt-defs small { color: #5d6b7e; }
 .p-t .ok { color: #14683f; } .p-t .bad { color: #a3281a; font-weight: 700; }
-@media (max-width: 1100px) { .bt-bench { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .bt-log { grid-column: 1 / -1; } }
+@media (max-width: 1000px) { .bt-bench { grid-template-columns: 1fr; grid-template-areas: 'scene' 'inst' 'prep' 'plan' 'log'; } }
 @media (max-width: 700px) {
-  .bt-bench { grid-template-columns: 1fr; padding: 8px; } .bt-inst { order: 1; } .bt-prep { order: 0; } .bt-log { order: 2; }
+  .bt-bench { padding: 8px; }
   .bt-tabs button span { display: none; } .bt-lcd { font-size: 30px; min-width: 160px; }
   .bt-mbody { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); } .bt-mbody nav { grid-auto-flow: column; grid-auto-columns: max-content; overflow-x: auto; } .bt-mbody nav button { white-space: nowrap; }
   .bt-stamp { font-size: 22px; }
 }
 @media print { body.print-parte .bt-stamp { visibility: visible; } }
+.bt-scene { width: 100%; height: auto; max-height: 64vh; display: block; border-radius: 12px; background: #123a6b; touch-action: manipulation; user-select: none; }
+.bt-flow { animation: btflow 1s linear infinite; } @keyframes btflow { to { stroke-dashoffset: -34; } }
+.bt-pulse { animation: btpulse 1s ease-in-out infinite; transform-box: fill-box; transform-origin: center; } @keyframes btpulse { 50% { opacity: .55; transform: scale(1.12); } }
+.bt-ring { animation: btring .9s ease-out infinite; transform-box: fill-box; transform-origin: center; } @keyframes btring { from { transform: scale(.6); opacity: 1; } to { transform: scale(1.8); opacity: 0; } }
+.bt-scenecard { padding: 8px !important; background: #0a2142 !important; } .bt-scenecard .note { color: #9dbbe0; margin: 6px 4px 2px; }

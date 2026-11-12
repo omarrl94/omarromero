@@ -10,6 +10,8 @@ import { MANUAL } from '../boletin/manual';
 import { defectOf } from '../boletin/catalog';
 import { PAIR_LABEL, RULES, maxEarthOhm, type Pair, type TestKind } from '../boletin/rules';
 import type { Prep } from '../boletin/instruments';
+import { BoletinScene } from './BoletinScene';
+import { initialPrep } from '../boletin/instruments';
 import './boletin.css';
 
 const hm = (m: number) => `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, '0')} min`;
@@ -18,9 +20,9 @@ const mood = (ratio: number) => (ratio < 0.5 ? ['😊', 'Tranquilo'] : ratio < 0
 
 export function BoletinView() {
   const bt = useBoletin();
-  useEffect(() => { if (!useBoletin.getState().visit) useBoletin.getState().start(); }, []);
+  useEffect(() => { const s = useBoletin.getState(); if (!s.visit || !s.visit.layout) s.start(); }, []);
   const [manual, setManual] = useState(false);
-  if (!bt.visit) return <div className="game bt"><p style={{ padding: 24 }}>Preparando la visita…</p></div>;
+  if (!bt.visit || !bt.visit.layout) return <div className="game bt"><p style={{ padding: 24 }}>Preparando la visita…</p></div>;
   const v = bt.visit;
   const stage = bt.stage ?? 'visita';
   const [face, mtext] = mood((bt.minutes ?? 0) / v.budgetMin);
@@ -137,21 +139,22 @@ function Obra() {
   const range = tab === 'aislamiento' ? { min: 0.01, max: 1000, unit: 'MΩ' } : tab === 'continuidad' ? { min: 0.05, max: 200, unit: 'Ω' } : tab === 'tierra' ? { min: 1, max: 10000, unit: 'Ω' } : { min: 1, max: 100, unit: 'mA' };
   const chips = tab === 'diferencial' ? v.truth.rcds.map((x) => x.id) : v.truth.circuits.map((c) => c.id);
 
+  const marks = useMemo(() => log.filter((e) => e.valid && !e.studentApto).flatMap((e) => v.defects.filter((d) => { const df = defectOf(d.defect); return df.test === e.kind && d.target === e.target && (!df.pair || df.pair === e.pair); })).map((d) => ({ defect: d.defect, target: d.target })), [log, v]);
   return (
     <div className="bt-bench">
-      <section className="bt-col bt-prep">
-        <div className="paper"><h2>Preparación de la instalación</h2>
-          <ul className="bt-toggles">{prepRows.filter((p) => p.show).map((p) => (
-            <li key={p.k}><button className={`bt-sw ${prep[p.k] ? 'on' : ''}`} aria-pressed={prep[p.k]} onClick={() => bt.togglePrep(p.k)}><i /><span><b>{p.label}</b><small>{prep[p.k] ? p.on : p.off} · {PREP_COST[p.k]} min</small></span></button></li>
-          ))}</ul>
-          <p className="note">Cada ensayo pide unas condiciones. Si no sabes cuáles, abre el 📖 Manual.</p>
-        </div>
-        <div className="paper"><h2>Plan de verificación <span className="chip">{v.required.filter((q) => doneKeys.has(q.key)).length}/{v.required.length}</span></h2>
-          <ul className="ticks bt-plan">{v.required.map((q) => <li key={q.key} className={doneKeys.has(q.key) ? 'ok' : ''}><i>{doneKeys.has(q.key) ? '✓' : ''}</i><span>{q.label}</span></li>)}</ul>
-        </div>
+      <section className="bt-a-scene paper bt-scenecard">
+        <BoletinScene visit={v} circuit={circ} tab={tab} running={running} prep={prep} dist={dist} rcdId={rcd} marks={marks} onPrep={bt.togglePrep} onPick={(c) => { setCirc(c); if (tab === 'tierra' || tab === 'diferencial') setTab('aislamiento'); bt.discard(); }} />
+        <p className="note">Toca el IGA, los receptores o la pica para prepararlos; toca un mecanismo o un PIA para elegir el circuito.</p>
       </section>
 
-      <section className="bt-col bt-inst">
+      <section className="bt-a-prep paper"><h2>Preparación de la instalación</h2>
+        <ul className="bt-toggles">{prepRows.filter((p) => p.show).map((p) => (
+          <li key={p.k}><button className={`bt-sw ${prep[p.k] ? 'on' : ''}`} aria-pressed={prep[p.k]} onClick={() => bt.togglePrep(p.k)}><i /><span><b>{p.label}</b><small>{prep[p.k] ? p.on : p.off} · {PREP_COST[p.k]} min</small></span></button></li>
+        ))}</ul>
+        <p className="note">Cada ensayo pide unas condiciones. Si no sabes cuáles, abre el 📖 Manual.</p>
+      </section>
+
+      <section className="bt-a-inst bt-col bt-inst">
         <div className="bt-tabs" role="tablist" aria-label="Instrumento">{tabs.map((t) => <button key={t.id} role="tab" aria-selected={tab === t.id} className={tab === t.id ? 'on' : ''} onClick={() => { setTab(t.id); bt.discard(); }}><span>{t.icon}</span> {t.label}</button>)}</div>
         <div className="paper bt-device">
           <Gauge value={needle} min={range.min} max={range.max} unit={range.unit} color={color} label={tab === 'aislamiento' ? 'MEGÓHMETRO' : tab === 'continuidad' ? 'CONTINUIDAD' : tab === 'tierra' ? 'TELURÓMETRO' : 'COMPROBADOR RCD'} />
@@ -161,14 +164,17 @@ function Obra() {
             <div className="bt-chips" role="group" aria-label="Pareja de conductores">{(['LPE', 'NPE', 'LN'] as Pair[]).map((p) => <button key={p} className={pair === p ? 'on' : ''} onClick={() => setPair(p)}>{PAIR_LABEL[p]}</button>)}</div>
             <div className="bt-chips" role="group" aria-label="Tensión de ensayo">{[250, 500, 1000].map((x) => <button key={x} className={volts === x ? 'on' : ''} onClick={() => setVolts(x)}>{x} V</button>)}</div>
           </>}
-          {tab === 'tierra' && <label className="bt-dist">Distancia de las picas auxiliares: <b>{dist} m</b><input type="range" min={5} max={40} step={1} value={dist} onChange={(e) => setDist(Number(e.target.value))} aria-label="Distancia de las picas" />
-            <svg viewBox="0 0 220 40" aria-hidden><line x1="14" y1="20" x2="206" y2="20" stroke="#6b6358" strokeDasharray="3 3" /><circle cx="14" cy="20" r="6" fill="#6cc24a" /><circle cx={14 + (dist / 40) * 96} cy="20" r="5" fill="#2a2622" /><circle cx={14 + (dist / 40) * 192} cy="20" r="5" fill="#2a2622" /><text x="14" y="38" fontSize="9" textAnchor="middle">pica</text></svg></label>}
+          {tab === 'tierra' && <label className="bt-dist">Distancia de las picas auxiliares: <b>{dist} m</b><input type="range" min={5} max={40} step={1} value={dist} onChange={(e) => setDist(Number(e.target.value))} aria-label="Distancia de las picas" /></label>}
           <button className="bt-test" onClick={run} disabled={running} aria-label="Realizar el ensayo">{running ? 'Midiendo…' : '● TEST'}</button>
         </div>
         {pending && <Result p={pending} hints={hints} />}
       </section>
 
-      <section className="bt-col bt-log">
+      <section className="bt-a-plan paper"><h2>Plan de verificación <span className="chip">{v.required.filter((q) => doneKeys.has(q.key)).length}/{v.required.length}</span></h2>
+        <ul className="ticks bt-plan">{v.required.map((q) => <li key={q.key} className={doneKeys.has(q.key) ? 'ok' : ''}><i>{doneKeys.has(q.key) ? '✓' : ''}</i><span>{q.label}</span></li>)}</ul>
+      </section>
+
+      <section className="bt-a-log bt-col bt-log">
         <div className="paper"><h2>Libro del boletín <span className="chip">{log.length}</span></h2>
           {!log.length && <p className="note">Aquí anotas cada medida con tu juicio: apto o no apto.</p>}
           <ul className="bt-entries">{log.map((e, i) => <li key={i} className={e.studentApto ? 'ok' : 'ko'}><b>{e.studentApto ? '✓ APTO' : '✗ NO APTO'}</b><span>{e.desc}</span><em>{e.text} {e.unit}</em></li>)}</ul>
@@ -249,6 +255,7 @@ function Fin() {
         <p className={correct ? 'bt-verd ok' : 'bt-verd ko'}>{correct ? (signed ? '✅ Instalación correcta: has firmado con razón.' : '✅ Había defectos y te has negado a firmar. Bien hecho.') : (signed ? '❌ Firmaste una instalación con defectos.' : '❌ La instalación estaba bien y te negaste a firmar.')}</p>
         <h2>Lo que había en la instalación</h2>
         {!defectRows.length ? <p>Estaba <b>perfecta</b>: ningún defecto.</p> : <ul className="bt-defs">{defectRows.map(({ d, def, found }) => <li key={d.defect + d.target} className={found ? 'found' : 'missed'}><b>{found ? '🔎 Lo encontraste' : '🙈 Se te escapó'} · {def.title}</b> <small>({d.target === 'tierra' ? 'puesta a tierra' : d.target})</small><span><b>Causa:</b> {def.cause}</span><span>{def.explain}</span><span><b>Arreglo:</b> {def.fix}</span></li>)}</ul>}
+        <div className="bt-finscene"><BoletinScene visit={v} circuit={v.truth.circuits[0].id} tab="aislamiento" running={false} prep={initialPrep()} dist={30} onPrep={() => undefined} onPick={() => undefined} marks={v.defects.map((d) => ({ defect: d.defect, target: d.target }))} /></div>
         <h2>Medidas anotadas ({log.length})</h2>
         {log.length ? <table className="p-t"><thead><tr><th>Ensayo</th><th>Lectura</th><th>Tu juicio</th><th>Condiciones</th></tr></thead><tbody>{log.map((e, i) => <tr key={i}><td>{e.desc}</td><td>{e.text} {e.unit}</td><td>{e.studentApto ? 'Apto' : 'No apto'}</td><td>{e.valid ? <span className={e.truthApto === e.studentApto ? 'ok' : 'bad'}>{e.truthApto === e.studentApto ? 'válida · juicio correcto' : 'válida · juicio erróneo'}</span> : <span className="bad" title={e.notes.join(' ')}>⚠ inválida</span>}</td></tr>)}</tbody></table> : <p>Ninguna.</p>}
         {log.some((e) => !e.valid) && <ul className="p-notes">{[...new Set(log.filter((e) => !e.valid).flatMap((e) => e.notes))].map((n, i) => <li key={i}>{n}</li>)}</ul>}

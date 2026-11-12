@@ -35,7 +35,7 @@ export function Glyph({ kind, color, ghost = false }: { kind: DevKind; color: st
   }
 }
 
-function FurnitureShape({ f }: { f: Furn }) {
+export function FurnitureShape({ f }: { f: Furn }) {
   const x = f.x * PX, y = f.y * PX, w = f.w * PX, h = f.h * PX;
   const s = { fill: 'rgba(214,232,255,.06)', stroke: 'rgba(214,232,255,.5)', strokeWidth: 1.3 };
   switch (f.kind) {

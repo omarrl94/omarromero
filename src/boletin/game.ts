@@ -12,7 +12,9 @@ export interface CircTruth { id: string; name: string; length: number; section: 
 export interface RcdTruth { id: string; circuits: string[]; tripmA: number; t1: number; t5: number }
 export interface Truth { circuits: CircTruth[]; ra: number; rcds: RcdTruth[]; spd: boolean }
 export interface DefectInst { defect: string; target: string; value: number }
-export interface Visit { seed: number; level: number; houseId: string; clientName: string; clientEmoji: string; intro: string; budgetMin: number; truth: Truth; defects: DefectInst[]; required: Required[] }
+/** Lo necesario para dibujar la vivienda: cuadro, mecanismos de toda la casa y recorrido de los circuitos que se verifican. */
+export interface Layout { panel: { x: number; y: number }; devices: { kind: string; x: number; y: number; circuit: string | null }[]; routes: Record<string, [number, number][]>; far: Record<string, { x: number; y: number }> }
+export interface Visit { seed: number; level: number; houseId: string; clientName: string; clientEmoji: string; intro: string; budgetMin: number; truth: Truth; defects: DefectInst[]; required: Required[]; layout?: Layout }
 /** Verificación exigible: lo que hay que medir para poder firmar. */
 export interface Required { key: string; kind: TestKind; target: string; pair?: Pair; label: string }
 
@@ -73,5 +75,8 @@ export function makeVisit(seed: number, level: number, plan: PlanChoice = 'rando
   }
   required.push({ key: 'tierra', kind: 'tierra', target: 'tierra', label: 'Resistencia de la puesta a tierra' });
   for (const x of rcds) required.push({ key: `dif:${x.id}`, kind: 'diferencial', target: x.id, label: `${x.id} · disparo del diferencial` });
-  return { seed, level, houseId: client.houseId, clientName: client.name, clientEmoji: client.emoji, intro: INTROS[Math.floor(r() * INTROS.length)], budgetMin: BUDGET[level], truth, defects, required };
+  const far: Layout['far'] = {};
+  for (const id of chosen) { const ci = an.circuits[id]; const f = [...ci.devs].sort((a, b) => Math.abs(b.x - inst.panel.x) + Math.abs(b.y - inst.panel.y) - (Math.abs(a.x - inst.panel.x) + Math.abs(a.y - inst.panel.y)))[0]; far[id] = { x: f.x, y: f.y }; }
+  const layout: Layout = { panel: inst.panel, devices: inst.devices.map((d) => ({ kind: d.kind, x: d.x, y: d.y, circuit: d.circuit })), routes: Object.fromEntries(chosen.map((id) => [id, an.circuits[id].points])), far };
+  return { seed, level, houseId: client.houseId, clientName: client.name, clientEmoji: client.emoji, intro: INTROS[Math.floor(r() * INTROS.length)], budgetMin: BUDGET[level], truth, defects, required, layout };
 }
