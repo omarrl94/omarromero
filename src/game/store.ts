@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { makeClient, type Client } from './clients';
+import { makeClient, type Client, type PlanChoice } from './clients';
 import { autoSolve } from './solver';
 import { defaultBoard, defaultChoice, defaultCircuit, emptyState, roomAt, type Board, type Choice, type GState } from './logic';
 import { dev, type DevKind } from './data';
@@ -11,6 +11,7 @@ export interface Career { jobs: number; money: number; best: number; stars: numb
 
 const KEY = 'circuitossea:game';
 const CAREER = 'circuitossea:career';
+const PLAN = 'circuitossea:plan';
 const load = <T,>(k: string): T | null => { try { const r = localStorage.getItem(k); return r ? JSON.parse(r) : null; } catch { return null; } };
 const save = (k: string, v: unknown) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* sin almacenamiento */ } };
 
@@ -18,7 +19,8 @@ interface G {
   stage: Stage; seed: number; level: number; client: Client; state: GState;
   tool: Tool | null; selected: string | null; linkFrom: string | null;
   showRoutes: boolean; showLinks: boolean;
-  career: Career;
+  career: Career; plan: PlanChoice;
+  setPlan(p: PlanChoice): void;
   newClient(seed?: number, level?: number): void;
   setStage(s: Stage): void;
   setTool(t: Tool | null): void;
@@ -41,7 +43,8 @@ interface G {
 const saved = load<{ seed: number; level: number; state: GState; stage: Stage }>(KEY);
 const startSeed = saved?.seed ?? Math.floor(Math.random() * 90000) + 10;
 const startLevel = saved?.level ?? 1;
-const startClient = makeClient(startSeed, startLevel);
+const startPlan = load<PlanChoice>(PLAN) ?? 'random';
+const startClient = makeClient(startSeed, startLevel, startPlan);
 let uidN = 0;
 const uid = () => `p${Date.now().toString(36)}${(uidN++).toString(36)}`;
 
@@ -50,12 +53,13 @@ export const useGame = create<G>((set, get) => ({
   seed: startSeed, level: startLevel, client: startClient,
   state: saved?.state ?? emptyState(houseOf(startClient.houseId)),
   tool: null, selected: null, linkFrom: null, showRoutes: true, showLinks: true,
-  career: load<Career>(CAREER) ?? { jobs: 0, money: 0, best: 0, stars: 0 },
+  career: load<Career>(CAREER) ?? { jobs: 0, money: 0, best: 0, stars: 0 }, plan: startPlan,
+  setPlan(plan) { save(PLAN, plan); set({ plan }); get().newClient(); },
 
   newClient(seed, level) {
     const s = seed ?? Math.floor(Math.random() * 90000) + 10;
     const lv = level ?? get().level;
-    const c = makeClient(s, lv);
+    const c = makeClient(s, lv, get().plan);
     set({ seed: s, level: lv, client: c, state: emptyState(houseOf(c.houseId)), stage: 'briefing', tool: null, selected: null, linkFrom: null });
   },
   setStage(stage) { set({ stage, tool: null, linkFrom: null }); },

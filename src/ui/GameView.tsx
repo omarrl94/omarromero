@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useGame, type Stage, type Tool } from '../game/store';
 import { useStore } from '../store';
-import { analyze, evaluate, roomNeeds, makeCtx, type Check, type Evaluation } from '../game/logic';
+import { analyze, evaluate, roomNeeds, makeCtx, buildBom, type Check, type Evaluation } from '../game/logic';
 import { CIRCUITS, DEVICES, PIA_RATINGS, SECTIONS_GAME, circuitDef, dev, type DevKind } from '../game/data';
-import { houseOf } from '../game/houses';
+import { HOUSES, customHouses, houseOf } from '../game/houses';
+import { CONSULTA } from '../data/materiales';
+import { PlanEditor } from './PlanEditor';
 import { Glyph, PlanSvg, type Status } from './PlanSvg';
 import type { PanelConfig } from '../model/panel';
 import { computePanel } from '../model/panel';
@@ -51,6 +53,26 @@ function Budget({ ev, budget }: { ev: Evaluation; budget: number }) {
 }
 
 /* ───────────────────────── Orden de trabajo ───────────────────────── */
+function PlanPicker() {
+  const g = useGame();
+  const [edit, setEdit] = useState(false);
+  const mine = customHouses();
+  return (
+    <div className="planpick">
+      <label>Plano de la vivienda
+        <select value={g.plan} onChange={(e) => g.setPlan(e.target.value)} aria-label="Plano de la vivienda">
+          <option value="random">Al azar (planos de serie)</option>
+          {mine.length > 0 && <option value="all">Al azar, incluidos mis planos</option>}
+          <optgroup label="Planos de serie">{HOUSES.map((h) => <option key={h.id} value={h.id}>{h.name}</option>)}</optgroup>
+          {mine.length > 0 && <optgroup label="Mis planos">{mine.map((h) => <option key={h.id} value={h.id}>{h.name}</option>)}</optgroup>}
+        </select>
+      </label>
+      <button onClick={() => setEdit(true)}>Subir mi plano</button>
+      {edit && <PlanEditor onClose={() => setEdit(false)} onSaved={(id) => { setEdit(false); g.setPlan(id); }} />}
+    </div>
+  );
+}
+
 function Briefing() {
   const g = useGame();
   const house = houseOf(g.client.houseId);
@@ -63,6 +85,7 @@ function Briefing() {
         <p className="lead">Esto es lo que me gustaría:</p>
         <ul className="reqs">{g.client.reqs.map((r) => <li key={r.id}><i aria-hidden />{r.text}</li>)}</ul>
         <p className="foot">Presupuesto de materiales: <b>{eur(g.client.budget)}</b>. Y por favor, que cumpla el reglamento.</p>
+        <PlanPicker />
         <div className="actions">
           <button className="primary" onClick={() => g.setStage('obra')}>Aceptar el encargo</button>
           <button onClick={() => g.newClient()}>Otro cliente</button>
@@ -71,7 +94,7 @@ function Briefing() {
       </section>
       <aside className="blueprint-peek">
         <div className="peek"><PlanSvg mode="test" /></div>
-        <p className="muted">{house.name}. Pulsa «Aceptar» para empezar a replantear.</p>
+        <p className="muted">{house.name}{house.custom ? ' (plano propio)' : ''}. Pulsa «Aceptar» para empezar a replantear.</p>
         <dl className="career">
           <div><dt>Obras</dt><dd>{g.career.jobs}</dd></div>
           <div><dt>Cobrado</dt><dd>{eur(g.career.money)}</dd></div>
@@ -297,6 +320,34 @@ const QUOTES: Record<number, string[]> = {
   1: ['Hmm. Tengo luz, pero no estoy tranquilo con esto. Revisadlo.', 'No sé… hay cosas que no me encajan. Pagaré la mitad hasta que lo arregléis.'],
   0: ['Así no puedo vivir aquí. Llamo a otro instalador.', 'Esto es peligroso. No os pago hasta que lo rehagáis.'],
 };
+function Bom({ ev }: { ev: Evaluation }) {
+  const g = useGame();
+  const lines = useMemo(() => buildBom(g.state, ev.an), [g.state, ev.an]);
+  const groups = [...new Set(lines.map((l) => l.group))];
+  const est = lines.filter((l) => l.est).length;
+  return (
+    <div className="paper bom">
+      <h2>Lista de materiales <span className="chip">{eur(lines.reduce((a, l) => a + l.total, 0))}</span></h2>
+      <table>
+        <thead><tr><th>Material</th><th>Marca</th><th>Cant.</th><th>P. unit.</th><th>Importe</th></tr></thead>
+        {groups.map((gr) => (
+          <tbody key={gr}>
+            <tr className="grp"><td colSpan={5}>{gr}</td></tr>
+            {lines.filter((l) => l.group === gr).map((l, i) => (
+              <tr key={i}>
+                <td>{l.url ? <a href={l.url} target="_blank" rel="noreferrer noopener">{l.name}</a> : l.name}{l.est && <sup title="Precio estimado a partir de modelos vecinos"> est.</sup>}</td>
+                <td>{l.brand}</td><td>{num(l.qty, l.unit === 'm' ? 1 : 0)} {l.unit}</td><td>{num(l.unitPrice, 2)} €</td><td>{num(l.total, 2)} €</td>
+              </tr>
+            ))}
+          </tbody>
+        ))}
+      </table>
+      <p className="note">Precios con IVA tomados de fichas de tiendas españolas (Leroy Merlin, Obramat, ManoMano) consultadas en {CONSULTA}; cambian a menudo, son orientativos.{est > 0 && ` Las líneas marcadas «est.» (${est}) no tenían ficha clara y se han estimado a partir de modelos similares.`} No incluye mano de obra.</p>
+      <div className="nextrow"><button onClick={() => { document.body.classList.add('print-bom'); window.print(); setTimeout(() => document.body.classList.remove('print-bom'), 500); }}>Imprimir lista</button></div>
+    </div>
+  );
+}
+
 function Resultado({ ev }: { ev: Evaluation }) {
   const g = useGame();
   const app = useStore();
@@ -328,6 +379,7 @@ function Resultado({ ev }: { ev: Evaluation }) {
         </div>
       </section>
       <section className="detail">
+        <Bom ev={ev} />
         {groups.map((gr) => {
           const items = ev.checks.filter((c) => c.group === gr.id);
           if (!items.length) return null;

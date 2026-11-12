@@ -1,6 +1,8 @@
 /** Clientes aleatorios (con semilla) y sus peticiones verificables. */
 import { devsIn, controllers, type Ctx } from './logic';
-import { HOUSES } from './houses';
+import { HOUSES, customHouses, houseOf, officeId, type House } from './houses';
+import { autoSolve } from './solver';
+import { analyze } from './logic';
 
 export interface Req { id: string; text: string; short: string; extraBudget: number; check: (c: Ctx) => { ok: boolean; detail?: string } }
 export interface Client { seed: number; name: string; emoji: string; houseId: string; intro: string; budget: number; level: number; reqs: Req[] }
@@ -25,7 +27,6 @@ const INTROS = [
 ];
 
 const room = (c: Ctx, id: string) => c.house.rooms.find((r) => r.id === id);
-const HAS = (c: Ctx, id: string) => !!room(c, id);
 
 const REQ: Record<string, (c: Ctx) => Req> = {
   cocina: () => ({ id: 'cocina', extraBudget: 0, short: 'Cocina: horno, lavadora y lavavajillas', text: 'En la cocina quiero horno y, por supuesto, lavadora y lavavajillas.',
@@ -56,21 +57,40 @@ const REQ: Record<string, (c: Ctx) => Req> = {
       return { ok, detail: ok ? undefined : 'aplique exterior + detector vinculado' };
     } }),
   teletrabajo: () => ({ id: 'teletrabajo', extraBudget: 40, short: 'Despacho: 6 enchufes y toma de datos', text: 'Teletrabajo desde casa: en el despacho necesito 6 enchufes y toma de datos.',
-    check: (c) => { const id = HAS(c, 'd3') ? 'd3' : 'd2'; const t = devsIn(c, id, 'toma').length, d = devsIn(c, id, 'tomaTV').length; const ok = t >= 6 && d >= 1; return { ok, detail: ok ? undefined : `${room(c, id)?.name}: enchufes ${t}/6 · datos ${d}/1` }; } }),
+    check: (c) => { const id = officeId(c.house) ?? 'd1'; const t = devsIn(c, id, 'toma').length, d = devsIn(c, id, 'tomaTV').length; const ok = t >= 6 && d >= 1; return { ok, detail: ok ? undefined : `${room(c, id)?.name}: enchufes ${t}/6 · datos ${d}/1` }; } }),
+};
+/** Qué peticiones tienen sentido en cada plano (así valen para cualquier vivienda, también las subidas). */
+const APPLIES: Record<string, (h: House) => boolean> = {
+  acSalon: (h) => h.rooms.some((r) => r.id === 'salon'),
+  conmPasillo: (h) => h.rooms.some((r) => r.id === 'pasillo' && Math.max(r.w, r.h) >= 5.5),
+  conmD1: (h) => h.rooms.some((r) => r.id === 'd1'),
+  tv: (h) => h.rooms.some((r) => r.id === 'salon') && h.rooms.some((r) => r.id === 'd1'),
+  ev: (h) => h.rooms.some((r) => r.id === 'garaje'),
+  luzTerraza: (h) => h.rooms.some((r) => r.id === 'terraza'),
+  teletrabajo: (h) => !!officeId(h),
 };
 export const SPECIAL = ['acSalon', 'conmPasillo', 'conmD1', 'tv', 'ev', 'luzTerraza', 'teletrabajo'];
 
-export function makeClient(seed: number, level = 1): Client {
+export type PlanChoice = 'random' | 'all' | string;
+/** Planos disponibles para el sorteo: los de serie y, si se pide, los propios. */
+export const planPool = (choice: PlanChoice): House[] => (choice === 'all' ? [...HOUSES, ...customHouses()] : choice === 'random' ? HOUSES : [houseOf(choice)]);
+
+export function makeClient(seed: number, level = 1, plan: PlanChoice = 'random'): Client {
   const r = rng(seed);
   const [name, emoji] = pick(r, PEOPLE);
-  const houseId = r() < 0.55 ? 'piso3' : 'piso2';
-  const house = HOUSES.find((h) => h.id === houseId)!;
-  const n = Math.min(SPECIAL.length, 1 + level + (r() < 0.5 ? 1 : 0));
-  const pool = [...SPECIAL];
+  const pool = planPool(plan);
+  const house = pool[Math.floor(r() * pool.length)];
+  const available = SPECIAL.filter((id) => APPLIES[id](house));
+  const n = Math.min(available.length, 1 + level + (r() < 0.5 ? 1 : 0));
   const chosen: string[] = [];
-  while (chosen.length < n) chosen.push(pool.splice(Math.floor(r() * pool.length), 1)[0]);
+  while (chosen.length < n) chosen.push(available.splice(Math.floor(r() * available.length), 1)[0]);
   const stub = { house } as Ctx;
   const reqs = ['cocina', ...chosen].map((id) => REQ[id](stub));
-  const budget = Math.round(((houseId === 'piso3' ? 1450 : 1200) + reqs.reduce((a, q) => a + q.extraBudget, 0) + Math.floor(r() * 220)) / 10) * 10;
-  return { seed, name, emoji, houseId, intro: pick(r, INTROS), budget, level, reqs };
+  const intro = pick(r, INTROS);
+  const extra = r();
+  const client: Client = { seed, name, emoji, houseId: house.id, intro, budget: 0, level, reqs };
+  // Presupuesto: lo que costaría con material real hecho por un profesional + un margen que se estrecha con el nivel
+  const base = analyze(autoSolve(house.id, client), house).total;
+  client.budget = Math.ceil((base * (1.5 - 0.1 * level + extra * 0.15)) / 10) * 10;
+  return client;
 }

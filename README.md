@@ -60,12 +60,16 @@ npm run build      # genera dist/ (alojable en Netlify / GitHub Pages)
 - **Cuando algo va mal, estalla**: lámparas y LED sobrecargados, fusibles y fuentes en cortocircuito se destruyen con explosión animada (destello, onda, chispas, humo), sacudida de pantalla y sonido (opcional). Quedan quemados hasta pulsar «Reponer averías». Las lámparas se ponen al rojo blanco y parpadean antes de fundirse, y un cable que supera su intensidad admisible parpadea en rojo. Las fuentes tienen «Corriente máxima» (30 A pilas, 100 A red).
 - **Cablear arrastrando también en el esquema**: arrastra de terminal a terminal con imán y vista previa (o clic-clic como antes).
 
-- **Modo juego «Instalador»** (pestaña 🏠 Juego): un cliente aleatorio (semilla reproducible, 3 niveles) te encarga la electricidad de su vivienda (piso de 2 o 3 dormitorios con terraza y garaje).
+- **Modo juego «Instalador»** (pestaña 🏠 Juego): un cliente aleatorio (semilla reproducible, 3 niveles) te encarga la electricidad de su vivienda (5 planos de serie que salen al azar: piso de 1, 2 y 3 dormitorios, ático con terraza y chalet de 4 dormitorios y 2 baños).
   1. *Replanteo*: coloca puntos de luz, mandos (interruptor, conmutador, detector), bases de 16 A y 25 A, tomas de electrodomésticos y TV, aire acondicionado y cargador de VE sobre un plano cianotipo; vincula cada mando a sus luces, asigna circuitos y coloca el cuadro. Se calculan las canalizaciones y sus longitudes reales. Una lista del pedido se tacha en vivo.
   2. *Cuadro*: elige PIA, curva (B/C/D), sección, IGA y diferenciales; el simulador calcula Iz, caída de tensión e Icc y dibuja el cuadro real en carril DIN.
   3. *Inspección*: se da tensión circuito a circuito: un cable que no soporta su protección arde, un PIA justo salta, un cortocircuito lejano puede no disparar.
   4. *Resultado*: nota sobre 100, estrellas, reacción del cliente, cobro y plano imprimible del cuadro. «Ver cómo lo haría un profesional» carga una solución automática (los tests resuelven 180 clientes con nota ≥ 95).
   Reglas realistas: bases prohibidas a menos de 0,6 m de la bañera, un diferencial por cada 5 circuitos, cuadro junto a la entrada, previsión mínima de IGA. Los mínimos por estancia y los precios son **orientativos** (marcados «a verificar»).
+
+### Materiales reales y planos propios (modo juego)
+- **Materiales reales**: `src/data/materiales.ts` recoge marca, referencia, precio (IVA incl.) y enlace a la ficha de tiendas españolas (Leroy Merlin, Obramat, ManoMano), consultadas en nov. 2026. Las líneas con `est: true` no tenían ficha clara y se han estimado. Son precios **orientativos**. Al entregar la obra aparece la **lista de materiales** (imprimible) con marca, cantidad, precio unitario y enlace. El presupuesto del cliente se calcula a partir del coste real de una instalación profesional.
+- **Subir mi plano**: en la orden de trabajo, «Subir mi plano» → imagen, escala (dos puntos + distancia real), estancias (rectángulos: salón, cocina, pasillo, baño y dormitorio como mínimo), entrada y guardar. Se guarda en el navegador; se puede **exportar/importar** como `.plano.json` para compartirlo con la clase.
 
 ## Estructura
 ```

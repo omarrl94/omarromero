@@ -67,7 +67,7 @@ export function PlanSvg({ mode, status = {}, fireKey = 0 }: { mode: 'obra' | 'te
     return { x: Math.round((p.x / PX - M + house.ox) * 20) / 20, y: Math.round((p.y / PX - M + house.oy) * 20) / 20 };
   };
   const editing = mode === 'obra';
-  const pasillo = house.rooms.find((r) => r.kind === 'pasillo')!;
+  const pasillo = house.rooms.find((r) => r.kind === 'pasillo') ?? house.rooms[0];
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -108,6 +108,7 @@ export function PlanSvg({ mode, status = {}, fireKey = 0 }: { mode: 'obra' | 'te
         <radialGradient id="glow"><stop offset="0" stopColor="#fff2a8" stopOpacity={0.95} /><stop offset="0.45" stopColor="#ffd23f" stopOpacity={0.4} /><stop offset="1" stopColor="#ffd23f" stopOpacity={0} /></radialGradient>
       </defs>
       <rect data-bg="1" width={VW} height={VH} fill={BG} />
+      {house.bg && <image href={house.bg.src} x={sx(0)} y={sy(0)} width={house.bg.w * PX} height={house.bg.h * PX} preserveAspectRatio="none" opacity={0.55} style={{ filter: "invert(1) grayscale(1) contrast(1.1)", mixBlendMode: "screen" }} pointerEvents="none" />}
       <rect data-bg="1" width={VW} height={VH} fill="url(#g1)" /><rect data-bg="1" width={VW} height={VH} fill="url(#g2)" />
 
       {/* estancias */}
@@ -119,11 +120,11 @@ export function PlanSvg({ mode, status = {}, fireKey = 0 }: { mode: 'obra' | 'te
         </g>
       ))}
       {house.furniture.map((f, i) => <g key={i} pointerEvents="none"><FurnitureShape f={{ ...f, x: sx(f.x) / PX, y: sy(f.y) / PX }} /></g>)}
-      {house.tubZone && (() => { const t = house.tubZone; const m = 0.6; return (
-        <g pointerEvents="none" opacity={kindTool === 'toma' ? 1 : 0.55}>
+      {(house.tubZones ?? (house.tubZone ? [house.tubZone] : [])).map((t, ti) => { const m = 0.6; return (
+        <g key={ti} pointerEvents="none" opacity={kindTool === 'toma' ? 1 : 0.55}>
           <rect x={sx(t.x - m)} y={sy(t.y - m)} width={(t.w + 2 * m) * PX} height={(t.h + 2 * m) * PX} rx={14} fill="url(#hatch)" stroke="#ff5d4a" strokeWidth={1.6} strokeDasharray="6 4" />
           <text x={sx(t.x - m) + 6} y={sy(t.y + t.h + m) + 14} fontSize={10.5} fill="#ff9a8c" fontWeight={700}>sin bases a menos de 0,6 m</text>
-        </g>); })()}
+        </g>); })}
 
       {/* muros */}
       {house.rooms.map((r) => <rect key={r.id} x={sx(r.x)} y={sy(r.y)} width={r.w * PX} height={r.h * PX} fill="none" stroke={INK} strokeWidth={r.outdoor ? 2 : 6} strokeDasharray={r.outdoor ? '10 6' : undefined} strokeLinejoin="miter" pointerEvents="none" />)}
@@ -131,10 +132,11 @@ export function PlanSvg({ mode, status = {}, fireKey = 0 }: { mode: 'obra' | 'te
       {house.doors.map((d, i) => {
         const x = sx(d.x), y = sy(d.y), L = d.len * PX;
         if (d.orient === 'h') {
-          const dir = d.y <= pasillo.y + 0.01 ? -1 : 1;
+          const dir = d.dir ?? (d.y <= pasillo.y + 0.01 ? -1 : 1);
           return <g key={i} pointerEvents="none"><rect x={x} y={y - 5} width={L} height={10} fill={BG} /><path d={`M${x} ${y}v${dir * L}M${x} ${y + dir * L}A${L} ${L} 0 0 ${dir > 0 ? 0 : 1} ${x + L} ${y}`} fill="none" stroke={INK} strokeWidth={1.4} /></g>;
         }
-        return <g key={i} pointerEvents="none"><rect x={x - 5} y={y} width={10} height={L} fill={BG} /><path d={`M${x} ${y}h${L}M${x + L} ${y}A${L} ${L} 0 0 1 ${x} ${y + L}`} fill="none" stroke={INK} strokeWidth={1.4} />{d.entry && <text x={x - 10} y={y + L / 2 + 4} textAnchor="end" fontSize={11} fontWeight={800} fill={PENCIL}>ENTRADA ▸</text>}</g>;
+        const dv = d.dir ?? 1;
+        return <g key={i} pointerEvents="none"><rect x={x - 5} y={y} width={10} height={L} fill={BG} /><path d={`M${x} ${y}h${dv * L}M${x + dv * L} ${y}A${L} ${L} 0 0 ${dv > 0 ? 1 : 0} ${x} ${y + L}`} fill="none" stroke={INK} strokeWidth={1.4} />{d.entry && <text x={x - dv * 10} y={y + L / 2 + 4} textAnchor={dv > 0 ? 'end' : 'start'} fontSize={11} fontWeight={800} fill={PENCIL}>{dv > 0 ? 'ENTRADA ▸' : '◂ ENTRADA'}</text>}</g>;
       })}
 
       {/* etiquetas de estancia */}

@@ -1,5 +1,6 @@
 /** Lógica del modo juego: análisis de la instalación del jugador, inspección y puntuación. Sin DOM. */
-import { DROP, GAMMA, IZ, PIA_RATINGS, PRICES, U, ZS, circuitDef, dev, type DevKind } from './data';
+import { CONDUCTORS, DROP, GAMMA, IZ, PIA_RATINGS, PRICES, U, ZS, circuitDef, dev, type DevKind } from './data';
+import { CAJA, DEV_MAT, SPD, TUBO, cableMat, idMat, igaMat, piaMat, type BomLine } from '../data/materiales';
 import { area, houseOf, type House, type Room } from './houses';
 import type { Client } from './clients';
 
@@ -36,9 +37,9 @@ export function defaultCircuit(kind: DevKind, room: Room | null): string | null 
 
 /** Zona prohibida alrededor de la bañera: bases a menos de 0,6 m (volúmenes de ITC-BT-27, orientativo). */
 export function inBathZone(house: House, d: { x: number; y: number }, margin = 0.6): boolean {
-  const t = house.tubZone;
-  if (!t) return false;
-  return d.x >= t.x - margin && d.x <= t.x + t.w + margin && d.y >= t.y - margin && d.y <= t.y + t.h + margin;
+  const zs = house.tubZones ?? (house.tubZone ? [house.tubZone] : []);
+  if (roomAt(house, d.x, d.y)?.kind !== 'bano') return false;
+  return zs.some((t) => d.x >= t.x - margin && d.x <= t.x + t.w + margin && d.y >= t.y - margin && d.y <= t.y + t.h + margin);
 }
 
 export interface CircuitInfo {
@@ -82,19 +83,44 @@ export function analyze(state: GState, house: House): Analysis {
     const dropV = (2 * lmax * choice.inA) / (GAMMA * choice.section);
     const dropPct = (dropV / U) * 100;
     const icc = U / ((2 * lmax) / (GAMMA * choice.section) + ZS);
-    const cc = ltotal * (PRICES.cablePerM[choice.section] ?? 8) + ltotal * PRICES.tubePerM;
-    const pc = PRICES.pia[choice.inA] ?? 10;
+    const cc = ltotal * CONDUCTORS * PRICES.cablePerM(choice.section) + ltotal * PRICES.tubePerM;
+    const pc = PRICES.pia(choice.inA);
     cableCost += cc; protCost += pc; pSim += pTotal * def.use;
     circuits[cid] = { id: cid, devs, points, ltotal, lmax, pTotal, ibUse, choice, iz, dropV, dropPct, dropLimit: def.lighting ? 3 : 5, icc, needIcc: choice.curve * choice.inA, cableCost: cc, piaCost: pc };
   }
   const deviceCost = state.devices.reduce((a, d) => a + dev(d.kind).price, 0);
   const b = state.board;
-  protCost += PRICES.iga + b.idCount * PRICES.id(b.idA, b.idType) + PRICES.box + (b.spd ? PRICES.spd : 0);
+  protCost += PRICES.iga(b.iga) + b.idCount * PRICES.id(b.idA, b.idType) + PRICES.box + (b.spd ? PRICES.spd : 0);
   const pSimTotal = pSim * 0.6;
   const igaMin = Math.max(25, PIA_RATINGS.find((r) => r >= pSimTotal / U) ?? 63);
   const nCirc = Object.keys(circuits).length;
   const idOk = b.idCount >= Math.ceil(nCirc / 5) && b.idMa === 30 && b.idA >= b.iga;
   return { circuits, deviceCost, cableCost, protCost, total: deviceCost + cableCost + protCost, idOk, pSimTotal, igaMin };
+}
+
+/** Lista de materiales (despiece) de la instalación, con marca, referencia, precio y ficha de origen. */
+export function buildBom(state: GState, an: Analysis): BomLine[] {
+  const L: BomLine[] = [];
+  const add = (group: string, name: string, brand: string, qty: number, unit: 'ud' | 'm', unitPrice: number, url?: string, est?: boolean) => {
+    if (qty > 0) L.push({ group, name, brand, qty: unit === 'm' ? Math.round(qty * 10) / 10 : qty, unit, unitPrice, total: qty * unitPrice, url, est });
+  };
+  const kinds = new Map<DevKind, number>();
+  for (const d of state.devices) kinds.set(d.kind, (kinds.get(d.kind) ?? 0) + 1);
+  for (const [k, n] of kinds) { const m = DEV_MAT[k]; add('Mecanismos y equipos', m.ref, m.brand, n, 'ud', m.price, m.url, m.est); }
+  const bySec = new Map<number, number>();
+  let tube = 0;
+  for (const ci of Object.values(an.circuits)) { bySec.set(ci.choice.section, (bySec.get(ci.choice.section) ?? 0) + ci.ltotal * CONDUCTORS); tube += ci.ltotal; }
+  for (const [sec, m] of [...bySec].sort((a, b) => a[0] - b[0])) { const c = cableMat(sec); add('Cable y canalización', `${c.ref} (fase, neutro y tierra)`, c.brand, m, 'm', c.price, c.url, c.est); }
+  add('Cable y canalización', TUBO.ref, TUBO.brand, tube, 'm', TUBO.price, TUBO.url, TUBO.est);
+  const pias = new Map<number, number>();
+  for (const ci of Object.values(an.circuits)) pias.set(ci.choice.inA, (pias.get(ci.choice.inA) ?? 0) + 1);
+  for (const [a, n] of [...pias].sort((x, y) => x[0] - y[0])) { const m = piaMat(a); add('Cuadro de protección', m.ref, m.brand, n, 'ud', m.price, m.url, m.est); }
+  const b = state.board;
+  const ig = igaMat(b.iga); add('Cuadro de protección', ig.ref, ig.brand, 1, 'ud', ig.price, ig.url, ig.est);
+  const id = idMat(b.idA, b.idType); add('Cuadro de protección', id.ref, id.brand, b.idCount, 'ud', id.price, id.url, id.est);
+  add('Cuadro de protección', CAJA.ref, CAJA.brand, 1, 'ud', CAJA.price, CAJA.url, CAJA.est);
+  if (b.spd) add('Cuadro de protección', SPD.ref, SPD.brand, 1, 'ud', SPD.price, SPD.url, SPD.est);
+  return L;
 }
 
 export interface Check { id: string; group: 'cliente' | 'estancias' | 'cuadro' | 'seguridad' | 'presupuesto'; label: string; ok: boolean; detail?: string }

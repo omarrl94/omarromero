@@ -1,7 +1,7 @@
 /** Instalador profesional automático: sirve para los tests y para «ver cómo lo haría un profesional». */
-import { analyze, defaultCircuit, emptyState, roomAt, type Dev, type GState } from './logic';
-import { circuitDef, PIA_RATINGS, SECTIONS_GAME, type DevKind } from './data';
-import { area, houseOf, type Room } from './houses';
+import { analyze, defaultCircuit, inBathZone, emptyState, roomAt, type Dev, type GState } from './logic';
+import { circuitDef, dev, PIA_RATINGS, SECTIONS_GAME, type DevKind } from './data';
+import { area, houseOf, officeId, type Room } from './houses';
 import type { Client } from './clients';
 
 export function autoSolve(houseId: string, client: Client): GState {
@@ -42,12 +42,13 @@ export function autoSolve(houseId: string, client: Client): GState {
       case 'bano': {
         lights.push(add('luz', r.x + 0.9, r.y + r.h / 2));
         link(add('int', door.x, door.y), lights[0]);
-        add('toma', r.x + 0.3, r.y + r.h - 0.4);
+        const spot = [[0.3, r.h - 0.4], [r.w / 2, r.h - 0.3], [0.3, 0.4], [r.w - 0.3, r.h - 0.3], [r.w / 2, 0.3]].map(([dx, dy]) => ({ x: r.x + dx, y: r.y + dy })).find((p) => !inBathZone(house, p, 0.7)) ?? { x: r.x + 0.3, y: r.y + r.h - 0.4 };
+        add('toma', spot.x, spot.y);
         break;
       }
       case 'dormitorio': {
         lights.push(add('luz', r.x + r.w / 2, r.y + r.h / 2 - 0.4));
-        const office = has('teletrabajo') && r.id === (houseId === 'piso3' ? 'd3' : 'd2');
+        const office = has('teletrabajo') && r.id === officeId(house);
         if (r.id === 'd1' && has('conmD1')) { const a = add('conm', door.x, door.y), b = add('conm', r.x + r.w / 2 + 1.3, r.y + r.h - 1.5); link(a, lights[0]); link(b, lights[0]); }
         else link(add('int', door.x, door.y), lights[0]);
         if (office) { spread(r, 6, 0).forEach((x) => add('toma', x, r.y + 0.25)); add('tomaTV', r.x + 0.4, r.y + 1.4); }
@@ -70,8 +71,11 @@ export function autoSolve(houseId: string, client: Client): GState {
       case 'garaje': { if (has('ev')) add('ev', r.x + 0.3, r.y + r.h / 2); break; }
     }
   }
-  const pasillo = house.rooms.find((q) => q.kind === 'pasillo')!;
-  st.panel = { x: 0.6, y: pasillo.y + 0.3 };
+  // Viviendas grandes: las bases de uso general se reparten en dos circuitos para no superar los 16 A
+  const gen = st.devices.filter((d) => d.circuit === 'C2');
+  const load = gen.reduce((a, d) => a + dev(d.kind).p, 0) * circuitDef('C2').use / 230;
+  if (load > 14) { const xs = gen.map((d) => d.x).sort((a, b) => a - b); const cut = xs[Math.floor(xs.length / 2)]; gen.filter((d) => d.x >= cut).forEach((d) => (d.circuit = 'C2b')); }
+  st.panel = { ...house.panelDefault };
   // Calibres y secciones: los mínimos de cada circuito, ajustados hasta cumplir caída, Iz y magnético
   for (const id of Object.keys(analyze(st, house).circuits)) {
     const def = circuitDef(id);
