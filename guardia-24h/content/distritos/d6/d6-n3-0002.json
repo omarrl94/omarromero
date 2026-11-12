@@ -1,0 +1,160 @@
+{
+  "id": "d6-n3-0002",
+  "estado": "borrador",
+  "distrito": 6,
+  "ra": [
+    "RA3",
+    "RA6"
+  ],
+  "ce": [
+    "RA3-CE5",
+    "RA6-CE1"
+  ],
+  "nivel": 3,
+  "tipo": "automatismo",
+  "dificultad": 1.5,
+  "pe_base": 3,
+  "enunciado": "Añade al marcha-paro un piloto H1 que indique que el motor está en marcha (se enciende con KM1).",
+  "solucion": {
+    "cables": [
+      [
+        "S2.14",
+        "H1.X1"
+      ],
+      [
+        "H1.X2",
+        "G.N"
+      ]
+    ]
+  },
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Repasa la teoría del bloque: componentes, esquemas y maniobras."
+  ],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "Manual del profesor (automatismos)",
+    "ref": "TODO(profesor): apartado"
+  },
+  "verificado": false,
+  "automatismo": {
+    "componentes": [
+      {
+        "id": "G",
+        "tipo": "fuente",
+        "etiqueta": "Red de mando"
+      },
+      {
+        "id": "F1",
+        "tipo": "termico",
+        "etiqueta": "F1 relé térmico"
+      },
+      {
+        "id": "S1",
+        "tipo": "pulsador_nc",
+        "etiqueta": "S1 paro"
+      },
+      {
+        "id": "S2",
+        "tipo": "pulsador_na",
+        "etiqueta": "S2 marcha"
+      },
+      {
+        "id": "KM1",
+        "tipo": "contactor",
+        "etiqueta": "KM1"
+      },
+      {
+        "id": "H1",
+        "tipo": "piloto",
+        "etiqueta": "H1 piloto de marcha"
+      }
+    ],
+    "cablesFijos": [
+      [
+        "G.L",
+        "F1.95"
+      ],
+      [
+        "F1.96",
+        "S1.11"
+      ],
+      [
+        "S1.12",
+        "S2.13"
+      ],
+      [
+        "S1.12",
+        "KM1.13"
+      ],
+      [
+        "S2.14",
+        "KM1.14"
+      ],
+      [
+        "S2.14",
+        "KM1.A1"
+      ],
+      [
+        "KM1.A2",
+        "G.N"
+      ]
+    ],
+    "escenarios": [
+      {
+        "nombre": "Piloto de marcha",
+        "pasos": [
+          {
+            "acc": "pulse:S2",
+            "esperado": {
+              "KM1": true,
+              "H1": true
+            }
+          }
+        ]
+      },
+      {
+        "nombre": "Piloto apagado en reposo",
+        "pasos": [
+          {
+            "acc": "wait:1",
+            "esperado": {
+              "H1": false,
+              "KM1": false
+            }
+          }
+        ]
+      },
+      {
+        "nombre": "Paro apaga el piloto",
+        "pasos": [
+          {
+            "acc": "pulse:S2"
+          },
+          {
+            "acc": "pulse:S1",
+            "esperado": {
+              "H1": false,
+              "KM1": false
+            }
+          }
+        ]
+      },
+      {
+        "nombre": "Sin cortocircuito",
+        "pasos": [
+          {
+            "acc": "pulse:S2"
+          },
+          {
+            "acc": "wait:1",
+            "esperado": {
+              "KM1": true
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

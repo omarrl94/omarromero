@@ -1,0 +1,37 @@
+{
+  "id": "d6-n4-0004",
+  "estado": "borrador",
+  "distrito": 6,
+  "ra": [
+    "RA6",
+    "RA7"
+  ],
+  "ce": [
+    "RA6-CE5"
+  ],
+  "nivel": 4,
+  "tipo": "opcion_multiple",
+  "dificultad": 1.5,
+  "pe_base": 2,
+  "enunciado": "Avería: al pulsar marcha no ocurre nada. Hay tensión en el pulsador de marcha, pero no llega a la bobina. ¿Qué compruebas primero?",
+  "solucion": {
+    "correcta": 0
+  },
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Repasa la teoría del bloque: componentes, esquemas y maniobras."
+  ],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "Manual del profesor (automatismos)",
+    "ref": "TODO(profesor): apartado"
+  },
+  "verificado": false,
+  "opciones": [
+    "Los contactos NC en serie: relé térmico, pulsador de paro y enclavamientos",
+    "La potencia nominal del motor",
+    "La sección del cable de potencia",
+    "El color de los conductores de mando"
+  ]
+}

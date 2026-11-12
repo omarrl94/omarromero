@@ -1,0 +1,31 @@
+{
+  "id": "d6-n2-0004",
+  "estado": "borrador",
+  "distrito": 6,
+  "ra": [
+    "RA3",
+    "RA6"
+  ],
+  "ce": [
+    "RA6-CE1"
+  ],
+  "nivel": 2,
+  "tipo": "verdadero_falso",
+  "dificultad": 1,
+  "pe_base": 2,
+  "enunciado": "El contacto del relé térmico se conecta en serie con la bobina del contactor.",
+  "solucion": {
+    "correcta": true
+  },
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Repasa la teoría del bloque: componentes, esquemas y maniobras."
+  ],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "Manual del profesor (automatismos)",
+    "ref": "TODO(profesor): apartado"
+  },
+  "verificado": false
+}

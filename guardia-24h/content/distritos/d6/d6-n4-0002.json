@@ -1,0 +1,257 @@
+{
+  "id": "d6-n4-0002",
+  "estado": "borrador",
+  "distrito": 6,
+  "ra": [
+    "RA3",
+    "RA6",
+    "RA7"
+  ],
+  "ce": [
+    "RA3-CE5",
+    "RA6-CE3"
+  ],
+  "nivel": 4,
+  "tipo": "automatismo",
+  "dificultad": 2,
+  "pe_base": 4,
+  "enunciado": "Arranque estrella-triángulo: completa el mando con el temporizador y los enclavamientos entre KM2 (estrella) y KM3 (triángulo).",
+  "solucion": {
+    "cables": [
+      [
+        "S2.14",
+        "KT1.15"
+      ],
+      [
+        "KT1.16",
+        "KM3.21"
+      ],
+      [
+        "KM3.22",
+        "KM2.A1"
+      ],
+      [
+        "S2.14",
+        "KT1.17"
+      ],
+      [
+        "KT1.18",
+        "KM2.21"
+      ],
+      [
+        "KM2.22",
+        "KM3.A1"
+      ]
+    ]
+  },
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Repasa la teoría del bloque: componentes, esquemas y maniobras."
+  ],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "Manual del profesor (automatismos)",
+    "ref": "TODO(profesor): apartado"
+  },
+  "verificado": false,
+  "automatismo": {
+    "componentes": [
+      {
+        "id": "G",
+        "tipo": "fuente",
+        "etiqueta": "Red de mando"
+      },
+      {
+        "id": "F1",
+        "tipo": "termico",
+        "etiqueta": "F1 relé térmico"
+      },
+      {
+        "id": "S1",
+        "tipo": "pulsador_nc",
+        "etiqueta": "S1 paro"
+      },
+      {
+        "id": "S2",
+        "tipo": "pulsador_na",
+        "etiqueta": "S2 marcha"
+      },
+      {
+        "id": "KM1",
+        "tipo": "contactor",
+        "etiqueta": "KM1 línea"
+      },
+      {
+        "id": "KM2",
+        "tipo": "contactor",
+        "etiqueta": "KM2 estrella"
+      },
+      {
+        "id": "KM3",
+        "tipo": "contactor",
+        "etiqueta": "KM3 triángulo"
+      },
+      {
+        "id": "KT1",
+        "tipo": "temporizador",
+        "etiqueta": "KT1 temporizador",
+        "retardo": 5
+      }
+    ],
+    "cablesFijos": [
+      [
+        "G.L",
+        "F1.95"
+      ],
+      [
+        "F1.96",
+        "S1.11"
+      ],
+      [
+        "S1.12",
+        "S2.13"
+      ],
+      [
+        "S1.12",
+        "KM1.13"
+      ],
+      [
+        "S2.14",
+        "KM1.14"
+      ],
+      [
+        "S2.14",
+        "KM1.A1"
+      ],
+      [
+        "KM1.A2",
+        "G.N"
+      ],
+      [
+        "S2.14",
+        "KT1.A1"
+      ],
+      [
+        "KT1.A2",
+        "G.N"
+      ],
+      [
+        "KM2.A2",
+        "G.N"
+      ],
+      [
+        "KM3.A2",
+        "G.N"
+      ]
+    ],
+    "escenarios": [
+      {
+        "nombre": "Arranque en estrella",
+        "pasos": [
+          {
+            "acc": "pulse:S2",
+            "esperado": {
+              "KM1": true,
+              "KM2": true,
+              "KM3": false
+            }
+          }
+        ],
+        "nunca": [
+          [
+            "KM2",
+            "KM3"
+          ]
+        ]
+      },
+      {
+        "nombre": "Sin orden no arranca",
+        "pasos": [
+          {
+            "acc": "wait:1",
+            "esperado": {
+              "KM1": false,
+              "KM2": false,
+              "KM3": false
+            }
+          }
+        ]
+      },
+      {
+        "nombre": "Paso a triángulo tras el retardo",
+        "pasos": [
+          {
+            "acc": "pulse:S2"
+          },
+          {
+            "acc": "wait:4",
+            "esperado": {
+              "KM2": true,
+              "KM3": false
+            }
+          },
+          {
+            "acc": "wait:2",
+            "esperado": {
+              "KM1": true,
+              "KM2": false,
+              "KM3": true
+            }
+          }
+        ],
+        "nunca": [
+          [
+            "KM2",
+            "KM3"
+          ]
+        ]
+      },
+      {
+        "nombre": "Paro",
+        "pasos": [
+          {
+            "acc": "pulse:S2"
+          },
+          {
+            "acc": "wait:6",
+            "esperado": {
+              "KM3": true
+            }
+          },
+          {
+            "acc": "pulse:S1",
+            "esperado": {
+              "KM1": false,
+              "KM2": false,
+              "KM3": false
+            }
+          }
+        ]
+      },
+      {
+        "nombre": "Térmico durante el arranque",
+        "pasos": [
+          {
+            "acc": "pulse:S2"
+          },
+          {
+            "acc": "trip:F1",
+            "esperado": {
+              "KM1": false,
+              "KM2": false,
+              "KM3": false
+            }
+          },
+          {
+            "acc": "reset:F1",
+            "esperado": {
+              "KM1": false
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "dominio_rebt": "B"
+}

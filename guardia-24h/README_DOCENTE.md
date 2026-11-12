@@ -40,3 +40,13 @@ Implementación y ejemplos numéricos: `src/game/grading.ts` y `grading.test.ts`
 - Tipos de ítem: `instrumento` (diagnóstico con banco de pruebas) y `acta` (dictamen por prueba + dictamen final, puntuación parcial).
 - Contenido en borrador: D7 14 ítems, D2 15 ítems. El banco de cada nivel sigue lejos del mínimo de 25.
 - Interfaz rediseñada como juego (mapa de campaña, estrellas, fichas de colores, sonido con silencio, cuadro y multímetro dibujados).
+
+## Teoría de cada bloque
+`content/teoria/d1..d8.json`: objetivos, secciones y bloques de contenido (párrafos, listas, fórmulas, ejemplos resueltos, avisos de seguridad/norma/clave, tablas y remisiones a la ITC). Página `/distrito/N/teoria` con índice, marca de lectura y enlace a la biblioteca. Los textos están en **borrador**: explican el criterio y remiten a la ITC; **no fijan valores normativos nuevos** salvo donde se indica «verificar». Revísalos antes de publicar.
+
+## Fase 4: automatismos cableados (bloque 6)
+- `src/engine/automatismo.ts`: simulador de circuitos de mando (cables, contactos NA/NC, contactores, relé térmico, temporizador, pilotos, detección de cortocircuito y de estados prohibidos como KM2+KM3).
+- Tipo de ítem `automatismo`: el alumno cablea terminales; la nota sale de **escenarios de prueba** (arranque, retención, paro, térmico, enclavamiento…), no de comparar con un cableado único. Si falla el primer escenario (función básica), no hay puntuación aunque pasen los negativos.
+- Banco de pruebas en vivo: pulsadores (mantener pulsado = impulso), disparo del térmico y tiempo ×5 para ver el temporizador.
+- 19 ítems en borrador (N1 4, N2 5, N3 4, N4 4, N5 2: estrella-triángulo e inversión de giro completos). Cada ítem tiene su cableado de referencia en `solucion.cables` y un test que comprueba que puntúa el 100 %.
+- **Limitación de integridad:** las soluciones viajan dentro del paquete del navegador. Para evaluación con garantías habría que validarlas en servidor (Fase 6 / Firebase Functions).

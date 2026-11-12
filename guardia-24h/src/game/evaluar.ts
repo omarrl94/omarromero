@@ -4,10 +4,11 @@ import { citaValida, type Cita } from '../library/search';
 import { validaCuadro, type Propuesta } from '../engine/cuadro';
 import { calcula, tablaVivienda } from './calculos';
 import { evaluaActa } from '../engine/acta';
+import { evaluaEscenarios, type Cable } from '../engine/automatismo';
 import { normaNum } from '../data/content';
 import { peMaximo, peObtenido, redondea } from './grading';
 
-export interface Entrada { opcion?: number; vf?: boolean; numero?: number; cita?: Cita | null; seleccion?: string[]; acta?: Record<string, 'cumple' | 'no'>; dictamen?: 'apta' | 'no_apta'; dim?: Propuesta[]; pistas: number; seguridad?: boolean }
+export interface Entrada { opcion?: number; vf?: boolean; numero?: number; cita?: Cita | null; seleccion?: string[]; cables?: Cable[]; acta?: Record<string, 'cumple' | 'no'>; dictamen?: 'apta' | 'no_apta'; dim?: Propuesta[]; pistas: number; seguridad?: boolean }
 
 /** ¿Es correcta la parte de contenido de la respuesta (sin cita)? */
 export function esCorrecta(item: Item, e: Entrada): boolean {
@@ -21,6 +22,7 @@ export function esCorrecta(item: Item, e: Entrada): boolean {
       const valor = s.calculo ? calcula(s.calculo as { tipo: string }) : Number(s.valor);
       return e.numero !== undefined && Math.abs(e.numero - valor) <= tol;
     }
+    case 'automatismo':
     case 'acta':
     case 'dimensionado':
     case 'hotspots': return fraccion(item, e) === 1;
@@ -37,6 +39,7 @@ export function fraccion(item: Item, e: Entrada): number | null {
     const hits = defectos.filter((x) => sel.has(x.id)).length, falsos = [...sel].filter((id) => !defectos.some((x) => x.id === id)).length;
     return defectos.length ? Math.max(0, (hits - falsos) / defectos.length) : 0;
   }
+  if (item.tipo === 'automatismo' && item.automatismo) return evaluaEscenarios(item.automatismo.componentes, [...item.automatismo.cablesFijos, ...(e.cables ?? [])], item.automatismo.escenarios).fraccion;
   if (item.tipo === 'acta') return evaluaActa(item.pruebas ?? [], e.acta ?? {}, e.dictamen, normaNum).fraccion;
   if (item.tipo === 'dimensionado') {
     const circ = ((item.solucion as { circuitos?: string[] }).circuitos ?? []);

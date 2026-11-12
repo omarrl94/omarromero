@@ -1,0 +1,37 @@
+{
+  "id": "d6-n2-0001",
+  "estado": "borrador",
+  "distrito": 6,
+  "ra": [
+    "RA3",
+    "RA6"
+  ],
+  "ce": [
+    "RA3-CE1"
+  ],
+  "nivel": 2,
+  "tipo": "opcion_multiple",
+  "dificultad": 1.5,
+  "pe_base": 2,
+  "enunciado": "En marcha-paro, ¿qué función tiene el contacto auxiliar 13-14 de KM1 en paralelo con el pulsador de marcha?",
+  "solucion": {
+    "correcta": 0
+  },
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Repasa la teoría del bloque: componentes, esquemas y maniobras."
+  ],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "Manual del profesor (automatismos)",
+    "ref": "TODO(profesor): apartado"
+  },
+  "verificado": false,
+  "opciones": [
+    "Mantener la bobina alimentada al soltar el pulsador (enlace)",
+    "Proteger contra cortocircuitos",
+    "Medir la corriente",
+    "Invertir el giro"
+  ]
+}

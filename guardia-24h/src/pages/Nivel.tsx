@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Acta } from '../components/Acta';
 import { CitaSelector } from '../components/CitaSelector';
+import { Cableado } from '../components/Cableado';
 import { Escena } from '../components/Escena';
 import { Icon, ICONO_DISTRITO } from '../components/Icon';
 import { Instrumento } from '../components/Instrumento';
@@ -19,7 +20,7 @@ import { useStore } from '../game/store';
 import type { Cita } from '../library/search';
 import { calificacion } from './Distrito';
 
-const TIPO: Record<string, string> = { opcion_multiple: 'Test', verdadero_falso: 'Verdadero / Falso', numerico: 'Cálculo', selector_cita: 'Gymkhana del REBT', dimensionado: 'Dimensionado', hotspots: 'Muro de la vergüenza', instrumento: 'Diagnóstico', acta: 'Acta de verificación' };
+const TIPO: Record<string, string> = { opcion_multiple: 'Test', verdadero_falso: 'Verdadero / Falso', numerico: 'Cálculo', selector_cita: 'Gymkhana del REBT', dimensionado: 'Dimensionado', hotspots: 'Muro de la vergüenza', instrumento: 'Diagnóstico', automatismo: 'Cableado de maniobra', acta: 'Acta de verificación' };
 
 type Fin = { pe: number; max: number; xp: number; filas: { item: Item; r: Respuesta }[] };
 
@@ -148,7 +149,7 @@ function Jugando({ lista, distrito, onFin }: { lista: Item[]; distrito: number; 
   };
   const pista = () => { sonidoClick(); setE((x) => (x.pistas < item.pistas.length ? { ...x, pistas: x.pistas + 1 } : x)); };
   const sol = item.solucion as Record<string, unknown>;
-  const completo = item.tipo === 'acta' ? Boolean(e.dictamen) && (item.pruebas ?? []).every((p) => e.acta?.[p.id])
+  const completo = item.tipo === 'automatismo' ? (e.cables?.length ?? 0) > 0 : item.tipo === 'acta' ? Boolean(e.dictamen) && (item.pruebas ?? []).every((p) => e.acta?.[p.id])
     : item.tipo === 'opcion_multiple' || item.tipo === 'instrumento' ? e.opcion !== undefined
     : item.tipo === 'verdadero_falso' ? e.vf !== undefined
     : item.tipo === 'numerico' ? e.numero !== undefined && !Number.isNaN(e.numero)
@@ -204,6 +205,7 @@ function Jugando({ lista, distrito, onFin }: { lista: Item[]; distrito: number; 
         {item.tipo === 'instrumento' && item.circuito && (
           <Instrumento averia={item.circuito.averia} alimentadoInicial={item.circuito.alimentado} bloqueado={Boolean(res)} onSeguridad={() => setE((x) => ({ ...x, seguridad: true }))} />
         )}
+        {item.tipo === 'automatismo' && item.automatismo && <Cableado comps={item.automatismo.componentes} fijos={item.automatismo.cablesFijos} cables={e.cables ?? []} onChange={(cables) => setE((x) => ({ ...x, cables }))} bloqueado={Boolean(res)} escenarios={item.automatismo.escenarios} revelar={Boolean(res)} />}
         {item.tipo === 'acta' && <Acta pruebas={item.pruebas ?? []} acta={e.acta ?? {}} dictamen={e.dictamen} revelar={Boolean(res)} onChange={(acta, dictamen) => setE((x) => ({ ...x, acta, dictamen }))} />}
         {item.tipo === 'hotspots' && item.escena && <Escena escena={item.escena} seleccion={e.seleccion ?? []} revelar={Boolean(res)} onChange={(seleccion) => setE((x) => ({ ...x, seleccion }))} />}
         {item.tipo === 'dimensionado' && <Dimensionado circuitos={(sol as { circuitos: string[] }).circuitos} onChange={(dim) => setE((x) => ({ ...x, dim }))} />}

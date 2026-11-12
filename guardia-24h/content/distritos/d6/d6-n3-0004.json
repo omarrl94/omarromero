@@ -1,0 +1,180 @@
+{
+  "id": "d6-n3-0004",
+  "estado": "borrador",
+  "distrito": 6,
+  "ra": [
+    "RA3",
+    "RA6",
+    "RA7"
+  ],
+  "ce": [
+    "RA3-CE5",
+    "RA6-CE1"
+  ],
+  "nivel": 3,
+  "tipo": "automatismo",
+  "dificultad": 2,
+  "pe_base": 3,
+  "enunciado": "Cablea desde cero la maniobra marcha-paro con enlace. Solo está montada la entrada de alimentación.",
+  "solucion": {
+    "cables": [
+      [
+        "F1.96",
+        "S1.11"
+      ],
+      [
+        "S1.12",
+        "S2.13"
+      ],
+      [
+        "S1.12",
+        "KM1.13"
+      ],
+      [
+        "S2.14",
+        "KM1.14"
+      ],
+      [
+        "S2.14",
+        "KM1.A1"
+      ],
+      [
+        "KM1.A2",
+        "G.N"
+      ]
+    ]
+  },
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Paro y térmico en serie con la bobina; marcha con enlace en paralelo."
+  ],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "Manual del profesor (automatismos)",
+    "ref": "TODO(profesor): apartado"
+  },
+  "verificado": false,
+  "automatismo": {
+    "componentes": [
+      {
+        "id": "G",
+        "tipo": "fuente",
+        "etiqueta": "Red de mando"
+      },
+      {
+        "id": "F1",
+        "tipo": "termico",
+        "etiqueta": "F1 relé térmico"
+      },
+      {
+        "id": "S1",
+        "tipo": "pulsador_nc",
+        "etiqueta": "S1 paro"
+      },
+      {
+        "id": "S2",
+        "tipo": "pulsador_na",
+        "etiqueta": "S2 marcha"
+      },
+      {
+        "id": "KM1",
+        "tipo": "contactor",
+        "etiqueta": "KM1"
+      }
+    ],
+    "cablesFijos": [
+      [
+        "G.L",
+        "F1.95"
+      ]
+    ],
+    "escenarios": [
+      {
+        "nombre": "Arranque",
+        "pasos": [
+          {
+            "acc": "pulse:S2",
+            "esperado": {
+              "KM1": true
+            }
+          }
+        ]
+      },
+      {
+        "nombre": "Sin orden no arranca",
+        "pasos": [
+          {
+            "acc": "wait:1",
+            "esperado": {
+              "KM1": false
+            }
+          }
+        ]
+      },
+      {
+        "nombre": "Autorretención",
+        "pasos": [
+          {
+            "acc": "press:S2"
+          },
+          {
+            "acc": "release:S2",
+            "esperado": {
+              "KM1": true
+            }
+          },
+          {
+            "acc": "wait:2",
+            "esperado": {
+              "KM1": true
+            }
+          }
+        ]
+      },
+      {
+        "nombre": "Paro",
+        "pasos": [
+          {
+            "acc": "pulse:S2",
+            "esperado": {
+              "KM1": true
+            }
+          },
+          {
+            "acc": "pulse:S1",
+            "esperado": {
+              "KM1": false
+            }
+          },
+          {
+            "acc": "wait:1",
+            "esperado": {
+              "KM1": false
+            }
+          }
+        ]
+      },
+      {
+        "nombre": "Protección térmica",
+        "pasos": [
+          {
+            "acc": "pulse:S2"
+          },
+          {
+            "acc": "trip:F1",
+            "esperado": {
+              "KM1": false
+            }
+          },
+          {
+            "acc": "reset:F1",
+            "esperado": {
+              "KM1": false
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

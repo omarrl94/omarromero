@@ -1,0 +1,240 @@
+{
+  "id": "d6-n5-0002",
+  "estado": "borrador",
+  "distrito": 6,
+  "ra": [
+    "RA3",
+    "RA6",
+    "RA7",
+    "RA9"
+  ],
+  "ce": [
+    "RA3-CE5",
+    "RA6-CE5"
+  ],
+  "nivel": 5,
+  "tipo": "automatismo",
+  "dificultad": 2,
+  "pe_base": 5,
+  "enunciado": "JEFE · Inversión de giro con enclavamiento: cablea el mando completo con solo la alimentación montada.",
+  "solucion": {
+    "cables": [
+      [
+        "F1.96",
+        "S1.11"
+      ],
+      [
+        "S1.12",
+        "S2.13"
+      ],
+      [
+        "S1.12",
+        "S3.13"
+      ],
+      [
+        "S1.12",
+        "KM1.13"
+      ],
+      [
+        "S1.12",
+        "KM2.13"
+      ],
+      [
+        "S2.14",
+        "KM1.14"
+      ],
+      [
+        "S3.14",
+        "KM2.14"
+      ],
+      [
+        "KM1.A2",
+        "G.N"
+      ],
+      [
+        "KM2.A2",
+        "G.N"
+      ],
+      [
+        "S2.14",
+        "KM2.21"
+      ],
+      [
+        "KM2.22",
+        "KM1.A1"
+      ],
+      [
+        "S3.14",
+        "KM1.21"
+      ],
+      [
+        "KM1.22",
+        "KM2.A1"
+      ]
+    ]
+  },
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "Manual del profesor (automatismos)",
+    "ref": "TODO(profesor): apartado"
+  },
+  "verificado": false,
+  "automatismo": {
+    "componentes": [
+      {
+        "id": "G",
+        "tipo": "fuente",
+        "etiqueta": "Red de mando"
+      },
+      {
+        "id": "F1",
+        "tipo": "termico",
+        "etiqueta": "F1 relé térmico"
+      },
+      {
+        "id": "S1",
+        "tipo": "pulsador_nc",
+        "etiqueta": "S1 paro"
+      },
+      {
+        "id": "S2",
+        "tipo": "pulsador_na",
+        "etiqueta": "S2 marcha"
+      },
+      {
+        "id": "S3",
+        "tipo": "pulsador_na",
+        "etiqueta": "S3 marcha sentido 2"
+      },
+      {
+        "id": "KM1",
+        "tipo": "contactor",
+        "etiqueta": "KM1 sentido 1"
+      },
+      {
+        "id": "KM2",
+        "tipo": "contactor",
+        "etiqueta": "KM2 sentido 2"
+      }
+    ],
+    "cablesFijos": [
+      [
+        "G.L",
+        "F1.95"
+      ]
+    ],
+    "escenarios": [
+      {
+        "nombre": "Sentido 1",
+        "pasos": [
+          {
+            "acc": "pulse:S2",
+            "esperado": {
+              "KM1": true,
+              "KM2": false
+            }
+          }
+        ],
+        "nunca": [
+          [
+            "KM1",
+            "KM2"
+          ]
+        ]
+      },
+      {
+        "nombre": "Enclavamiento eléctrico",
+        "pasos": [
+          {
+            "acc": "pulse:S2"
+          },
+          {
+            "acc": "pulse:S3",
+            "esperado": {
+              "KM1": true,
+              "KM2": false
+            }
+          }
+        ],
+        "nunca": [
+          [
+            "KM1",
+            "KM2"
+          ]
+        ]
+      },
+      {
+        "nombre": "Inversión tras el paro",
+        "pasos": [
+          {
+            "acc": "pulse:S2"
+          },
+          {
+            "acc": "pulse:S1",
+            "esperado": {
+              "KM1": false
+            }
+          },
+          {
+            "acc": "pulse:S3",
+            "esperado": {
+              "KM2": true,
+              "KM1": false
+            }
+          }
+        ],
+        "nunca": [
+          [
+            "KM1",
+            "KM2"
+          ]
+        ]
+      },
+      {
+        "nombre": "Pulsación simultánea",
+        "pasos": [
+          {
+            "acc": "press:S2"
+          },
+          {
+            "acc": "press:S3"
+          },
+          {
+            "acc": "wait:1"
+          }
+        ],
+        "nunca": [
+          [
+            "KM1",
+            "KM2"
+          ]
+        ]
+      },
+      {
+        "nombre": "Térmico",
+        "pasos": [
+          {
+            "acc": "pulse:S3"
+          },
+          {
+            "acc": "trip:F1",
+            "esperado": {
+              "KM2": false,
+              "KM1": false
+            }
+          }
+        ],
+        "nunca": [
+          [
+            "KM1",
+            "KM2"
+          ]
+        ]
+      }
+    ]
+  },
+  "dominio_rebt": "B"
+}

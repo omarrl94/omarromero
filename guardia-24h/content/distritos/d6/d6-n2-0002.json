@@ -1,0 +1,37 @@
+{
+  "id": "d6-n2-0002",
+  "estado": "borrador",
+  "distrito": 6,
+  "ra": [
+    "RA3",
+    "RA6"
+  ],
+  "ce": [
+    "RA3-CE1"
+  ],
+  "nivel": 2,
+  "tipo": "opcion_multiple",
+  "dificultad": 1.5,
+  "pe_base": 2,
+  "enunciado": "Si se retira el contacto de enlace del marcha-paro, el motor…",
+  "solucion": {
+    "correcta": 0
+  },
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Repasa la teoría del bloque: componentes, esquemas y maniobras."
+  ],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "Manual del profesor (automatismos)",
+    "ref": "TODO(profesor): apartado"
+  },
+  "verificado": false,
+  "opciones": [
+    "Funciona solo mientras se mantiene pulsado S2",
+    "No arranca nunca",
+    "Arranca y no se puede parar",
+    "Cambia de sentido de giro"
+  ]
+}

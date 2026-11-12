@@ -1,0 +1,37 @@
+{
+  "id": "d6-n2-0003",
+  "estado": "borrador",
+  "distrito": 6,
+  "ra": [
+    "RA3",
+    "RA6"
+  ],
+  "ce": [
+    "RA3-CE1"
+  ],
+  "nivel": 2,
+  "tipo": "opcion_multiple",
+  "dificultad": 1.5,
+  "pe_base": 2,
+  "enunciado": "Para invertir el sentido de giro de un motor trifásico se intercambian…",
+  "solucion": {
+    "correcta": 0
+  },
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Repasa la teoría del bloque: componentes, esquemas y maniobras."
+  ],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "Manual del profesor (automatismos)",
+    "ref": "TODO(profesor): apartado"
+  },
+  "verificado": false,
+  "opciones": [
+    "Dos de las tres fases",
+    "Las tres fases",
+    "El neutro y una fase",
+    "El conductor de protección"
+  ]
+}

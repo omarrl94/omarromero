@@ -1,0 +1,37 @@
+{
+  "id": "d6-n4-0003",
+  "estado": "borrador",
+  "distrito": 6,
+  "ra": [
+    "RA6",
+    "RA7"
+  ],
+  "ce": [
+    "RA6-CE5"
+  ],
+  "nivel": 4,
+  "tipo": "opcion_multiple",
+  "dificultad": 1.5,
+  "pe_base": 2,
+  "enunciado": "Avería: al pulsar marcha el contactor cierra, pero se abre al soltar el pulsador. ¿Cuál es la causa más probable?",
+  "solucion": {
+    "correcta": 0
+  },
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Repasa la teoría del bloque: componentes, esquemas y maniobras."
+  ],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "Manual del profesor (automatismos)",
+    "ref": "TODO(profesor): apartado"
+  },
+  "verificado": false,
+  "opciones": [
+    "El contacto de enlace 13-14 de KM1 no está cableado o está abierto",
+    "El relé térmico está disparado",
+    "La bobina está quemada",
+    "El pulsador de paro está en cortocircuito"
+  ]
+}

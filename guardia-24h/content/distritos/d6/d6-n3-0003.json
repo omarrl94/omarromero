@@ -1,0 +1,127 @@
+{
+  "id": "d6-n3-0003",
+  "estado": "borrador",
+  "distrito": 6,
+  "ra": [
+    "RA3",
+    "RA6"
+  ],
+  "ce": [
+    "RA3-CE5",
+    "RA6-CE1"
+  ],
+  "nivel": 3,
+  "tipo": "automatismo",
+  "dificultad": 1.5,
+  "pe_base": 3,
+  "enunciado": "Cablea una maniobra por impulso (jog): el motor funciona solo mientras se mantiene pulsado S2.",
+  "solucion": {
+    "cables": [
+      [
+        "S2.14",
+        "KM1.A1"
+      ],
+      [
+        "KM1.A2",
+        "G.N"
+      ]
+    ]
+  },
+  "requiere_cita": false,
+  "citas_validas": [],
+  "pistas": [
+    "Repasa la teoría del bloque: componentes, esquemas y maniobras."
+  ],
+  "explicacion": "[BORRADOR pendiente de revisión del profesor]",
+  "fuente": {
+    "documento": "Manual del profesor (automatismos)",
+    "ref": "TODO(profesor): apartado"
+  },
+  "verificado": false,
+  "automatismo": {
+    "componentes": [
+      {
+        "id": "G",
+        "tipo": "fuente",
+        "etiqueta": "Red de mando"
+      },
+      {
+        "id": "F1",
+        "tipo": "termico",
+        "etiqueta": "F1 relé térmico"
+      },
+      {
+        "id": "S2",
+        "tipo": "pulsador_na",
+        "etiqueta": "S2 marcha"
+      },
+      {
+        "id": "KM1",
+        "tipo": "contactor",
+        "etiqueta": "KM1"
+      }
+    ],
+    "cablesFijos": [
+      [
+        "G.L",
+        "F1.95"
+      ],
+      [
+        "F1.96",
+        "S2.13"
+      ]
+    ],
+    "escenarios": [
+      {
+        "nombre": "Marcha mientras se pulsa",
+        "pasos": [
+          {
+            "acc": "press:S2",
+            "esperado": {
+              "KM1": true
+            }
+          }
+        ]
+      },
+      {
+        "nombre": "Para al soltar",
+        "pasos": [
+          {
+            "acc": "press:S2"
+          },
+          {
+            "acc": "release:S2",
+            "esperado": {
+              "KM1": false
+            }
+          }
+        ]
+      },
+      {
+        "nombre": "Sin pulsar no arranca",
+        "pasos": [
+          {
+            "acc": "wait:1",
+            "esperado": {
+              "KM1": false
+            }
+          }
+        ]
+      },
+      {
+        "nombre": "Térmico",
+        "pasos": [
+          {
+            "acc": "press:S2"
+          },
+          {
+            "acc": "trip:F1",
+            "esperado": {
+              "KM1": false
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

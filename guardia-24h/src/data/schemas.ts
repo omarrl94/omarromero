@@ -67,6 +67,17 @@ export const ItemSchema = z.object({
       regla: z.object({ tipo: z.enum(['min', 'max', 'tierra_max', 'rango_frac']), norma: z.string().optional(), sens_a: z.number().optional() }),
     }))
     .optional(),
+  automatismo: z
+    .object({
+      componentes: z.array(z.object({ id: z.string(), tipo: z.enum(['fuente', 'pulsador_na', 'pulsador_nc', 'termico', 'contactor', 'temporizador', 'piloto']), etiqueta: z.string(), retardo: z.number().optional() })),
+      cablesFijos: z.array(z.tuple([z.string(), z.string()])).default([]),
+      escenarios: z.array(z.object({
+        nombre: z.string(),
+        pasos: z.array(z.object({ acc: z.string(), esperado: z.record(z.boolean()).optional() })),
+        nunca: z.array(z.array(z.string())).optional(),
+      })).min(1),
+    })
+    .optional(),
   variables: z.record(z.object({ valores: z.array(z.union([z.number(), z.string()])) })).optional(),
   solucion: z.record(z.unknown()),
   dominio_rebt: z.enum(['A', 'B', 'C']).optional(),
