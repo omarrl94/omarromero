@@ -1,6 +1,6 @@
 # Despliegue en Netlify.
-# En Netlify → Site configuration → Build & deploy → Base directory: "circuitossea"
-# (este archivo se lee desde esa carpeta). Las variables VITE_FIREBASE_* se definen en el panel de Netlify.
+# Rama de despliegue: circuitossea (el proyecto está en la raíz, sin Base directory).
+# Las variables VITE_FIREBASE_* se definen en el panel de Netlify.
 [build]
   command = "npm run build"
   publish = "dist"
