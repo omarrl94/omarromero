@@ -11,6 +11,12 @@ import { EXAMPLES } from '../model/examples';
 import { t } from '../i18n';
 import { Canvas } from './Canvas';
 import { RealPanel } from './RealPanel';
+import { Viewport } from './Viewport';
+import { CuadroView } from './CuadroView';
+import { Plano } from './Plano';
+import { multifilarDiagram, unifilarDiagram } from './diagrams';
+import { cableReport, wireData, admissible, wireResistance } from '../model/cables';
+import { SECTIONS, IZ_SOURCE } from '../data/rebt';
 
 export function App() {
   const st = useStore();
@@ -20,6 +26,12 @@ export function App() {
   useEffect(() => {
     if (sim.events.length) { st.applyEvents(sim.events); if (st.sound) beep(150, 350, 'sawtooth', 0.08); }
   }, [sim.events]); // eslint-disable-line react-hooks/exhaustive-deps
+  const cableRep = useMemo(() => cableReport(project, sim), [project, sim]);
+  const messages = useMemo(() => [...sim.messages, ...cableRep.messages], [sim, cableRep]);
+  const mf = useMemo(() => multifilarDiagram(project, sim, cableRep.info, st.showCables), [project, sim, cableRep, st.showCables]);
+  const uf = useMemo(() => unifilarDiagram(project, sim, cableRep.info), [project, sim, cableRep]);
+  const wide = !['schematic', 'real'].includes(st.view);
+  const selWire = project.wires.find((w) => selection[0] === w.id);
   const reading = useMemo(() => readMeter(sim, st.meter, project), [sim, st.meter, project]);
   useEffect(() => {
     if (reading.blowFuse) st.setMeter({ fuseBlown: true });
@@ -31,7 +43,7 @@ export function App() {
   useEffect(() => { document.documentElement.dataset.theme = st.dark ? 'dark' : 'light'; }, [st.dark]);
 
   const selected = project.components.find((c) => selection[0] === c.id);
-  const errors = sim.messages.filter((m) => m.level === 'error');
+  const errors = messages.filter((m) => m.level === 'error');
 
   const download = () => {
     const blob = new Blob([JSON.stringify(project, null, 2)], { type: 'application/json' });
@@ -49,12 +61,12 @@ export function App() {
   const cats = [...new Set(LIBRARY.map((d) => d.category))];
 
   return (
-    <div className="app">
+    <div className={`app ${wide ? 'wide' : ''}`}>
       <header className="top">
         <div className="brand"><span className="logo">⚡</span><b>{t.app}</b><small>{t.tagline}</small></div>
         <div className="viewswitch" role="tablist" aria-label="Vista del circuito">
-          {([['schematic', 'Esquema', '⎍'], ['real', 'Real', '🛠']] as const).map(([v, l, ic]) => (
-            <button key={v} role="tab" aria-selected={st.view === v} className={st.view === v ? 'on' : ''} onClick={() => st.setView(v)}><span>{ic}</span> {l}</button>
+          {([['schematic', 'Esquema', '⎍'], ['multifilar', 'Multifilar', '☰'], ['unifilar', 'Unifilar', '╱'], ['real', 'Real', '🛠'], ['cuadro', 'Cuadro', '▦'], ['plano', 'Plano', '🖨']] as const).map(([v, l, ic]) => (
+            <button key={v} role="tab" aria-selected={st.view === v} className={st.view === v ? 'on' : ''} onClick={() => st.setView(v)} data-view={v}><span>{ic}</span> {l}</button>
           ))}
         </div>
         <div className="tools">
@@ -74,6 +86,7 @@ export function App() {
           <button onClick={st.deleteSelection} disabled={!selection.length} title="Supr">🗑 {t.delete}</button>
           <span className="sep" />
           <label><input type="checkbox" checked={st.animate} onChange={() => st.toggle('animate')} /> {t.animate}</label>
+          <label><input type="checkbox" checked={st.showCables} onChange={() => st.toggle('showCables')} /> Secciones</label>
           <label><input type="checkbox" checked={st.showLabels} onChange={() => st.toggle('showLabels')} /> {t.labels}</label>
           <button onClick={() => st.toggle('dock')} className={st.dock ? 'on' : ''}>🔬 Instrumentos</button>
           <label><input type="checkbox" checked={st.sound} onChange={() => st.toggle('sound')} /> Sonido</label>
@@ -111,22 +124,45 @@ export function App() {
       </aside>
 
       <main className="center">
-        <div className={`stage ${st.view}`} key={st.view}>{st.view === 'real' ? <RealPanel sim={sim} /> : <Canvas sim={sim} />}</div>
+        <div className={`stage ${st.view}`} key={st.view}>
+          {st.view === 'real' ? <RealPanel sim={sim} cables={cableRep.info} /> : st.view === 'schematic' ? <Canvas sim={sim} cables={cableRep.info} />
+            : st.view === 'multifilar' ? <Viewport d={mf} /> : st.view === 'unifilar' ? <Viewport d={uf} />
+            : st.view === 'cuadro' ? <CuadroView /> : <Plano sim={sim} cables={cableRep.info} />}
+        </div>
         <div className="toasts">{st.notices.map((n) => (
           <div key={n.id} className="toast" role="alert"><span>💥</span><span>{n.text}</span><button onClick={() => st.dismiss(n.id)}>✕</button></div>
         ))}</div>
-        {st.dock && (
+        {st.dock && !wide && (
           <div className="dock" data-testid="dock">
             <div className="inst"><Multimeter sim={sim} /><MeterInfo sim={sim} /></div>
             <div className="inst wide"><Scope sim={sim} /></div>
             <div className="inst"><Wattmeter sim={sim} /></div>
           </div>
         )}
-        <div className="hint-bar">{st.view === 'real' ? 'Modo real: clic en interruptores y pulsadores para accionarlos · rueda = zoom · arrastra para mover el panel · elige una punta y pulsa un borne para medir' : st.wiring ? t.wireHint : t.placeHint}</div>
+        {!wide && <div className="hint-bar">{st.view === 'real' ? 'Modo real: clic en interruptores y pulsadores para accionarlos · rueda = zoom · arrastra para mover el panel · elige una punta y pulsa un borne para medir' : st.wiring ? t.wireHint : t.placeHint}</div>}
       </main>
 
       <aside className="right">
         <h3>{t.props}</h3>
+        {selWire && (() => {
+          const d = wireData(selWire); const ci = cableRep.info[selWire.id];
+          return (
+            <div className="props">
+              <div className="ptitle">Cable <code>{selWire.a.comp}:{selWire.a.term + 1} → {selWire.b.comp}:{selWire.b.term + 1}</code></div>
+              <label className="row">Sección (mm²)
+                <select value={d.section} onChange={(e) => { st.snapshot(); st.setWire(selWire.id, { section: +e.target.value }); }}>
+                  {SECTIONS.slice(0, 9).map((s) => <option key={s} value={s}>{fmt(s)}</option>)}</select></label>
+              <label className="row">Longitud (m)
+                <NumField value={d.length} min={0.1} onCommit={(v) => { st.snapshot(); st.setWire(selWire.id, { length: v }); }} /></label>
+              <div className="readout">
+                <div><span>I</span><b>{fmtSI(ci?.I ?? 0, 'A')}</b></div>
+                <div><span>Iz</span><b>{fmt(admissible(d.section))} A</b></div>
+                <div><span>ΔU</span><b>{fmtSI(ci?.dV ?? 0, 'V')}</b></div>
+              </div>
+              <p className="muted small">R = L/(γ·S) = {fmt(d.length)}/(48·{fmt(d.section)}) = {fmt(wireResistance(d.section, d.length), 3)} Ω · caída {ci?.pct != null ? fmt(ci.pct) + ' %' : '—'} (máx. {ci?.limit} %). Iz: {IZ_SOURCE.verified ? '' : 'valor orientativo (a verificar). '}Los cables no alteran la simulación: solo avisan.</p>
+            </div>
+          );
+        })()}
         {selected ? (
           <div className="props">
             <div className="ptitle">{defOf(selected.type).name} <code>{selected.id.length <= 6 ? selected.id : ''}</code></div>
@@ -160,9 +196,9 @@ export function App() {
         <MeasureLog />
 
         <h3>{t.checks}</h3>
-        {sim.messages.length === 0 ? <p className="ok">✔ {t.allOk}</p> : (
+        {messages.length === 0 ? <p className="ok">✔ {t.allOk}</p> : (
           <ul className="msgs">
-            {sim.messages.map((m, i) => (
+            {messages.map((m, i) => (
               <li key={i} className={m.level} onClick={() => m.ids.length && st.select(m.ids)}>
                 <b>{m.level === 'error' ? '⛔' : '⚠'}</b> {m.text}
               </li>

@@ -81,7 +81,7 @@ function Screw({ x, y, hot }: { x: number; y: number; hot?: boolean }) {
   );
 }
 
-export function RealPanel({ sim }: { sim: SimResult }) {
+export function RealPanel({ sim, cables }: { sim: SimResult; cables?: Record<string, import('../model/cables').CableInfo> }) {
   const st = useStore();
   const { project, selection, runtime } = st;
   const svgRef = useRef<SVGSVGElement>(null);
@@ -218,9 +218,15 @@ export function RealPanel({ sim }: { sim: SimResult }) {
         return (
           <g key={w.id} onPointerDown={(e) => { e.stopPropagation(); st.select([w.id]); }} style={{ cursor: 'pointer' }}>
             <path d={d} fill="none" stroke="#000" strokeOpacity={0.22} strokeWidth={9} strokeLinecap="round" transform="translate(2 4)" />
-            <path d={d} fill="none" stroke={col.c} strokeWidth={sel ? 8 : 6.5} strokeLinecap="round" />
+            <path d={d} fill="none" stroke={col.c} strokeWidth={(sel ? 2 : 0) + 3.2 + 1.6 * Math.sqrt(cables?.[w.id]?.section ?? 1.5)} strokeLinecap="round" />
             <path d={d} fill="none" stroke={col.hi} strokeOpacity={0.55} strokeWidth={1.6} strokeLinecap="round" transform="translate(-1.2 -1.6)" />
             {st.animate && active && <path d={d} fill="none" className="flow" style={{ animationDuration: `${1.6 / (0.25 + 1.75 * Math.sqrt(Math.abs(i) / maxI))}s`, animationDirection: i >= 0 ? 'normal' : 'reverse', strokeWidth: 3.2 }} />}
+            {st.showCables && cables?.[w.id] && (
+              <g pointerEvents="none" transform={`translate(${(a.x + b.x) / 2 + lane * 0.75} ${(a.y + b.y) / 2})`}>
+                <rect x={-24} y={-7.5} width={48} height={15} rx={4} fill="#fff" stroke={cables[w.id].overload ? '#c62828' : col.c} strokeWidth={1.4} />
+                <text y={3.4} fontSize={9} fontWeight={800} textAnchor="middle" fill="#222">{String(cables[w.id].section).replace('.', ',')} mm²</text>
+              </g>
+            )}
             <Ferrule x={a.x} y={a.y} dir={a.dir} color={col.c} />
             <Ferrule x={b.x} y={b.y} dir={b.dir} color={col.c} />
             <title>{col.name}</title>

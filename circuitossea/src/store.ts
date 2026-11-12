@@ -4,6 +4,7 @@ import { PROJECT_VERSION } from './model/types';
 import { defaultParams } from './model/library';
 import { dosPilas } from './model/examples';
 import type { Runtime, SimEvent } from './model/netlist';
+import { defaultPanel, type PanelConfig } from './model/panel';
 import { initialMeter, type MeterState } from './model/meter';
 
 /** Una fila de la hoja de medidas. */
@@ -26,6 +27,8 @@ export function migrate(p: Project): Project {
   return { ...p, version: PROJECT_VERSION, name: p.name ?? 'Sin título' };
 }
 
+export type View = 'schematic' | 'multifilar' | 'unifilar' | 'real' | 'cuadro' | 'plano';
+
 interface State {
   project: Project;
   past: Project[];
@@ -40,8 +43,12 @@ interface State {
   scopeTips: { c1: TermRef | null; c2: TermRef | null };
   scopeArm: 'c1' | 'c2' | null;
   dock: boolean;
-  view: 'schematic' | 'real';
-  setView(v: 'schematic' | 'real'): void;
+  view: View;
+  setView(v: View): void;
+  showCables: boolean;
+  setWire(id: string, patch: Partial<Wire>): void;
+  setPanel(p: Partial<PanelConfig>): void;
+  setSheetData(s: NonNullable<Project['sheet']>): void;
   animate: boolean;
   showLabels: boolean;
   heat: boolean;
@@ -70,7 +77,7 @@ interface State {
   clearLog(): void;
   setScopeTip(ch: 'c1' | 'c2', t: TermRef | null): void;
   armScope(ch: 'c1' | 'c2' | null): void;
-  toggle(k: 'animate' | 'showLabels' | 'heat' | 'dark' | 'sound' | 'dock'): void;
+  toggle(k: 'animate' | 'showLabels' | 'heat' | 'dark' | 'sound' | 'dock' | 'showCables'): void;
 }
 
 let counter = 0;
@@ -79,7 +86,7 @@ const uid = (prefix: string) => `${prefix}${Date.now().toString(36)}${(counter++
 export const useStore = create<State>((set, get) => ({
   project: loadInitial(),
   past: [], future: [], selection: [], wiring: null,
-  runtime: {}, notices: [], meter: { ...initialMeter }, log: [], sound: false, scopeTips: { c1: null, c2: null }, scopeArm: null, dock: true, view: 'schematic',
+  runtime: {}, notices: [], meter: { ...initialMeter }, log: [], sound: false, scopeTips: { c1: null, c2: null }, scopeArm: null, dock: true, view: 'schematic', showCables: true,
   animate: true, showLabels: true, heat: false,
   dark: typeof matchMedia !== 'undefined' && matchMedia('(prefers-color-scheme: dark)').matches,
 
@@ -170,6 +177,13 @@ export const useStore = create<State>((set, get) => ({
   select(ids, additive) {
     set((s) => ({ selection: additive ? [...new Set([...s.selection, ...ids])] : ids }));
   },
+  setWire(id, patch) {
+    set((s) => ({ project: { ...s.project, wires: s.project.wires.map((w) => (w.id === id ? { ...w, ...patch } : w)) } }));
+  },
+  setPanel(p) {
+    set((s) => ({ project: { ...s.project, panel: { ...(s.project.panel ?? defaultPanel()), ...p } } }));
+  },
+  setSheetData(sh) { set((s) => ({ project: { ...s.project, sheet: sh } })); },
   setView(v) { set({ view: v, wiring: null }); },
   startWire(t) { set({ wiring: t }); },
   undo() {

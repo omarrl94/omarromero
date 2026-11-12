@@ -3,7 +3,7 @@
 Simulador web de circuitos eléctricos para alumnos de FP (CFGS Sistemas Electrotécnicos y Automatizados).
 Aplicación estática (sin backend): TypeScript + Vite + React + SVG. Licencia MIT.
 
-> **Estado: Fases 1-3 de 10** (ver `docs/PLAN.md`). Lienzo, 24 componentes de CC con símbolos animados, motor MNA con diodos y protecciones, polímetro y hoja de medidas.
+> **Estado: Fases 1-3 completas + avance de las 4, 5, 6 y 7** (ver `docs/PLAN.md`). Lienzo, 24 componentes de CC con símbolos animados, motor MNA con diodos y protecciones, polímetro y hoja de medidas.
 
 ## Arrancar
 
@@ -31,6 +31,11 @@ npm run build      # genera dist/ (alojable en Netlify / GitHub Pages)
 
 - **Modo Real** (selector Esquema | Real): el mismo circuito montado sobre un panel de prácticas con carril DIN, fuente/red, aparamenta modular (magnetotérmico, fusible, interruptor, conmutador), señalización y pulsadores de 22 mm, receptores, bornes de tornillo y cables de colores normalizados con terminal de punta (positivo rojo, negativo negro; en CA fase marrón, neutro azul). Se accionan interruptores y pulsadores y se colocan las puntas de los instrumentos sobre los bornes.
 
+- **Seis vistas** del mismo circuito (selector superior): **Esquema** (edición), **Multifilar** (símbolos con designación de bornes y marcas de conductor por colores y sección), **Unifilar** (acometida → protecciones → receptores, con cajetín por línea: protección, conductor, tensión, potencia, intensidad y caída), **Real** (panel de montaje), **Cuadro** y **Plano**.
+- **Sección del cableado**: cada cable tiene sección y longitud (se editan al seleccionarlo) y se ve en el esquema, en el multifilar y sobre el cable real (el grosor del cable crece con la sección). Se calcula R = L/(γ·S), intensidad, caída de tensión y se compara con la intensidad admisible; avisa si el cable se sobrecalienta o supera el 3 % (alumbrado) / 5 %.
+- **Cuadro eléctrico** (vista Cuadro): electrificación básica ITC-BT-25 (C1–C5 editables, circuitos adicionales), dimensionado automático de PIA y sección (Ib, In ≤ Iz, caída), IGA, diferencial y limitador de sobretensiones, aspecto real en carril DIN, unifilar, cuadro de cargas y **cálculo paso a paso con fórmulas**.
+- **Plano imprimible**: hoja A3/A4 con marco, zonas de referencia y cajetín (proyecto, plano, alumno, curso, fecha, escala, normativa). Contenido a elegir (unifilar del cuadro + cuadro de cargas, cuadro real, unifilar o multifilar del circuito). Imprimir/PDF (diálogo del navegador), SVG y PNG.
+
 ## Estructura
 ```
 src/engine/   motor puro (solver.ts, dc.ts) — sin DOM
@@ -48,6 +53,10 @@ docs/PLAN.md  arquitectura, decisiones, fases y riesgos
 - CA solo monofásica, monofrecuencia y lineal (sin diodos ni rectificadores: llegan con el análisis transitorio); sin mezcla CC + CA; el voltímetro de CA no carga el circuito con sus 10 MΩ. El osciloscopio dibuja el régimen permanente (aún no hay transitorios RC/RL).
 - CC en régimen estático; la lámpara es una resistencia lineal R = Vn²/Pn; condensador = abierto y bobina = resistencia del hilo.
 - Protecciones simplificadas: el fusible salta a 1,6·In y el magnetotérmico solo por umbral magnético; sus curvas tiempo-corriente reales llegan en la fase 6.
+- **Datos normativos**: `src/data/rebt.ts` marca como «a verificar» las intensidades admisibles (tipo UNE-HD 60364-5-52, método B1, Cu, PVC) y los coeficientes Cs/Cu de ITC-BT-25: están transcritos de bibliografía, no de las tablas oficiales. Solo hay conductor de cobre, un método de instalación y sin factores de corrección por agrupamiento/temperatura.
+- Los cables no alteran la simulación (la caída se calcula aparte y avisa).
+- El cuadro es independiente del circuito simulado (todavía no se genera el circuito a partir del cuadro ni de un plano de planta).
+- El multifilar y el unifilar son de lectura y se generan automáticamente; la separación mando/potencia con referenciado de contactos llega con los automatismos (fase 8).
 - El modo Real es de momento de lectura y maniobra: el cableado se edita en el esquema (arrastrar cables en modo real llega en la fase 5).
 - Las puntas del polímetro se colocan en terminales (no sobre cables).
 - Aún sin polímetro, CA, vistas unifilar/multifilar/real, plano, protecciones, automatismos, retos ni PWA (fases 2-10).
