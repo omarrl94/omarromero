@@ -31,6 +31,10 @@ export interface Project {
   name: string;
   components: Component[];
   wires: Wire[];
+  /** Configuración del cuadro eléctrico (vista «Cuadro»). */
+  panel?: import('./panel').PanelConfig;
+  /** Datos del cajetín del plano. */
+  sheet?: { alumno: string; curso: string; titulo: string; escala: string };
 }
 
 export const PROJECT_VERSION = 1;

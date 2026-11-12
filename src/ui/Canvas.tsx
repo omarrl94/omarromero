@@ -9,7 +9,7 @@ import { beep } from './sound';
 const GRID = 20;
 const snap = (v: number) => Math.round(v / GRID) * GRID;
 
-interface Props { sim: SimResult }
+interface Props { sim: SimResult; cables?: Record<string, import('../model/cables').CableInfo> }
 
 /** Ruta ortogonal entre dos puntos: horizontal y luego vertical. */
 function route(a: { x: number; y: number }, b: { x: number; y: number }) {
@@ -17,7 +17,7 @@ function route(a: { x: number; y: number }, b: { x: number; y: number }) {
   return `M${a.x} ${a.y}L${b.x} ${a.y}L${b.x} ${b.y}`;
 }
 
-export function Canvas({ sim }: Props) {
+export function Canvas({ sim, cables }: Props) {
   const st = useStore();
   const { project, selection, wiring } = st;
   const svgRef = useRef<SVGSVGElement>(null);
@@ -170,6 +170,17 @@ export function Canvas({ sim }: Props) {
             <g key={w.id}>
               <path d={d} className="wire-hit" onPointerDown={(e) => { e.stopPropagation(); st.select([w.id], e.shiftKey); }} />
               <path d={d} className="wire" style={{ stroke: st.heat ? heatColor(v) : sel ? 'var(--accent)' : 'var(--wire)', strokeWidth: sel ? 4 : st.heat ? 4 : 3 }} />
+              {st.showCables && cables?.[w.id] && (() => {
+                const m = Math.abs(a.x - b.x) < 1 || Math.abs(a.y - b.y) < 1 ? { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 } : { x: (a.x + b.x) / 2, y: a.y };
+                const ci = cables[w.id];
+                const bad = ci.overload || (ci.pct != null && ci.pct > ci.limit);
+                return (
+                  <g pointerEvents="none" transform={`translate(${m.x} ${m.y})`}>
+                    <rect x={-17} y={-7} width={34} height={13} rx={6} fill="var(--panel)" stroke={bad ? 'var(--err)' : 'var(--line)'} />
+                    <text y={3} fontSize={8.5} textAnchor="middle" fill={bad ? 'var(--err)' : 'var(--muted)'} fontWeight={700}>{String(ci.section).replace('.', ',')} mm²</text>
+                  </g>
+                );
+              })()}
               {st.animate && active && (
                 <path
                   d={d}
