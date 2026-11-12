@@ -128,7 +128,7 @@ function Panel({ backend, salir }: { backend: DocenteBackend; salir: () => void 
         <div className="mt-4 flex flex-wrap gap-2"><button className="btn" onClick={exportaXlsx}><Icon n="doc" className="h-4 w-4" />Exportar XLSX</button><button className="btn btn-ghost" onClick={exportaCsv}>Exportar CSV</button></div>
         {alertas.length > 0 && <div className="card mt-4 !border-warn/50 text-sm"><div className="eyebrow !text-warn">Alertas de integridad</div><ul className="mt-1 list-disc pl-5">{alertas.slice(0, 8).map((a) => <li key={a}>{a}</li>)}</ul></div>}
         <div className="mt-4 overflow-x-auto rounded border border-line"><table className="w-full text-left text-sm">
-          <thead className="bg-panel2 text-xs uppercase tracking-wider text-mute"><tr><th className="px-3 py-2">Alumno</th>{raFile.ras.map((r) => <th key={r.id} className="px-2 py-2 text-center">{r.id}</th>)}<th className="px-3 py-2 text-right">Final</th><th className="px-3 py-2">Estado</th><th /></tr></thead>
+          <thead className="bg-panel2 text-[13px] font-semibold text-mute"><tr><th className="px-3 py-2">Alumno</th>{raFile.ras.map((r) => <th key={r.id} className="px-2 py-2 text-center">{r.id}</th>)}<th className="px-3 py-2 text-right">Final</th><th className="px-3 py-2">Estado</th><th /></tr></thead>
           <tbody>{filas.map((f) => <tr key={f.uid} className="border-t border-line">
             <td className="px-3 py-2">{f.alias}<div className="text-xs text-mute">{f.clase}</div></td>
             {f.notas.detalle.map((d) => <td key={d.ra} className={`px-2 py-2 text-center font-mono ${color(d.final)}`}>{d.final === null ? '—' : d.final.toFixed(1)}</td>)}
@@ -139,7 +139,7 @@ function Panel({ backend, salir }: { backend: DocenteBackend; salir: () => void 
 
       {tab === 'criterios' && filas.length > 0 && (
         <div className="mt-4 overflow-x-auto rounded border border-line"><table className="w-full text-left text-xs">
-          <thead className="bg-panel2 uppercase tracking-wider text-mute"><tr><th className="px-3 py-2">Criterio de evaluación</th>{filas.map((f) => <th key={f.uid} className="px-2 py-2 text-center">{f.alias}</th>)}</tr></thead>
+          <thead className="bg-panel2 text-[13px] font-semibold text-mute"><tr><th className="px-3 py-2">Criterio de evaluación</th>{filas.map((f) => <th key={f.uid} className="px-2 py-2 text-center">{f.alias}</th>)}</tr></thead>
           <tbody>{CE.map((c) => <tr key={c.id} className="border-t border-line"><td className="px-3 py-1.5"><span className="font-mono text-acct">{c.id}</span> <span className="text-mute">{c.texto.slice(0, 70)}{c.texto.length > 70 ? '…' : ''}</span></td>{filas.map((f) => { const v = notaCE(f, c.id); return <td key={f.uid} className={`px-2 py-1.5 text-center font-mono ${color(v)}`}>{v === null ? '·' : v.toFixed(1)}</td>; })}</tr>)}</tbody></table>
           <p className="p-2 text-xs text-mute">Rojo &lt; 5 · ámbar 5–7 · verde ≥ 7 · «·» sin ítems resueltos.</p></div>
       )}

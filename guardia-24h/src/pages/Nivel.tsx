@@ -103,7 +103,7 @@ export function Nivel({ epilogo = false }: { epilogo?: boolean }) {
         <h2 className="eyebrow mt-6 mb-2">Revisión de ítems</h2>
         <div className="overflow-x-auto rounded-lg border border-line">
           <table className="w-full text-left text-sm">
-            <thead className="bg-panel2 text-xs uppercase tracking-wider text-mute"><tr><th className="px-3 py-2">#</th><th className="px-3 py-2">Enunciado</th><th className="px-3 py-2">RA</th><th className="px-3 py-2 text-right">PE</th></tr></thead>
+            <thead className="bg-panel2 text-[13px] font-semibold text-mute"><tr><th className="px-3 py-2">#</th><th className="px-3 py-2">Enunciado</th><th className="px-3 py-2">RA</th><th className="px-3 py-2 text-right">PE</th></tr></thead>
             <tbody>{fin.filas.map(({ item, r }, i) => (
               <tr key={item.id} className="border-t border-line align-top">
                 <td className="px-3 py-2 font-mono text-mute">{i + 1}</td>

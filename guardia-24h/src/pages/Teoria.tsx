@@ -44,7 +44,7 @@ function Bloque({ b }: { b: BloqueTeoria }) {
     case 'tabla': return (
       <div className="overflow-x-auto rounded-md border border-line">
         <table className="w-full text-left text-sm">
-          <thead className="bg-panel2 text-xs uppercase tracking-wider text-mute"><tr>{b.cab.map((c) => <th key={c} className="px-3 py-2 font-semibold">{c}</th>)}</tr></thead>
+          <thead className="bg-panel2 text-[13px] font-semibold text-mute"><tr>{b.cab.map((c) => <th key={c} className="px-3 py-2 font-semibold">{c}</th>)}</tr></thead>
           <tbody>{b.filas.map((f, i) => <tr key={i} className="border-t border-line">{f.map((c, j) => <td key={j} className={`px-3 py-2 align-top ${j === 0 ? 'font-medium text-tx' : 'text-tx/85'}`}>{c}</td>)}</tr>)}</tbody>
         </table>
       </div>

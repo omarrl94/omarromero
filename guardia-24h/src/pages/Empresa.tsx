@@ -40,34 +40,34 @@ export function Empresa() {
     <main className="mx-auto max-w-5xl px-4 py-8">
       <span className="cinta">Fuera de la nota</span>
       <h1 className="mt-1">Mi empresa</h1>
-      <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {[['Rango', rangoDe(estado.xp)], ['Experiencia', `${estado.xp} XP`], ['Reputación', `${estado.reputacion} / 100`], ['Tesorería', `${estado.dinero} €`]].map(([k, v]) => <div key={k} className="card !p-3"><dt className="eyebrow">{k}</dt><dd className="mt-1 font-display text-2xl font-bold">{v}</dd></div>)}
+      <dl className="mt-4 grid grid-cols-2 divide-x divide-line border-y-2 border-tinta sm:grid-cols-4">
+        {[['Rango', rangoDe(estado.xp)], ['Experiencia', `${estado.xp} XP`], ['Reputación', `${estado.reputacion} de 100`], ['Tesorería', `${estado.dinero} €`]].map(([k, v]) => <div key={k} className="px-4 py-3 first:pl-0"><dt className="eyebrow">{k}</dt><dd className="mt-0.5 font-display text-3xl font-bold leading-none">{v}</dd></div>)}
       </dl>
       <div className="mt-2 h-1.5 overflow-hidden rounded bg-line" aria-label="Reputación"><div className="h-full bg-info transition-all" style={{ width: `${estado.reputacion}%` }} /></div>
       <p className="mt-1 text-xs text-mute">Rangos: {RANGOS.map((r, i) => <span key={r.nombre} className={i === idx ? 'font-semibold text-acct' : ''}>{r.nombre} ({r.xp}){i < RANGOS.length - 1 ? ' → ' : ''}</span>)}</p>
 
       {reto && <section className="card mt-6 !border-acc/40"><div className="eyebrow !text-acct">Reto de la semana</div><p className="mt-1">Supera el nivel N{reto.nivel} del bloque {reto.distrito}: <b className="text-acct">+{reto.xp} XP</b>{estado.inventario.includes(`reto:${reto.desde}`) ? ' · completado' : ''}.</p></section>}
 
-      <h2 className="mt-8 mb-3">Logros <span className="font-mono text-sm text-mute">{estado.logros.length}/{LOGROS.length}</span></h2>
-      <ul className="grid gap-3 sm:grid-cols-2">
+      <h2 className="mt-8 mb-2">Logros: {estado.logros.length} de {LOGROS.length}</h2>
+      <ul className="divide-y divide-line border-y border-line">
         {LOGROS.map((l) => { const ok = estado.logros.includes(l.id); return (
-          <li key={l.id} className={`card flex items-start gap-3 ${ok ? '!border-acc/50' : 'opacity-60'}`}>
-            <span className={`grid h-9 w-9 shrink-0 place-items-center rounded ${ok ? 'bg-acc text-tinta' : 'bg-panel2 text-mute'}`}><Icon n={ok ? 'check' : 'lock'} className="h-4 w-4" /></span>
-            <div><div className="font-semibold">{l.nombre}</div><div className="text-sm text-mute">{l.descripcion}</div></div>
+          <li key={l.id} className={`flex items-start gap-3 py-2.5 ${ok ? '' : 'opacity-55'}`}>
+            <span className={`mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-[2px] border border-tinta ${ok ? 'bg-acc text-tinta' : 'bg-panel2 text-mute'}`}><Icon n={ok ? 'check' : 'lock'} className="h-3.5 w-3.5" /></span>
+            <div className="sm:flex sm:flex-1 sm:items-baseline sm:gap-4"><div className="w-48 shrink-0 font-display text-lg font-bold leading-tight">{l.nombre}</div><div className="text-sm text-mute">{l.descripcion}</div></div>
           </li>); })}
       </ul>
       {pendientes.length > 0 && <p className="mt-2 text-xs text-mute">Tienes logros por reclamar: se otorgan (+{BONUS_XP} XP) al terminar tu próximo intento.</p>}
 
-      <h2 className="mt-8 mb-3">Código de taller</h2>
+      <h2 className="mt-8 mb-2">Código de taller</h2>
       <div className="card max-w-xl">
         <p className="text-sm text-mute">Al validar tu práctica real en el taller, el profesor te da un código de un solo uso. Desbloquea experiencia y tesorería, pero no sustituye a los puntos de evaluación.</p>
         <div className="mt-3 flex gap-2"><input aria-label="Código de taller" className="input font-mono uppercase" placeholder="TALLER-XXXXXX" value={codigo} onChange={(e) => setCodigo(e.target.value)} /><button className="btn" disabled={!codigo.trim()} onClick={() => void canjear()}>Canjear</button></div>
         {msg && <p role="status" className={`mt-2 text-sm ${msg.ok ? 'text-ok' : 'text-bad'}`}>{msg.t}</p>}
       </div>
 
-      <h2 className="mt-8 mb-3">Ranking de este dispositivo</h2>
+      <h2 className="mt-8 mb-2">Ranking de este dispositivo</h2>
       <div className="overflow-x-auto rounded border border-line">
-        <table className="w-full text-left text-sm"><thead className="bg-panel2 text-xs uppercase tracking-wider text-mute"><tr><th className="px-3 py-2">#</th><th className="px-3 py-2">Alias</th><th className="px-3 py-2">Clase</th><th className="px-3 py-2 text-right">XP</th></tr></thead>
+        <table className="w-full text-left text-sm"><thead className="bg-panel2 text-[13px] font-semibold text-mute"><tr><th className="px-3 py-2">#</th><th className="px-3 py-2">Alias</th><th className="px-3 py-2">Clase</th><th className="px-3 py-2 text-right">XP</th></tr></thead>
           <tbody>{rank.map((r, i) => <tr key={r.alias + r.clase} className={`border-t border-line ${r.alias === sesion?.alias ? 'bg-acc/10' : ''}`}><td className="px-3 py-2 font-mono text-mute">{i + 1}</td><td className="px-3 py-2">{r.alias}</td><td className="px-3 py-2 text-mute">{r.clase}</td><td className="px-3 py-2 text-right font-mono">{r.xp}</td></tr>)}</tbody></table>
       </div>
       <p className="mt-1 text-xs text-mute">El ranking compartido de toda la clase llegará con el panel en la nube. Aquí solo aparecen alumnos que han usado este dispositivo.</p>
