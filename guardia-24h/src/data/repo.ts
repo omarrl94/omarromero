@@ -28,6 +28,8 @@ export interface Repo {
   intentos(uid: string): Promise<Intento[]>;
   guardarRespuestas(uid: string, r: Respuesta[]): Promise<void>;
   respuestas(uid: string): Promise<Respuesta[]>;
+  /** Ajustes del profesor (solo en la nube): se leen al iniciar sesión. */
+  cargarOverrides?(uid: string): Promise<unknown>;
   registrarEvento(uid: string, tipo: string, datos?: Record<string, unknown>): Promise<void>;
 }
 

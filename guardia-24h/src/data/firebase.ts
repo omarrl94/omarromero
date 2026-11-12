@@ -15,19 +15,24 @@ export const firebaseConfigurado = Boolean(env.VITE_FIREBASE_API_KEY && env.VITE
 // Colecciones con prefijo guardia_ para convivir con otras apps en el mismo proyecto.
 const C = { clases: 'guardia_classes', alumnos: 'guardia_students', alias: 'guardia_aliases' } as const;
 
-export function crearRepoFirebase(): Repo {
+let _fb: { auth: Auth; fs: Firestore } | null = null;
+/** Instancia única de Firebase (la comparten el repositorio del alumno y el panel del profesor). */
+export function fb() {
+  if (_fb) return _fb;
   const app: FirebaseApp = initializeApp({
-    apiKey: env.VITE_FIREBASE_API_KEY,
-    authDomain: env.VITE_FIREBASE_AUTH_DOMAIN,
-    projectId: env.VITE_FIREBASE_PROJECT_ID,
-    appId: env.VITE_FIREBASE_APP_ID,
+    apiKey: env.VITE_FIREBASE_API_KEY, authDomain: env.VITE_FIREBASE_AUTH_DOMAIN, projectId: env.VITE_FIREBASE_PROJECT_ID, appId: env.VITE_FIREBASE_APP_ID,
   });
-  const auth: Auth = getAuth(app);
-  const fs: Firestore = getFirestore(app);
+  const auth = getAuth(app), fs = getFirestore(app);
   if (env.VITE_FIREBASE_EMULATORS === 'true') {
     connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
     connectFirestoreEmulator(fs, '127.0.0.1', 8080);
   }
+  return (_fb = { auth, fs });
+}
+export const COLECCIONES = C;
+
+export function crearRepoFirebase(): Repo {
+  const { auth, fs } = fb();
   const alumnoDoc = (uid: string) => doc(fs, C.alumnos, uid);
 
   return {
@@ -54,7 +59,7 @@ export function crearRepoFirebase(): Repo {
       const previa = await getDoc(reserva);
       if (previa.exists() && previa.data().uid !== uid) throw new Error('Ese alias ya está en uso en tu clase.');
       await setDoc(reserva, { uid, claseCodigo: c });
-      await setDoc(alumnoDoc(uid), { alias: a, aliasLower: a.toLowerCase(), claseCodigo: c, creado: serverTimestamp() });
+      await setDoc(alumnoDoc(uid), { alias: a, aliasLower: a.toLowerCase(), claseCodigo: c, profesorUid: String(clase.data().profesorUid ?? ''), creado: serverTimestamp() });
       return { uid, alias: a, claseCodigo: c, rol: 'alumno' } satisfies Sesion;
     },
     async salir() { await signOut(auth); },
@@ -72,6 +77,10 @@ export function crearRepoFirebase(): Repo {
     },
     async respuestas(uid) {
       return (await getDocs(collection(fs, C.alumnos, uid, 'answers'))).docs.map((d) => d.data() as Respuesta);
+    },
+    async cargarOverrides(uid) {
+      const s = await getDoc(doc(fs, C.alumnos, uid, 'teacher', 'overrides'));
+      return s.exists() ? s.data() : null;
     },
     async registrarEvento(uid, tipo, datos) {
       await addDoc(collection(fs, C.alumnos, uid, 'events'), { tipo, datos: datos ?? null, ts: Date.now() });

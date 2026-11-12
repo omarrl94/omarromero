@@ -1,11 +1,12 @@
 import { items, pesosRa, raFile } from '../data/content';
-import { leeOverrides, useProgreso } from '../game/datos';
+import { leeOverrides, notaRubrica, useProgreso } from '../game/datos';
 import { notasPorRa } from '../game/progreso';
 import { useStore } from '../game/store';
 
 export function calculaNotas(uid: string, respuestas: Parameters<typeof notasPorRa>[0]) {
   const ov = leeOverrides(uid);
-  return notasPorRa(respuestas, items, raFile.ras.map((r) => r.id), ov.taller, ov.a ?? raFile.aDefecto, pesosRa,
+  const taller = { ...ov.taller, RA9: ov.taller.RA9 ?? notaRubrica(ov) };
+  return notasPorRa(respuestas, items, raFile.ras.map((r) => r.id), taller, ov.a ?? raFile.aDefecto, pesosRa,
     { notaFinalMin: raFile.aprobado.notaFinalMin, notaRaMin: raFile.aprobado.notaRaMin, coberturaMin: raFile.coberturaMin });
 }
 

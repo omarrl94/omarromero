@@ -52,3 +52,23 @@ test('alumno juega N1 del distrito 1 y ve su nota', async ({ page }) => {
   await page.getByRole('link', { name: /Docente/ }).click();
   await expect(page.getByText('Juego1')).toBeVisible();
 });
+
+test('profesor: crea PIN, entra al panel y genera un código de taller', async ({ page }) => {
+  await page.goto('/');
+  await page.getByLabel('Código de clase').fill('SEA-2025');
+  await page.getByLabel('Alias').fill('Profe1');
+  await page.getByRole('button', { name: 'Entrar' }).click();
+  await page.getByRole('link', { name: 'Docente' }).click();
+  await page.getByLabel(/PIN/).fill('1234');
+  await page.getByRole('button', { name: 'Entrar' }).click();
+  await expect(page.getByText('Profe1').first()).toBeVisible();
+  await page.getByRole('tab', { name: /Aula/ }).click();
+  await page.getByPlaceholder(/Cuadro de grupo/).fill('Cuadro montado');
+  await page.getByRole('button', { name: 'Generar' }).click();
+  await expect(page.getByText(/TALLER-/)).toBeVisible();
+  await page.getByRole('link', { name: 'Mi empresa' }).click();
+  const codigo = await page.evaluate(() => (JSON.parse(localStorage.getItem('g24-codigos') ?? '[]') as { codigo: string }[])[0]?.codigo ?? '');
+  await page.getByLabel('Código de taller').fill(codigo);
+  await page.getByRole('button', { name: 'Canjear' }).click();
+  await expect(page.getByText(/Práctica de taller validada/)).toBeVisible();
+});

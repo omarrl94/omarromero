@@ -79,7 +79,7 @@ export function Instrumento({ averia, alimentadoInicial, bloqueado, onSeguridad 
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div role="tablist" aria-label="Instrumento" className="flex gap-1">
           {([['mm', 'Multímetro'], ['meg', 'Megóhmetro'], ['pinza', 'Pinza de fugas']] as const).map(([k, t]) => (
-            <button key={k} role="tab" aria-selected={tab === k} type="button" disabled={bloqueado} onClick={() => setTab(k)} className={`rounded-md border px-3 py-1.5 text-xs font-semibold ${tab === k ? 'border-acc bg-acc/10 text-acc' : 'border-line text-mute hover:text-tx'}`}>{t}</button>
+            <button key={k} role="tab" aria-selected={tab === k} type="button" disabled={bloqueado} onClick={() => setTab(k)} className={`rounded-md border px-3 py-1.5 text-xs font-semibold ${tab === k ? 'border-acc bg-acc/10 text-acct' : 'border-line text-mute hover:text-tx'}`}>{t}</button>
           ))}
         </div>
         <span className={`chip ${alimentado ? 'border-bad/50 text-bad' : 'border-ok/50 text-ok'}`}>{alimentado ? 'INSTALACIÓN CON TENSIÓN' : 'INSTALACIÓN SIN TENSIÓN'}</span>

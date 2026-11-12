@@ -61,7 +61,7 @@ export function Cableado({ comps, fijos, cables, onChange, bloqueado, escenarios
 
   return (
     <section className="grid gap-4" aria-label="Cableado del circuito de mando">
-      <div className="rounded-lg border border-line bg-ink p-2">
+      <div className="rounded-[3px] border border-tinta bg-[#12171a] p-2">
         <svg viewBox={`0 0 ${MARGEN * 2 + COLS * (W + 8)} ${alto}`} className="w-full" role="group" aria-label="Esquema de cableado">
           {comps.map((c) => {
             const p = pos[c.id]!;

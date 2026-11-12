@@ -2,9 +2,13 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn() { return request.auth != null; }
+    // El profesor entra con correo y contraseña; los alumnos, de forma anónima.
     function isTeacher() { return signedIn() && request.auth.token.firebase.sign_in_provider == 'password'; }
+    function profesorDe(uid) {
+      return isTeacher() && get(/databases/$(database)/documents/guardia_students/$(uid)).data.profesorUid == request.auth.uid;
+    }
 
-    // Clases: las crea y gestiona el profesor; cualquier usuario con sesión puede comprobar un código.
+    // Clases: las crea y gestiona el profesor; cualquiera con sesión puede comprobar un código.
     match /guardia_classes/{code} {
       allow get: if signedIn();
       allow list: if isTeacher() && resource.data.profesorUid == request.auth.uid;
@@ -20,18 +24,23 @@ service cloud.firestore {
     }
 
     match /guardia_students/{uid} {
-      function claseDelProfesor(code) {
-        return isTeacher() && get(/databases/$(database)/documents/guardia_classes/$(code)).data.profesorUid == request.auth.uid;
-      }
-      allow read: if signedIn() && (request.auth.uid == uid || claseDelProfesor(resource.data.claseCodigo));
+      allow get: if signedIn() && (request.auth.uid == uid || (isTeacher() && resource.data.profesorUid == request.auth.uid));
+      allow list: if isTeacher() && resource.data.profesorUid == request.auth.uid;
       allow create, update: if signedIn() && request.auth.uid == uid
-        && request.resource.data.keys().hasOnly(['alias', 'aliasLower', 'claseCodigo', 'creado'])
+        && request.resource.data.keys().hasOnly(['alias', 'aliasLower', 'claseCodigo', 'profesorUid', 'creado'])
         && request.resource.data.alias is string && request.resource.data.alias.size() <= 24
-        && exists(/databases/$(database)/documents/guardia_classes/$(request.resource.data.claseCodigo));
+        && exists(/databases/$(database)/documents/guardia_classes/$(request.resource.data.claseCodigo))
+        && request.resource.data.profesorUid == get(/databases/$(database)/documents/guardia_classes/$(request.resource.data.claseCodigo)).data.profesorUid;
 
-      match /{sub}/{doc=**} {
-        allow read, write: if signedIn() && request.auth.uid == uid;
-        allow read: if signedIn() && claseDelProfesor(get(/databases/$(database)/documents/guardia_students/$(uid)).data.claseCodigo);
+      // Datos del alumno: él escribe y lee; su profesor solo lee.
+      match /{col}/{doc} {
+        allow read, write: if signedIn() && request.auth.uid == uid && col in ['private', 'attempts', 'answers', 'events'];
+        allow read: if profesorDe(uid) && col in ['private', 'attempts', 'answers', 'events'];
+      }
+      // Ajustes del profesor (notas de taller, rúbrica, intentos extra): el alumno solo los lee.
+      match /teacher/{doc} {
+        allow read: if signedIn() && request.auth.uid == uid;
+        allow read, write: if profesorDe(uid);
       }
     }
   }

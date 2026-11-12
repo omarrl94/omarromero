@@ -6,6 +6,11 @@ import { Cableado } from '../components/Cableado';
 import { Escena } from '../components/Escena';
 import { Formulario, TextoErrores } from '../components/Documento';
 import { PlanoLuminarias } from '../components/Plano';
+import { Inspector } from '../components/Inspector';
+import { BONUS_XP, LOGROS, efectoIntento, nuevosLogros } from '../game/logros';
+import { leeReto } from '../game/extras';
+import { hashSemilla } from '../game/rng';
+import { useTeoriaLeida } from '../game/teoria';
 import { Icon, ICONO_DISTRITO } from '../components/Icon';
 import { Instrumento } from '../components/Instrumento';
 import { repo, type Respuesta } from '../data';
@@ -24,17 +29,20 @@ import { calificacion } from './Distrito';
 
 const TIPO: Record<string, string> = { opcion_multiple: 'Test', verdadero_falso: 'Verdadero / Falso', numerico: 'Cálculo', selector_cita: 'Gymkhana del REBT', dimensionado: 'Dimensionado', hotspots: 'Muro de la vergüenza', instrumento: 'Diagnóstico', automatismo: 'Cableado de maniobra', plano: 'Plano de emergencia', formulario: 'Documentación', texto_errores: 'Revisión de texto de IA', acta: 'Acta de verificación' };
 
-type Fin = { pe: number; max: number; xp: number; filas: { item: Item; r: Respuesta }[] };
+type Fin = { pe: number; max: number; xp: number; dinero: number; rep: number; logros: string[]; reto: number; inspector: string | null; filas: { item: Item; r: Respuesta }[] };
 
 export function Nivel({ epilogo = false }: { epilogo?: boolean }) {
   const { id, n } = useParams();
   const d = distritos.find((x) => x.id === (epilogo ? 0 : Number(id)));
   const nivel = epilogo ? 5 : Number(n);
   const sesion = useStore((s) => s.sesion)!;
-  const sumaXp = useStore((s) => s.sumaXp);
+  const recompensa = useStore((s) => s.recompensa);
+  const estadoJuego = useStore((s) => s.estado);
+  const { leidas } = useTeoriaLeida();
   const { intentos, respuestas, cargado, recarga } = useProgreso();
   const [intento, setIntento] = useState<{ semilla: string; lista: Item[] } | null>(null);
   const [fin, setFin] = useState<Fin | null>(null);
+  const [inspDone, setInspDone] = useState(false);
   if (!d || !(nivel >= 1 && nivel <= 5)) return <main className="p-4">Nivel no encontrado.</main>;
   if (!cargado) return <main className="p-4">Cargando…</main>;
   const ov = leeOverrides(sesion.uid);
@@ -48,7 +56,7 @@ export function Nivel({ epilogo = false }: { epilogo?: boolean }) {
     sonidoClick();
     const vistos = new Set(respuestas.filter((r) => r.distrito === d!.id && r.nivel === nivel).map((r) => r.item_id));
     const semilla = `${sesion.uid}:${d!.id}:${nivel}:${estado.intentos}`;
-    setFin(null);
+    setFin(null); setInspDone(false);
     setIntento({ semilla, lista: seleccionaItems(banco, vistos, semilla) });
   }
 
@@ -57,11 +65,20 @@ export function Nivel({ epilogo = false }: { epilogo?: boolean }) {
       const pe = rs.reduce((s, r) => s + r.pe_obtained, 0), max = rs.reduce((s, r) => s + r.pe_max, 0);
       await repo.guardarRespuestas(sesion.uid, rs);
       await repo.registrarIntento(sesion.uid, { distrito: d.id, nivel, seed: intento.semilla, pe_obtained: pe, pe_max: max, lives_lost: vidas, consult_count: consultas, time_s: segundos, ts: Date.now() });
-      const xp = Math.round(pe * 10);
-      await sumaXp(xp); await recarga();
+      const xpBase = Math.round(pe * 10);
+      const erroresSeg = rs.filter((r) => r.seguridad).length;
+      const ef = efectoIntento(pe, max, erroresSeg);
+      const nuevosIntentos = [...intentos, { distrito: d.id, nivel, seed: intento.semilla, pe_obtained: pe, pe_max: max, lives_lost: vidas, consult_count: consultas, time_s: segundos, ts: Date.now() }];
+      const ctx = { respuestas: [...respuestas, ...rs], intentos: nuevosIntentos, items, teoriaLeida: Object.values(leidas).reduce((a2, l) => a2 + l.length, 0) };
+      const logros = nuevosLogros(ctx, estadoJuego.logros).map((l) => l.id);
+      const reto = leeReto();
+      const bonusReto = reto && reto.distrito === d.id && reto.nivel === nivel && pe / max >= 0.5 && !estadoJuego.inventario.includes(`reto:${reto.desde}`) ? reto.xp : 0;
+      const xp = xpBase + logros.length * BONUS_XP + bonusReto;
+      await recompensa({ xp, dinero: ef.dinero, reputacion: ef.reputacion, logros, inventario: bonusReto ? [`reto:${reto!.desde}`] : [] });
+      await recarga();
       if (pe / max >= 0.5) sonidoVictoria(); else sonidoFallo();
-      setIntento(null); setFin({ pe, max, xp, filas: intento.lista.map((item, i) => ({ item, r: rs[i]! })) });
-    }} />;
+      const inspector = pe / max >= 0.5 && hashSemilla(intento.semilla + 'insp') % 3 === 0 ? intento.semilla : null;
+      setIntento(null); setFin({ pe, max, xp, dinero: ef.dinero, rep: ef.reputacion, logros, reto: bonusReto, inspector, filas: intento.lista.map((item, i) => ({ item, r: rs[i]! })) });    }} />;
   }
 
   if (fin) {
@@ -74,11 +91,15 @@ export function Nivel({ epilogo = false }: { epilogo?: boolean }) {
           <div className="flex flex-wrap items-end gap-x-8 gap-y-2">
             <div><div className="eyebrow">Resultado</div><div className="font-mono text-3xl font-semibold">{fin.pe.toFixed(2)} <span className="text-lg text-mute">/ {fin.max.toFixed(2)} PE</span></div></div>
             <div><div className="eyebrow">Calificación</div><div className="text-xl font-semibold">{Math.round(frac * 100)} % · {calificacion(frac)}</div></div>
-            <div><div className="eyebrow">Experiencia</div><div className="text-xl font-semibold text-acc">+{fin.xp} XP</div></div>
+            <div><div className="eyebrow">Experiencia</div><div className="text-xl font-semibold text-acct">+{fin.xp} XP</div></div>
+            <div><div className="eyebrow">Empresa</div><div className="text-sm">{fin.dinero > 0 ? `+${fin.dinero} € · ` : ''}reputación {fin.rep >= 0 ? '+' : ''}{fin.rep}</div></div>
           </div>
           <div className="mt-4 h-2 overflow-hidden rounded bg-line"><div className={`h-full ${ok ? 'bg-ok' : 'bg-bad'}`} style={{ width: `${Math.round(frac * 100)}%` }} /></div>
           <p className="mt-2 text-sm text-mute">{ok ? 'Has alcanzado el 50 % de los puntos de evaluación.' : 'Necesitas el 50 % de los puntos de evaluación. Repasa la teoría y repite con ítems distintos.'}</p>
         </section>
+        {fin.logros.length > 0 && <div className="card mt-4 !border-acc/50"><div className="eyebrow !text-acct">Logros desbloqueados</div><ul className="mt-1 text-sm">{fin.logros.map((id) => { const l = LOGROS.find((x) => x.id === id)!; return <li key={id}><b>{l.nombre}</b> — {l.descripcion} <span className="text-acct">+{BONUS_XP} XP</span></li>; })}</ul></div>}
+        {fin.reto > 0 && <div className="card mt-3 !border-ok/50 text-sm"><b>Reto de la semana superado:</b> +{fin.reto} XP</div>}
+        {fin.inspector && !inspDone && <Inspector semilla={fin.inspector} onFin={(ok) => { setInspDone(true); void recompensa({ reputacion: ok ? 5 : -5, xp: ok ? 20 : 0 }); }} />}
         <h2 className="eyebrow mt-6 mb-2">Revisión de ítems</h2>
         <div className="overflow-x-auto rounded-lg border border-line">
           <table className="w-full text-left text-sm">
@@ -106,7 +127,7 @@ export function Nivel({ epilogo = false }: { epilogo?: boolean }) {
   return (
     <main className="mx-auto max-w-2xl px-4 py-8">
       <Link to={volver} className="flex items-center gap-1 text-sm text-mute hover:text-tx"><Icon n="left" className="h-4 w-4" />{d.id === 0 ? 'Plan formativo' : `Bloque ${d.id} · ${d.nombre}`}</Link>
-      <div className="mt-4 flex items-center gap-3"><span className="grid h-12 w-12 place-items-center rounded-md border border-line bg-panel2 text-acc"><Icon n={jefe ? 'crown' : (ICONO_DISTRITO[d.id] ?? 'crown')} className="h-6 w-6" /></span><div><div className="eyebrow">{d.id === 0 ? 'Epílogo · prueba final' : jefe ? 'Evaluación final del bloque' : `Nivel ${nivel}`}</div><h1 className="text-2xl">{info.nombre}</h1></div></div>
+      <div className="mt-4 flex items-center gap-3"><span className="grid h-12 w-12 place-items-center rounded-md border border-line bg-panel2 text-acct"><Icon n={jefe ? 'crown' : (ICONO_DISTRITO[d.id] ?? 'crown')} className="h-6 w-6" /></span><div><span className="cinta">{d.id === 0 ? 'Epílogo' : jefe ? 'Evaluación final' : `Nivel ${nivel}`}</span><h1 className="text-2xl">{info.nombre}</h1></div></div>
       <p className="mt-3 text-tx/90">{info.descripcion}</p>
       <dl className="mt-5 grid grid-cols-3 gap-3 text-center">
         {[[banco.length, 'ítems en el banco'], [`${estado.intentos}/3`, 'intentos'], [`${Math.round(estado.mejor * 100)} %`, 'mejor resultado']].map(([v, l]) => <div key={String(l)} className="card !p-3"><dd className="font-mono text-xl font-semibold">{v}</dd><dt className="text-[11px] text-mute">{l}</dt></div>)}
@@ -169,7 +190,7 @@ function Jugando({ lista, distrito, onFin }: { lista: Item[]; distrito: number; 
       </div>
       <section key={item.id} className="card mt-4 animate-fade">
         <div className="mb-3 flex flex-wrap gap-1.5">
-          <span className="chip chip-acc">{TIPO[item.tipo] ?? item.tipo}</span>
+          <span className="cinta !text-[12px]">{TIPO[item.tipo] ?? item.tipo}</span>
           {item.ra.map((r) => <span key={r} className="chip">{r}</span>)}
           <span className="chip font-mono">{peMaximo(item).toFixed(2)} PE</span>
         </div>
@@ -185,7 +206,7 @@ function Jugando({ lista, distrito, onFin }: { lista: Item[]; distrito: number; 
           return (
             <label key={i} className={`tile ${sel && !res ? 'tile-sel' : ''} ${correcta ? '!border-ok !bg-ok/10' : ''} ${res && sel && !correcta ? '!border-bad !bg-bad/10' : ''}`}>
               <input type="radio" name="op" className="absolute inset-0 cursor-pointer opacity-0" checked={sel} onChange={() => { sonidoClick(); setE({ ...e, opcion: i }); }} />
-              <span aria-hidden className={`grid h-6 w-6 shrink-0 place-items-center rounded border font-mono text-xs ${sel ? 'border-acc text-acc' : 'border-line text-mute'}`}>{'ABCD'[i]}</span>
+              <span aria-hidden className={`grid h-6 w-6 shrink-0 place-items-center rounded border font-mono text-xs ${sel ? 'border-acc text-acct' : 'border-line text-mute'}`}>{'ABCD'[i]}</span>
               <span>{item.opciones![i]}</span>
             </label>
           );
@@ -218,7 +239,7 @@ function Jugando({ lista, distrito, onFin }: { lista: Item[]; distrito: number; 
         {(item.requiere_cita || item.tipo === 'selector_cita') && <CitaSelector onChange={(c: Cita | null) => setE((x) => ({ ...x, cita: c }))} />}
       </fieldset>
 
-      {e.pistas > 0 && <ul className="mt-3 rounded-md border border-acc/40 bg-acc/10 p-3 text-sm">{item.pistas.slice(0, e.pistas).map((p) => <li key={p} className="flex gap-2"><Icon n="bulb" className="h-4 w-4 shrink-0 text-acc" />{p}</li>)}</ul>}
+      {e.pistas > 0 && <ul className="mt-3 rounded-md border border-acc/40 bg-acc/10 p-3 text-sm">{item.pistas.slice(0, e.pistas).map((p) => <li key={p} className="flex gap-2"><Icon n="bulb" className="h-4 w-4 shrink-0 text-acct" />{p}</li>)}</ul>}
 
       {!res && (
         <div className="fixed inset-x-0 bottom-14 z-10 border-t border-line bg-ink/95 p-3 backdrop-blur md:bottom-0">
@@ -233,7 +254,7 @@ function Jugando({ lista, distrito, onFin }: { lista: Item[]; distrito: number; 
       {res && (
         <section role="status" className={`fixed inset-x-0 bottom-14 z-10 max-h-[50vh] animate-slideup overflow-y-auto border-t-2 bg-panel p-4 md:bottom-0 ${ok ? 'border-ok' : res.pe_obtained > 0 ? 'border-acc' : 'border-bad'}`}>
           <div className="mx-auto max-w-3xl">
-            <p className="flex items-center gap-2 text-lg font-semibold"><span className={ok ? 'text-ok' : res.pe_obtained > 0 ? 'text-acc' : 'text-bad'}>{ok ? 'Correcto' : res.pe_obtained > 0 ? 'Parcialmente correcto' : 'Incorrecto'}</span><span className="font-mono text-sm text-mute">{res.pe_obtained.toFixed(2)} / {res.pe_max.toFixed(2)} PE</span></p>
+            <p className="flex items-center gap-2 text-lg font-semibold"><span className={ok ? 'text-ok' : res.pe_obtained > 0 ? 'text-acct' : 'text-bad'}>{ok ? 'Correcto' : res.pe_obtained > 0 ? 'Parcialmente correcto' : 'Incorrecto'}</span><span className="font-mono text-sm text-mute">{res.pe_obtained.toFixed(2)} / {res.pe_max.toFixed(2)} PE</span></p>
             {item.requiere_cita && <p className="mt-1 text-sm">{res.cite_ok ? 'Cita correcta.' : `Cita no válida. Esperada: ${item.citas_validas.map((c) => `${c.doc} ${c.ref}`).join(' / ')}`}</p>}
             {e.seguridad && <p className="mt-1 text-sm font-semibold text-bad">Error de seguridad grave: medida con tensión donde no tocaba. El ítem puntúa 0.</p>}
             {item.tipo === 'hotspots' && item.escena && (
@@ -279,7 +300,7 @@ function Dimensionado({ circuitos, onChange }: { circuitos: string[]; onChange: 
     <div className="grid gap-3">
       {circuitos.map((c) => (
         <fieldset key={c} className="card grid gap-2 sm:grid-cols-3">
-          <legend className="rounded bg-panel2 px-2 font-mono text-sm font-semibold text-acc">{c}</legend>
+          <legend className="rounded bg-panel2 px-2 font-mono text-sm font-semibold text-acct">{c}</legend>
           {(['pia', 'seccion', 'tubo'] as const).map((campo) => (
             <label key={campo} className="text-sm font-medium">{nombre[campo]}
               <select className="input mt-1" onChange={(ev) => cambia(c, campo, ev.target.value)} defaultValue="">

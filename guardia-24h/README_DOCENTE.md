@@ -58,3 +58,17 @@ Implementación y ejemplos numéricos: `src/game/grading.ts` y `grading.test.ts`
 - **Documentos (bloque 8):** `formulario` (certificado, ficha, presupuesto, plan de mantenimiento) y `texto_errores` (borrador de IA con errores plantados).
 - **La Gran Inspección (`/epilogo`):** 8 ítems integradores que mezclan inspección de cuadro, medidas, acta, dimensionado, automatismo, canalizaciones, documentación y plano. Se desbloquea al superar la evaluación final (N5) de los 8 bloques. Hoy son copias de jefes de bloque: conviene diseñar escenarios propios.
 - **Valores a verificar:** las zonas del plano y sus radios, las frecuencias de mantenimiento y las citas de ITC son borradores; no hay valores normativos de alumbrado de emergencia (iluminancia, autonomía) porque no están verificados.
+
+## Fase 6: capa de juego y panel docente
+**Alumno (`/empresa`)**: reputación, tesorería, rango, 9 logros (+50 XP al desbloquear), canje de códigos de taller y ranking del dispositivo. Tras superar un nivel puede saltar la **inspección sorpresa** (hay que citar la norma; solo afecta a reputación y XP). Nada de esto toca la nota.
+
+**Panel docente (`/docente`)**
+- *Modo local*: protegido por PIN (solo bloquea la pantalla; los datos están en el navegador). *Modo nube*: inicio de sesión con correo (Firebase Auth), creación de clases y lectura de los alumnos de **tus** clases.
+- *Resumen y notas*: nota por RA y final con los pesos de `content/ra`, alertas de integridad (intentos resueltos en menos de 15 s), exportación **XLSX** (notas por RA, criterios y intentos), CSV e **informe imprimible** por alumno.
+- *Criterios*: mapa de calor por criterio de evaluación (rojo < 5).
+- *Rúbrica RA9 y taller*: nota de evidencias de taller por RA, peso del juego «a» por alumno, intentos extra y rúbrica de observación continua (EPI, ausencia de tensión, orden, riesgos, residuos) que alimenta el RA9 si no hay nota de taller.
+- *Aula*: generador de códigos de taller y reto semanal con XP extra.
+
+**Nube (Firebase)**: las reglas (`firebase/firestore.rules`) separan alumno y profesor: el alumno lee pero no puede escribir sus ajustes docentes; el profesor solo ve a los alumnos de sus clases (8 pruebas con emulador). Pasos: crear proyecto, activar Auth anónima y correo/contraseña, Firestore en `eur3`, rellenar `.env.local`, `npm run desplegar:reglas`, y entrar en `/docente` → «Nube» → «Crear cuenta de profesor».
+
+**Pendiente**: tienda cosmética, equipos de taller, ranking compartido de toda la clase, canje de códigos entre dispositivos (hoy solo en el dispositivo del profesor) y pruebas e2e contra un proyecto Firebase real (no he podido conectar con uno desde aquí).

@@ -4,6 +4,7 @@ import { Hud } from './components/Hud';
 import { useStore } from './game/store';
 import { Biblioteca } from './pages/Biblioteca';
 import { Distrito } from './pages/Distrito';
+import { Empresa } from './pages/Empresa';
 import { Docente } from './pages/Docente';
 import { Nivel } from './pages/Nivel';
 import { Notas } from './pages/Notas';
@@ -26,6 +27,7 @@ export default function App() {
         <Route path="/distrito/:id/nivel/:n" element={<Nivel />} />
         <Route path="/distrito/:id/teoria" element={<Teoria />} />
         <Route path="/epilogo" element={<Nivel epilogo />} />
+        <Route path="/empresa" element={<Empresa />} />
         <Route path="/notas" element={<Notas />} />
         <Route path="/docente" element={<Docente />} />
         <Route path="/biblioteca" element={<Biblioteca />} />

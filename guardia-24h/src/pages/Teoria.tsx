@@ -7,25 +7,25 @@ import { useTeoriaLeida } from '../game/teoria';
 const AVISO = {
   seguridad: { t: 'Seguridad', c: 'border-bad bg-bad/10 text-bad' },
   norma: { t: 'Norma', c: 'border-info bg-info/10 text-info' },
-  clave: { t: 'Clave', c: 'border-acc bg-acc/10 text-acc' },
+  clave: { t: 'Clave', c: 'border-acc bg-acc/10 text-acct' },
 } as const;
 
 function Bloque({ b }: { b: BloqueTeoria }) {
   switch (b.t) {
     case 'p': return <p className="leading-relaxed text-tx/90">{b.x}</p>;
-    case 'ul': return <ul className="ml-5 list-disc space-y-1.5 leading-relaxed text-tx/90 marker:text-acc">{b.items.map((i) => <li key={i}>{i}</li>)}</ul>;
-    case 'ol': return <ol className="ml-5 list-decimal space-y-1.5 leading-relaxed text-tx/90 marker:font-mono marker:text-acc">{b.items.map((i) => <li key={i}>{i}</li>)}</ol>;
+    case 'ul': return <ul className="ml-5 list-disc space-y-1.5 leading-relaxed text-tx/90 marker:text-acct">{b.items.map((i) => <li key={i}>{i}</li>)}</ul>;
+    case 'ol': return <ol className="ml-5 list-decimal space-y-1.5 leading-relaxed text-tx/90 marker:font-mono marker:text-acct">{b.items.map((i) => <li key={i}>{i}</li>)}</ol>;
     case 'formula': return (
       <div className="rounded-md border border-line bg-ink px-4 py-3">
         <div className="eyebrow mb-1">Expresión</div>
-        <div className="font-mono text-lg text-acc">{b.x}</div>
+        <div className="font-mono text-lg text-acct">{b.x}</div>
         {b.nota && <p className="mt-2 text-sm text-mute">{b.nota}</p>}
       </div>
     );
     case 'ejemplo': return (
       <div className="rounded-md border border-line bg-panel2 p-4">
         <div className="eyebrow mb-2">Ejemplo resuelto · {b.titulo}</div>
-        <ol className="space-y-1.5 font-mono text-[13px] leading-relaxed">{b.pasos.map((p, i) => <li key={i} className="flex gap-3"><span className="text-acc">{i === 0 ? '▸' : `${i}.`}</span><span>{p}</span></li>)}</ol>
+        <ol className="space-y-1.5 font-mono text-[13px] leading-relaxed">{b.pasos.map((p, i) => <li key={i} className="flex gap-3"><span className="text-acct">{i === 0 ? '▸' : `${i}.`}</span><span>{p}</span></li>)}</ol>
       </div>
     );
     case 'aviso': return (
@@ -64,9 +64,9 @@ export function Teoria() {
     <main className="mx-auto max-w-6xl px-4 py-6">
       <Link to={`/distrito/${d.id}`} className="flex items-center gap-1 text-sm text-mute hover:text-tx"><Icon n="left" className="h-4 w-4" />Bloque {d.id}</Link>
       <header className="mt-3 flex flex-wrap items-start gap-4 border-b border-line pb-6">
-        <span className="grid h-12 w-12 place-items-center rounded-md border border-line bg-panel2 text-acc"><Icon n={ICONO_DISTRITO[d.id]!} className="h-6 w-6" /></span>
+        <span className="grid h-12 w-12 place-items-center rounded-md border border-line bg-panel2 text-acct"><Icon n={ICONO_DISTRITO[d.id]!} className="h-6 w-6" /></span>
         <div className="min-w-0 flex-1">
-          <div className="eyebrow">Bloque {d.id} · Teoría</div>
+          <span className="cinta">Bloque {d.id} · Teoría</span>
           <h1 className="text-2xl sm:text-3xl">{t.titulo}</h1>
           <p className="mt-1 max-w-3xl text-mute">{t.resumen}</p>
         </div>
@@ -93,7 +93,7 @@ export function Teoria() {
         <article className="space-y-10">
           {t.secciones.map((s, i) => (
             <section key={s.id} id={s.id} className="scroll-mt-24 space-y-4">
-              <h2 className="flex items-baseline gap-3 text-xl"><span className="font-mono text-sm text-acc">{String(i + 1).padStart(2, '0')}</span>{s.titulo}</h2>
+              <h2 className="flex items-baseline gap-3 text-xl"><span className="font-mono text-sm text-acct">{String(i + 1).padStart(2, '0')}</span>{s.titulo}</h2>
               {s.bloques.map((b, j) => <Bloque key={j} b={b} />)}
               <button className={`btn ${hechas.has(s.id) ? 'btn-ghost' : ''}`} onClick={() => alterna(d.id, s.id)}>
                 <Icon n="check" className="h-4 w-4" />{hechas.has(s.id) ? 'Leída · desmarcar' : 'Marcar como leída'}

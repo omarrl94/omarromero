@@ -2,23 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
-html { color-scheme: dark; }
-body { @apply bg-ink font-sans text-tx antialiased; }
-h1, h2, h3 { @apply font-semibold tracking-tight text-tx; }
-a { @apply text-info; }
-::selection { background: #EFCD2F55; }
+html { color-scheme: light; }
+body { @apply bg-ink font-sans text-tx antialiased; font-variant-numeric: tabular-nums; }
+h1, h2, h3 { @apply font-display font-bold tracking-[0.01em] text-tx; }
+h1 { @apply text-[2.4rem] leading-[1] sm:text-[2.9rem]; }
+h2 { @apply text-[1.5rem] leading-tight; }
+a { @apply text-info underline decoration-info/40 underline-offset-2 hover:decoration-info; }
+::selection { background: #EFCD2F88; }
+.hazard { background: repeating-linear-gradient(-45deg, #EFCD2F 0 10px, #1A1A1A 10px 20px); }
 
 @layer components {
-  .btn { @apply inline-flex items-center justify-center gap-2 rounded-md bg-acc px-4 py-2 text-sm font-semibold text-tinta transition hover:brightness-110 active:brightness-95 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-info; }
-  .btn-ghost { @apply border border-line bg-panel2 text-tx hover:bg-line hover:brightness-100; }
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-[3px] border border-tinta bg-acc px-4 py-2 font-display text-[17px] font-semibold leading-none text-tinta no-underline shadow-[0_2px_0_#1A1A1A] transition hover:brightness-105 active:translate-y-px active:shadow-none disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-info; }
+  .btn-ghost { @apply bg-panel text-tx hover:bg-panel2 hover:brightness-100; }
   .btn-ok { @apply bg-ok text-white; }
-  .btn-big { @apply px-6 py-3 text-base; }
-  .card { @apply rounded-lg border border-line bg-panel p-4 text-tx; }
-  .input { @apply w-full rounded-md border border-line bg-ink px-3 py-2 text-tx placeholder:text-mute focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-info; }
-  .chip { @apply inline-flex items-center rounded border border-line bg-panel2 px-2 py-0.5 text-[11px] font-medium text-mute; }
-  .chip-acc { @apply border-acc/50 bg-acc/10 text-acc; }
-  .eyebrow { @apply text-[11px] font-semibold uppercase tracking-[0.14em] text-mute; }
-  .tile { @apply relative flex cursor-pointer items-start gap-3 rounded-lg border border-line bg-panel p-4 text-[15px] transition hover:border-mute has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-info; }
-  .tile-sel { @apply border-acc bg-acc/10; }
+  .btn-big { @apply px-6 py-3 text-[19px]; }
+  .card { @apply rounded-[3px] border border-line bg-panel p-4 text-tx; }
+  .input { @apply w-full rounded-[3px] border border-tinta/60 bg-white px-3 py-2 text-tx placeholder:text-mute focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-info; }
+  .chip { @apply inline-flex items-center rounded-[2px] border border-line bg-panel2 px-1.5 py-0.5 text-[12px] font-medium text-mute; }
+  .chip-acc { @apply border-tinta/70 bg-acc text-tinta; }
+  .eyebrow { @apply text-[13px] font-medium text-mute; }
+  /* Etiqueta de etiquetadora: el rótulo amarillo que se pega en un cuadro eléctrico. */
+  .cinta { @apply inline-block rounded-[2px] bg-acc px-2 py-[3px] font-display text-[14px] font-bold uppercase leading-none tracking-[0.08em] text-tinta shadow-[inset_0_-2px_0_rgba(0,0,0,.18),0_1px_0_rgba(0,0,0,.35)]; }
+  .tile { @apply relative flex cursor-pointer items-start gap-3 rounded-[3px] border border-line bg-panel p-4 text-[15px] transition hover:border-tinta has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-info; }
+  .tile-sel { @apply border-tinta bg-acc/25 shadow-[inset_4px_0_0_#EFCD2F]; }
 }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
