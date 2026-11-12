@@ -110,3 +110,32 @@ describe('componentes no lineales y protecciones', () => {
     expect(b.componentCurrent['N:0']).toBeGreaterThan(a.componentCurrent['N:0'] * 3);
   });
 });
+
+describe('circuitos de corriente alterna', () => {
+  it('RLC serie 230 V/50 Hz: I = V/|Z|, cos φ y potencias coherentes', () => {
+    const p = mk([C('A', 'acsource', { v: 230, f: 50 }), C('R', 'resistor', { r: 10 }), C('L', 'inductor', { l: 50, r: 0.001 }), C('K', 'capacitor', { c: 470 }), C('G', 'ground')],
+      [['A', 0, 'R', 0], ['R', 1, 'L', 0], ['L', 1, 'K', 0], ['K', 1, 'A', 1], ['A', 1, 'G', 0]]);
+    const r = simulate(p);
+    const w = 2 * Math.PI * 50;
+    const X = w * 0.05 - 1 / (w * 470e-6);
+    const Z = Math.hypot(10.001, X);
+    expect(r.live.R.i).toBeCloseTo(230 / Z, 4);
+    expect(r.live.R.p).toBeCloseTo((230 / Z) ** 2 * 10, 2); // P = I²R
+    // La fuente entrega la misma P que consume R (L y C ideales no consumen)
+    expect(r.live.A.pf).toBeCloseTo(10.001 / Z, 3);
+    expect(r.ac!.freq).toBe(50);
+    expect(r.messages.filter((m) => m.level === 'error')).toHaveLength(0);
+  });
+  it('corrección del cos φ: carga R-L (cos φ 0,6) + condensador en paralelo sube el cos φ y baja la corriente', () => {
+    const mkc = (withC: boolean) => {
+      const comps = [C('A', 'acsource', { v: 230 }), C('R', 'resistor', { r: 30 }), C('L', 'inductor', { l: (40 / (2 * Math.PI * 50)) * 1000, r: 0.001 }), C('G', 'ground'), ...(withC ? [C('K', 'capacitor', { c: 40 })] : [])];
+      const wr: [string, number, string, number][] = [['A', 0, 'R', 0], ['R', 1, 'L', 0], ['L', 1, 'A', 1], ['A', 1, 'G', 0]];
+      if (withC) wr.push(['A', 0, 'K', 0], ['K', 1, 'A', 1]);
+      return simulate(mk(comps, wr));
+    };
+    const a = mkc(false), b = mkc(true);
+    expect(a.live.A.pf).toBeCloseTo(0.6, 2);
+    expect(b.live.A.pf).toBeGreaterThan(0.85);
+    expect(Math.abs(b.live.A.i)).toBeLessThan(Math.abs(a.live.A.i));
+  });
+});

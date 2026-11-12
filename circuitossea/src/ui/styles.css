@@ -32,7 +32,8 @@ h4 { margin: 12px 0 6px; font-size: 12px; color: var(--accent); }
 .pal-item { display: flex; align-items: center; gap: 8px; padding: 4px 8px; border: 1px solid var(--line); border-radius: 10px; cursor: grab; background: var(--bg); min-height: 44px; }
 .pal-item:hover { border-color: var(--accent); }
 .pal-item svg { flex: none; }
-.center { position: relative; min-width: 0; min-height: 0; }
+.center { position: relative; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+.center .canvas { flex: 1 1 auto; min-height: 220px; }
 .canvas { width: 100%; height: 100%; display: block; touch-action: none; background: var(--bg); }
 .hint-bar { position: absolute; left: 12px; bottom: 10px; font-size: 12px; color: var(--muted); background: color-mix(in srgb, var(--panel) 85%, transparent); padding: 4px 10px; border-radius: 8px; pointer-events: none; }
 .wire { fill: none; stroke-linejoin: round; stroke-linecap: round; pointer-events: none; }
@@ -93,3 +94,20 @@ h4 { margin: 12px 0 6px; font-size: 12px; color: var(--accent); }
 button.warnbtn { background: #7a3b12; border-color: var(--terracota); }
 .meter button, .meter select { background: var(--bg); color: var(--ink); border-color: var(--line); }
 .meter .probe { color: #fff; }
+
+.dock { flex: 0 0 auto; max-height: 56vh; overflow: auto; display: flex; gap: 14px; padding: 10px 12px; overflow-x: auto; background: linear-gradient(#26221e, #1d1a17); border-top: 3px solid var(--carbon); align-items: flex-start; }
+.inst { flex: 0 0 auto; width: 232px; } .inst.wide { width: 620px; }
+.instrument { width: 100%; display: block; filter: drop-shadow(0 6px 10px #0008); user-select: none; }
+.meterinfo { color: #F1EADF; margin-top: 6px; font-size: 12px; display: grid; gap: 4px; }
+.meterinfo .probeline { display: flex; align-items: center; gap: 6px; } .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; } .dot.red { background: #e53935; } .dot.black { background: #111; border: 1px solid #888; }
+.meterinfo button { background: #3A342E; color: #F1EADF; border-color: var(--gris); min-height: 28px; font-size: 12px; }
+.meterinfo .msgs li { background: #2f2a25; color: #F1EADF; font-size: 12px; padding: 6px 8px; }
+.scope-ctl { font-size: 11px; color: #F1EADF; display: grid; gap: 6px; }
+.chrow { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; border-left: 3px solid; padding-left: 6px; }
+.scope-ctl button, .scope-ctl select, .watt-ctl button, .watt-ctl select { min-height: 22px; padding: 1px 6px; font-size: 11px; background: #2f2a25; color: #F1EADF; border-color: #6B6358; border-radius: 6px; }
+.scope-ctl button.on { background: #EFCD2F; color: #222; } .scope-ctl button.armed { outline: 2px solid #EFCD2F; }
+.vpos { display: flex; gap: 4px; align-items: center; } .vpos input[type=range] { width: 70px; }
+.scope-ctl small { color: #A9CABB; line-height: 1.3; }
+.watt-ctl { display: grid; gap: 3px; font-size: 10.5px; color: #2A2622; } .watt-ctl .wrow { display: flex; gap: 6px; align-items: center; justify-content: space-between; } .watt-ctl select { width: 100%; background: #F3EBD8; color: #222; }
+.watt-ctl input { background: #F3EBD8; color: #222; border: 1px solid #888; border-radius: 4px; }
+.tools button.on { background: var(--mostaza); color: #2A2622; border-color: var(--mostaza); }

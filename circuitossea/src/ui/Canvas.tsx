@@ -116,6 +116,7 @@ export function Canvas({ sim }: Props) {
 
   const onTermClick = (e: React.PointerEvent, ref: { comp: string; term: number }) => {
     e.stopPropagation();
+    if (st.scopeArm) { st.setScopeTip(st.scopeArm, ref); return; }
     if (st.meter.armed) { st.setMeter({ [st.meter.armed]: ref, armed: null } as never); return; }
     if (!wiring) st.startWire(ref);
     else if (wiring.comp === ref.comp && wiring.term === ref.term) st.startWire(null);
@@ -228,6 +229,20 @@ export function Canvas({ sim }: Props) {
                   </g>
                 );
               })}
+            </g>
+          );
+        })}
+        {(['c1', 'c2'] as const).map((k) => {
+          const t = st.scopeTips[k];
+          const cc = t && compMap.get(t.comp);
+          if (!t || !cc) return null;
+          const p = termPos(cc, t.term);
+          const col = k === 'c1' ? '#f5d300' : '#29b6f6';
+          return (
+            <g key={k} pointerEvents="none">
+              <path d={`M${p.x} ${p.y}L${p.x + 18} ${p.y - 34}`} stroke={col} strokeWidth={3} strokeLinecap="round" />
+              <rect x={p.x + 10} y={p.y - 50} width={16} height={16} rx={3} fill={col} stroke="#222" />
+              <text x={p.x + 18} y={p.y - 38} fontSize={10} fontWeight={800} textAnchor="middle" fill="#111">{k === 'c1' ? '1' : '2'}</text>
             </g>
           );
         })}

@@ -23,6 +23,9 @@ export function Symbol({ c, live }: P) {
           <text x={26} y={-8} fontSize={13} fill="var(--ink)" stroke="none" fontWeight={700}>−</text>
         </g>
       );
+    case 'acsource':
+      return (<g {...sw}><path d="M-40 0H-18M18 0H40" /><circle r={18} fill="var(--fill-b)" /><path d="M-10 0q5 -12 10 0t10 0" strokeWidth={2.5} stroke="var(--accent)" />
+        <text x={-34} y={-8} fontSize={9} fill="var(--ink)" stroke="none">L</text><text x={26} y={-8} fontSize={9} fill="var(--ink)" stroke="none">N</text></g>);
     case 'isource':
       return (<g {...sw}><path d="M-40 0H-16M16 0H40" /><circle r={16} fill="var(--fill-b)" /><path d="M-8 0H8M3 -5L8 0L3 5" /></g>);
     case 'resistor': {

@@ -21,6 +21,7 @@ export type Model =
   | { kind: 'DIODE'; vf: (p: P) => number; rd: number; vz?: (p: P) => number; imax?: (p: P) => number }
   | { kind: 'FUSE'; rating: (p: P) => number; factor: number }
   | { kind: 'BREAKER'; rating: (p: P) => number; mag: (p: P) => number }
+  | { kind: 'ACV'; v: (p: P) => number; f: (p: P) => number; rint: (p: P) => number }
   | { kind: 'OPEN' } // condensador en CC permanente
   | { kind: 'GND' }
   | { kind: 'JUNCTION' };
@@ -59,6 +60,15 @@ export const LIBRARY: Def[] = [
     ],
     model: { kind: 'V', value: n('v'), rint: n('rint') }, tag: (p) => `${fmt(+p.v)} V`,
     help: 'Fuente de tensión continua con resistencia interna opcional.' },
+  { type: 'acsource', name: 'Fuente de CA monofásica', category: 'Fuentes', w: 80, h: 40,
+    terminals: [{ x: -40, y: 0, name: 'L' }, { x: 40, y: 0, name: 'N' }],
+    params: [
+      { key: 'v', label: 'Tensión eficaz', unit: 'V', default: 230, min: 0, step: 1 },
+      { key: 'f', label: 'Frecuencia', unit: 'Hz', default: 50, min: 1, step: 1 },
+      { key: 'rint', label: 'Impedancia de red', unit: 'Ω', default: 0, min: 0, step: 0.01 },
+    ],
+    model: { kind: 'ACV', v: n('v'), f: n('f'), rint: n('rint') }, tag: (p) => `${fmt(+p.v)} V · ${fmt(+p.f)} Hz`,
+    help: 'Fuente senoidal. El circuito se resuelve en régimen permanente con fasores (valores eficaces).' },
   { type: 'isource', name: 'Fuente de corriente', category: 'Fuentes', w: 80, h: 40,
     terminals: [{ x: -40, y: 0, name: 'entra' }, { x: 40, y: 0, name: 'sale' }],
     params: [{ key: 'i', label: 'Corriente', unit: 'A', default: 0.1, step: 0.01 }],
@@ -75,11 +85,11 @@ export const LIBRARY: Def[] = [
   { type: 'capacitor', name: 'Condensador', category: 'Pasivos', w: 80, h: 40, terminals: two,
     params: [{ key: 'c', label: 'Capacidad', unit: 'µF', default: 100, min: 0 }],
     model: { kind: 'OPEN' }, tag: (p) => `${fmt(+p.c)} µF`,
-    help: 'En continua permanente es un circuito abierto. Su carga/descarga llega en la fase de régimen transitorio.' },
+    help: 'En CC permanente es un circuito abierto. En CA tiene reactancia Xc = 1/(2πfC). Su carga/descarga (transitorio) llega en la fase 3b.' },
   { type: 'inductor', name: 'Bobina', category: 'Pasivos', w: 80, h: 30, terminals: two,
     params: [{ key: 'l', label: 'Inductancia', unit: 'mH', default: 100, min: 0 }, { key: 'r', label: 'Resist. del hilo', unit: 'Ω', default: 1, min: 0.001 }],
     model: { kind: 'R', value: n('r') }, tag: (p) => `${fmt(+p.l)} mH`,
-    help: 'En continua permanente solo queda la resistencia del hilo.' },
+    help: 'En CC permanente solo queda la resistencia del hilo. En CA tiene reactancia XL = 2πfL.' },
 
   // ───── Sensores
   { type: 'ntc', name: 'NTC (termistor)', category: 'Sensores', w: 80, h: 30, terminals: two,

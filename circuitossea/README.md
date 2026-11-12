@@ -3,7 +3,7 @@
 Simulador web de circuitos eléctricos para alumnos de FP (CFGS Sistemas Electrotécnicos y Automatizados).
 Aplicación estática (sin backend): TypeScript + Vite + React + SVG. Licencia MIT.
 
-> **Estado: Fases 1-2 de 10** (ver `docs/PLAN.md`). Lienzo, 24 componentes de CC con símbolos animados, motor MNA con diodos y protecciones, polímetro y hoja de medidas.
+> **Estado: Fases 1-3 de 10** (ver `docs/PLAN.md`). Lienzo, 24 componentes de CC con símbolos animados, motor MNA con diodos y protecciones, polímetro y hoja de medidas.
 
 ## Arrancar
 
@@ -26,6 +26,9 @@ npm run build      # genera dist/ (alojable en Netlify / GitHub Pages)
 - **Averías persistentes**: fusible, magnetotérmico, LED y lámpara se estropean al superar sus límites y quedan así hasta «Reponer averías».
 - **Polímetro**: V⎓ (10 MΩ), A⎓ (shunt 0,05 Ω, fusible de 10 A que se funde si mides en paralelo), Ω y continuidad (solo sin tensión), bornes VΩ / 10 A, puntas que se colocan sobre terminales y hoja de medidas con valor teórico, error absoluto/relativo y exportación CSV.
 
+- **Corriente alterna (fase 3)**: fuente senoidal (230 V / 50 Hz ajustable), condensador y bobina con reactancia, análisis con fasores (valores eficaces), potencias P/Q/S y cos φ. Ejemplos: RLC serie, corrección del factor de potencia, lámpara de 230 V.
+- **Instrumentos «de taller»** (botón 🔬 Instrumentos): polímetro de mano con rueda giratoria (V⎓, V~, Ω, continuidad, A⎓, A~), bornes 10 A / COM / VΩ con clavijas, puntas que se colocan sobre el circuito; **osciloscopio de 2 canales** (base de tiempos, sensibilidad, acoplamiento AC/DC/GND, disparo, Vpp/Vrms/f/T y desfase Δφ; sonda de tensión o pinza de intensidad); **vatímetro** con aguja de cos φ, V, I, P, Q, S, kWh y coste (tarifa configurable, 1 s = 1 h para verlo moverse).
+
 ## Estructura
 ```
 src/engine/   motor puro (solver.ts, dc.ts) — sin DOM
@@ -40,7 +43,8 @@ docs/PLAN.md  arquitectura, decisiones, fases y riesgos
 2. Añade su símbolo en `src/ui/symbols.tsx`.
 
 ## Limitaciones conocidas (Fase 1)
-- Solo CC en régimen estático; la lámpara es una resistencia lineal R = Vn²/Pn; condensador = abierto y bobina = resistencia del hilo.
+- CA solo monofásica, monofrecuencia y lineal (sin diodos ni rectificadores: llegan con el análisis transitorio); sin mezcla CC + CA; el voltímetro de CA no carga el circuito con sus 10 MΩ. El osciloscopio dibuja el régimen permanente (aún no hay transitorios RC/RL).
+- CC en régimen estático; la lámpara es una resistencia lineal R = Vn²/Pn; condensador = abierto y bobina = resistencia del hilo.
 - Protecciones simplificadas: el fusible salta a 1,6·In y el magnetotérmico solo por umbral magnético; sus curvas tiempo-corriente reales llegan en la fase 6.
 - Las puntas del polímetro se colocan en terminales (no sobre cables).
 - Aún sin polímetro, CA, vistas unifilar/multifilar/real, plano, protecciones, automatismos, retos ni PWA (fases 2-10).

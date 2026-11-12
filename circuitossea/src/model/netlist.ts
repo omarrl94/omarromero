@@ -6,13 +6,23 @@
 import type { Component, Project, TermRef } from './types';
 import { defOf, fmt } from './library';
 import { solveDC, type Element, type Problem, type Solution } from '../engine/dc';
+import { solveAC, type AcProblem, abs as cabs, arg as carg, conj, mul, cx, sub as csub, add as cadd, type AcElement, type Cx } from '../engine/ac';
 
 export type RuntimeState = 'blown' | 'tripped' | 'burnt';
 /** Estado de avería por componente (se conserva entre simulaciones hasta pulsar «Reponer»). */
 export type Runtime = Record<string, RuntimeState>;
 
 export interface SimEvent { id: string; state: RuntimeState; text: string }
-export interface Live { v: number; i: number; p: number; on?: boolean; state?: RuntimeState }
+export interface Live { v: number; i: number; p: number; on?: boolean; state?: RuntimeState; q?: number; s?: number; pf?: number }
+
+/** Datos del análisis en régimen permanente senoidal (solo si hay una fuente de CA). */
+export interface AcInfo {
+  freq: number; omega: number;
+  nodeV: Cx[]; // fasores eficaces por nudo
+  compV: Record<string, Cx>; // V(terminal 0) − V(terminal 1)
+  compI: Record<string, Cx>; // corriente que entra por el terminal 0
+  problem: AcProblem; // para que los instrumentos añadan su propia carga
+}
 
 export interface SimResult {
   solution: Solution;
@@ -24,6 +34,7 @@ export interface SimResult {
   /** Tensión entre terminales 1 y 2 de cada componente */
   componentVoltage: Record<string, number>;
   live: Record<string, Live>;
+  ac?: AcInfo;
   messages: { level: 'error' | 'warn'; text: string; ids: string[] }[];
   /** Averías nuevas que el llamador debe anotar en el `runtime` */
   events: SimEvent[];
@@ -49,6 +60,7 @@ function partsOf(c: Component, nd: number[], rt: Runtime, ds: Map<string, DState
     case 'I': return [{ el: { id, kind: 'I', a: nd[0], b: nd[1], value: m.value(c.params) }, ta: 0, tb: 1 }];
     case 'SW': return [R(m.closed(c.params) ? R_CLOSED : R_OPEN)];
     case 'OPEN': return [R(R_OPEN)];
+    case 'ACV': return [{ el: { id, kind: 'V', a: nd[0], b: nd[1], value: 0, rint: m.rint(c.params) }, ta: 0, tb: 1 }];
     case 'FUSE': return [R(bad ? R_OPEN : 0.02)];
     case 'BREAKER': return [R(bad ? R_OPEN : 0.01)];
     case 'SPDT': {
@@ -67,6 +79,58 @@ function partsOf(c: Component, nd: number[], rt: Runtime, ds: Map<string, DState
     }
     default: return [];
   }
+}
+
+interface AcResult { parts: Part[]; solution: Solution; info: AcInfo; warnings: string[] }
+
+/** Régimen permanente senoidal: se convierte el resultado a magnitudes eficaces con el mismo formato que la CC. */
+function solveAcMode(components: Component[], nodesOf: (c: Component) => number[], n: number, runtime: Runtime, src: Component[]): AcResult {
+  const warnings: string[] = [];
+  const freqs = [...new Set(src.map((c) => Number(c.params.f)))];
+  const freq = freqs[0];
+  if (freqs.length > 1) warnings.push('Hay fuentes de CA con distinta frecuencia: se simula todo a ' + fmt(freq) + ' Hz (el análisis es monofrecuencia).');
+  const omega = 2 * Math.PI * freq;
+  const els: AcElement[] = [];
+  const owner: { id: string; ta: number; tb: number }[] = [];
+  let dcIgnored = false, nonlinear = false;
+  for (const c of components) {
+    const nd = nodesOf(c);
+    const m = defOf(c.type).model;
+    const push = (e: AcElement, ta = 0, tb = 1) => { els.push(e); owner.push({ id: e.id, ta, tb }); };
+    if (c.type === 'acsource') push({ id: c.id, kind: 'V', a: nd[0], b: nd[1], v: cx(Number(c.params.v), 0), rint: Number(c.params.rint) });
+    else if (c.type === 'capacitor') push({ id: c.id, kind: 'Z', a: nd[0], b: nd[1], z: cx(0, -1 / (omega * Math.max(1e-12, Number(c.params.c) * 1e-6))) });
+    else if (c.type === 'inductor') push({ id: c.id, kind: 'Z', a: nd[0], b: nd[1], z: cx(Number(c.params.r), omega * Number(c.params.l) * 1e-3) });
+    else if (m.kind === 'V') { dcIgnored = true; push({ id: c.id, kind: 'V', a: nd[0], b: nd[1], v: cx(0, 0), rint: m.rint(c.params) }); }
+    else if (m.kind === 'I') dcIgnored = true;
+    else if (m.kind === 'DIODE') nonlinear = true;
+    if (c.type === 'acsource' || c.type === 'capacitor' || c.type === 'inductor' || m.kind === 'V' || m.kind === 'I') continue;
+    for (const p of partsOf(c, nd, runtime, new Map())) {
+      if (p.el.kind === 'R') { els.push({ id: p.el.id, kind: 'Z', a: p.el.a, b: p.el.b, z: cx(p.el.value, 0) }); owner.push({ id: p.el.id, ta: p.ta, tb: p.tb }); }
+    }
+  }
+  if (dcIgnored) warnings.push('Hay pilas o fuentes de CC en un circuito de CA: se ignoran (se toman como 0 V). La mezcla CC + CA no está soportada.');
+  if (nonlinear) warnings.push('Los diodos y LED no se simulan en CA (rectificación): llegan con el análisis transitorio. Aquí se comportan como circuito abierto.');
+  const s = solveAC({ nodeCount: n, elements: els });
+  const solution: Solution = { ok: s.ok, voltages: s.nodeV.map(cabs), currents: {}, powers: {}, issues: [] };
+  if (!s.ok) solution.issues.push({ code: 'singular', message: s.message ?? 'Error en el circuito de CA.', elementIds: [] });
+  const refPh = s.ok && src[0] ? carg(s.current[src[0].id] ?? cx(1, 0)) + Math.PI : 0; // sentido de la corriente ENTREGADA
+  const sign = (i: Cx) => (Math.cos(carg(i) - refPh) >= -1e-9 ? 1 : -1);
+  const parts: Part[] = [];
+  const compI: Record<string, Cx> = {}, compV: Record<string, Cx> = {};
+  for (const o of owner) {
+    const i = s.current[o.id] ?? cx();
+    solution.currents[o.id] = cabs(i) * sign(i);
+    const comp = o.id.split('#')[0];
+    const el = els.find((e) => e.id === o.id)!;
+    parts.push({ el: { id: o.id, kind: 'R', a: el.a, b: el.b, value: 1 }, ta: o.ta, tb: o.tb });
+    compI[`${comp}:${o.ta}`] = cadd(compI[`${comp}:${o.ta}`] ?? cx(), i);
+    compI[`${comp}:${o.tb}`] = csub(compI[`${comp}:${o.tb}`] ?? cx(), i);
+  }
+  for (const c of components) {
+    const nd = nodesOf(c);
+    if (nd.length >= 2) compV[c.id] = csub(s.nodeV[nd[0]] ?? cx(), s.nodeV[nd[1]] ?? cx());
+  }
+  return { parts, solution, info: { freq, omega, nodeV: s.nodeV, compV, compI, problem: { nodeCount: n, elements: els } }, warnings };
 }
 
 export function simulate(project: Project, runtime: Runtime = {}): SimResult {
@@ -90,7 +154,7 @@ export function simulate(project: Project, runtime: Runtime = {}): SimResult {
   for (const c of components) if (defOf(c.type).model.kind === 'GND') groundRoots.add(find(`${c.id}:0`));
   let implicitGround = false;
   if (!groundRoots.size) {
-    const bat = components.find((c) => defOf(c.type).model.kind === 'V');
+    const bat = components.find((c) => ['V', 'ACV'].includes(defOf(c.type).model.kind));
     if (bat) { groundRoots.add(find(`${bat.id}:1`)); implicitGround = true; }
   }
   const first = [...groundRoots][0];
@@ -111,35 +175,45 @@ export function simulate(project: Project, runtime: Runtime = {}): SimResult {
 
   // 3) Resolver (iterando estados de diodos)
   const ds = new Map<string, DState>();
+  const acSrc = components.filter((c) => c.type === 'acsource');
   const diodes = components.filter((c) => defOf(c.type).model.kind === 'DIODE' && !runtime[c.id]);
   let parts: Part[] = [];
   let solution!: Solution;
-  for (let it = 0; it < 60; it++) {
-    parts = components.flatMap((c) => partsOf(c, nodesOf(c), runtime, ds));
-    solution = solveDC({ nodeCount: n, elements: parts.map((p) => p.el) });
-    if (!solution.ok || !diodes.length) break;
-    let changed = false;
-    for (const c of diodes) {
-      const m = defOf(c.type).model as Extract<ReturnType<typeof defOf>['model'], { kind: 'DIODE' }>;
-      const nd = nodesOf(c);
-      const vak = solution.voltages[nd[0]] - solution.voltages[nd[1]];
-      const st = ds.get(c.id) ?? 'off';
-      const i = solution.currents[c.id] ?? 0;
-      let next: DState = st;
-      if (st === 'off') {
-        if (vak > m.vf(c.params) + 1e-9) next = 'on';
-        else if (m.vz && -vak > m.vz(c.params) + 1e-9) next = 'zener';
-      } else if (i < -1e-12) next = 'off';
-      if (next !== st) { ds.set(c.id, next); changed = true; }
+  let acInfo: AcInfo | undefined;
+  let acWarnings: string[] = [];
+  if (acSrc.length) {
+    const r = solveAcMode(components, nodesOf, n, runtime, acSrc);
+    parts = r.parts; solution = r.solution; acInfo = r.info; acWarnings = r.warnings;
+  } else {
+    for (let it = 0; it < 60; it++) {
+      parts = components.flatMap((c) => partsOf(c, nodesOf(c), runtime, ds));
+      solution = solveDC({ nodeCount: n, elements: parts.map((p) => p.el) });
+      if (!solution.ok || !diodes.length) break;
+      let changed = false;
+      for (const c of diodes) {
+        const m = defOf(c.type).model as Extract<ReturnType<typeof defOf>['model'], { kind: 'DIODE' }>;
+        const nd = nodesOf(c);
+        const vak = solution.voltages[nd[0]] - solution.voltages[nd[1]];
+        const st = ds.get(c.id) ?? 'off';
+        const i = solution.currents[c.id] ?? 0;
+        let next: DState = st;
+        if (st === 'off') {
+          if (vak > m.vf(c.params) + 1e-9) next = 'on';
+          else if (m.vz && -vak > m.vz(c.params) + 1e-9) next = 'zener';
+        } else if (i < -1e-12) next = 'off';
+        if (next !== st) { ds.set(c.id, next); changed = true; }
+      }
+      if (!changed) break;
     }
-    if (!changed) break;
+
   }
-  const elements = parts.map((p) => p.el);
+  const elements = acInfo ? components.flatMap((c) => partsOf(c, nodesOf(c), runtime, new Map())).map((p) => p.el) : parts.map((p) => p.el);
 
   const messages: SimResult['messages'] = solution.issues.map((i) => ({
     level: i.code === 'floating' ? 'warn' : 'error', text: i.message,
     ids: [...new Set(i.elementIds.map((x) => x.split('#')[0]))],
   }));
+  for (const w of acWarnings) messages.push({ level: 'warn', text: w, ids: [] });
   if (implicitGround) messages.push({ level: 'warn', text: 'No hay símbolo de masa: se toma como 0 V el borne − de la primera pila.', ids: [] });
   if (!elements.some((e) => e.kind === 'V' || e.kind === 'I') && components.length)
     messages.push({ level: 'warn', text: 'El circuito no tiene ninguna fuente: no circula corriente.', ids: [] });
@@ -198,16 +272,30 @@ export function simulate(project: Project, runtime: Runtime = {}): SimResult {
         messages.push({ level: 'error', ids: [c.id], text: 'Cortocircuito: la pila ideal alimenta una resistencia casi nula. Añade una carga en serie.' });
     }
   }
+  if (acInfo) {
+    for (const c of components) {
+      const V = acInfo.compV[c.id], I = acInfo.compI[`${c.id}:0`];
+      if (!V || !I || !live[c.id]) continue;
+      const S = mul(V, conj(I)); // potencia compleja absorbida por el terminal 0 → 1
+      const sAbs = cabs(S);
+      live[c.id] = { ...live[c.id], p: Math.abs(S.re), q: S.im, s: sAbs, pf: sAbs > 1e-12 ? Math.abs(S.re) / sAbs : 1 };
+    }
+  }
   // Un circuito abierto con fuente (para avisar al alumno)
-  const hasSource = components.some((c) => defOf(c.type).model.kind === 'V');
+  const hasSource = components.some((c) => ['V', 'ACV'].includes(defOf(c.type).model.kind));
   if (solution.ok && hasSource && !messages.some((x) => x.level === 'error')) {
-    const maxI = Math.max(0, ...components.filter((c) => defOf(c.type).model.kind === 'V').map((c) => Math.abs(componentCurrent[`${c.id}:0`] ?? 0)));
+    const maxI = Math.max(0, ...components.filter((c) => ['V', 'ACV'].includes(defOf(c.type).model.kind)).map((c) => Math.abs(componentCurrent[`${c.id}:0`] ?? 0)));
     if (maxI < 1e-9) messages.push({ level: 'warn', ids: [], text: 'Circuito abierto: la pila no entrega corriente. Comprueba interruptores, fusibles y que el lazo esté cerrado.' });
   }
 
-  // 5) Corriente por cable (árbol de expansión por red)
+  // 5) Corriente por cable (árbol de expansión por red; con fasores en CA)
   const wireCurrent: Record<string, number> = {};
-  const injection = (key: string) => -(componentCurrent[key] ?? 0); // hacia la red
+  const injection = (key: string): Cx => {
+    if (acInfo) { const i = acInfo.compI[key]; return i ? cx(-i.re, -i.im) : cx(); }
+    return cx(-(componentCurrent[key] ?? 0), 0);
+  };
+  const refPh = acInfo && acSrc[0] ? carg(acInfo.compI[`${acSrc[0].id}:0`] ?? cx(1, 0)) + Math.PI : 0;
+  const finish = (i: Cx) => (acInfo ? cabs(i) * (Math.cos(carg(i) - refPh) >= -1e-9 ? 1 : -1) : i.re);
   const adj = new Map<string, { w: string; to: string; sign: number }[]>();
   for (const w of wires) {
     const ka = tkey(w.a), kb = tkey(w.b);
@@ -220,7 +308,6 @@ export function simulate(project: Project, runtime: Runtime = {}): SimResult {
   const seen = new Set<string>();
   for (const start of adj.keys()) {
     if (seen.has(start)) continue;
-    // DFS iterativo -> orden y padres
     const order: string[] = [];
     const via = new Map<string, { w: string; from: string; sign: number }>();
     const stack = [start];
@@ -236,18 +323,17 @@ export function simulate(project: Project, runtime: Runtime = {}): SimResult {
       }
     }
     // Acumula inyecciones desde las hojas hacia la raíz
-    const sub = new Map<string, number>(order.map((k) => [k, injection(k)]));
+    const acc = new Map<string, Cx>(order.map((k) => [k, injection(k)]));
     for (let i = order.length - 1; i > 0; i--) {
       const k = order[i];
       const v = via.get(k)!;
-      const s = sub.get(k)!; // corriente que el subárbol de k inyecta hacia la raíz
-      // Cable del padre (from) hacia k lleva -s hacia k. `sign` indica si a=from.
-      wireCurrent[v.w] = -s * v.sign;
-      sub.set(v.from, sub.get(v.from)! + s);
+      const s0 = acc.get(k)!; // corriente que el subárbol de k inyecta hacia la raíz
+      wireCurrent[v.w] = finish(cx(-s0.re * v.sign, -s0.im * v.sign));
+      acc.set(v.from, cadd(acc.get(v.from)!, s0));
     }
   }
 
-  return { solution, problem: { nodeCount: n, elements }, nodeOf, wireCurrent, componentCurrent, componentVoltage, live, messages, events };
+  return { solution, problem: { nodeCount: n, elements }, nodeOf, wireCurrent, componentCurrent, componentVoltage, live, messages, events, ac: acInfo };
 }
 
 /** Posición absoluta de un terminal (aplica rotación). */

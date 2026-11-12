@@ -6,12 +6,13 @@
  *  - Ω solo es válido SIN tensión; con tensión el aparato se protege y avisa.
  */
 import { solveDC, resistanceBetween } from '../engine/dc';
+import { solveAC, abs as cabs, cx, sub as csub } from '../engine/ac';
 import type { SimResult } from './netlist';
 import { tkey } from './netlist';
 import type { Project, TermRef } from './types';
 import { defOf, fmt } from './library';
 
-export type Dial = 'V' | 'A' | 'ohm' | 'cont' | 'off';
+export type Dial = 'V' | 'Vac' | 'A' | 'Aac' | 'ohm' | 'cont' | 'off';
 export type Jack = 'VOhm' | '10A';
 
 export interface MeterState {
@@ -68,6 +69,33 @@ export function readMeter(sim: SimResult, m: MeterState, project: Project): Read
   const els = sim.problem.elements;
   const nodeCount = sim.problem.nodeCount;
   const jack10 = m.jack === '10A';
+  const ac = sim.ac;
+  /** Intensidad y tensión AC con la carga propia del instrumento */
+  const acShunt = () => {
+    const s = solveAC({ nodeCount: ac!.problem.nodeCount, elements: [...ac!.problem.elements, { id: '#m', kind: 'Z', a: na, b: nb, z: cx(R_SHUNT, 0) }] });
+    return s.ok ? cabs(s.current['#m']) : 0;
+  };
+  const acVolt = () => {
+    const s = solveAC({ nodeCount: ac!.problem.nodeCount, elements: [...ac!.problem.elements, { id: '#m', kind: 'Z', a: na, b: nb, z: cx(R_INT_V, 0) }] });
+    return s.ok ? cabs(csub(s.nodeV[na], s.nodeV[nb])) : 0;
+  };
+  if (m.dial === 'Vac' || m.dial === 'Aac' || (ac && (m.dial === 'V' || m.dial === 'A'))) {
+    const wantsAc = m.dial === 'Vac' || m.dial === 'Aac';
+    const isV = m.dial === 'V' || m.dial === 'Vac';
+    if (!wantsAc) return { ...base, text: isV ? '0,000' : '0,000', unit: isV ? 'V' : 'A', value: 0, tips: [{ level: 'warn', text: `Estás en ${isV ? 'V⎓' : 'A⎓'} (continua) pero el circuito es de corriente alterna: el valor medio de una senoide es 0. Gira la rueda a ${isV ? 'V~' : 'A~'}.` }] };
+    if (!ac) return { ...base, text: '0,000', unit: isV ? 'V' : 'A', value: 0, tips: [{ level: 'warn', text: 'Este circuito es de corriente continua: en la posición de alterna el aparato bloquea la componente continua y marca 0. Usa la posición ⎓.' }] };
+    if (isV) {
+      if (jack10) return { ...base, text: '0,000', tips: [{ level: 'error', text: 'Punta roja en 10 A: así el aparato es un amperímetro. Pásala al borne VΩ.' }] };
+      const v = acVolt();
+      return { ...base, ...show(v, 'V'), value: v, tips: [{ level: 'info', text: 'Valor eficaz verdadero (RMS) a ' + fmt(ac.freq) + ' Hz.' }] };
+    }
+    if (!jack10) return { ...base, text: '0,000', tips: [{ level: 'error', text: 'Para medir intensidad mueve la punta roja al borne 10 A.' }] };
+    if (m.fuseBlown) return { ...base, text: 'OL', tips: [{ level: 'error', text: 'El fusible de 10 A está fundido. Cámbialo.' }] };
+    if (na === nb) return { ...base, text: '0,000', unit: 'A', value: 0, tips: [{ level: 'warn', text: 'La intensidad se mide EN SERIE: abre el circuito y pon las puntas a ambos lados del corte.' }] };
+    const i = acShunt();
+    if (i > FUSE_A) return { ...base, text: 'OL', tips: [{ level: 'error', text: `¡Intensidad medida EN PARALELO! Han circulado ${fmt(i, 3)} A y se ha fundido el fusible. Se mide siempre en serie.` }], blowFuse: true };
+    return { ...base, ...show(i, 'A'), value: i, tips: [{ level: 'info', text: 'Valor eficaz (RMS).' }] };
+  }
 
   // Cable en el borne de 10 A con el selector en otra posición: se comporta como amperímetro.
   if (jack10 && m.dial !== 'A') {
