@@ -106,7 +106,7 @@ const uid = (prefix: string) => `${prefix}${Date.now().toString(36)}${(counter++
 export const useStore = create<State>((set, get) => ({
   project: loadInitial(),
   past: [], future: [], selection: [], wiring: null,
-  runtime: {}, booms: [], notices: [], meter: { ...initialMeter }, log: [], sound: false, scopeTips: { c1: null, c2: null }, scopeArm: null, dock: false, view: 'schematic', upsell: null, leftOpen: true, rightOpen: true, fitTick: 0,
+  runtime: {}, booms: [], notices: [], meter: { ...initialMeter }, log: [], sound: false, scopeTips: { c1: null, c2: null }, scopeArm: null, dock: false, view: 'schematic', upsell: null, leftOpen: true, rightOpen: typeof window === 'undefined' || window.innerWidth > 700, fitTick: 0,
   inst: { meter: { open: false, x: null, y: null, min: false }, scope: { open: false, x: null, y: null, min: false }, watt: { open: false, x: null, y: null, min: false } },
   probeDrag: null, showCables: true,
   animate: true, showLabels: true, heat: false,

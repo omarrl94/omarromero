@@ -12,8 +12,8 @@ import type { Project } from '../model/types';
 import { houseOf } from '../game/houses';
 import { rng } from '../game/clients';
 import { FAULTS, REPAIRS, faultOf, pointsOf, repairOf, type Setup } from '../averias/catalog';
-import { TOGGLEABLE, buildProject, extraEvents, settle } from '../averias/model';
-import { useAveria, type AStage } from '../averias/store';
+import { TOGGLEABLE, buildProject, clampOptions, clampReading, extraEvents, settle } from '../averias/model';
+import { useAveria, averiaStash, type AStage } from '../averias/store';
 import { PIA_RATINGS, SECTIONS_GAME } from '../game/data';
 import { admissible } from '../model/cables';
 import './averias.css';
@@ -34,6 +34,7 @@ export function AveriaView({ sim }: { sim: SimResult }) {
   useEffect(() => {
     const s = useStore.getState();
     stash.current = { project: s.project, labels: s.showLabels };
+    averiaStash.project = s.project;
     saveGuard.suspended = true;
     useStore.setState({ showLabels: false });
     if (!s.inst.meter.open) s.toggleInst('meter');
@@ -41,7 +42,7 @@ export function AveriaView({ sim }: { sim: SimResult }) {
     if (!useAveria.getState().sc) useAveria.getState().start();
     return () => {
       saveGuard.suspended = false;
-      if (stash.current) { useStore.getState().load(stash.current.project); useStore.setState({ showLabels: stash.current.labels }); }
+      if (stash.current) { useStore.getState().load(averiaStash.project ?? stash.current.project); averiaStash.project = null; useStore.setState({ showLabels: stash.current.labels }); }
     };
   }, []);
 
@@ -211,16 +212,61 @@ function Diag({ sim }: { sim: SimResult }) {
         <div className="nextrow"><button className="primary" disabled={!ready} onClick={record}>Anotar medida (+3 min)</button></div>
         <p className="note">Solo cuentan las medidas que anotes: salen en el parte.</p>
       </div>
+      <QuickMeter />
+      <Pinza />
       <div className="paper">
         <h2>Medidas anotadas <span className="chip">{(av.measures ?? []).length}</span></h2>
         {!(av.measures ?? []).length && <p className="note">Todavía ninguna.</p>}
-        <ul className="av-meas">{(av.measures ?? []).map((x, i) => <li key={i}><b>{x.text} {x.unit}</b><span>{x.dial} · {x.from} → {x.to}</span></li>)}</ul>
+        <ul className="av-meas">{(av.measures ?? []).map((x, i) => <li key={i}><b>{x.text} {x.unit}</b><span>{x.dial} · {x.to ? `${x.from} → ${x.to}` : x.from}</span></li>)}</ul>
         <div className="nextrow">
           {Object.keys(st.runtime).length > 0 && <button onClick={() => { st.resetRuntime(); av.addMinutes(1); }}>Rearmar protecciones</button>}
           <button className="primary" onClick={() => av.setStage('hipotesis')}>Ya sé qué es</button>
         </div>
       </div>
     </>
+  );
+}
+
+/* ───────── Polímetro rápido (móvil): la rueda y las puntas sin la ventana flotante ───────── */
+const QUICK_DIALS: Dial[] = ['Vac', 'V', 'ohm', 'cont', 'Aac', 'A', 'off'];
+function QuickMeter() {
+  const st = useStore();
+  const mt = st.meter;
+  return (
+    <div className="paper av-quick">
+      <h2>Polímetro</h2>
+      <label className="av-field">Función
+        <select value={mt.dial} onChange={(e) => { const d = e.target.value as Dial; st.setMeter({ dial: d, jack: d === 'A' || d === 'Aac' ? '10A' : 'VOhm' }); }} aria-label="Función del polímetro">{QUICK_DIALS.map((d) => <option key={d} value={d}>{DIAL_LABEL[d]}</option>)}</select>
+      </label>
+      <div className="av-row">
+        <button className={mt.armed === 'red' ? 'on' : ''} onClick={() => st.setMeter({ armed: mt.armed === 'red' ? null : 'red' })}>🔴 Punta roja</button>
+        <button className={mt.armed === 'black' ? 'on' : ''} onClick={() => st.setMeter({ armed: mt.armed === 'black' ? null : 'black' })}>⚫ Punta negra</button>
+      </div>
+      <p className="note">{mt.armed ? 'Toca ahora un borne del esquema.' : `Roja: ${pointName(st.project, mt.red)} · Negra: ${pointName(st.project, mt.black)}`}</p>
+    </div>
+  );
+}
+
+/* ───────── Pinza amperimétrica ───────── */
+function Pinza() {
+  const av = useAveria();
+  const st = useStore();
+  const opts = clampOptions(av.case!);
+  const [id, setId] = useState('LL');
+  const sel = opts.find((o) => o.id === id) ?? opts[0];
+  const amps = useMemo(() => clampReading(st.project, sel.id), [st.project, sel.id]);
+  const text = amps >= 1 ? `${amps.toFixed(amps >= 100 ? 0 : 2).replace('.', ',')} A` : `${(amps * 1000).toFixed(amps * 1000 >= 100 ? 0 : 1).replace('.', ',')} mA`;
+  return (
+    <div className="paper">
+      <h2>Pinza amperimétrica</h2>
+      <svg viewBox="0 0 120 56" className="av-clamp" role="img" aria-label="Pinza amperimétrica"><rect x="2" y="2" width="116" height="52" rx="10" fill="#f2c21a" stroke="#2a2622" strokeWidth="2" /><circle cx="36" cy="26" r="15" fill="#fff" stroke="#2a2622" strokeWidth="3" /><rect x="56" y="12" width="52" height="22" rx="4" fill="#0f1d12" /><text x="82" y="29" textAnchor="middle" fontSize="13" fontFamily="ui-monospace,monospace" fill="#9be58a">{text.length > 8 ? text.replace(' ', '') : text}</text></svg>
+      <label className="av-field">Rodea con la pinza
+        <select value={sel.id} onChange={(e) => setId(e.target.value)} aria-label="Dónde poner la pinza">{opts.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}</select>
+      </label>
+      <div className="av-read"><b>{text}</b><span>Pinza · {sel.label}</span></div>
+      <p className="note">No toca el circuito, no hay fusible que fundir. Mide como si acabaras de rearmar las protecciones (instante inicial). Con el IGA abierto no circula nada.</p>
+      <div className="nextrow"><button className="primary" onClick={() => av.record({ dial: 'Pinza', from: sel.label, to: '', text: text.replace(/ (m?A)$/, ''), unit: /mA$/.test(text) ? 'mA' : 'A' })}>Anotar medida (+3 min)</button></div>
+    </div>
   );
 }
 
@@ -319,7 +365,7 @@ function Parte() {
         </dl>
         <h2>Síntoma</h2><p className="p-q">{sc.symptom}</p>
         <h2>Medidas realizadas ({(av.measures ?? []).length})</h2>
-        {(av.measures ?? []).length ? <table className="p-t"><thead><tr><th>Función</th><th>Entre</th><th>Lectura</th></tr></thead><tbody>{(av.measures ?? []).map((m, i) => <tr key={i}><td>{m.dial}</td><td>{m.from} → {m.to}</td><td>{m.text} {m.unit}</td></tr>)}</tbody></table> : <p>Ninguna.</p>}
+        {(av.measures ?? []).length ? <table className="p-t"><thead><tr><th>Función</th><th>Entre</th><th>Lectura</th></tr></thead><tbody>{(av.measures ?? []).map((m, i) => <tr key={i}><td>{m.dial}</td><td>{m.to ? `${m.from} → ${m.to}` : m.from}</td><td>{m.text} {m.unit}</td></tr>)}</tbody></table> : <p>Ninguna.</p>}
         <h2>Causa y reparación</h2>
         <p><b>Causa:</b> {f.cause} — <b>punto:</b> {points.find((p) => p.id === sc.point)?.label ?? sc.point}.</p>
         <p><b>Intentos de hipótesis:</b> {(av.attempts ?? []).length}.</p>

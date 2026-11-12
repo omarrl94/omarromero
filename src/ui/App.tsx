@@ -155,12 +155,13 @@ export function App() {
   const errors = messages.filter((m) => m.level === 'error');
 
   const [files, setFiles] = useState<null | 'abrir' | 'guardar'>(null);
+  const [menu, setMenu] = useState(false);
   const dropOmi = async (f?: File) => { if (!f) return; try { openOmi(parseOmi(await f.text())); } catch (e) { alert((e as Error).message); } };
 
   const cats = [...new Set(LIBRARY.map((d) => d.category))];
 
   return (
-    <div className={`app ${wide ? 'wide' : ''} ${st.leftOpen ? '' : 'noleft'} ${st.rightOpen ? '' : 'noright'}`} onDragOver={(e) => { if (!visitor && e.dataTransfer.types.includes('Files')) e.preventDefault(); }} onDrop={(e) => { if (visitor || !e.dataTransfer.files.length) return; e.preventDefault(); void dropOmi(e.dataTransfer.files[0]); }}>
+    <div className={`app v-${st.view} ${wide ? 'wide' : ''} ${st.leftOpen ? '' : 'noleft'} ${st.rightOpen ? '' : 'noright'}`} onDragOver={(e) => { if (!visitor && e.dataTransfer.types.includes('Files')) e.preventDefault(); }} onDrop={(e) => { if (visitor || !e.dataTransfer.files.length) return; e.preventDefault(); void dropOmi(e.dataTransfer.files[0]); }}>
       <ProbeDragLayer />
       {showSolve && <SolveDialog sim={sim} onClose={() => setShowSolve(false)} />}
       {welcome && !visitor && <Welcome onClose={closeWelcome} />}
@@ -188,7 +189,8 @@ export function App() {
             <button key={v} role="tab" aria-selected={st.view === v} onClick={() => st.setView(v)} data-view={v} className={`${st.view === v ? 'on' : ''} ${visitor && v !== 'schematic' ? 'locked' : ''}`}><span>{visitor && v !== 'schematic' ? '🔒' : ic}</span> {l}</button>
           ))}
         </div>
-        <div className="tools">
+        <div className={`tools ${menu ? 'open' : ''}`}>
+          <button className="menubtn" onClick={() => setMenu(!menu)} aria-expanded={menu}>☰ Opciones</button>
           <button onClick={() => setWelcome(true)} title="Inicio rápido">❓</button>
           <button onClick={() => { if (confirm('¿Empezar un proyecto nuevo? Se perderán los cambios no guardados.')) st.load({ version: 1, name: 'Sin título', components: [], wires: [] }); }}>{t.newProject}</button>
           <button className={visitor ? 'locked' : ''} onClick={visitor ? lock(UPSELL.files) : () => setFiles('abrir')}>{visitor && '🔒 '}{t.open}</button>

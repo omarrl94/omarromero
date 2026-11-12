@@ -35,3 +35,19 @@
 /* El lienzo conserva los colores de la aplicación (el contenedor del juego redefine --ink) */
 .av-canvas { --ink: #2A2622; --muted: #6B6358; }
 :root[data-theme='dark'] .av-canvas { --ink: #F1EADF; --muted: #B3A99B; }
+.av-clamp { width: 120px; height: auto; display: block; margin: 0 0 8px; }
+.av-field { display: grid; gap: 4px; font-size: 12.5px; color: #44546a; margin-bottom: 8px; } .av-field select { width: 100%; }
+.av-quick { display: none; }
+.av-quick .av-row button.on { background: #1d3a63 !important; color: #fff !important; border-color: #1d3a63 !important; }
+@media (max-width: 700px) {
+  .av-quick { display: block; }
+  .av .g-head { gap: 8px 12px; padding: 8px 12px; } .av .steps { overflow-x: auto; max-width: 100%; scrollbar-width: none; } .av .steps button { flex: none; padding: 7px 14px; }
+  .av .av-meters { width: 100%; justify-content: flex-start; font-size: 13px; }
+  .av-bench { grid-template-rows: minmax(230px, 40%) minmax(0, 1fr); }
+  .av-hint { font-size: 11.5px; border-radius: 12px; }
+  .av-side { padding: 8px; }
+  .parte { padding: 18px 14px 24px; font-size: 13px; } .parte header { flex-direction: column; } .parte h1 { font-size: 24px; } .parte .nota { text-align: left; }
+  .p-name { flex-direction: column; align-items: stretch; } .p-grid { grid-template-columns: auto 1fr; }
+  .p-t { display: block; overflow-x: auto; }
+  .av-parte-wrap { padding: 12px 8px; }
+}

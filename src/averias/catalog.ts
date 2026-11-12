@@ -66,7 +66,7 @@ export const FAULTS: FaultDef[] = [
       return { setup: { ...b, recs: [...b.recs, ...extra] }, effects: [], point: 'linea' };
     },
     symptom: () => '«Cuando enciendo a la vez el radiador, la plancha y el resto de cosas en la cocina, se va la luz de esa zona. Si espero un rato y subo el automático, aguanta un poco y vuelve a saltar.»',
-    evidence: 'Medir la intensidad en la cabecera del circuito (A~ en serie): supera con mucho el calibre del magnetotérmico.',
+    evidence: 'Medir la intensidad en la cabecera del circuito (con la pinza amperimétrica rodeando la fase, o A~ en serie): supera con mucho el calibre del magnetotérmico.',
     explain: 'Había más receptores conectados de los que admite el circuito. La intensidad total superaba el calibre del magnetotérmico durante un tiempo y el térmico dispara: es la protección funcionando bien. La solución es repartir la carga en otro circuito, no subir el calibre (el cable no lo aguantaría).',
     required: () => [{ repair: 'repartir_carga', target: 'linea' }],
     par: { measures: 2, minutes: 40 },
@@ -84,7 +84,7 @@ export const FAULTS: FaultDef[] = [
     id: 'derivacion', level: 2, cause: 'Derivación a tierra en un receptor', circuits: ['C4'],
     prepare: (b) => ({ setup: b, effects: [{ t: 'leak', rec: 0, ohms: 1200 }], point: 'rec:0' }),
     symptom: (s) => `«Salta el diferencial cuando pongo ${s.recs[0].name.toLowerCase()}. Antes no pasaba.»`,
-    evidence: 'Con el IGA abierto y el receptor enchufado, medir la resistencia entre fase y tierra del receptor: baja (≈ 1 kΩ) en lugar de abierta.',
+    evidence: 'Con la pinza rodeando fase y neutro juntos del receptor se lee la fuga (cientos de mA); o, con el IGA abierto y el receptor enchufado, medir la resistencia entre fase y tierra: baja (≈ 1 kΩ) en lugar de abierta.',
     explain: 'El aislamiento del receptor estaba deteriorado y parte de la corriente se iba a tierra por la carcasa. El diferencial de 30 mA detecta esa fuga y dispara. El resto del circuito está bien: el fallo aparece solo cuando se conecta ese receptor.',
     required: (p) => [{ repair: 'sustituir_receptor', target: p }],
     par: { measures: 3, minutes: 55 },
@@ -104,7 +104,7 @@ export const FAULTS: FaultDef[] = [
       const w = 1600; return { setup: { ...b, section: 1.5, inA: 20, recs: [{ name: b.recs[0]?.name ?? 'Tomas', w }] }, effects: [], point: 'pia' };
     },
     symptom: () => '«No me falla nada, pero la revisión de la aseguradora dice que hay que mirar el cuadro antes de renovar la póliza.»',
-    evidence: 'Comparar el calibre del magnetotérmico con la sección de la línea (ficha de la instalación) y medir la intensidad que circula.',
+    evidence: 'Comparar el calibre del magnetotérmico con la sección de la línea (ficha de la instalación) y medir con la pinza la intensidad que circula.',
     explain: 'El magnetotérmico (20 A) es mayor que la intensidad admisible del cable (1,5 mm² → 15,5 A). Ante una sobrecarga el cable se calentaría sin que la protección actuase. Debe cumplirse In ≤ Iz: hay que bajar el calibre.',
     required: () => [{ repair: 'cambiar_pia', target: 'pia' }],
     par: { measures: 1, minutes: 30 },

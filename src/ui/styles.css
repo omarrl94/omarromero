@@ -234,3 +234,30 @@ button.warnbtn { background: #7a3b12; border-color: var(--terracota); }
 
 .docswitch { position: absolute; top: 12px; left: 12px; z-index: 6; display: inline-flex; background: #1a1714e8; border: 1px solid #4a423b; border-radius: 10px; padding: 3px; gap: 2px; backdrop-filter: blur(6px); }
 .docswitch button { border: 0; background: transparent; color: #cfc6b6; padding: 5px 14px; border-radius: 7px; min-height: 28px; font-weight: 600; cursor: pointer; } .docswitch button.on { background: var(--mostaza); color: #2a2622; }
+
+/* ───── Móvil y tablet: cabecera compacta, una sola fila de pestañas y de herramientas con desplazamiento ───── */
+.menubtn { display: none; }
+@media (max-width: 900px) {
+  /* Una sola columna: cabecera, paleta (tira), lienzo y propiedades; sobrescribe .noleft/.noright/.wide */
+  .app, .app.noleft, .app.noright, .app.noleft.noright, .app.wide { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr) auto; }
+  .app > .top { grid-row: 1; } .app > .left { grid-row: 2; } .app > .center { grid-row: 3; } .app > .right { grid-row: 4; }
+  .top { gap: 6px 10px; padding: 6px 10px; }
+  .brand small { display: none; }
+  .viewswitch { flex-wrap: nowrap; overflow-x: auto; max-width: 100%; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .viewswitch::-webkit-scrollbar, .tools::-webkit-scrollbar { display: none; }
+  .viewswitch button { flex: none; padding: 7px 12px; }
+  .tools { flex-wrap: nowrap; overflow-x: auto; width: 100%; padding-bottom: 2px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .tools > * { flex: none; }
+  .tools select { max-width: 150px; }
+  .menubtn { display: inline-flex; align-items: center; }
+  .tools label, .tools .sep { display: none; }
+  .tools.open { flex-wrap: wrap; overflow: visible; }
+  .tools.open label { display: flex; }
+  button, select { min-height: 40px; }
+  .visitor-bar { font-size: 12.5px; }
+}
+@media (max-width: 700px) {
+  .left { max-height: 96px; }
+  .app.v-averias .fwin[data-win='meter'] { display: none; }
+  .fwin { max-width: calc(100vw - 16px); }
+}

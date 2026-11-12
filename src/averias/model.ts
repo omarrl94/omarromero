@@ -175,3 +175,25 @@ export function applyRepair(c: Case, repair: string, target: string, param?: num
   }
   return { setup, effects };
 }
+
+/* ───────── Pinza amperimétrica ───────── */
+export interface ClampOption { id: string; label: string }
+export const clampOptions = (c: Case): ClampOption[] => [
+  { id: 'LL', label: 'Fase de la línea (a la salida del PIA)' },
+  { id: 'LN', label: 'Neutro de la línea' },
+  { id: 'LEAK', label: 'Fase y neutro juntos de la línea (fuga a tierra total)' },
+  ...c.setup.recs.flatMap((r, i) => [
+    { id: `H${i}`, label: `Fase de: ${r.name}` },
+    { id: `LEAK${i}`, label: `Fase y neutro juntos de: ${r.name} (fuga)` },
+  ]),
+];
+/**
+ * Lectura de la pinza. Mide en el instante de rearmar las protecciones (sin los disparos ya anotados) para poder
+ * medir también las averías que disparan al momento; con el IGA abierto no circula nada.
+ */
+export function clampReading(project: Project, id: string): number {
+  const sim = simulate(project, {});
+  const leaks = (only?: number) => project.components.filter((c) => c.id.startsWith('XL') && (only === undefined || c.id === `XL${only}`)).reduce((a, c) => a + acI(sim, c.id), 0);
+  const v = id === 'LEAK' ? leaks() : id.startsWith('LEAK') ? leaks(Number(id.slice(4))) : acI(sim, id);
+  return v < 1e-4 ? 0 : v; // por debajo de 0,1 mA la pinza marca 0
+}

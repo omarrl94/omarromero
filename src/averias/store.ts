@@ -90,4 +90,16 @@ useAveria.subscribe((s) => {
   save(KEY, snap);
   save(LEVEL, s.level);
 });
+/** Instantánea de la partida en curso (para guardarla en un .omi) y su restauración. */
+export type AveriaSnapshot = Partial<Run> & { level: number };
+export function averiaSnapshot(): AveriaSnapshot | null {
+  const s = useAveria.getState();
+  if (!s.sc) return null;
+  const snap: Record<string, unknown> = { level: s.level };
+  for (const k of RUN_KEYS) snap[k] = (s as unknown as Record<string, unknown>)[k];
+  return snap as AveriaSnapshot;
+}
+export function applyAveria(a: AveriaSnapshot) { useAveria.setState({ ...a }); }
+/** Circuito del alumno apartado mientras se juega (para que un .omi guarde SU circuito y no el de la avería). */
+export const averiaStash: { project: import('../model/types').Project | null } = { project: null };
 export { faultOf };

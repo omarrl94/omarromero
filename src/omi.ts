@@ -11,18 +11,19 @@ import type { GState } from './game/logic';
 import { customHouses, houseOf, registerHouse, type House } from './game/houses';
 import { makeClient } from './game/clients';
 import { useGame, type Stage } from './game/store';
+import { averiaSnapshot, type AveriaSnapshot } from './averias/store';
 
 export const OMI_VERSION = 1;
 export interface OmiGame { seed: number; level: number; plan: string; stage: Stage; state: GState; houses?: House[] }
-export interface Omi { format: 'omi'; version: number; created: string; name: string; project: Project; game?: OmiGame }
+export interface Omi { format: 'omi'; version: number; created: string; name: string; project: Project; game?: OmiGame; /** Partida de «Parte de avería» en curso */ averia?: AveriaSnapshot }
 
 export function gameSnapshot(): OmiGame {
   const g = useGame.getState();
   const h = houseOf(g.client.houseId);
   return { seed: g.seed, level: g.level, plan: g.plan, stage: g.stage === 'resultado' ? 'inspeccion' : g.stage, state: g.state, houses: h.custom ? [h] : undefined };
 }
-export function makeOmi(project: Project, withGame: boolean): Omi {
-  return { format: 'omi', version: OMI_VERSION, created: new Date().toISOString(), name: project.name, project, game: withGame ? gameSnapshot() : undefined };
+export function makeOmi(project: Project, withGame: boolean, withAveria = false): Omi {
+  return { format: 'omi', version: OMI_VERSION, created: new Date().toISOString(), name: project.name, project, game: withGame ? gameSnapshot() : undefined, averia: withAveria ? averiaSnapshot() ?? undefined : undefined };
 }
 export const serializeOmi = (o: Omi) => JSON.stringify(o);
 
@@ -34,6 +35,7 @@ export function parseOmi(text: string): Omi {
   if (o && o.format === 'omi') {
     if (!o.project || !Array.isArray(o.project.components) || !Array.isArray(o.project.wires)) throw new Error('El archivo .omi está incompleto: falta el circuito.');
     if ((o.version ?? 0) > OMI_VERSION) throw new Error('Este .omi es de una versión más nueva de CircuitosSEA.');
+    if (o.averia && (!(o.averia as AveriaSnapshot).sc || !(o.averia as AveriaSnapshot).case)) throw new Error('El archivo .omi está incompleto: falta la partida de avería.');
     return o as Omi;
   }
   if (o && Array.isArray(o.components) && Array.isArray(o.wires)) return { format: 'omi', version: OMI_VERSION, created: new Date().toISOString(), name: o.name ?? 'Sin título', project: o as Project };

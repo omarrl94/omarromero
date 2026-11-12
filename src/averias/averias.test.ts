@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { FAULTS, faultOf, pointsOf, REPAIRS } from './catalog';
 import { makeScenario } from './game';
-import { applyRepair, buildProject, checkHealth, currentOf, settle, voltageOf } from './model';
+import { applyRepair, buildProject, checkHealth, clampOptions, clampReading, currentOf, settle, voltageOf } from './model';
 import { scoreOf } from './score';
 import { simulate } from '../model/netlist';
 import { readMeter, initialMeter, type Dial } from '../model/meter';
@@ -117,4 +117,25 @@ describe('Parte de avería: puntuación', () => {
   it('la seguridad penaliza medir con tensión', () => { expect(scoreOf({ ...base, unsafe: ['x'] }).seg).toBe(1); });
   it('medir poco y rápido da más eficiencia que medir mucho', () => { expect(scoreOf({ ...base, measures: 8, minutes: 120 }).efic).toBeLessThan(scoreOf(base).efic); });
   it('las averías declaran su explicación y su medida delatora', () => { for (const f of FAULTS) { expect(faultOf(f.id).explain.length).toBeGreaterThan(20); expect(f.evidence.length).toBeGreaterThan(20); } });
+});
+
+describe('Pinza amperimétrica', () => {
+  it('lee la intensidad de la línea aunque la protección ya haya disparado', () => {
+    const sc = makeScenario(1, 1, 'piso3', 'sobrecarga'); const p = buildProject(sc.case);
+    expect(settle(p).PIA).toBe('tripped');
+    expect(clampReading(p, 'LL')).toBeGreaterThan(sc.case.setup.inA * 1.45);
+  });
+  it('fase y neutro juntos leen la fuga a tierra', () => {
+    const sc = makeScenario(1, 2, 'piso3', 'derivacion'); const p = buildProject(sc.case);
+    expect(clampReading(p, 'LEAK0')).toBeGreaterThan(0.1);
+    expect(clampReading(p, 'LEAK0')).toBeLessThan(0.3);
+    const ok = makeScenario(1, 2, 'piso3', 'neutro_suelto');
+    expect(clampReading(buildProject(ok.case), 'LEAK')).toBe(0);
+  });
+  it('con el IGA abierto no circula nada', () => {
+    const sc = makeScenario(1, 1, 'piso3', 'sobrecarga'); const p = structuredClone(buildProject(sc.case));
+    for (const id of ['IGA', 'IGAN']) p.components.find((c) => c.id === id)!.params.closed = false;
+    expect(clampReading(p, 'LL')).toBeLessThan(1e-6);
+  });
+  it('ofrece un punto por receptor', () => { const sc = makeScenario(2, 2, 'piso3', 'derivacion'); expect(clampOptions(sc.case).length).toBe(3 + sc.case.setup.recs.length * 2); });
 });

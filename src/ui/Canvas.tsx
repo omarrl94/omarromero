@@ -39,6 +39,27 @@ export function Canvas({ sim, cables, mode = 'schematic', locked = false, canTog
   const [view, setView] = useState({ x: 40, y: 20, k: 1 });
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
   const holdRef = useRef<{ id: string; key: string } | null>(null);
+  // Pellizco con dos dedos para hacer zoom (tablet y móvil)
+  const touches = useRef(new Map<number, { x: number; y: number }>());
+  const pinch = useRef<{ d: number; k: number } | null>(null);
+  const onTouchDown = (e: React.PointerEvent) => {
+    if (e.pointerType !== 'touch') return;
+    touches.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (touches.current.size === 2) { const [a, b] = [...touches.current.values()]; pinch.current = { d: Math.hypot(a.x - b.x, a.y - b.y), k: view.k }; drag.current = null; }
+  };
+  const onTouchMove = (e: React.PointerEvent) => {
+    if (e.pointerType !== 'touch' || !touches.current.has(e.pointerId)) return;
+    touches.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (touches.current.size === 2 && pinch.current) {
+      e.stopPropagation();
+      const [a, b] = [...touches.current.values()];
+      const r = svgRef.current!.getBoundingClientRect();
+      const mx = (a.x + b.x) / 2 - r.left, my = (a.y + b.y) / 2 - r.top;
+      const k = Math.min(3, Math.max(0.2, pinch.current.k * (Math.hypot(a.x - b.x, a.y - b.y) / pinch.current.d)));
+      setView((v) => ({ k, x: mx - ((mx - v.x) / v.k) * k, y: my - ((my - v.y) / v.k) * k }));
+    }
+  };
+  const onTouchUp = (e: React.PointerEvent) => { touches.current.delete(e.pointerId); if (touches.current.size < 2) pinch.current = null; };
   const drag = useRef<null | { kind: 'comp' | 'pan'; lastX: number; lastY: number; moved: boolean; snapped: boolean; accX: number; accY: number }>(null);
 
   const toWorld = (cx: number, cy: number) => {
@@ -91,7 +112,7 @@ export function Canvas({ sim, cables, mode = 'schematic', locked = false, canTog
 
   const onBgDown = (e: React.PointerEvent) => {
     if (e.button !== 0 && e.button !== 1) return;
-    (e.target as Element).setPointerCapture?.(e.pointerId);
+    try { (e.target as Element).setPointerCapture?.(e.pointerId); } catch { /* puntero ya liberado */ }
     drag.current = { kind: 'pan', lastX: e.clientX, lastY: e.clientY, moved: false, snapped: false, accX: 0, accY: 0 };
   };
   const onCompDown = (e: React.PointerEvent, c: Component) => {
@@ -106,7 +127,7 @@ export function Canvas({ sim, cables, mode = 'schematic', locked = false, canTog
       }
       return;
     }
-    (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
+    try { (e.currentTarget as Element).setPointerCapture?.(e.pointerId); } catch { /* puntero ya liberado */ }
     const additive = e.shiftKey;
     if (!selection.includes(c.id)) st.select([c.id], additive);
     const inter = defOf(c.type).interactive;
@@ -212,6 +233,10 @@ export function Canvas({ sim, cables, mode = 'schematic', locked = false, canTog
       onWheel={onWheel}
       onPointerMove={onMove}
       onPointerUp={onUp}
+      onPointerDownCapture={onTouchDown}
+      onPointerMoveCapture={onTouchMove}
+      onPointerUpCapture={onTouchUp}
+      onPointerCancel={onTouchUp}
       onPointerDown={onBgDown}
       onDragOver={(e) => e.preventDefault()}
       onDrop={onDrop}
