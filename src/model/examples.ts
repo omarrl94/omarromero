@@ -122,4 +122,45 @@ export const potenciometro: Project = {
   ],
 };
 
-export const EXAMPLES = [dosPilas, luzSimple, divisor, ledResistencia, fusible, escalera, motorPulsador, potenciometro];
+/** Verás el desfase entre tensión e intensidad con el osciloscopio (CH1 = sonda en A:L, CH2 = pinza en R1). */
+export const rlcSerie: Project = {
+  version: PROJECT_VERSION, name: 'CA: circuito RLC serie (230 V, 50 Hz)',
+  components: [
+    c('A1', 'acsource', 160, 200, 90, { v: 230, f: 50, rint: 0 }),
+    c('R1', 'resistor', 300, 160, 0, { r: 100, pmax: 1000 }),
+    c('L1', 'inductor', 420, 160, 0, { l: 300, r: 0.5 }),
+    c('C1', 'capacitor', 560, 200, 90, { c: 47 }),
+    c('GND', 'ground', 160, 320, 0),
+  ],
+  wires: [w('a', 'A1', 0, 'R1', 0), w('b', 'R1', 1, 'L1', 0), w('c', 'L1', 1, 'C1', 0), w('d', 'C1', 1, 'A1', 1), w('e', 'A1', 1, 'GND', 0)],
+};
+
+/** Carga inductiva (cos φ ≈ 0,6). Cambia la capacidad de C1 (≈ 40 µF) y observa cos φ y la corriente de línea en el vatímetro. */
+export const factorPotencia: Project = {
+  version: PROJECT_VERSION, name: 'CA: corrección del factor de potencia',
+  components: [
+    c('A1', 'acsource', 160, 200, 90, { v: 230, f: 50, rint: 0 }),
+    c('C1', 'capacitor', 240, 200, 90, { c: 40 }),
+    c('R1', 'resistor', 340, 160, 0, { r: 30, pmax: 2000 }),
+    c('L1', 'inductor', 460, 160, 0, { l: 127, r: 0.1 }),
+    c('J1', 'junction', 540, 160, 0), c('J2', 'junction', 540, 240, 0),
+    c('GND', 'ground', 160, 320, 0),
+  ],
+  wires: [
+    w('a', 'A1', 0, 'C1', 0), w('b', 'C1', 0, 'R1', 0), w('c', 'R1', 1, 'L1', 0), w('d', 'L1', 1, 'J1', 0),
+    w('e', 'J1', 0, 'J2', 0), w('f', 'J2', 0, 'C1', 1), w('g', 'C1', 1, 'A1', 1), w('h', 'A1', 1, 'GND', 0),
+  ],
+};
+
+export const lampara230: Project = {
+  version: PROJECT_VERSION, name: 'CA: lámpara de 230 V / 60 W con interruptor',
+  components: [
+    c('A1', 'acsource', 160, 200, 90, { v: 230, f: 50, rint: 0 }),
+    c('S1', 'switch', 320, 160, 0, { closed: true }),
+    c('L1', 'lamp', 500, 200, 90, { vn: 230, pn: 60 }),
+    c('GND', 'ground', 160, 320, 0),
+  ],
+  wires: [w('a', 'A1', 0, 'S1', 0), w('b', 'S1', 1, 'L1', 0), w('c', 'L1', 1, 'A1', 1), w('d', 'A1', 1, 'GND', 0)],
+};
+
+export const EXAMPLES = [dosPilas, luzSimple, divisor, ledResistencia, fusible, escalera, motorPulsador, potenciometro, rlcSerie, factorPotencia, lampara230];

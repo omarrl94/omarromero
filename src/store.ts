@@ -37,6 +37,9 @@ interface State {
   meter: MeterState;
   log: Measure[];
   sound: boolean;
+  scopeTips: { c1: TermRef | null; c2: TermRef | null };
+  scopeArm: 'c1' | 'c2' | null;
+  dock: boolean;
   animate: boolean;
   showLabels: boolean;
   heat: boolean;
@@ -63,7 +66,9 @@ interface State {
   addLog(m: Omit<Measure, 'id' | 'time'>): void;
   setTheory(id: number, v: number | undefined): void;
   clearLog(): void;
-  toggle(k: 'animate' | 'showLabels' | 'heat' | 'dark' | 'sound'): void;
+  setScopeTip(ch: 'c1' | 'c2', t: TermRef | null): void;
+  armScope(ch: 'c1' | 'c2' | null): void;
+  toggle(k: 'animate' | 'showLabels' | 'heat' | 'dark' | 'sound' | 'dock'): void;
 }
 
 let counter = 0;
@@ -72,7 +77,7 @@ const uid = (prefix: string) => `${prefix}${Date.now().toString(36)}${(counter++
 export const useStore = create<State>((set, get) => ({
   project: loadInitial(),
   past: [], future: [], selection: [], wiring: null,
-  runtime: {}, notices: [], meter: { ...initialMeter }, log: [], sound: false,
+  runtime: {}, notices: [], meter: { ...initialMeter }, log: [], sound: false, scopeTips: { c1: null, c2: null }, scopeArm: null, dock: true,
   animate: true, showLabels: true, heat: false,
   dark: typeof matchMedia !== 'undefined' && matchMedia('(prefers-color-scheme: dark)').matches,
 
@@ -184,12 +189,14 @@ export const useStore = create<State>((set, get) => ({
   },
   resetRuntime() { set({ runtime: {}, notices: [] }); },
   dismiss(id) { set((s) => ({ notices: s.notices.filter((n) => n.id !== id) })); },
-  setMeter(m) { set((s) => ({ meter: { ...s.meter, ...m } })); },
+  setMeter(m) { set((s) => ({ meter: { ...s.meter, ...m }, scopeArm: m.armed ? null : s.scopeArm })); },
   addLog(m) {
     set((s) => ({ log: [...s.log, { ...m, id: s.log.length + 1, time: new Date().toLocaleTimeString('es-ES') }] }));
   },
   setTheory(id, v) { set((s) => ({ log: s.log.map((l) => (l.id === id ? { ...l, theory: v } : l)) })); },
   clearLog() { set({ log: [] }); },
+  setScopeTip(ch, t) { set((s) => ({ scopeTips: { ...s.scopeTips, [ch]: t }, scopeArm: null })); },
+  armScope(ch) { set({ scopeArm: ch, meter: { ...get().meter, armed: null } }); },
   toggle(k) { set((s) => ({ [k]: !s[k] }) as Partial<State>); },
 }));
 
