@@ -19,7 +19,34 @@ import { multifilarDiagram, unifilarDiagram } from './diagrams';
 import { cableReport, wireData, admissible, wireResistance } from '../model/cables';
 import { SECTIONS, IZ_SOURCE } from '../data/rebt';
 
+function Welcome({ onClose }: { onClose: () => void }) {
+  const st = useStore();
+  const go = (i: number, view: 'schematic' | 'real' | 'cuadro') => { st.load(structuredClone(EXAMPLES[i])); st.setView(view); onClose(); };
+  return (
+    <div className="welcome" role="dialog" aria-label="Bienvenida">
+      <div className="box">
+        <h1>Circuitos<span>SEA</span></h1>
+        <p>Tu taller virtual de electrotecnia: dibuja, monta, mide y calcula. El mismo circuito en esquema, multifilar, unifilar y montado en un panel real.</p>
+        <div className="cards">
+          <button className="cardbtn" onClick={() => go(4, 'schematic')}><span className="ic">💥</span><b>Provoca un cortocircuito</b><small>Pulsa el pulsador y mira cómo se funde el fusible. Mide con el polímetro.</small></button>
+          <button className="cardbtn" onClick={() => go(5, 'real')}><span className="ic">🛠</span><b>Monta una conmutada</b><small>Una luz desde dos sitios, en el panel real con carril DIN y cables de colores.</small></button>
+          <button className="cardbtn" onClick={() => go(8, 'schematic')}><span className="ic">〰</span><b>Mide corriente alterna</b><small>Circuito RLC a 230 V: osciloscopio, desfase y vatímetro.</small></button>
+          <button className="cardbtn" onClick={() => { st.setView('cuadro'); onClose(); }}><span className="ic">▦</span><b>Diseña un cuadro eléctrico</b><small>Circuitos C1–C5, protecciones y secciones con el cálculo paso a paso.</small></button>
+        </div>
+        <ul>
+          <li>Arrastra componentes desde la paleta · pulsa un terminal para tirar un cable (en modo <b>Real</b>, arrastra de borne a borne).</li>
+          <li>Abre los instrumentos con los botones ⚡ 〰 ◔ y <b>arrastra las puntas</b> hasta un borne.</li>
+          <li>Interruptores y pulsadores se accionan con un clic · <b>R</b> gira · <b>Supr</b> borra · <b>F</b> encaja el circuito.</li>
+        </ul>
+        <button className="go" onClick={onClose}>Empezar a trastear</button>
+      </div>
+    </div>
+  );
+}
+
 export function App() {
+  const [welcome, setWelcome] = useState(() => { try { return !localStorage.getItem('circuitossea:welcome'); } catch { return true; } });
+  const closeWelcome = () => { try { localStorage.setItem('circuitossea:welcome', '1'); } catch { /* ignorar */ } setWelcome(false); };
   const st = useStore();
   const { project, selection, past, future } = st;
   const sim = useMemo(() => simulate(project, st.runtime), [project, st.runtime]);
@@ -64,6 +91,7 @@ export function App() {
   return (
     <div className={`app ${wide ? 'wide' : ''} ${st.leftOpen ? '' : 'noleft'} ${st.rightOpen ? '' : 'noright'}`}>
       <ProbeDragLayer />
+      {welcome && <Welcome onClose={closeWelcome} />}
       <header className="top">
         <div className="brand"><span className="logo">⚡</span><b>{t.app}</b><small>{t.tagline}</small></div>
         <div className="viewswitch" role="tablist" aria-label="Vista del circuito">
@@ -72,6 +100,7 @@ export function App() {
           ))}
         </div>
         <div className="tools">
+          <button onClick={() => setWelcome(true)} title="Inicio rápido">❓</button>
           <button onClick={() => { if (confirm('¿Empezar un proyecto nuevo? Se perderán los cambios no guardados.')) st.load({ version: 1, name: 'Sin título', components: [], wires: [] }); }}>{t.newProject}</button>
           <button onClick={() => fileRef.current?.click()}>{t.open}</button>
           <button onClick={download}>{t.save}</button>
@@ -150,7 +179,7 @@ export function App() {
             <FloatingWin id="watt" title="Vatímetro" width={228} order={2}><Wattmeter sim={sim} /></FloatingWin>
           </>
         )}
-        {!wide && <div className="hint-bar">{st.view === 'real' ? 'Modo real: clic en interruptores y pulsadores para accionarlos · rueda = zoom · arrastra para mover el panel · elige una punta y pulsa un borne para medir' : st.wiring ? t.wireHint : t.placeHint}</div>}
+        {!wide && <div className="hint-bar">{st.view === 'real' ? 'Modo real: arrastra de borne a borne para cablear · clic en un cable y Supr lo quita · clic en interruptores y pulsadores para accionarlos · rueda = zoom' : st.wiring ? t.wireHint : t.placeHint}</div>}
       </main>
 
       <aside className="right">

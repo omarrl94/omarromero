@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useStore } from '../store';
 import { defOf, fmtSI } from '../model/library';
 import { termPos, tkey, type SimResult } from '../model/netlist';
+import { wireStyler } from '../model/wires';
 import type { Component } from '../model/types';
 import { Symbol } from './symbols';
 import { beep } from './sound';
@@ -12,10 +13,12 @@ const snap = (v: number) => Math.round(v / GRID) * GRID;
 
 interface Props { sim: SimResult; cables?: Record<string, import('../model/cables').CableInfo> }
 
-/** Ruta ortogonal entre dos puntos: horizontal y luego vertical. */
+/** Ruta ortogonal entre dos puntos (horizontal y luego vertical) con esquina redondeada. */
 function route(a: { x: number; y: number }, b: { x: number; y: number }) {
   if (a.x === b.x || a.y === b.y) return `M${a.x} ${a.y}L${b.x} ${b.y}`;
-  return `M${a.x} ${a.y}L${b.x} ${a.y}L${b.x} ${b.y}`;
+  const r = Math.min(14, Math.abs(b.x - a.x), Math.abs(b.y - a.y));
+  const sx = Math.sign(b.x - a.x), sy = Math.sign(b.y - a.y);
+  return `M${a.x} ${a.y}L${b.x - sx * r} ${a.y}Q${b.x} ${a.y} ${b.x} ${a.y + sy * r}L${b.x} ${b.y}`;
 }
 
 export function Canvas({ sim, cables }: Props) {
@@ -149,6 +152,8 @@ export function Canvas({ sim, cables }: Props) {
     return t >= 0 ? `hsl(${30 - 30 * t}, 80%, ${60 - 15 * t}%)` : `hsl(210, 70%, ${60 + 10 * t}%)`;
   };
 
+  const roleStyle = useMemo(() => wireStyler(project, sim), [project, sim]);
+  const roleColor = (n: number) => { const s = roleStyle(n); return s.role === 'pos' ? (sim.ac ? '#b87a4b' : '#e5484d') : s.role === 'neg' ? (sim.ac ? '#4a8fe0' : 'var(--wire)') : sim.ac ? 'var(--wire)' : '#e8892b'; };
   const maxI = Math.max(1e-9, ...Object.values(sim.wireCurrent).map(Math.abs));
 
   return (
@@ -167,7 +172,11 @@ export function Canvas({ sim, cables }: Props) {
         <pattern id="grid" width={GRID * view.k} height={GRID * view.k} patternUnits="userSpaceOnUse" x={view.x} y={view.y}>
           <circle cx={1} cy={1} r={1} fill="var(--grid)" />
         </pattern>
+        <pattern id="gridmajor" width={GRID * 5 * view.k} height={GRID * 5 * view.k} patternUnits="userSpaceOnUse" x={view.x} y={view.y}>
+          <path d={`M0 0H${GRID * 5 * view.k}M0 0V${GRID * 5 * view.k}`} stroke="var(--grid)" strokeWidth={0.8} opacity={0.35} fill="none" />
+        </pattern>
       </defs>
+      <rect width="100%" height="100%" fill="url(#gridmajor)" />
       <rect width="100%" height="100%" fill="url(#grid)" />
       <g transform={`translate(${view.x} ${view.y}) scale(${view.k})`}>
         {/* Cables */}
@@ -184,7 +193,7 @@ export function Canvas({ sim, cables }: Props) {
           return (
             <g key={w.id}>
               <path d={d} className="wire-hit" onPointerDown={(e) => { e.stopPropagation(); st.select([w.id], e.shiftKey); }} />
-              <path d={d} className="wire" style={{ stroke: st.heat ? heatColor(v) : sel ? 'var(--accent)' : 'var(--wire)', strokeWidth: sel ? 4 : st.heat ? 4 : 3 }} />
+              <path d={d} className="wire" style={{ stroke: st.heat ? heatColor(v) : sel ? 'var(--accent)' : roleColor(sim.nodeOf[tkey(w.a)] ?? 0), strokeWidth: sel ? 4.5 : st.heat ? 4.5 : 3.4 }} />
               {st.showCables && cables?.[w.id] && (() => {
                 const m = Math.abs(a.x - b.x) < 1 || Math.abs(a.y - b.y) < 1 ? { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 } : { x: (a.x + b.x) / 2, y: a.y };
                 const ci = cables[w.id];
@@ -236,9 +245,16 @@ export function Canvas({ sim, cables }: Props) {
                     {c.label || (c.id.length <= 4 ? c.id : '')} {def.tag?.(c.params) ?? ''}
                   </text>
                   {st.showLabels && v !== undefined && c.type !== 'ground' && (
-                    <text className="measure" y={c.rot % 180 === 0 ? 50 : 20} x={c.rot % 180 === 0 ? 0 : 34} textAnchor={c.rot % 180 === 0 ? 'middle' : 'start'}>
-                      {fmtSI(v, 'V')} · {fmtSI(Math.abs(i ?? 0), 'A')}
-                    </text>
+                    (() => {
+                      const txt = `${fmtSI(v, 'V')} · ${fmtSI(Math.abs(i ?? 0), 'A')}`;
+                      const wpx = txt.length * 6.3 + 14, mx = c.rot % 180 === 0 ? -wpx / 2 : 34, my = c.rot % 180 === 0 ? 40 : 7;
+                      return (
+                        <g className="pill">
+                          <rect x={mx} y={my} width={wpx} height={17} rx={8.5} />
+                          <text x={mx + wpx / 2} y={my + 12} textAnchor="middle">{txt}</text>
+                        </g>
+                      );
+                    })()
                   )}
                 </g>
               )}

@@ -39,6 +39,9 @@ npm run build      # genera dist/ (alojable en Netlify / GitHub Pages)
 - **El circuito es lo principal**: los instrumentos son ventanas flotantes (botones ⚡ Polímetro · 〰 Osciloscopio · ◔ Vatímetro) que se arrastran por encima del lienzo, se minimizan y se cierran; paleta y propiedades se pueden ocultar (◧ ◨) y «Ajustar» (tecla F) encaja el circuito en pantalla.
 - **Puntas arrastrables**: coge la punta roja/negra del polímetro o la sonda del osciloscopio y suéltala sobre un borne (se imanta al más cercano y se resalta). También puedes mover una punta ya colocada arrastrando su cabeza, o soltarla en vacío para quitarla.
 
+- **Cablear en modo Real**: arrastra de borne a borne (con imán y vista previa del cable); clic en un cable + Supr lo quita; Ctrl+Z deshace. El cable toma su color normalizado automáticamente.
+- **Esquema pulido**: cables con esquinas redondeadas y color por función, etiquetas V·I tipo tarjeta, sombras y cuadrícula con líneas mayores. Pantalla de bienvenida con inicio rápido (botón ❓).
+
 ## Estructura
 ```
 src/engine/   motor puro (solver.ts, dc.ts) — sin DOM

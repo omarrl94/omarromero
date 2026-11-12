@@ -4,7 +4,7 @@
  * aparamenta dibujada con materiales (plástico, metal, vidrio), bornes de tornillo y cables de colores
  * normalizados con terminal de punta. No cambia el modelo: solo cómo se dibuja.
  */
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useStore } from '../store';
 import { defOf, fmt, fmtOhm, fmtSI } from '../model/library';
 import { tkey, type SimResult } from '../model/netlist';
@@ -92,6 +92,34 @@ export function RealPanel({ sim, cables }: { sim: SimResult; cables?: Record<str
   const vw = W / view.k, vh = H / view.k;
   const byId = new Map(devs.map((d) => [d.c.id, d]));
   const dragRef = useRef<{ x: number; y: number; moved: boolean } | null>(null);
+  // Cableado arrastrando de borne a borne
+  const [wd, setWd] = useState<{ from: TermRef; x: number; y: number } | null>(null);
+  const wdFrom = wd?.from;
+  useEffect(() => {
+    if (!wdFrom) return;
+    const move = (e: PointerEvent) => { const p = toSvgRef.current(e.clientX, e.clientY); setWd({ from: wdFrom, x: p.x, y: p.y }); };
+    const up = (e: PointerEvent) => {
+      const p = toSvgRef.current(e.clientX, e.clientY);
+      const hit = nearestTerm(p.x, p.y, 26 / Math.max(0.3, p.s));
+      if (hit && !(hit.comp === wdFrom.comp && hit.term === wdFrom.term)) useStore.getState().addWire(wdFrom, hit);
+      setWd(null);
+    };
+    window.addEventListener('pointermove', move); window.addEventListener('pointerup', up);
+    return () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); };
+  }, [wdFrom]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement).tagName;
+      if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+      const s = useStore.getState();
+      if (e.key === 'Delete' || e.key === 'Backspace') s.deleteSelection();
+      else if (e.key === 'Escape') { setWd(null); s.select([]); }
+      else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); e.shiftKey ? s.redo() : s.undo(); }
+      else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') { e.preventDefault(); s.redo(); }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
   const holdRef = useRef<{ id: string; key: string } | null>(null);
 
   const termXY = (t: TermRef) => {
@@ -115,13 +143,20 @@ export function RealPanel({ sim, cables }: { sim: SimResult; cables?: Record<str
   };
 
   const maxI = Math.max(1e-9, ...Object.values(sim.wireCurrent).map(Math.abs));
+  const nearestTerm = (x: number, y: number, max: number): TermRef | null => {
+    let best: { t: TermRef; d: number } | null = null;
+    for (const dv of devs) dv.terms.forEach((t, i) => { const d = Math.hypot(dv.x + t.x - x, dv.y + t.y - y); if (d < max && (!best || d < best.d)) best = { t: { comp: dv.c.id, term: i }, d }; });
+    return (best as { t: TermRef } | null)?.t ?? null;
+  };
 
+  const toSvgRef = useRef<(cx: number, cy: number) => { x: number; y: number; s: number }>(() => ({ x: 0, y: 0, s: 1 }));
   const toSvg = (cx: number, cy: number) => {
     const r = svgRef.current!.getBoundingClientRect();
     const s = Math.min(r.width / vw, r.height / vh);
     const ox = (r.width - vw * s) / 2, oy = (r.height - vh * s) / 2;
     return { x: view.x + (cx - r.left - ox) / s, y: view.y + (cy - r.top - oy) / s, s };
   };
+  toSvgRef.current = toSvg;
   const onWheel = (e: React.WheelEvent) => {
     const p = toSvg(e.clientX, e.clientY);
     const k = Math.min(3, Math.max(0.5, view.k * (e.deltaY < 0 ? 1.12 : 1 / 1.12)));
@@ -163,6 +198,7 @@ export function RealPanel({ sim, cables }: { sim: SimResult; cables?: Record<str
     e.stopPropagation();
     if (st.scopeArm) st.setScopeTip(st.scopeArm, ref);
     else if (st.meter.armed) st.setMeter({ [st.meter.armed]: ref, armed: null } as never);
+    else { const t = termXY(ref); if (t) setWd({ from: ref, x: t.x, y: t.y }); }
   };
 
   return (
@@ -234,6 +270,26 @@ export function RealPanel({ sim, cables }: { sim: SimResult; cables?: Record<str
           </g>
         );
       })}
+
+      {/* Cable en curso */}
+      {wd && (() => {
+        const a = termXY(wd.from); if (!a) return null;
+        const snap = nearestTerm(wd.x, wd.y, 26 / Math.max(0.3, toSvg(0, 0).s));
+        const tgt = snap ? termXY(snap) : null;
+        const col = wireColor(sim.nodeOf[tkey(wd.from)] ?? 0);
+        const ex = tgt?.x ?? wd.x, ey = tgt?.y ?? wd.y;
+        const sa = a.dir === 'up' ? -1 : 1;
+        const k = Math.min(140, Math.max(30, Math.hypot(ex - a.x, ey - a.y) / 2.2));
+        const d = `M${a.x} ${a.y}C${a.x} ${a.y + sa * k},${ex} ${ey + (tgt?.dir === 'up' ? -k : tgt ? k : 0)},${ex} ${ey}`;
+        return (
+          <g pointerEvents="none">
+            <path d={d} fill="none" stroke="#000" strokeOpacity={0.2} strokeWidth={9} strokeLinecap="round" transform="translate(2 4)" />
+            <path d={d} fill="none" stroke={col.c} strokeWidth={6.5} strokeLinecap="round" strokeDasharray={snap ? undefined : '10 6'} />
+            <Ferrule x={a.x} y={a.y} dir={a.dir} color={col.c} />
+            {tgt && <circle cx={tgt.x} cy={tgt.y} r={16} fill="#4caf5033" stroke="#4caf50" strokeWidth={3} className="pulse" />}
+          </g>
+        );
+      })()}
 
       {/* Bornes encima de los cables (para poder colocar puntas) */}
       {devs.map((d) => d.terms.map((t, ti) => (
