@@ -68,3 +68,61 @@ describe('relés y contactores', () => {
     expect(Math.abs(simulate(circuito(false, false)).live['L'].i)).toBeLessThan(1e-4); // y queda parado
   });
 });
+
+describe('transformadores y trifásica', () => {
+  it('transformador 230/24 V con carga de 24 Ω: ≈ 24 V y ≈ 1 A en el secundario', () => {
+    const p = P([C('A', 'red', 0, 0, { v: 230, rint: 0 }), C('T', 'tr1', 0, 0, { ucc: 0.1 }), C('R', 'resistor', 0, 0, { r: 24, pmax: 1000 }), C('G', 'ground')],
+      [W('a', 'A', 0, 'T', 0), W('b', 'T', 1, 'A', 1), W('c', 'T', 2, 'R', 0), W('d', 'R', 1, 'T', 3), W('e', 'A', 1, 'G', 0)]);
+    const r = simulate(p);
+    expect(r.messages.filter((m) => m.level === 'error')).toEqual([]);
+    expect(Math.abs(r.live['R'].v)).toBeCloseTo(24, 0);
+    expect(Math.abs(r.live['R'].i)).toBeCloseTo(1, 1);
+    expect(Math.abs(r.live['T'].i)).toBeCloseTo(24 / 230, 2); // I1 = I2·(Vs/Vp)
+  });
+  it('red trifásica + carga equilibrada en estrella: I de línea = 230/R, neutro ≈ 0, P = 3·V·I', () => {
+    const p = P([C('S', 'red3', 0, 0, { rint: 0 }), C('Z', 'carga3y', 0, 0, { r: 100 }), C('G', 'ground')],
+      [W('1', 'S', 0, 'Z', 0), W('2', 'S', 1, 'Z', 1), W('3', 'S', 2, 'Z', 2), W('4', 'S', 3, 'Z', 3), W('5', 'S', 3, 'G', 0)]);
+    const r = simulate(p);
+    expect(r.messages.filter((m) => m.level === 'error')).toEqual([]);
+    expect(Math.abs(r.live['Z'].i)).toBeCloseTo(400 / Math.sqrt(3) / 100, 2);
+    expect(r.live['Z'].p).toBeCloseTo(3 * (400 / Math.sqrt(3)) ** 2 / 100, 0);
+    expect(Math.abs(r.componentCurrent['Z:3'] ?? 0)).toBeLessThan(1e-6);
+  });
+  it('motor trifásico en triángulo: corriente de línea = P/(η·√3·U·cos φ)', () => {
+    const p = P([C('S', 'fuente3d', 0, 0, { rint: 0 }), C('M', 'motor3', 0, 0, { conn: 1 })],
+      [W('1', 'S', 0, 'M', 0), W('2', 'S', 1, 'M', 1), W('3', 'S', 2, 'M', 2)]);
+    const r = simulate(p);
+    expect(r.messages.filter((m) => m.level === 'error')).toEqual([]);
+    expect(Math.abs(r.live['M'].i)).toBeCloseTo(4000 / (0.85 * Math.sqrt(3) * 400 * 0.82), 1);
+  });
+  it('trifásico Dy 400/400 alimentando carga en estrella: tensión de línea secundaria ≈ 400 V', () => {
+    const p = P([C('S', 'red3', 0, 0, { rint: 0 }), C('T', 'tr3_dy', 0, 0, { ucc: 0.1 }), C('Z', 'carga3y', 0, 0, { r: 100 }), C('G', 'ground')],
+      [W('1', 'S', 0, 'T', 0), W('2', 'S', 1, 'T', 1), W('3', 'S', 2, 'T', 2), W('4', 'T', 3, 'Z', 0), W('5', 'T', 4, 'Z', 1), W('6', 'T', 5, 'Z', 2), W('7', 'T', 6, 'Z', 3), W('8', 'T', 6, 'G', 0), W('9', 'S', 3, 'G', 0)]);
+    const r = simulate(p);
+    expect(r.messages.filter((m) => m.level === 'error')).toEqual([]);
+    expect(Math.abs(r.live['Z'].i)).toBeCloseTo(2.309, 2);
+  });
+});
+
+describe('diferencial', () => {
+  const circ = (fuga: boolean): Project => P(
+    [C('A', 'red', 0, 0, { v: 230, rint: 0 }), C('D', 'rcd2', 0, 0, { ina: 30 }), C('R', 'resistor', 0, 0, { r: 100, pmax: 1000 }), C('F', 'resistor', 0, 0, { r: fuga ? 5000 : 1e9, pmax: 1000 }), C('G', 'ground')],
+    [W('1', 'A', 0, 'D', 0), W('2', 'D', 1, 'R', 0), W('3', 'R', 1, 'D', 3), W('4', 'D', 2, 'A', 1), W('5', 'D', 1, 'F', 0), W('6', 'F', 1, 'G', 0), W('7', 'A', 1, 'G', 0)]);
+  it('sin fuga no dispara; con fuga de 46 mA dispara', () => {
+    expect(simulate(circ(false)).events).toEqual([]);
+    const ev = simulate(circ(true)).events;
+    expect(ev.some((e) => e.id === 'D' && e.state === 'tripped')).toBe(true);
+  });
+});
+
+import { setSimClock } from './netlist';
+describe('temporizadores', () => {
+  const circ = (type: string): Project => P(
+    [C('A', 'red', 0, 0, { v: 230, rint: 0 }), C('T', type, 0, 0, { vn: 230, t: 5 }), C('L', 'resistor', 0, 0, { r: 100, pmax: 1000 }), C('G', 'ground')],
+    [W('1', 'A', 0, 'T', 0), W('2', 'T', 1, 'A', 1), W('3', 'A', 0, 'T', 2), W('4', 'T', 3, 'L', 0), W('5', 'L', 1, 'A', 1), W('6', 'A', 1, 'G', 0)]);
+  it('a la conexión: cierra pasados 5 s', () => {
+    setSimClock(100); simulate(circ('tmr_on'));
+    setSimClock(102); expect(Math.abs(simulate(circ('tmr_on')).live['L'].i)).toBeLessThan(1e-4);
+    setSimClock(106); expect(Math.abs(simulate(circ('tmr_on')).live['L'].i)).toBeCloseTo(2.3, 1);
+  });
+});

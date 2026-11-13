@@ -7,7 +7,7 @@ import { Scope } from './Scope';
 import { Wattmeter } from './Wattmeter';
 import { FloatingWin, ProbeDragLayer } from './Floating';
 import { beep, boomSound } from './sound';
-import { simulate } from '../model/netlist';
+import { simulate, setSimClock } from '../model/netlist';
 import { EXAMPLES } from '../model/examples';
 import { t } from '../i18n';
 import { Canvas } from './Canvas';
@@ -133,7 +133,14 @@ export function App() {
   const closeWelcome = () => { try { localStorage.setItem('circuitossea:welcome', '1'); } catch { /* ignorar */ } setWelcome(false); };
   const st = useStore();
   const { project, selection, past, future } = st;
-  const sim = useMemo(() => simulate(project, st.runtime), [project, st.runtime]);
+  const hasTimer = useMemo(() => project.components.some((c) => (defOf(c.type).model as { timer?: unknown }).timer), [project.components]);
+  const [clock, setClock] = useState(0);
+  useEffect(() => {
+    if (!hasTimer) return;
+    const id = setInterval(() => setClock(performance.now() / 1000), 200);
+    return () => clearInterval(id);
+  }, [hasTimer]);
+  const sim = useMemo(() => { setSimClock(hasTimer ? clock : 0); return simulate(project, st.runtime); }, [project, st.runtime, clock, hasTimer]);
   // Las averías nuevas (fusible fundido, LED quemado…) se anotan una vez y quedan hasta «Reponer»
   useEffect(() => {
     if (sim.events.length) { st.applyEvents(sim.events); if (st.sound) boomSound(); }

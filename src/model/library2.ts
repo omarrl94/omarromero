@@ -111,7 +111,7 @@ const fus = (type: string, name: string, cals: number[], def: number, mark: stri
   model: { kind: 'FUSE', rating: n('in'), factor: 1.6 }, tag: (p) => `${p.in} A`,
 });
 
-const relay = (type: string, name: string, o: { vn: number; pn: number; nNO: number; nNC: number; mark?: string; help?: string; vnOpts?: number[]; frac?: [number, number]; sense?: boolean; vset?: number; inv?: boolean; rcFixed?: number }): Def => {
+const relay = (type: string, name: string, o: { vn: number; pn: number; nNO: number; nNC: number; mark?: string; help?: string; vnOpts?: number[]; frac?: [number, number]; sense?: boolean; vset?: number; inv?: boolean; rcFixed?: number; timer?: 'on' | 'off' | 'pulse' | 'sd'; tdef?: number }): Def => {
   const nC = o.nNO + o.nNC;
   const terminals: Def['terminals'] = [{ x: -40, y: -20, name: 'A1' }, { x: -40, y: 20, name: 'A2' }];
   for (let j = 0; j < nC; j++) { const x = 20 + 20 * j; const no = j < o.nNO; terminals.push({ x, y: -40, name: no ? `${j + 1}3` : `${j - o.nNO + 1}1` }, { x, y: 40, name: no ? `${j + 1}4` : `${j - o.nNO + 1}2` }); }
@@ -120,13 +120,87 @@ const relay = (type: string, name: string, o: { vn: number; pn: number; nNO: num
     ? [{ key: 'vset', label: 'Tensión de ajuste', unit: 'V', default: o.vset ?? 230, min: 1 }]
     : [o.vnOpts ? { key: 'vn', label: 'Tensión de la bobina', unit: 'V', default: o.vn, options: o.vnOpts.map((v) => ({ label: `${v} V`, value: v })) } : { key: 'vn', label: 'Tensión de la bobina', unit: 'V', default: o.vn, min: 1 },
        { key: 'pn', label: 'Potencia de la bobina', unit: 'W', default: o.pn, min: 0.01 }];
+  if (o.timer) params.push({ key: 't', label: o.timer === 'sd' ? 'Tiempo en estrella' : 'Tiempo', unit: 's', default: o.tdef ?? 5, min: 0.1, step: 0.5 });
   return {
     type, name, category: 'Control', w: 60 + 20 * nC, h: 100, sym: 'relay', mark: o.mark, help: o.help, terminals, params,
-    model: { kind: 'RELAY', nNO: o.nNO, nNC: o.nNC, inv: o.inv,
+    model: { kind: 'RELAY', nNO: o.nNO, nNC: o.nNC, inv: o.inv, ...(o.timer ? { timer: { mode: o.timer, t: n('t') } } : {}),
       rc: o.sense ? () => o.rcFixed ?? 1e5 : (p) => (o.rcFixed ?? Number(p.vn) ** 2 / Number(p.pn)),
       pickup: o.sense ? (p) => Number(p.vset) : (p) => fp * Number(p.vn),
       drop: o.sense ? (p) => Number(p.vset) * 0.95 : (p) => fd * Number(p.vn) },
     tag: (p) => (o.sense ? `${fmt(+p.vset)} V` : `${fmt(+p.vn)} V`),
+  };
+};
+
+const rcc = (p: P, vw: number, sw: number) => { const z = (Number(p.ucc) / 100) * (vw * vw) / sw; return { r: Math.max(0.3 * z, 1e-4), x: 0.954 * z }; };
+const xf = (type: string, name: string, mode: '1ph' | 'tap' | 'auto' | '3ph', o: { vp: number; vs: number; s: number; ucc: number; mark?: string; help?: string; pri?: 'Y' | 'D'; sec?: 'Y' | 'D'; variac?: boolean; ti?: boolean }): Def => {
+  const terminals: Def['terminals'] = [];
+  if (mode === '3ph') {
+    const names = ['L1', 'L2', 'L3', 'N'];
+    for (let k = 0; k < (o.pri === 'Y' ? 4 : 3); k++) terminals.push({ x: -40, y: -20 + 20 * k, name: `${o.pri === 'Y' ? 'A' : 'U'}${names[k]}`.replace(/^[AU]/, (m) => m) });
+    for (let k = 0; k < (o.sec === 'Y' ? 4 : 3); k++) terminals.push({ x: 40, y: -20 + 20 * k, name: `${names[k].toLowerCase()}` });
+  } else if (mode === 'auto') terminals.push({ x: -40, y: -20, name: 'E' }, { x: 40, y: -20, name: 'S' }, { x: 0, y: 40, name: 'C' });
+  else { terminals.push({ x: -40, y: -20, name: 'A1' }, { x: -40, y: 20, name: 'A2' }, { x: 40, y: -20, name: 'a1' }); if (mode === 'tap') terminals.push({ x: 40, y: 0, name: 'a0' }); terminals.push({ x: 40, y: 20, name: 'a2' }); if (mode === 'tap') terminals.splice(2, 3, { x: 40, y: -20, name: 'a1' }, { x: 40, y: 0, name: 'ct' }, { x: 40, y: 20, name: 'a2' }); }
+  const params: ParamDef[] = o.ti
+    ? [{ key: 'ip', label: 'Corriente primaria', unit: 'A', default: o.vp, min: 0.1 }, { key: 'is', label: 'Corriente secundaria', unit: 'A', default: o.vs, options: [{ label: '1 A', value: 1 }, { label: '5 A', value: 5 }] }]
+    : [{ key: 'vp', label: mode === '3ph' ? 'Tensión primaria (línea)' : 'Tensión primaria', unit: 'V', default: o.vp, min: 1 },
+       o.variac ? { key: 'pos', label: 'Posición (salida/entrada)', unit: '', default: 0.5, min: 0.02, max: 1.15, step: 0.01 } : { key: 'vs', label: mode === '3ph' ? 'Tensión secundaria (línea)' : 'Tensión secundaria', unit: 'V', default: o.vs, min: 0.1 },
+       { key: 's', label: 'Potencia aparente', unit: 'VA', default: o.s, min: 1 }, { key: 'ucc', label: 'Tensión de cortocircuito', unit: '%', default: o.ucc, min: 0.1, max: 30, step: 0.5 }];
+  const Y3 = (v: number, c: 'Y' | 'D' | undefined) => (c === 'Y' ? v / Math.sqrt(3) : v);
+  const nOf = (p: P): number => {
+    if (o.ti) return Number(p.is) / Number(p.ip);
+    if (mode === '3ph') return Y3(Number(p.vp), o.pri) / Y3(Number(p.vs), o.sec);
+    if (mode === 'tap') return Number(p.vp) / (Number(p.vs) / 2);
+    if (o.variac) return 1 / Math.max(0.02, Number(p.pos));
+    return Number(p.vp) / Number(p.vs);
+  };
+  const defName = o.ti ? `${o.vp}/${o.vs} A` : '';
+  return {
+    type, name, category: 'Transformadores', w: 80, h: mode === '3ph' ? 100 : 80, sym: 'xfmr', mark: o.mark, help: o.help, terminals, params,
+    model: { kind: 'XFMR', mode, pri: o.pri, sec: o.sec, n: nOf,
+      zcc: o.ti ? () => ({ r: 1e-4, x: 1e-4 }) : (p) => rcc(p, mode === '3ph' ? Y3(Number(p.vp), o.pri) : Number(p.vp), mode === '3ph' ? Number(p.s) / 3 : Number(p.s)),
+      rdc: o.ti ? () => 0.01 : (p) => Math.max(0.3 * (Number(p.ucc) / 100) * Number(p.vp) ** 2 / Number(p.s), 1e-3) },
+    tag: (p) => (o.ti ? `${fmt(+p.ip)}/${fmt(+p.is)} A` : o.variac ? `${fmt(+p.vp)} V · ${fmt(+p.pos)}` : `${fmt(+p.vp)}/${fmt(+p.vs)} V`) || defName,
+  };
+};
+const src3 = (type: string, name: string, three: 'star' | 'delta', mark: string, help?: string): Def => ({
+  type, name, category: 'Fuentes', w: 80, h: three === 'star' ? 100 : 80, sym: 'src3', mark, help,
+  terminals: [{ x: 40, y: -20, name: 'L1' }, { x: 40, y: 0, name: 'L2' }, { x: 40, y: 20, name: 'L3' }, ...(three === 'star' ? [{ x: 40, y: 40, name: 'N' }] : [])],
+  params: [{ key: 'v', label: 'Tensión de línea', unit: 'V', default: 400, min: 0, step: 1 }, { key: 'f', label: 'Frecuencia', unit: 'Hz', default: 50, min: 1 }, { key: 'rint', label: 'Impedancia interna por fase', unit: 'Ω', default: 0.1, min: 0, step: 0.01 }, { key: 'imax', label: 'Corriente máxima', unit: 'A', default: 200, min: 1 }],
+  model: { kind: 'ACV', v: n('v'), f: n('f'), rint: n('rint'), three }, tag: (p) => `${fmt(+p.v)} V · ${fmt(+p.f)} Hz`,
+});
+const load3 = (type: string, name: string, delta: boolean, mark: string, o: { unbalanced?: boolean; help?: string } = {}): Def => ({
+  type, name, category: 'Receptores', w: 80, h: delta ? 80 : 100, sym: 'load3', mark, help: o.help,
+  terminals: [{ x: -40, y: -20, name: 'L1' }, { x: -40, y: 0, name: 'L2' }, { x: -40, y: 20, name: 'L3' }, ...(delta ? [] : [{ x: -40, y: 40, name: 'N' }])],
+  params: o.unbalanced
+    ? [{ key: 'r1', label: 'Resistencia fase 1', unit: 'Ω', default: 40, min: 0.01 }, { key: 'r2', label: 'Resistencia fase 2', unit: 'Ω', default: 60, min: 0.01 }, { key: 'r3', label: 'Resistencia fase 3', unit: 'Ω', default: 100, min: 0.01 }, { key: 'l', label: 'Inductancia de cada fase', unit: 'mH', default: 0, min: 0 }]
+    : [{ key: 'r', label: 'Resistencia por fase', unit: 'Ω', default: 100, min: 0 }, { key: 'l', label: 'Inductancia por fase (0 = sin bobina)', unit: 'mH', default: 0, min: 0 }, { key: 'c', label: 'Capacidad por fase (0 = sin condensador)', unit: 'µF', default: 0, min: 0 }],
+  model: { kind: 'LOAD3', delta: () => delta, rdc: () => 1e3,
+    z: (p, w) => [0, 1, 2].map((k) => ({ re: Number(o.unbalanced ? p[`r${k + 1}`] : p.r), im: w * Number(p.l) * 1e-3 - (!o.unbalanced && Number(p.c) > 0 ? 1 / (w * Number(p.c) * 1e-6) : 0) })) },
+  tag: (p) => (o.unbalanced ? `${fmt(+p.r1)}/${fmt(+p.r2)}/${fmt(+p.r3)} Ω` : `${fmt(+p.r)} Ω/fase`),
+});
+const motor3 = (type: string, name: string, pn: number, cosfi: number, mark: string, help?: string): Def => ({
+  type, name, category: 'Receptores', w: 80, h: 80, sym: 'motor3', mark, help,
+  terminals: [{ x: -40, y: -20, name: 'U1' }, { x: -40, y: 0, name: 'V1' }, { x: -40, y: 20, name: 'W1' }],
+  params: [{ key: 'vn', label: 'Tensión de línea', unit: 'V', default: 400, min: 1 }, { key: 'pn', label: 'Potencia útil', unit: 'W', default: pn, min: 1 }, { key: 'eta', label: 'Rendimiento', unit: '', default: 0.85, min: 0.1, max: 1, step: 0.01 }, { key: 'cosfi', label: 'cos φ', unit: '', default: cosfi, min: 0.1, max: 1, step: 0.01 }, { key: 'conn', label: 'Conexión del motor', unit: '', default: 0, options: [{ label: 'Estrella', value: 0 }, { label: 'Triángulo', value: 1 }] }],
+  model: { kind: 'LOAD3', delta: (p) => Number(p.conn) === 1, rdc: () => 1e3,
+    z: (p) => { const S = Number(p.pn) / Number(p.eta) / Number(p.cosfi); const Zy = Number(p.vn) ** 2 / S; const Z = Number(p.conn) === 1 ? 3 * Zy : Zy; const ph = Math.acos(Number(p.cosfi)); return [0, 1, 2].map(() => ({ re: Z * Math.cos(ph), im: Z * Math.sin(ph) })); } },
+  tag: (p) => `${fmt(+p.pn)} W · cos φ ${fmt(+p.cosfi)}`,
+});
+
+const rcd = (type: string, name: string, poles: 2 | 4, o: { ina: number; combined?: boolean; mark?: string; help?: string }): Def => {
+  const terminals: Def['terminals'] = [];
+  for (let i = 0; i < poles; i++) { const y = (i - (poles > 2 ? 1 : 0)) * 20; terminals.push({ x: -40, y, name: `${2 * i + 1}` }, { x: 40, y, name: `${2 * i + 2}` }); }
+  const params: ParamDef[] = [
+    { key: 'ina', label: 'Sensibilidad IΔn', unit: 'mA', default: o.ina, options: [10, 30, 100, 300, 500].map((v) => ({ label: `${v} mA`, value: v })) },
+    { key: 'tipo', label: 'Tipo', unit: '', default: 1, options: [{ label: 'AC', value: 0 }, { label: 'A', value: 1 }, { label: 'F', value: 2 }, { label: 'B', value: 3 }] },
+    { key: 'closed', label: 'Conectado', unit: '', default: true, bool: true },
+  ];
+  if (o.combined) params.splice(1, 0, { key: 'in', label: 'Calibre', unit: '', default: 16, options: [6, 10, 16, 20, 25, 32, 40, 63].map((v) => ({ label: `${v} A`, value: v })) });
+  return {
+    type, name, category: 'Protecciones', w: 80, h: 20 + poles * 20, sym: 'gang', mark: o.mark ?? 'RCD', help: o.help, terminals, params,
+    model: { kind: 'RCD', poles, ina: n('ina'), closed: (p) => Boolean(p.closed), ...(o.combined ? { rating: n('in'), mag: () => 10 } : {}) },
+    interactive: { mode: 'toggle', key: 'closed' },
+    tag: (p) => `${fmt(+p.ina)} mA${o.combined ? ` · C${p.in}` : ''}`,
   };
 };
 
@@ -213,6 +287,10 @@ export const EXTRA: Def[] = [
   { ...res('x', 'x', 'x', [], () => 1, () => ''), type: 'pedal', name: 'Interruptor de pedal', category: 'Maniobra', sym: 'pushNO', mark: 'PED', w: 80, h: 40,
     params: [{ key: 'pressed', label: 'Pulsado', unit: '', default: false, bool: true }], model: { kind: 'SW', closed: (p) => Boolean(p.pressed) }, interactive: { mode: 'hold', key: 'pressed' } },
 
+  { type: 'crepuscular', name: 'Interruptor crepuscular', category: 'Sensores', w: 80, h: 40, terminals: two, sym: 'sensor', mark: 'CREP',
+    params: [{ key: 'lux', label: 'Iluminación ambiente', unit: 'lux', default: 5, min: 0 }, { key: 'umbral', label: 'Umbral de actuación', unit: 'lux', default: 20, min: 0 }, { key: 'act', label: 'Activado', unit: '', default: false, bool: true }, { key: 'nc', label: 'NC', unit: '', default: false, bool: true }],
+    model: { kind: 'SW', closed: (p) => Number(p.lux) < Number(p.umbral) }, tag: (p) => `${fmt(+p.lux)} lux`, help: 'Cierra su contacto cuando la luz ambiente baja del umbral (alumbrado automático al anochecer).' },
+
   // ───── Sensores con contacto
   contact('fincarrera', 'Final de carrera', 'FC', 'Contacto accionado por una leva: actívalo con un clic.'),
   contact('s_ind', 'Detector inductivo', 'IND', 'Detecta metales. Se representa su contacto de salida.'),
@@ -236,6 +314,11 @@ export const EXTRA: Def[] = [
   brk('guardamotor', 'Guardamotor (disyuntor motor)', [1, 2.5, 4, 6.3, 10, 16, 25], 6.3, 12, 'GM', 'Protege el motor contra sobrecarga y cortocircuito.'),
   brk('caja_moldeada', 'Interruptor automático de caja moldeada', [100, 125, 160, 250, 400, 630], 160, 10, 'ACM'),
   brk('rele_termico', 'Relé térmico', [1, 2.5, 4, 6, 10, 16, 25], 6, 100, 'TH', 'Solo protege de sobrecarga: no tiene disparo magnético instantáneo.'),
+
+  rcd('rcd2', 'Interruptor diferencial 2P', 2, { ina: 30, help: 'Dispara si la corriente que sale por la fase no vuelve por el neutro (fuga a tierra) y supera su sensibilidad. Crea una fuga con una resistencia desde la fase a tierra.' }),
+  rcd('rcd4', 'Interruptor diferencial 4P', 4, { ina: 300 }),
+  rcd('rcdmt', 'Magnetotérmico-diferencial 1P+N', 2, { ina: 30, combined: true, mark: 'MT+RCD' }),
+  rcd('rcdmt4', 'Magnetotérmico-diferencial 3P+N', 4, { ina: 300, combined: true, mark: 'MT+RCD' }),
 
   // ───── Receptores
   lampLike('halogena', 'Lámpara halógena', 12, 50, 'lamp', 'HAL'),
@@ -273,8 +356,37 @@ export const EXTRA: Def[] = [
   relay('rele2', 'Relé de 2 contactos conmutados', { vn: 24, pn: 0.8, nNO: 2, nNC: 2, mark: 'K', vnOpts: [12, 24, 48, 110, 230] }),
   relay('ssr', 'Relé de estado sólido (SSR)', { vn: 5, pn: 0.05, nNO: 1, nNC: 0, mark: 'SSR', frac: [0.6, 0.4], help: 'Entrada de control de 3–32 V: conduce cuando recibe ≥ 3 V. Sin partes móviles.', rcFixed: 330 }),
   relay('contactor', 'Contactor', { vn: 230, pn: 8, nNO: 4, nNC: 1, mark: 'KM', vnOpts: [24, 48, 110, 230, 400], help: '3 contactos principales (13…) + 1 auxiliar NA + 1 auxiliar NC. Con la autorretención del contacto auxiliar mantiene la marcha al soltar el pulsador.' }),
+  relay('tmr_on', 'Temporizador a la conexión', { vn: 24, pn: 1, nNO: 1, nNC: 1, mark: 'T-ON', timer: 'on', vnOpts: [24, 48, 110, 230], help: 'Al aplicar tensión a A1–A2, sus contactos conmutan pasado el tiempo ajustado; al quitarla, vuelven al instante. El tiempo corre en tiempo real mientras haya tensión.' }),
+  relay('tmr_off', 'Temporizador a la desconexión', { vn: 24, pn: 1, nNO: 1, nNC: 1, mark: 'T-OFF', timer: 'off', vnOpts: [24, 48, 110, 230], help: 'Conmuta al aplicar tensión y mantiene los contactos accionados durante el tiempo ajustado después de quitarla.' }),
+  relay('tmr_sd', 'Temporizador estrella-triángulo', { vn: 24, pn: 1, nNO: 2, nNC: 0, mark: 'Y-Δ', timer: 'sd', tdef: 6, vnOpts: [24, 48, 110, 230], help: 'Contacto 1 (estrella) cierra al instante y abre a los t s; contacto 2 (triángulo) cierra 0,1 s después (pausa de seguridad).' }),
+  relay('escalera', 'Automático de escalera', { vn: 230, pn: 2, nNO: 1, nNC: 0, mark: 'AE', timer: 'pulse', tdef: 30, vnOpts: [24, 230], help: 'Un pulso en A1–A2 cierra el contacto durante el tiempo ajustado (reinicia con otro pulso).' }),
   relay('rele_min', 'Relé de mínima tensión', { vn: 230, pn: 1, nNO: 1, nNC: 1, sense: true, vset: 200, inv: true, mark: 'U<', help: 'Mide la tensión entre A1 y A2: con menos del valor ajustado, el contacto NA cierra (alarma de falta de tensión).' }),
   relay('rele_max', 'Relé de máxima tensión', { vn: 230, pn: 1, nNO: 1, nNC: 1, sense: true, vset: 250, mark: 'U>', help: 'Mide la tensión entre A1 y A2: con más del valor ajustado, el contacto NA cierra (alarma de sobretensión).' }),
+  // ───── Transformadores y trifásica
+  xf('tr1', 'Transformador monofásico', '1ph', { vp: 230, vs: 24, s: 100, ucc: 5, mark: 'TR' }),
+  xf('tr_tap', 'Transformador con toma intermedia', 'tap', { vp: 230, vs: 24, s: 100, ucc: 5, mark: 'TAP', help: 'Secundario con toma central: la tensión total se reparte a mitades.' }),
+  xf('tr_aut', 'Autotransformador fijo', 'auto', { vp: 230, vs: 110, s: 500, ucc: 1.5, mark: 'AUT', help: 'Un solo devanado con toma: no hay aislamiento galvánico.' }),
+  xf('variac', 'Autotransformador variable (variac)', 'auto', { vp: 230, vs: 0, s: 1000, ucc: 1.5, mark: 'VAR', variac: true, help: 'Salida = entrada × posición.' }),
+  xf('tr_aisl', 'Transformador de aislamiento / separación', '1ph', { vp: 230, vs: 230, s: 500, ucc: 3, mark: 'AIS' }),
+  xf('tr_seg', 'Transformador de seguridad (MBTS)', '1ph', { vp: 230, vs: 24, s: 100, ucc: 8, mark: 'MBTS', help: 'Muy baja tensión de seguridad: 24 V aislados.' }),
+  xf('tr_mando', 'Transformador de mando', '1ph', { vp: 400, vs: 24, s: 63, ucc: 6, mark: 'MANDO' }),
+  xf('tr_tor', 'Transformador toroidal', '1ph', { vp: 230, vs: 12, s: 100, ucc: 4, mark: 'TOR' }),
+  xf('ti', 'Transformador de intensidad (TI)', '1ph', { vp: 100, vs: 5, s: 1, ucc: 1, ti: true, mark: 'TI', help: 'Reduce la corriente de medida (p. ej. 100/5 A). No dejes el secundario abierto: en un TI ideal bloquearía la corriente del primario.' }),
+  xf('tt', 'Transformador de tensión (TT)', '1ph', { vp: 400, vs: 100, s: 25, ucc: 1, mark: 'TT' }),
+  xf('tr3_yy', 'Transformador trifásico Yy', '3ph', { vp: 400, vs: 400, s: 10000, ucc: 4, pri: 'Y', sec: 'Y', mark: 'Yy' }),
+  xf('tr3_dy', 'Transformador trifásico Dy', '3ph', { vp: 400, vs: 400, s: 10000, ucc: 4, pri: 'D', sec: 'Y', mark: 'Dy', help: 'Triángulo–estrella: típico de distribución (Dyn11); desfasa 30°.' }),
+  xf('tr3_yd', 'Transformador trifásico Yd', '3ph', { vp: 400, vs: 400, s: 10000, ucc: 4, pri: 'Y', sec: 'D', mark: 'Yd' }),
+  xf('tr3_dd', 'Transformador trifásico Dd', '3ph', { vp: 400, vs: 400, s: 10000, ucc: 4, pri: 'D', sec: 'D', mark: 'Dd' }),
+  src3('red3', 'Red trifásica 400/230 V (con neutro)', 'star', 'RED 3~', 'Tres fases a 120° y neutro. La tensión indicada es la de línea (400 V); entre fase y neutro hay 230 V.'),
+  src3('fuente3y', 'Fuente trifásica en estrella (con neutro)', 'star', '3~ Y'),
+  src3('fuente3d', 'Fuente trifásica en triángulo', 'delta', '3~ Δ'),
+  src3('alternador3', 'Alternador trifásico', 'star', 'G 3~'),
+  load3('carga3y', 'Carga trifásica equilibrada en estrella', false, '3~ Y', { help: 'Tres impedancias iguales entre cada fase y el neutro (el borne N puede quedar sin conectar).' }),
+  load3('carga3d', 'Carga trifásica equilibrada en triángulo', true, '3~ Δ'),
+  load3('carga3u', 'Carga trifásica desequilibrada', false, '3~ ≠', { unbalanced: true, help: 'Tres resistencias distintas en estrella: con el neutro conectado cada fase es independiente; sin él, aparece tensión de desplazamiento del neutro.' }),
+  motor3('motor3', 'Motor trifásico asíncrono de jaula de ardilla', 4000, 0.82, 'M 3~', 'Carga de impedancia fija a partir de potencia, rendimiento y cos φ. Elige estrella o triángulo.'),
+  motor3('motor3_rb', 'Motor trifásico de rotor bobinado', 7500, 0.85, 'M 3~RB'),
+  motor3('motor_sincrono', 'Motor síncrono', 5000, 0.95, 'MS 3~'),
   { type: 'schottky', name: 'Diodo Schottky', category: 'Semiconductores', w: 80, h: 30, terminals: [{ x: -40, y: 0, name: 'A' }, { x: 40, y: 0, name: 'K' }], sym: 'diode', mark: 'SCH',
     params: [{ key: 'vf', label: 'Tensión umbral', unit: 'V', default: 0.3, min: 0, step: 0.05 }], model: { kind: 'DIODE', vf: n('vf'), rd: 0.03 }, tag: (p) => `Vf ${fmt(+p.vf)} V` },
 ];

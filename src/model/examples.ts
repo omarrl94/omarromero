@@ -1,9 +1,10 @@
 import { ejercicio1, ejercicio2 } from './ejercicios';
+import { defaultParams } from './library';
 import type { Project } from './types';
 import { PROJECT_VERSION } from './types';
 
 const c = (id: string, type: string, x: number, y: number, rot: 0 | 90 | 180 | 270, params: Record<string, number | boolean> = {}, label?: string) =>
-  ({ id, type, x, y, rot, params, ...(label ? { label } : {}) });
+  ({ id, type, x, y, rot, params: { ...defaultParams(type), ...params }, ...(label ? { label } : {}) });
 const w = (id: string, a: string, at: number, b: string, bt: number) => ({ id, a: { comp: a, term: at }, b: { comp: b, term: bt } });
 
 /** Reto de Millman: dos pilas de 10 V con 2 Ω internos en paralelo sobre una carga de 1 Ω → 5 V y 5 A. */
@@ -180,4 +181,27 @@ export const marchaParo: Project = {
   ],
 };
 
-export const EXAMPLES = [marchaParo, ejercicio1(), ejercicio2(), dosPilas, luzSimple, divisor, ledResistencia, fusible, escalera, motorPulsador, potenciometro, rlcSerie, factorPotencia, lampara230];
+export const trifasica: Project = {
+  version: PROJECT_VERSION, name: 'Trifásica: motor en triángulo y carga en estrella',
+  components: [
+    c('S', 'red3', 140, 260, 180, { v: 400, f: 50, rint: 0.1 }, 'Red 400/230 V'),
+    c('M', 'motor3', 520, 160, 0, { conn: 1 }, 'M1'),
+    c('Z', 'carga3y', 520, 380, 0, { r: 100 }, 'Carga Y'),
+    c('GND', 'ground', 140, 440, 0),
+  ],
+  wires: [w('1', 'S', 0, 'M', 0), w('2', 'S', 1, 'M', 1), w('3', 'S', 2, 'M', 2), w('4', 'S', 0, 'Z', 0), w('5', 'S', 1, 'Z', 1), w('6', 'S', 2, 'Z', 2), w('7', 'S', 3, 'Z', 3), w('8', 'S', 3, 'GND', 0)],
+};
+
+export const diferencial: Project = {
+  version: PROJECT_VERSION, name: 'Diferencial: una fuga a tierra lo hace disparar',
+  components: [
+    c('A1', 'red', 120, 260, 90, { v: 230, f: 50, rint: 0.2 }, 'Red 230 V'),
+    c('D', 'rcd2', 320, 240, 0, { ina: 30 }, 'Q1 30 mA'),
+    c('L1', 'heater', 560, 260, 90, { vn: 230, pn: 1000 }, 'Receptor'),
+    c('F', 'resistor', 560, 420, 90, { r: 4000, pmax: 100 }, 'Fuga a tierra'),
+    c('GND', 'ground', 120, 420, 0),
+  ],
+  wires: [w('1', 'A1', 0, 'D', 0), w('2', 'D', 1, 'L1', 0), w('3', 'L1', 1, 'D', 3), w('4', 'D', 2, 'A1', 1), w('5', 'D', 1, 'F', 0), w('6', 'F', 1, 'GND', 0), w('7', 'A1', 1, 'GND', 0)],
+};
+
+export const EXAMPLES = [trifasica, diferencial, marchaParo, ejercicio1(), ejercicio2(), dosPilas, luzSimple, divisor, ledResistencia, fusible, escalera, motorPulsador, potenciometro, rlcSerie, factorPotencia, lampara230];

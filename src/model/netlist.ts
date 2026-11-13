@@ -6,7 +6,7 @@
 import type { Component, Project, TermRef } from './types';
 import { defOf, fmt } from './library';
 import { solveDC, type Element, type Problem, type Solution } from '../engine/dc';
-import { solveAC, type AcProblem, abs as cabs, arg as carg, conj, mul, cx, sub as csub, add as cadd, type AcElement, type Cx } from '../engine/ac';
+import { solveAC, type AcProblem, abs as cabs, arg as carg, conj, mul, div as cdiv, cx, sub as csub, add as cadd, type AcElement, type Cx } from '../engine/ac';
 
 export type RuntimeState = 'blown' | 'tripped' | 'burnt';
 /** Estado de avería por componente (se conserva entre simulaciones hasta pulsar «Reponer»). */
@@ -49,6 +49,21 @@ const R_OPEN = 1e8;
 /** Relés accionados en la simulación en curso (se recuerdan entre simulaciones: autorretención). */
 let PULLED: Set<string> = new Set();
 let ENERG: Set<string> = new Set();
+let PULLED_B: Set<string> = new Set();
+/** Reloj de la simulación (s) y estado de los temporizadores: lo avanza la interfaz. */
+let NOW = 0;
+export const setSimClock = (t: number) => { NOW = t; };
+interface TState { since: number | null; act: boolean; offAt: number | null; trigAt: number | null; was: boolean }
+const TSTATE = new Map<string, TState>();
+const T0 = (): TState => ({ since: null, act: false, offAt: null, trigAt: null, was: false });
+function timerEval(timer: { mode: 'on' | 'off' | 'pulse' | 'sd'; t: number }, e: boolean, st: TState, now: number): { a: boolean; b: boolean; next: TState } {
+  const nx = { ...st }; let a = false, b = false;
+  if (timer.mode === 'on') { if (e) { nx.since = st.since ?? now; a = now - nx.since >= timer.t; } else nx.since = null; }
+  else if (timer.mode === 'off') { if (e) { nx.act = true; nx.offAt = null; } else if (st.act) { nx.offAt = st.offAt ?? now; if (now - nx.offAt >= timer.t) { nx.act = false; nx.offAt = null; } } a = nx.act; }
+  else if (timer.mode === 'pulse') { if (e && !st.was) nx.trigAt = now; nx.was = e; a = nx.trigAt !== null && now - nx.trigAt < timer.t; }
+  else { if (e) { nx.since = st.since ?? now; const el = now - nx.since; a = el < timer.t; b = el >= timer.t + 0.1; } else nx.since = null; }
+  return { a, b, next: nx };
+}
 
 type DState = 'off' | 'on' | 'zener';
 interface Part { el: Element; ta: number; tb: number }
@@ -84,7 +99,17 @@ function partsOf(c: Component, nd: number[], rt: Runtime, ds: Map<string, DState
     case 'RELAY': {
       const on = PULLED.has(id);
       const out: Part[] = [R(m.rc(c.params), 0, 1, id + '#coil')];
-      for (let j = 0; j < m.nNO + m.nNC; j++) { const no = j < m.nNO; out.push(R(no === on ? R_CLOSED : R_OPEN, 2 + 2 * j, 3 + 2 * j, `${id}#k${j}`)); }
+      for (let j = 0; j < m.nNO + m.nNC; j++) { const no = j < m.nNO; const st = m.timer?.mode === 'sd' && j === 1 ? PULLED_B.has(id) : on; out.push(R(no === st ? R_CLOSED : R_OPEN, 2 + 2 * j, 3 + 2 * j, `${id}#k${j}`)); }
+      return out;
+    }
+    case 'RCD': return Array.from({ length: m.poles }, (_, i) => R(!bad && m.closed(c.params) ? R_CLOSED : R_OPEN, 2 * i, 2 * i + 1, `${id}#${i}`));
+    case 'XFMR': {
+      if (m.mode === '1ph' || m.mode === 'tap') return [R(m.rdc(c.params), 0, 1, id + '#p'), R(m.rdc(c.params), 2, 3, id + '#s')];
+      return [R(m.rdc(c.params), 0, 1, id + '#p')];
+    }
+    case 'LOAD3': {
+      const out: Part[] = [];
+      for (let k = 0; k < 3; k++) out.push(R(m.rdc(c.params), k, m.delta(c.params) ? (k + 1) % 3 : 3, `${id}#z${k}`));
       return out;
     }
     case 'GANG': return Array.from({ length: m.n }, (_, i) => R(m.closed(c.params, i) ? R_CLOSED : R_OPEN, 2 * i, 2 * i + 1, `${id}#${i}`));
@@ -112,24 +137,57 @@ function solveAcMode(components: Component[], nodesOf: (c: Component) => number[
   const els: AcElement[] = [];
   const owner: { id: string; ta: number; tb: number }[] = [];
   let dcIgnored = false, nonlinear = false;
+  let nn = n; const alloc = () => nn++;
   for (const c of components) {
     const nd = nodesOf(c);
     const m = defOf(c.type).model;
     const push = (e: AcElement, ta = 0, tb = 1) => { els.push(e); owner.push({ id: e.id, ta, tb }); };
     if (runtime[c.id]) push({ id: c.id, kind: 'Z', a: nd[0], b: nd[1], z: cx(1e8, 0) });
+    else if (m.kind === 'ACV' && m.three) {
+      const VL = m.v(c.params), star = m.three === 'star';
+      const vph = star ? VL / Math.sqrt(3) : VL;
+      const ri = star ? m.rint(c.params) : Math.max(0.01, m.rint(c.params));
+      for (let k = 0; k < 3; k++) {
+        const ang = (-120 * k * Math.PI) / 180;
+        const b = star ? 3 : (k + 1) % 3;
+        push({ id: k === 0 ? c.id : `${c.id}#p${k}`, kind: 'V', a: nd[k], b: nd[b], v: cx(vph * Math.cos(ang), vph * Math.sin(ang)), rint: ri }, k, b);
+      }
+    }
+    else if (m.kind === 'XFMR') {
+      const zc = m.zcc(c.params), nref = m.n(c.params);
+      const T = (k: string, a: number, b: number, c2: number, d: number, nr: number, ta: number, tb: number) => { els.push({ id: `${c.id}#T${k}`, kind: 'T', a, b, c: c2, d, n: nr }); owner.push({ id: `${c.id}#T${k}#s`, ta, tb }); };
+      const series = (k: string, from: number, ta: number, tb: number) => { const x = alloc(); push({ id: `${c.id}#zp${k}`, kind: 'Z', a: from, b: x, z: cx(Math.max(zc.r, 1e-6), zc.x) }, ta, tb); return x; };
+      if (m.mode === '1ph') { const x = series('', nd[0], 0, 1); T('', x, nd[1], nd[2], nd[3], nref, 2, 3); }
+      else if (m.mode === 'tap') { const x = series('', nd[0], 0, 1); T('1', x, nd[1], nd[2], nd[3], nref, 2, 3); T('2', x, nd[1], nd[3], nd[4], nref, 3, 4); }
+      else if (m.mode === 'auto') { const x = series('', nd[0], 0, 2); T('', x, nd[1], nd[1], nd[2], Math.abs(nref - 1) < 1e-3 ? 1e-3 : nref - 1, 1, 2); }
+      else {
+        const np = m.pri === 'Y' ? 4 : 3, ns = m.sec === 'Y' ? 4 : 3;
+        void ns;
+        for (let k = 0; k < 3; k++) {
+          const pEnd = m.pri === 'Y' ? 3 : (k + 1) % 3, sEnd = m.sec === 'Y' ? 3 : (k + 1) % 3;
+          const x = series(String(k), nd[k], k, pEnd);
+          T(String(k), x, nd[pEnd], nd[np + k], nd[np + sEnd], nref, np + k, np + sEnd);
+        }
+      }
+    }
+    else if (m.kind === 'LOAD3') {
+      const zs = m.z(c.params, omega), dl = m.delta(c.params);
+      const sp = nd.length > 3 ? nd[3] : alloc(); // punto neutro (interno si el aparato no tiene borne N)
+      for (let k = 0; k < 3; k++) { const b = dl ? (k + 1) % 3 : 3; push({ id: `${c.id}#z${k}`, kind: 'Z', a: nd[k], b: dl ? nd[b] : sp, z: cx(zs[k].re, zs[k].im) }, k, nd.length > 3 || dl ? b : 0); }
+    }
     else if (m.kind === 'ACV') push({ id: c.id, kind: 'V', a: nd[0], b: nd[1], v: cx(m.v(c.params), 0), rint: m.rint(c.params) });
     else if (defOf(c.type).acz) { const z = defOf(c.type).acz!(c.params, omega); push({ id: c.id, kind: 'Z', a: nd[0], b: nd[1], z: cx(z.re, z.im) }); }
     else if (m.kind === 'V') { dcIgnored = true; push({ id: c.id, kind: 'V', a: nd[0], b: nd[1], v: cx(0, 0), rint: m.rint(c.params) }); }
     else if (m.kind === 'I') dcIgnored = true;
     else if (m.kind === 'DIODE') nonlinear = true;
-    if (m.kind === 'ACV' || defOf(c.type).acz || m.kind === 'V' || m.kind === 'I') continue;
+    if (m.kind === 'ACV' || m.kind === 'XFMR' || m.kind === 'LOAD3' || defOf(c.type).acz || m.kind === 'V' || m.kind === 'I') continue;
     for (const p of partsOf(c, nd, runtime, new Map())) {
       if (p.el.kind === 'R') { els.push({ id: p.el.id, kind: 'Z', a: p.el.a, b: p.el.b, z: cx(p.el.value, 0) }); owner.push({ id: p.el.id, ta: p.ta, tb: p.tb }); }
     }
   }
   if (dcIgnored) warnings.push('Hay pilas o fuentes de CC en un circuito de CA: se ignoran (se toman como 0 V). La mezcla CC + CA no está soportada.');
   if (nonlinear) warnings.push('Los diodos y LED no se simulan en CA (rectificación): llegan con el análisis transitorio. Aquí se comportan como circuito abierto.');
-  const s = solveAC({ nodeCount: n, elements: els });
+  const s = solveAC({ nodeCount: nn, elements: els });
   const solution: Solution = { ok: s.ok, voltages: s.nodeV.map(cabs), currents: {}, powers: {}, issues: [] };
   if (!s.ok) solution.issues.push({ code: 'singular', message: s.message ?? 'Error en el circuito de CA.', elementIds: [] });
   const refPh = s.ok && src[0] ? carg(s.current[src[0].id] ?? cx(1, 0)) + Math.PI : 0; // sentido de la corriente ENTREGADA
@@ -140,8 +198,8 @@ function solveAcMode(components: Component[], nodesOf: (c: Component) => number[
     const i = s.current[o.id] ?? cx();
     solution.currents[o.id] = cabs(i) * sign(i);
     const comp = o.id.split('#')[0];
-    const el = els.find((e) => e.id === o.id)!;
-    parts.push({ el: { id: o.id, kind: 'R', a: el.a, b: el.b, value: 1 }, ta: o.ta, tb: o.tb });
+    const el = els.find((e) => e.id === o.id);
+    parts.push({ el: { id: o.id, kind: 'R', a: el?.a ?? 0, b: el?.b ?? 0, value: 1 }, ta: o.ta, tb: o.tb });
     compI[`${comp}:${o.ta}`] = cadd(compI[`${comp}:${o.ta}`] ?? cx(), i);
     compI[`${comp}:${o.tb}`] = csub(compI[`${comp}:${o.tb}`] ?? cx(), i);
   }
@@ -149,21 +207,28 @@ function solveAcMode(components: Component[], nodesOf: (c: Component) => number[
     const nd = nodesOf(c);
     if (nd.length >= 2) compV[c.id] = csub(s.nodeV[nd[0]] ?? cx(), s.nodeV[nd[1]] ?? cx());
   }
-  return { parts, solution, info: { freq, omega, nodeV: s.nodeV, compV, compI, problem: { nodeCount: n, elements: els } }, warnings };
+  return { parts, solution, info: { freq, omega, nodeV: s.nodeV, compV, compI, problem: { nodeCount: nn, elements: els } }, warnings };
 }
 
 export function simulate(project: Project, runtime: Runtime = {}): SimResult {
   const relays = project.components.filter((c) => defOf(c.type).model.kind === 'RELAY');
-  if (!relays.length) { PULLED = new Set(); ENERG = new Set(); return simulateCore(project, runtime); }
+  if (!relays.length) { PULLED = new Set(); PULLED_B = new Set(); ENERG = new Set(); return simulateCore(project, runtime); }
   const ids = new Set(relays.map((c) => c.id));
   ENERG = new Set([...ENERG].filter((i) => ids.has(i)));
+  type RM = Extract<ReturnType<typeof defOf>['model'], { kind: 'RELAY' }>;
+  const mOf = (c: (typeof relays)[number]) => defOf(c.type).model as RM;
   let res!: SimResult;
   for (let it = 0; it < 12; it++) {
-    PULLED = new Set(relays.filter((c) => (defOf(c.type).model as { inv?: boolean }).inv ? !ENERG.has(c.id) : ENERG.has(c.id)).map((c) => c.id));
+    PULLED = new Set(); PULLED_B = new Set();
+    for (const c of relays) {
+      const m = mOf(c);
+      if (m.timer) { const r = timerEval({ mode: m.timer.mode, t: m.timer.t(c.params) }, ENERG.has(c.id), TSTATE.get(c.id) ?? T0(), NOW); if (r.a) PULLED.add(c.id); if (r.b) PULLED_B.add(c.id); }
+      else if (m.inv ? !ENERG.has(c.id) : ENERG.has(c.id)) PULLED.add(c.id);
+    }
     res = simulateCore(project, runtime);
     const next = new Set<string>();
     for (const c of relays) {
-      const m = defOf(c.type).model as Extract<ReturnType<typeof defOf>['model'], { kind: 'RELAY' }>;
+      const m = mOf(c);
       const v = res.ac ? cabs(res.ac.compV[c.id] ?? cx()) : Math.abs(res.live[c.id]?.v ?? 0);
       if (ENERG.has(c.id) ? v >= m.drop(c.params) : v >= m.pickup(c.params)) next.add(c.id);
     }
@@ -171,7 +236,11 @@ export function simulate(project: Project, runtime: Runtime = {}): SimResult {
     if (same) break;
     ENERG = next;
   }
-  for (const c of relays) if (res.live[c.id]) res.live[c.id] = { ...res.live[c.id], on: PULLED.has(c.id) };
+  for (const c of relays) {
+    const m = mOf(c);
+    if (m.timer) { const r = timerEval({ mode: m.timer.mode, t: m.timer.t(c.params) }, ENERG.has(c.id), TSTATE.get(c.id) ?? T0(), NOW); TSTATE.set(c.id, r.next); }
+    if (res.live[c.id]) res.live[c.id] = { ...res.live[c.id], on: PULLED.has(c.id) };
+  }
   return res;
 }
 
@@ -307,6 +376,19 @@ function simulateCore(project: Project, runtime: Runtime = {}): SimResult {
       else if (mainI > In * 1.45)
         messages.push({ level: 'warn', ids: [c.id], text: `${nm(c)} soporta ${fmt(mainI)} A (>1,45·In): sobrecarga. En la realidad el térmico acabaría disparando.` });
     }
+    if (m.kind === 'RCD') {
+      let leak = 0;
+      if (acInfo) { let sum = cx(); for (let k = 0; k < m.poles; k++) sum = cadd(sum, acInfo.compI[`${c.id}:${2 * k}`] ?? cx()); leak = cabs(sum); }
+      else for (let k = 0; k < m.poles; k++) leak += componentCurrent[`${c.id}:${2 * k}`] ?? 0;
+      leak = Math.abs(leak);
+      const ina = m.ina(c.params) / 1000;
+      if (m.closed(c.params) && leak > ina)
+        events.push({ id: c.id, state: 'tripped', text: `${nm(c)} ha disparado (diferencial): la corriente de fuga es ${fmt(leak * 1000)} mA y su sensibilidad ${fmt(ina * 1000)} mA.` });
+      else if (m.rating && m.mag) {
+        const In = m.rating(c.params), mi = Math.abs(componentCurrent[`${c.id}:0`] ?? 0);
+        if (mi > In * m.mag(c.params)) events.push({ id: c.id, state: 'tripped', text: `${nm(c)} ha disparado (magnético): ${fmt(mi)} A superan ${fmt(In * m.mag(c.params))} A.` });
+      }
+    }
     if (m.kind === 'DIODE' && m.imax && ds.get(c.id) === 'on' && mainI > m.imax(c.params))
       events.push({ id: c.id, state: 'burnt', text: `${nm(c)} se ha quemado: ${fmt(mainI * 1000)} mA superan su máximo de ${fmt(m.imax(c.params) * 1000)} mA. Falta una resistencia limitadora.` });
     if (defOf(c.type).sym === 'lamp' || c.type === 'lamp') if (p > Number(c.params.pn) * 1.5)
@@ -330,7 +412,17 @@ function simulateCore(project: Project, runtime: Runtime = {}): SimResult {
     for (const c of components) {
       const V = acInfo.compV[c.id], I = acInfo.compI[`${c.id}:0`];
       if (!V || !I || !live[c.id]) continue;
-      const S = mul(V, conj(I)); // potencia compleja absorbida por el terminal 0 → 1
+      // En CA el módulo de la tensión del componente es el del fasor (no la resta de módulos de los nudos)
+      const vm = cabs(V); const sg = live[c.id].v < -1e-9 ? -1 : 1;
+      live[c.id] = { ...live[c.id], v: vm * sg }; componentVoltage[c.id] = vm * sg;
+      const kk = defOf(c.type).model.kind;
+      if (kk === 'LOAD3' || kk === 'XFMR') for (const key of Object.keys(acInfo.compI)) if (key.startsWith(`${c.id}:`)) componentCurrent[key] = cabs(acInfo.compI[key]);
+      if (kk === 'LOAD3' || kk === 'XFMR') live[c.id] = { ...live[c.id], i: cabs(I) };
+      let S = mul(V, conj(I)); // potencia compleja absorbida por el terminal 0 → 1
+      if (defOf(c.type).model.kind === 'LOAD3') {
+        S = cx();
+        for (const e of acInfo.problem.elements) if (e.kind === 'Z' && e.id.startsWith(`${c.id}#z`)) { const dv = csub(acInfo.nodeV[e.a] ?? cx(), acInfo.nodeV[e.b] ?? cx()); S = cadd(S, cdiv(cx(cabs(dv) ** 2, 0), cx(e.z.re, -e.z.im))); }
+      }
       const sAbs = cabs(S);
       live[c.id] = { ...live[c.id], p: Math.abs(S.re), q: S.im, s: sAbs, pf: sAbs > 1e-12 ? Math.abs(S.re) / sAbs : 1 };
     }

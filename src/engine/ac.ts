@@ -112,7 +112,7 @@ export function solveAC(p: AcProblem): AcSolution {
   for (let k = 1; k < nodes; k++) if (f(k) !== f(0)) A[ix(k)][ix(k)] = add(A[ix(k)][ix(k)], cx(1e-6));
   const x = solveComplex(A, z);
   if (!x) return fail('No se puede resolver el circuito de CA: revisa lazos de fuentes de tensión o fuentes de corriente sin retorno.');
-  const nodeV: Cx[] = [cx(), ...Array.from({ length: nodes - 1 }, (_, i) => (f(i + 1) !== f(0) ? cx() : x[i]))];
+  const nodeV: Cx[] = [cx(), ...Array.from({ length: nodes - 1 }, (_, i) => x[i])];
   const current: Record<string, Cx> = {};
   for (const e of els) {
     if (e.kind === 'Z') current[e.id] = div(sub(nodeV[e.a], nodeV[e.b]), e.z.re === 0 && e.z.im === 0 ? cx(1e-9) : e.z);

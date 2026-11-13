@@ -23,16 +23,19 @@ export type Model =
   | { kind: 'DIODE'; vf: (p: P) => number; rd: number; vz?: (p: P) => number; imax?: (p: P) => number }
   | { kind: 'FUSE'; rating: (p: P) => number; factor: number }
   | { kind: 'BREAKER'; rating: (p: P) => number; mag: (p: P) => number }
-  | { kind: 'ACV'; v: (p: P) => number; f: (p: P) => number; rint: (p: P) => number }
+  | { kind: 'ACV'; v: (p: P) => number; f: (p: P) => number; rint: (p: P) => number; three?: 'star' | 'delta' } // three: trifásica (v = tensión de línea)
+  | { kind: 'XFMR'; mode: '1ph' | 'tap' | 'auto' | '3ph'; n: (p: P) => number; zcc: (p: P) => { r: number; x: number }; rdc: (p: P) => number; pri?: 'Y' | 'D'; sec?: 'Y' | 'D' }
+  | { kind: 'LOAD3'; delta: (p: P) => boolean; z: (p: P, w: number) => { re: number; im: number }[]; rdc: (p: P) => number }
   | { kind: 'GANG'; n: number; closed: (p: P, i: number) => boolean } // n contactos independientes: terminales (2i, 2i+1)
+  | { kind: 'RCD'; poles: number; ina: (p: P) => number; rating?: (p: P) => number; mag?: (p: P) => number; closed: (p: P) => boolean } // diferencial (± magnetotérmico): dispara si la suma de corrientes ≠ 0
   | { kind: 'CROSS'; pos: (p: P) => number } // conmutador de cruce (inversor 2×2)
   | { kind: 'SEL'; pos: (p: P) => number } // selector de 3 posiciones: 0 → t1, 1 → ninguno, 2 → t2
-  | { kind: 'RELAY'; rc: (p: P) => number; pickup: (p: P) => number; drop: (p: P) => number; nNO: number; nNC: number; inv?: boolean } // bobina (terminales 0-1) + contactos (pares 2+2j)
+  | { kind: 'RELAY'; rc: (p: P) => number; pickup: (p: P) => number; drop: (p: P) => number; nNO: number; nNC: number; inv?: boolean; timer?: { mode: 'on' | 'off' | 'pulse' | 'sd'; t: (p: P) => number } } // bobina (terminales 0-1) + contactos (pares 2+2j)
   | { kind: 'OPEN' } // condensador en CC permanente
   | { kind: 'GND' }
   | { kind: 'JUNCTION' };
 
-export type Category = 'Fuentes' | 'Pasivos' | 'Conexión' | 'Tomas' | 'Control' | 'Sensores' | 'Semiconductores' | 'Maniobra' | 'Protecciones' | 'Receptores' | 'Referencia';
+export type Category = 'Fuentes' | 'Pasivos' | 'Conexión' | 'Tomas' | 'Control' | 'Transformadores' | 'Sensores' | 'Semiconductores' | 'Maniobra' | 'Protecciones' | 'Receptores' | 'Referencia';
 
 export interface Def {
   type: string;

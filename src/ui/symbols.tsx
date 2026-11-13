@@ -198,9 +198,9 @@ function SymbolBody({ c, live }: P) {
     case 'usb':
       return (<g {...sw}><path d="M-40 0H-16M16 0H40" /><rect x={-16} y={-14} width={32} height={28} rx={3} fill="var(--fill-b)" /><path d="M-8 4H8M-4 -2L0 -8L4 -2" strokeWidth={1.8} /><circle cx={-8} cy={4} r={2} fill="var(--ink)" /></g>);
     case 'gang': {
-      const nP = model.kind === 'GANG' ? model.n : 1;
+      const nP = model.kind === 'GANG' ? model.n : model.kind === 'RCD' ? model.poles : 1;
       const off = nP > 2 ? -1 : 0;
-      const closedAt = (i: number) => (model.kind === 'GANG' ? model.closed(par, i) : true);
+      const closedAt = (i: number) => (model.kind === 'GANG' ? model.closed(par, i) : model.kind === 'RCD' ? Boolean(par.closed) && !dead : true);
       return (<g {...sw}>{Array.from({ length: nP }, (_, i) => { const y = (i + off) * 20; const cl = closedAt(i);
         return <g key={i}><path d={`M-40 ${y}H-16M16 ${y}H40`} /><circle cx={-16} cy={y} r={3} fill="var(--ink)" /><circle cx={16} cy={y} r={3} fill="var(--ink)" />
           <path d={cl ? `M-16 ${y}L16 ${y}` : `M-16 ${y}L10 ${y - 14}`} strokeWidth={3.2} stroke={cl ? 'var(--accent)' : 'var(--ink)'} /></g>; })}
@@ -233,7 +233,7 @@ function SymbolBody({ c, live }: P) {
         <path d={on ? 'M-16 0L16 0' : 'M-16 0L10 -17'} strokeWidth={3.2} stroke={on ? 'var(--accent)' : 'var(--ink)'} /><path d="M0 -12V-4M-4 -12H4" strokeWidth={0} /><path d={on ? 'M0 -2V-8M-5 -8H5' : 'M0 -2V-2'} strokeWidth={1.6} /></g>);
     }
     case 'sensor': {
-      const closed = Boolean(par.act) !== Boolean(par.nc);
+      const closed = model.kind === 'SW' ? model.closed(par) : Boolean(par.act) !== Boolean(par.nc);
       return (<g {...sw}><path d="M-40 0H-16M16 0H40" /><circle cx={-16} r={3} fill="var(--ink)" /><circle cx={16} r={3} fill="var(--ink)" />
         <path d={closed ? 'M-16 0L16 0' : 'M-16 0L12 -12'} strokeWidth={3} stroke={closed ? 'var(--accent)' : 'var(--ink)'} />
         <path d="M-16 -14L0 -22L16 -14L0 -6Z" fill={par.act ? 'var(--mostaza)' : 'var(--fill-a)'} strokeWidth={1.4} transform="translate(0 -4)" />{par.nc && <path d="M6 -14L10 -6" strokeWidth={1.4} />}</g>);
@@ -255,6 +255,32 @@ function SymbolBody({ c, live }: P) {
             <path d={closed ? `M${x} 20V-20` : `M${x} 20L${x + 9} -12`} strokeWidth={3} stroke={closed ? 'var(--accent)' : 'var(--ink)'} style={{ transition: 'all .15s' }} />
             {!no && <path d={`M${x - 5} -4L${x + 5} -12`} strokeWidth={1.2} />}</g>; })}
       </g>);
+    }
+    case 'xfmr': {
+      const ts = defOf(c.type).terminals;
+      const auto = model.kind === 'XFMR' && model.mode === 'auto';
+      const ys = ts.map((q) => q.y), top = Math.min(...ys) - 6, bot = Math.max(...ys.filter((_, i) => !auto || i < 2)) + 14;
+      const coil = (x: number) => { const n = Math.max(2, Math.round((bot - top) / 14)); const h = (bot - top) / n; return Array.from({ length: n }, (_, i) => `M${x} ${top + i * h}a${h * 0.45} ${h / 2} 0 0 ${x < 0 ? 0 : 1} 0 ${h}`).join(''); };
+      return (<g {...sw}>
+        {ts.map((q, i) => (auto ? <path key={i} d={q.x === 0 ? `M0 ${q.y}V${bot}` : `M${q.x} ${q.y}H${q.x < 0 ? -10 : 10}`} /> : <path key={i} d={`M${q.x} ${q.y}H${q.x < 0 ? -24 : 24}`} />))}
+        {auto ? <g><path d={coil(-0)} strokeWidth={2} /><path d={`M-10 ${ts[0].y}V${top}M10 ${ts[1].y}V${top + 18}`} /></g>
+          : <><path d={coil(-16)} /><path d={coil(16)} /><path d={`M-5 ${top}V${bot}M5 ${top}V${bot}`} strokeWidth={1.6} />
+            {ts.map((q, i) => <path key={'c' + i} d={`M${q.x < 0 ? -24 : 24} ${q.y}V${q.y > (top + bot) / 2 ? bot : top}`} opacity={0.0} />)}</>}
+      </g>);
+    }
+    case 'src3': {
+      const ts = defOf(c.type).terminals; const y0 = ts[0].y, y1 = ts[ts.length - 1].y; const ym = (y0 + y1) / 2;
+      return (<g {...sw}><circle cx={-12} cy={ym} r={22} fill="var(--fill-b)" /><path d={`M-24 ${ym}q4 -9 8 0t8 0`} strokeWidth={2.2} stroke="var(--accent)" />
+        <text x={-12} y={ym + 15} textAnchor="middle" fontSize={9} fill="var(--ink)" stroke="none" fontWeight={800}>3~</text>
+        <path d={`M10 ${ym}H24M24 ${y0}V${y1}`} />{ts.map((q, i) => <path key={i} d={`M24 ${q.y}H40`} />)}
+        {ts.map((q, i) => <text key={'t' + i} x={34} y={q.y - 3} fontSize={7} fill="var(--ink)" stroke="none">{q.name}</text>)}</g>);
+    }
+    case 'load3': case 'motor3': {
+      const ts = defOf(c.type).terminals; const y0 = ts[0].y, y1 = ts[ts.length - 1].y; const ym = (y0 + y1) / 2;
+      return (<g {...sw}>{ts.map((q, i) => <path key={i} d={`M-40 ${q.y}H-24`} />)}<path d={`M-24 ${y0}V${y1}M-24 ${ym}H-14`} />
+        {t === 'motor3' ? <><circle cx={6} cy={ym} r={22} fill="var(--fill-b)" /><text x={6} y={ym + 4} textAnchor="middle" fontSize={13} fill="var(--ink)" stroke="none" fontWeight={800}>M</text><text x={6} y={ym + 17} textAnchor="middle" fontSize={8} fill="var(--ink)" stroke="none">3~</text></>
+          : <><rect x={-14} y={ym - 16} width={44} height={32} fill="var(--fill-a)" /><path d={`M-8 ${ym}h5l2 -7l4 14l4 -14l2 7h5`} strokeWidth={1.6} /></>}
+        {ts.map((q, i) => <text key={'t' + i} x={-38} y={q.y - 3} fontSize={7} fill="var(--ink)" stroke="none">{q.name}</text>)}</g>);
     }
     case 'ground':
       return (<g {...sw}><path d="M0 -20V0M-14 0H14M-9 6H9M-4 12H4" /></g>);
