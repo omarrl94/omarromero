@@ -111,6 +111,25 @@ const fus = (type: string, name: string, cals: number[], def: number, mark: stri
   model: { kind: 'FUSE', rating: n('in'), factor: 1.6 }, tag: (p) => `${p.in} A`,
 });
 
+const relay = (type: string, name: string, o: { vn: number; pn: number; nNO: number; nNC: number; mark?: string; help?: string; vnOpts?: number[]; frac?: [number, number]; sense?: boolean; vset?: number; inv?: boolean; rcFixed?: number }): Def => {
+  const nC = o.nNO + o.nNC;
+  const terminals: Def['terminals'] = [{ x: -40, y: -20, name: 'A1' }, { x: -40, y: 20, name: 'A2' }];
+  for (let j = 0; j < nC; j++) { const x = 20 + 20 * j; const no = j < o.nNO; terminals.push({ x, y: -40, name: no ? `${j + 1}3` : `${j - o.nNO + 1}1` }, { x, y: 40, name: no ? `${j + 1}4` : `${j - o.nNO + 1}2` }); }
+  const [fp, fd] = o.frac ?? [0.75, 0.4];
+  const params: ParamDef[] = o.sense
+    ? [{ key: 'vset', label: 'Tensión de ajuste', unit: 'V', default: o.vset ?? 230, min: 1 }]
+    : [o.vnOpts ? { key: 'vn', label: 'Tensión de la bobina', unit: 'V', default: o.vn, options: o.vnOpts.map((v) => ({ label: `${v} V`, value: v })) } : { key: 'vn', label: 'Tensión de la bobina', unit: 'V', default: o.vn, min: 1 },
+       { key: 'pn', label: 'Potencia de la bobina', unit: 'W', default: o.pn, min: 0.01 }];
+  return {
+    type, name, category: 'Control', w: 60 + 20 * nC, h: 100, sym: 'relay', mark: o.mark, help: o.help, terminals, params,
+    model: { kind: 'RELAY', nNO: o.nNO, nNC: o.nNC, inv: o.inv,
+      rc: o.sense ? () => o.rcFixed ?? 1e5 : (p) => (o.rcFixed ?? Number(p.vn) ** 2 / Number(p.pn)),
+      pickup: o.sense ? (p) => Number(p.vset) : (p) => fp * Number(p.vn),
+      drop: o.sense ? (p) => Number(p.vset) * 0.95 : (p) => fd * Number(p.vn) },
+    tag: (p) => (o.sense ? `${fmt(+p.vset)} V` : `${fmt(+p.vn)} V`),
+  };
+};
+
 export const EXTRA: Def[] = [
   // ───── Fuentes de CC
   volt('dcsource', 'Fuente de tensión ideal', 12, 0, { sym: 'vsrc', help: 'Fuente de tensión ideal: resistencia interna nula por defecto.' }),
@@ -249,6 +268,13 @@ export const EXTRA: Def[] = [
   motorDC('motor_serie', 'Motor de CC serie', 4, 'SERIE', 'Excitación en serie con el inducido (modelo de resistencia equivalente).'),
   motorDC('motor_shunt', 'Motor de CC shunt', 8, 'SHUNT', 'Excitación en derivación (modelo de resistencia equivalente).'),
   motorDC('motor_exc', 'Motor de CC de excitación independiente', 6, 'EXC', 'Excitación independiente (modelo de resistencia equivalente).'),
+  // ───── Control: relés y contactores (la bobina mueve sus contactos; recuerdan su estado, así funciona la autorretención)
+  relay('rele', 'Relé electromagnético', { vn: 24, pn: 0.5, nNO: 1, nNC: 1, mark: 'K', vnOpts: [5, 12, 24, 48, 110, 230], help: 'Se activa al aplicar a la bobina (A1–A2) el 75 % de su tensión nominal y se suelta por debajo del 40 %. Contactos: NA (13-14) y NC (11-12).' }),
+  relay('rele2', 'Relé de 2 contactos conmutados', { vn: 24, pn: 0.8, nNO: 2, nNC: 2, mark: 'K', vnOpts: [12, 24, 48, 110, 230] }),
+  relay('ssr', 'Relé de estado sólido (SSR)', { vn: 5, pn: 0.05, nNO: 1, nNC: 0, mark: 'SSR', frac: [0.6, 0.4], help: 'Entrada de control de 3–32 V: conduce cuando recibe ≥ 3 V. Sin partes móviles.', rcFixed: 330 }),
+  relay('contactor', 'Contactor', { vn: 230, pn: 8, nNO: 4, nNC: 1, mark: 'KM', vnOpts: [24, 48, 110, 230, 400], help: '3 contactos principales (13…) + 1 auxiliar NA + 1 auxiliar NC. Con la autorretención del contacto auxiliar mantiene la marcha al soltar el pulsador.' }),
+  relay('rele_min', 'Relé de mínima tensión', { vn: 230, pn: 1, nNO: 1, nNC: 1, sense: true, vset: 200, inv: true, mark: 'U<', help: 'Mide la tensión entre A1 y A2: con menos del valor ajustado, el contacto NA cierra (alarma de falta de tensión).' }),
+  relay('rele_max', 'Relé de máxima tensión', { vn: 230, pn: 1, nNO: 1, nNC: 1, sense: true, vset: 250, mark: 'U>', help: 'Mide la tensión entre A1 y A2: con más del valor ajustado, el contacto NA cierra (alarma de sobretensión).' }),
   { type: 'schottky', name: 'Diodo Schottky', category: 'Semiconductores', w: 80, h: 30, terminals: [{ x: -40, y: 0, name: 'A' }, { x: 40, y: 0, name: 'K' }], sym: 'diode', mark: 'SCH',
     params: [{ key: 'vf', label: 'Tensión umbral', unit: 'V', default: 0.3, min: 0, step: 0.05 }], model: { kind: 'DIODE', vf: n('vf'), rd: 0.03 }, tag: (p) => `Vf ${fmt(+p.vf)} V` },
 ];

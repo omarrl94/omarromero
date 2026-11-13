@@ -54,3 +54,17 @@ describe('biblioteca ampliada', () => {
     expect(defOf('shunt').model.kind === 'R' && (defOf('shunt').model as { value: (p: Component['params']) => number }).value({ in: 50, mv: 75 })).toBeCloseTo(0.0015, 6);
   });
 });
+
+describe('relés y contactores', () => {
+  // Marcha-paro con autorretención: fuente 230 V → paro (NC) → [marcha (NA) ∥ contacto aux NA] → bobina → N; carga por contacto principal
+  const circuito = (marcha: boolean, paro: boolean): Project => P(
+    [C('A', 'red', 0, 0, { v: 230, rint: 0 }), C('PA', 'pushNC', 0, 0, { pressed: paro }), C('MA', 'pushNO', 0, 0, { pressed: marcha }), C('K', 'contactor', 0, 0, { vn: 230, pn: 8 }), C('L', 'resistor', 0, 0, { r: 100 }), C('G', 'ground')],
+    [W('1', 'A', 0, 'PA', 0), W('2', 'PA', 1, 'MA', 0), W('3', 'PA', 1, 'K', 8), W('4', 'MA', 1, 'K', 0), W('5', 'K', 9, 'K', 0), W('6', 'K', 1, 'A', 1), W('7', 'A', 1, 'G', 0), W('8', 'A', 0, 'K', 2), W('9', 'K', 3, 'L', 0), W('10', 'L', 1, 'A', 1)]);
+  it('autorretención: arranca al pulsar marcha, sigue al soltar y para con paro', () => {
+    expect(Math.abs(simulate(circuito(false, false)).live['L'].i)).toBeLessThan(1e-4);
+    expect(Math.abs(simulate(circuito(true, false)).live['L'].i)).toBeCloseTo(2.3, 1);
+    expect(Math.abs(simulate(circuito(false, false)).live['L'].i)).toBeCloseTo(2.3, 1); // sigue
+    expect(Math.abs(simulate(circuito(false, true)).live['L'].i)).toBeLessThan(1e-4);
+    expect(Math.abs(simulate(circuito(false, false)).live['L'].i)).toBeLessThan(1e-4); // y queda parado
+  });
+});

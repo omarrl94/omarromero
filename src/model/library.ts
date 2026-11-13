@@ -27,11 +27,12 @@ export type Model =
   | { kind: 'GANG'; n: number; closed: (p: P, i: number) => boolean } // n contactos independientes: terminales (2i, 2i+1)
   | { kind: 'CROSS'; pos: (p: P) => number } // conmutador de cruce (inversor 2×2)
   | { kind: 'SEL'; pos: (p: P) => number } // selector de 3 posiciones: 0 → t1, 1 → ninguno, 2 → t2
+  | { kind: 'RELAY'; rc: (p: P) => number; pickup: (p: P) => number; drop: (p: P) => number; nNO: number; nNC: number; inv?: boolean } // bobina (terminales 0-1) + contactos (pares 2+2j)
   | { kind: 'OPEN' } // condensador en CC permanente
   | { kind: 'GND' }
   | { kind: 'JUNCTION' };
 
-export type Category = 'Fuentes' | 'Pasivos' | 'Conexión' | 'Tomas' | 'Sensores' | 'Semiconductores' | 'Maniobra' | 'Protecciones' | 'Receptores' | 'Referencia';
+export type Category = 'Fuentes' | 'Pasivos' | 'Conexión' | 'Tomas' | 'Control' | 'Sensores' | 'Semiconductores' | 'Maniobra' | 'Protecciones' | 'Receptores' | 'Referencia';
 
 export interface Def {
   type: string;

@@ -56,7 +56,7 @@ const REAL_AS: Record<string, string> = {
   indcore: 'inductor', indvar: 'inductor', solenoid: 'inductor', zbox: 'inductor', load: 'inductor',
   rheo: 'resistor', trim: 'resistor', shunt: 'resistor', gauge: 'resistor', rnet: 'resistor',
   borne: 'switch', jumper: 'switch', connector: 'switch', socket: 'switch', plug: 'switch', disc: 'switch', estop: 'switch', sensor: 'switch',
-  pica: 'ground', sel3: 'spdt', gang: 'multi', push2: 'multi', cross: 'multi',
+  pica: 'ground', sel3: 'spdt', gang: 'multi', push2: 'multi', cross: 'multi', relay: 'multi',
 };
 const shapeKey = (c: Component) => { const k = symOf(c.type); return SHAPE[k] ? k : REAL_AS[k] ?? 'resistor'; };
 function shapeOf(c: Component) {
@@ -684,7 +684,7 @@ function Device({ c: c0, sim, dead }: { c: Component; sim: SimResult; dead?: str
           <rect x={3} y={6} width={s.w} height={s.h} rx={4} fill="#000" opacity={0.22} />
           <rect x={0} y={0} width={s.w} height={s.h} rx={4} fill="url(#plastic)" {...body} />
           <rect x={0} y={0} width={s.w} height={30} rx={4} fill="#d7dadf" /><rect x={0} y={s.h - 30} width={s.w} height={30} rx={4} fill="#d7dadf" />
-          {Array.from({ length: pairs }, (_, i) => { const on = mm.kind === 'GANG' ? mm.closed(c0.params, i) : mm.kind === 'CROSS' ? mm.pos(c0.params) < 0.5 : true; return (
+          {Array.from({ length: pairs }, (_, i) => { const rl = !!sim.live[c0.id]?.on; const on = mm.kind === 'GANG' ? mm.closed(c0.params, i) : mm.kind === 'CROSS' ? mm.pos(c0.params) < 0.5 : mm.kind === 'RELAY' ? (i === 0 ? rl : i - 1 < mm.nNO ? rl : !rl) : true; return (
             <g key={i} transform={`translate(${24 + i * 36 - 13} 0)`}><rect x={0} y={42} width={26} height={66} rx={4} fill="#202327" />
               <g style={{ transform: `translateY(${on ? 0 : 28}px)`, transition: 'transform .18s' }}><rect x={3} y={46} width={20} height={34} rx={4} fill="url(#lever)" stroke="#000" /></g></g>); })}
           <text x={s.w / 2} y={125} textAnchor="middle" fontSize={8.5} fontWeight={800} fill="#222">{defOf(c0.type).name.split(' ').slice(-1)[0]}</text>

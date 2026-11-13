@@ -2,8 +2,8 @@ import { ejercicio1, ejercicio2 } from './ejercicios';
 import type { Project } from './types';
 import { PROJECT_VERSION } from './types';
 
-const c = (id: string, type: string, x: number, y: number, rot: 0 | 90 | 180 | 270, params: Record<string, number | boolean> = {}) =>
-  ({ id, type, x, y, rot, params });
+const c = (id: string, type: string, x: number, y: number, rot: 0 | 90 | 180 | 270, params: Record<string, number | boolean> = {}, label?: string) =>
+  ({ id, type, x, y, rot, params, ...(label ? { label } : {}) });
 const w = (id: string, a: string, at: number, b: string, bt: number) => ({ id, a: { comp: a, term: at }, b: { comp: b, term: bt } });
 
 /** Reto de Millman: dos pilas de 10 V con 2 Ω internos en paralelo sobre una carga de 1 Ω → 5 V y 5 A. */
@@ -164,4 +164,20 @@ export const lampara230: Project = {
   wires: [w('a', 'A1', 0, 'S1', 0), w('b', 'S1', 1, 'L1', 0), w('c', 'L1', 1, 'A1', 1), w('d', 'A1', 1, 'GND', 0)],
 };
 
-export const EXAMPLES = [ejercicio1(), ejercicio2(), dosPilas, luzSimple, divisor, ledResistencia, fusible, escalera, motorPulsador, potenciometro, rlcSerie, factorPotencia, lampara230];
+export const marchaParo: Project = {
+  version: PROJECT_VERSION, name: 'Marcha-paro con contactor y autorretención',
+  components: [
+    c('A1', 'red', 100, 300, 90, { v: 230, f: 50, rint: 0.1 }, 'Red 230 V'),
+    c('S0', 'pushNC', 260, 100, 0, {}, 'S0 paro'),
+    c('S1', 'pushNO', 420, 60, 0, {}, 'S1 marcha'),
+    c('KM', 'contactor', 640, 280, 0, { vn: 230, pn: 8 }, 'KM1'),
+    c('L1', 'lamp', 900, 300, 90, { vn: 230, pn: 100 }, 'Motor (lámpara)'),
+    c('GND', 'ground', 100, 440, 0),
+  ],
+  wires: [
+    w('a', 'A1', 0, 'S0', 0), w('b', 'S0', 1, 'S1', 0), w('c', 'S1', 1, 'KM', 0), w('d', 'S0', 1, 'KM', 8), w('e', 'KM', 9, 'KM', 0),
+    w('f', 'KM', 1, 'A1', 1), w('g', 'A1', 1, 'GND', 0), w('h', 'A1', 0, 'KM', 2), w('i', 'KM', 3, 'L1', 0), w('j', 'L1', 1, 'A1', 1),
+  ],
+};
+
+export const EXAMPLES = [marchaParo, ejercicio1(), ejercicio2(), dosPilas, luzSimple, divisor, ledResistencia, fusible, escalera, motorPulsador, potenciometro, rlcSerie, factorPotencia, lampara230];

@@ -97,7 +97,7 @@ export function solveAC(p: AcProblem): AcSolution {
     if (e.b) { A[ix(e.b)][row] = sub(A[ix(e.b)][row], cx(1)); A[row][ix(e.b)] = sub(A[row][ix(e.b)], cx(1)); }
     z[row] = e.v;
   });
-  for (let k = 1; k < nodes; k++) if (f(k) !== f(0)) A[ix(k)][ix(k)] = add(A[ix(k)][ix(k)], cx(1e-12));
+  for (let k = 1; k < nodes; k++) if (f(k) !== f(0)) A[ix(k)][ix(k)] = add(A[ix(k)][ix(k)], cx(1e-6));
   const x = solveComplex(A, z);
   if (!x) return fail('No se puede resolver el circuito de CA: revisa lazos de fuentes de tensión o fuentes de corriente sin retorno.');
   const nodeV: Cx[] = [cx(), ...Array.from({ length: nodes - 1 }, (_, i) => (f(i + 1) !== f(0) ? cx() : x[i]))];

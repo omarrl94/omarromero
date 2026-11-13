@@ -46,6 +46,10 @@ export const tkey = (t: TermRef) => `${t.comp}:${t.term}`;
 const R_CLOSED = 1e-4;
 const R_OPEN = 1e8;
 
+/** Relés accionados en la simulación en curso (se recuerdan entre simulaciones: autorretención). */
+let PULLED: Set<string> = new Set();
+let ENERG: Set<string> = new Set();
+
 type DState = 'off' | 'on' | 'zener';
 interface Part { el: Element; ta: number; tb: number }
 
@@ -76,6 +80,12 @@ function partsOf(c: Component, nd: number[], rt: Runtime, ds: Map<string, DState
       if (st === 'on') return [{ el: { id, kind: 'V', a: nd[0], b: nd[1], value: m.vf(c.params), rint: m.rd }, ta: 0, tb: 1 }];
       if (st === 'zener') return [{ el: { id, kind: 'V', a: nd[1], b: nd[0], value: m.vz!(c.params), rint: 0.5 }, ta: 1, tb: 0 }];
       return [R(R_OPEN)];
+    }
+    case 'RELAY': {
+      const on = PULLED.has(id);
+      const out: Part[] = [R(m.rc(c.params), 0, 1, id + '#coil')];
+      for (let j = 0; j < m.nNO + m.nNC; j++) { const no = j < m.nNO; out.push(R(no === on ? R_CLOSED : R_OPEN, 2 + 2 * j, 3 + 2 * j, `${id}#k${j}`)); }
+      return out;
     }
     case 'GANG': return Array.from({ length: m.n }, (_, i) => R(m.closed(c.params, i) ? R_CLOSED : R_OPEN, 2 * i, 2 * i + 1, `${id}#${i}`));
     case 'CROSS': {
@@ -143,6 +153,29 @@ function solveAcMode(components: Component[], nodesOf: (c: Component) => number[
 }
 
 export function simulate(project: Project, runtime: Runtime = {}): SimResult {
+  const relays = project.components.filter((c) => defOf(c.type).model.kind === 'RELAY');
+  if (!relays.length) { PULLED = new Set(); ENERG = new Set(); return simulateCore(project, runtime); }
+  const ids = new Set(relays.map((c) => c.id));
+  ENERG = new Set([...ENERG].filter((i) => ids.has(i)));
+  let res!: SimResult;
+  for (let it = 0; it < 12; it++) {
+    PULLED = new Set(relays.filter((c) => (defOf(c.type).model as { inv?: boolean }).inv ? !ENERG.has(c.id) : ENERG.has(c.id)).map((c) => c.id));
+    res = simulateCore(project, runtime);
+    const next = new Set<string>();
+    for (const c of relays) {
+      const m = defOf(c.type).model as Extract<ReturnType<typeof defOf>['model'], { kind: 'RELAY' }>;
+      const v = res.ac ? cabs(res.ac.compV[c.id] ?? cx()) : Math.abs(res.live[c.id]?.v ?? 0);
+      if (ENERG.has(c.id) ? v >= m.drop(c.params) : v >= m.pickup(c.params)) next.add(c.id);
+    }
+    const same = next.size === ENERG.size && [...next].every((i) => ENERG.has(i));
+    if (same) break;
+    ENERG = next;
+  }
+  for (const c of relays) if (res.live[c.id]) res.live[c.id] = { ...res.live[c.id], on: PULLED.has(c.id) };
+  return res;
+}
+
+function simulateCore(project: Project, runtime: Runtime = {}): SimResult {
   const { components, wires } = project;
   // 1) union-find sobre terminales
   const parent = new Map<string, string>();

@@ -238,6 +238,24 @@ function SymbolBody({ c, live }: P) {
         <path d={closed ? 'M-16 0L16 0' : 'M-16 0L12 -12'} strokeWidth={3} stroke={closed ? 'var(--accent)' : 'var(--ink)'} />
         <path d="M-16 -14L0 -22L16 -14L0 -6Z" fill={par.act ? 'var(--mostaza)' : 'var(--fill-a)'} strokeWidth={1.4} transform="translate(0 -4)" />{par.nc && <path d="M6 -14L10 -6" strokeWidth={1.4} />}</g>);
     }
+    case 'relay': {
+      const m = model.kind === 'RELAY' ? model : null;
+      if (!m) return null;
+      const on = !!live?.on;
+      const nC = m.nNO + m.nNC;
+      return (<g {...sw}>
+        <path d="M-40 -20H-30M-40 20H-30" />
+        <rect x={-30} y={-28} width={26} height={56} rx={3} fill={on ? 'var(--mostaza)' : 'var(--fill-b)'} />
+        <path d="M-24 -8a5 6 0 0 1 10 0a5 6 0 0 1 10 0M-24 6a5 6 0 0 1 10 0a5 6 0 0 1 10 0" strokeWidth={1.6} transform="translate(0 0)" />
+        <text x={-17} y={-14} textAnchor="middle" fontSize={7} fill="var(--ink)" stroke="none" fontWeight={700}>A1</text>
+        <text x={-17} y={24} textAnchor="middle" fontSize={7} fill="var(--ink)" stroke="none" fontWeight={700}>A2</text>
+        <path d={`M-2 0H${20 + 20 * (nC - 1) + 8}`} strokeDasharray="3 3" strokeWidth={1} opacity={0.6} />
+        {Array.from({ length: nC }, (_, j) => { const x = 20 + 20 * j; const no = j < m.nNO; const closed = no === on;
+          return <g key={j}><path d={`M${x} -40V-20M${x} 40V20`} /><circle cx={x} cy={-20} r={2.4} fill="var(--ink)" /><circle cx={x} cy={20} r={2.4} fill="var(--ink)" />
+            <path d={closed ? `M${x} 20V-20` : `M${x} 20L${x + 9} -12`} strokeWidth={3} stroke={closed ? 'var(--accent)' : 'var(--ink)'} style={{ transition: 'all .15s' }} />
+            {!no && <path d={`M${x - 5} -4L${x + 5} -12`} strokeWidth={1.2} />}</g>; })}
+      </g>);
+    }
     case 'ground':
       return (<g {...sw}><path d="M0 -20V0M-14 0H14M-9 6H9M-4 12H4" /></g>);
     case 'junction':
