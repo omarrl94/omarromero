@@ -214,3 +214,15 @@ input[type='checkbox'], input[type='radio'] { accent-color: var(--ink); }
 :root[data-theme='dark'] button.warnbtn, :root[data-theme='dark'] .warnbtn { color: #1b1815 !important; }
 :root[data-theme='dark'] .av-hint, :root[data-theme='dark'] .av-levels small, :root[data-theme='dark'] .game small, :root[data-theme='dark'] .game .muted { color: var(--muted); }
 :root[data-theme='dark'] .order .note, :root[data-theme='dark'] .order p.note { color: var(--muted); }
+
+/* Paleta ajustable y herramienta cursor / mano */
+.left-resizer { grid-column: 1; grid-row: 2; justify-self: end; width: 10px; margin-right: -5px; z-index: 30; cursor: col-resize; touch-action: none; position: relative; }
+.left-resizer::after { content: ''; position: absolute; left: 4px; top: 0; bottom: 0; width: 2px; background: transparent; transition: background .12s; }
+.left-resizer:hover::after, .left-resizer:active::after { background: var(--terra); }
+@media (max-width: 900px) { .left-resizer { display: none; } }
+.pal { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+.toolpick { display: inline-flex; } .toolpick button + button { margin-left: -1.5px; }
+.toolpick button.on { background: var(--ink); color: var(--paper); box-shadow: inset 0 -3px 0 var(--mostaza); }
+:root[data-theme='dark'] .toolpick button.on { color: #1B1916; }
+svg.canvas.tool-select { cursor: default; } svg.canvas.tool-pan { cursor: grab; } svg.canvas.tool-pan:active { cursor: grabbing; }
+@media (min-width: 901px) { .app > .left { grid-column: 1; grid-row: 2; } .app > .center { grid-column: 2; grid-row: 2; } .app > .right { grid-column: 3; grid-row: 2; } }

@@ -82,6 +82,9 @@ interface State {
   setProbeDrag(d: { key: ProbeKey; x: number; y: number } | null): void;
   placeProbe(key: ProbeKey, t: TermRef | null): void;
   leftOpen: boolean;
+  /** Herramienta del lienzo: cursor (arrastrar = recuadro de selección) o mano (arrastrar = mover la vista) */
+  tool: 'select' | 'pan';
+  setTool(t: 'select' | 'pan'): void;
   rightOpen: boolean;
   fitTick: number;
   fit(): void;
@@ -128,7 +131,7 @@ export const useStore = create<State>((set, get) => ({
   project: loadInitial(),
   past: [], future: [], selection: [], wiring: null,
   wiringPts: [], wiringFlip: false, clipboard: null, keys: false, editingPoint: null,
-  runtime: {}, booms: [], notices: [], meter: { ...initialMeter }, log: [], sound: false, scopeTips: { c1: null, c2: null }, scopeArm: null, dock: false, view: 'schematic', upsell: null, leftOpen: true, rightOpen: typeof window === 'undefined' || window.innerWidth > 700, fitTick: 0,
+  runtime: {}, booms: [], notices: [], meter: { ...initialMeter }, log: [], sound: false, scopeTips: { c1: null, c2: null }, scopeArm: null, dock: false, view: 'schematic', upsell: null, leftOpen: true, tool: typeof matchMedia !== 'undefined' && matchMedia('(pointer: coarse)').matches ? 'pan' : 'select', rightOpen: typeof window === 'undefined' || window.innerWidth > 700, fitTick: 0,
   inst: { meter: { open: false, x: null, y: null, min: false }, scope: { open: false, x: null, y: null, min: false }, watt: { open: false, x: null, y: null, min: false } },
   probeDrag: null, showCables: true,
   animate: true, showLabels: true, heat: false,
@@ -359,6 +362,7 @@ export const useStore = create<State>((set, get) => ({
   setScopeTip(ch, t) { set((s) => ({ scopeTips: { ...s.scopeTips, [ch]: t }, scopeArm: null })); },
   armScope(ch) { set({ scopeArm: ch, meter: { ...get().meter, armed: null } }); },
   toggle(k) { set((s) => ({ [k]: !s[k] }) as Partial<State>); },
+  setTool(t) { set({ tool: t }); },
 }));
 
 const same = (a: TermRef, b: TermRef) => a.comp === b.comp && a.term === b.term;

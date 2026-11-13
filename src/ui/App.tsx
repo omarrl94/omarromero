@@ -172,6 +172,14 @@ export function App() {
 
   const [files, setFiles] = useState<null | 'abrir' | 'guardar'>(null);
   const [menu, setMenu] = useState(false);
+  const [leftW, setLeftW] = useState(() => { try { const v = Number(localStorage.getItem('circuitossea:leftw')); return v >= 150 && v <= 560 ? v : 210; } catch { return 210; } });
+  const startResize = (e: React.PointerEvent) => {
+    e.preventDefault();
+    const x0 = e.clientX, w0 = leftW; let w = w0;
+    const move = (ev: PointerEvent) => { w = Math.min(560, Math.max(150, w0 + ev.clientX - x0)); setLeftW(w); };
+    const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); try { localStorage.setItem('circuitossea:leftw', String(Math.round(w))); } catch { /* ignorar */ } };
+    window.addEventListener('pointermove', move); window.addEventListener('pointerup', up);
+  };
   const [topHidden, setTopHidden] = useState(() => { try { return localStorage.getItem('circuitossea:tophidden') === '1'; } catch { return false; } });
   const toggleTop = () => setTopHidden((h) => { try { localStorage.setItem('circuitossea:tophidden', h ? '0' : '1'); } catch { /* ignorar */ } return !h; });
   const dropOmi = async (f?: File) => { if (!f) return; try { openOmi(parseOmi(await f.text())); } catch (e) { alert((e as Error).message); } };
@@ -179,7 +187,7 @@ export function App() {
   const cats = [...new Set(LIBRARY.map((d) => d.category))];
 
   return (
-    <div className={`app v-${st.view} ${topHidden ? 'notop' : ''} ${wide ? 'wide' : ''} ${st.leftOpen ? '' : 'noleft'} ${st.rightOpen ? '' : 'noright'}`} onDragOver={(e) => { if (!visitor && e.dataTransfer.types.includes('Files')) e.preventDefault(); }} onDrop={(e) => { if (visitor || !e.dataTransfer.files.length) return; e.preventDefault(); void dropOmi(e.dataTransfer.files[0]); }}>
+    <div style={{ '--left-w': `${leftW}px` } as React.CSSProperties} className={`app v-${st.view} ${topHidden ? 'notop' : ''} ${wide ? 'wide' : ''} ${st.leftOpen ? '' : 'noleft'} ${st.rightOpen ? '' : 'noright'}`} onDragOver={(e) => { if (!visitor && e.dataTransfer.types.includes('Files')) e.preventDefault(); }} onDrop={(e) => { if (visitor || !e.dataTransfer.files.length) return; e.preventDefault(); void dropOmi(e.dataTransfer.files[0]); }}>
       <ProbeDragLayer />
       {showSolve && <SolveDialog sim={sim} onClose={() => setShowSolve(false)} />}
       {showTran && <TranDialog sim={sim} onClose={() => setShowTran(false)} />}
@@ -239,6 +247,7 @@ export function App() {
           {['schematic', 'multifilar', 'unifilar', 'real'].includes(st.view) && <button className={`solvebtn ${visitor ? 'locked' : ''}`} onClick={() => (visitor ? st.setUpsell(UPSELL.solve) : setShowSolve(true))} title="Resolver el circuito por Kirchhoff, mallas, nudos, Millman, Thévenin, Norton…">{visitor ? '🔒 ' : ''}Resolver valores</button>}
           {['schematic', 'multifilar', 'unifilar', 'real'].includes(st.view) && <button className={`solvebtn ${visitor ? 'locked' : ''}`} onClick={() => (visitor ? st.setUpsell(UPSELL.solve) : setShowTran(true))} title="Simular el circuito en el tiempo: diodos, transistores, 555, amplificadores, condensadores…">{visitor ? '🔒 ' : ''}Transitorio</button>}
           {['schematic', 'multifilar', 'unifilar'].includes(st.view) && <button onClick={st.toggleKeys} title="?">Atajos</button>}
+          {st.view === 'schematic' && <span className="toolpick" role="group" aria-label="Herramienta"><button className={st.tool === 'select' ? 'on' : ''} onClick={() => st.setTool('select')} title="Cursor: arrastra sobre el fondo para seleccionar varios elementos (V)">↖ Cursor</button><button className={st.tool === 'pan' ? 'on' : ''} onClick={() => st.setTool('pan')} title="Mano: arrastra para mover la vista (H)">✋ Mano</button></span>}
           {st.view === 'schematic' && <button onClick={st.fit} title="F">⤢ Ajustar</button>}
           <button onClick={() => st.toggle('leftOpen')} className={st.leftOpen ? '' : 'on'} title="Mostrar u ocultar la paleta">◧</button>
           <button onClick={() => st.toggle('rightOpen')} className={st.rightOpen ? '' : 'on'} title="Mostrar u ocultar propiedades">◨</button>
@@ -258,6 +267,7 @@ export function App() {
       </header>
       {topHidden && <button className="top-toggle" onClick={toggleTop} aria-label="Mostrar la barra superior" title="Mostrar la barra superior">▼ Mostrar barra</button>}
 
+      {st.leftOpen && !wide && <div className="left-resizer" onPointerDown={startResize} onDoubleClick={() => { setLeftW(210); try { localStorage.setItem('circuitossea:leftw', '210'); } catch { /* ignorar */ } }} role="separator" aria-orientation="vertical" aria-label="Ajustar el ancho de la paleta" title="Arrastra para cambiar el ancho de la paleta (doble clic: restablecer)" />}
       <aside className="left">
         <h3>{t.palette}</h3>
         <input className="search" placeholder={t.search} value={q} onChange={(e) => setQ(e.target.value)} aria-label={t.search} />

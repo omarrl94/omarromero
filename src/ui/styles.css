@@ -12,7 +12,7 @@
 * { box-sizing: border-box; }
 html, body, #root { height: 100%; margin: 0; }
 body { font-family: system-ui, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--ink); font-size: 14px; }
-.app { display: grid; grid-template-columns: 210px 1fr 310px; grid-template-rows: auto 1fr; height: 100%; }
+.app { display: grid; grid-template-columns: var(--left-w, 210px) 1fr 310px; grid-template-rows: auto 1fr; height: 100%; }
 .top { grid-column: 1 / -1; display: flex; gap: 16px; align-items: center; padding: 8px 12px; background: var(--carbon); color: #F1EADF; flex-wrap: wrap; }
 .brand { display: flex; align-items: baseline; gap: 8px; } .brand b { font-size: 18px; color: var(--mostaza); } .brand small { color: var(--salvia); } .logo { font-size: 18px; }
 .tools { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
@@ -144,7 +144,7 @@ button.warnbtn { background: #7a3b12; border-color: var(--terracota); }
 .sheet-wrap { flex: 1; overflow: auto; padding: 24px; display: flex; justify-content: center; align-items: flex-start; } .sheet { width: min(100%, 1500px); background: #fff; box-shadow: 0 10px 40px #000a; }
 @media print { body * { visibility: hidden !important; } .sheet-wrap, .sheet-wrap * { visibility: visible !important; } .sheet-wrap { position: fixed; inset: 0; padding: 0; background: #fff; display: block; } .sheet { width: 100vw; height: 100vh; box-shadow: none; } .no-print { display: none !important; } }
 
-.app.noleft { grid-template-columns: 0 1fr 310px; } .app.noright { grid-template-columns: 210px 1fr 0; } .app.noleft.noright { grid-template-columns: 0 1fr 0; }
+.app.noleft { grid-template-columns: 0 1fr 310px; } .app.noright { grid-template-columns: var(--left-w, 210px) 1fr 0; } .app.noleft.noright { grid-template-columns: 0 1fr 0; }
 .app.noleft .left, .app.noright .right { display: none; }
 .insts { display: inline-flex; gap: 4px; padding: 3px; background: #1a1714; border: 1px solid #4a423b; border-radius: 12px; } .insts button { border: 0; background: transparent; min-height: 28px; padding: 3px 10px; font-size: 12.5px; }
 .insts button.on { background: var(--mostaza); color: #2A2622; font-weight: 700; }

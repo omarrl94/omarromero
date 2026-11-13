@@ -57,6 +57,7 @@ export function Canvas({ sim, cables, mode = 'schematic', locked = false, canTog
   const mouseRef = useRef<Pt>({ x: 0, y: 0 });
   const hoverRef = useRef<string | null>(null);
   const wheelAcc = useRef(0);
+  const boxAdd = useRef(false);
   const [box, setBox] = useState<{ x0: number; y0: number; x1: number; y1: number } | null>(null);
   const [dragVia, setDragVia] = useState<{ wid: string; idx: number } | null>(null);
 
@@ -106,6 +107,8 @@ export function Canvas({ sim, cables, mode = 'schematic', locked = false, canTog
       else if (mod && k === 'a') { e.preventDefault(); s.selectAll(); }
       else if (!mod && k === 'r') { if (e.shiftKey) s.rotateBy(s.selection, -1); else s.rotateSelection(); }
       else if (!mod && k === 'f') s.fit();
+      else if (!mod && k === 'v') s.setTool('select');
+      else if (!mod && k === 'h') s.setTool('pan');
       else if (e.key === '?' || (e.shiftKey && e.key === '/')) s.toggleKeys();
       else if (e.key.startsWith('Arrow')) {
         e.preventDefault();
@@ -138,7 +141,10 @@ export function Canvas({ sim, cables, mode = 'schematic', locked = false, canTog
   const onBgDown = (e: React.PointerEvent) => {
     if (e.button !== 0 && e.button !== 1) return;
     try { (e.target as Element).setPointerCapture?.(e.pointerId); } catch { /* puntero ya liberado */ }
-    if (e.shiftKey && !locked && !wiring) {
+    const tool = useStore.getState().tool;
+    // Cursor: arrastrar sobre el fondo dibuja un recuadro de selección. Mano (o botón central): mueve la vista. Mayús añade a la selección.
+    if (!locked && !wiring && e.button === 0 && (tool === 'select' || e.shiftKey)) {
+      boxAdd.current = e.shiftKey;
       const p = toWorld(e.clientX, e.clientY);
       drag.current = { kind: 'box', lastX: e.clientX, lastY: e.clientY, moved: false, snapped: false, accX: 0, accY: 0 };
       setBox({ x0: p.x, y0: p.y, x1: p.x, y1: p.y });
@@ -195,8 +201,13 @@ export function Canvas({ sim, cables, mode = 'schematic', locked = false, canTog
       const b = box; setBox(null);
       if (b && d.moved) {
         const x0 = Math.min(b.x0, b.x1), x1 = Math.max(b.x0, b.x1), y0 = Math.min(b.y0, b.y1), y1 = Math.max(b.y0, b.y1);
-        st.select(project.components.filter((c) => !c.hidden && c.x >= x0 && c.x <= x1 && c.y >= y0 && c.y <= y1).map((c) => c.id), true);
-      }
+        const hit = project.components.filter((c) => {
+          if (c.hidden) return false;
+          const dd = defOf(c.type), vert = c.rot % 180 !== 0, hw = (vert ? dd.h : dd.w) / 2, hh = (vert ? dd.w : dd.h) / 2;
+          return c.x + hw >= x0 && c.x - hw <= x1 && c.y + hh >= y0 && c.y - hh <= y1;
+        }).map((c) => c.id);
+        st.select(hit, boxAdd.current);
+      } else if (!d.moved && !boxAdd.current) { st.select([]); st.startWire(null); }
       return;
     }
     if (holdRef.current) { useStore.getState().setParam(holdRef.current.id, holdRef.current.key, false); holdRef.current = null; }
@@ -301,7 +312,7 @@ export function Canvas({ sim, cables, mode = 'schematic', locked = false, canTog
   return (
     <svg
       ref={svgRef}
-      className="canvas"
+      className={`canvas tool-${st.tool}`}
       onWheel={onWheel}
       onPointerMove={onMove}
       onPointerUp={onUp}
