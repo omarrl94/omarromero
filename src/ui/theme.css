@@ -181,11 +181,12 @@ input[type='checkbox'], input[type='radio'] { accent-color: var(--ink); }
 .solve-side { color: var(--ink); }
 .solve-side .side-head h2 { color: var(--ink); font-family: 'Barlow Condensed', system-ui, sans-serif; text-transform: uppercase; letter-spacing: .04em; }
 .solve-side .side-head .x { background: var(--sheet); border: 1.5px solid var(--ink); color: var(--ink); }
-.solve-side .muted, .solve-side .field, .solve-side .mlist small, .solve-side .solve-actions small { color: #5b544a; }
+.solve-side .muted, .solve-side .field, .solve-side .mlist small, .solve-side .solve-actions small, .solve-side label { color: var(--muted); }
+.solve-side .rwarn { color: #5a1d14; background: #ffe9e5; }
 .mlist li { background: var(--sheet); border: 1.5px solid #d8d2c6; color: var(--ink); }
 .mlist li b { color: var(--ink); }
 .solve-side .field select, .solve-side .field input { border: 1.5px solid #cfc8ba; background: #fff; }
-.solve-main { background: #d9d3c6; }
+.solve-main { background: var(--paper2); }
 .sbox, .sbox h5, .sbox pre { display: block; }
 
 /* Barra superior ocultable */
@@ -197,6 +198,19 @@ input[type='checkbox'], input[type='radio'] { accent-color: var(--ink); }
 
 /* Transitorio */
 .tran .plist { list-style: none; padding: 0; margin: 0 0 8px; display: grid; gap: 4px; max-height: 26vh; overflow: auto; }
-.tran .plist li label { display: flex; gap: 6px; align-items: baseline; font-size: 12.5px; cursor: pointer; } .tran .plist small { color: #7a7266; }
+.tran .plist li label { display: flex; gap: 6px; align-items: baseline; font-size: 12.5px; cursor: pointer; } .tran .plist small { color: var(--muted); }
 .tran .tran-h { margin: 6px 0 2px; font: 700 12px 'Barlow Condensed', system-ui, sans-serif; letter-spacing: .08em; text-transform: uppercase; color: var(--terra); }
 .tranview { max-width: 940px !important; } .tranplot { width: 100%; height: auto; background: #fff; }
+
+/* ── Modo oscuro: contrastes de las vistas con colores fijos pensados para papel claro ── */
+:root[data-theme='dark'] .seg button.on, :root[data-theme='dark'] .modes button.on, :root[data-theme='dark'] .panelbtn.on, :root[data-theme='dark'] .dev.on, :root[data-theme='dark'] .steps button.on, :root[data-theme='dark'] .av-quick .av-row button.on, :root[data-theme='dark'] .bt .paper .bt-chips button.on { background: var(--ink) !important; color: #1B1916 !important; border-color: var(--ink) !important; }
+:root[data-theme='dark'] .order-top, :root[data-theme='dark'] .order .num, :root[data-theme='dark'] .order .foot { color: var(--muted); }
+:root[data-theme='dark'] .order .foot b { color: var(--ink); }
+:root[data-theme='dark'] .order .lvl { color: var(--terra); border-color: var(--terra); }
+:root[data-theme='dark'] .warnbtn, :root[data-theme='dark'] .solvebtn:not(.locked) { color: #1b1815; }
+:root[data-theme='dark'] .stars i { color: #6b6358; } :root[data-theme='dark'] .stars i.on { color: #f2b705; }
+:root[data-theme='dark'] .viewswitch button.on, :root[data-theme='dark'] .tools button.on { color: #1B1916; }
+:root[data-theme='dark'] .game .on, :root[data-theme='dark'] .game button.on { color: #1B1916; }
+:root[data-theme='dark'] button.warnbtn, :root[data-theme='dark'] .warnbtn { color: #1b1815 !important; }
+:root[data-theme='dark'] .av-hint, :root[data-theme='dark'] .av-levels small, :root[data-theme='dark'] .game small, :root[data-theme='dark'] .game .muted { color: var(--muted); }
+:root[data-theme='dark'] .order .note, :root[data-theme='dark'] .order p.note { color: var(--muted); }
