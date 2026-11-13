@@ -95,6 +95,12 @@ Antes de entregar la obra, el alumno hace las verificaciones reglamentarias con 
 ### Archivos .omi
 Formato propio (JSON con cabecera `format: "omi"`): circuito, cuadro, cajetín del plano y, opcionalmente, la obra del juego con sus planos propios. «Guardar» → descargar al ordenador o guardar en el navegador; «Abrir» → archivo, biblioteca del navegador o arrastrar el `.omi` sobre la página. Acepta también los `.json` antiguos. Código: `src/omi.ts`, `src/ui/FilesDialog.tsx`.
 
+### Edición del esquema: cables, empalmes y atajos
+- **Cables con codos:** clic en un terminal empieza el cable; cada clic en el lienzo fija un codo (el cable gira ahí; Espacio cambia el sentido del tramo, Retroceso quita el último codo, Esc o clic derecho cancelan); clic en otro terminal lo termina. Los codos de un cable seleccionado se arrastran.
+- **Empalme automático:** si el cable termina sobre otro, se crea un empalme en ese punto (ajustado a la rejilla), el cable atravesado se divide en dos y todo queda conectado eléctricamente. Se puede deshacer. Código: `src/model/wiregeom.ts` y `connectToWire` en `src/store.ts`.
+- **Ratón:** la rueda sobre un componente lo gira (Ctrl + rueda hace zoom siempre), Mayús + arrastrar selecciona con recuadro.
+- **Teclado:** Ctrl+C / X / V (se pega donde está el cursor), Ctrl+D duplicar, Ctrl+A seleccionar todo, flechas mueven (Mayús = 5 cuadros), R / Mayús+R giran, Ctrl+Z / Y. La tecla ? (o el botón «Atajos») muestra la lista completa.
+
 ## Estructura
 ```
 src/engine/   motor puro (solver.ts, dc.ts) — sin DOM

@@ -24,6 +24,7 @@ import { useGame } from '../game/store';
 import { FilesDialog, openOmi } from './FilesDialog';
 import { AveriaView } from './AveriaView';
 import { BoletinView } from './BoletinView';
+import { Shortcuts } from './Shortcuts';
 import { Icon, type IconName } from './icons';
 import { useBoletin } from '../boletin/store';
 import { useAveria } from '../averias/store';
@@ -173,6 +174,7 @@ export function App() {
       {welcome && !visitor && <Welcome onClose={closeWelcome} />}
       {showAdmin && <AdminPanel onClose={() => setShowAdmin(false)} />}
       <UpsellModal />
+      {st.keys && <Shortcuts onClose={st.toggleKeys} />}
       {files && <FilesDialog mode={files} onClose={() => setFiles(null)} />}
       <header className="top">
         {visitor && (
@@ -223,6 +225,7 @@ export function App() {
             </span>
           )}
           {['schematic', 'multifilar', 'unifilar', 'real'].includes(st.view) && <button className={`solvebtn ${visitor ? 'locked' : ''}`} onClick={() => (visitor ? st.setUpsell(UPSELL.solve) : setShowSolve(true))} title="Resolver el circuito por Kirchhoff, mallas, nudos, Millman, Thévenin, Norton…">{visitor ? '🔒 ' : ''}Resolver valores</button>}
+          {['schematic', 'multifilar', 'unifilar'].includes(st.view) && <button onClick={st.toggleKeys} title="?">Atajos</button>}
           {st.view === 'schematic' && <button onClick={st.fit} title="F">⤢ Ajustar</button>}
           <button onClick={() => st.toggle('leftOpen')} className={st.leftOpen ? '' : 'on'} title="Mostrar u ocultar la paleta">◧</button>
           <button onClick={() => st.toggle('rightOpen')} className={st.rightOpen ? '' : 'on'} title="Mostrar u ocultar propiedades">◨</button>

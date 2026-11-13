@@ -10,20 +10,13 @@ import { beginProbeDrag } from './Floating';
 import { Boom } from './Boom';
 import { TERM_LABELS } from './diagrams';
 import { isReturnWire } from '../model/unifilar';
+import { midPoint, nearestOnPolyline, pathD, snapJunction, wirePoints, type Pt } from '../model/wiregeom';
 
 const GRID = 20;
 const snap = (v: number) => Math.round(v / GRID) * GRID;
 
 export type CanvasMode = 'schematic' | 'multifilar' | 'unifilar';
 interface Props { sim: SimResult; cables?: Record<string, import('../model/cables').CableInfo>; mode?: CanvasMode; /** Solo lectura: no se mueve, borra ni cablea; solo se accionan los componentes que `canToggle` permita (modo «Parte de avería»). */ locked?: boolean; canToggle?: (id: string) => boolean }
-
-/** Ruta ortogonal entre dos puntos (horizontal y luego vertical) con esquina redondeada. */
-function route(a: { x: number; y: number }, b: { x: number; y: number }) {
-  if (a.x === b.x || a.y === b.y) return `M${a.x} ${a.y}L${b.x} ${b.y}`;
-  const r = Math.min(14, Math.abs(b.x - a.x), Math.abs(b.y - a.y));
-  const sx = Math.sign(b.x - a.x), sy = Math.sign(b.y - a.y);
-  return `M${a.x} ${a.y}L${b.x - sx * r} ${a.y}Q${b.x} ${a.y} ${b.x} ${a.y + sy * r}L${b.x} ${b.y}`;
-}
 
 /** Ruta del retorno automático: por debajo del montaje, para que no se superponga a la línea de fase. */
 function routeUnder(a: { x: number; y: number }, b: { x: number; y: number }) {
@@ -60,7 +53,12 @@ export function Canvas({ sim, cables, mode = 'schematic', locked = false, canTog
     }
   };
   const onTouchUp = (e: React.PointerEvent) => { touches.current.delete(e.pointerId); if (touches.current.size < 2) pinch.current = null; };
-  const drag = useRef<null | { kind: 'comp' | 'pan'; lastX: number; lastY: number; moved: boolean; snapped: boolean; accX: number; accY: number }>(null);
+  const drag = useRef<null | { kind: 'comp' | 'pan' | 'box'; lastX: number; lastY: number; moved: boolean; snapped: boolean; accX: number; accY: number }>(null);
+  const mouseRef = useRef<Pt>({ x: 0, y: 0 });
+  const hoverRef = useRef<string | null>(null);
+  const wheelAcc = useRef(0);
+  const [box, setBox] = useState<{ x0: number; y0: number; x1: number; y1: number } | null>(null);
+  const [dragVia, setDragVia] = useState<{ wid: string; idx: number } | null>(null);
 
   const toWorld = (cx: number, cy: number) => {
     const r = svgRef.current!.getBoundingClientRect();
@@ -84,26 +82,53 @@ export function Canvas({ sim, cables, mode = 'schematic', locked = false, canTog
   const hiddenIds = useMemo(() => new Set(project.components.filter((c) => c.hidden).map((c) => c.id)), [project.components]);
   const compMap = useMemo(() => new Map(project.components.map((c) => [c.id, c])), [project.components]);
 
-  // Teclado
+  // Teclado: atajos de edición (todos se muestran en «Atajos», tecla ?)
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (locked) return;
       const tag = (e.target as HTMLElement).tagName;
       if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
       const s = useStore.getState();
-      if (e.key === 'Escape') { s.startWire(null); s.select([]); }
-      else if (e.key === 'Delete' || e.key === 'Backspace') s.deleteSelection();
-      else if (e.key.toLowerCase() === 'r' && !e.ctrlKey) s.rotateSelection();
-      else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); e.shiftKey ? s.redo() : s.undo(); }
-      else if (e.key.toLowerCase() === 'f' && !e.ctrlKey) s.fit();
-      else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') { e.preventDefault(); s.redo(); }
-      else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'd') { e.preventDefault(); s.duplicateSelection(); }
+      const mod = e.ctrlKey || e.metaKey;
+      const k = e.key.toLowerCase();
+      if (e.key === 'Escape') { if (s.wiring) s.startWire(null); else s.select([]); if (s.keys) s.toggleKeys(); return; }
+      if (s.wiring) {
+        if (e.key === 'Backspace') { e.preventDefault(); if (s.wiringPts.length) s.popWirePoint(); else s.startWire(null); return; }
+        if (e.key === ' ' || k === 'tab') { e.preventDefault(); s.flipWire(); return; }
+      }
+      if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); s.deleteSelection(); }
+      else if (mod && k === 'z') { e.preventDefault(); e.shiftKey ? s.redo() : s.undo(); }
+      else if (mod && k === 'y') { e.preventDefault(); s.redo(); }
+      else if (mod && k === 'c') { e.preventDefault(); s.copySelection(); }
+      else if (mod && k === 'x') { e.preventDefault(); s.cutSelection(); }
+      else if (mod && k === 'v') { e.preventDefault(); s.paste(mouseRef.current); }
+      else if (mod && k === 'd') { e.preventDefault(); s.duplicateSelection(); }
+      else if (mod && k === 'a') { e.preventDefault(); s.selectAll(); }
+      else if (!mod && k === 'r') { if (e.shiftKey) s.rotateBy(s.selection, -1); else s.rotateSelection(); }
+      else if (!mod && k === 'f') s.fit();
+      else if (e.key === '?' || (e.shiftKey && e.key === '/')) s.toggleKeys();
+      else if (e.key.startsWith('Arrow')) {
+        e.preventDefault();
+        const step = (e.shiftKey ? 5 : 1) * GRID;
+        s.nudge(e.key === 'ArrowLeft' ? -step : e.key === 'ArrowRight' ? step : 0, e.key === 'ArrowUp' ? -step : e.key === 'ArrowDown' ? step : 0);
+      }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, []);
+  }, [locked]);
 
   const onWheel = (e: React.WheelEvent) => {
+    // Con el cursor sobre un componente la rueda lo gira (Ctrl + rueda hace zoom siempre)
+    const hov = hoverRef.current;
+    if (hov && !e.ctrlKey && !locked) {
+      wheelAcc.current += e.deltaY;
+      if (Math.abs(wheelAcc.current) >= 40) {
+        const sel = useStore.getState().selection;
+        st.rotateBy(sel.includes(hov) ? sel : [hov], wheelAcc.current > 0 ? 1 : -1);
+        wheelAcc.current = 0;
+      }
+      return;
+    }
     const r = svgRef.current!.getBoundingClientRect();
     const px = e.clientX - r.left, py = e.clientY - r.top;
     const k = Math.min(3, Math.max(0.3, view.k * (e.deltaY < 0 ? 1.1 : 1 / 1.1)));
@@ -113,6 +138,12 @@ export function Canvas({ sim, cables, mode = 'schematic', locked = false, canTog
   const onBgDown = (e: React.PointerEvent) => {
     if (e.button !== 0 && e.button !== 1) return;
     try { (e.target as Element).setPointerCapture?.(e.pointerId); } catch { /* puntero ya liberado */ }
+    if (e.shiftKey && !locked && !wiring) {
+      const p = toWorld(e.clientX, e.clientY);
+      drag.current = { kind: 'box', lastX: e.clientX, lastY: e.clientY, moved: false, snapped: false, accX: 0, accY: 0 };
+      setBox({ x0: p.x, y0: p.y, x1: p.x, y1: p.y });
+      return;
+    }
     drag.current = { kind: 'pan', lastX: e.clientX, lastY: e.clientY, moved: false, snapped: false, accX: 0, accY: 0 };
   };
   const onCompDown = (e: React.PointerEvent, c: Component) => {
@@ -135,9 +166,16 @@ export function Canvas({ sim, cables, mode = 'schematic', locked = false, canTog
     drag.current = { kind: 'comp', lastX: e.clientX, lastY: e.clientY, moved: false, snapped: false, accX: 0, accY: 0 };
   };
   const onMove = (e: React.PointerEvent) => {
-    setMouse(toWorld(e.clientX, e.clientY));
+    const wp = toWorld(e.clientX, e.clientY);
+    setMouse(wp); mouseRef.current = wp;
+    if (dragVia) {
+      const w = project.wires.find((x) => x.id === dragVia.wid);
+      if (w?.via) st.setWire(w.id, { via: w.via.map((q, i) => (i === dragVia.idx ? { ...q, x: snap(wp.x), y: snap(wp.y) } : q)) });
+      return;
+    }
     const d = drag.current;
     if (!d) return;
+    if (d.kind === 'box') { setBox((b) => (b ? { ...b, x1: wp.x, y1: wp.y } : b)); d.moved = true; return; }
     const dx = e.clientX - d.lastX, dy = e.clientY - d.lastY;
     d.lastX = e.clientX; d.lastY = e.clientY;
     if (d.kind === 'pan') { setView((v) => ({ ...v, x: v.x + dx, y: v.y + dy })); d.moved = true; return; }
@@ -149,9 +187,18 @@ export function Canvas({ sim, cables, mode = 'schematic', locked = false, canTog
       d.accX -= sx; d.accY -= sy; d.moved = true;
     }
   };
-  const onUp = () => {
+  const onUp = (e?: React.PointerEvent) => {
     const d = drag.current;
     drag.current = null;
+    if (dragVia) { setDragVia(null); return; }
+    if (d && d.kind === 'box') {
+      const b = box; setBox(null);
+      if (b && d.moved) {
+        const x0 = Math.min(b.x0, b.x1), x1 = Math.max(b.x0, b.x1), y0 = Math.min(b.y0, b.y1), y1 = Math.max(b.y0, b.y1);
+        st.select(project.components.filter((c) => !c.hidden && c.x >= x0 && c.x <= x1 && c.y >= y0 && c.y <= y1).map((c) => c.id), true);
+      }
+      return;
+    }
     if (holdRef.current) { useStore.getState().setParam(holdRef.current.id, holdRef.current.key, false); holdRef.current = null; }
     else if (d && d.kind === 'comp' && !d.moved) {
       // Clic simple sobre un interruptor/conmutador: lo acciona
@@ -165,7 +212,15 @@ export function Canvas({ sim, cables, mode = 'schematic', locked = false, canTog
         if (useStore.getState().sound) beep(500, 40);
       }
     }
-    if (d && d.kind === 'pan' && !d.moved) { st.select([]); st.startWire(null); }
+    if (d && d.kind === 'pan' && !d.moved) {
+      const s0 = useStore.getState();
+      if (s0.wiring && e) {
+        // Con un cable en curso, un clic en el lienzo fija un codo; sobre otro cable crea un empalme
+        const p = toWorld(e.clientX, e.clientY);
+        const wid = findWireAt(p);
+        if (wid) st.connectToWire(s0.wiring, wid, p); else st.addWirePoint(p);
+      } else { st.select([]); st.startWire(null); }
+    }
   };
 
   const onDrop = (e: React.DragEvent) => {
@@ -208,12 +263,29 @@ export function Canvas({ sim, cables, mode = 'schematic', locked = false, canTog
       const s = useStore.getState();
       const hit = nearestTermW(w.x, w.y, 28 / view.k);
       if (hit && s.wiring && !(hit.comp === s.wiring.comp && hit.term === s.wiring.term)) s.addWire(s.wiring, hit);
+      else if (s.wiring && findWireAt(w)) s.connectToWire(s.wiring, findWireAt(w)!, w);
       else s.startWire(null);
     };
     window.addEventListener('pointerup', up);
     return () => window.removeEventListener('pointerup', up);
   }); // se reengancha en cada render para ver la vista actual
+  /** Cable (no automático) bajo el punto, con su ajuste a la rejilla para el empalme. */
+  function wireHit(p: Pt): { id: string; j: Pt } | null {
+    for (const w of project.wires) {
+      if (w.auto || hiddenIds.has(w.a.comp) || hiddenIds.has(w.b.comp)) continue;
+      const ca = compMap.get(w.a.comp), cb = compMap.get(w.b.comp);
+      if (!ca || !cb) continue;
+      const g = wirePoints(termPos(ca, w.a.term), termPos(cb, w.b.term), w);
+      const hit = nearestOnPolyline(g.pts, p, 12 / view.k);
+      if (!hit) continue;
+      const j = snapJunction(g.pts, hit);
+      if (j) return { id: w.id, j };
+    }
+    return null;
+  }
+  function findWireAt(p: Pt) { return wireHit(p)?.id ?? null; }
   const snapT = wiring ? nearestTermW(mouse.x, mouse.y, 28 / view.k) : null;
+  const snapW = wiring && !snapT ? wireHit(mouse) : null;
 
   // Mapa de calor: tensión relativa de cada cable
   const vmax = Math.max(1e-9, ...sim.solution.voltages.map(Math.abs));
@@ -238,6 +310,7 @@ export function Canvas({ sim, cables, mode = 'schematic', locked = false, canTog
       onPointerUpCapture={onTouchUp}
       onPointerCancel={onTouchUp}
       onPointerDown={onBgDown}
+      onContextMenu={(e) => { e.preventDefault(); if (useStore.getState().wiring) useStore.getState().startWire(null); }}
       onDragOver={(e) => e.preventDefault()}
       onDrop={onDrop}
       data-testid="canvas"
@@ -259,7 +332,8 @@ export function Canvas({ sim, cables, mode = 'schematic', locked = false, canTog
           if (!ca || !cb) return null;
           if (uni && isReturnWire(project, w)) return null; // en unifilar el retorno va implícito
           const a = termPos(ca, w.a.term), b = termPos(cb, w.b.term);
-          const d = w.auto ? routeUnder(a, b) : route(a, b);
+          const geo = w.auto ? null : wirePoints(a, b, w);
+          const d = w.auto || !geo ? routeUnder(a, b) : pathD(geo.pts);
           const i = sim.wireCurrent[w.id] ?? 0;
           const sel = selection.includes(w.id);
           const v = sim.solution.voltages[sim.nodeOf[tkey(w.a)]] ?? 0;
@@ -267,7 +341,7 @@ export function Canvas({ sim, cables, mode = 'schematic', locked = false, canTog
           const dur = 1.6 / (0.25 + 1.75 * Math.sqrt(Math.abs(i) / maxI));
           return (
             <g key={w.id}>
-              <path d={d} className="wire-hit" onPointerDown={(e) => { e.stopPropagation(); st.select([w.id], e.shiftKey); }} />
+              <path d={d} className="wire-hit" onPointerDown={(e) => { e.stopPropagation(); if (locked) return; if (st.wiring) st.connectToWire(st.wiring, w.id, toWorld(e.clientX, e.clientY)); else st.select([w.id], e.shiftKey); }} />
               {mf && <path d={d} className="wire" style={{ stroke: roleColor(sim.nodeOf[tkey(w.a)] ?? 0), strokeWidth: 8, opacity: 0.3 }} />}
               <path d={d} className={`wire ${cables?.[w.id]?.overload ? 'hot' : ''}`} style={{ stroke: st.heat ? heatColor(v) : sel ? 'var(--accent)' : mf ? 'var(--ink)' : uni ? 'var(--ink)' : roleColor(sim.nodeOf[tkey(w.a)] ?? 0), strokeWidth: sel ? 4.5 : st.heat ? 4.5 : uni ? 5.2 : mf ? 2.4 : 3.4 }} />
               {uni && (() => {
@@ -281,7 +355,7 @@ export function Canvas({ sim, cables, mode = 'schematic', locked = false, canTog
                 );
               })()}
               {st.showCables && cables?.[w.id] && (() => {
-                const m = w.auto ? { x: (a.x + b.x) / 2, y: Math.max(a.y, b.y) + 70 } : Math.abs(a.x - b.x) < 1 || Math.abs(a.y - b.y) < 1 ? { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 } : { x: (a.x + b.x) / 2, y: a.y };
+                const m = w.auto || !geo ? { x: (a.x + b.x) / 2, y: Math.max(a.y, b.y) + 70 } : midPoint(geo.pts);
                 const ci = cables[w.id];
                 const bad = ci.overload || (ci.pct != null && ci.pct > ci.limit);
                 const sec = `${String(ci.section).replace('.', ',')} mm²`;
@@ -295,6 +369,7 @@ export function Canvas({ sim, cables, mode = 'schematic', locked = false, canTog
                   </g>
                 );
               })()}
+              {sel && !locked && !w.auto && (w.via ?? []).map((q, qi) => <rect key={qi} x={q.x - 5} y={q.y - 5} width={10} height={10} fill="var(--panel)" stroke="var(--accent)" strokeWidth={2} style={{ cursor: 'move' }} onPointerDown={(e) => { e.stopPropagation(); st.snapshot(); setDragVia({ wid: w.id, idx: qi }); }} />)}
               {st.animate && active && (
                 <path
                   d={d}
@@ -309,17 +384,22 @@ export function Canvas({ sim, cables, mode = 'schematic', locked = false, canTog
             </g>
           );
         })}
-        {/* Cable en curso */}
+        {/* Cable en curso: pasa por los codos ya fijados y sigue al cursor */}
         {wiring && compMap.get(wiring.comp) && (() => {
           const a = termPos(compMap.get(wiring.comp)!, wiring.term);
-          const tgt = snapT && compMap.get(snapT.comp) ? termPos(compMap.get(snapT.comp)!, snapT.term) : null;
+          const tgt = snapT && compMap.get(snapT.comp) ? termPos(compMap.get(snapT.comp)!, snapT.term) : snapW ? snapW.j : null;
+          const end = tgt ?? { x: snap(mouse.x), y: snap(mouse.y) };
+          const g = wirePoints(a, end, { via: st.wiringPts, vEnd: st.wiringFlip });
           return (
             <g pointerEvents="none">
-              <path d={route(a, tgt ?? { x: snap(mouse.x), y: snap(mouse.y) })} className="wire ghost" style={tgt ? { stroke: '#4caf50', strokeDasharray: 'none', strokeWidth: 3.5 } : undefined} />
-              {tgt && <circle cx={tgt.x} cy={tgt.y} r={13} fill="#4caf5033" stroke="#4caf50" strokeWidth={3} className="pulse" />}
+              <path d={pathD(g.pts)} className="wire ghost" style={tgt ? { stroke: '#4caf50', strokeDasharray: 'none', strokeWidth: 3.5 } : undefined} />
+              {st.wiringPts.map((q, i) => <circle key={i} cx={q.x} cy={q.y} r={4.5} fill="var(--accent)" stroke="var(--panel)" strokeWidth={1.5} />)}
+              {tgt && <circle cx={tgt.x} cy={tgt.y} r={snapW ? 8 : 13} fill="#4caf5033" stroke="#4caf50" strokeWidth={3} className="pulse" />}
+              {snapW && <text x={snapW.j.x + 12} y={snapW.j.y - 10} fontSize={11} fontWeight={700} fill="#2e7d32">empalme</text>}
             </g>
           );
         })()}
+        {box && <rect x={Math.min(box.x0, box.x1)} y={Math.min(box.y0, box.y1)} width={Math.abs(box.x1 - box.x0)} height={Math.abs(box.y1 - box.y0)} fill="color-mix(in srgb, var(--accent) 12%, transparent)" stroke="var(--accent)" strokeDasharray="5 4" pointerEvents="none" />}
         {/* Componentes */}
         {project.components.filter((c) => !c.hidden).map((c) => {
           const def = defOf(c.type);
@@ -330,7 +410,7 @@ export function Canvas({ sim, cables, mode = 'schematic', locked = false, canTog
           const warn = sim.messages.some((m) => m.level === 'warn' && m.ids.includes(c.id));
           return (
             <g key={c.id}>
-              <g transform={`translate(${c.x} ${c.y}) rotate(${c.rot})`} onPointerDown={(e) => onCompDown(e, c)} style={{ cursor: 'move' }}>
+              <g transform={`translate(${c.x} ${c.y}) rotate(${c.rot})`} onPointerDown={(e) => onCompDown(e, c)} onPointerEnter={() => { hoverRef.current = c.id; wheelAcc.current = 0; }} onPointerLeave={() => { if (hoverRef.current === c.id) hoverRef.current = null; }} style={{ cursor: 'move' }}>
                 <rect x={-def.w / 2} y={-def.h / 2} width={def.w} height={def.h} rx={6}
                   className={`hitbox ${sel ? 'sel' : ''} ${bad ? 'bad' : warn ? 'warn' : ''}`} />
                 <Symbol c={c} live={sim.live[c.id]} />

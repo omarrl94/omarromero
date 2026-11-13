@@ -28,6 +28,10 @@ export interface Wire {
   material?: 'Cu' | 'Al';
   /** Conductor de retorno generado automáticamente al montar en unifilar (no lo dibuja el alumno). */
   auto?: boolean;
+  /** Codos fijados con clic al dibujar el cable. `v`: el tramo que llega a este punto sale en vertical primero. */
+  via?: { x: number; y: number; v?: boolean }[];
+  /** El último tramo (hasta el terminal final) sale en vertical primero. */
+  vEnd?: boolean;
 }
 
 export interface Project {

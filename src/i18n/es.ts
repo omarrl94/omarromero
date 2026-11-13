@@ -9,7 +9,7 @@ export const es = {
   props: 'Propiedades', nothingSelected: 'Selecciona un componente para editar sus valores.',
   checks: 'Avisos', allOk: 'Sin avisos: el circuito es correcto.',
   theme: 'Tema', help: 'Ayuda',
-  wireHint: 'Pulsa en otro terminal para terminar el cable (Esc cancela).',
-  placeHint: 'Arrastra componentes desde la paleta al lienzo. Pulsa en un terminal para tirar un cable.',
+  wireHint: 'Clic en el lienzo fija un codo · clic en otro terminal (o sobre un cable, con empalme) lo termina · Espacio cambia el sentido · Esc cancela.',
+  placeHint: 'Arrastra componentes desde la paleta. Clic en un terminal para tirar un cable · rueda sobre un componente lo gira · Ctrl+C / V copia y pega · ? muestra todos los atajos.',
 } as const;
 export type Strings = typeof es;

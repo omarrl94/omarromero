@@ -8,6 +8,8 @@ import { defaultPanel, type PanelConfig } from './model/panel';
 import { currentLevel, UPSELL, VISITOR_LIMITS, visitorAllows } from './access';
 import { syncReturns, UNIFILAR_TYPES } from './model/unifilar';
 import { initialMeter, type MeterState } from './model/meter';
+import { termPos } from './model/netlist';
+import { nearestOnPolyline, snapG, snapJunction, splitWire, wirePoints } from './model/wiregeom';
 
 /** Una fila de la hoja de medidas. */
 export interface Measure { id: number; time: string; mode: string; points: string; value: number | null; text: string; unit: string; theory?: number }
@@ -41,6 +43,22 @@ interface State {
   future: Project[];
   selection: string[];
   wiring: TermRef | null;
+  /** Codos ya fijados con clic del cable que se está dibujando, y orientación del siguiente tramo. */
+  wiringPts: { x: number; y: number; v?: boolean }[];
+  wiringFlip: boolean;
+  clipboard: { components: Component[]; wires: Wire[] } | null;
+  keys: boolean;
+  toggleKeys(): void;
+  addWirePoint(p: { x: number; y: number }): void;
+  popWirePoint(): void;
+  flipWire(): void;
+  connectToWire(from: TermRef, wireId: string, p: { x: number; y: number }): boolean;
+  rotateBy(ids: string[], dir: 1 | -1): void;
+  nudge(dx: number, dy: number): void;
+  copySelection(): void;
+  cutSelection(): void;
+  paste(at?: { x: number; y: number }): void;
+  selectAll(): void;
   runtime: Runtime;
   booms: { id: number; comp: string; kind: RuntimeState }[];
   notices: { id: number; text: string }[];
@@ -106,6 +124,7 @@ const uid = (prefix: string) => `${prefix}${Date.now().toString(36)}${(counter++
 export const useStore = create<State>((set, get) => ({
   project: loadInitial(),
   past: [], future: [], selection: [], wiring: null,
+  wiringPts: [], wiringFlip: false, clipboard: null, keys: false,
   runtime: {}, booms: [], notices: [], meter: { ...initialMeter }, log: [], sound: false, scopeTips: { c1: null, c2: null }, scopeArm: null, dock: false, view: 'schematic', upsell: null, leftOpen: true, rightOpen: typeof window === 'undefined' || window.innerWidth > 700, fitTick: 0,
   inst: { meter: { open: false, x: null, y: null, min: false }, scope: { open: false, x: null, y: null, min: false }, watt: { open: false, x: null, y: null, min: false } },
   probeDrag: null, showCables: true,
@@ -204,7 +223,9 @@ export const useStore = create<State>((set, get) => ({
       (w) => (same(w.a, a) && same(w.b, b)) || (same(w.a, b) && same(w.b, a)));
     if (exists) return;
     get().snapshot();
-    set((s) => ({ project: syncReturns({ ...s.project, wires: [...s.project.wires, { id: uid('w'), a, b }] }, s.view === 'unifilar'), wiring: null }));
+    const st0 = get();
+    const route = st0.wiring && same(st0.wiring, a) ? { via: st0.wiringPts.length ? st0.wiringPts : undefined, vEnd: st0.wiringFlip || undefined } : {};
+    set((s) => ({ project: syncReturns({ ...s.project, wires: [...s.project.wires, { id: uid('w'), a, b, ...route }] }, s.view === 'unifilar'), wiring: null, wiringPts: [], wiringFlip: false }));
   },
   select(ids, additive) {
     set((s) => ({ selection: additive ? [...new Set([...s.selection, ...ids])] : ids }));
@@ -231,7 +252,68 @@ export const useStore = create<State>((set, get) => ({
     if (currentLevel() === 'visitor' && v !== 'schematic') { set({ upsell: v === 'juego' || v === 'averias' || v === 'boletin' ? UPSELL.game : UPSELL.views }); return; }
     set({ view: v, wiring: null });
   },
-  startWire(t) { set({ wiring: t }); },
+  startWire(t) { set({ wiring: t, wiringPts: [], wiringFlip: false }); },
+  toggleKeys() { set((s) => ({ keys: !s.keys })); },
+  addWirePoint(p) { set((s) => ({ wiringPts: [...s.wiringPts, { x: snapG(p.x), y: snapG(p.y), v: s.wiringFlip || undefined }], wiringFlip: false })); },
+  popWirePoint() { set((s) => ({ wiringPts: s.wiringPts.slice(0, -1) })); },
+  flipWire() { set((s) => ({ wiringFlip: !s.wiringFlip })); },
+  /** Termina un cable sobre otro: se crea un empalme en el punto y el cable atravesado se divide en dos. */
+  connectToWire(from, wireId, p) {
+    const s = get();
+    const w = s.project.wires.find((x) => x.id === wireId);
+    if (!w || w.auto) return false;
+    const ca = s.project.components.find((c) => c.id === w.a.comp), cb = s.project.components.find((c) => c.id === w.b.comp);
+    if (!ca || !cb) return false;
+    const g = wirePoints(termPos(ca, w.a.term), termPos(cb, w.b.term), w);
+    const hit = nearestOnPolyline(g.pts, p, 16);
+    if (!hit) return false;
+    const j = snapJunction(g.pts, hit);
+    if (!j) return false;
+    const route = s.wiring && same(s.wiring, from) ? { via: s.wiringPts.length ? s.wiringPts : undefined, vEnd: s.wiringFlip || undefined } : {};
+    get().snapshot();
+    const existing = s.project.components.find((c) => c.type === 'junction' && c.x === j.x && c.y === j.y);
+    const J: Component = existing ?? { id: uid('J'), type: 'junction', x: j.x, y: j.y, rot: 0, params: {} };
+    const target = { comp: J.id, term: 0 };
+    const nw: Wire = { id: uid('w'), a: from, b: target, ...route };
+    set((st) => {
+      let wires = st.project.wires;
+      if (!existing) { const [f, sec] = splitWire(w, g.viaCount, hit.seg, J.id, uid('w')); wires = wires.flatMap((x) => (x.id === w.id ? [f, sec] : [x])); }
+      return { project: syncReturns({ ...st.project, components: existing ? st.project.components : [...st.project.components, J], wires: [...wires, nw] }, st.view === 'unifilar'), wiring: null, wiringPts: [], wiringFlip: false };
+    });
+    return true;
+  },
+  rotateBy(ids, dir) {
+    if (!ids.length) return;
+    burst();
+    set((s) => ({ project: { ...s.project, components: s.project.components.map((c) => (ids.includes(c.id) ? { ...c, rot: (((c.rot + 90 * dir) % 360 + 360) % 360) as Component['rot'] } : c)) } }));
+  },
+  nudge(dx, dy) {
+    const ids = get().selection.filter((id) => get().project.components.some((c) => c.id === id));
+    if (!ids.length) return;
+    burst();
+    get().moveComponents(ids, dx, dy);
+  },
+  copySelection() {
+    const { selection, project } = get();
+    const comps = project.components.filter((c) => selection.includes(c.id));
+    if (!comps.length) return;
+    const set_ = new Set(comps.map((c) => c.id));
+    set({ clipboard: clone({ components: comps, wires: project.wires.filter((w) => set_.has(w.a.comp) && set_.has(w.b.comp) && !w.auto) }) });
+  },
+  cutSelection() { get().copySelection(); get().deleteSelection(); },
+  paste(at) {
+    const cb = get().clipboard;
+    if (!cb || !cb.components.length) return;
+    if (currentLevel() === 'visitor') { set({ upsell: UPSELL.limit }); return; }
+    const minX = Math.min(...cb.components.map((c) => c.x)), minY = Math.min(...cb.components.map((c) => c.y));
+    const dx = at ? snapG(at.x - minX) : 40, dy = at ? snapG(at.y - minY) : 40;
+    get().snapshot();
+    const map = new Map<string, string>();
+    const comps = cb.components.map((c) => { const id = uid(c.type[0].toUpperCase()); map.set(c.id, id); return { ...clone(c), id, x: c.x + dx, y: c.y + dy }; });
+    const wires = cb.wires.map((w) => ({ ...clone(w), id: uid('w'), a: { ...w.a, comp: map.get(w.a.comp)! }, b: { ...w.b, comp: map.get(w.b.comp)! }, via: w.via?.map((q) => ({ ...q, x: q.x + dx, y: q.y + dy })) }));
+    set((s) => ({ project: { ...s.project, components: [...s.project.components, ...comps], wires: [...s.project.wires, ...wires] }, selection: comps.map((c) => c.id) }));
+  },
+  selectAll() { set((s) => ({ selection: s.project.components.filter((c) => !c.hidden).map((c) => c.id) })); },
   undo() {
     const { past, project, future } = get();
     if (!past.length) return;
@@ -266,6 +348,9 @@ export const useStore = create<State>((set, get) => ({
 }));
 
 const same = (a: TermRef, b: TermRef) => a.comp === b.comp && a.term === b.term;
+/** Agrupa en un solo paso de «deshacer» las acciones repetidas (rueda, flechas) hechas en menos de 600 ms. */
+let lastBurst = 0;
+function burst() { const now = Date.now(); if (now - lastBurst > 600) useStore.getState().snapshot(); lastBurst = now; }
 
 // Guardado automático local (con debounce)
 export const saveGuard = { suspended: false };
