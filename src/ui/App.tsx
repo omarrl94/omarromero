@@ -19,6 +19,7 @@ import { UNIFILAR_TYPES } from '../model/unifilar';
 import { GameView } from './GameView';
 import { SolveDialog } from './SolveDialog';
 import { TranDialog } from './TranDialog';
+import { BudgetDialog } from './BudgetDialog';
 import { useAuth } from '../auth';
 import { loadProfile, saveProfile } from '../cloud';
 import { useGame } from '../game/store';
@@ -131,6 +132,7 @@ export function App() {
   const unverifiedAdmin = !!auth.user && isAdminEmail(auth.user.email) && !auth.user.emailVerified;
   const [showSolve, setShowSolve] = useState(false);
   const [showTran, setShowTran] = useState(false);
+  const [showBudget, setShowBudget] = useState(false);
   const [welcome, setWelcome] = useState(() => { try { return !localStorage.getItem('circuitossea:welcome'); } catch { return true; } });
   const closeWelcome = () => { try { localStorage.setItem('circuitossea:welcome', '1'); } catch { /* ignorar */ } setWelcome(false); };
   const st = useStore();
@@ -191,6 +193,7 @@ export function App() {
       <ProbeDragLayer />
       {showSolve && <SolveDialog sim={sim} onClose={() => setShowSolve(false)} />}
       {showTran && <TranDialog sim={sim} onClose={() => setShowTran(false)} />}
+      {showBudget && <BudgetDialog sim={sim} onClose={() => setShowBudget(false)} />}
       {welcome && !visitor && <Welcome onClose={closeWelcome} />}
       {showAdmin && <AdminPanel onClose={() => setShowAdmin(false)} />}
       <UpsellModal />
@@ -246,6 +249,7 @@ export function App() {
           )}
           {['schematic', 'multifilar', 'unifilar', 'real'].includes(st.view) && <button className={`solvebtn ${visitor ? 'locked' : ''}`} onClick={() => (visitor ? st.setUpsell(UPSELL.solve) : setShowSolve(true))} title="Resolver el circuito por Kirchhoff, mallas, nudos, Millman, Thévenin, Norton…">{visitor ? '🔒 ' : ''}Resolver valores</button>}
           {['schematic', 'multifilar', 'unifilar', 'real'].includes(st.view) && <button className={`solvebtn ${visitor ? 'locked' : ''}`} onClick={() => (visitor ? st.setUpsell(UPSELL.solve) : setShowTran(true))} title="Simular el circuito en el tiempo: diodos, transistores, 555, amplificadores, condensadores…">{visitor ? '🔒 ' : ''}Transitorio</button>}
+          {['schematic', 'multifilar', 'unifilar', 'real'].includes(st.view) && <button className={`solvebtn ${visitor ? 'locked' : ''}`} onClick={() => (visitor ? st.setUpsell(UPSELL.solve) : setShowBudget(true))} title="Lista de material y presupuesto con precios de un proveedor (simulados)">{visitor ? '🔒 ' : ''}Presupuesto</button>}
           {['schematic', 'multifilar', 'unifilar'].includes(st.view) && <button onClick={st.toggleKeys} title="?">Atajos</button>}
           {st.view === 'schematic' && <span className="toolpick" role="group" aria-label="Herramienta"><button className={st.tool === 'select' ? 'on' : ''} onClick={() => st.setTool('select')} title="Cursor: arrastra sobre el fondo para seleccionar varios elementos (V)">↖ Cursor</button><button className={st.tool === 'pan' ? 'on' : ''} onClick={() => st.setTool('pan')} title="Mano: arrastra para mover la vista (H)">✋ Mano</button></span>}
           {st.view === 'schematic' && <button onClick={st.fit} title="F">⤢ Ajustar</button>}
