@@ -282,6 +282,51 @@ function SymbolBody({ c, live }: P) {
           : <><rect x={-14} y={ym - 16} width={44} height={32} fill="var(--fill-a)" /><path d={`M-8 ${ym}h5l2 -7l4 14l4 -14l2 7h5`} strokeWidth={1.6} /></>}
         {ts.map((q, i) => <text key={'t' + i} x={-38} y={q.y - 3} fontSize={7} fill="var(--ink)" stroke="none">{q.name}</text>)}</g>);
     }
+    case 'bjt': {
+      const pnp = c.type === 'pnp';
+      return (<g {...sw}><path d="M-40 0H-8" /><path d="M-8 -14V14" strokeWidth={3} /><circle r={22} cx={4} fill="var(--fill-b)" opacity={0.35} stroke="none" />
+        <path d="M-8 -6L12 -16V-20H40M-8 6L12 16V20H40" />
+        <path d={pnp ? 'M-8 6L1 9M-8 6L-3 13' : 'M12 16L5 15M12 16L10 9'} strokeWidth={0} /><path d={pnp ? 'M-2 5L-8 6L-4 11' : 'M7 12L12 16L5 17'} fill="var(--ink)" />
+        <text x={34} y={-24} fontSize={8} fill="var(--ink)" stroke="none">C</text><text x={34} y={32} fontSize={8} fill="var(--ink)" stroke="none">E</text></g>);
+    }
+    case 'mos': {
+      const p = c.type === 'pmos';
+      return (<g {...sw}><path d="M-40 0H-12" /><path d="M-12 -12V12" strokeWidth={2.5} /><path d="M-6 -14V-6M-6 -3V3M-6 6V14" strokeWidth={2.5} />
+        <path d="M-6 -10H12V-20H40M-6 10H12V20H40M-6 0H12V10" /><path d={p ? 'M-6 0L2 -4M-6 0L2 4' : 'M4 0L-4 -4M4 0L-4 4'} /></g>);
+    }
+    case 'opamp':
+      return (<g {...sw}><path d="M-40 -20H-24M-40 20H-24M24 0H40" /><path d="M-24 -30V30L24 0Z" fill="var(--fill-b)" />
+        <path d="M-20 -20h6M-17 -23v6M-20 20h6" strokeWidth={1.6} /></g>);
+    case 'bridge':
+      return (<g {...sw}>{defOf(c.type).terminals.map((q, i) => <path key={i} d={`M${q.x} ${q.y}H${q.x < 0 ? -22 : 22}`} />)}
+        <path d="M0 -26L24 0L0 26L-24 0Z" fill="var(--fill-b)" /><path d="M-8 -8L8 8M-4 -12L12 4" strokeWidth={1.4} />
+        <path d="M-6 -12L0 -6L6 -12" strokeWidth={0} /><text x={-4} y={-10} fontSize={9} fill="var(--ink)" stroke="none" fontWeight={700}>~</text><text x={-4} y={21} fontSize={9} fill="var(--ink)" stroke="none" fontWeight={700}>~</text><text x={11} y={-9} fontSize={9} fill="var(--ink)" stroke="none" fontWeight={700}>+</text><text x={11} y={20} fontSize={9} fill="var(--ink)" stroke="none" fontWeight={700}>−</text></g>);
+    case 'pdiode':
+      return (<g {...sw}><path d="M-40 0H-12M12 0H40" /><path d="M-12 -14L12 0L-12 14Z" fill="var(--fill-a)" /><path d="M12 -14V14" strokeWidth={3} />
+        <path d="M-22 -22L-10 -12M-14 -26L-2 -16" stroke="var(--mostaza)" strokeWidth={1.8} /><path d="M-10 -12l-5 0M-10 -12l0 5M-2 -16l-5 0M-2 -16l0 5" stroke="var(--mostaza)" strokeWidth={1.4} /></g>);
+    case 'scr': case 'triac':
+      return (<g {...sw}><path d="M-40 0H-12M12 0H40M0 20V8" />
+        <path d="M-12 -14L12 0L-12 14Z" fill="var(--fill-a)" /><path d="M12 -14V14" strokeWidth={3} />
+        {t === 'triac' && <><path d="M12 -14L-12 0L12 14Z" fill="var(--fill-a)" opacity={0.6} /><path d="M-12 -14V14" strokeWidth={3} /></>}
+        <path d={t === 'scr' ? 'M12 4L0 12' : 'M2 12L0 8'} /></g>);
+    case 'diac':
+      return (<g {...sw}><path d="M-40 0H-12M12 0H40" /><path d="M-12 -14L12 0L-12 14Z" fill="var(--fill-a)" /><path d="M12 -14V14" strokeWidth={3} /><path d="M12 -14L-12 0L12 14Z" fill="var(--fill-a)" opacity={0.6} /><path d="M-12 -14V14" strokeWidth={3} /></g>);
+    case 'gate': case 'ic': {
+      const d = defOf(c.type); const ts = d.terminals;
+      const side = ts.filter((q) => q.x !== 0);
+      const ys = side.map((q) => q.y); const hasTop = ts.some((q) => q.x === 0 && q.y < 0), hasBot = ts.some((q) => q.x === 0 && q.y > 0);
+      const top = Math.min(-14, ...(ys.length ? [Math.min(...ys) - 12] : [0]), hasTop ? -26 : 0), bot = Math.max(14, ...(ys.length ? [Math.max(...ys) + 12] : [0]), hasBot ? 26 : 0);
+      const bubble = t === 'gate' && /^g_(not|nand|nor)$/.test(c.type);
+      return (<g {...sw}>
+        {ts.map((q, i) => (q.x === 0 ? <path key={i} d={`M0 ${q.y}V${q.y < 0 ? top : bot}`} /> : <path key={i} d={`M${q.x} ${q.y}H${q.x < 0 ? -24 : bubble && q.name === 'Y' ? 28 : 24}`} />))}
+        <rect x={-24} y={top} width={48} height={bot - top} fill="var(--fill-b)" />
+        {bubble && <circle cx={26} cy={0} r={3} fill="var(--panel)" />}
+        {d.glyph && <text x={0} y={(top + bot) / 2 + 5} textAnchor="middle" fontSize={t === 'gate' ? 15 : 12} fontWeight={800} fill="var(--ink)" stroke="none">{d.glyph}</text>}
+        {ts.map((q, i) => (q.x === 0
+          ? <text key={'l' + i} x={4} y={q.y < 0 ? top + 10 : bot - 4} fontSize={7} fill="var(--ink)" stroke="none">{q.name}</text>
+          : <text key={'l' + i} x={q.x < 0 ? -22 : 22} y={q.y + 3} textAnchor={q.x < 0 ? 'start' : 'end'} fontSize={7} fill="var(--ink)" stroke="none">{t === 'gate' ? '' : q.name}</text>))}
+      </g>);
+    }
     case 'ground':
       return (<g {...sw}><path d="M0 -20V0M-14 0H14M-9 6H9M-4 12H4" /></g>);
     case 'junction':

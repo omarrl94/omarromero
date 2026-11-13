@@ -204,4 +204,43 @@ export const diferencial: Project = {
   wires: [w('1', 'A1', 0, 'D', 0), w('2', 'D', 1, 'L1', 0), w('3', 'L1', 1, 'D', 3), w('4', 'D', 2, 'A1', 1), w('5', 'D', 1, 'F', 0), w('6', 'F', 1, 'GND', 0), w('7', 'A1', 1, 'GND', 0)],
 };
 
-export const EXAMPLES = [trifasica, diferencial, marchaParo, ejercicio1(), ejercicio2(), dosPilas, luzSimple, divisor, ledResistencia, fusible, escalera, motorPulsador, potenciometro, rlcSerie, factorPotencia, lampara230];
+export const fuenteRectificada: Project = {
+  version: PROJECT_VERSION, name: 'Electrónica: fuente rectificada con filtro (puente + condensador)',
+  components: [
+    c('A1', 'acsource', 120, 260, 90, { v: 12, f: 50, rint: 0.2 }, 'Transformador 12 V'),
+    c('B1', 'bridge1', 340, 240, 0, {}, 'Puente'),
+    c('C1', 'capacitor', 540, 280, 90, { c: 2200 }, 'C filtro'),
+    c('R1', 'resistor', 680, 280, 90, { r: 100, pmax: 5 }, 'Carga'),
+    c('GND', 'ground', 340, 420, 0),
+  ],
+  wires: [w('1', 'A1', 0, 'B1', 0), w('2', 'A1', 1, 'B1', 1), w('3', 'B1', 2, 'C1', 0), w('4', 'B1', 2, 'R1', 0), w('5', 'C1', 1, 'GND', 0), w('6', 'R1', 1, 'GND', 0), w('7', 'B1', 3, 'GND', 0)],
+};
+
+export const astable555: Project = {
+  version: PROJECT_VERSION, name: 'Electrónica: 555 astable con LED parpadeante',
+  components: [
+    c('V1', 'dcsource', 100, 260, 90, { v: 5 }, '5 V'),
+    c('U1', 'ne555', 400, 260, 0, {}, '555'),
+    c('R1', 'resistor', 280, 100, 90, { r: 4700, pmax: 1 }, 'R1'),
+    c('R2', 'resistor', 280, 200, 90, { r: 47000, pmax: 1 }, 'R2'),
+    c('C1', 'capacitor', 200, 400, 90, { c: 10 }, 'C'),
+    c('R3', 'resistor', 640, 220, 0, { r: 330, pmax: 1 }, 'R3'),
+    c('D1', 'led', 760, 280, 90, { color: 1 }, 'LED'),
+    c('GND', 'ground', 400, 460, 0),
+  ],
+  wires: [w('1', 'V1', 0, 'U1', 0), w('2', 'V1', 0, 'U1', 4), w('3', 'V1', 0, 'R1', 0), w('4', 'R1', 1, 'U1', 6), w('5', 'R2', 0, 'U1', 6), w('6', 'R2', 1, 'U1', 3), w('7', 'U1', 3, 'U1', 2), w('8', 'U1', 3, 'C1', 0), w('9', 'C1', 1, 'GND', 0), w('10', 'U1', 1, 'GND', 0), w('11', 'V1', 1, 'GND', 0), w('12', 'U1', 5, 'R3', 0), w('13', 'R3', 1, 'D1', 0), w('14', 'D1', 1, 'GND', 0)],
+};
+
+export const opampInversor: Project = {
+  version: PROJECT_VERSION, name: 'Electrónica: amplificador operacional inversor (×−10)',
+  components: [
+    c('G1', 'fgen', 120, 260, 90, { wf: 0, f: 1000, amp: 0.5, off: 0, rint: 0 }, 'Señal 1 kHz'),
+    c('R1', 'resistor', 300, 160, 0, { r: 1000, pmax: 1 }, 'R1 1 kΩ'),
+    c('R2', 'resistor', 480, 100, 0, { r: 10000, pmax: 1 }, 'Rf 10 kΩ'),
+    c('U1', 'opamp', 480, 240, 0, { sup: 1 }, 'U1'),
+    c('GND', 'ground', 300, 420, 0),
+  ],
+  wires: [w('1', 'G1', 0, 'R1', 0), w('2', 'R1', 1, 'U1', 1), w('3', 'R1', 1, 'R2', 0), w('4', 'R2', 1, 'U1', 2), w('5', 'U1', 0, 'GND', 0), w('6', 'G1', 1, 'GND', 0)],
+};
+
+export const EXAMPLES = [fuenteRectificada, astable555, opampInversor, trifasica, diferencial, marchaParo, ejercicio1(), ejercicio2(), dosPilas, luzSimple, divisor, ledResistencia, fusible, escalera, motorPulsador, potenciometro, rlcSerie, factorPotencia, lampara230];

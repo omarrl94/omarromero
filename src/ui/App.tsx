@@ -18,6 +18,7 @@ import { Plano } from './Plano';
 import { UNIFILAR_TYPES } from '../model/unifilar';
 import { GameView } from './GameView';
 import { SolveDialog } from './SolveDialog';
+import { TranDialog } from './TranDialog';
 import { useAuth } from '../auth';
 import { loadProfile, saveProfile } from '../cloud';
 import { useGame } from '../game/store';
@@ -129,6 +130,7 @@ export function App() {
   }, [visitor]);
   const unverifiedAdmin = !!auth.user && isAdminEmail(auth.user.email) && !auth.user.emailVerified;
   const [showSolve, setShowSolve] = useState(false);
+  const [showTran, setShowTran] = useState(false);
   const [welcome, setWelcome] = useState(() => { try { return !localStorage.getItem('circuitossea:welcome'); } catch { return true; } });
   const closeWelcome = () => { try { localStorage.setItem('circuitossea:welcome', '1'); } catch { /* ignorar */ } setWelcome(false); };
   const st = useStore();
@@ -180,6 +182,7 @@ export function App() {
     <div className={`app v-${st.view} ${topHidden ? 'notop' : ''} ${wide ? 'wide' : ''} ${st.leftOpen ? '' : 'noleft'} ${st.rightOpen ? '' : 'noright'}`} onDragOver={(e) => { if (!visitor && e.dataTransfer.types.includes('Files')) e.preventDefault(); }} onDrop={(e) => { if (visitor || !e.dataTransfer.files.length) return; e.preventDefault(); void dropOmi(e.dataTransfer.files[0]); }}>
       <ProbeDragLayer />
       {showSolve && <SolveDialog sim={sim} onClose={() => setShowSolve(false)} />}
+      {showTran && <TranDialog sim={sim} onClose={() => setShowTran(false)} />}
       {welcome && !visitor && <Welcome onClose={closeWelcome} />}
       {showAdmin && <AdminPanel onClose={() => setShowAdmin(false)} />}
       <UpsellModal />
@@ -234,6 +237,7 @@ export function App() {
             </span>
           )}
           {['schematic', 'multifilar', 'unifilar', 'real'].includes(st.view) && <button className={`solvebtn ${visitor ? 'locked' : ''}`} onClick={() => (visitor ? st.setUpsell(UPSELL.solve) : setShowSolve(true))} title="Resolver el circuito por Kirchhoff, mallas, nudos, Millman, Thévenin, Norton…">{visitor ? '🔒 ' : ''}Resolver valores</button>}
+          {['schematic', 'multifilar', 'unifilar', 'real'].includes(st.view) && <button className={`solvebtn ${visitor ? 'locked' : ''}`} onClick={() => (visitor ? st.setUpsell(UPSELL.solve) : setShowTran(true))} title="Simular el circuito en el tiempo: diodos, transistores, 555, amplificadores, condensadores…">{visitor ? '🔒 ' : ''}Transitorio</button>}
           {['schematic', 'multifilar', 'unifilar'].includes(st.view) && <button onClick={st.toggleKeys} title="?">Atajos</button>}
           {st.view === 'schematic' && <button onClick={st.fit} title="F">⤢ Ajustar</button>}
           <button onClick={() => st.toggle('leftOpen')} className={st.leftOpen ? '' : 'on'} title="Mostrar u ocultar la paleta">◧</button>

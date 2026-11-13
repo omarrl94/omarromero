@@ -6,6 +6,8 @@
 import type { Component } from './types';
 import { fmt, fmtOhm, fmtSI } from './format';
 import { EXTRA } from './library2';
+import { EXTRA3 } from './library3';
+import type { TEl } from '../engine/tran';
 
 type P = Component['params'];
 export type ParamDef = {
@@ -31,11 +33,14 @@ export type Model =
   | { kind: 'CROSS'; pos: (p: P) => number } // conmutador de cruce (inversor 2×2)
   | { kind: 'SEL'; pos: (p: P) => number } // selector de 3 posiciones: 0 → t1, 1 → ninguno, 2 → t2
   | { kind: 'RELAY'; rc: (p: P) => number; pickup: (p: P) => number; drop: (p: P) => number; nNO: number; nNC: number; inv?: boolean; timer?: { mode: 'on' | 'off' | 'pulse' | 'sd'; t: (p: P) => number } } // bobina (terminales 0-1) + contactos (pares 2+2j)
+  | { kind: 'TRAN'; build: (c: TranCtx) => TEl[] } // componente que solo se simula en el análisis transitorio
   | { kind: 'OPEN' } // condensador en CC permanente
   | { kind: 'GND' }
   | { kind: 'JUNCTION' };
 
-export type Category = 'Fuentes' | 'Pasivos' | 'Conexión' | 'Tomas' | 'Control' | 'Transformadores' | 'Sensores' | 'Semiconductores' | 'Maniobra' | 'Protecciones' | 'Receptores' | 'Referencia';
+/** Contexto para construir los elementos del análisis transitorio de un componente. */
+export interface TranCtx { nd: number[]; p: P; id: string; alloc: () => number }
+export type Category = 'Fuentes' | 'Pasivos' | 'Conexión' | 'Tomas' | 'Control' | 'Transformadores' | 'Electrónica' | 'Circuitos integrados' | 'Sensores' | 'Semiconductores' | 'Maniobra' | 'Protecciones' | 'Receptores' | 'Referencia';
 
 export interface Def {
   type: string;
@@ -54,6 +59,10 @@ export interface Def {
   sym?: string;
   /** Marca corta sobre el símbolo (p. ej. «NH», «PV») */
   mark?: string;
+  /** Texto central del símbolo (puertas lógicas, convertidores…) */
+  glyph?: string;
+  /** Forma de onda de una fuente de tensión (generadores): solo se usa en el análisis transitorio */
+  wave?: (p: P) => (t: number) => number;
   /** Impedancia en CA (Ω) a la pulsación ω; si no existe, se usa el modelo de CC con parte imaginaria 0 */
   acz?: (p: P, w: number) => { re: number; im: number };
 }
@@ -68,6 +77,7 @@ const R_PX = [
 export const LIBRARY: Def[] = [
   ...BASE(),
   ...EXTRA,
+  ...EXTRA3,
 ];
 export const symOf = (type: string): string => defOf(type).sym ?? type;
 /** Siguiente valor de un parámetro que se conmuta con clic. */

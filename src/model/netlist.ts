@@ -325,6 +325,7 @@ function simulateCore(project: Project, runtime: Runtime = {}): SimResult {
     ids: [...new Set(i.elementIds.map((x) => x.split('#')[0]))],
   }));
   for (const w of acWarnings) messages.push({ level: 'warn', text: w, ids: [] });
+  { const act = components.filter((c) => defOf(c.type).model.kind === 'TRAN'); if (act.length) messages.push({ level: 'warn', text: `Hay electrónica activa (${[...new Set(act.map((c) => defOf(c.type).name))].slice(0, 3).join(', ')}…): no se calcula en el estado estático. Usa el botón «Transitorio» para simular el circuito en el tiempo.`, ids: act.map((c) => c.id) }); }
   if (implicitGround) messages.push({ level: 'warn', text: 'No hay símbolo de masa: se toma como 0 V el borne − de la primera pila.', ids: [] });
   if (!elements.some((e) => e.kind === 'V' || e.kind === 'I') && components.length)
     messages.push({ level: 'warn', text: 'El circuito no tiene ninguna fuente: no circula corriente.', ids: [] });

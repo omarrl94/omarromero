@@ -194,3 +194,9 @@ input[type='checkbox'], input[type='radio'] { accent-color: var(--ink); }
 .top-toggle { position: fixed; top: 0; left: 50%; transform: translateX(-50%); z-index: 60; background: var(--ink); color: var(--paper); border: 0; border-radius: 0 0 8px 8px; padding: 4px 14px; font: 700 11px 'Barlow Condensed', system-ui, sans-serif; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; opacity: .85; }
 .top-toggle:hover { opacity: 1; background: var(--terra); }
 @media (max-width: 900px) { .app.notop { grid-template-rows: 0 auto 1fr auto; } }
+
+/* Transitorio */
+.tran .plist { list-style: none; padding: 0; margin: 0 0 8px; display: grid; gap: 4px; max-height: 26vh; overflow: auto; }
+.tran .plist li label { display: flex; gap: 6px; align-items: baseline; font-size: 12.5px; cursor: pointer; } .tran .plist small { color: #7a7266; }
+.tran .tran-h { margin: 6px 0 2px; font: 700 12px 'Barlow Condensed', system-ui, sans-serif; letter-spacing: .08em; text-transform: uppercase; color: var(--terra); }
+.tranview { max-width: 940px !important; } .tranplot { width: 100%; height: auto; background: #fff; }

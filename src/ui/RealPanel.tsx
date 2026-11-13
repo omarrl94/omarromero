@@ -56,7 +56,7 @@ const REAL_AS: Record<string, string> = {
   indcore: 'inductor', indvar: 'inductor', solenoid: 'inductor', zbox: 'inductor', load: 'inductor',
   rheo: 'resistor', trim: 'resistor', shunt: 'resistor', gauge: 'resistor', rnet: 'resistor',
   borne: 'switch', jumper: 'switch', connector: 'switch', socket: 'switch', plug: 'switch', disc: 'switch', estop: 'switch', sensor: 'switch',
-  pica: 'ground', sel3: 'spdt', gang: 'multi', push2: 'multi', cross: 'multi', relay: 'multi', xfmr: 'multi', src3: 'multi', load3: 'multi', motor3: 'multi',
+  pica: 'ground', sel3: 'spdt', gang: 'multi', push2: 'multi', cross: 'multi', relay: 'multi', xfmr: 'multi', src3: 'multi', load3: 'multi', motor3: 'multi', bjt: 'multi', mos: 'multi', opamp: 'multi', bridge: 'multi', pdiode: 'diode', scr: 'multi', triac: 'multi', diac: 'multi', gate: 'multi', ic: 'multi',
 };
 const shapeKey = (c: Component) => { const k = symOf(c.type); return SHAPE[k] ? k : REAL_AS[k] ?? 'resistor'; };
 function shapeOf(c: Component) {
