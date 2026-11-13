@@ -1,3 +1,4 @@
+import { ejercicio1, ejercicio2 } from './ejercicios';
 import type { Project } from './types';
 import { PROJECT_VERSION } from './types';
 
@@ -163,4 +164,4 @@ export const lampara230: Project = {
   wires: [w('a', 'A1', 0, 'S1', 0), w('b', 'S1', 1, 'L1', 0), w('c', 'L1', 1, 'A1', 1), w('d', 'A1', 1, 'GND', 0)],
 };
 
-export const EXAMPLES = [dosPilas, luzSimple, divisor, ledResistencia, fusible, escalera, motorPulsador, potenciometro, rlcSerie, factorPotencia, lampara230];
+export const EXAMPLES = [ejercicio1(), ejercicio2(), dosPilas, luzSimple, divisor, ledResistencia, fusible, escalera, motorPulsador, potenciometro, rlcSerie, factorPotencia, lampara230];

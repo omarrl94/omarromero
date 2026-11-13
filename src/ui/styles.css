@@ -263,3 +263,26 @@ button.warnbtn { background: #7a3b12; border-color: var(--terracota); }
 }
 .ico { flex: none; vertical-align: -3px; } .viewswitch button span { display: inline-flex; align-items: center; }
 .avatar { display: inline-grid; place-items: center; border-radius: 50%; color: #fff; font-weight: 800; letter-spacing: .02em; box-shadow: inset 0 0 0 2px #ffffff33, 0 2px 6px #0005; flex: none; }
+
+/* ── Solucionario (formato de clase) ── */
+.solucionario { font-family: 'Barlow', system-ui, sans-serif; }
+.solucionario .rhead h1 { font-family: 'Barlow Condensed', system-ui, sans-serif; letter-spacing: .02em; }
+.solucionario .rsec h2 { background: #2A2622; font-family: 'Barlow Condensed', system-ui, sans-serif; font-size: 20px; letter-spacing: .04em; text-transform: uppercase; }
+.solucionario .mband { margin: 22px 0 10px; padding: 6px 12px; background: #e6e2da; border-left: 5px solid #A84A24; font: 700 17px 'Barlow Condensed', system-ui, sans-serif; letter-spacing: .03em; color: #2A2622; }
+.solucionario .sband { margin: 14px 0 6px; font: 700 13px 'Barlow Condensed', system-ui, sans-serif; letter-spacing: .08em; text-transform: uppercase; color: #6b645a; border-bottom: 1px solid #d8d2c6; padding-bottom: 2px; }
+.sstep { margin: 10px 0; break-inside: avoid; }
+.sstep h5 { margin: 0 0 4px; font: 700 15px 'Barlow', system-ui, sans-serif; color: #2A2622; }
+.sstep h5 span { color: #A84A24; margin-right: 6px; text-transform: uppercase; font-size: 12.5px; letter-spacing: .06em; }
+.sstep p { margin: 2px 0; font-size: 14px; }
+.pizarra { margin: 6px 0 0; padding: 8px 12px; background: #f4efe4; border-left: 3px solid #d9c9a6; font: 13px/1.6 'IBM Plex Mono', ui-monospace, monospace; white-space: pre-wrap; color: #2A2622; }
+.pizarra i { font: 700 10.5px 'Barlow', system-ui, sans-serif; text-transform: uppercase; letter-spacing: .08em; color: #8a7a55; }
+.sbox { margin: 12px 0; padding: 8px 14px; border-radius: 4px; break-inside: avoid; border: 1px solid; }
+.sbox h5 { margin: 0 0 4px; font: 700 13px 'Barlow Condensed', system-ui, sans-serif; text-transform: uppercase; letter-spacing: .08em; }
+.sbox pre { margin: 0; font: 13px/1.65 'IBM Plex Mono', ui-monospace, monospace; white-space: pre-wrap; }
+.sbox.result, .sbox.check { background: #e8f1e6; border-color: #9fc29a; } .sbox.result h5, .sbox.check h5 { color: #2f6f2f; }
+.sbox.interp { background: #fbf3cd; border-color: #e0cd7a; } .sbox.interp h5 { color: #7a6410; }
+.sbox.reflex { background: #f8e3dc; border-color: #e0a99a; } .sbox.reflex h5 { color: #9a3b22; }
+.sfig { margin: 10px auto; text-align: center; break-inside: avoid; } .sfig figcaption { font-size: 12px; color: #6b645a; }
+.sfig .rdiagram { max-width: 100%; max-height: 330px; } .sfig .phasor { width: 260px; max-width: 100%; }
+@media (max-width: 700px) { .report { padding: 20px 16px !important; } .pizarra, .sbox pre { font-size: 12px; overflow-x: auto; white-space: pre; } }
+@media print { body.print-report .sstep, body.print-report .sbox, body.print-report .sfig { break-inside: avoid; } body.print-report .pizarra, body.print-report .sbox, body.print-report .mband, body.print-report .rsec h2 { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }

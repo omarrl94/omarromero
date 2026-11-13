@@ -49,6 +49,9 @@ interface State {
   clipboard: { components: Component[]; wires: Wire[] } | null;
   keys: boolean;
   toggleKeys(): void;
+  editingPoint: TermRef | null;
+  editPoint(t: TermRef | null): void;
+  setPointName(t: TermRef, name: string): void;
   addWirePoint(p: { x: number; y: number }): void;
   popWirePoint(): void;
   flipWire(): void;
@@ -124,7 +127,7 @@ const uid = (prefix: string) => `${prefix}${Date.now().toString(36)}${(counter++
 export const useStore = create<State>((set, get) => ({
   project: loadInitial(),
   past: [], future: [], selection: [], wiring: null,
-  wiringPts: [], wiringFlip: false, clipboard: null, keys: false,
+  wiringPts: [], wiringFlip: false, clipboard: null, keys: false, editingPoint: null,
   runtime: {}, booms: [], notices: [], meter: { ...initialMeter }, log: [], sound: false, scopeTips: { c1: null, c2: null }, scopeArm: null, dock: false, view: 'schematic', upsell: null, leftOpen: true, rightOpen: typeof window === 'undefined' || window.innerWidth > 700, fitTick: 0,
   inst: { meter: { open: false, x: null, y: null, min: false }, scope: { open: false, x: null, y: null, min: false }, watt: { open: false, x: null, y: null, min: false } },
   probeDrag: null, showCables: true,
@@ -254,6 +257,17 @@ export const useStore = create<State>((set, get) => ({
   },
   startWire(t) { set({ wiring: t, wiringPts: [], wiringFlip: false }); },
   toggleKeys() { set((s) => ({ keys: !s.keys })); },
+  editPoint(t) { set({ editingPoint: t }); },
+  setPointName(t, name) {
+    const key = `${t.comp}:${t.term}`;
+    const clean = name.trim().slice(0, 12);
+    get().snapshot();
+    set((s) => {
+      const names = { ...(s.project.pointNames ?? {}) };
+      if (clean) names[key] = clean; else delete names[key];
+      return { project: { ...s.project, pointNames: Object.keys(names).length ? names : undefined }, editingPoint: null };
+    });
+  },
   addWirePoint(p) { set((s) => ({ wiringPts: [...s.wiringPts, { x: snapG(p.x), y: snapG(p.y), v: s.wiringFlip || undefined }], wiringFlip: false })); },
   popWirePoint() { set((s) => ({ wiringPts: s.wiringPts.slice(0, -1) })); },
   flipWire() { set((s) => ({ wiringFlip: !s.wiringFlip })); },

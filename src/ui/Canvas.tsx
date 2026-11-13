@@ -399,6 +399,31 @@ export function Canvas({ sim, cables, mode = 'schematic', locked = false, canTog
             </g>
           );
         })()}
+        {/* Nombres de puntos (A, B…): punto relleno con su etiqueta */}
+        {Object.entries(project.pointNames ?? {}).map(([key, name]) => {
+          const [cid, ti] = key.split(':'); const c = compMap.get(cid);
+          if (!c || c.hidden) return null;
+          const p0 = termPos(c, Number(ti));
+          return (
+            <g key={key} className="pname" pointerEvents="none" transform={`translate(${p0.x} ${p0.y})`}>
+              <circle r={5} />
+              <text x={9} y={-9}>{name}</text>
+            </g>
+          );
+        })}
+        {st.editingPoint && compMap.get(st.editingPoint.comp) && (() => {
+          const ep = st.editingPoint!;
+          const p0 = termPos(compMap.get(ep.comp)!, ep.term);
+          const cur = project.pointNames?.[`${ep.comp}:${ep.term}`] ?? '';
+          const commit = (v: string) => st.setPointName(ep, v);
+          return (
+            <foreignObject x={p0.x + 8} y={p0.y - 40} width={150} height={34}>
+              <input className="pname-input" autoFocus defaultValue={cur} placeholder="Nombre (A, B…)" maxLength={12} aria-label="Nombre del punto"
+                onKeyDown={(e) => { e.stopPropagation(); if (e.key === 'Enter') commit((e.target as HTMLInputElement).value); if (e.key === 'Escape') st.editPoint(null); }}
+                onBlur={(e) => commit(e.target.value)} onPointerDown={(e) => e.stopPropagation()} />
+            </foreignObject>
+          );
+        })()}
         {box && <rect x={Math.min(box.x0, box.x1)} y={Math.min(box.y0, box.y1)} width={Math.abs(box.x1 - box.x0)} height={Math.abs(box.y1 - box.y0)} fill="color-mix(in srgb, var(--accent) 12%, transparent)" stroke="var(--accent)" strokeDasharray="5 4" pointerEvents="none" />}
         {/* Componentes */}
         {project.components.filter((c) => !c.hidden).map((c) => {
@@ -442,7 +467,7 @@ export function Canvas({ sim, cables, mode = 'schematic', locked = false, canTog
                 return (
                   <g key={ti}>
                     <circle cx={p.x} cy={p.y} r={11} fill="transparent" className="term-hit"
-                      onPointerDown={(e) => onTermClick(e, { comp: c.id, term: ti }, ti)} data-term={`${c.id}:${ti}`} />
+                      onPointerDown={(e) => onTermClick(e, { comp: c.id, term: ti }, ti)} onDoubleClick={(e) => { e.stopPropagation(); if (!locked) st.editPoint({ comp: c.id, term: ti }); }} data-term={`${c.id}:${ti}`} />
                     <circle cx={p.x} cy={p.y} r={active ? 6 : 4} className={`term ${active ? 'active' : ''}`} pointerEvents="none" />
                     {mf && c.type !== 'junction' && c.type !== 'ground' && (() => {
                       const vx = p.x - c.x, vy = p.y - c.y, nn = Math.hypot(vx, vy) || 1;

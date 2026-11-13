@@ -41,6 +41,8 @@ export interface Project {
   wires: Wire[];
   /** Configuración del cuadro eléctrico (vista «Cuadro»). */
   panel?: import('./panel').PanelConfig;
+  /** Nombres de puntos del circuito (A, B, N1…): clave `componente:terminal`. */
+  pointNames?: Record<string, string>;
   /** Datos del cajetín del plano. */
   sheet?: { alumno: string; curso: string; titulo: string; escala: string };
 }

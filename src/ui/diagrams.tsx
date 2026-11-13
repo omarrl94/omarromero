@@ -33,6 +33,16 @@ export function paperVars() {
 }
 
 /* ─────────────────────────── MULTIFILAR ─────────────────────────── */
+/** Desplazamiento que usa el multifilar para centrar el dibujo (para superponer marcas en coordenadas del esquema). */
+export function multifilarOffset(project: Project) {
+  const pts = project.components.flatMap((c) => defOf(c.type).terminals.map((_, i) => termPos(c, i)));
+  if (!pts.length) return { ox: 0, oy: 0 };
+  const minX = Math.min(...pts.map((p) => p.x)) - 110, maxX = Math.max(...pts.map((p) => p.x)) + 140;
+  const minY = Math.min(...pts.map((p) => p.y)) - 100, maxY = Math.max(...pts.map((p) => p.y)) + 120;
+  const w = Math.max(640, maxX - minX), h = Math.max(340, maxY - minY);
+  return { ox: -minX + (w - (maxX - minX)) / 2, oy: -minY + (h - (maxY - minY)) / 2 };
+}
+
 export function multifilarDiagram(project: Project, sim: SimResult, cables: Record<string, CableInfo>, showCables: boolean): Diagram {
   const comps = project.components;
   if (!comps.length) return { w: 600, h: 300, node: <text x={300} y={150} textAnchor="middle" fill="var(--ink)">Circuito vacío</text> };

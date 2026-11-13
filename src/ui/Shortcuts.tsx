@@ -13,6 +13,7 @@ const MOUSE: [string, string][] = [
   ['Mayús + arrastrar', 'Seleccionar con recuadro'],
   ['Mayús + clic', 'Añadir o quitar de la selección'],
   ['Cuadraditos de un cable seleccionado', 'Arrastrar para mover sus codos'],
+  ['Doble clic en un terminal o empalme', 'Ponerle nombre al punto (A, B…); vacío lo borra'],
   ['Clic derecho', 'Cancela el cable en curso'],
 ];
 const KEYS: [string, string][] = [
