@@ -243,4 +243,34 @@ export const opampInversor: Project = {
   wires: [w('1', 'G1', 0, 'R1', 0), w('2', 'R1', 1, 'U1', 1), w('3', 'R1', 1, 'R2', 0), w('4', 'R2', 1, 'U1', 2), w('5', 'U1', 0, 'GND', 0), w('6', 'G1', 1, 'GND', 0)],
 };
 
-export const EXAMPLES = [fuenteRectificada, astable555, opampInversor, trifasica, diferencial, marchaParo, ejercicio1(), ejercicio2(), dosPilas, luzSimple, divisor, ledResistencia, fusible, escalera, motorPulsador, potenciometro, rlcSerie, factorPotencia, lampara230];
+const wl = (id: string, a: string, at: number, b: string, bt: number, section: number, length: number) => ({ ...w(id, a, at, b, bt), section, length });
+
+/** Salón de 24 m² (ejemplo de la propuesta a distribuidores): diferencial, C1 de alumbrado y C2 de tomas. */
+export const salon: Project = {
+  version: PROJECT_VERSION, name: 'Salón de 24 m²: alumbrado (C1) y tomas (C2) con diferencial',
+  components: [
+    c('A1', 'red', 100, 360, 90, { v: 230, f: 50, rint: 0.2 }, 'Red 230 V'),
+    c('GND', 'ground', 100, 520, 0),
+    c('Q0', 'rcd2', 300, 340, 0, { ina: 30 }, 'Q0 diferencial 30 mA'),
+    c('Q1', 'breaker', 520, 160, 0, { in: 10, curve: 10 }, 'Q1 C1 · 10 A'),
+    c('Q2', 'breaker', 520, 420, 0, { in: 16, curve: 10 }, 'Q2 C2 · 16 A'),
+    c('S1', 'switch', 680, 100, 0, { closed: true }, 'S1'),
+    c('L1', 'lampled', 860, 100, 0, { vn: 230, pn: 9 }, 'Luz 1'),
+    c('S2', 'switch', 680, 200, 0, { closed: true }, 'S2'),
+    c('L2', 'lampled', 860, 200, 0, { vn: 230, pn: 9 }, 'Luz 2'),
+    c('T1', 'toma_sw', 680, 320, 0, {}, 'Base 1'), c('R1', 'radiador', 860, 320, 0, { vn: 230, pn: 1500 }, 'Radiador 1500 W'),
+    c('T2', 'toma_sw', 680, 400, 0, {}, 'Base 2'), c('R2', 'resistor', 860, 400, 0, { r: 529, pmax: 200 }, 'TV 100 W'),
+    c('T3', 'toma_sw', 680, 480, 0, {}, 'Base 3'), c('L3', 'lampled', 860, 480, 0, { vn: 230, pn: 9 }, 'Lámpara de pie'),
+    c('T4', 'toma_sw', 680, 560, 0, {}, 'Base 4'), c('R4', 'ventilador', 860, 560, 0, { vn: 230, pn: 40 }, 'Ventilador 40 W'),
+    c('T5', 'toma_sw', 680, 640, 0, {}, 'Base 5'), c('R5', 'carga', 860, 640, 0, { r: 400, l: 0, c: 0 }, 'Equipo de música'),
+  ],
+  wires: [
+    w('f1', 'A1', 0, 'Q0', 0), w('n1', 'A1', 1, 'Q0', 2), w('g', 'A1', 1, 'GND', 0),
+    wl('f2', 'Q0', 1, 'Q1', 0, 1.5, 4), wl('f3', 'Q0', 1, 'Q2', 0, 2.5, 4),
+    wl('c1a', 'Q1', 1, 'S1', 0, 1.5, 7), wl('c1b', 'S1', 1, 'L1', 0, 1.5, 7), wl('n_l1', 'L1', 1, 'Q0', 3, 1.5, 7),
+    wl('c1c', 'Q1', 1, 'S2', 0, 1.5, 7), wl('c1d', 'S2', 1, 'L2', 0, 1.5, 7), wl('n_l2', 'L2', 1, 'Q0', 3, 1.5, 7),
+    ...[1, 2, 3, 4, 5].flatMap((i) => [wl(`c2a${i}`, 'Q2', 1, `T${i}`, 0, 2.5, 8), wl(`c2b${i}`, `T${i}`, 1, i === 1 ? 'R1' : i === 2 ? 'R2' : i === 3 ? 'L3' : `R${i}`, 0, 2.5, 8), wl(`n${i}`, i === 1 ? 'R1' : i === 2 ? 'R2' : i === 3 ? 'L3' : `R${i}`, 1, 'Q0', 3, 2.5, 8)]),
+  ],
+};
+
+export const EXAMPLES = [salon, fuenteRectificada, astable555, opampInversor, trifasica, diferencial, marchaParo, ejercicio1(), ejercicio2(), dosPilas, luzSimple, divisor, ledResistencia, fusible, escalera, motorPulsador, potenciometro, rlcSerie, factorPotencia, lampara230];
