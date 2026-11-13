@@ -92,7 +92,10 @@ async function iniciarSesion(req, u, extra = {}, cookiesExtra = []) {
  * Se apaga con DOBLE_FACTOR=no (y no funciona sin correo configurado).
  */
 const COOKIE_CONFIANZA = "jro_conf", DIAS_CONFIANZA = 30;
-export const dobleFactorActivo = () => !!proveedorConfigurado() && env("DOBLE_FACTOR").toLowerCase() !== "no";
+// ⚠ PAUSA TEMPORAL (petición del administrador, 13/11/2026): se entra solo con la contraseña.
+//   Para volver a activar la verificación en dos pasos, poner esto a false.
+const DOBLE_FACTOR_EN_PAUSA = true;
+export const dobleFactorActivo = () => !DOBLE_FACTOR_EN_PAUSA && !!proveedorConfigurado() && env("DOBLE_FACTOR").toLowerCase() !== "no";
 const requiereDobleFactor = (u) => dobleFactorActivo() && (esStaff(u) || esAdmin(u.email));
 const firmaConfianza = async (u, exp) => createHmac("sha256", await secreto()).update(`confianza:${u.email}:${u.ver || 0}:${exp}`).digest("base64url");
 async function cookieConfianza(req, u) {
