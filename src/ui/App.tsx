@@ -189,7 +189,7 @@ export function App() {
             <button className="ghost" onClick={async () => { const ok = await auth.refreshUser(); if (!ok) alert('Firebase todavía no ve el correo como verificado. Abre el enlace del correo (mira también en spam) y vuelve a pulsar.'); }}>Ya lo he verificado</button>
           </div>
         )}
-        <div className="brand"><span className="logo">⚡</span><b>{t.app}</b><small>{t.tagline}</small></div>
+        <div className="brand"><svg width="30" height="30" viewBox="0 0 32 32" aria-hidden><rect x="1" y="1" width="30" height="30" rx="4" fill="none" stroke="currentColor" strokeWidth="2" /><path d="M16 4v7M16 21v7" stroke="currentColor" strokeWidth="2" /><circle cx="16" cy="16" r="5" fill="none" stroke="currentColor" strokeWidth="2" /><path d="M13.5 18.5l5-5" stroke="#A84A24" strokeWidth="2" /></svg><b>Circuitos<i>SEA</i></b><small>{t.tagline}</small></div>
         <div className="viewswitch" role="tablist" aria-label="Vista del circuito">
           {([['schematic', 'Esquema'], ['multifilar', 'Multifilar'], ['unifilar', 'Unifilar'], ['real', 'Real'], ['cuadro', 'Cuadro'], ['plano', 'Plano'], ['juego', 'Juego'], ['averias', 'Avería'], ['boletin', 'Boletín']] as const).map(([v, l]) => (
             <button key={v} role="tab" aria-selected={st.view === v} onClick={() => st.setView(v)} data-view={v} className={`${st.view === v ? 'on' : ''} ${visitor && v !== 'schematic' ? 'locked' : ''}`}><span>{visitor && v !== 'schematic' ? '🔒' : <Icon name={v as IconName} size={15} />}</span> {l}</button>
@@ -222,7 +222,7 @@ export function App() {
               ))}
             </span>
           )}
-          {['schematic', 'multifilar', 'unifilar', 'real'].includes(st.view) && <button className={`solvebtn ${visitor ? 'locked' : ''}`} onClick={() => (visitor ? st.setUpsell(UPSELL.solve) : setShowSolve(true))} title="Resolver el circuito por Kirchhoff, mallas, nudos, Millman, Thévenin, Norton…">{visitor ? '🔒 ' : '🧮 '}Resolver valores</button>}
+          {['schematic', 'multifilar', 'unifilar', 'real'].includes(st.view) && <button className={`solvebtn ${visitor ? 'locked' : ''}`} onClick={() => (visitor ? st.setUpsell(UPSELL.solve) : setShowSolve(true))} title="Resolver el circuito por Kirchhoff, mallas, nudos, Millman, Thévenin, Norton…">{visitor ? '🔒 ' : ''}Resolver valores</button>}
           {st.view === 'schematic' && <button onClick={st.fit} title="F">⤢ Ajustar</button>}
           <button onClick={() => st.toggle('leftOpen')} className={st.leftOpen ? '' : 'on'} title="Mostrar u ocultar la paleta">◧</button>
           <button onClick={() => st.toggle('rightOpen')} className={st.rightOpen ? '' : 'on'} title="Mostrar u ocultar propiedades">◨</button>

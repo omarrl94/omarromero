@@ -1,11 +1,4 @@
 /* Portada «hoja de plano»: papel de delineación, tinta, designaciones UNE y colores normalizados de conductor. */
-@font-face { font-family: 'Barlow Condensed'; font-weight: 600; font-style: normal; font-display: swap; src: url('../fonts/barlow-condensed-latin-600-normal.woff2') format('woff2'); }
-@font-face { font-family: 'Barlow Condensed'; font-weight: 700; font-style: normal; font-display: swap; src: url('../fonts/barlow-condensed-latin-700-normal.woff2') format('woff2'); }
-@font-face { font-family: 'Barlow'; font-weight: 400; font-style: normal; font-display: swap; src: url('../fonts/barlow-latin-400-normal.woff2') format('woff2'); }
-@font-face { font-family: 'Barlow'; font-weight: 500; font-style: normal; font-display: swap; src: url('../fonts/barlow-latin-500-normal.woff2') format('woff2'); }
-@font-face { font-family: 'Barlow'; font-weight: 600; font-style: normal; font-display: swap; src: url('../fonts/barlow-latin-600-normal.woff2') format('woff2'); }
-@font-face { font-family: 'IBM Plex Mono'; font-weight: 400; font-style: normal; font-display: swap; src: url('../fonts/ibm-plex-mono-latin-400-normal.woff2') format('woff2'); }
-@font-face { font-family: 'IBM Plex Mono'; font-weight: 500; font-style: normal; font-display: swap; src: url('../fonts/ibm-plex-mono-latin-500-normal.woff2') format('woff2'); }
 
 .landing {
   --paper: #F3EFE8; --paper2: #ECE6DA; --sheet: #FBF9F4; --ink: #2A2622; --ink2: #4A433B; --mut: #6B6358; --line: #CBC2B2;

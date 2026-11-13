@@ -4,7 +4,9 @@ import { App } from './ui/App';
 import { Landing } from './ui/Landing';
 import { useAuth } from './auth';
 import { firebaseConfigured } from './firebase';
+import './ui/fonts.css';
 import './ui/styles.css';
+import './ui/theme.css';
 
 /** Control de acceso: sin sesión se ve la portada; con sesión (o modo demostración) la aplicación completa. */
 function Gate() {

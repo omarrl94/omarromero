@@ -33,5 +33,8 @@ Lo único «animado» es corriente (puntos de mostaza sobre la tinta) y la nube 
 - Cada dato normativo muestra su fuente y su marca «Verificado» / «A verificar».
 - Responsive probado a 390, 768, 1024 y 1440 px; sin desplazamiento horizontal.
 
-## Pendiente de alinear
-El interior de la aplicación (simulador y juegos) mantiene su estilo actual de taller oscuro/cianotipo.
+## Alcance
+El mismo sistema se aplica a TODA la aplicación mediante `src/ui/theme.css` (se carga la última): cabecera, pestañas, paletas,
+paneles, cuadro, planos, los tres juegos y todas las ventanas. Los planos en cianotipo, los instrumentos y los esquemas del lienzo
+se mantienen como «láminas» o aparatos dentro de marcos de plano. El modo oscuro (☾) reutiliza los mismos tokens invertidos.
+Para cambiar la identidad basta con tocar los tokens de `:root` en `theme.css`.
