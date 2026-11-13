@@ -244,11 +244,11 @@ function SymbolBody({ c, live }: P) {
       const on = !!live?.on;
       const nC = m.nNO + m.nNC;
       return (<g {...sw}>
-        <path d="M-40 -20H-30M-40 20H-30" />
-        <rect x={-30} y={-28} width={26} height={56} rx={3} fill={on ? 'var(--mostaza)' : 'var(--fill-b)'} />
-        <path d="M-24 -8a5 6 0 0 1 10 0a5 6 0 0 1 10 0M-24 6a5 6 0 0 1 10 0a5 6 0 0 1 10 0" strokeWidth={1.6} transform="translate(0 0)" />
-        <text x={-17} y={-14} textAnchor="middle" fontSize={7} fill="var(--ink)" stroke="none" fontWeight={700}>A1</text>
-        <text x={-17} y={24} textAnchor="middle" fontSize={7} fill="var(--ink)" stroke="none" fontWeight={700}>A2</text>
+        {!m.follow && (m.phase ? [-20, 0, 20] : [-20, 20]).map((y) => <path key={y} d={`M-40 ${y}H-30`} />)}
+        {!m.follow && <rect x={-30} y={-28} width={26} height={56} rx={3} fill={on ? 'var(--mostaza)' : 'var(--fill-b)'} />}
+        {!m.follow && <path d="M-24 -8a5 6 0 0 1 10 0a5 6 0 0 1 10 0M-24 6a5 6 0 0 1 10 0a5 6 0 0 1 10 0" strokeWidth={1.6} transform="translate(0 0)" />}
+        {!m.follow && <text x={-17} y={-14} textAnchor="middle" fontSize={7} fill="var(--ink)" stroke="none" fontWeight={700}>A1</text>}
+        {!m.follow && <text x={-17} y={24} textAnchor="middle" fontSize={7} fill="var(--ink)" stroke="none" fontWeight={700}>A2</text>}
         <path d={`M-2 0H${20 + 20 * (nC - 1) + 8}`} strokeDasharray="3 3" strokeWidth={1} opacity={0.6} />
         {Array.from({ length: nC }, (_, j) => { const x = 20 + 20 * j; const no = j < m.nNO; const closed = no === on;
           return <g key={j}><path d={`M${x} -40V-20M${x} 40V20`} /><circle cx={x} cy={-20} r={2.4} fill="var(--ink)" /><circle cx={x} cy={20} r={2.4} fill="var(--ink)" />
@@ -327,6 +327,8 @@ function SymbolBody({ c, live }: P) {
           : <text key={'l' + i} x={q.x < 0 ? -22 : 22} y={q.y + 3} textAnchor={q.x < 0 ? 'start' : 'end'} fontSize={7} fill="var(--ink)" stroke="none">{t === 'gate' ? '' : q.name}</text>))}
       </g>);
     }
+    case 'enclav':
+      return (<g {...sw}><rect x={-30} y={-14} width={60} height={28} rx={4} fill="var(--fill-b)" strokeDasharray="4 3" /><path d="M-18 0H18M-18 -6V6M18 -6V6" strokeWidth={2.4} stroke="var(--accent)" /><path d="M-6 -6L6 6M6 -6L-6 6" strokeWidth={1.4} /></g>);
     case 'ground':
       return (<g {...sw}><path d="M0 -20V0M-14 0H14M-9 6H9M-4 12H4" /></g>);
     case 'junction':

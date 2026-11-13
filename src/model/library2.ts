@@ -111,23 +111,23 @@ const fus = (type: string, name: string, cals: number[], def: number, mark: stri
   model: { kind: 'FUSE', rating: n('in'), factor: 1.6 }, tag: (p) => `${p.in} A`,
 });
 
-const relay = (type: string, name: string, o: { vn: number; pn: number; nNO: number; nNC: number; mark?: string; help?: string; vnOpts?: number[]; frac?: [number, number]; sense?: boolean; vset?: number; inv?: boolean; rcFixed?: number; timer?: 'on' | 'off' | 'pulse' | 'sd'; tdef?: number }): Def => {
+const relay = (type: string, name: string, o: { vn: number; pn: number; nNO: number; nNC: number; mark?: string; help?: string; vnOpts?: number[]; frac?: [number, number]; sense?: boolean; vset?: number; inv?: boolean; rcFixed?: number; timer?: 'on' | 'off' | 'pulse' | 'sd' | 'toggle' | 'count'; tdef?: number; phase?: boolean; follow?: boolean }): Def => {
   const nC = o.nNO + o.nNC;
-  const terminals: Def['terminals'] = [{ x: -40, y: -20, name: 'A1' }, { x: -40, y: 20, name: 'A2' }];
+  const terminals: Def['terminals'] = o.follow ? [] : o.phase ? [{ x: -40, y: -20, name: 'L1' }, { x: -40, y: 0, name: 'L2' }, { x: -40, y: 20, name: 'L3' }] : [{ x: -40, y: -20, name: 'A1' }, { x: -40, y: 20, name: 'A2' }];
   for (let j = 0; j < nC; j++) { const x = 20 + 20 * j; const no = j < o.nNO; terminals.push({ x, y: -40, name: no ? `${j + 1}3` : `${j - o.nNO + 1}1` }, { x, y: 40, name: no ? `${j + 1}4` : `${j - o.nNO + 1}2` }); }
   const [fp, fd] = o.frac ?? [0.75, 0.4];
-  const params: ParamDef[] = o.sense
+  const params: ParamDef[] = o.follow ? [{ key: 'kn', label: 'Sigue al contactor/relé nº (por orden de colocación)', unit: '', default: 1, min: 1, max: 12, step: 1 }] : o.sense
     ? [{ key: 'vset', label: 'Tensión de ajuste', unit: 'V', default: o.vset ?? 230, min: 1 }]
     : [o.vnOpts ? { key: 'vn', label: 'Tensión de la bobina', unit: 'V', default: o.vn, options: o.vnOpts.map((v) => ({ label: `${v} V`, value: v })) } : { key: 'vn', label: 'Tensión de la bobina', unit: 'V', default: o.vn, min: 1 },
        { key: 'pn', label: 'Potencia de la bobina', unit: 'W', default: o.pn, min: 0.01 }];
-  if (o.timer) params.push({ key: 't', label: o.timer === 'sd' ? 'Tiempo en estrella' : 'Tiempo', unit: 's', default: o.tdef ?? 5, min: 0.1, step: 0.5 });
+  if (o.timer && o.timer !== 'toggle') params.push({ key: 't', label: o.timer === 'sd' ? 'Tiempo en estrella' : o.timer === 'count' ? 'Nº de impulsos' : 'Tiempo', unit: o.timer === 'count' ? '' : 's', default: o.tdef ?? 5, min: o.timer === 'count' ? 1 : 0.1, step: o.timer === 'count' ? 1 : 0.5 });
   return {
     type, name, category: 'Control', w: 60 + 20 * nC, h: 100, sym: 'relay', mark: o.mark, help: o.help, terminals, params,
-    model: { kind: 'RELAY', nNO: o.nNO, nNC: o.nNC, inv: o.inv, ...(o.timer ? { timer: { mode: o.timer, t: n('t') } } : {}),
+    model: { kind: 'RELAY', nNO: o.nNO, nNC: o.nNC, inv: o.inv, phase: o.phase, ...(o.follow ? { follow: n('kn') } : {}), ...(o.timer ? { timer: { mode: o.timer, t: o.timer === 'toggle' ? () => 0 : n('t') } } : {}),
       rc: o.sense ? () => o.rcFixed ?? 1e5 : (p) => (o.rcFixed ?? Number(p.vn) ** 2 / Number(p.pn)),
       pickup: o.sense ? (p) => Number(p.vset) : (p) => fp * Number(p.vn),
       drop: o.sense ? (p) => Number(p.vset) * 0.95 : (p) => fd * Number(p.vn) },
-    tag: (p) => (o.sense ? `${fmt(+p.vset)} V` : `${fmt(+p.vn)} V`),
+    tag: (p) => (o.follow ? `K${p.kn}` : o.sense ? `${fmt(+p.vset)} V` : `${fmt(+p.vn)} V`),
   };
 };
 
@@ -291,6 +291,15 @@ export const EXTRA: Def[] = [
     params: [{ key: 'lux', label: 'Iluminación ambiente', unit: 'lux', default: 5, min: 0 }, { key: 'umbral', label: 'Umbral de actuación', unit: 'lux', default: 20, min: 0 }, { key: 'act', label: 'Activado', unit: '', default: false, bool: true }, { key: 'nc', label: 'NC', unit: '', default: false, bool: true }],
     model: { kind: 'SW', closed: (p) => Number(p.lux) < Number(p.umbral) }, tag: (p) => `${fmt(+p.lux)} lux`, help: 'Cierra su contacto cuando la luz ambiente baja del umbral (alumbrado automático al anochecer).' },
 
+  { type: 'horario', name: 'Interruptor horario', category: 'Control', w: 80, h: 40, terminals: two, sym: 'sensor', mark: 'HOR',
+    params: [{ key: 'hora', label: 'Hora actual (simulada)', unit: 'h', default: 12, min: 0, max: 24, step: 0.25 }, { key: 'on', label: 'Conecta a las', unit: 'h', default: 18, min: 0, max: 24, step: 0.25 }, { key: 'off', label: 'Desconecta a las', unit: 'h', default: 23, min: 0, max: 24, step: 0.25 }, { key: 'act', label: '', unit: '', default: false, bool: true }, { key: 'nc', label: '', unit: '', default: false, bool: true }],
+    model: { kind: 'SW', closed: (p) => { const h = Number(p.hora), a = Number(p.on), b = Number(p.off); return a <= b ? h >= a && h < b : h >= a || h < b; } }, tag: (p) => `${fmt(+p.hora)} h · ${fmt(+p.on)}–${fmt(+p.off)}`,
+    help: 'Contacto programado por horas. Cambia la hora simulada para ver cómo actúa el programa diario.' },
+  { type: 'astro', name: 'Programador astronómico', category: 'Control', w: 80, h: 40, terminals: two, sym: 'sensor', mark: 'ASTRO',
+    params: [{ key: 'hora', label: 'Hora actual (simulada)', unit: 'h', default: 21, min: 0, max: 24, step: 0.25 }, { key: 'dia', label: 'Día del año', unit: '', default: 172, min: 1, max: 365, step: 1 }, { key: 'lat', label: 'Latitud', unit: '°', default: 40, min: -65, max: 65, step: 1 }, { key: 'act', label: '', unit: '', default: false, bool: true }, { key: 'nc', label: '', unit: '', default: false, bool: true }],
+    model: { kind: 'SW', closed: (p) => { const d = 23.45 * Math.sin(((2 * Math.PI) / 365) * (284 + Number(p.dia))) * (Math.PI / 180), la = Number(p.lat) * (Math.PI / 180); const x = -Math.tan(la) * Math.tan(d); const ha = x >= 1 ? 0 : x <= -1 ? Math.PI : Math.acos(x); const sr = 12 - (ha * 12) / Math.PI, ss = 12 + (ha * 12) / Math.PI; const h = Number(p.hora); return h < sr || h >= ss; } }, tag: (p) => `${fmt(+p.hora)} h`,
+    help: 'Cierra el contacto desde el ocaso hasta el orto según el día del año y la latitud (alumbrado público).' },
+
   // ───── Sensores con contacto
   contact('fincarrera', 'Final de carrera', 'FC', 'Contacto accionado por una leva: actívalo con un clic.'),
   contact('s_ind', 'Detector inductivo', 'IND', 'Detecta metales. Se representa su contacto de salida.'),
@@ -360,6 +369,14 @@ export const EXTRA: Def[] = [
   relay('tmr_off', 'Temporizador a la desconexión', { vn: 24, pn: 1, nNO: 1, nNC: 1, mark: 'T-OFF', timer: 'off', vnOpts: [24, 48, 110, 230], help: 'Conmuta al aplicar tensión y mantiene los contactos accionados durante el tiempo ajustado después de quitarla.' }),
   relay('tmr_sd', 'Temporizador estrella-triángulo', { vn: 24, pn: 1, nNO: 2, nNC: 0, mark: 'Y-Δ', timer: 'sd', tdef: 6, vnOpts: [24, 48, 110, 230], help: 'Contacto 1 (estrella) cierra al instante y abre a los t s; contacto 2 (triángulo) cierra 0,1 s después (pausa de seguridad).' }),
   relay('escalera', 'Automático de escalera', { vn: 230, pn: 2, nNO: 1, nNC: 0, mark: 'AE', timer: 'pulse', tdef: 30, vnOpts: [24, 230], help: 'Un pulso en A1–A2 cierra el contacto durante el tiempo ajustado (reinicia con otro pulso).' }),
+  relay('telerruptor', 'Telerruptor', { vn: 230, pn: 4, nNO: 2, nNC: 0, mark: 'TL', timer: 'toggle', vnOpts: [24, 48, 110, 230], help: 'Cada pulso en la bobina cambia el estado de sus contactos (alumbrado desde varios pulsadores). Recuerda su posición.' }),
+  relay('rele_bi', 'Relé biestable (enclavamiento)', { vn: 24, pn: 1, nNO: 1, nNC: 1, mark: 'BIEST', timer: 'toggle', vnOpts: [12, 24, 48, 110, 230], help: 'Cada impulso en la bobina conmuta los contactos y se quedan así sin alimentación.' }),
+  relay('contador', 'Contador de impulsos', { vn: 24, pn: 0.5, nNO: 1, nNC: 1, mark: 'CONT', timer: 'count', tdef: 3, vnOpts: [24, 230], help: 'Cuenta los impulsos de la bobina; al llegar al número ajustado cambia el contacto y el siguiente impulso lo reinicia.' }),
+  relay('rele_fases', 'Relé de control de fases', { vn: 400, pn: 1, nNO: 1, nNC: 1, phase: true, mark: 'CF', frac: [0.8, 0.7], rcFixed: 1e5, help: 'Vigila las tres fases L1-L2-L3: el contacto NA cierra si hay las tres con tensión y asimetría menor del 20 %; si falta una fase o hay desequilibrio, se abre.' }),
+  relay('aux_block', 'Bloque de contactos auxiliares', { vn: 0, pn: 0, nNO: 2, nNC: 2, follow: true, mark: 'AUX', help: 'Contactos que se mueven con un contactor o relé (indica su número por orden de colocación: nº 1 = el primero que pusiste).' }),
+  { type: 'enclav', name: 'Enclavamiento mecánico', category: 'Control', w: 80, h: 40, terminals: [], sym: 'enclav', mark: 'ENCL',
+    params: [{ key: 'a', label: 'Contactor nº (prioritario)', unit: '', default: 1, min: 1, max: 12, step: 1 }, { key: 'b', label: 'Contactor nº (bloqueado si el primero está cerrado)', unit: '', default: 2, min: 1, max: 12, step: 1 }],
+    model: { kind: 'INTERLOCK', a: n('a'), b: n('b') }, tag: (p) => `K${p.a} ⇄ K${p.b}`, help: 'Impide que dos contactores cierren a la vez (inversión de giro, estrella-triángulo). Si ambas bobinas se excitan, solo cierra el primero.' },
   relay('rele_min', 'Relé de mínima tensión', { vn: 230, pn: 1, nNO: 1, nNC: 1, sense: true, vset: 200, inv: true, mark: 'U<', help: 'Mide la tensión entre A1 y A2: con menos del valor ajustado, el contacto NA cierra (alarma de falta de tensión).' }),
   relay('rele_max', 'Relé de máxima tensión', { vn: 230, pn: 1, nNO: 1, nNC: 1, sense: true, vset: 250, mark: 'U>', help: 'Mide la tensión entre A1 y A2: con más del valor ajustado, el contacto NA cierra (alarma de sobretensión).' }),
   // ───── Transformadores y trifásica

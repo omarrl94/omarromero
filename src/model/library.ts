@@ -32,7 +32,8 @@ export type Model =
   | { kind: 'RCD'; poles: number; ina: (p: P) => number; rating?: (p: P) => number; mag?: (p: P) => number; closed: (p: P) => boolean } // diferencial (± magnetotérmico): dispara si la suma de corrientes ≠ 0
   | { kind: 'CROSS'; pos: (p: P) => number } // conmutador de cruce (inversor 2×2)
   | { kind: 'SEL'; pos: (p: P) => number } // selector de 3 posiciones: 0 → t1, 1 → ninguno, 2 → t2
-  | { kind: 'RELAY'; rc: (p: P) => number; pickup: (p: P) => number; drop: (p: P) => number; nNO: number; nNC: number; inv?: boolean; timer?: { mode: 'on' | 'off' | 'pulse' | 'sd'; t: (p: P) => number } } // bobina (terminales 0-1) + contactos (pares 2+2j)
+  | { kind: 'RELAY'; rc: (p: P) => number; pickup: (p: P) => number; drop: (p: P) => number; nNO: number; nNC: number; inv?: boolean; timer?: { mode: 'on' | 'off' | 'pulse' | 'sd' | 'toggle' | 'count'; t: (p: P) => number }; phase?: boolean; follow?: (p: P) => number }
+  | { kind: 'INTERLOCK'; a: (p: P) => number; b: (p: P) => number } // bobina (terminales 0-1) + contactos (pares 2+2j)
   | { kind: 'TRAN'; build: (c: TranCtx) => TEl[] } // componente que solo se simula en el análisis transitorio
   | { kind: 'OPEN' } // condensador en CC permanente
   | { kind: 'GND' }

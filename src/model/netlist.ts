@@ -53,13 +53,15 @@ let PULLED_B: Set<string> = new Set();
 /** Reloj de la simulación (s) y estado de los temporizadores: lo avanza la interfaz. */
 let NOW = 0;
 export const setSimClock = (t: number) => { NOW = t; };
-interface TState { since: number | null; act: boolean; offAt: number | null; trigAt: number | null; was: boolean }
+interface TState { since: number | null; act: boolean; offAt: number | null; trigAt: number | null; was: boolean; count: number }
 const TSTATE = new Map<string, TState>();
-const T0 = (): TState => ({ since: null, act: false, offAt: null, trigAt: null, was: false });
-function timerEval(timer: { mode: 'on' | 'off' | 'pulse' | 'sd'; t: number }, e: boolean, st: TState, now: number): { a: boolean; b: boolean; next: TState } {
+const T0 = (): TState => ({ since: null, act: false, offAt: null, trigAt: null, was: false, count: 0 });
+function timerEval(timer: { mode: 'on' | 'off' | 'pulse' | 'sd' | 'toggle' | 'count'; t: number }, e: boolean, st: TState, now: number): { a: boolean; b: boolean; next: TState } {
   const nx = { ...st }; let a = false, b = false;
   if (timer.mode === 'on') { if (e) { nx.since = st.since ?? now; a = now - nx.since >= timer.t; } else nx.since = null; }
   else if (timer.mode === 'off') { if (e) { nx.act = true; nx.offAt = null; } else if (st.act) { nx.offAt = st.offAt ?? now; if (now - nx.offAt >= timer.t) { nx.act = false; nx.offAt = null; } } a = nx.act; }
+  else if (timer.mode === 'toggle') { if (e && !st.was) nx.act = !st.act; nx.was = e; a = nx.act; }
+  else if (timer.mode === 'count') { if (e && !st.was) nx.count = st.count >= timer.t ? 0 : st.count + 1; nx.was = e; a = nx.count >= timer.t; }
   else if (timer.mode === 'pulse') { if (e && !st.was) nx.trigAt = now; nx.was = e; a = nx.trigAt !== null && now - nx.trigAt < timer.t; }
   else { if (e) { nx.since = st.since ?? now; const el = now - nx.since; a = el < timer.t; b = el >= timer.t + 0.1; } else nx.since = null; }
   return { a, b, next: nx };
@@ -98,8 +100,9 @@ function partsOf(c: Component, nd: number[], rt: Runtime, ds: Map<string, DState
     }
     case 'RELAY': {
       const on = PULLED.has(id);
-      const out: Part[] = [R(m.rc(c.params), 0, 1, id + '#coil')];
-      for (let j = 0; j < m.nNO + m.nNC; j++) { const no = j < m.nNO; const st = m.timer?.mode === 'sd' && j === 1 ? PULLED_B.has(id) : on; out.push(R(no === st ? R_CLOSED : R_OPEN, 2 + 2 * j, 3 + 2 * j, `${id}#k${j}`)); }
+      const cp = m.follow ? 0 : m.phase ? 3 : 2;
+      const out: Part[] = m.follow ? [] : m.phase ? [R(m.rc(c.params), 0, 1, id + '#coil'), R(m.rc(c.params), 1, 2, id + '#coil2'), R(m.rc(c.params), 2, 0, id + '#coil3')] : [R(m.rc(c.params), 0, 1, id + '#coil')];
+      for (let j = 0; j < m.nNO + m.nNC; j++) { const no = j < m.nNO; const st = m.timer?.mode === 'sd' && j === 1 ? PULLED_B.has(id) : on; out.push(R(no === st ? R_CLOSED : R_OPEN, cp + 2 * j, cp + 1 + 2 * j, `${id}#k${j}`)); }
       return out;
     }
     case 'RCD': return Array.from({ length: m.poles }, (_, i) => R(!bad && m.closed(c.params) ? R_CLOSED : R_OPEN, 2 * i, 2 * i + 1, `${id}#${i}`));
@@ -210,6 +213,22 @@ function solveAcMode(components: Component[], nodesOf: (c: Component) => number[
   return { parts, solution, info: { freq, omega, nodeV: s.nodeV, compV, compI, problem: { nodeCount: nn, elements: els } }, warnings };
 }
 
+/** Bloques de contactos auxiliares (siguen a un contactor) y enclavamientos mecánicos (impiden que cierren dos a la vez). */
+function applyLinks(project: Project) {
+  const coils = project.components.filter((c) => { const m = defOf(c.type).model; return m.kind === 'RELAY' && !m.follow; });
+  const nth = (k: number) => coils[Math.max(0, Math.round(k) - 1)];
+  for (const c of project.components) {
+    const m = defOf(c.type).model;
+    if (m.kind !== 'INTERLOCK') continue;
+    const a = nth(m.a(c.params)), b = nth(m.b(c.params));
+    if (a && b && PULLED.has(a.id) && PULLED.has(b.id)) PULLED.delete(b.id);
+  }
+  for (const c of project.components) {
+    const m = defOf(c.type).model;
+    if (m.kind === 'RELAY' && m.follow) { const t = nth(m.follow(c.params)); if (t && PULLED.has(t.id)) PULLED.add(c.id); }
+  }
+}
+
 export function simulate(project: Project, runtime: Runtime = {}): SimResult {
   const relays = project.components.filter((c) => defOf(c.type).model.kind === 'RELAY');
   if (!relays.length) { PULLED = new Set(); PULLED_B = new Set(); ENERG = new Set(); return simulateCore(project, runtime); }
@@ -225,11 +244,18 @@ export function simulate(project: Project, runtime: Runtime = {}): SimResult {
       if (m.timer) { const r = timerEval({ mode: m.timer.mode, t: m.timer.t(c.params) }, ENERG.has(c.id), TSTATE.get(c.id) ?? T0(), NOW); if (r.a) PULLED.add(c.id); if (r.b) PULLED_B.add(c.id); }
       else if (m.inv ? !ENERG.has(c.id) : ENERG.has(c.id)) PULLED.add(c.id);
     }
+    applyLinks(project);
     res = simulateCore(project, runtime);
     const next = new Set<string>();
     for (const c of relays) {
       const m = mOf(c);
-      const v = res.ac ? cabs(res.ac.compV[c.id] ?? cx()) : Math.abs(res.live[c.id]?.v ?? 0);
+      if (m.follow) continue;
+      let v = res.ac ? cabs(res.ac.compV[c.id] ?? cx()) : Math.abs(res.live[c.id]?.v ?? 0);
+      if (m.phase && res.ac) { // relé de control de fases: la tensión «efectiva» es la menor de las tres líneas, 0 si la asimetría supera el 20 %
+        const nv = (k: number) => res.ac!.nodeV[res.nodeOf[`${c.id}:${k}`]] ?? cx();
+        const l = [cabs(csub(nv(0), nv(1))), cabs(csub(nv(1), nv(2))), cabs(csub(nv(2), nv(0)))];
+        const mean = (l[0] + l[1] + l[2]) / 3; v = mean > 0 && Math.max(...l.map((x) => Math.abs(x - mean))) / mean <= 0.2 ? Math.min(...l) : 0;
+      }
       if (ENERG.has(c.id) ? v >= m.drop(c.params) : v >= m.pickup(c.params)) next.add(c.id);
     }
     const same = next.size === ENERG.size && [...next].every((i) => ENERG.has(i));
