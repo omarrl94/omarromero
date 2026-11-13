@@ -6,7 +6,7 @@
  * Cada función devuelve {w, h, node} para poder mostrarse con zoom o incrustarse en un plano.
  */
 import type { ReactNode } from 'react';
-import { defOf, fmt, fmtSI } from '../model/library';
+import { defOf, fmt, fmtSI, symOf } from '../model/library';
 import { termPos, tkey, type SimResult } from '../model/netlist';
 import type { Component, Project } from '../model/types';
 import { wireStyler } from '../model/wires';
@@ -119,13 +119,13 @@ interface Feeder { key: string; prots: Component[]; loads: Component[] }
 
 /** Agrupa los receptores por la cadena de protecciones que los alimenta desde la fuente. */
 export function feeders(project: Project, sim: SimResult): { groups: Feeder[]; source: Component | null } {
-  const source = project.components.find((c) => ['acsource', 'battery'].includes(c.type)) ?? null;
+  const source = project.components.find((c) => defOf(c.type).model.kind === 'ACV') ?? project.components.find((c) => symOf(c.type) === 'battery') ?? null;
   if (!source) return { groups: [], source };
   const start = sim.nodeOf[`${source.id}:0`];
   const edges = new Map<number, { to: number; comp: Component }[]>();
   const add = (a: number, b: number, comp: Component) => { if (!edges.has(a)) edges.set(a, []); edges.get(a)!.push({ to: b, comp }); };
   for (const c of project.components) {
-    if (!PROT.has(c.type)) continue;
+    if (!PROT.has(symOf(c.type))) continue;
     const t = defOf(c.type).terminals.length;
     const n = (i: number) => sim.nodeOf[`${c.id}:${i}`];
     if (t === 3) { add(n(0), n(1), c); add(n(1), n(0), c); add(n(0), n(2), c); add(n(2), n(0), c); }
@@ -140,7 +140,7 @@ export function feeders(project: Project, sim: SimResult): { groups: Feeder[]; s
   const map = new Map<string, Feeder>();
   const orphan: Component[] = [];
   for (const c of project.components) {
-    if (PROT.has(c.type) || SKIP.has(c.type)) continue;
+    if (PROT.has(symOf(c.type)) || SKIP.has(symOf(c.type))) continue;
     const nodes = defOf(c.type).terminals.map((_, i) => sim.nodeOf[`${c.id}:${i}`]);
     const hit = nodes.find((n) => path.has(n) && n !== 0);
     if (hit === undefined) { orphan.push(c); continue; }
@@ -160,7 +160,7 @@ export function unifilarDiagram(project: Project, sim: SimResult, cables: Record
   const { groups, source } = feeders(project, sim);
   if (!source) return { w: 700, h: 260, node: <text x={350} y={130} textAnchor="middle" fill="var(--ink)">El unifilar necesita una fuente (pila o red de CA).</text> };
   const U = Number(source.params.v);
-  const ac = source.type === 'acsource';
+  const ac = defOf(source.type).model.kind === 'ACV';
   const maxProt = Math.max(1, ...groups.map((g) => g.prots.length));
   const xBar = 190, x0 = 300, step = 120;
   const xHash = x0 + maxProt * step - 30, xLoad = xHash + 150;

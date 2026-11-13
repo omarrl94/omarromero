@@ -4,6 +4,8 @@
  * Coordenadas locales en px; la rejilla es de 20 px y los terminales caen en ella.
  */
 import type { Component } from './types';
+import { fmt, fmtOhm, fmtSI } from './format';
+import { EXTRA } from './library2';
 
 type P = Component['params'];
 export type ParamDef = {
@@ -22,11 +24,14 @@ export type Model =
   | { kind: 'FUSE'; rating: (p: P) => number; factor: number }
   | { kind: 'BREAKER'; rating: (p: P) => number; mag: (p: P) => number }
   | { kind: 'ACV'; v: (p: P) => number; f: (p: P) => number; rint: (p: P) => number }
+  | { kind: 'GANG'; n: number; closed: (p: P, i: number) => boolean } // n contactos independientes: terminales (2i, 2i+1)
+  | { kind: 'CROSS'; pos: (p: P) => number } // conmutador de cruce (inversor 2×2)
+  | { kind: 'SEL'; pos: (p: P) => number } // selector de 3 posiciones: 0 → t1, 1 → ninguno, 2 → t2
   | { kind: 'OPEN' } // condensador en CC permanente
   | { kind: 'GND' }
   | { kind: 'JUNCTION' };
 
-export type Category = 'Fuentes' | 'Pasivos' | 'Sensores' | 'Semiconductores' | 'Maniobra' | 'Protecciones' | 'Receptores' | 'Referencia';
+export type Category = 'Fuentes' | 'Pasivos' | 'Conexión' | 'Tomas' | 'Sensores' | 'Semiconductores' | 'Maniobra' | 'Protecciones' | 'Receptores' | 'Referencia';
 
 export interface Def {
   type: string;
@@ -38,9 +43,15 @@ export interface Def {
   tag?: (p: P) => string;
   w: number; h: number;
   /** 'toggle': un clic conmuta el parámetro; 'hold': activo mientras se mantiene pulsado */
-  interactive?: { mode: 'toggle' | 'hold'; key: string };
+  interactive?: { mode: 'toggle' | 'hold'; key: string; cycle?: number };
   /** Definiciones de ayuda (breve) */
   help?: string;
+  /** Símbolo que se dibuja (y aparato de la vista real): por defecto, el propio tipo */
+  sym?: string;
+  /** Marca corta sobre el símbolo (p. ej. «NH», «PV») */
+  mark?: string;
+  /** Impedancia en CA (Ω) a la pulsación ω; si no existe, se usa el modelo de CC con parte imaginaria 0 */
+  acz?: (p: P, w: number) => { re: number; im: number };
 }
 
 const n = (k: string) => (p: P) => Number(p[k]);
@@ -51,6 +62,14 @@ const R_PX = [
 ];
 
 export const LIBRARY: Def[] = [
+  ...BASE(),
+  ...EXTRA,
+];
+export const symOf = (type: string): string => defOf(type).sym ?? type;
+/** Siguiente valor de un parámetro que se conmuta con clic. */
+export const nextToggle = (d: Def, cur: number | boolean | string): number | boolean => (typeof cur === 'boolean' ? !cur : d.interactive?.cycle ? (Number(cur) + 1) % d.interactive.cycle : Number(cur) < 0.5 ? 1 : 0);
+
+function BASE(): Def[] { return [
   // ───── Fuentes
   { type: 'battery', name: 'Pila / batería', category: 'Fuentes', w: 80, h: 40,
     terminals: [{ x: -40, y: 0, name: '+' }, { x: 40, y: 0, name: '−' }],
@@ -86,11 +105,11 @@ export const LIBRARY: Def[] = [
     model: { kind: 'POT', r: n('r'), pos: n('pos') }, tag: (p) => `${fmtOhm(+p.r)} · ${Math.round(+p.pos * 100)} %` },
   { type: 'capacitor', name: 'Condensador', category: 'Pasivos', w: 80, h: 40, terminals: two,
     params: [{ key: 'c', label: 'Capacidad', unit: 'µF', default: 100, min: 0 }],
-    model: { kind: 'OPEN' }, tag: (p) => `${fmt(+p.c)} µF`,
+    model: { kind: 'OPEN' }, acz: (p, w) => ({ re: 0, im: -1 / (w * Math.max(1e-12, Number(p.c) * 1e-6)) }), tag: (p) => `${fmt(+p.c)} µF`,
     help: 'En CC permanente es un circuito abierto. En CA tiene reactancia Xc = 1/(2πfC). Su carga/descarga (transitorio) llega en la fase 3b.' },
   { type: 'inductor', name: 'Bobina', category: 'Pasivos', w: 80, h: 30, terminals: two,
     params: [{ key: 'l', label: 'Inductancia', unit: 'mH', default: 100, min: 0 }, { key: 'r', label: 'Resist. del hilo', unit: 'Ω', default: 1, min: 0.001 }],
-    model: { kind: 'R', value: n('r') }, tag: (p) => `${fmt(+p.l)} mH`,
+    model: { kind: 'R', value: n('r') }, acz: (p, w) => ({ re: Number(p.r), im: w * Number(p.l) * 1e-3 }), tag: (p) => `${fmt(+p.l)} mH`,
     help: 'En CC permanente solo queda la resistencia del hilo. En CA tiene reactancia XL = 2πfL.' },
 
   // ───── Sensores
@@ -175,7 +194,7 @@ export const LIBRARY: Def[] = [
   // ───── Referencia
   { type: 'ground', name: 'Masa (0 V)', category: 'Referencia', w: 40, h: 40, terminals: [{ x: 0, y: -20, name: '0' }], params: [], model: { kind: 'GND' } },
   { type: 'junction', name: 'Empalme', category: 'Referencia', w: 20, h: 20, terminals: [{ x: 0, y: 0, name: 'J' }], params: [], model: { kind: 'JUNCTION' } },
-];
+]; }
 
 export const defOf = (type: string): Def => {
   const d = LIBRARY.find((x) => x.type === type);
@@ -184,22 +203,4 @@ export const defOf = (type: string): Def => {
 };
 export const defaultParams = (type: string): P => Object.fromEntries(defOf(type).params.map((p) => [p.key, p.default]));
 
-/** Formato español: coma decimal y 3 cifras significativas. */
-export function fmt(v: number, digits = 3): string {
-  if (!isFinite(v)) return '—';
-  if (v === 0) return '0';
-  return Number(v.toPrecision(digits)).toString().replace('.', ',');
-}
-export function fmtOhm(r: number): string {
-  if (r >= 1e6) return `${fmt(r / 1e6)} MΩ`;
-  if (r >= 1e3) return `${fmt(r / 1e3)} kΩ`;
-  return `${fmt(r)} Ω`;
-}
-export function fmtSI(v: number, unit: string): string {
-  const a = Math.abs(v);
-  if (a < 1e-9) return `0 ${unit}`;
-  if (a >= 1e3) return `${fmt(v / 1e3)} k${unit}`;
-  if (a >= 1) return `${fmt(v)} ${unit}`;
-  if (a >= 1e-3) return `${fmt(v * 1e3)} m${unit}`;
-  return `${fmt(v * 1e6)} µ${unit}`;
-}
+export { fmt, fmtOhm, fmtSI } from './format';

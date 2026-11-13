@@ -77,6 +77,15 @@ function partsOf(c: Component, nd: number[], rt: Runtime, ds: Map<string, DState
       if (st === 'zener') return [{ el: { id, kind: 'V', a: nd[1], b: nd[0], value: m.vz!(c.params), rint: 0.5 }, ta: 1, tb: 0 }];
       return [R(R_OPEN)];
     }
+    case 'GANG': return Array.from({ length: m.n }, (_, i) => R(m.closed(c.params, i) ? R_CLOSED : R_OPEN, 2 * i, 2 * i + 1, `${id}#${i}`));
+    case 'CROSS': {
+      const x = m.pos(c.params) >= 0.5;
+      return [R(x ? R_OPEN : R_CLOSED, 0, 1, id + '#a'), R(x ? R_OPEN : R_CLOSED, 2, 3, id + '#b'), R(x ? R_CLOSED : R_OPEN, 0, 3, id + '#c'), R(x ? R_CLOSED : R_OPEN, 2, 1, id + '#d')];
+    }
+    case 'SEL': {
+      const pos = Math.round(m.pos(c.params));
+      return [R(pos === 0 ? R_CLOSED : R_OPEN, 0, 1, id + '#1'), R(pos === 2 ? R_CLOSED : R_OPEN, 0, 2, id + '#2')];
+    }
     default: return [];
   }
 }
@@ -86,7 +95,7 @@ interface AcResult { parts: Part[]; solution: Solution; info: AcInfo; warnings: 
 /** Régimen permanente senoidal: se convierte el resultado a magnitudes eficaces con el mismo formato que la CC. */
 function solveAcMode(components: Component[], nodesOf: (c: Component) => number[], n: number, runtime: Runtime, src: Component[]): AcResult {
   const warnings: string[] = [];
-  const freqs = [...new Set(src.map((c) => Number(c.params.f)))];
+  const freqs = [...new Set(src.map((c) => { const mm = defOf(c.type).model; return mm.kind === 'ACV' ? mm.f(c.params) : 50; }))];
   const freq = freqs[0];
   if (freqs.length > 1) warnings.push('Hay fuentes de CA con distinta frecuencia: se simula todo a ' + fmt(freq) + ' Hz (el análisis es monofrecuencia).');
   const omega = 2 * Math.PI * freq;
@@ -98,13 +107,12 @@ function solveAcMode(components: Component[], nodesOf: (c: Component) => number[
     const m = defOf(c.type).model;
     const push = (e: AcElement, ta = 0, tb = 1) => { els.push(e); owner.push({ id: e.id, ta, tb }); };
     if (runtime[c.id]) push({ id: c.id, kind: 'Z', a: nd[0], b: nd[1], z: cx(1e8, 0) });
-    else if (c.type === 'acsource') push({ id: c.id, kind: 'V', a: nd[0], b: nd[1], v: cx(Number(c.params.v), 0), rint: Number(c.params.rint) });
-    else if (c.type === 'capacitor') push({ id: c.id, kind: 'Z', a: nd[0], b: nd[1], z: cx(0, -1 / (omega * Math.max(1e-12, Number(c.params.c) * 1e-6))) });
-    else if (c.type === 'inductor') push({ id: c.id, kind: 'Z', a: nd[0], b: nd[1], z: cx(Number(c.params.r), omega * Number(c.params.l) * 1e-3) });
+    else if (m.kind === 'ACV') push({ id: c.id, kind: 'V', a: nd[0], b: nd[1], v: cx(m.v(c.params), 0), rint: m.rint(c.params) });
+    else if (defOf(c.type).acz) { const z = defOf(c.type).acz!(c.params, omega); push({ id: c.id, kind: 'Z', a: nd[0], b: nd[1], z: cx(z.re, z.im) }); }
     else if (m.kind === 'V') { dcIgnored = true; push({ id: c.id, kind: 'V', a: nd[0], b: nd[1], v: cx(0, 0), rint: m.rint(c.params) }); }
     else if (m.kind === 'I') dcIgnored = true;
     else if (m.kind === 'DIODE') nonlinear = true;
-    if (c.type === 'acsource' || c.type === 'capacitor' || c.type === 'inductor' || m.kind === 'V' || m.kind === 'I') continue;
+    if (m.kind === 'ACV' || defOf(c.type).acz || m.kind === 'V' || m.kind === 'I') continue;
     for (const p of partsOf(c, nd, runtime, new Map())) {
       if (p.el.kind === 'R') { els.push({ id: p.el.id, kind: 'Z', a: p.el.a, b: p.el.b, z: cx(p.el.value, 0) }); owner.push({ id: p.el.id, ta: p.ta, tb: p.tb }); }
     }
@@ -176,7 +184,7 @@ export function simulate(project: Project, runtime: Runtime = {}): SimResult {
 
   // 3) Resolver (iterando estados de diodos)
   const ds = new Map<string, DState>();
-  const acSrc = components.filter((c) => c.type === 'acsource');
+  const acSrc = components.filter((c) => defOf(c.type).model.kind === 'ACV');
   const diodes = components.filter((c) => defOf(c.type).model.kind === 'DIODE' && !runtime[c.id]);
   let parts: Part[] = [];
   let solution!: Solution;
@@ -268,7 +276,7 @@ export function simulate(project: Project, runtime: Runtime = {}): SimResult {
     }
     if (m.kind === 'DIODE' && m.imax && ds.get(c.id) === 'on' && mainI > m.imax(c.params))
       events.push({ id: c.id, state: 'burnt', text: `${nm(c)} se ha quemado: ${fmt(mainI * 1000)} mA superan su máximo de ${fmt(m.imax(c.params) * 1000)} mA. Falta una resistencia limitadora.` });
-    if (c.type === 'lamp' && p > Number(c.params.pn) * 1.5)
+    if (defOf(c.type).sym === 'lamp' || c.type === 'lamp') if (p > Number(c.params.pn) * 1.5)
       events.push({ id: c.id, state: 'burnt', text: `${nm(c)} se ha fundido: recibía ${fmt(p)} W y su nominal es ${fmt(+c.params.pn)} W.` });
     if (c.type === 'resistor' && p > Number(c.params.pmax))
       messages.push({ level: 'warn', ids: [c.id], text: `${nm(c)} disipa ${fmt(p)} W y su potencia máxima es ${fmt(+c.params.pmax)} W: se sobrecalienta. Usa una de más vatios.` });

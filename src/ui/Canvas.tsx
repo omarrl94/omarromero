@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useStore } from '../store';
-import { defOf, fmtSI } from '../model/library';
+import { defOf, fmtSI, nextToggle } from '../model/library';
 import { termPos, tkey, type SimResult } from '../model/netlist';
 import { wireStyler } from '../model/wires';
 import type { Component } from '../model/types';
@@ -153,7 +153,7 @@ export function Canvas({ sim, cables, mode = 'schematic', locked = false, canTog
       const li = defOf(c.type).interactive;
       if (li?.mode === 'toggle' && canToggle?.(c.id)) {
         const cur = c.params[li.key];
-        st.setParam(c.id, li.key, typeof cur === 'boolean' ? !cur : Number(cur) < 0.5 ? 1 : 0);
+        st.setParam(c.id, li.key, nextToggle(defOf(c.type), cur));
         if (useStore.getState().sound) beep(500, 40);
       }
       return;
@@ -208,7 +208,7 @@ export function Canvas({ sim, cables, mode = 'schematic', locked = false, canTog
       if (c && inter?.mode === 'toggle' && sel.length === 1) {
         const cur = c.params[inter.key];
         st.snapshot();
-        st.setParam(c.id, inter.key, typeof cur === 'boolean' ? !cur : Number(cur) < 0.5 ? 1 : 0);
+        st.setParam(c.id, inter.key, nextToggle(defOf(c.type), cur));
         if (useStore.getState().sound) beep(500, 40);
       }
     }

@@ -3,7 +3,7 @@ import { DROP_LIMITS, GAMMA_CU, IZ_CU_PVC_B1, SECTIONS, BREAKER_RATINGS } from '
 import type { Project, Wire } from './types';
 import type { SimResult } from './netlist';
 import { tkey } from './netlist';
-import { defOf, fmt } from './library';
+import { defOf, fmt, symOf } from './library';
 
 export const DEFAULT_SECTION = 1.5;
 export const DEFAULT_LENGTH = 2; // m
@@ -26,7 +26,7 @@ export interface CableInfo { id: string; section: number; length: number; I: num
 
 /** Tensión nominal del circuito (la de la primera fuente) para expresar la caída en %. */
 export function nominalVoltage(project: Project): number | null {
-  const s = project.components.find((c) => ['acsource', 'battery'].includes(c.type));
+  const s = project.components.find((c) => ['acsource', 'battery', 'vsrc'].includes(symOf(c.type)));
   return s ? Number(s.params.v) : null;
 }
 

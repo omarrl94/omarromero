@@ -126,3 +126,6 @@ docs/PLAN.md  arquitectura, decisiones, fases y riesgos
 - Las puntas del polímetro se colocan en terminales (no sobre cables).
 - Aún sin polímetro, CA, vistas unifilar/multifilar/real, plano, protecciones, automatismos, retos ni PWA (fases 2-10).
 - No hay aviso de «circuito abierto» ni validación REBT todavía.
+
+## Biblioteca de componentes (tanda 1)
+Ahora hay 130 componentes con símbolo propio, buscables en la paleta: fuentes de CC (ideal, real, regulable, conmutada, dinamo, panel fotovoltaico, baterías Pb/Li/Ni-MH) y de CA (red, alternador, grupo, SAI); resistencias (potencia, reóstato, trimmer, shunt, galga, red, PT100); condensadores y bobinas de todos los tipos con su impedancia en CA; impedancia genérica R + jX; conexión y tomas; maniobra manual (bipolar/tripolar/tetrapolar, pulsador doble, conmutador de cruce, seta, selectores, seccionadores); sensores como contactos NA/NC; fusibles NH/D/cilíndrico, IGA, ICP, guardamotor, caja moldeada, relé térmico; lámparas, calefactores, electroválvulas, cargas RLC genéricas y motores monofásicos/CC. Pendiente (tanda 2): trifásica, transformadores, relés y contactores con bobina, temporizadores, diferenciales, bobinas acopladas y electrónica de potencia.

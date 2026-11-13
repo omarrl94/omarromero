@@ -1,13 +1,14 @@
 /** Función y color normalizado de cada conductor, según la red (nudo) a la que pertenece. */
 import type { Project } from './types';
 import type { SimResult } from './netlist';
+import { symOf } from './library';
 
 export interface WireStyle { role: 'pos' | 'neg' | 'mid'; color: string; hi: string; name: string; tag: string }
 
 export function wireStyler(project: Project, sim: SimResult) {
   const ac = !!sim.ac;
   const pos = new Set<number>();
-  for (const c of project.components) if (['battery', 'acsource', 'isource'].includes(c.type)) pos.add(sim.nodeOf[`${c.id}:0`]);
+  for (const c of project.components) if (['battery', 'acsource', 'isource', 'vsrc', 'pv', 'usb'].includes(symOf(c.type))) pos.add(sim.nodeOf[`${c.id}:0`]);
   const mids = new Map<number, number>();
   return (node: number): WireStyle => {
     if (node === 0) return ac ? { role: 'neg', color: '#1565c0', hi: '#6fa8ee', name: 'Neutro (azul)', tag: 'N' } : { role: 'neg', color: '#1b1b1b', hi: '#6a6a6a', name: 'Negativo (negro)', tag: '−' };

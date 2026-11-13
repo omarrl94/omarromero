@@ -7,13 +7,14 @@
  * en el resto de vistas y se ocultan en el unifilar.
  */
 import type { Project, Wire } from './types';
+import { LIBRARY, defOf, symOf } from './library';
 
 export const SOURCES = ['acsource', 'battery'];
 export const SERIES = ['switch', 'pushNO', 'pushNC', 'fuse', 'breaker'];
 export const LOADS = ['lamp', 'resistor', 'heater', 'buzzer', 'motor', 'led', 'ntc', 'ptc', 'ldr', 'capacitor', 'inductor'];
-export const UNIFILAR_TYPES = new Set([...SOURCES, ...SERIES, ...LOADS]);
+export const UNIFILAR_TYPES = new Set(LIBRARY.filter((d) => [...SOURCES, ...SERIES, ...LOADS].includes(d.sym ?? d.type)).map((d) => d.type));
 
-const sourceOf = (p: Project) => p.components.find((c) => c.type === 'acsource') ?? p.components.find((c) => c.type === 'battery');
+const sourceOf = (p: Project) => p.components.find((c) => defOf(c.type).model.kind === 'ACV') ?? p.components.find((c) => symOf(c.type) === 'battery');
 
 /** ¿Es un conductor de retorno? (automático o conectado al terminal de retorno de la fuente). No se dibuja en unifilar. */
 export function isReturnWire(p: Project, w: Wire): boolean {
@@ -35,7 +36,7 @@ export function syncReturns(p: Project, add: boolean): Project {
   const auto: Wire[] = [];
   if (src) {
     for (const c of p.components) {
-      if (!LOADS.includes(c.type)) continue;
+      if (!LOADS.includes(symOf(c.type))) continue;
       const t = used.get(c.id);
       if (!t?.has(0) || t.has(1)) continue;
       const id = `auto-${c.id}`;

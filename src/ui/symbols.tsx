@@ -1,18 +1,33 @@
 /** Símbolos del esquema con aspecto «vivo»: brillos, giro, humo, estados de avería. */
 import type { Component } from '../model/types';
 import type { Live } from '../model/netlist';
+import { defOf } from '../model/library';
 
 interface P { c: Component; live?: Live }
 const LED_HUE = ['#ff3b30', '#2ecc71', '#3b82f6', '#ffd60a'];
 
+/** Símbolo con su marca (NH, PV…) en horizontal aunque el componente esté girado. */
 export function Symbol({ c, live }: P) {
+  const d = defOf(c.type);
+  const off = c.rot % 180 === 0 ? d.h / 2 + 6 : d.w / 2 + 6;
+  return (
+    <g>
+      <SymbolBody c={c} live={live} />
+      {d.mark && <text transform={`rotate(${-c.rot})`} y={-off} textAnchor="middle" fontSize={9} fontWeight={800} fill="var(--accent)" stroke="none" style={{ letterSpacing: '.04em' }}>{d.mark}</text>}
+    </g>
+  );
+}
+
+function SymbolBody({ c, live }: P) {
+  const t = defOf(c.type).sym ?? c.type;
+  const model = defOf(c.type).model;
   const sw = { stroke: 'var(--ink)', strokeWidth: 2, fill: 'none', strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
   const par = c.params;
   const dead = live?.state; // 'blown' | 'tripped' | 'burnt'
   const p = live?.p ?? 0;
   const lead = <path d="M-40 0H-26M26 0H40" />;
 
-  switch (c.type) {
+  switch (t) {
     case 'battery':
       return (
         <g {...sw}>
@@ -47,8 +62,8 @@ export function Symbol({ c, live }: P) {
       return (<g {...sw}><path d="M-40 0H-26M26 0H40" /><path d="M-26 0a6.5 8 0 0 1 13 0a6.5 8 0 0 1 13 0a6.5 8 0 0 1 13 0a6.5 8 0 0 1 13 0" /></g>);
     case 'ntc': case 'ptc':
       return (<g {...sw}>{lead}<rect x={-26} y={-8} width={52} height={16} fill="var(--fill-a)" />
-        <path d={c.type === 'ntc' ? 'M-30 14L-16 14L22 -14' : 'M-30 14L8 14L22 -14'} stroke="var(--accent)" />
-        <text x={-8} y={-12} fontSize={9} fill="var(--ink)" stroke="none">{c.type === 'ntc' ? 't° −' : 't° +'}</text></g>);
+        <path d={t === 'ntc' ? 'M-30 14L-16 14L22 -14' : 'M-30 14L8 14L22 -14'} stroke="var(--accent)" />
+        <text x={-8} y={-12} fontSize={9} fill="var(--ink)" stroke="none">{t === 'ntc' ? 't° −' : 't° +'}</text></g>);
     case 'ldr': {
       const lux = Math.min(1, Number(par.lux) / 1000);
       return (<g {...sw}><path d="M-40 0H-26M26 0H40" /><circle r={18} fill="var(--fill-a)" /><rect x={-14} y={-6} width={28} height={12} fill="var(--panel)" />
@@ -78,12 +93,12 @@ export function Symbol({ c, live }: P) {
     }
     case 'pushNO': case 'pushNC': {
       const pressed = Boolean(par.pressed);
-      const closed = c.type === 'pushNO' ? pressed : !pressed;
+      const closed = t === 'pushNO' ? pressed : !pressed;
       return (<g {...sw}><path d="M-40 0H-16M16 0H40" /><circle cx={-16} r={3} fill="var(--ink)" /><circle cx={16} r={3} fill="var(--ink)" />
         <path d={closed ? 'M-16 0L16 0' : 'M-16 0L12 -12'} strokeWidth={3} stroke={closed ? 'var(--accent)' : 'var(--ink)'} />
         <path d={`M0 ${pressed ? -6 : -16}V-6`} strokeDasharray="3 3" />
         <rect x={-9} y={pressed ? -14 : -24} width={18} height={8} rx={3} fill={pressed ? 'var(--terracota)' : 'var(--fill-a)'} />
-        {c.type === 'pushNC' && <path d="M-6 -6L6 6" strokeWidth={0} />}</g>);
+        {t === 'pushNC' && <path d="M-6 -6L6 6" strokeWidth={0} />}</g>);
     }
     case 'spdt': {
       const up = Number(par.pos) < 0.5;
@@ -128,6 +143,100 @@ export function Symbol({ c, live }: P) {
         <g className={k > 0.03 ? 'spin' : ''} style={{ animationDuration: `${Math.max(0.15, 1.6 / Math.max(0.05, k))}s`, animationDirection: dir }}>
           <path d="M0 -16V16M-16 0H16" strokeWidth={2.5} stroke="var(--accent)" /><circle r={3} fill="var(--ink)" /></g>
         <circle r={22} fill="none" /><text x={-6} y={-24} fontSize={11} fill="var(--ink)" stroke="none" fontWeight={700} transform="">M</text></g>);
+    }
+
+    case 'vsrc':
+      return (<g {...sw}><path d="M-40 0H-18M18 0H40" /><circle r={18} fill="var(--fill-b)" /><path d="M-10 0H-2M-6 -4V4" strokeWidth={2} /><path d="M3 0H11" strokeWidth={2} />
+        <text x={-34} y={-8} fontSize={11} fill="var(--ink)" stroke="none" fontWeight={700}>+</text><text x={26} y={-8} fontSize={11} fill="var(--ink)" stroke="none" fontWeight={700}>−</text></g>);
+    case 'pv': {
+      const k = Math.min(1, Number(par.irr) / 1000);
+      return (<g {...sw}><path d="M-40 0H-24M24 0H40" /><rect x={-24} y={-16} width={48} height={32} fill="#bcd0e6" />
+        <path d="M-24 -5H24M-24 5H24M-8 -16V16M8 -16V16" strokeWidth={1} />
+        <g stroke="var(--mostaza)" strokeWidth={2.2} opacity={0.3 + 0.7 * k}><circle cx={-30} cy={-20} r={4} fill="var(--mostaza)" /><path d="M-30 -28V-26M-38 -20H-36M-36 -26L-34 -24" /></g></g>);
+    }
+    case 'polcap':
+      return (<g {...sw}><path d="M-40 0H-6M10 0H40" /><path d="M-6 -16V16" strokeWidth={3.5} /><path d="M10 -16Q4 0 10 16" strokeWidth={3} />
+        <text x={-22} y={-8} fontSize={12} fill="var(--ink)" stroke="none" fontWeight={700}>+</text></g>);
+    case 'capvar':
+      return (<g {...sw}><path d="M-40 0H-6M6 0H40" /><path d="M-6 -16V16M6 -16V16" strokeWidth={3.5} /><path d="M-18 20L18 -20M10 -20H18V-12" stroke="var(--accent)" /></g>);
+    case 'capbank':
+      return (<g {...sw}><path d="M-40 0H-26M26 0H40M-26 -14V14M-26 0H26" /><path d="M-10 -14V14M-4 -14V14M12 -14V14M18 -14V14" strokeWidth={3} /><path d="M-26 -14H26M-26 14H26" strokeWidth={0} /></g>);
+    case 'indcore':
+      return (<g {...sw}><path d="M-40 0H-26M26 0H40" /><path d="M-26 0a6.5 8 0 0 1 13 0a6.5 8 0 0 1 13 0a6.5 8 0 0 1 13 0a6.5 8 0 0 1 13 0" /><path d="M-28 -12H28M-28 -15H28" strokeWidth={1.6} /></g>);
+    case 'indvar':
+      return (<g {...sw}><path d="M-40 0H-26M26 0H40" /><path d="M-26 0a6.5 8 0 0 1 13 0a6.5 8 0 0 1 13 0a6.5 8 0 0 1 13 0a6.5 8 0 0 1 13 0" /><path d="M-24 18L24 -18M16 -18H24V-10" stroke="var(--accent)" /></g>);
+    case 'solenoid':
+      return (<g {...sw}><path d="M-40 0H-26M26 0H40" /><rect x={-26} y={-12} width={52} height={24} rx={4} fill="var(--fill-b)" /><path d="M-18 -8a5 8 0 0 1 10 0a5 8 0 0 1 10 0a5 8 0 0 1 10 0a5 8 0 0 1 10 0" transform="translate(0 8)" strokeWidth={1.8} /></g>);
+    case 'zbox':
+      return (<g {...sw}>{lead}<rect x={-26} y={-12} width={52} height={24} fill="var(--fill-a)" /><text y={4} textAnchor="middle" fontSize={11} fill="var(--ink)" stroke="none" fontWeight={700}>Z</text></g>);
+    case 'load':
+      return (<g {...sw}>{lead}<rect x={-26} y={-12} width={52} height={24} rx={3} fill="var(--fill-a)" /><path d="M-20 0h6l2 -6l4 12l4 -12l2 6h6" strokeWidth={1.6} /></g>);
+    case 'rheo': case 'trim': {
+      const x = (Number(par.pos) - 0.5) * 44;
+      return (<g {...sw}>{lead}<rect x={-26} y={-8} width={52} height={16} fill="var(--fill-a)" />
+        {t === 'rheo' ? <path d="M-22 20L22 -20M14 -20H22V-12" stroke="var(--accent)" strokeWidth={2.2} /> : <path d={`M${x} -22V-9M${x - 4} -14L${x} -9L${x + 4} -14`} stroke="var(--accent)" strokeWidth={2.2} />}</g>);
+    }
+    case 'shunt':
+      return (<g {...sw}><path d="M-40 0H-26M26 0H40" /><rect x={-26} y={-10} width={52} height={20} fill="var(--fill-a)" /><path d="M-12 -10V-18M12 -10V-18" /><path d="M-26 0H26" strokeWidth={4} stroke="var(--ink)" /></g>);
+    case 'gauge':
+      return (<g {...sw}>{lead}<rect x={-26} y={-12} width={52} height={24} fill="var(--fill-a)" /><path d="M-20 8V-8H-12V8H-4V-8H4V8H12V-8H20" strokeWidth={1.5} /></g>);
+    case 'rnet':
+      return (<g {...sw}>{lead}<rect x={-26} y={-8} width={52} height={16} fill="var(--fill-a)" /><path d="M-14 -8V8M-2 -8V8M10 -8V8" strokeWidth={1} /></g>);
+    case 'borne':
+      return (<g {...sw}><path d="M-40 0H-14M14 0H40" /><rect x={-14} y={-12} width={28} height={24} rx={3} fill="var(--fill-b)" /><circle r={5} fill="var(--panel)" /><path d="M-4 -4L4 4" strokeWidth={1.6} /></g>);
+    case 'jumper': case 'connector': {
+      const on = Boolean(par.closed);
+      return (<g {...sw}><path d="M-40 0H-16M16 0H40" /><circle cx={-16} r={3} fill="var(--ink)" /><circle cx={16} r={3} fill="var(--ink)" />
+        {t === 'jumper' ? <path d={on ? 'M-16 0V-12H16V0' : 'M-16 0V-12H-4M4 -12H16V0'} stroke={on ? 'var(--accent)' : 'var(--ink)'} strokeWidth={3} /> :
+          <><path d={on ? 'M-16 0H0' : 'M-16 0H-8'} strokeWidth={4} /><path d={on ? 'M0 -9V9' : 'M8 -9V9'} /><path d={on ? 'M0 0H16' : 'M8 0H16'} strokeWidth={4} /></>}</g>);
+    }
+    case 'pica':
+      return (<g {...sw}><path d="M0 -20V4M-12 4H12M0 4V24" /><path d="M-6 24L0 32L6 24Z" fill="var(--ink)" /><path d="M-8 12H8M-5 18H5" strokeWidth={1.4} /></g>);
+    case 'socket': case 'plug':
+      return (<g {...sw}><path d="M-40 0H-18M18 0H40" /><rect x={-18} y={-16} width={36} height={32} rx={t === 'socket' ? 16 : 4} fill="var(--fill-b)" />
+        <circle cx={-6} cy={0} r={2.5} fill="var(--ink)" /><circle cx={6} cy={0} r={2.5} fill="var(--ink)" /><path d="M-3 11H3" strokeWidth={2} /></g>);
+    case 'usb':
+      return (<g {...sw}><path d="M-40 0H-16M16 0H40" /><rect x={-16} y={-14} width={32} height={28} rx={3} fill="var(--fill-b)" /><path d="M-8 4H8M-4 -2L0 -8L4 -2" strokeWidth={1.8} /><circle cx={-8} cy={4} r={2} fill="var(--ink)" /></g>);
+    case 'gang': {
+      const nP = model.kind === 'GANG' ? model.n : 1;
+      const off = nP > 2 ? -1 : 0;
+      const closedAt = (i: number) => (model.kind === 'GANG' ? model.closed(par, i) : true);
+      return (<g {...sw}>{Array.from({ length: nP }, (_, i) => { const y = (i + off) * 20; const cl = closedAt(i);
+        return <g key={i}><path d={`M-40 ${y}H-16M16 ${y}H40`} /><circle cx={-16} cy={y} r={3} fill="var(--ink)" /><circle cx={16} cy={y} r={3} fill="var(--ink)" />
+          <path d={cl ? `M-16 ${y}L16 ${y}` : `M-16 ${y}L10 ${y - 14}`} strokeWidth={3.2} stroke={cl ? 'var(--accent)' : 'var(--ink)'} /></g>; })}
+        <path d={`M0 ${off * 20 - 6}V${(nP - 1 + off) * 20 - 6}`} strokeDasharray="3 3" strokeWidth={1.2} /></g>);
+    }
+    case 'push2': {
+      const pr = Boolean(par.pressed);
+      return (<g {...sw}>{[0, 1].map((i) => { const y = i * 20; const cl = i === 0 ? pr : !pr;
+        return <g key={i}><path d={`M-40 ${y}H-16M16 ${y}H40`} /><circle cx={-16} cy={y} r={3} fill="var(--ink)" /><circle cx={16} cy={y} r={3} fill="var(--ink)" />
+          <path d={cl ? `M-16 ${y}L16 ${y}` : `M-16 ${y}L12 ${y - 12}`} strokeWidth={3} stroke={cl ? 'var(--accent)' : 'var(--ink)'} />{i === 1 && <path d={`M4 ${y - 11}L4 ${y - 3}`} strokeWidth={1.6} />}</g>; })}
+        <rect x={-9} y={pr ? -14 : -24} width={18} height={8} rx={3} fill={pr ? 'var(--terracota)' : 'var(--fill-a)'} /><path d={`M0 ${pr ? -6 : -16}V4`} strokeDasharray="3 3" /></g>);
+    }
+    case 'cross': {
+      const x = Number(par.pos) >= 0.5;
+      return (<g {...sw}><path d="M-40 -20H-16M16 -20H40M-40 20H-16M16 20H40" />{[[-16, -20], [-16, 20], [16, -20], [16, 20]].map(([cx2, cy2], i) => <circle key={i} cx={cx2} cy={cy2} r={3} fill="var(--ink)" />)}
+        <path d={x ? 'M-16 -20L16 20M-16 20L16 -20' : 'M-16 -20L16 -20M-16 20L16 20'} strokeWidth={3.2} stroke="var(--accent)" /></g>);
+    }
+    case 'estop':
+      return (<g {...sw}><path d="M-40 0H-16M16 0H40" /><circle cx={-16} r={3} fill="var(--ink)" /><circle cx={16} r={3} fill="var(--ink)" />
+        <path d={par.pressed ? 'M-16 0L10 -14' : 'M-16 0L16 0'} strokeWidth={3} stroke={par.pressed ? 'var(--ink)' : 'var(--accent)'} />
+        <path d="M0 -8V-16" /><ellipse cx={0} cy={-20} rx={13} ry={7} fill="#d33" stroke="#7a1010" strokeWidth={1.5} /></g>);
+    case 'sel3': {
+      const pos = Math.round(Number(par.pos));
+      return (<g {...sw}><path d="M-40 0H-16M16 -20H40M16 20H40" /><circle cx={-16} r={3} fill="var(--ink)" /><circle cx={16} cy={-20} r={3} fill="var(--ink)" /><circle cx={16} cy={20} r={3} fill="var(--ink)" />
+        <path d={pos === 0 ? 'M-16 0L16 -20' : pos === 2 ? 'M-16 0L16 20' : 'M-16 0L14 0'} strokeWidth={3.2} stroke={pos === 1 ? 'var(--ink)' : 'var(--accent)'} /></g>);
+    }
+    case 'disc': {
+      const on = Boolean(par.closed);
+      return (<g {...sw}><path d="M-40 0H-16M16 0H40" /><circle cx={-16} r={3} fill="var(--ink)" /><circle cx={16} r={3} fill="var(--ink)" />
+        <path d={on ? 'M-16 0L16 0' : 'M-16 0L10 -17'} strokeWidth={3.2} stroke={on ? 'var(--accent)' : 'var(--ink)'} /><path d="M0 -12V-4M-4 -12H4" strokeWidth={0} /><path d={on ? 'M0 -2V-8M-5 -8H5' : 'M0 -2V-2'} strokeWidth={1.6} /></g>);
+    }
+    case 'sensor': {
+      const closed = Boolean(par.act) !== Boolean(par.nc);
+      return (<g {...sw}><path d="M-40 0H-16M16 0H40" /><circle cx={-16} r={3} fill="var(--ink)" /><circle cx={16} r={3} fill="var(--ink)" />
+        <path d={closed ? 'M-16 0L16 0' : 'M-16 0L12 -12'} strokeWidth={3} stroke={closed ? 'var(--accent)' : 'var(--ink)'} />
+        <path d="M-16 -14L0 -22L16 -14L0 -6Z" fill={par.act ? 'var(--mostaza)' : 'var(--fill-a)'} strokeWidth={1.4} transform="translate(0 -4)" />{par.nc && <path d="M6 -14L10 -6" strokeWidth={1.4} />}</g>);
     }
     case 'ground':
       return (<g {...sw}><path d="M0 -20V0M-14 0H14M-9 6H9M-4 12H4" /></g>);

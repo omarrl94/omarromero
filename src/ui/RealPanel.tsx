@@ -6,7 +6,7 @@
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useStore } from '../store';
-import { defOf, fmt, fmtOhm, fmtSI } from '../model/library';
+import { defOf, fmt, fmtOhm, fmtSI, nextToggle, symOf } from '../model/library';
 import { tkey, type SimResult } from '../model/netlist';
 import type { Component, TermRef } from '../model/types';
 import { beep } from './sound';
@@ -50,16 +50,46 @@ const SHAPE: Record<string, { w: number; h: number; terms: Term[]; row: number }
 };
 const ROW_NAMES = ['ALIMENTACIÓN', 'PROTECCIÓN Y MANIOBRA', 'MANDO Y SEÑALIZACIÓN', 'RECEPTORES Y COMPONENTES'];
 
+/** Las variantes nuevas se dibujan con el aparato real más parecido. */
+const REAL_AS: Record<string, string> = {
+  vsrc: 'battery', pv: 'battery', usb: 'battery', polcap: 'capacitor', capvar: 'capacitor', capbank: 'capacitor',
+  indcore: 'inductor', indvar: 'inductor', solenoid: 'inductor', zbox: 'inductor', load: 'inductor',
+  rheo: 'resistor', trim: 'resistor', shunt: 'resistor', gauge: 'resistor', rnet: 'resistor',
+  borne: 'switch', jumper: 'switch', connector: 'switch', socket: 'switch', plug: 'switch', disc: 'switch', estop: 'switch', sensor: 'switch',
+  pica: 'ground', sel3: 'spdt', gang: 'multi', push2: 'multi', cross: 'multi',
+};
+const shapeKey = (c: Component) => { const k = symOf(c.type); return SHAPE[k] ? k : REAL_AS[k] ?? 'resistor'; };
+function shapeOf(c: Component) {
+  if (shapeKey(c) === 'multi') {
+    const k = defOf(c.type).terminals.length, pairs = Math.ceil(k / 2);
+    return { w: 24 + pairs * 36, h: 150, row: 1, terms: Array.from({ length: k }, (_, i) => ({ x: 24 + Math.floor(i / 2) * 36, y: i % 2 === 0 ? 14 : 136, dir: (i % 2 === 0 ? 'up' : 'down') as Dir })) };
+  }
+  return SHAPE[shapeKey(c)];
+}
+/** Componente «disfrazado» del aparato real que lo representa, con los parámetros que ese dibujo espera. */
+function realComp(c: Component): Component {
+  const key = shapeKey(c);
+  if (key === c.type) return c;
+  const m = defOf(c.type).model;
+  const params = { ...c.params } as Component['params'];
+  if (m.kind === 'SW') params.closed = m.closed(c.params);
+  if (m.kind === 'V') params.v = m.value(c.params);
+  if (m.kind === 'R') { params.r = m.value(c.params); if (key === 'inductor') params.l = Number(c.params.l ?? 0); }
+  if (m.kind === 'GANG') params.closed = m.closed(c.params, 0);
+  if (m.kind === 'CROSS') params.closed = m.pos(c.params) < 0.5;
+  return { ...c, type: key, params };
+}
+
 function layout(components: Component[], maxW: number): { devs: Dev[]; W: number; H: number; rows: { y: number; h: number }[] } {
   const devs: Dev[] = [];
   const rowsY: { y: number; h: number }[] = [];
   let y = 86;
   for (let r = 0; r < 4; r++) {
-    const items = components.filter((c) => (SHAPE[c.type] ?? { row: 3 }).row === r);
+    const items = components.filter((c) => (shapeOf(c) ?? { row: 3 }).row === r);
     if (!items.length) { rowsY.push({ y, h: 0 }); continue; }
     let x = 96, rowTop = y, lineH = 0;
     for (const c of items) {
-      const s = SHAPE[c.type] ?? SHAPE.resistor;
+      const s = shapeOf(c) ?? SHAPE.resistor;
       if (x + s.w > maxW && x > 96) { x = 96; rowTop += lineH + 120; lineH = 0; }
       devs.push({ c, x, y: rowTop, w: s.w, h: s.h, terms: s.terms, row: r });
       x += s.w + GAP;
@@ -134,7 +164,7 @@ export function RealPanel({ sim, cables }: { sim: SimResult; cables?: Record<str
   const ac = !!sim.ac;
   const posNodes = useMemo(() => {
     const s = new Set<number>();
-    for (const c of project.components) if (['battery', 'acsource', 'isource'].includes(c.type)) s.add(sim.nodeOf[`${c.id}:0`]);
+    for (const c of project.components) if (['battery', 'acsource', 'isource', 'vsrc', 'pv', 'usb'].includes(symOf(c.type))) s.add(sim.nodeOf[`${c.id}:0`]);
     return s;
   }, [project.components, sim.nodeOf]);
   const wireColor = (n: number) => {
@@ -191,7 +221,7 @@ export function RealPanel({ sim, cables }: { sim: SimResult; cables?: Record<str
     else {
       const cur = c.params[inter.key];
       st.snapshot();
-      st.setParam(c.id, inter.key, typeof cur === 'boolean' ? !cur : Number(cur) < 0.5 ? 1 : 0);
+      st.setParam(c.id, inter.key, nextToggle(defOf(c.type), cur));
       if (st.sound) beep(500, 40);
     }
   };
@@ -382,10 +412,11 @@ function Faceplate({ x, y, w, h }: { x: number; y: number; w: number; h: number 
 }
 
 /** Dibujo de cada aparato (origen en la esquina superior izquierda). */
-function Device({ c, sim, dead }: { c: Component; sim: SimResult; dead?: string }) {
+function Device({ c: c0, sim, dead }: { c: Component; sim: SimResult; dead?: string }) {
+  const c = realComp(c0);
   const live = sim.live[c.id];
   const p = c.params;
-  const s = SHAPE[c.type] ?? SHAPE.resistor;
+  const s = shapeOf(c0) ?? SHAPE.resistor;
   const sw = (cx: number, cy: number) => <Screw x={cx} y={cy} />;
   const termScrews = s.terms.map((t, i) => <g key={i}>{sw(t.x, t.y)}</g>);
   const body = { stroke: '#9aa0a8', strokeWidth: 1 };
@@ -642,6 +673,22 @@ function Device({ c, sim, dead }: { c: Component; sim: SimResult; dead?: string 
           </g>
           <rect x={48} y={118} width={60} height={8} rx={3} fill="#0c2036" /><text x={78} y={96} textAnchor="middle" fontSize={11} fontWeight={800} fill="#fff" opacity={0.9}>MOTOR CC</text>
           <text x={78} y={110} textAnchor="middle" fontSize={8.5} fill="#cfe0ff">{fmt(+p.vn)} V</text>
+        </g>
+      );
+    }
+    case 'multi': {
+      const k = defOf(c0.type).terminals.length, pairs = Math.ceil(k / 2);
+      const mm = defOf(c0.type).model;
+      return (
+        <g>
+          <rect x={3} y={6} width={s.w} height={s.h} rx={4} fill="#000" opacity={0.22} />
+          <rect x={0} y={0} width={s.w} height={s.h} rx={4} fill="url(#plastic)" {...body} />
+          <rect x={0} y={0} width={s.w} height={30} rx={4} fill="#d7dadf" /><rect x={0} y={s.h - 30} width={s.w} height={30} rx={4} fill="#d7dadf" />
+          {Array.from({ length: pairs }, (_, i) => { const on = mm.kind === 'GANG' ? mm.closed(c0.params, i) : mm.kind === 'CROSS' ? mm.pos(c0.params) < 0.5 : true; return (
+            <g key={i} transform={`translate(${24 + i * 36 - 13} 0)`}><rect x={0} y={42} width={26} height={66} rx={4} fill="#202327" />
+              <g style={{ transform: `translateY(${on ? 0 : 28}px)`, transition: 'transform .18s' }}><rect x={3} y={46} width={20} height={34} rx={4} fill="url(#lever)" stroke="#000" /></g></g>); })}
+          <text x={s.w / 2} y={125} textAnchor="middle" fontSize={8.5} fontWeight={800} fill="#222">{defOf(c0.type).name.split(' ').slice(-1)[0]}</text>
+          {termScrews}
         </g>
       );
     }
