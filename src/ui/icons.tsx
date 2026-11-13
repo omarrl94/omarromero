@@ -1,5 +1,6 @@
 /** Iconos de línea (SVG) y avatar: sustituyen a los emoji de la interfaz. */
 const P: Record<string, string> = {
+  clipboard: 'M7 4h10v16H7zM9 4V2.5h6V4M9.5 9h5M9.5 13h5M9.5 17h3',
   schematic: 'M2 12h4l1.5-4 3 8 3-8 1.5 4h5',
   multifilar: 'M3 7h18M3 12h18M3 17h18M7 5v4M7 10v4M7 15v4',
   unifilar: 'M3 12h18M12 8v8',
