@@ -19,7 +19,8 @@ export const div = (a: Cx, b: Cx): Cx => {
 export type AcElement =
   | { id: string; kind: 'Z'; a: number; b: number; z: Cx } // impedancia
   | { id: string; kind: 'V'; a: number; b: number; v: Cx; rint?: number } // fuente (a = +)
-  | { id: string; kind: 'I'; a: number; b: number; i: Cx };
+  | { id: string; kind: 'I'; a: number; b: number; i: Cx }
+  | { id: string; kind: 'T'; a: number; b: number; c: number; d: number; n: number }; // transformador ideal: V(a,b) = n·V(c,d), n·I(a→b) + I(c→d) = 0 (aislado: no une los dos lados)
 
 export interface AcProblem { nodeCount: number; elements: AcElement[] }
 export interface AcSolution {
@@ -69,10 +70,12 @@ export function solveAC(p: AcProblem): AcSolution {
   // Nudos sin camino a tierra: se fijan a 0 con gmin
   const cond = Array.from({ length: nodes }, (_, i) => i);
   const f = (x: number): number => (cond[x] === x ? x : (cond[x] = f(cond[x])));
-  for (const e of els) if (e.kind !== 'I') cond[f(e.a)] = f(e.b);
+  for (const e of els) if (e.kind !== 'I' && e.kind !== 'T') cond[f(e.a)] = f(e.b);
+  for (const e of els) if (e.kind === 'T') { cond[f(e.a)] = f(e.b); cond[f(e.c)] = f(e.d); }
   const n = nodes - 1;
   const vs = els.filter((e) => e.kind === 'V');
-  const size = n + vs.length;
+  const ts = els.filter((e) => e.kind === 'T');
+  const size = n + vs.length + 2 * ts.length;
   const A: Cx[][] = Array.from({ length: size }, () => Array.from({ length: size }, () => cx()));
   const z: Cx[] = Array.from({ length: size }, () => cx());
   const ix = (k: number) => k - 1;
@@ -97,6 +100,15 @@ export function solveAC(p: AcProblem): AcSolution {
     if (e.b) { A[ix(e.b)][row] = sub(A[ix(e.b)][row], cx(1)); A[row][ix(e.b)] = sub(A[row][ix(e.b)], cx(1)); }
     z[row] = e.v;
   });
+  ts.forEach((e, k) => {
+    if (e.kind !== 'T') return;
+    const r1 = n + vs.length + 2 * k, r2 = r1 + 1;
+    const stamp = (node: number, col: number, v: number) => { if (node) A[ix(node)][col] = add(A[ix(node)][col], cx(v)); };
+    stamp(e.a, r1, 1); stamp(e.b, r1, -1); stamp(e.c, r2, 1); stamp(e.d, r2, -1);
+    const row = (node: number, v: number) => { if (node) A[r1][ix(node)] = add(A[r1][ix(node)], cx(v)); };
+    row(e.a, 1); row(e.b, -1); row(e.c, -e.n); row(e.d, e.n);
+    A[r2][r1] = cx(e.n); A[r2][r2] = cx(1);
+  });
   for (let k = 1; k < nodes; k++) if (f(k) !== f(0)) A[ix(k)][ix(k)] = add(A[ix(k)][ix(k)], cx(1e-6));
   const x = solveComplex(A, z);
   if (!x) return fail('No se puede resolver el circuito de CA: revisa lazos de fuentes de tensión o fuentes de corriente sin retorno.');
@@ -105,6 +117,7 @@ export function solveAC(p: AcProblem): AcSolution {
   for (const e of els) {
     if (e.kind === 'Z') current[e.id] = div(sub(nodeV[e.a], nodeV[e.b]), e.z.re === 0 && e.z.im === 0 ? cx(1e-9) : e.z);
     else if (e.kind === 'I') current[e.id] = e.i;
+    else if (e.kind === 'T') { const k = ts.indexOf(e); current[e.id] = x[n + vs.length + 2 * k]; current[e.id + '#s'] = x[n + vs.length + 2 * k + 1]; }
     else current[e.id] = x[n + vs.indexOf(e)];
   }
   return { ok: true, nodeV: nodeV.slice(0, p.nodeCount), current, };

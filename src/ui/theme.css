@@ -187,3 +187,10 @@ input[type='checkbox'], input[type='radio'] { accent-color: var(--ink); }
 .solve-side .field select, .solve-side .field input { border: 1.5px solid #cfc8ba; background: #fff; }
 .solve-main { background: #d9d3c6; }
 .sbox, .sbox h5, .sbox pre { display: block; }
+
+/* Barra superior ocultable */
+.app.notop { grid-template-rows: 0 1fr; }
+.app.notop > header.top { height: 0; min-height: 0; padding: 0; margin: 0; border: 0; overflow: hidden; visibility: hidden; }
+.top-toggle { position: fixed; top: 0; left: 50%; transform: translateX(-50%); z-index: 60; background: var(--ink); color: var(--paper); border: 0; border-radius: 0 0 8px 8px; padding: 4px 14px; font: 700 11px 'Barlow Condensed', system-ui, sans-serif; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; opacity: .85; }
+.top-toggle:hover { opacity: 1; background: var(--terra); }
+@media (max-width: 900px) { .app.notop { grid-template-rows: 0 auto 1fr auto; } }

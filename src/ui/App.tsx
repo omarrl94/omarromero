@@ -163,12 +163,14 @@ export function App() {
 
   const [files, setFiles] = useState<null | 'abrir' | 'guardar'>(null);
   const [menu, setMenu] = useState(false);
+  const [topHidden, setTopHidden] = useState(() => { try { return localStorage.getItem('circuitossea:tophidden') === '1'; } catch { return false; } });
+  const toggleTop = () => setTopHidden((h) => { try { localStorage.setItem('circuitossea:tophidden', h ? '0' : '1'); } catch { /* ignorar */ } return !h; });
   const dropOmi = async (f?: File) => { if (!f) return; try { openOmi(parseOmi(await f.text())); } catch (e) { alert((e as Error).message); } };
 
   const cats = [...new Set(LIBRARY.map((d) => d.category))];
 
   return (
-    <div className={`app v-${st.view} ${wide ? 'wide' : ''} ${st.leftOpen ? '' : 'noleft'} ${st.rightOpen ? '' : 'noright'}`} onDragOver={(e) => { if (!visitor && e.dataTransfer.types.includes('Files')) e.preventDefault(); }} onDrop={(e) => { if (visitor || !e.dataTransfer.files.length) return; e.preventDefault(); void dropOmi(e.dataTransfer.files[0]); }}>
+    <div className={`app v-${st.view} ${topHidden ? 'notop' : ''} ${wide ? 'wide' : ''} ${st.leftOpen ? '' : 'noleft'} ${st.rightOpen ? '' : 'noright'}`} onDragOver={(e) => { if (!visitor && e.dataTransfer.types.includes('Files')) e.preventDefault(); }} onDrop={(e) => { if (visitor || !e.dataTransfer.files.length) return; e.preventDefault(); void dropOmi(e.dataTransfer.files[0]); }}>
       <ProbeDragLayer />
       {showSolve && <SolveDialog sim={sim} onClose={() => setShowSolve(false)} />}
       {welcome && !visitor && <Welcome onClose={closeWelcome} />}
@@ -240,8 +242,10 @@ export function App() {
             {visitor ? <button className="signup" onClick={() => auth.openSignup('crear')}>Registrarse</button> : <button onClick={() => void auth.logout()}>Salir</button>}
           </span>
           <button onClick={() => st.toggle('dark')} aria-label={t.theme}>{st.dark ? '☀' : '☾'}</button>
+          <button onClick={toggleTop} aria-label="Ocultar la barra superior" title="Ocultar la barra superior (más espacio para el circuito)">▲</button>
         </div>
       </header>
+      {topHidden && <button className="top-toggle" onClick={toggleTop} aria-label="Mostrar la barra superior" title="Mostrar la barra superior">▼ Mostrar barra</button>}
 
       <aside className="left">
         <h3>{t.palette}</h3>

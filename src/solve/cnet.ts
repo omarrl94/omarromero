@@ -77,12 +77,13 @@ export function solveRamas(n: number, ramas: Pick<Rama, 'a' | 'b' | 'Z' | 'E' | 
 type RawEl = { id: string; kind: 'Z' | 'E' | 'J'; a: number; b: number; v: C; label: string; comp: string; internal?: boolean };
 
 export function buildCNet(project: Project, sim: SimResult, dirMode: DirMode = 'cargas'): CNet {
+  if (sim.ac?.problem.elements.some((e) => e.kind === 'T')) return empty('Hay transformadores: el solucionario por mallas y nudos todavía no los incluye (se resuelven en el simulador).');
   for (const c of project.components) if (UNSUPPORTED[c.type]) return empty(UNSUPPORTED[c.type]);
   if (!project.components.length) return empty('El circuito está vacío.');
   const ac = !!sim.ac;
   const omega = sim.ac?.omega ?? 0, freq = sim.ac?.freq ?? 0;
   const els = ac
-    ? sim.ac!.problem.elements.map((e) => (e.kind === 'Z' ? { id: e.id, kind: 'R' as const, a: e.a, b: e.b, z: e.z } : e.kind === 'V' ? { id: e.id, kind: 'V' as const, a: e.a, b: e.b, v: e.v, rint: e.rint } : { id: e.id, kind: 'I' as const, a: e.a, b: e.b, i: e.i }))
+    ? sim.ac!.problem.elements.map((e) => (e.kind === 'Z' ? { id: e.id, kind: 'R' as const, a: e.a, b: e.b, z: e.z } : e.kind === 'V' ? { id: e.id, kind: 'V' as const, a: e.a, b: e.b, v: e.v, rint: e.rint } : e.kind === 'I' ? { id: e.id, kind: 'I' as const, a: e.a, b: e.b, i: e.i } : { id: e.id, kind: 'R' as const, a: e.a, b: e.b, z: cx(1e9, 0) }))
     : sim.problem.elements.map((e) => (e.kind === 'R' ? { id: e.id, kind: 'R' as const, a: e.a, b: e.b, z: cx(e.value, 0) } : e.kind === 'V' ? { id: e.id, kind: 'V' as const, a: e.a, b: e.b, v: cx(e.value, 0), rint: e.rint } : { id: e.id, kind: 'I' as const, a: e.a, b: e.b, i: cx(e.value, 0) }));
   if (!els.length) return empty('El circuito no tiene elementos.');
   const total = ac ? sim.ac!.problem.nodeCount : sim.problem.nodeCount;
